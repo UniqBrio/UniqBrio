@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #fd9c2d;
+  --primary-dark: #c26700;
+  --secondary: #d9d9d9;
+  --accent: #39006f;
+  --purple: #8a3ffc;
+  --purple-dark: #7535e5;
+  --text: #000000;
+  --muted-text: #978e8e;
+  --background: #ffffff;
+  --error: #e33629;
+  --success: #319f43;
+  --link: #17109a;
+}
+
+/* Set Times New Roman as the default font for the body */
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* Tailwind's default font for other elements */
+@layer base {
+  body {
+    font-family: "Times New Roman", Times, serif;
+  }
+}
+
+.auth-input {
+  @apply w-full h-14 px-4 bg-[#d9d9d9] border border-[#fd9c2d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d];
+}
+
+.auth-input-purple {
+  @apply w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc];
+}
+
+.auth-button {
+  @apply w-full h-14 text-xl font-medium text-white bg-[#fd9c2d] hover:bg-[#c26700] rounded-lg transition-colors;
+}
+
+.auth-button-purple {
+  @apply w-full h-14 text-xl font-medium text-white bg-[#8a3ffc] hover:bg-[#7535e5] rounded-lg transition-colors;
+}
+
+.auth-link {
+  @apply text-[#17109a] hover:underline cursor-pointer;
+}
