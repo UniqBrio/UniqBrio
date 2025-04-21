@@ -10,7 +10,7 @@ export default function AuthRedirectPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      const role = session.user.role
+      const role = session?.user?.role
 
       if (role === "super_admin") {
         router.replace("/profile/create")
@@ -21,8 +21,15 @@ export default function AuthRedirectPage() {
       } else {
         router.replace("/student/dashboard")
       }
+    } else if (status === "unauthenticated") {
+      // Optionally, you can redirect the user to login if they're not authenticated
+      router.replace("/login")
     }
   }, [session, status, router])
 
-  return <p>Redirecting...</p>
+  if (status === "loading") {
+    return <p>Loading session...</p> // Show loading text while session is being fetched
+  }
+
+  return <p>Redirecting...</p> // Fallback message during redirection
 }

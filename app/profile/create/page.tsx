@@ -1,3 +1,4 @@
+
 "use client"
 
 import type React from "react"
@@ -20,9 +21,17 @@ const profileSchema = z.object({
   address: z.string().min(1, "Address is required"),
   businessCountry: z.string().min(1, "Country is required"),
   phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+  countryCode: z.string().min(1, "Country code is required"), 
 })
 
 type FormData = z.infer<typeof profileSchema>
+const countries = [
+  { code: "+91", name: "India", flag: "🇮🇳" },
+  { code: "+1", name: "USA", flag: "🇺🇸" },
+  { code: "+44", name: "UK", flag: "🇬🇧" },
+  { code: "+61", name: "Australia", flag: "🇦🇺" },
+  { code: "+81", name: "Japan", flag: "🇯🇵" },
+];
 
 export default function ProfileCreationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -102,79 +111,78 @@ export default function ProfileCreationPage() {
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) {
-      value = value.slice(0, 1);
+      value = value.slice(0, 1)
     }
-  
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-  
+
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
+
     // Auto-focus next input
     if (value && index < 5) {
-      otpRefs.current[index + 1]?.focus();
+      otpRefs.current[index + 1]?.focus()
     }
-  
+
     // Auto-submit when all fields are filled
     if (value && index === 5) {
-      const isAllFilled = newOtp.every((digit) => digit.length === 1);
+      const isAllFilled = newOtp.every((digit) => digit.length === 1)
       if (isAllFilled) {
-        verifyOtp();
+        verifyOtp()
       }
     }
-  };
+  }
 
   const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Backspace" && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
+      otpRefs.current[index - 1]?.focus()
     } else if (event.key === "ArrowRight" && index < 5) {
-      otpRefs.current[index + 1]?.focus();
+      otpRefs.current[index + 1]?.focus()
     } else if (event.key === "ArrowLeft" && index > 0) {
-      otpRefs.current[index - 1]?.focus();
+      otpRefs.current[index - 1]?.focus()
     }
-  };
-  
-const verifyOtp = async () => {
-  setIsVerifying(true)
+  }
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    const enteredOtp = otp.join("")
+  const verifyOtp = async () => {
+    setIsVerifying(true)
 
-    if (enteredOtp.length === 6) {
-      setIsVerified(true)
-      toast({
-        title: "Verification successful",
-        description: "Your phone number has been verified",
-      })
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const enteredOtp = otp.join("")
 
-      // Ensure formDataRef.current exists before accessing
-      if (formDataRef.current) {
-        const formData = new FormData()
-        Object.entries(formDataRef.current).forEach(([key, value]) => {
-          formData.append(key, value)
+      if (enteredOtp.length === 6) {
+        setIsVerified(true)
+        toast({
+          title: "Verification successful",
+          description: "Your phone number has been verified",
         })
 
-        await createBusinessProfile(formData)
+        // Ensure formDataRef.current exists before accessing
+        if (formDataRef.current) {
+          const formData = new FormData()
+          Object.entries(formDataRef.current).forEach(([key, value]) => {
+            formData.append(key, value)
+          })
+
+          await createBusinessProfile(formData)
+        }
+      } else {
+        toast({
+          title: "Invalid OTP",
+          description: "Please enter the correct verification code",
+          variant: "destructive",
+        })
       }
-    } else {
+    } catch (error) {
+      console.error("OTP verification error:", error)
       toast({
-        title: "Invalid OTP",
-        description: "Please enter the correct verification code",
+        title: "Error",
+        description: "There was a problem verifying your OTP. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setIsVerifying(false)
     }
-  } catch (error) {
-    console.error("OTP verification error:", error)
-    toast({
-      title: "Error",
-      description: "There was a problem verifying your OTP. Please try again.",
-      variant: "destructive",
-    })
-  } finally {
-    setIsVerifying(false)
   }
-}
-
 
   const resendOtp = async () => {
     setResendDisabled(true)
@@ -209,166 +217,160 @@ const verifyOtp = async () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Profile creation</h1>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label htmlFor="businessName" className="block text-gray-500">
-            Business Name
-          </label>
-          <input
-            id="businessName"
-            type="text"
-            className={`w-full p-3 bg-gray-200 rounded-lg ${errors.businessName ? "border-2 border-red-500" : ""}`}
-            {...register("businessName")}
-          />
-          {errors.businessName && <p className="text-red-500 text-sm">{errors.businessName.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="businessType" className="block text-gray-500">
-            Business Type
-          </label>
-          <div className="relative">
-            <select
-              id="businessType"
-              className={`w-full p-3 bg-gray-200 rounded-lg appearance-none ${errors.businessType ? "border-2 border-red-500" : ""}`}
-              {...register("businessType")}
-            >
-              <option value="Gym">Gym</option>
-              <option value="Studio">Studio</option>
-              <option value="School">School</option>
-              <option value="Other">Other</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M4 6L8 10L12 6"
-                  stroke="#39006f"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-          {errors.businessType && <p className="text-red-500 text-sm">{errors.businessType.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="registeredOwner" className="block text-gray-500">
-            Registered owner
-          </label>
-          <input
-            id="registeredOwner"
-            type="text"
-            className={`w-full p-3 bg-gray-200 rounded-lg ${errors.registeredOwner ? "border-2 border-red-500" : ""}`}
-            {...register("registeredOwner")}
-          />
-          {errors.registeredOwner && <p className="text-red-500 text-sm">{errors.registeredOwner.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="businessSubType" className="block text-gray-500">
-            Business sub type
-          </label>
-          <input
-            id="businessSubType"
-            type="text"
-            className={`w-full p-3 bg-gray-200 rounded-lg ${errors.businessSubType ? "border-2 border-red-500" : ""}`}
-            {...register("businessSubType")}
-          />
-          {errors.businessSubType && <p className="text-red-500 text-sm">{errors.businessSubType.message}</p>}
-        </div>
-
-        <div className="space-y-2 md:col-span-2">
-          <label htmlFor="businessDescription" className="block text-gray-500">
-            Business Description*
-          </label>
-          <textarea
-            id="businessDescription"
-            className={`w-full p-3 bg-gray-200 rounded-lg min-h-[100px] ${errors.businessDescription ? "border-2 border-red-500" : ""}`}
-            {...register("businessDescription")}
-          />
-          {errors.businessDescription && <p className="text-red-500 text-sm">{errors.businessDescription.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="address" className="block text-gray-500">
-            Address*
-          </label>
-          <input
-            id="address"
-            type="text"
-            className={`w-full p-3 bg-gray-200 rounded-lg ${errors.address ? "border-2 border-red-500" : ""}`}
-            {...register("address")}
-          />
-          {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="businessCountry" className="block text-gray-500">
-            Business Country
-          </label>
-          <input
-            id="businessCountry"
-            type="text"
-            className={`w-full p-3 bg-gray-200 rounded-lg ${errors.businessCountry ? "border-2 border-red-500" : ""}`}
-            {...register("businessCountry")}
-          />
-          {errors.businessCountry && <p className="text-red-500 text-sm">{errors.businessCountry.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="phoneNumber" className="block text-gray-500">
-            Phone Number
-          </label>
-          <div className="flex">
-            <div className="bg-gray-200 p-3 rounded-l-lg border-r border-gray-300">
-              <span>91</span>
-            </div>
-            <input
-              id="phoneNumber"
-              type="text"
-              className={`flex-1 p-3 bg-gray-200 rounded-r-lg ${errors.phoneNumber ? "border-2 border-red-500" : ""}`}
-              {...register("phoneNumber")}
-            />
-          </div>
-          {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>}
-        </div>
-
-        <div className="md:col-span-2 flex justify-between items-center">
-          <button
-            type="submit"
-            disabled={isSubmitting || showOtpSection}
-            className="py-3 px-6 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center"
+    <div className="max-w-4xl mx-auto p-8">
+    <h1 className="text-3xl font-semibold mb-6 text-center text-gray-700">Profile Creation</h1>
+  
+    <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Business Name */}
+      <div className="space-y-3">
+        <label htmlFor="businessName" className="block text-gray-600 text-sm font-medium">Business Name</label>
+        <input
+          id="businessName"
+          type="text"
+          className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.businessName ? "border-red-500" : ""}`}
+          {...register("businessName")}
+        />
+        {errors.businessName && <p className="text-red-500 text-sm">{errors.businessName.message}</p>}
+      </div>
+  
+      {/* Business Type */}
+      <div className="space-y-3">
+        <label htmlFor="businessType" className="block text-gray-600 text-sm font-medium">Business Type</label>
+        <div className="relative">
+          <select
+            id="businessType"
+            className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] appearance-none transition-all duration-200 ${errors.businessType ? "border-red-500" : ""}`}
+            {...register("businessType")}
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="animate-spin mr-2" size={18} />
-                Creating...
-              </>
-            ) : (
-              "Create Profile"
-            )}
-          </button>
-
-          {showOtpSection && <div className="text-gray-600">Please enter the OTP to complete the profile</div>}
+            <option value="Gym">Gym</option>
+            <option value="Studio">Studio</option>
+            <option value="School">School</option>
+            <option value="Other">Other</option>
+          </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4 6L8 10L12 6"
+                stroke="#39006f"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
         </div>
-      </form>
-
-      {showOtpSection && (
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl mb-4">Enter OTP</h2>
-          <p className="text-gray-600 mb-4">
-            A 6-digit verification code has been sent to your phone number ending with{" "}
-            {formDataRef.current?.phoneNumber.slice(-4)}
-          </p>
-
-          <div className="flex gap-2 mb-4 justify-center">
-            {otp.map((digit, index) => (
-              <input
+        {errors.businessType && <p className="text-red-500 text-sm">{errors.businessType.message}</p>}
+      </div>
+  
+      {/* Registered Owner */}
+      <div className="space-y-3">
+        <label htmlFor="registeredOwner" className="block text-gray-600 text-sm font-medium">Registered Owner</label>
+        <input
+          id="registeredOwner"
+          type="text"
+          className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.registeredOwner ? "border-red-500" : ""}`}
+          {...register("registeredOwner")}
+        />
+        {errors.registeredOwner && <p className="text-red-500 text-sm">{errors.registeredOwner.message}</p>}
+      </div>
+  
+      {/* Business Sub Type */}
+      <div className="space-y-3">
+        <label htmlFor="businessSubType" className="block text-gray-600 text-sm font-medium">Business Sub Type</label>
+        <input
+          id="businessSubType"
+          type="text"
+          className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.businessSubType ? "border-red-500" : ""}`}
+          {...register("businessSubType")}
+        />
+        {errors.businessSubType && <p className="text-red-500 text-sm">{errors.businessSubType.message}</p>}
+      </div>
+  
+      {/* Business Description */}
+      <div className="space-y-3 md:col-span-2">
+        <label htmlFor="businessDescription" className="block text-gray-600 text-sm font-medium">Business Description*</label>
+        <textarea
+          id="businessDescription"
+          className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.businessDescription ? "border-red-500" : ""}`}
+          {...register("businessDescription")}
+        />
+        {errors.businessDescription && <p className="text-red-500 text-sm">{errors.businessDescription.message}</p>}
+      </div>
+  
+      {/* Address */}
+      <div className="space-y-3">
+        <label htmlFor="address" className="block text-gray-600 text-sm font-medium">Address*</label>
+        <input
+          id="address"
+          type="text"
+          className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.address ? "border-red-500" : ""}`}
+          {...register("address")}
+        />
+        {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
+      </div>
+  
+      {/* Business Country */}
+      <div className="space-y-3">
+        <label htmlFor="businessCountry" className="block text-gray-600 text-sm font-medium">Business Country</label>
+        <input
+          id="businessCountry"
+          type="text"
+          className={`w-full p-4 bg-[#f9f9f9] rounded-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.businessCountry ? "border-red-500" : ""}`}
+          {...register("businessCountry")}
+        />
+        {errors.businessCountry && <p className="text-red-500 text-sm">{errors.businessCountry.message}</p>}
+      </div>
+  
+      {/* Phone Number */}
+      <div className="space-y-3">
+        <label htmlFor="phoneNumber" className="block text-gray-600 text-sm font-medium">Phone Number</label>
+        <div className="flex">
+          <div className="bg-[#f9f9f9] p-4 rounded-l-lg border-2 border-[#e0e0e0] flex items-center justify-between">
+            <span>+91</span>
+          </div>
+          <input
+            id="phoneNumber"
+            type="text"
+            className={`flex-1 p-4 bg-[#f9f9f9] rounded-r-lg border-2 border-[#e0e0e0] shadow-md focus:border-[#39006f] focus:ring-2 focus:ring-[#39006f] transition-all duration-200 ${errors.phoneNumber ? "border-red-500" : ""}`}
+            {...register("phoneNumber")}
+          />
+        </div>
+        {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>}
+      </div>
+  
+      {/* Submit Button */}
+      <div className="md:col-span-2 flex justify-between items-center">
+        <button
+          type="submit"
+          disabled={isSubmitting || showOtpSection}
+          className="py-3 px-6 bg-[#39006f] text-white rounded-lg hover:bg-purple-800 transition-all duration-200 flex items-center"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="animate-spin mr-2" size={18} />
+              Creating...
+            </>
+          ) : (
+            "Create Profile"
+          )}
+        </button>
+  
+        {showOtpSection && <div className="text-gray-600">Please enter the OTP to complete the profile</div>}
+      </div>
+    </form>
+  
+    {/* OTP Section */}
+    {showOtpSection && (
+      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl mb-4 text-center font-semibold">Enter OTP</h2>
+        <p className="text-gray-600 mb-4 text-center">
+          A 6-digit verification code has been sent to your phone number ending with{" "}
+          {formDataRef.current?.phoneNumber.slice(-4)}
+        </p>
+  
+        <div className="flex gap-4 justify-center mb-4">
+          {otp.map((digit, index) => (
+            <input
               key={index}
               ref={(el) => {
                 if (el) {
@@ -379,59 +381,58 @@ const verifyOtp = async () => {
               value={digit}
               onChange={(e) => handleOtpChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="w-12 h-12 text-center text-xl bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-12 h-12 text-center text-xl bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200"
               maxLength={1}
               inputMode="numeric"
-              pattern="[0-9]*"
             />
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <button
-              onClick={resendOtp}
-              disabled={resendDisabled}
-              className="text-purple-700 hover:underline disabled:text-gray-400 disabled:no-underline"
-            >
-              {resendDisabled ? `Resend OTP in ${countdown}s` : "Resend OTP"}
-            </button>
-
-            <button
-              onClick={verifyOtp}
-              disabled={otp.join("").length !== 6 || isVerifying}
-              className="py-2 px-6 bg-[#fd9c2d] text-white rounded-lg hover:bg-[#e08c28] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center"
-            >
-              {isVerifying ? (
-                <>
-                  <Loader2 className="animate-spin mr-2" size={18} />
-                  Verifying...
-                </>
-              ) : (
-                "Verify"
-              )}
-            </button>
-          </div>
-
-          {isVerified && (
-            <div className="mt-4 flex items-center text-green-600">
-              <CheckCircle className="mr-2" size={18} />
-              Verified successfully
-            </div>
-          )}
+          ))}
         </div>
-      )}
-
-      {isVerified && (
-        <div className="mt-6 flex justify-end">
-          <Link
-            href="/dashboard"
-            className="py-3 px-6 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
+  
+        <div className="flex justify-between items-center gap-4">
+          <button
+            onClick={resendOtp}
+            disabled={resendDisabled}
+            className="text-purple-700 hover:underline disabled:text-gray-400 disabled:no-underline"
           >
-            Add students/members
-          </Link>
+            {resendDisabled ? `Resend OTP in ${countdown}s` : "Resend OTP"}
+          </button>
+  
+          <button
+            onClick={verifyOtp}
+            disabled={otp.join("").length !== 6 || isVerifying}
+            className="py-3 px-6 bg-[#ff9800] text-white rounded-lg hover:bg-[#e08c28] transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center"
+          >
+            {isVerifying ? (
+              <>
+                <Loader2 className="animate-spin mr-2" size={18} />
+                Verifying...
+              </>
+            ) : (
+              "Verify"
+            )}
+          </button>
         </div>
-      )}
-    </div>
+  
+        {isVerified && (
+          <div className="mt-4 flex justify-center items-center text-green-600">
+            <CheckCircle className="mr-2" size={18} />
+            Verified successfully
+          </div>
+        )}
+      </div>
+    )}
+  
+    {isVerified && (
+      <div className="mt-6 flex justify-end">
+        <Link
+          href="/dashboard"
+          className="py-3 px-6 bg-[#39006f] text-white rounded-lg hover:bg-purple-800 transition-all duration-200"
+        >
+          Add students/members
+        </Link>
+      </div>
+    )}
+  </div>
+  
   )
 }
-
