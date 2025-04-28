@@ -21,7 +21,7 @@ function getDefaultDashboard(role: string): string {
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const loginUrl = new URL("/login", request.url)
   const sessionExpiredUrl = new URL("/login?sessionExpired=true", request.url)
@@ -75,7 +75,7 @@ export function middleware(request: NextRequest) {
   }
 
   // --- Token Verification ---
-  const payload = verifyToken(sessionCookie) // Expecting { id, email, role, ... } | null
+  const payload = await verifyToken(sessionCookie) // Expecting { id, email, role, ... } | null
   if (!payload || !payload.role) {
     console.log(`[Middleware] Invalid or missing token payload for ${path}. Redirecting to login and clearing cookies.`)
     const response = NextResponse.redirect(sessionExpiredUrl)
