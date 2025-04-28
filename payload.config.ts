@@ -1,7 +1,8 @@
-import { buildConfig } from "payload/config"
-import path from "path"
-import Users from "./cms/collections/Users"
-import SupportTickets from "./cms/collections/SupportTickets"
+import { buildConfig } from "payload";
+import path from "path";
+import { mongooseAdapter } from "@payloadcms/db-mongodb";
+import Users from "./cms/collections/Users";
+import SupportTickets from "./cms/collections/SupportTickets";
 
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000",
@@ -9,11 +10,13 @@ export default buildConfig({
     user: "users",
     meta: {
       titleSuffix: "- UniqBrio Admin",
-      favicon: "/favicon.ico",
-      ogImage: "/og-image.jpg",
     },
   },
   collections: [Users, SupportTickets],
+  db: mongooseAdapter({
+    url: process.env.MONGODB_URI || "your-mongodb-uri",
+  }),
+  secret: process.env.PAYLOAD_SECRET || "your-secret-key",
   typescript: {
     outputFile: path.resolve(__dirname, "payload-types.ts"),
   },
@@ -27,5 +30,4 @@ export default buildConfig({
       fileSize: 5000000, // 5MB
     },
   },
-})
-
+});
