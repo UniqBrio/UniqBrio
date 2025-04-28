@@ -85,10 +85,10 @@ export function generateVerificationEmail(email: string, token: string) {
   }
 }
 
-// --- generatePasswordResetEmail (Unchanged, but ensure URL format is correct) ---
+
 export function generatePasswordResetEmail(email: string, token: string) {
   // Ensure this matches your frontend route structure (/reset-password/:token)
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`;
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`; // Correct structure
 
   return {
     to: email,
@@ -110,7 +110,6 @@ export function generatePasswordResetEmail(email: string, token: string) {
   `,
   }
 }
-
 // --- generateSupportTicketEmail (Unchanged) ---
 export function generateSupportTicketEmail(email: string, ticketNumber: string, issueType: string) {
   return {

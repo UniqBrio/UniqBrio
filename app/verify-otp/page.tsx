@@ -57,8 +57,9 @@ export default function VerifyOtpPage() {
 
     // Auto-focus next input
     if (value && index < 5) {
+      // FIX 1: Use optional chaining for focus
       if (otpRefs.current[index + 1]) {
-        otpRefs.current[index + 1].focus()
+        otpRefs.current[index + 1]?.focus()
       }
     }
 
@@ -74,8 +75,9 @@ export default function VerifyOtpPage() {
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     // Handle backspace
     if (e.key === "Backspace" && !otp[index] && index > 0) {
+      // FIX 2: Use optional chaining for focus
       if (otpRefs.current[index - 1]) {
-        otpRefs.current[index - 1].focus()
+        otpRefs.current[index - 1]?.focus()
       }
     }
   }
@@ -108,9 +110,9 @@ export default function VerifyOtpPage() {
           description: "Your email has been verified successfully!",
         })
 
-        // Redirect to login page after successful verification
-        if (result.redirectUrl) {
-          router.push(result.redirectUrl)
+        // FIX 3 & 4: Use result.redirect instead of result.redirectUrl
+        if (result.redirect) {
+          router.push(result.redirect)
         } else {
           setTimeout(() => {
             router.push("/login?verified=true")
@@ -224,7 +226,8 @@ export default function VerifyOtpPage() {
             {otp.map((digit, index) => (
               <input
                 key={index}
-                ref={(el) => (otpRefs.current[index] = el)}
+                // FIX 5: Ensure the ref callback returns void
+                ref={(el) => { otpRefs.current[index] = el; }}
                 type="text"
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}

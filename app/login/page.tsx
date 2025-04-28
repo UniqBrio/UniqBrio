@@ -280,7 +280,7 @@ export default function LoginPage() {
 
       {/* Troubleshoot Link */}
       <div className="mt-2 text-center text-sm">
-        <Link href="/support" className="text-[#fd9c2d] hover:underline">
+        <Link href="/troubleshoot" className="text-[#fd9c2d] hover:underline">
           Having trouble logging in? Contact Support
         </Link>
       </div>

@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { CheckCircle } from "lucide-react"
+import Link from "next/link";
+import { CheckCircle } from "lucide-react";
 
 export default function ResetSuccessPage() {
   return (
@@ -21,6 +21,5 @@ export default function ResetSuccessPage() {
         </Link>
       </div>
     </div>
-  )
+  );
 }
-

@@ -422,6 +422,8 @@ export async function verifyEmail(token: string) {
 }
 
 
+
+
 // --- Other Actions (Largely Unchanged, but reviewed for consistency) ---
 
 export async function logout() {
@@ -550,43 +552,70 @@ export async function requestPasswordReset(formData: FormData) {
 
 export async function resetPassword(token: string, formData: FormData) {
   console.log("[AuthAction] resetPassword: Initiated with token:", token);
-  const password = formData.get("password") as string
-  const confirmPassword = formData.get("confirmPassword") as string
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
-  if (!token || typeof token !== 'string') {
-      console.error("[AuthAction] resetPassword: Invalid or missing token.");
-      return { success: false, message: "Invalid password reset request." };
+  if (!token || typeof token !== "string") {
+    console.error("[AuthAction] resetPassword: Invalid or missing token.");
+    return { success: false, message: "Invalid password reset request.", redirect:"/forgot-password" }; // if token is invalid, redirect to forgot-password page
   }
 
   console.log("[AuthAction] resetPassword: Validating password inputs.");
-  const validationResult = resetPasswordSchema.safeParse({ password, confirmPassword })
+  const validationResult = resetPasswordSchema.safeParse({
+    password,
+    confirmPassword,
+  });
 
   if (!validationResult.success) {
-    console.error("[AuthAction] resetPassword: Validation failed:", validationResult.error.flatten());
-    return { success: false, message: "Validation failed.", errors: validationResult.error.flatten().fieldErrors }
+    console.error(
+      "[AuthAction] resetPassword: Validation failed:",
+      validationResult.error.flatten()
+    );
+    return {
+      success: false,
+      message: "Validation failed.",
+      errors: validationResult.error.flatten().fieldErrors,
+      redirect:"/forgot-password" // if validation fails redirect to forgot-password
+    };
   }
   console.log("[AuthAction] resetPassword: Validation successful.");
 
   try {
-    console.log("[AuthAction] resetPassword: Finding user by valid token:", token);
+    console.log(
+      "[AuthAction] resetPassword: Finding user by valid token:",
+      token
+    );
     const user = await prisma.user.findFirst({
       where: {
         resetToken: token,
         resetTokenExpiry: { gt: new Date() },
       },
-    })
+    });
 
     if (!user) {
-      console.log("[AuthAction] resetPassword: No user found for valid token:", token);
-      return { success: false, message: "Invalid or expired password reset token." }
+      console.log(
+        "[AuthAction] resetPassword: No user found for valid token:",
+        token
+      );
+      return {
+        success: false,
+        message: "Invalid or expired password reset token.",
+        redirect: "/forgot-password" // redirect to forgot password page to request new email
+      };
     }
     console.log("[AuthAction] resetPassword: User found:", user.id, user.email);
 
-    console.log("[AuthAction] resetPassword: Hashing new password for user:", user.email);
-    const hashedPassword = await hashPassword(password)
+    console.log(
+      "[AuthAction] resetPassword: Hashing new password for user:",
+      user.email
+    );
+    const hashedPassword = await hashPassword(password);
     console.log("[AuthAction] resetPassword: New password hashed.");
 
-    console.log("[AuthAction] resetPassword: Updating user password and clearing token/attempts for:", user.email);
+    console.log(
+      "[AuthAction] resetPassword: Updating user password and clearing token/attempts for:",
+      user.email
+    );
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -596,14 +625,23 @@ export async function resetPassword(token: string, formData: FormData) {
         failedAttempts: 0, // Corrected field name
         lockedUntil: null,
       },
-    })
+    });
     console.log("[AuthAction] resetPassword: User password updated successfully.");
 
-    console.log("[AuthAction] resetPassword: Returning success message and redirect instruction.");
-    return { success: true, message: "Password has been reset successfully.", redirect: "/login?reset=success" }
+    console.log(
+      "[AuthAction] resetPassword: Returning success message and redirect instruction."
+    );
+    return {
+      success: true,
+      message: "Password has been reset successfully.",
+      redirect: "/login?reset=success",
+    };
   } catch (error) {
     console.error("[AuthAction] resetPassword: !!! Error caught:", error);
-    return { success: false, message: "An error occurred while resetting the password." }
+    return {
+      success: false,
+      message: "An error occurred while resetting the password.",
+    };
   }
 }
 

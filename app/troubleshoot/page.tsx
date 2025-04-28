@@ -14,12 +14,12 @@ export default function TroubleshootPage() {
 
   return (
     <div
-      className="min-h-screen w-full px-6 py-12 bg-gradient-to-br from-gray-100 to-white font-[Times_New_Roman]"
+      className="max-h-screen w-full px-6 py-12 bg-gradient-to-br from-gray-100 to-white font-[Times_New_Roman]"
       style={{ fontFamily: "'Times New Roman', serif" }}
     >
       {/* Page Header */}
       <div className="max-w-4xl mx-auto mb-10">
-        <h1 className="text-3xl font-bold text-purple-800 mb-2">Troubleshoot Login Issues</h1>
+        <h1 className="text-3xl font-bold text-orange-400 mb-2">Troubleshoot Login Issues</h1>
     
       </div>
 
@@ -38,7 +38,7 @@ export default function TroubleshootPage() {
               </p>
               <Button
                 onClick={() => router.push("/forgot-password")}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-purple-600 hover:bg-orange-400 text-white"
               >
                 Reset Password
               </Button>
@@ -59,7 +59,7 @@ export default function TroubleshootPage() {
               </ul>
               <Button
                 onClick={() => router.push("/forgot-password")}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-purple-600 hover:bg-orange-400 text-white"
               >
                 Try Again
               </Button>
@@ -78,7 +78,7 @@ export default function TroubleshootPage() {
               </p>
               <Button
                 onClick={() => router.push("/forgot-password")}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-purple-600 hover:bg-orange-400 text-white"
               >
                 Reset Password
               </Button>
@@ -126,8 +126,8 @@ export default function TroubleshootPage() {
                 you as soon as possible.
               </p>
               <Button
-                onClick={() => router.push("/support-ticket")}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={() => router.push("/support")}
+                className="bg-purple-600 hover:bg-orange-400 text-white"
               >
                 Raise a Ticket
               </Button>
@@ -143,14 +143,14 @@ export default function TroubleshootPage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
               onClick={() => router.push("/support")}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className="bg-orange-500 hover:bg-purple-400 text-white"
             >
               Raise a Support Ticket
             </Button>
             <Button
               onClick={() => router.push("/login")}
               variant="outline"
-              className="border-gray-400 text-gray-700 hover:bg-gray-100"
+              className="bg-purple-800 text-white hover:bg-orange-400"
             >
               Return to Login
             </Button>

@@ -51,20 +51,30 @@ export default function SupportPage() {
       const result = await submitSupportTicket(formData)
 
       if (result.success) {
-        setTicketNumber(result.ticketNumber || "UB-" + Math.floor(Math.random() * 1000000).toString())
-        setIsSuccess(true)
+        setTicketNumber(result.ticketNumber || "UB-" + Math.floor(Math.random() * 1000000).toString());
+        setIsSuccess(true);
         toast({
           title: "Support ticket submitted",
           description: `Your ticket number is ${result.ticketNumber}. We'll get back to you as soon as possible.`,
-        })
+        });
       } else {
-        setError(result.error || "Failed to submit ticket. Please try again.")
+        const fallbackError = "Failed to submit ticket. Please try again.";
+      
+        const errorMessage =
+          result.message || // general error message
+          result.errors?.description?.[0] ||
+          result.errors?.email?.[0] ||
+          result.errors?.issueType?.[0] ||
+          fallbackError;
+      
+        setError(errorMessage);
         toast({
           title: "Error",
-          description: result.error || "Failed to submit ticket. Please try again.",
+          description: errorMessage,
           variant: "destructive",
-        })
+        });
       }
+      
     } catch (error) {
       console.error("Support ticket error:", error)
       setError("There was a problem submitting your support ticket. Please try again.")
