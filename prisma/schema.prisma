@@ -1,4 +1,10 @@
-
+datasource db {
+  provider = "mongodb"  // Use MongoDB as the provider
+  url      = env("DATABASE_URL")  // Connection string for MongoDB from environment variable
+}
+generator client {
+  provider = "prisma-client-js"
+}
 // Add these enums at the top level of your schema file
 enum UserRole {
   student
