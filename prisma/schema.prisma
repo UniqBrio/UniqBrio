@@ -25,6 +25,7 @@ enum IssueType {
   billing
   general_inquiry
   bug_report
+  
   // Add other types as needed
 }
 
@@ -37,14 +38,14 @@ model User {
   // Use the enum here
   role              UserRole  @default(student)
   verified          Boolean   @default(false)
-  verificationToken String?   @unique // Ensure verification tokens are unique if used directly
+  verificationToken String?   
   otp               String?
   otpExpiry         DateTime?
-  resetToken        String?   @unique // Ensure reset tokens are unique
+  resetToken        String?   
   resetTokenExpiry  DateTime?
   failedAttempts    Int       @default(0)
   lockedUntil       DateTime?
-  googleId          String?   @unique // Add unique constraint here (see point 2)
+  googleId          String?  
   image             String?   // Add field for user image/avatar (see point 3)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -57,7 +58,7 @@ model SupportTicket {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   email         String   // Keep if anonymous tickets are allowed, otherwise relate to User
   // Use the enum here
-  issueType     IssueType
+  issueType     String
   description   String
   ticketNumber  String?  @unique
   // Use the enum here

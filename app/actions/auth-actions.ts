@@ -225,8 +225,8 @@ export async function login(formData: FormData) {
       verified: user.verified,
       name: user.name,
       lastActivity: Date.now(),
-    }
-    const token = createToken(sessionData)
+    };
+    const token = await createToken(sessionData)
     console.log("[AuthAction] login: Session token created.");
 
     // Set session cookie
@@ -445,7 +445,7 @@ export async function getSession(): Promise<SessionData | null> {
 
   try {
     // console.log("[AuthAction] getSession: Verifying session token"); // Can be noisy
-    const payload = verifyToken(token) as SessionData | null // Add type assertion
+    const payload = await verifyToken(token) as SessionData | null // Add await and keep type assertion
     if (!payload) {
       console.warn("[AuthAction] getSession: Invalid token payload, deleting cookie");
       await deleteSessionCookie() // Clean up invalid cookie
@@ -752,7 +752,7 @@ export async function refreshSessionToken(): Promise<boolean> {
         ...session,
         lastActivity: Date.now(),
     }
-    const token = createToken(refreshedSessionData)
+    const token = await createToken(refreshedSessionData); // Add await
 
     console.log("[AuthAction] refreshSessionToken: Setting new session cookie.");
     await setSessionCookie(token)

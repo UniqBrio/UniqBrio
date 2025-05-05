@@ -1,16 +1,18 @@
 // d:\UB\lib\auth.ts
 import { compare, hash } from "bcryptjs";
-// Import SignOptions and Secret from jsonwebtoken
-import { verify, JwtPayload, sign, Secret, SignOptions } from "jsonwebtoken";
-// Import StringValue from ms if needed for stricter type checking, but SignOptions['expiresIn'] is safer
-// import type { StringValue } from "ms";
+import * as jose from 'jose'; // Import jose
 import { cookies } from "next/headers";
 import prisma from "./db";
 import crypto from "crypto";
 import { COOKIE_NAMES, COOKIE_EXPIRY } from "./cookies"; // Import cookie constants
 
 // Ensure JWT_SECRET is defined and store it securely
-const JWT_SECRET: Secret = process.env.JWT_SECRET as Secret; // Cast to Secret type
+const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
+const JWT_SECRET_UINT8: Uint8Array = new TextEncoder().encode(JWT_SECRET || 'fallback-secret-for-encoding'); // Encode secret for jose
+const JWT_ISSUER = 'urn:uniqbrio:issuer'; // Define an issuer for your tokens
+const JWT_AUDIENCE = 'urn:uniqbrio:audience'; // Define an audience for your tokens
+
+// Check if the original secret was actually set
 if (!JWT_SECRET) {
   console.error("FATAL ERROR: Missing JWT_SECRET in environment variables");
   // In a real app, you might want to prevent startup or handle this more gracefully
@@ -39,25 +41,33 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 
 // --- Consolidated JWT Creation Function ---
 // Creates a JWT token with the provided payload and expiration.
-// Use the type directly from SignOptions for better type safety
-export function createToken(payload: Record<string, any>, expiresIn: SignOptions['expiresIn'] = "1d"): string {
-  // The type error on line 40 is resolved by using SignOptions['expiresIn'] for the parameter type
-  const options: SignOptions = { expiresIn };
-  return sign(payload, JWT_SECRET, options);
+export async function createToken(payload: jose.JWTPayload, expiresIn: string | number = '1d'): Promise<string> {
+  console.log("[AuthLib] createToken: Signing JWT with jose");
+  return await new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' }) // Set algorithm
+    .setIssuedAt() // Set issued at timestamp
+    .setIssuer(JWT_ISSUER) // Set issuer
+    .setAudience(JWT_AUDIENCE) // Set audience
+    .setExpirationTime(expiresIn) // Set expiration time (accepts string like '1d' or number of seconds)
+    .sign(JWT_SECRET_UINT8); // Sign with the encoded secret
 }
 
 // --- REMOVED createSessionToken function ---
 // It was redundant. Use createToken(payload, '7d') if a 7-day expiry is needed.
 
 // Verify a JWT token. Returns the payload if valid, otherwise null.
-export function verifyToken(token: string): JwtPayload | null {
+export async function verifyToken(token: string): Promise<jose.JWTPayload | null> {
+  console.log("[AuthLib] verifyToken: Verifying JWT with jose");
   if (!token) {
     return null; // Handle cases where token might be undefined/empty
   }
   try {
-    // Verify the token using the secret
-    const decoded = verify(token, JWT_SECRET) as JwtPayload;
-    return decoded;
+    // Verify the token using the encoded secret and check issuer/audience
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET_UINT8, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
+    return payload;
   } catch (error) {
     // Handle specific errors if needed (e.g., TokenExpiredError, JsonWebTokenError)
     // console.error("Token verification failed:", error.name); // Optional: Log specific error type
@@ -67,7 +77,6 @@ export function verifyToken(token: string): JwtPayload | null {
 
 // Set the session cookie using next/headers
 export async function setSessionCookie(token: string, maxAgeDays: number = COOKIE_EXPIRY.SESSION) {
-  // FIX: Added 'await' here (resolves error on line 67)
   const cookieStore = await cookies(); // Use next/headers cookies
   const maxAgeSeconds = maxAgeDays * 24 * 60 * 60;
   cookieStore.set(COOKIE_NAMES.SESSION, token, {
@@ -81,7 +90,6 @@ export async function setSessionCookie(token: string, maxAgeDays: number = COOKI
 
 // Get the session token value from the cookie using next/headers
 export async function getSessionCookie(): Promise<string | null> {
-  // FIX: Added 'await' here (resolves error on line 79)
   const cookieStore = await cookies(); // Use next/headers cookies
   const sessionCookie = cookieStore.get(COOKIE_NAMES.SESSION);
   return sessionCookie?.value || null;
@@ -89,7 +97,6 @@ export async function getSessionCookie(): Promise<string | null> {
 
 // Delete the session cookie using next/headers
 export async function deleteSessionCookie() {
-  // FIX: Added 'await' here (resolves error on line 87)
   const cookieStore = await cookies(); // Use next/headers cookies
   // Deleting requires setting expiry in the past or maxAge=0, but .delete() is simpler
   cookieStore.delete(COOKIE_NAMES.SESSION);

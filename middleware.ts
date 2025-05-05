@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { verifyToken } from "./lib/auth" // Assuming verifyToken returns { id: string, email: string, role: string, ... } | null
-import { COOKIE_NAMES, COOKIE_EXPIRY } from "./lib/cookies" // Assuming COOKIE_EXPIRY is defined here
+import { verifyTokenEdge, getSessionCookieEdge } from '@/lib/auth-edge' // NEW IMPORT - Edge safe
+import { COOKIE_NAMES, COOKIE_EXPIRY } from '@/lib/cookies'; // Assuming COOKIE_EXPIRY is defined here
 
 // Helper function to get the default dashboard path based on role
 function getDefaultDashboard(role: string): string {
@@ -75,7 +75,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- Token Verification ---
-  const payload = await verifyToken(sessionCookie) // Expecting { id, email, role, ... } | null
+  const tokenPayload = await verifyTokenEdge(sessionCookie) // Use the Edge-safe function
+  const payload: { id: string; email: string; role: string } | null = tokenPayload && 'id' in tokenPayload && 'email' in tokenPayload && 'role' in tokenPayload
+    ? { id: tokenPayload.id as string, email: tokenPayload.email as string, role: tokenPayload.role as string }
+    : null
   if (!payload || !payload.role) {
     console.log(`[Middleware] Invalid or missing token payload for ${path}. Redirecting to login and clearing cookies.`)
     const response = NextResponse.redirect(sessionExpiredUrl)
@@ -111,7 +114,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- Role-Based Access Control (RBAC) ---
-  const userRole = payload.role
+  const userRole: string = payload?.role || "" // Safely access role and provide a fallback
   const onboardingPath = "/profile/create" // Specific path for super_admin onboarding
 
   // Define role-specific path prefixes
