@@ -59,6 +59,17 @@ export async function createPayloadClient() {
           // Add 'adapters' array; for Vercel, a cloud adapter (e.g., S3) is recommended for actual uploads.
           adapters: [],
         },
+        // Add other common top-level config properties with sensible defaults
+        // to prevent Payload from trying to load them from non-exported internal paths.
+        endpoints: [],
+        globals: [],
+        hooks: {}, // Global hooks
+        plugins: [],
+        telemetry: false, // Explicitly disable telemetry
+        i18n: undefined, // Or provide a minimal i18n config if needed
+        // If you're not generating GraphQL schema or TS types at runtime with getPayload:
+        graphQL: { disable: true },
+        typescript: { outputFile: undefined, declare: false }, // `declare: false` can prevent some FS operations
       } as any, // Cast the entire inlined config object to 'any'
     });
   }
