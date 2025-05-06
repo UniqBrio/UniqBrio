@@ -9,7 +9,7 @@ export default function AuthRedirectPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && session) {
       const role = session?.user?.role
 
       if (role === "super_admin") {
