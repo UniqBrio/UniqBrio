@@ -38,10 +38,11 @@ export default function RootLayout({
             </footer>
           </main>
           <Toaster />
-          <CookieConsent />
+          
        
           {/* Wrap components that might use client-side hooks like useSearchParams */}
           <Suspense fallback={null}>
+          <CookieConsent />
             <MultiTabSessionHandler />
             <TokenRefreshHandler />
             <SessionExpiredNotification />
