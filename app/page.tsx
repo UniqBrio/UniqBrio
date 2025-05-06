@@ -1,10 +1,12 @@
+import { Suspense } from "react"
 import SessionExpiredNotification from "@/components/session-expired-notification"
 
 export default function Home() {
-  // Include the SessionExpiredNotification component
   return (
     <>
-      <SessionExpiredNotification />
+      <Suspense fallback={null}>
+        <SessionExpiredNotification />
+      </Suspense>
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Welcome to UniqBrio</h1>
         <p className="mb-6 text-center">Please sign in or create an account to continue.</p>
@@ -26,4 +28,3 @@ export default function Home() {
     </>
   )
 }
-
