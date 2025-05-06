@@ -1,4 +1,4 @@
-import type React from "react"
+import React, { Suspense } from "react" // Import Suspense
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
@@ -40,9 +40,12 @@ export default function RootLayout({
           <Toaster />
           <CookieConsent />
        
-          <MultiTabSessionHandler />
-          <TokenRefreshHandler />
-          <SessionExpiredNotification />
+          {/* Wrap components that might use client-side hooks like useSearchParams */}
+          <Suspense fallback={null}>
+            <MultiTabSessionHandler />
+            <TokenRefreshHandler />
+            <SessionExpiredNotification />
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
