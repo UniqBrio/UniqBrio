@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react" // Import Suspense
 import { useSearchParams, useRouter } from "next/navigation"
 import { verifyEmail } from "@/app/actions/auth-actions"
 import { Loader2 } from "lucide-react"
 
-export default function VerifyEmailContent() {
+// This component contains the logic that uses useSearchParams
+function VerifyEmailLogic() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
@@ -62,5 +63,20 @@ export default function VerifyEmailContent() {
         </>
       )}
     </div>
+  )
+}
+
+// This is the actual page component that Next.js will render.
+// It wraps the logic component with Suspense.
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-lg font-semibold">Loading verification...</p>
+        </div>      }    >
+      <VerifyEmailLogic />
+    </Suspense>
   )
 }
