@@ -1,85 +1,80 @@
 import { getPayload } from "payload";
-// import config from "../payload.config"; // No longer importing the config file
-import { mongooseAdapter } from "@payloadcms/db-mongodb"; // Correct adapter import
-import Users from "../cms/collections/Users"; // Assuming path is correct
-import SupportTickets from "../cms/collections/SupportTickets"; // Assuming path is correct
+import { mongooseAdapter } from "@payloadcms/db-mongodb";
+import Users from "../cms/collections/Users";
+import SupportTickets from "../cms/collections/SupportTickets";
 
-// Cache the Payload instance
-let cached = (global as any).payload;
+// Global cache for reuse across invocations (Vercel function-level reuse)
+let cached = (globalThis as any).payload;
 
 if (!cached) {
-  cached = (global as any).payload = {
+  cached = (globalThis as any).payload = {
     client: null,
     promise: null,
   };
 }
 
 export async function createPayloadClient() {
-  if (cached.client) {
-    return cached.client;
-  }
+  if (cached.client) return cached.client;
 
   if (!cached.promise) {
+    // Check essential environment variables
+    const {
+      PAYLOAD_PUBLIC_SERVER_URL,
+      PAYLOAD_SECRET,
+      MONGODB_URI,
+      FRONTEND_URL
+    } = process.env;
+
+    if (!PAYLOAD_SECRET) throw new Error("Missing PAYLOAD_SECRET");
+    if (!MONGODB_URI) throw new Error("Missing MONGODB_URI");
+
     cached.promise = getPayload({
-      // Inlined configuration
       config: {
-        serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000",
-        admin: { // This whole object will be cast to 'any'
-          user: Users.slug, // Use dynamic slug from collection
+        serverURL: PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000",
+        secret: PAYLOAD_SECRET,
+        db: mongooseAdapter({ url: MONGODB_URI }),
+        collections: [Users, SupportTickets],
+
+        admin: {
+          user: Users.slug,
           meta: {
             titleSuffix: "- UniqBrio Admin",
-            // Provide additional required meta properties for type safety
             title: "UniqBrio Admin",
             description: "Admin panel for UniqBrio.",
-            defaultOGImageType: 'off', // As per type 'off' | 'dynamic' | 'static'
-            metadataBase: process.env.PAYLOAD_PUBLIC_SERVER_URL ? new URL(process.env.PAYLOAD_PUBLIC_SERVER_URL) : null,
-          }, // No longer need 'as any' here if parent 'admin' is 'as any'
-          // Add default timezones configuration
+            defaultOGImageType: "off",
+            metadataBase: PAYLOAD_PUBLIC_SERVER_URL ? new URL(PAYLOAD_PUBLIC_SERVER_URL) : undefined,
+          },
           timezones: {
-            defaultTimezone: 'Etc/UTC', // A sensible default
-            supportedTimezones: [ { label: 'UTC', value: 'Etc/UTC' } ], // Minimal supported timezones
-          }, // No longer need 'as any' here if parent 'admin' is 'as any'
-        } as any, // Cast the entire admin object to 'any'
-        // Cast collections to 'any' to bypass strict SanitizedCollectionConfig check for inlining
-        collections: [Users, SupportTickets] as any,
-        db: mongooseAdapter({ // Use the correct adapter function
-          url: process.env.MONGODB_URI!, // Assert non-null, as it's checked in payload.config.ts
-        }) as any, // Cast to 'any' to bypass strict DatabaseAdapter type check for inlining
-        secret: process.env.PAYLOAD_SECRET!, // Assert non-null
+            defaultTimezone: "Etc/UTC",
+            supportedTimezones: [{ label: "UTC", value: "Etc/UTC" }],
+          },
+        } as any,
 
-        // Ensure FRONTEND_URL is set correctly in Vercel env vars
-        // Handle potential comma-separated list for multiple origins
-        cors: (process.env.FRONTEND_URL || "http://localhost:3000").split(','),
-        csrf: (process.env.FRONTEND_URL || "http://localhost:3000").split(','),
+        cors: (FRONTEND_URL || "http://localhost:3000").split(","),
+        csrf: (FRONTEND_URL || "http://localhost:3000").split(","),
 
         upload: {
-          limits: {
-            fileSize: 5 * 1024 * 1024, // 5MB
-          },
-          // Add 'adapters' array; for Vercel, a cloud adapter (e.g., S3) is recommended for actual uploads.
-          adapters: [],
+          limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+          adapters: [], // Recommend S3 if you're uploading from Vercel
         },
-        // Add other common top-level config properties with sensible defaults
-        // to prevent Payload from trying to load them from non-exported internal paths.
-        endpoints: [],
-        globals: [],
-        hooks: {}, // Global hooks
-        plugins: [],
-        telemetry: false, // Explicitly disable telemetry
-        i18n: undefined, // Or provide a minimal i18n config if needed
-        // If you're not generating GraphQL schema or TS types at runtime with getPayload:
+
+        telemetry: false,
         graphQL: { disable: true },
-        typescript: { outputFile: undefined, declare: false }, // `declare: false` can prevent some FS operations
-      } as any, // Cast the entire inlined config object to 'any'
+        typescript: { outputFile: undefined, declare: false },
+        globals: [],
+        endpoints: [],
+        plugins: [],
+        hooks: {},
+        i18n: undefined,
+      } as any,
     });
   }
 
   try {
     cached.client = await cached.promise;
-  } catch (e) {
+    return cached.client;
+  } catch (err) {
     cached.promise = null;
-    throw e;
+    throw err;
   }
-
-  return cached.client;
 }
