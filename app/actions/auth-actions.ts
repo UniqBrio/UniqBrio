@@ -32,10 +32,12 @@ import { cookies } from "next/headers"
 import { COOKIE_NAMES, COOKIE_EXPIRY } from "@/lib/cookies"
 
 // Type for session data
+type UserRole = "super_admin" | "admin" | "instructor" | "student"; // Ensure "super_admin" is part of the UserRole type
+
 type SessionData = {
   id: string
   email: string
-  role: string
+  role: UserRole
   verified: boolean
   name?: string
   lastActivity?: number
@@ -93,17 +95,25 @@ export async function signup(formData: FormData) {
     const verificationToken = generateToken() // Use your existing token generation
     console.log("[AuthAction] signup: Verification token generated:", verificationToken); // Log token for debugging if needed
 
-    // Create user - Mark as NOT verified initially, remove OTP fields
-    console.log("[AuthAction] signup: Attempting to create user in DB:", email);
+    const role = formData.get("role") as string;
+
+    // Validate and cast the role to UserRole
+    if (!["super_admin", "admin", "instructor", "student"].includes(role)) {
+      return { success: false, message: "Invalid role provided." };
+    }
+
+    const userRole = role as UserRole; // Cast to UserRole after validation
+
+    // Use `userRole` instead of `role` in the Prisma `create` call
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
         phone,
         password: hashedPassword,
-        role,
-        verified: false, // Explicitly set to false
-        verificationToken, // Store the token for link verification
+        role: userRole, // Ensure the role is a valid UserRole
+        verified: false,
+        verificationToken,
       },
     })
     console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser.id);
@@ -245,21 +255,20 @@ export async function login(formData: FormData) {
 
     // --- MODIFIED: Redirect based on role ---
     let redirectPath = ""
-    switch (user.role) {
+    switch (user.role as UserRole) {
       case "super_admin":
-        // Redirect super_admin to profile creation page after login
-        redirectPath = "/profile/create"
-        break
+        redirectPath = "/profile/create";
+        break;
       case "admin":
-        redirectPath = "/admin/dashboard"
-        break
+        redirectPath = "/admin/dashboard";
+        break;
       case "instructor":
-        redirectPath = "/instructor/dashboard"
-        break
+        redirectPath = "/instructor/dashboard";
+        break;
       case "student":
       default:
-        redirectPath = "/student/dashboard"
-        break
+        redirectPath = "/student/dashboard";
+        break;
     }
     console.log("[AuthAction] login: Login successful, redirecting user", user.email, "to", redirectPath);
     return { success: true, redirect: redirectPath }

@@ -4,12 +4,16 @@ datasource db {
 }
 generator client {
   provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client" // Or your preferred path
+  output   = "../node_modules/.prisma/client" // Or your preferred path
 }
 // Add these enums at the top level of your schema file
 enum UserRole {
+  super_admin
   student
   admin
+  instructor  // Added
+  
+
   // Add other roles as needed
 }
 
