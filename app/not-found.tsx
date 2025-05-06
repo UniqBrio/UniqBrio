@@ -1,6 +1,9 @@
-import Link from "next/link"
+"use client"
 
-export default function NotFound() {
+import Link from "next/link"
+import { Suspense } from "react"
+
+function NotFoundContent() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="text-9xl font-bold text-[#fd9c2d]">404</div>
@@ -8,7 +11,6 @@ export default function NotFound() {
       <p className="text-gray-600 mb-8 text-center max-w-md">
         The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
       </p>
-
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
           href="/"
@@ -27,3 +29,6 @@ export default function NotFound() {
   )
 }
 
+export default function NotFound() {
+  return <Suspense fallback={<div>Loading...</div>}><NotFoundContent /></Suspense>
+}
