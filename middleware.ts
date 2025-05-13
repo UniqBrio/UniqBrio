@@ -97,8 +97,9 @@ export async function middleware(request: NextRequest) {
     const lastActivity = Number.parseInt(lastActivityCookie, 10)
     const inactiveTime = now - lastActivity
     // --- CORRECTION HERE ---
-    // Using the hardcoded 30 minutes (in milliseconds) because COOKIE_EXPIRY.SESSION_INACTIVITY is not defined
-    const maxInactiveTime = 30 * 60 * 1000 // 30 minutes in milliseconds
+    // Using a hardcoded 1 hour (in milliseconds).
+    // Ideally, this value would come from a constant, e.g., COOKIE_EXPIRY.SESSION_INACTIVITY, if defined in your cookies lib.
+    const maxInactiveTime = 60 * 60 * 1000 // 1 hour in milliseconds
 
     if (inactiveTime > maxInactiveTime) {
       console.log(`[Middleware] Session inactive for ${payload.email} (${inactiveTime / 1000}s > ${maxInactiveTime / 1000}s). Redirecting to login and clearing cookies.`)

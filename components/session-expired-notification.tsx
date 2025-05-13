@@ -10,30 +10,64 @@ export default function SessionExpiredNotification() {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Show notification if session=expired is in the URL
+    // 1. Do not show this notification on login or signup pages at all.
+    if (pathname === "/login" || pathname === "/signup") {
+      setShow(false);
+      return;
+    }
+
+    // 2. Show notification if session=expired is in the URL (and not on login/signup).
     if (searchParams.get("session") === "expired") {
-      setShow(true)
-      return
+      setShow(true);
+      return;
     }
 
-    // Only show the notification on the homepage
-    if (pathname !== "/") return
+    // 3. For the timed notification on the homepage: show if user logged in,
+    //    inactive for an hour, and notification not yet shown for this session's inactivity.
+    //    Assumes 'lastUserActivityTime' (updated globally) and 'userLoginTime' (set on login)
+    //    exist in localStorage.
+    if (pathname === "/") {
+      const lastActivityStr = localStorage.getItem("lastUserActivityTime");
+      const loginTimeStr = localStorage.getItem("userLoginTime");
+      const currentTime = Date.now();
+      const oneHourInMilliseconds = 60 * 60 * 1000; // 1 hour
 
-    // Check when the notification was last shown
-    const lastShown = localStorage.getItem("sessionNotificationLastShown")
-    const currentTime = Date.now()
+      // Flag to indicate if the inactivity notification has been shown for the current login session's inactivity period.
+      // It's tied to the loginTimeStr to automatically reset for new sessions.
+      const inactivityNotifShownForLoginSessionKey = "inactivityNotifShownForSession_" + loginTimeStr;
+      const hasInactivityNotifBeenShown = loginTimeStr ? localStorage.getItem(inactivityNotifShownForLoginSessionKey) === "true" : true;
 
-    // Only show the notification if it hasn't been shown in the last hour
-    if (!lastShown || currentTime - Number.parseInt(lastShown) > 60 * 60 * 1000) {
-      // Show the notification after 5 seconds
-      const timer = setTimeout(() => {
-        setShow(true)
-        // Store the current time as the last shown time
-        localStorage.setItem("sessionNotificationLastShown", currentTime.toString())
-      }, 1000)
 
-      return () => clearTimeout(timer)
+      if (loginTimeStr && lastActivityStr && !hasInactivityNotifBeenShown) {
+        const lastActivityTime = Number(lastActivityStr);
+        const loginTime = Number(loginTimeStr);
+
+        const isInactiveForAnHour = currentTime - lastActivityTime >= oneHourInMilliseconds;
+        // Ensure we also check that it's been at least an hour since login itself,
+        // preventing notification if user logs in and is immediately "inactive" due to an old lastActivityTime.
+        const hasBeenLoggedInForAnHourOrMore = currentTime - loginTime >= oneHourInMilliseconds;
+
+        if (isInactiveForAnHour && hasBeenLoggedInForAnHourOrMore) {
+          // Conditions met: logged in, inactive for an hour, notification not yet shown for this.
+          const timer = setTimeout(() => {
+            setShow(true);
+            // Mark that the notification has been shown for this login session's inactivity.
+            localStorage.setItem(inactivityNotifShownForLoginSessionKey, "true");
+          }, 1000); // Show after 1 second (delay from original code)
+
+          return () => clearTimeout(timer); // Cleanup timer.
+        } else {
+          // Conditions for showing (inactivity duration or time since login) not met.
+          setShow(false);
+        }
+      } else {
+        // Not logged in, or no activity tracking, or notification already shown for this session's inactivity.
+        setShow(false);
+      }
+      return; // Processed homepage case.
     }
+    // 4. For any other page not matching the above conditions, ensure notification is hidden.
+    setShow(false);
   }, [searchParams, pathname])
 
   const handleClose = () => {
@@ -58,4 +92,3 @@ export default function SessionExpiredNotification() {
     </div>
   )
 }
-

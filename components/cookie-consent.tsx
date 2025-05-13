@@ -1,19 +1,30 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react" // Import useSession
 import { setCookieConsent, getCookieConsent } from "@/lib/cookies"
 import { X } from "lucide-react"
 
 export default function CookieConsent() {
+  const { data: session, status } = useSession() // Get session status
   const [showConsent, setShowConsent] = useState(false)
 
   useEffect(() => {
-    // Check if user has already given consent
-    const hasConsent = getCookieConsent()
-    if (!hasConsent) {
-      setShowConsent(true)
+    // Only proceed if the authentication status is determined
+    if (status === "authenticated") {
+      // User is logged in, now check if they've already given consent
+      const hasConsent = getCookieConsent()
+      if (!hasConsent) {
+        setShowConsent(true) // Show consent banner if logged in and no consent given
+      } else {
+        setShowConsent(false) // Hide if logged in but consent already given
+      }
+    } else {
+      // If user is not authenticated (or session is loading),
+      // ensure the consent banner is not shown.
+      setShowConsent(false)
     }
-  }, [])
+  }, [status]) // Re-run this effect when the authentication status changes
 
   const acceptAll = () => {
     setCookieConsent("all")
@@ -61,4 +72,3 @@ export default function CookieConsent() {
     </div>
   )
 }
-

@@ -8,6 +8,7 @@ import CookieConsent from "@/components/cookie-consent"
 import SessionActivityTracker from "@/components/session-activity-tracker"
 import MultiTabSessionHandler from "@/components/multi-tab-session-handler"
 import TokenRefreshHandler from "@/components/token-refresh-handler"
+import Navbar from "@/components/Navbar"; // Import the Navbar component
 import SessionExpiredNotification from "@/components/session-expired-notification"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -32,7 +33,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <NextAuthSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-            <main className="flex min-h-screen flex-col items-center justify-center p-4">
+            <Navbar /> {/* Navbar is placed here */}
+            {/* Adjusted main content padding:
+                - px-4: keeps horizontal padding (1rem)
+                - pb-4: keeps bottom padding (1rem)
+                - pt-20: sets top padding to 5rem. (Navbar is h-16/4rem, so content starts 1rem below it) */}
+            <main className="flex min-h-screen flex-col items-center justify-center px-4 pb-4 pt-20">
               <div className="w-full max-w-md">{children}</div>
               <footer className="mt-8 text-center text-gray-500">
                 UniqBrio Corporation © {new Date().getFullYear()}

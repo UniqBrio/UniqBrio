@@ -81,7 +81,7 @@ export default async function StudentDashboardPage() {
       */}
 
       {/* Sign Out Button - Using a form POST to the signout API route */}
-      <form action="/login" method="post" className="mt-8">
+      <form action="/api/auth/signout" method="post" className="mt-8">
         <Button
           type="submit"
           variant="destructive" // Use Shadcn destructive variant for sign out

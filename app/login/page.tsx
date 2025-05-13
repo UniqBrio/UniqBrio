@@ -127,6 +127,16 @@ export default function LoginPage() {
       if (result?.success && typeof result.redirect === 'string' && result.redirect.length > 0) {
         console.log(`[LoginPage] onSubmit: Success! Attempting redirect via router.push to: ${result.redirect}`);
         try {
+          // Set items in localStorage upon successful login
+          const currentTime = Date.now().toString();
+          localStorage.setItem('userLoginTime', currentTime);
+          localStorage.setItem('lastUserActivityTime', currentTime);
+          // Signal that cookie consent should be shown.
+          // A separate component (e.g., a cookie banner) should read this
+          // and manage its own state (e.g., not show again if consent given).
+          localStorage.setItem('showCookieConsentAfterLogin', 'true');
+          console.log("[LoginPage] onSubmit: 'userLoginTime', 'lastUserActivityTime', and 'showCookieConsentAfterLogin' set in localStorage.");
+
           router.push(result.redirect);
           console.log(`[LoginPage] onSubmit: router.push(${result.redirect}) called.`);
           // Note: setIsSubmitting(false) will be handled by finally, even on successful redirect start
@@ -177,10 +187,10 @@ export default function LoginPage() {
   return (
     // Keep your existing JSX structure here...
     // No changes needed in the JSX based on the problem description
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl mt-10" style={{ fontFamily: "Times New Roman, serif" }}>
+    <>
       <AuthTabs />
 
-      <form className="space-y-6 mt-6" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         {/* Role Selection */}
         <div className="space-y-1">
           <label htmlFor="role" className="text-[#fd9c2d] font-semibold text-base">
@@ -189,7 +199,7 @@ export default function LoginPage() {
           <div className="relative">
             <select
               id="role"
-              className="w-full h-14 px-4 bg-[#d9d9d9] border border-[#fd9c2d] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#fd9c2d]"
+              className="w-full h-14 px-4 bg-white border border-[#fd9c2d] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#fd9c2d]"
               {...register("role")}
             >
               <option value="super_admin">Super Admin</option>
@@ -248,7 +258,7 @@ export default function LoginPage() {
 
         {/* Forgot Password Link */}
         <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-sm text-gray-600 hover:underline">
+          <Link href="/forgot-password" className="text-m text-gray-600 hover:underline">
             Forgot password?
           </Link>
         </div>
@@ -256,7 +266,7 @@ export default function LoginPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full h-14 text-xl font-semibold text-white bg-[#fd9c2d] hover:bg-[#e08c28] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+          className="w-full h-14 text-xl font-semibold text-white bg-orange-500 hover:bg-[#e08c28] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -271,15 +281,15 @@ export default function LoginPage() {
       </form>
 
       {/* Signup Link */}
-      <div className="mt-6 text-center text-sm">
+      <div className="mt-6 text-center text-m">
         Not a member?{" "}
-        <Link href="/signup" className="text-[#fd9c2d] font-semibold hover:underline">
+        <Link href="/signup" className="text-purple-700 font-semibold hover:underline">
           Signup
         </Link>
       </div>
 
       {/* Troubleshoot Link */}
-      <div className="mt-2 text-center text-sm">
+      <div className="mt-2 text-center text-m">
         <Link href="/troubleshoot" className="text-[#fd9c2d] hover:underline">
           Having trouble logging in? Contact Support
         </Link>
@@ -289,7 +299,7 @@ export default function LoginPage() {
 
       {/* Google Auth Button */}
       <GoogleAuthButton mode="login" />
-    </div>
+    </>
   )
   // --- End JSX ---
 }

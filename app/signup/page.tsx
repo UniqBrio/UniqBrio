@@ -178,7 +178,7 @@ export default function SignupPage() {
           <div className="relative">
             <select
               id="role"
-              className="w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#8a3ffc]"
+              className="w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#8a3ffc]"
               {...register("role")}
             >
               <option value="" disabled>
@@ -205,7 +205,7 @@ export default function SignupPage() {
             id="name"
             type="text"
             placeholder="Enter your full name"
-            className={`w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
+            className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
             {...register("name")}
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
@@ -220,7 +220,7 @@ export default function SignupPage() {
             id="email"
             type="email"
             placeholder="abc@abc.com"
-            className={`w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
+            className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
             {...register("email")}
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
@@ -235,7 +235,7 @@ export default function SignupPage() {
             id="phone"
             type="tel"
             placeholder="Enter your phone number"
-            className={`w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
+            className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
             {...register("phone")}
           />
           {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
@@ -251,7 +251,7 @@ export default function SignupPage() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter strong password"
-              className={`w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.password ? "border-red-500" : ""}`}
+              className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.password ? "border-red-500" : ""}`}
               {...register("password")}
             />
             <button
@@ -273,7 +273,7 @@ export default function SignupPage() {
                   {getPasswordStrengthText().text}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div className="w-full bg-white rounded-full h-1.5">
                 <div
                   className={`h-1.5 rounded-full bg-${getPasswordStrengthText().color}-500`}
                   style={{ width: `${(passwordStrength / 5) * 100}%` }} // Divide by 5 criteria
@@ -337,7 +337,7 @@ export default function SignupPage() {
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
-              className={`w-full h-14 px-4 bg-[#d9d9d9] border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.confirmPassword ? "border-red-500" : ""}`}
+              className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.confirmPassword ? "border-red-500" : ""}`}
               {...register("confirmPassword")}
             />
             <button
@@ -382,7 +382,7 @@ export default function SignupPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full h-14 text-xl font-medium text-white bg-[#8a3ffc] hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center"
+          className="w-full h-14 text-xl font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -399,7 +399,7 @@ export default function SignupPage() {
       {/* Login Link */}
       <div className="mt-4 text-center">
         Already on UniqBrio?{" "}
-        <Link href="/login" className="text-[#8a3ffc] hover:underline">
+        <Link href="/login" className="text-orange-500 hover:underline">
           Login
         </Link>
       </div>

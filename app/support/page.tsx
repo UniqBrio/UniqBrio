@@ -252,7 +252,7 @@ export default function SupportPage() {
             Login
           </Link>
           <span className="text-gray-400 mx-1">/</span>
-          <Link href="/signup" className="text-[#fd9c2d] hover:underline">
+          <Link href="/signup" className="text-purple-700 hover:underline">
             Signup
           </Link>
         </div>
