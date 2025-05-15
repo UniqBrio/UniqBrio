@@ -1,0 +1,80 @@
+datasource db {
+  provider = "mongodb"  // Use MongoDB as the provider
+  url      = env("DATABASE_URL")  // Connection string for MongoDB from environment variable
+}
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client" // Or your preferred path
+}
+// Add these enums at the top level of your schema file
+enum UserRole {
+  super_admin
+  student
+  admin
+  instructor  // Added
+  
+
+  // Add other roles as needed
+}
+
+enum TicketStatus {
+  open
+  in_progress
+  resolved
+  closed
+  // Add other statuses as needed
+}
+
+enum IssueType {
+  technical
+  billing
+  general_inquiry
+  bug_report
+  
+  // Add other types as needed
+}
+
+model User {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  email             String    @unique
+  phone             String?
+  password          String?
+  // Use the enum here
+  role              UserRole  @default(student)
+  verified          Boolean   @default(false)
+  verificationToken String?   
+  otp               String?
+  otpExpiry         DateTime?
+  resetToken        String?   
+  resetTokenExpiry  DateTime?
+  failedAttempts    Int       @default(0)
+  lockedUntil       DateTime?
+  googleId          String?  
+  image             String?   // Add field for user image/avatar (see point 3)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Optional: Add relation if SupportTickets should be linked to users
+  // supportTickets SupportTicket[]
+}
+
+model SupportTicket {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   // Keep if anonymous tickets are allowed, otherwise relate to User
+  // Use the enum here
+  issueType     String
+  description   String
+  ticketNumber  String?  @unique
+  // Use the enum here
+  status        TicketStatus @default(open)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Optional: Add relation if SupportTickets should be linked to users
+  // userId        String?   @db.ObjectId // Make optional if anonymous tickets are allowed
+  // user          User?     @relation(fields: [userId], references: [id])
+
+  // Optional: Add index if relating to User
+  // @@index([userId])
+}
