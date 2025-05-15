@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import NextAuthSessionProvider from "@/components/session-provider"
 import CookieConsent from "@/components/cookie-consent"
-import SessionActivityTracker from "@/components/session-activity-tracker"
+
 import MultiTabSessionHandler from "@/components/multi-tab-session-handler"
 import TokenRefreshHandler from "@/components/token-refresh-handler"
 
@@ -43,7 +43,7 @@ export default function RootLayout({
               <CookieConsent />
               <MultiTabSessionHandler />
               <TokenRefreshHandler />
-              <SessionExpiredNotification />
+              
             </Suspense>
           </ThemeProvider>
         </NextAuthSessionProvider>
