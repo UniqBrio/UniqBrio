@@ -17,9 +17,10 @@ import { useSearchParams, useRouter } from "next/navigation"
 const loginSchema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone number is required"),
   password: z.string().min(1, "Password is required"),
-  role: z.enum(["super_admin", "admin", "instructor", "student"], {
-    required_error: "Please select a role",
-  }),
+  // Remove role from login schema
+  // role: z.enum(["super_admin", "admin", "instructor", "student"], {
+  //   required_error: "Please select a role",
+  // }),
 })
 
 type FormData = z.infer<typeof loginSchema>
@@ -32,14 +33,14 @@ export default function LoginPage() {
 
   // --- useEffect for Toasts with Enhanced Logging ---
   useEffect(() => {
-    // Log exactly what params are seen when the effect runs
-    console.log("[LoginPage] useEffect: Running. Current searchParams:", searchParams.toString());
+  // Log exactly what params are seen when the effect runs
+  console.log("[LoginPage] useEffect: Running. Current searchParams:", searchParams?.toString());
 
-    const verified = searchParams.get('verified') === 'true';
-    const alreadyVerified = searchParams.get('alreadyVerified') === 'true';
-    const resetSuccess = searchParams.get('reset') === 'success';
-    const sessionExpired = searchParams.get('sessionExpired') === 'true';
-    const oauthError = searchParams.get('error'); // Get potential error message
+  const verified = searchParams?.get('verified') === 'true';
+  const alreadyVerified = searchParams?.get('alreadyVerified') === 'true';
+  const resetSuccess = searchParams?.get('reset') === 'success';
+  const sessionExpired = searchParams?.get('sessionExpired') === 'true';
+  const oauthError = searchParams?.get('error'); // Get potential error message
 
     let toastShown = false;
     const currentPath = '/login'; // Define the path to replace to
@@ -100,24 +101,26 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    watch,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      role: "student", // Sensible default
+      // role: "student", // Remove default role
     },
   })
 
   // --- onSubmit Function (Keep the robust version from previous answer) ---
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    console.log("[LoginPage] onSubmit: Attempting login with data:", { emailOrPhone: data.emailOrPhone, role: data.role });
+    console.log("[LoginPage] onSubmit: Attempting login with data:", { emailOrPhone: data.emailOrPhone });
 
     try {
       const formData = new FormData();
       formData.append("emailOrPhone", data.emailOrPhone);
       formData.append("password", data.password);
-      formData.append("role", data.role);
+      // formData.append("role", data.role); // Remove role from form submission
 
       const result = await login(formData);
 

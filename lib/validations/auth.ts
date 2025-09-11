@@ -14,9 +14,7 @@ export const signupSchema = z
       .regex(/[0-9]/, "Password must contain at least one number")
       .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
     confirmPassword: z.string(),
-    role: z.enum(["student", "instructor", "admin", "super_admin"], {
-      required_error: "Please select a role",
-    }),
+  // role removed
     termsAccepted: z.literal(true, {
       errorMap: () => ({ message: "You must accept the terms and conditions" }),
     }),

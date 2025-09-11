@@ -39,9 +39,7 @@ const handler = NextAuth({
           return null
         }
 
-        if (credentials.role && credentials.role !== user.role) {
-          return null
-        }
+  // Role-based authentication removed. No role check.
 
         if (!user.verified) {
           throw new Error("not-verified")
@@ -50,9 +48,9 @@ const handler = NextAuth({
         return {
           id: user.id,
           email: user.email,
-          role: user.role as "student" | "instructor" | "admin" | "super_admin",
           verified: user.verified,
           name: user.name,
+          role: "super_admin", // Always set to 'super_admin'
           lastActivity: Date.now(),
         }
       },
@@ -70,31 +68,25 @@ const handler = NextAuth({
     async signIn({ user, account, profile }) {
       if (account?.provider === "google" && profile?.email) {
         try {
-          const existingUser = await prisma.user.findUnique({
-            where: { email: profile.email },
-          })
-
-          if (existingUser) {
-            if (!existingUser.googleId && user.id) {
-              await prisma.user.update({
-                where: { id: existingUser.id },
-                data: { googleId: user.id },
-              })
-            }
-            return true
-          } else {
-            await prisma.user.create({
+          let dbUser = await prisma.user.findUnique({ where: { email: profile.email } });
+          if (!dbUser) {
+            dbUser = await prisma.user.create({
               data: {
                 email: profile.email,
                 name: profile.name || "",
                 googleId: user.id,
-                role: "student",
                 verified: true,
                 phone: "",
               },
-            })
-            return true
+            });
+          } else if (!dbUser.googleId && user.id) {
+            await prisma.user.update({ where: { id: dbUser.id }, data: { googleId: user.id } });
           }
+
+          // Issue custom session cookie compatible with middleware
+          const token = await (await import("@/lib/auth")).createToken({ email: dbUser.email }, "7d");
+          await (await import("@/lib/auth")).setSessionCookie(token);
+          return true;
         } catch (error) {
           console.error("Error during Google sign-in:", error)
           return false
@@ -104,9 +96,8 @@ const handler = NextAuth({
     },
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.verified = user.verified
+        token.id = (user as any).id
+        token.verified = (user as any).verified
         token.lastActivity = Date.now()
       } else {
         token.lastActivity = Date.now()
@@ -120,12 +111,13 @@ const handler = NextAuth({
 
           if (dbUser) {
             token.id = dbUser.id
-            token.role = dbUser.role as "super_admin" | "admin" | "instructor" | "student"
             token.verified = dbUser.verified
             token.name = dbUser.name
+            token.academyId = dbUser.academyId
+            token.userId = dbUser.userId
           }
         } catch (error) {
-          console.error("Error getting user role:", error)
+          console.error("Error getting user:", error)
         }
       }
 
@@ -133,11 +125,12 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id
-        session.user.role = token.role as "super_admin" | "admin" | "instructor" | "student"
-        session.user.verified = token.verified
-        session.user.lastActivity = token.lastActivity
-        session.user.name = token.name
+        (session.user as any).id = token.id
+        ;(session.user as any).verified = token.verified
+        ;(session.user as any).lastActivity = token.lastActivity
+        ;(session.user as any).name = token.name
+        ;(session.user as any).academyId = token.academyId
+        ;(session.user as any).userId = token.userId
       }
       return session
     },

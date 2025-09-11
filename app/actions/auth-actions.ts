@@ -32,12 +32,10 @@ import { cookies } from "next/headers"
 import { COOKIE_NAMES, COOKIE_EXPIRY } from "@/lib/cookies"
 
 // Type for session data
-type UserRole = "super_admin" | "admin" | "instructor" | "student"; // Ensure "super_admin" is part of the UserRole type
-
 type SessionData = {
   id: string
   email: string
-  role: UserRole
+  role: string // Add role to session data
   verified: boolean
   name?: string
   lastActivity?: number
@@ -47,11 +45,12 @@ type SessionData = {
 export async function signup(formData: FormData) {
   console.log("[AuthAction] signup: Initiated"); // Log start
   const name = formData.get("name") as string
-  const email = formData.get("email") as string
+  const emailRaw = formData.get("email") as string
+  const email = (emailRaw || "").toLowerCase().trim()
   const phone = formData.get("phone") as string
   const password = formData.get("password") as string
   const confirmPassword = formData.get("confirmPassword") as string
-  const role = formData.get("role") as string
+  // const role = formData.get("role") as string // Remove role
   const termsAccepted = formData.get("termsAccepted") === "true"
 
   // Validate form data
@@ -62,7 +61,7 @@ export async function signup(formData: FormData) {
     phone,
     password,
     confirmPassword,
-    role,
+    // role, // Remove role
     termsAccepted,
   })
 
@@ -93,27 +92,25 @@ export async function signup(formData: FormData) {
     // Generate verification token (NO OTP)
     console.log("[AuthAction] signup: Generating verification token for", email);
     const verificationToken = generateToken() // Use your existing token generation
-    console.log("[AuthAction] signup: Verification token generated:", verificationToken); // Log token for debugging if needed
-
-    const role = formData.get("role") as string;
-
-    // Validate and cast the role to UserRole
-    if (!["super_admin", "admin", "instructor", "student"].includes(role)) {
-      return { success: false, message: "Invalid role provided." };
+    // Avoid logging raw tokens in production
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("[AuthAction] signup: Verification token generated (masked):", verificationToken.slice(0,6) + "..." );
     }
 
-    const userRole = role as UserRole; // Cast to UserRole after validation
+    // Always assign 'super_admin' role for new users
+    const userRole = "super_admin"
 
-    // Use `userRole` instead of `role` in the Prisma `create` call
+    // Create user
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
         phone,
         password: hashedPassword,
-        role: userRole, // Ensure the role is a valid UserRole
+        role: userRole,
         verified: false,
         verificationToken,
+        registrationComplete: false,
       },
     })
     console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser.id);
@@ -153,13 +150,14 @@ export async function signup(formData: FormData) {
 // --- MODIFIED Login action ---
 export async function login(formData: FormData) {
   console.log("[AuthAction] login: Initiated");
-  const emailOrPhone = formData.get("emailOrPhone") as string
+  const emailOrPhoneRaw = formData.get("emailOrPhone") as string
+  const emailOrPhone = (emailOrPhoneRaw || "").toLowerCase().trim()
   const password = formData.get("password") as string
-  const role = formData.get("role") as string // Assuming role selection on login
+  // const role = formData.get("role") as string // Remove role
 
   // Validate form data
   console.log("[AuthAction] login: Validating form data for", emailOrPhone);
-  const validationResult = loginSchema.safeParse({ emailOrPhone, password, role })
+  const validationResult = loginSchema.safeParse({ emailOrPhone, password })
 
   if (!validationResult.success) {
     console.error("[AuthAction] login: Validation failed:", validationResult.error.flatten());
@@ -179,7 +177,7 @@ export async function login(formData: FormData) {
     // User not found
     if (!user) {
       console.log("[AuthAction] login: User not found:", emailOrPhone);
-      return { success: false, message: "Invalid credentials" }
+      return { success: false, message: "Login failed. Please check your credentials." }
     }
     console.log("[AuthAction] login: User found:", user.id, user.email);
 
@@ -211,16 +209,9 @@ export async function login(formData: FormData) {
         return { success: false, message: "Account locked due to too many failed attempts." }
       }
 
-      return { success: false, message: "Invalid credentials" }
+      return { success: false, message: "Login failed. Please check your credentials." }
     }
     console.log("[AuthAction] login: Password verified successfully for user:", user.email);
-
-    // Check if the selected role matches the user's role (if role selection is part of login)
-    if (role !== user.role) {
-      console.log(`[AuthAction] login: Invalid role selected ('${role}') for user ${user.email} (actual role: '${user.role}')`);
-      return { success: false, message: "Invalid role selected for this account." }
-    }
-    console.log("[AuthAction] login: Role verified for user:", user.email);
 
     // Reset failed attempts on successful login
     console.log("[AuthAction] login: Resetting failed attempts for user:", user.email);
@@ -231,7 +222,7 @@ export async function login(formData: FormData) {
     const sessionData: SessionData = {
       id: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role ?? "", // Ensure role is always a string
       verified: user.verified,
       name: user.name,
       lastActivity: Date.now(),
@@ -253,25 +244,19 @@ export async function login(formData: FormData) {
       path: "/",
     })
 
-    // --- MODIFIED: Redirect based on role ---
-    let redirectPath = ""
-    switch (user.role as UserRole) {
-      case "super_admin":
-        redirectPath = "/profile/create";
-        break;
-      case "admin":
-        redirectPath = "/admin/dashboard";
-        break;
-      case "instructor":
-        redirectPath = "/instructor/dashboard";
-        break;
-      case "student":
-      default:
-        redirectPath = "/student/dashboard";
-        break;
+    // --- MODIFIED: Redirect based on registration completion ---
+    // Check registration status (assume user has a 'registrationComplete' boolean field)
+    if (!user.registrationComplete) {
+      // First time user, not completed registration
+      const redirectPath = "/register";
+      console.log("[AuthAction] login: First time user, redirecting to registration form.");
+      return { success: true, redirect: redirectPath };
+    } else {
+      // Registration complete, redirect to dashboard
+      const redirectPath = "/dashboard";
+      console.log("[AuthAction] login: Registration complete, redirecting to dashboard.");
+      return { success: true, redirect: redirectPath };
     }
-    console.log("[AuthAction] login: Login successful, redirecting user", user.email, "to", redirectPath);
-    return { success: true, redirect: redirectPath }
 
   } catch (error) {
     console.error("[AuthAction] login: !!! Error caught in main login block:", error);
@@ -382,7 +367,10 @@ export async function resendOtp(email: string) {
 // --- MODIFIED Verify Email action ---
 // This action is called when the user clicks the link in their email
 export async function verifyEmail(token: string) {
-  console.log("[AuthAction] verifyEmail: Initiated with token:", token); // Log token carefully in real scenarios
+  // Avoid logging raw tokens in production
+  if (process.env.NODE_ENV !== 'production') {
+    console.log("[AuthAction] verifyEmail: Initiated with token (masked):", token.slice(0,6) + "...");
+  }
   if (!token || typeof token !== 'string') {
       console.error("[AuthAction] verifyEmail: Invalid or missing token.");
       return { success: false, message: "Invalid verification request." };
@@ -409,7 +397,7 @@ export async function verifyEmail(token: string) {
      }
      console.log("[AuthAction] verifyEmail: User not verified, proceeding with verification:", user.email);
 
-    // Update user: Mark as verified and clear the token
+    // Update user: Mark as verified and clear the token (do NOT mark registrationComplete here)
     console.log("[AuthAction] verifyEmail: Updating user as verified and clearing token:", user.email);
     await prisma.user.update({
       where: { id: user.id },

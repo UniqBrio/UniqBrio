@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verifyTokenEdge, getSessionCookieEdge } from '@/lib/auth-edge' // NEW IMPORT - Edge safe
 import { COOKIE_NAMES, COOKIE_EXPIRY } from '@/lib/cookies'; // Assuming COOKIE_EXPIRY is defined here
+import prisma from '@/lib/db'; // Import Prisma client
 
 // Helper function to get the default dashboard path based on role
 function getDefaultDashboard(role: string): string {
@@ -21,179 +22,222 @@ function getDefaultDashboard(role: string): string {
   }
 }
 
+// Define public paths that don't require authentication
+const publicPaths = [
+  "/", // Root page
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email", // Page to handle link click
+  "/support",
+  "/troubleshoot",
+  "/reset-success",
+  "/verification-pending",
+  // API Routes - Allow specific prefixes
+  "/api/auth/",
+  "/api/payload/",
+  // Next.js internals and static assets
+  "/_next/",
+  // Files with extensions (e.g., .png, .ico)
+  /\.[^/]+$/, // Matches paths ending with a dot and some characters
+];
+
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-  const loginUrl = new URL("/login", request.url)
-  const sessionExpiredUrl = new URL("/login?sessionExpired=true", request.url)
-  const activityExpiredUrl = new URL("/login?session=expired", request.url) // Corrected redirect URL
+  const path = request.nextUrl.pathname;
+  const loginUrl = new URL("/login", request.url);
+  const sessionExpiredUrl = new URL("/login?sessionExpired=true", request.url);
+  const activityExpiredUrl = new URL("/login?session=expired", request.url);
 
-  console.log(`[Middleware] Path requested: ${path}`)
+  console.log(`[Middleware] Path requested: ${path}`);
 
-  // --- Public Paths ---
-  // Simplified public path check
-  const publicPaths = [
-    "/", // Root page
-    "/login",
-    "/signup",
-    "/forgot-password",
-    "/reset-password",
-    "/verify-email", // Page to handle link click
-    // "/verify-otp", // Keep if used for 2FA, remove if only for old signup
-    "/support",
-    "/troubleshoot",
-    "/reset-success",
-    "/verification-pending",
-    // API Routes - Allow specific prefixes
-    "/api/auth/",
-    "/api/payload/",
-    // Next.js internals and static assets
-    "/_next/",
-    // Files with extensions (e.g., .png, .ico) - basic check
-    // Note: The matcher already excludes most common image types. This adds a general check.
-    /\.[^/]+$/, // Matches paths ending with a dot and some characters (basic file extension check)
-  ]
-
+  // Check if it's a public path first
   const isPublicPath = publicPaths.some((p) => {
     if (p instanceof RegExp) {
-      return p.test(path)
+      return p.test(path);
     }
-    // Exact match or startsWith for directory-like paths
-    return path === p || (p.endsWith("/") && path.startsWith(p))
-  })
+    return path === p || (p.endsWith("/") && path.startsWith(p));
+  });
 
   if (isPublicPath) {
-    console.log(`[Middleware] Public path ${path}. Allowing.`)
-    return NextResponse.next()
+    console.log(`[Middleware] Public path ${path}. Allowing.`);
+    return NextResponse.next();
   }
-  console.log(`[Middleware] Protected path ${path}. Checking session...`)
+  console.log(`[Middleware] Protected path ${path}. Checking session...`);
 
   // --- Session Check ---
-  const sessionCookie = request.cookies.get(COOKIE_NAMES.SESSION)?.value
-  if (!sessionCookie) {
-    console.log(`[Middleware] No session cookie found for ${path}. Redirecting to login.`)
-    return NextResponse.redirect(loginUrl)
+  const sessionCookieValue = request.cookies.get(COOKIE_NAMES.SESSION)?.value;
+  if (!sessionCookieValue) {
+    console.log(`[Middleware] No session cookie found for ${path}. Redirecting to login.`);
+    return NextResponse.redirect(loginUrl);
   }
 
   // --- Token Verification ---
-  const tokenPayload = await verifyTokenEdge(sessionCookie) // Use the Edge-safe function
-  const payload: { id: string; email: string; role: string } | null = tokenPayload && 'id' in tokenPayload && 'email' in tokenPayload && 'role' in tokenPayload
-    ? { id: tokenPayload.id as string, email: tokenPayload.email as string, role: tokenPayload.role as string }
-    : null
-  if (!payload || !payload.role) {
-    console.log(`[Middleware] Invalid or missing token payload for ${path}. Redirecting to login and clearing cookies.`)
-    const response = NextResponse.redirect(sessionExpiredUrl)
-    response.cookies.delete(COOKIE_NAMES.SESSION)
-    response.cookies.delete(COOKIE_NAMES.LAST_ACTIVITY)
-    return response
+  const tokenPayload = await verifyTokenEdge(sessionCookieValue);
+  
+  interface TokenPayload {
+    id: string;
+    email: string;
+    role: string;
   }
-  console.log(`[Middleware] Valid session found for role: ${payload.role}, email: ${payload.email}`)
+
+  const payload = tokenPayload && 
+    typeof tokenPayload === 'object' && 
+    'id' in tokenPayload && 
+    'email' in tokenPayload && 
+    'role' in tokenPayload ? 
+    tokenPayload as unknown as TokenPayload : null;
+
+  if (!payload?.role) {
+    console.log(`[Middleware] Invalid or missing token payload for ${path}. Redirecting to login and clearing cookies.`);
+    const response = NextResponse.redirect(sessionExpiredUrl);
+    response.cookies.delete(COOKIE_NAMES.SESSION);
+    response.cookies.delete(COOKIE_NAMES.LAST_ACTIVITY);
+    return response;
+  }
+  console.log(`[Middleware] Valid session found for role: ${payload.role}, email: ${payload.email}`);
+
+  // --- Registration Completion Check ---
+  // Check if user has completed registration before accessing protected areas
+  if (payload?.email) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: { email: payload.email },
+        select: { 
+          registrationComplete: true,
+          verified: true
+        }
+      });
+
+      // If user is not verified, redirect to verification
+      if (!user?.verified) {
+        console.log(`[Middleware] User ${payload.email} not verified, redirecting to verification-pending`);
+        return NextResponse.redirect(new URL('/verification-pending', request.url));
+      }
+
+      // If accessing dashboard but registration not complete, redirect to register
+      if (path.startsWith('/dashboard') && !user?.registrationComplete) {
+        console.log(`[Middleware] Registration incomplete for ${payload.email}, redirecting to /register`);
+        return NextResponse.redirect(new URL('/register', request.url));
+      }
+
+      // If accessing register but already complete, redirect to dashboard
+      if (path.startsWith('/register') && user?.registrationComplete) {
+        console.log(`[Middleware] Registration already complete for ${payload.email}, redirecting to /dashboard`);
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+
+      console.log(`[Middleware] Registration status check passed for ${payload.email} - verified: ${user?.verified}, complete: ${user?.registrationComplete}`);
+    } catch (error) {
+      console.error(`[Middleware] Error checking registration status for ${payload.email}:`, error);
+      // Continue with normal flow if database check fails
+    }
+  }
 
   // --- Session Activity Check ---
-  const lastActivityCookie = request.cookies.get(COOKIE_NAMES.LAST_ACTIVITY)?.value
-  const now = Date.now()
-  let needsActivityUpdate = true // Assume we need to update unless proven otherwise
+  const lastActivityValue = request.cookies.get(COOKIE_NAMES.LAST_ACTIVITY)?.value;
+  const now = Date.now();
+  let needsActivityUpdate = true; // Assume we need to update unless proven otherwise
 
-  if (lastActivityCookie) {
-    const lastActivity = Number.parseInt(lastActivityCookie, 10)
-    const inactiveTime = now - lastActivity
-    // --- CORRECTION HERE ---
+  if (lastActivityValue) {
+    const lastActivity = Number.parseInt(lastActivityValue, 10);
+    const inactiveTime = now - lastActivity;
     // Using a hardcoded 1 hour (in milliseconds).
-    // Ideally, this value would come from a constant, e.g., COOKIE_EXPIRY.SESSION_INACTIVITY, if defined in your cookies lib.
-    const maxInactiveTime = 60 * 60 * 1000 // 1 hour in milliseconds
+    const maxInactiveTime = 60 * 60 * 1000; // 1 hour in milliseconds
 
     if (inactiveTime > maxInactiveTime) {
-      console.log(`[Middleware] Session inactive for ${payload.email} (${inactiveTime / 1000}s > ${maxInactiveTime / 1000}s). Redirecting to login and clearing cookies.`)
-      const response = NextResponse.redirect(activityExpiredUrl) // Use corrected URL
-      response.cookies.delete(COOKIE_NAMES.SESSION)
-      response.cookies.delete(COOKIE_NAMES.LAST_ACTIVITY)
-      return response // Return immediately after setting redirect and deleting cookies
+      console.log(`[Middleware] Session inactive for ${payload.email} (${inactiveTime / 1000}s > ${maxInactiveTime / 1000}s). Redirecting to login and clearing cookies.`);
+      const response = NextResponse.redirect(activityExpiredUrl);
+      response.cookies.delete(COOKIE_NAMES.SESSION);
+      response.cookies.delete(COOKIE_NAMES.LAST_ACTIVITY);
+      return response;
     }
     // Activity is valid, but we still update the cookie later
   } else {
-    console.log(`[Middleware] No activity cookie found for active session (${payload.email}). Will set one.`)
+    console.log(`[Middleware] No activity cookie found for active session (${payload.email}). Will set one.`);
     // No immediate return, cookie will be set later if access is granted
   }
 
   // --- Role-Based Access Control (RBAC) ---
-  const userRole: string = payload?.role || "" // Safely access role and provide a fallback
-  const onboardingPath = "/profile/create" // Specific path for super_admin onboarding
+  const userRole = payload.role; // Role is guaranteed to exist at this point
+  const onboardingPath = "/profile/create"; // Specific path for super_admin onboarding
 
   // Define role-specific path prefixes
-  const superAdminPaths = ["/super-admin", "/admin", "/instructor", "/student"] // Super admin can access all role dashboards + their own
-  const adminPaths = ["/admin", "/instructor", "/student"] // Admin can access admin, instructor, student
-  const instructorPaths = ["/instructor", "/student"] // Instructor can access instructor, student
-  const studentPaths = ["/student"] // Student can access student
+  const superAdminPaths = ["/super-admin", "/admin", "/instructor", "/student"]; // Super admin can access all role dashboards + their own
+  const adminPaths = ["/admin", "/instructor", "/student", "/dashboard"]; // Admin can access admin, instructor, student, and dashboard
+  const instructorPaths = ["/instructor", "/student"]; // Instructor can access instructor, student
+  const studentPaths = ["/student"]; // Student can access student
 
-  // Define paths accessible by *any* authenticated user (adjust as needed)
-  const sharedAuthenticatedPaths = ["/account", "/settings"] // Example
+  // Define paths accessible by *any* authenticated user
+  const sharedAuthenticatedPaths = ["/account", "/settings", "/notifications", "/verification", "/verify-otp", "/register"];
 
-  let isAllowed = false
+  let isAllowed = false;
 
   // 1. Handle the specific onboarding path FIRST
   if (path.startsWith(onboardingPath)) {
     if (userRole === "super_admin") {
-      console.log(`[Middleware] Allowing super_admin access to onboarding path ${path}.`)
-      isAllowed = true
+      console.log(`[Middleware] Allowing super_admin access to onboarding path ${path}.`);
+      isAllowed = true;
     } else {
       // If any other role tries to access onboarding, deny and redirect
-      console.log(`[Middleware] Denying non-super_admin (${userRole}) access to ${onboardingPath}. Redirecting to their dashboard.`)
-      const userDashboard = getDefaultDashboard(userRole)
-      return NextResponse.redirect(new URL(userDashboard, request.url))
+      console.log(`[Middleware] Denying non-super_admin (${userRole}) access to ${onboardingPath}. Redirecting to their dashboard.`);
+      const userDashboard = getDefaultDashboard(userRole);
+      return NextResponse.redirect(new URL(userDashboard, request.url));
     }
   }
   // 2. Handle shared authenticated paths
   else if (sharedAuthenticatedPaths.some((p) => path.startsWith(p))) {
-      console.log(`[Middleware] Allowing any authenticated user (${userRole}) access to shared path ${path}.`)
-      isAllowed = true
+    console.log(`[Middleware] Allowing any authenticated user (${userRole}) access to shared path ${path}.`);
+    isAllowed = true;
   }
   // 3. Handle standard role-protected paths
   else {
-    let allowedPaths: string[] = []
-    switch (userRole) {
-      case "super_admin": allowedPaths = superAdminPaths; break
-      case "admin": allowedPaths = adminPaths; break
-      case "instructor": allowedPaths = instructorPaths; break
-      case "student": allowedPaths = studentPaths; break
-    }
+    const allowedPaths = (() => {
+      switch (userRole) {
+        case "super_admin": return superAdminPaths;
+        case "admin": return adminPaths;
+        case "instructor": return instructorPaths;
+        case "student": return studentPaths;
+        default: return [];
+      }
+    })();
 
     if (allowedPaths.some((p) => path.startsWith(p))) {
-        console.log(`[Middleware] Role (${userRole}) allowed access to role-specific path ${path}.`)
-        isAllowed = true
+      console.log(`[Middleware] Role (${userRole}) allowed access to role-specific path ${path}.`);
+      isAllowed = true;
     }
   }
 
   // 4. If not allowed by any rule, redirect
   if (!isAllowed) {
-    console.log(`[Middleware] Role (${userRole}) access DENIED for path ${path}. Redirecting to default dashboard.`)
-    const userDashboard = getDefaultDashboard(userRole)
+    console.log(`[Middleware] Role (${userRole}) access DENIED for path ${path}. Redirecting to default dashboard.`);
+    const userDashboard = getDefaultDashboard(userRole);
+    
     // Prevent redirect loops if default dashboard itself is somehow restricted
     if (path === userDashboard) {
-        console.error(`[Middleware] Potential redirect loop detected for ${userRole} to ${userDashboard}. Allowing request to prevent loop.`);
-         // Or redirect to a generic error page or home page
-         // return NextResponse.redirect(new URL('/error-unauthorized', request.url));
+      console.error(`[Middleware] Potential redirect loop detected for ${userRole} to ${userDashboard}. Allowing request to prevent loop.`);
+      isAllowed = true; // Allow access to prevent loop
     } else {
-        return NextResponse.redirect(new URL(userDashboard, request.url))
+      return NextResponse.redirect(new URL(userDashboard, request.url));
     }
-    // If allowing to prevent loop, ensure activity cookie is still updated below
-    console.log(`[Middleware] Allowing request for ${path} to prevent redirect loop, despite failed RBAC check.`);
   }
 
   // --- Update Last Activity Cookie ---
-  // If we reach here, access is granted (or allowed to prevent loop). Update the activity cookie.
-  const response = NextResponse.next()
+  // If we reach here, access is granted. Update the activity cookie.
+  const response = NextResponse.next();
   if (needsActivityUpdate) {
-      console.log(`[Middleware] Updating activity cookie for ${payload.email}.`)
-      // Use the expiry defined for the LAST_ACTIVITY cookie itself for its maxAge
-      const lastActivityMaxAgeDays = COOKIE_EXPIRY.LAST_ACTIVITY || 1 // Default to 1 day if not defined
-      response.cookies.set(COOKIE_NAMES.LAST_ACTIVITY, now.toString(), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: lastActivityMaxAgeDays * 24 * 60 * 60, // Convert days to seconds
-        path: "/",
-      })
+    console.log(`[Middleware] Updating activity cookie for ${payload.email}.`);
+    // Use the expiry defined for the LAST_ACTIVITY cookie itself for its maxAge
+    const lastActivityMaxAgeDays = COOKIE_EXPIRY.LAST_ACTIVITY || 1; // Default to 1 day if not defined
+    response.cookies.set(COOKIE_NAMES.LAST_ACTIVITY, now.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: lastActivityMaxAgeDays * 24 * 60 * 60, // Convert days to seconds
+      path: "/",
+    });
   }
 
-  return response // Return NextResponse.next() with potentially updated cookie
+  return response;
 }
 
 export const config = {

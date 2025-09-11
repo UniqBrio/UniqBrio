@@ -6,13 +6,38 @@ import nodemailer from "nodemailer"
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER || "your-email@gmail.com", // Your Gmail address
-    pass: process.env.EMAIL_APP_PASSWORD || "your-app-password", // Your Gmail app password
+    user: process.env.EMAIL_USER || "",
+    pass: process.env.EMAIL_APP_PASSWORD || "",
   },
   tls: {
-    rejectUnauthorized: false, // Accept self-signed certificates (Use with caution)
+    // Enforce certificate validation in production; allow relaxed in dev for local setups
+    rejectUnauthorized: process.env.NODE_ENV === "production",
   },
 })
+
+// Log transporter configuration (without sensitive data)
+console.log("[EMAIL] Transporter configured with:", {
+  service: "gmail",
+  user: process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 5) + "..." : "NOT_SET",
+  passwordSet: !!process.env.EMAIL_APP_PASSWORD,
+  environment: process.env.NODE_ENV
+});
+
+// Test transporter connection on startup
+if (process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD) {
+  transporter.verify((error: any, success: any) => {
+    if (error) {
+      console.error("[EMAIL] Transporter verification failed:", error);
+    } else {
+      console.log("[EMAIL] SMTP server is ready to take our messages");
+    }
+  });
+} else {
+  console.warn("[EMAIL] Email credentials not found in environment variables");
+}
+if (process.env.NODE_ENV === "production" && (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD)) {
+  throw new Error("EMAIL_USER/EMAIL_APP_PASSWORD not configured for email sending");
+}
 
 export async function sendEmail({
   to,
@@ -23,7 +48,18 @@ export async function sendEmail({
   subject: string
   html: string
 }) {
+  console.log("[EMAIL] Starting sendEmail function...");
+  console.log("[EMAIL] Environment check:", {
+    NODE_ENV: process.env.NODE_ENV,
+    EMAIL_USER_SET: !!process.env.EMAIL_USER,
+    EMAIL_APP_PASSWORD_SET: !!process.env.EMAIL_APP_PASSWORD,
+    EMAIL_USER: process.env.EMAIL_USER?.substring(0, 5) + "...", // Log partial for security
+  });
+
   try {
+    console.log("[EMAIL] Attempting to send email to:", to);
+    console.log("[EMAIL] Subject:", subject);
+    
     // Send email using nodemailer
     const info = await transporter.sendMail({
       from: `"UniqBrio" <${process.env.EMAIL_USER || "your-email@gmail.com"}>`,
@@ -33,24 +69,31 @@ export async function sendEmail({
       ...(subject.includes("Support Ticket") && { bcc: "support@uniqbrio.com" }),
     })
 
-    console.log("Email sent successfully:", info.messageId)
+    console.log("[EMAIL] Email sent successfully:", info.messageId)
+    console.log("[EMAIL] Email info:", {
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response
+    });
     return true
   } catch (error) {
+    console.error("[EMAIL] Error caught in sendEmail:", error);
     if (error instanceof Error) {
-      console.error("Error sending email:", error.message)
+      console.error("[EMAIL] Error message:", error.message)
+      console.error("[EMAIL] Error stack:", error.stack)
       if (process.env.NODE_ENV !== "production") {
-        console.log(`--- DEV MODE: Email Not Sent ---`)
-        console.log(`To: ${to}`)
-        console.log(`Subject: ${subject}`)
-        // console.log(`Content:\n${html}`) // Uncomment to log HTML in dev
-        console.log(`--- End DEV MODE ---`)
+        console.log(`[EMAIL] --- DEV MODE: Email Not Sent ---`)
+        console.log(`[EMAIL] To: ${to}`)
+        console.log(`[EMAIL] Subject: ${subject}`)
+        console.log(`[EMAIL] HTML length: ${html.length} characters`)
+        console.log(`[EMAIL] --- End DEV MODE ---`)
         return true // Simulate success in dev if sending fails
       }
       throw new Error(`Failed to send email: ${error.message}`)
     }
 
     // fallback if the error isn't an instance of Error
-    console.error("Unknown error sending email:", error)
+    console.error("[EMAIL] Unknown error sending email:", error)
     throw new Error("Failed to send email due to unknown error")
   }
 }

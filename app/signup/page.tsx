@@ -27,9 +27,6 @@ const signupSchema = z
       .regex(/[0-9]/, "Password must contain at least one number")
       .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
     confirmPassword: z.string(),
-    role: z.enum(["super_admin", "admin", "instructor", "student"], {
-      required_error: "Please select a role",
-    }),
     termsAccepted: z.literal(true, {
       errorMap: () => ({ message: "You must accept the terms and conditions" }),
     }),
@@ -49,7 +46,7 @@ export default function SignupPage() {
   const searchParams = useSearchParams()
 
   // Check for URL parameters
-  const error = searchParams.get("error")
+  const error = searchParams?.get("error")
 
   useEffect(() => {
     // Show toast messages based on URL params (e.g., from OAuth errors)
@@ -81,8 +78,7 @@ export default function SignupPage() {
   } = useForm<FormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      role: "student",
-      // termsAccepted: false, // Removed to avoid type error
+      // role: "student", // Remove default role
     },
   })
 
@@ -120,7 +116,7 @@ export default function SignupPage() {
       formData.append("phone", data.phone)
       formData.append("password", data.password)
       formData.append("confirmPassword", data.confirmPassword)
-      formData.append("role", data.role)
+      formData.append("role", "admin") // Always assign 'admin' role
       formData.append("termsAccepted", data.termsAccepted ? "true" : "false")
 
       const result = await signup(formData)

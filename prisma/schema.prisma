@@ -1,10 +1,39 @@
+// ...existing code...
 datasource db {
-  provider = "mongodb"  // Use MongoDB as the provider
-  url      = env("DATABASE_URL")  // Connection string for MongoDB from environment variable
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
+
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client" // Or your preferred path
+  output   = "../node_modules/.prisma/client"
+}
+
+model KycSubmission {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String
+  academyId    String
+  ownerImageUrl        String
+  bannerImageUrl       String
+  ownerWithBannerImageUrl String
+  location     String
+  latitude     Float
+  longitude    Float
+  address      String?
+  dateTime     String
+  createdAt    DateTime @default(now())
+  
+  @@map("KycSubmission") // Maps to existing collection
+}
+
+model KycReminderLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  dayNumber Int      // 1, 7, 10, 13, or 14
+  sentAt    DateTime @default(now())
+  
+  @@unique([userId, dayNumber])
+  @@map("kyc_reminder_logs")
 }
 // Add these enums at the top level of your schema file
 enum UserRole {
@@ -36,12 +65,13 @@ enum IssueType {
 
 model User {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String?   @unique
+  academyId         String?
   name              String
   email             String    @unique
   phone             String?
   password          String?
-  // Use the enum here
-  role              UserRole  @default(student)
+  role              UserRole?
   verified          Boolean   @default(false)
   verificationToken String?   
   otp               String?
@@ -52,21 +82,45 @@ model User {
   lockedUntil       DateTime?
   googleId          String?  
   image             String?   // Add field for user image/avatar (see point 3)
+  registrationComplete Boolean @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-
   // Optional: Add relation if SupportTickets should be linked to users
   // supportTickets SupportTicket[]
+  
+  @@map("User") // Maps to existing "User" collection
+}
+
+model Academy {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  academyId         String    @unique
+  name              String
+  legalEntityName   String?
+  email             String?
+  phone             String?
+  industryType      String?
+  servicesOffered   String[]
+  studentSize       String?
+  staffCount        String?
+  country           String?
+  state             String?
+  city              String?
+  address           String?
+  website           String?
+  preferredLanguage String?
+  logoUrl           String?
+  createdAt         DateTime  @default(now())
+// ...existing code...
+
+  @@map("Academy") // Maps to existing "Academy" collection
 }
 
 model SupportTicket {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  email         String   // Keep if anonymous tickets are allowed, otherwise relate to User
-  // Use the enum here
+  email         String
   issueType     String
   description   String
   ticketNumber  String?  @unique
-  // Use the enum here
   status        TicketStatus @default(open)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -77,4 +131,43 @@ model SupportTicket {
 
   // Optional: Add index if relating to User
   // @@index([userId])
+}
+
+/// Maps to existing "registrations" collection
+model Registration {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  academyId    String
+  userId       String
+  businessInfo Json
+  adminInfo    Json
+  preferences  Json?
+  createdAt    DateTime @default(now())
+  
+  @@map("registrations") // Maps to existing "registrations" collection
+}
+
+/// Example domain models scoped by academyId (and optionally userId)
+model Course {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  academyId  String
+  userId     String
+  title      String
+  code       String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([academyId])
+  @@index([userId])
+}
+
+model Student {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  academyId  String
+  userId     String
+  name       String
+  email      String   @unique
+  enrolledAt DateTime @default(now())
+
+  @@index([academyId])
+  @@index([userId])
 }
