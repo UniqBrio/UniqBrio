@@ -24,9 +24,8 @@ function getDefaultDashboard(role: string): string {
 
 // Define public paths that don't require authentication
 const publicPaths = [
-  "/", // Root page
   "/login",
-  "/signup",
+  "/signup", 
   "/forgot-password",
   "/reset-password",
   "/verify-email", // Page to handle link click
@@ -51,12 +50,28 @@ export async function middleware(request: NextRequest) {
 
   console.log(`[Middleware] Path requested: ${path}`);
 
+  // Allow root path only
+  if (path === "/") {
+    console.log(`[Middleware] Root path ${path}. Allowing.`);
+    return NextResponse.next();
+  }
+
   // Check if it's a public path first
   const isPublicPath = publicPaths.some((p) => {
     if (p instanceof RegExp) {
-      return p.test(path);
+      const regexMatch = p.test(path);
+      if (regexMatch) {
+        console.log(`[Middleware] Path ${path} matched regex: ${p}`);
+      }
+      return regexMatch;
     }
-    return path === p || (p.endsWith("/") && path.startsWith(p));
+    
+    // Now all paths are strings and we check exact match or prefix match for paths ending with "/"
+    const exactMatch = path === p || (p.endsWith("/") && path.startsWith(p));
+    if (exactMatch) {
+      console.log(`[Middleware] Path ${path} matched string: ${p}`);
+    }
+    return exactMatch;
   });
 
   if (isPublicPath) {
@@ -163,10 +178,10 @@ export async function middleware(request: NextRequest) {
   const onboardingPath = "/profile/create"; // Specific path for super_admin onboarding
 
   // Define role-specific path prefixes
-  const superAdminPaths = ["/super-admin", "/admin", "/instructor", "/student"]; // Super admin can access all role dashboards + their own
+  const superAdminPaths = ["/super-admin", "/admin", "/instructor", "/student", "/dashboard"]; // Super admin can access all role dashboards + their own + main dashboard
   const adminPaths = ["/admin", "/instructor", "/student", "/dashboard"]; // Admin can access admin, instructor, student, and dashboard
-  const instructorPaths = ["/instructor", "/student"]; // Instructor can access instructor, student
-  const studentPaths = ["/student"]; // Student can access student
+  const instructorPaths = ["/instructor", "/student", "/dashboard"]; // Instructor can access instructor, student, and dashboard
+  const studentPaths = ["/student", "/dashboard"]; // Student can access student and dashboard
 
   // Define paths accessible by *any* authenticated user
   const sharedAuthenticatedPaths = ["/account", "/settings", "/notifications", "/verification", "/verify-otp", "/register"];
