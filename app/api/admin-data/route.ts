@@ -79,12 +79,25 @@ async function getKYCQueue() {
           select: { email: true, name: true, kycStatus: true, kycSubmissionDate: true }
         });
 
+        // Get academy name from registration data
+        const registration = await prisma.registration.findFirst({
+          where: { 
+            OR: [
+              { userId: submission.userId },
+              { academyId: submission.academyId }
+            ]
+          },
+          select: { businessInfo: true }
+        });
+        
+        const academyName = registration?.businessInfo?.businessName || `Academy ${submission.academyId}`;
+
         // For now, we'll extract academy name from the location or use academy ID
         return {
           id: submission.id,
           academyId: submission.academyId,
           userId: submission.userId,
-          academyName: `Academy ${submission.academyId}`, // We can enhance this later
+          academyName: academyName,
           ownerName: user?.name || 'Unknown',
           ownerEmail: user?.email || 'Unknown',
           location: submission.location,
@@ -144,10 +157,23 @@ async function getAcademies() {
           }
         });
 
+        // Get academy name from registration data
+        const registration = await prisma.registration.findFirst({
+          where: { 
+            OR: [
+              { userId: user.userId! },
+              { academyId: user.academyId! }
+            ]
+          },
+          select: { businessInfo: true }
+        });
+        
+        const academyName = registration?.businessInfo?.businessName || `Academy ${user.academyId}`;
+
         return {
           academyId: user.academyId,
           userId: user.userId,
-          academyName: `Academy ${user.academyId}`,
+          academyName: academyName,
           ownerName: user.name,
           ownerEmail: user.email,
           verified: user.verified,

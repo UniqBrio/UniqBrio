@@ -215,22 +215,39 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Store all data in MongoDB Atlas via Prisma
-    const kycSubmission = await prisma.kycSubmission.create({
-      data: {
-        userId: finalUserId,
-        academyId: finalAcademyId,
-        ownerImageUrl,
-        bannerImageUrl,
-        ownerWithBannerImageUrl,
-        location,
-        latitude,
-        longitude,
-        address,
-        dateTime,
-      },
+    // Store all data in MongoDB Atlas via Prisma - Use transaction to update both KYC submission and user status
+    const result = await prisma.$transaction(async (tx) => {
+      // Create KYC submission
+      const kycSubmission = await tx.kycSubmission.create({
+        data: {
+          userId: finalUserId,
+          academyId: finalAcademyId,
+          ownerImageUrl,
+          bannerImageUrl,
+          ownerWithBannerImageUrl,
+          location,
+          latitude,
+          longitude,
+          address,
+          dateTime,
+        },
+      });
+
+      // Update user record with KYC submission date and set status to pending
+      const updatedUser = await tx.user.update({
+        where: { email: userEmail },
+        data: {
+          kycStatus: "pending",
+          kycSubmissionDate: new Date()
+        }
+      });
+
+      console.log("[kyc-upload] Updated user KYC status to pending for:", userEmail);
+
+      return { kycSubmission, updatedUser };
     });
 
+    const { kycSubmission } = result;
     console.log("[kyc-upload] KYC submission created successfully:", kycSubmission.id);
 
     // Send confirmation email to user

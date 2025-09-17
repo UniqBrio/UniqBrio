@@ -78,28 +78,12 @@ export async function POST(req: Request) {
         },
       });
 
-      // Create Registration record with all academy data (no separate Academy model)
+      // Create Registration record with nested objects only (cleaner approach)
       const registration = await tx.registration.create({
         data: {
           academyId,
           userId,
-          // Academy Information (stored directly in registration)
-          academyName: body.businessInfo.businessName,
-          legalEntityName: body?.businessInfo?.legalEntityName || "",
-          academyEmail: body?.businessInfo?.businessEmail || email,
-          academyPhone: body?.businessInfo?.phoneNumber || "",
-          industryType: body?.businessInfo?.industryType || "",
-          servicesOffered: body?.businessInfo?.servicesOffered || [],
-          studentSize: body?.businessInfo?.studentSize || "",
-          staffCount: body?.businessInfo?.staffCount || "",
-          country: body?.businessInfo?.country || "",
-          state: body?.businessInfo?.state || "",
-          city: body?.businessInfo?.city || "",
-          address: body?.businessInfo?.address || "",
-          website: body?.businessInfo?.website || "",
-          preferredLanguage: body?.businessInfo?.preferredLanguage || "",
-          logoUrl: "", // Can be updated later
-          // Registration Data (existing fields)
+          // Store all data in nested objects only - no duplication
           businessInfo: body?.businessInfo || {},
           adminInfo: body?.adminInfo || {},
           preferences: body?.preferences || {},

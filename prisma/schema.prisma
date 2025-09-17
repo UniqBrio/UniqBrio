@@ -130,24 +130,7 @@ model Registration {
   academyId         String    @unique
   userId            String    @unique
   
-  // Academy Information (moved from Academy model)
-  academyName       String?
-  legalEntityName   String?
-  academyEmail      String?
-  academyPhone      String?
-  industryType      String?
-  servicesOffered   String[]
-  studentSize       String?
-  staffCount        String?
-  country           String?
-  state             String?
-  city              String?
-  address           String?
-  website           String?
-  preferredLanguage String?
-  logoUrl           String?
-  
-  // Registration Data (existing)
+  // Registration Data (nested objects only - clean approach)
   businessInfo      Json
   adminInfo         Json
   preferences       Json?
