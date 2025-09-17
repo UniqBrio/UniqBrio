@@ -33,9 +33,12 @@ const publicPaths = [
   "/troubleshoot",
   "/reset-success",
   "/verification-pending",
+  "/UBAdmin", // UniqBrio Admin panel
   // API Routes - Allow specific prefixes
   "/api/auth/",
   "/api/payload/",
+  "/api/admin-auth", // Admin authentication
+  "/api/admin-data", // Admin data endpoints
   // Next.js internals and static assets
   "/_next/",
   // Files with extensions (e.g., .png, .ico)

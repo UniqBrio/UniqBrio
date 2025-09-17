@@ -158,10 +158,10 @@ export default function RegistrationForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) {
-        throw new Error("Registration failed");
-      }
       const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || "Registration failed");
+      }
       toast({
         title: "Registration Successful!",
         description: (

@@ -126,7 +126,7 @@ const Dashboard = () => {
   const [academyId, setAcademyId] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [registrationRecords, setRegistrationRecords] = useState<number>(0);
-  const [kycStatus, setKycStatus] = useState<"pending" | "submitted" | "verified" | null>(null);
+  const [kycStatus, setKycStatus] = useState<"pending" | "submitted" | "verified" | "expired" | "rejected" | null>(null);
   const [showKycSuccessNotification, setShowKycSuccessNotification] = useState(false);
 
   useEffect(() => {
@@ -135,17 +135,6 @@ const Dashboard = () => {
     if (kycSuccessShown && !showKycSuccessNotification) {
       setShowKycSuccessNotification(true);
       localStorage.removeItem('kycSuccessShown'); // Clear after showing
-    }
-    
-    // Get KYC status from localStorage 
-    const storedKycStatus = localStorage.getItem('kycStatus');
-    if (storedKycStatus) {
-      setKycStatus(storedKycStatus as "pending" | "submitted" | "verified");
-    }
-    
-    // Only show KYC popup if KYC is not submitted or verified
-    if (!storedKycStatus || storedKycStatus === "pending") {
-      setShowKycPopup(true);
     }
     
     // Calculate days left for KYC
@@ -162,6 +151,66 @@ const Dashboard = () => {
       window.localStorage.setItem("kycDeadline", deadline.toISOString());
       setKycDaysLeft(14);
     }
+
+    // For first-time users, ensure KYC deadline is set correctly
+    const registrationCompleted = window.localStorage.getItem("justRegistered");
+    if (registrationCompleted === "true") {
+      // Reset KYC deadline for newly registered users
+      const deadline = new Date();
+      deadline.setDate(deadline.getDate() + 14);
+      window.localStorage.setItem("kycDeadline", deadline.toISOString());
+      setKycDaysLeft(14);
+      window.localStorage.removeItem("justRegistered");
+    }
+
+    // Fetch KYC status from API instead of localStorage
+    const fetchKycStatus = async () => {
+      try {
+        const response = await fetch("/api/kyc-status");
+        if (response.ok) {
+          const data = await response.json();
+          console.log("KYC Status API Response:", data);
+          setKycStatus(data.status);
+          
+          // Only show KYC popup if KYC is not submitted or verified
+          if (data.status === "pending") {
+            setShowKycPopup(true);
+          } else if (data.status === "verified") {
+            // Clear any pending banners and show a one-time congrats
+            setShowKycPopup(false);
+            setShowKycForm(false);
+            if (!localStorage.getItem('kycVerifiedShown')) {
+              setShowKycSuccessNotification(true);
+              localStorage.setItem('kycVerifiedShown', '1');
+            }
+          }
+        } else {
+          console.error("Failed to fetch KYC status:", response.status);
+          // Fallback to localStorage if API fails
+          const storedKycStatus = localStorage.getItem('kycStatus');
+          if (storedKycStatus) {
+            setKycStatus(storedKycStatus as "pending" | "submitted" | "verified");
+          }
+          
+          if (!storedKycStatus || storedKycStatus === "pending") {
+            setShowKycPopup(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching KYC status:", error);
+        // Fallback to localStorage if API fails
+        const storedKycStatus = localStorage.getItem('kycStatus');
+        if (storedKycStatus) {
+          setKycStatus(storedKycStatus as "pending" | "submitted" | "verified");
+        }
+        
+        if (!storedKycStatus || storedKycStatus === "pending") {
+          setShowKycPopup(true);
+        }
+      }
+    };
+
+    fetchKycStatus();
 
     // Fetch academy/user info (scoped by session cookie)
     const fetchAcademyInfo = async () => {
@@ -232,12 +281,17 @@ const Dashboard = () => {
     setShowKycForm(false);
     setShowKycPopup(false);
     setShowKycSuccessNotification(true);
+    
+    // Auto-hide the success notification after 5 seconds
+    setTimeout(() => {
+      setShowKycSuccessNotification(false);
+    }, 5000);
   };
 
   const isBrowser = typeof window !== "undefined";
   return (
     <div className="flex flex-col space-y-6">
-      {/* KYC Success Notification */}
+      {/* KYC Success Notification - Temporary toast-style popup */}
       {showKycSuccessNotification && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-md">
           <div className="flex items-start">
@@ -265,19 +319,45 @@ const Dashboard = () => {
         </div>
       )}
       
-      {/* Persistent KYC warning message at top - only show if KYC not submitted */}
-      {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && (
-        <div className="w-full bg-orange-100 border-b-2 border-orange-400 text-orange-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
-          Please complete verification to continue using the amazing features of UniqBrio —
-          <span className="ml-2 font-bold">{kycDaysLeft} days</span> of verification pending.
-        </div>
-      )}
-      
-      {/* KYC Status notification bar for submitted status */}
-      {kycStatus === "submitted" && (
-        <div className="w-full bg-blue-100 border-b-2 border-blue-400 text-blue-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
-          ✅ KYC Submitted Successfully! Your documents are under review. You'll receive confirmation within 24 hours.
-        </div>
+      {/* Single KYC Status Banner - Consolidated notification logic */}
+      {!showKycSuccessNotification && (
+        <>
+          {/* Pending KYC - Show warning with days left */}
+          {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && (
+            <div className="w-full bg-orange-100 border-b-2 border-orange-400 text-orange-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+              Please complete verification to continue using the amazing features of UniqBrio —
+              <span className="ml-2 font-bold">{kycDaysLeft} days</span> of verification pending.
+            </div>
+          )}
+          
+          {/* Submitted KYC - Show under review message */}
+          {kycStatus === 'submitted' && (
+            <div className="w-full bg-blue-100 border-b-2 border-blue-400 text-blue-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+              ✅ KYC Submitted Successfully! Your documents are under review. You'll receive confirmation within 24 hours.
+            </div>
+          )}
+          
+          {/* Verified KYC - Show success message */}
+          {kycStatus === 'verified' && (
+            <div className="w-full bg-green-100 border-b-2 border-green-400 text-green-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+              🎉 Congratulations! Your KYC is verified.
+            </div>
+          )}
+          
+          {/* Rejected KYC - Show rejection message */}
+          {kycStatus === 'rejected' && (
+            <div className="w-full bg-red-100 border-b-2 border-red-400 text-red-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+              ❌ KYC Rejected. Please re-upload your documents to proceed.
+            </div>
+          )}
+          
+          {/* Expired KYC - Show expiration message */}
+          {kycStatus === 'expired' && (
+            <div className="w-full bg-yellow-100 border-b-2 border-yellow-400 text-yellow-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+              ⌛ Your KYC window has expired. Please submit your KYC to regain access.
+            </div>
+          )}
+        </>
       )}
       
       {/* KYC Popup - only show if KYC status is pending */}

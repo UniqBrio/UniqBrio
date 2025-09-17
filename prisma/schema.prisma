@@ -22,18 +22,24 @@ model KycSubmission {
   address      String?
   dateTime     String
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   
-  @@map("KycSubmission") // Maps to existing collection
+  // Relations
+  reviews      KycReview[]
 }
 
-model KycReminderLog {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String
-  dayNumber Int      // 1, 7, 10, 13, or 14
-  sentAt    DateTime @default(now())
+model KycReview {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  kycId         String   @db.ObjectId
+  reviewerId    String   // Admin user ID who reviewed
+  status        String   // "approved" | "rejected"
+  comments      String?  // Reason for rejection or approval notes
+  reviewedAt    DateTime @default(now())
   
-  @@unique([userId, dayNumber])
-  @@map("kyc_reminder_logs")
+  // Relations
+  kyc           KycSubmission @relation(fields: [kycId], references: [id])
+  
+  @@index([kycId])
 }
 // Add these enums at the top level of your schema file
 enum UserRole {
@@ -41,9 +47,15 @@ enum UserRole {
   student
   admin
   instructor  // Added
-  
 
   // Add other roles as needed
+}
+
+enum KycStatus {
+  pending
+  approved
+  rejected
+  expired
 }
 
 enum TicketStatus {
@@ -64,55 +76,34 @@ enum IssueType {
 }
 
 model User {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String?   @unique
-  academyId         String?
-  name              String
-  email             String    @unique
-  phone             String?
-  password          String?
-  role              UserRole?
-  verified          Boolean   @default(false)
-  verificationToken String?   
-  otp               String?
-  otpExpiry         DateTime?
-  resetToken        String?   
-  resetTokenExpiry  DateTime?
-  failedAttempts    Int       @default(0)
-  lockedUntil       DateTime?
-  googleId          String?  
-  image             String?   // Add field for user image/avatar (see point 3)
-  registrationComplete Boolean @default(false)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String?   @unique
+  academyId            String?
+  name                 String
+  email                String    @unique
+  phone                String?
+  password             String?
+  role                 UserRole?
+  verified             Boolean   @default(false)
+  verificationToken    String?   
+  otp                  String?
+  otpExpiry            DateTime?
+  resetToken           String?   
+  resetTokenExpiry     DateTime?
+  failedAttempts       Int       @default(0)
+  lockedUntil          DateTime?
+  googleId             String?  
+  image                String?   // Add field for user image/avatar (see point 3)
+  registrationComplete Boolean   @default(false)
+
+  // KYC fields
+  kycStatus            KycStatus @default(pending)
+  kycSubmissionDate    DateTime?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   // Optional: Add relation if SupportTickets should be linked to users
   // supportTickets SupportTicket[]
-  
-  @@map("User") // Maps to existing "User" collection
-}
-
-model Academy {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  academyId         String    @unique
-  name              String
-  legalEntityName   String?
-  email             String?
-  phone             String?
-  industryType      String?
-  servicesOffered   String[]
-  studentSize       String?
-  staffCount        String?
-  country           String?
-  state             String?
-  city              String?
-  address           String?
-  website           String?
-  preferredLanguage String?
-  logoUrl           String?
-  createdAt         DateTime  @default(now())
-// ...existing code...
-
-  @@map("Academy") // Maps to existing "Academy" collection
 }
 
 model SupportTicket {
@@ -133,17 +124,38 @@ model SupportTicket {
   // @@index([userId])
 }
 
-/// Maps to existing "registrations" collection
+/// @collection("registrations")
 model Registration {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  academyId    String
-  userId       String
-  businessInfo Json
-  adminInfo    Json
-  preferences  Json?
-  createdAt    DateTime @default(now())
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  academyId         String    @unique
+  userId            String    @unique
   
-  @@map("registrations") // Maps to existing "registrations" collection
+  // Academy Information (moved from Academy model)
+  academyName       String?
+  legalEntityName   String?
+  academyEmail      String?
+  academyPhone      String?
+  industryType      String?
+  servicesOffered   String[]
+  studentSize       String?
+  staffCount        String?
+  country           String?
+  state             String?
+  city              String?
+  address           String?
+  website           String?
+  preferredLanguage String?
+  logoUrl           String?
+  
+  // Registration Data (existing)
+  businessInfo      Json
+  adminInfo         Json
+  preferences       Json?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime? @updatedAt
+  
+  @@map("registrations")
 }
 
 /// Example domain models scoped by academyId (and optionally userId)

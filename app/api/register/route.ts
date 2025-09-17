@@ -1,8 +1,6 @@
 
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/mongodb";
-import Users from "@/models/users";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -17,7 +15,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    await connectToDatabase();
     const body = await req.json();
 
     const email = payload.email as string;
@@ -36,78 +33,91 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Registration already completed." }, { status: 400 });
     }
 
-    // Generate sequential academyId from users collection
-    const lastAcademy = await Users.findOne({}, {}, { sort: { academyId: -1 } });
+    // Validate required fields from request body
+    if (!body?.adminInfo?.fullName) {
+      return NextResponse.json({ error: "Full name is required." }, { status: 400 });
+    }
+    
+    if (!body?.businessInfo?.businessName) {
+      return NextResponse.json({ error: "Business name is required." }, { status: 400 });
+    }
+
+    // Generate sequential academyId using Prisma (check registrations instead of academy)
+    const lastRegistration = await prisma.registration.findFirst({
+      where: { academyId: { startsWith: 'AC' } },
+      orderBy: { academyId: 'desc' }
+    });
     let nextAcademyNum = 1;
-    if (lastAcademy && lastAcademy.academyId && /^AC\d+$/.test(lastAcademy.academyId)) {
-      nextAcademyNum = parseInt(lastAcademy.academyId.replace("AC", "")) + 1;
+    if (lastRegistration && lastRegistration.academyId && /^AC\d+$/.test(lastRegistration.academyId)) {
+      nextAcademyNum = parseInt(lastRegistration.academyId.replace("AC", "")) + 1;
     }
     const academyId = `AC${nextAcademyNum.toString().padStart(6, "0")}`;
 
-    // Generate sequential userId from users collection
-    const lastUser = await Users.findOne({}, {}, { sort: { userId: -1 } });
+    // Generate sequential userId using Prisma
+    const lastUser = await prisma.user.findFirst({
+      where: { userId: { startsWith: 'AD' } },
+      orderBy: { userId: 'desc' }
+    });
     let nextUserNum = 1;
     if (lastUser && lastUser.userId && /^AD\d+$/.test(lastUser.userId)) {
       nextUserNum = parseInt(lastUser.userId.replace("AD", "")) + 1;
     }
     const userId = `AD${nextUserNum.toString().padStart(6, "0")}`;
 
-    // Update basic user info in Prisma User and persist IDs. Do NOT allow client to override role.
-    await prisma.user.update({
-      where: { email },
-      data: {
-        registrationComplete: true,
-        name: body?.adminInfo?.fullName || existingUser.name,
-        phone: body?.adminInfo?.phone || existingUser.phone,
-        role: existingUser.role, // keep current role (server-controlled)
-        userId,
-        academyId,
-      },
-    });
+    // Use Prisma transaction to ensure all operations succeed or fail together
+    const result = await prisma.$transaction(async (tx) => {
+      // Update basic user info and persist IDs
+      const updatedUser = await tx.user.update({
+        where: { email },
+        data: {
+          name: body.adminInfo.fullName,
+          phone: body?.adminInfo?.phone || existingUser.phone,
+          role: existingUser.role, // keep current role (server-controlled)
+          userId,
+          academyId,
+        },
+      });
 
-    // Create Prisma Registration record for consistent querying elsewhere
-    await prisma.registration.create({
-      data: {
-        academyId,
-        userId,
-        businessInfo: body?.businessInfo || {},
-        adminInfo: body?.adminInfo || {},
-        preferences: body?.preferences || {},
-      },
-    });
+      // Create Registration record with all academy data (no separate Academy model)
+      const registration = await tx.registration.create({
+        data: {
+          academyId,
+          userId,
+          // Academy Information (stored directly in registration)
+          academyName: body.businessInfo.businessName,
+          legalEntityName: body?.businessInfo?.legalEntityName || "",
+          academyEmail: body?.businessInfo?.businessEmail || email,
+          academyPhone: body?.businessInfo?.phoneNumber || "",
+          industryType: body?.businessInfo?.industryType || "",
+          servicesOffered: body?.businessInfo?.servicesOffered || [],
+          studentSize: body?.businessInfo?.studentSize || "",
+          staffCount: body?.businessInfo?.staffCount || "",
+          country: body?.businessInfo?.country || "",
+          state: body?.businessInfo?.state || "",
+          city: body?.businessInfo?.city || "",
+          address: body?.businessInfo?.address || "",
+          website: body?.businessInfo?.website || "",
+          preferredLanguage: body?.businessInfo?.preferredLanguage || "",
+          logoUrl: "", // Can be updated later
+          // Registration Data (existing fields)
+          businessInfo: body?.businessInfo || {},
+          adminInfo: body?.adminInfo || {},
+          preferences: body?.preferences || {},
+        },
+      });
 
-    // Create Academy record in Prisma
-    await prisma.academy.create({
-      data: {
-        academyId,
-        name: body?.businessInfo?.businessName || "",
-        legalEntityName: body?.businessInfo?.legalEntityName || "",
-        email: body?.businessInfo?.businessEmail || "",
-        phone: body?.businessInfo?.phoneNumber || "",
-        industryType: body?.businessInfo?.industryType || "",
-        servicesOffered: body?.businessInfo?.servicesOffered || [],
-        studentSize: body?.businessInfo?.studentSize || "",
-        staffCount: body?.businessInfo?.staffCount || "",
-        country: body?.businessInfo?.country || "",
-        state: body?.businessInfo?.state || "",
-        city: body?.businessInfo?.city || "",
-        address: body?.businessInfo?.address || "",
-        website: body?.businessInfo?.website || "",
-        preferredLanguage: body?.businessInfo?.preferredLanguage || "",
-      },
-    });
+      // Only after all operations succeed, mark registration as complete
+      const finalUser = await tx.user.update({
+        where: { email },
+        data: { registrationComplete: true },
+      });
 
-    // Store registration details in users collection (Mongoose)
-    await Users.create({
-      userId,
-      academyId,
-      businessInfo: body?.businessInfo || {},
-      adminInfo: body?.adminInfo || {},
-      preferences: body?.preferences || {},
+      return { updatedUser, registration, finalUser };
     });
 
     return NextResponse.json({ success: true, userId, academyId });
   } catch (error) {
+    console.error("Registration error:", error);
     return NextResponse.json({ error: "Registration failed." }, { status: 500 });
   }
 }

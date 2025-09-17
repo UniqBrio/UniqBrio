@@ -9,6 +9,15 @@ const R2_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT!;
 const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!;
 const R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!;
 const R2_BUCKET = process.env.CLOUDFLARE_R2_BUCKET!;
+const R2_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL || `https://pub-${R2_BUCKET}.r2.dev`;
+
+console.log("[kyc-upload] R2 Configuration:", {
+  endpoint: R2_ENDPOINT,
+  bucket: R2_BUCKET,
+  publicUrl: R2_PUBLIC_URL,
+  hasAccessKey: !!R2_ACCESS_KEY_ID,
+  hasSecretKey: !!R2_SECRET_ACCESS_KEY
+});
 
 const s3 = new S3Client({
   region: "auto",
@@ -38,6 +47,9 @@ async function uploadToR2(file: File | null, prefix: string): Promise<string> {
   const buffer = Buffer.from(arrayBuffer);
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const key = `${prefix}/${uuidv4()}-${safeName}`;
+  
+  console.log(`[uploadToR2] Uploading file: ${file.name} (${file.size} bytes) to key: ${key}`);
+  
   await s3.send(
     new PutObjectCommand({
       Bucket: R2_BUCKET,
@@ -46,8 +58,14 @@ async function uploadToR2(file: File | null, prefix: string): Promise<string> {
       ContentType: file.type,
     })
   );
-  // Return public URL for the uploaded image
-  return `${R2_ENDPOINT}/${R2_BUCKET}/${key}`;
+  
+  // Return proxy URL for the uploaded image
+  const baseUrl = process.env.NODE_ENV === 'development' 
+    ? "http://localhost:3000" 
+    : (process.env.NEXTAUTH_URL || "https://uniqbrio.vercel.app");
+  const proxyUrl = `${baseUrl}/api/r2-proxy/${key}`;
+  console.log(`[uploadToR2] File uploaded successfully. Proxy URL: ${proxyUrl}`);
+  return proxyUrl;
 }
 
 // Helper function to convert base64 to File
@@ -181,6 +199,21 @@ export async function POST(req: NextRequest) {
       bannerImageUrl: !!bannerImageUrl,
       ownerWithBannerImageUrl: !!ownerWithBannerImageUrl
     });
+
+    // Check if KYC submission already exists for this academy
+    const existingKYC = await prisma.kycSubmission.findFirst({
+      where: {
+        userId: finalUserId,
+        academyId: finalAcademyId
+      }
+    });
+
+    if (existingKYC) {
+      console.log("[kyc-upload] KYC already exists for this academy:", { userId: finalUserId, academyId: finalAcademyId });
+      return NextResponse.json({
+        error: "KYC submission already exists for this academy"
+      }, { status: 400 });
+    }
 
     // Store all data in MongoDB Atlas via Prisma
     const kycSubmission = await prisma.kycSubmission.create({
