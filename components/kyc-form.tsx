@@ -171,8 +171,7 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
         console.log("[KYC] KYC submitted successfully!");
         setShowSuccessModal(true);
         
-        // Set localStorage flag for dashboard notification
-        localStorage.setItem('kycSuccessShown', 'true');
+        // Update local storage for KYC status only
         localStorage.setItem('kycStatus', 'submitted');
         
         // Keep the form data for potential resubmission if needed

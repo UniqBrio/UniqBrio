@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SignJWT } from "jose";
+import { SignJWT, jwtVerify } from "jose";
 
 const ADMIN_EMAIL = "admin@uniqbrio.com";
 const ADMIN_PASSWORD = "Integrity@2025";
@@ -64,13 +64,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    // In a real implementation, you'd verify the JWT token here
-    return NextResponse.json({ 
-      authenticated: true,
-      role: "uniqbrio_admin"
-    });
+    // Verify the JWT token
+    try {
+      await jwtVerify(adminSession, JWT_SECRET, {
+        issuer: "urn:uniqbrio:admin:issuer",
+        audience: "urn:uniqbrio:admin:audience"
+      });
+      
+      return NextResponse.json({ 
+        authenticated: true,
+        role: "uniqbrio_admin"
+      });
+    } catch (jwtError) {
+      // Invalid token
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
 
   } catch (error) {
+    console.error("[admin-auth] GET Error:", error);
     return NextResponse.json({ authenticated: false }, { status: 401 });
   }
 }

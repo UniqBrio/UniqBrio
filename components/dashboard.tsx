@@ -119,6 +119,7 @@ const Dashboard = () => {
   const [roiPeriod, setRoiPeriod] = useState("monthly");
   const [forecastPeriod, setForecastPeriod] = useState("month");
   const [showKycPopup, setShowKycPopup] = useState(false);
+  const [showKycRejectedPopup, setShowKycRejectedPopup] = useState(false);
   const [kycDaysLeft, setKycDaysLeft] = useState(14);
   const [showKycForm, setShowKycForm] = useState(false);
   const [academyName, setAcademyName] = useState("");
@@ -128,89 +129,89 @@ const Dashboard = () => {
   const [registrationRecords, setRegistrationRecords] = useState<number>(0);
   const [kycStatus, setKycStatus] = useState<"pending" | "submitted" | "verified" | "expired" | "rejected" | null>(null);
   const [showKycSuccessNotification, setShowKycSuccessNotification] = useState(false);
+  const [showKycVerifiedBanner, setShowKycVerifiedBanner] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for KYC success notification from localStorage
-    const kycSuccessShown = localStorage.getItem('kycSuccessShown');
-    if (kycSuccessShown && !showKycSuccessNotification) {
-      setShowKycSuccessNotification(true);
-      localStorage.removeItem('kycSuccessShown'); // Clear after showing
-    }
-    
-    // Calculate days left for KYC
-    const kycDeadlineStr = window.localStorage.getItem("kycDeadline");
-    if (kycDeadlineStr) {
-      const kycDeadline = new Date(kycDeadlineStr);
-      const today = new Date();
-      const diff = Math.ceil((kycDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      setKycDaysLeft(diff > 0 ? diff : 0);
-    } else {
-      // If no deadline, set it to 14 days from now
-      const deadline = new Date();
-      deadline.setDate(deadline.getDate() + 14);
-      window.localStorage.setItem("kycDeadline", deadline.toISOString());
-      setKycDaysLeft(14);
-    }
-
-    // For first-time users, ensure KYC deadline is set correctly
-    const registrationCompleted = window.localStorage.getItem("justRegistered");
-    if (registrationCompleted === "true") {
-      // Reset KYC deadline for newly registered users
-      const deadline = new Date();
-      deadline.setDate(deadline.getDate() + 14);
-      window.localStorage.setItem("kycDeadline", deadline.toISOString());
-      setKycDaysLeft(14);
-      window.localStorage.removeItem("justRegistered");
-    }
-
-    // Fetch KYC status from API instead of localStorage
-    const fetchKycStatus = async () => {
+    // Immediately check KYC status to prevent dashboard flash
+    const checkKycStatusImmediately = async () => {
       try {
         const response = await fetch("/api/kyc-status");
         if (response.ok) {
           const data = await response.json();
           console.log("KYC Status API Response:", data);
+          
+          // If KYC is expired, immediately redirect without showing dashboard
+          if (data.status === "expired") {
+            window.location.href = "/kyc-blocked";
+            return; // Don't set loading to false, keep showing loading until redirect
+          }
+          
+          // Set KYC status and days left from API response (accurate calculation)
           setKycStatus(data.status);
-          
-          // Only show KYC popup if KYC is not submitted or verified
-          if (data.status === "pending") {
-            setShowKycPopup(true);
-          } else if (data.status === "verified") {
-            // Clear any pending banners and show a one-time congrats
-            setShowKycPopup(false);
-            setShowKycForm(false);
-            if (!localStorage.getItem('kycVerifiedShown')) {
-              setShowKycSuccessNotification(true);
-              localStorage.setItem('kycVerifiedShown', '1');
-            }
-          }
-        } else {
-          console.error("Failed to fetch KYC status:", response.status);
-          // Fallback to localStorage if API fails
-          const storedKycStatus = localStorage.getItem('kycStatus');
-          if (storedKycStatus) {
-            setKycStatus(storedKycStatus as "pending" | "submitted" | "verified");
-          }
-          
-          if (!storedKycStatus || storedKycStatus === "pending") {
-            setShowKycPopup(true);
+          if (data.daysLeft !== undefined) {
+            setKycDaysLeft(data.daysLeft);
+            console.log("Days left calculated from API:", data.daysLeft);
           }
         }
       } catch (error) {
-        console.error("Error fetching KYC status:", error);
-        // Fallback to localStorage if API fails
-        const storedKycStatus = localStorage.getItem('kycStatus');
-        if (storedKycStatus) {
-          setKycStatus(storedKycStatus as "pending" | "submitted" | "verified");
-        }
-        
-        if (!storedKycStatus || storedKycStatus === "pending") {
-          setShowKycPopup(true);
-        }
+        console.error("Error checking KYC status:", error);
+      } finally {
+        // Only set loading to false if we're not redirecting
+        setIsLoading(false);
       }
     };
 
-    fetchKycStatus();
+    // Check KYC status first before setting up other dashboard logic
+    checkKycStatusImmediately();
+
+    // Clear any old localStorage flags that might cause issues
+    localStorage.removeItem('kycSuccessShown');
+
+    // Process KYC status after initial check
+    const processKycStatus = () => {
+      if (!kycStatus) return;
+      
+      // Only show KYC popup if KYC is not submitted or verified
+      if (kycStatus === "pending") {
+        setShowKycPopup(true);
+      } else if (kycStatus === "rejected") {
+        // Show rejection popup for rejected KYCs
+        setShowKycRejectedPopup(true);
+        setShowKycPopup(false);
+      } else if (kycStatus === "verified") {
+        // Clear any pending banners and show a one-time congrats
+        setShowKycPopup(false);
+        setShowKycRejectedPopup(false);
+        setShowKycForm(false);
+        const kycVerifiedShown = localStorage.getItem('kycVerifiedShown');
+        console.log("KYC Status is verified. kycVerifiedShown:", kycVerifiedShown);
+        
+        if (!kycVerifiedShown) {
+          console.log("Showing congratulations banner for first time (no success toast for verified status)");
+          setShowKycVerifiedBanner(true); // Show banner only once
+          localStorage.setItem('kycVerifiedShown', '1');
+          
+          // Auto-hide the banner after 8 seconds (longer than popup for better UX)
+          setTimeout(() => {
+            setShowKycVerifiedBanner(false);
+          }, 8000);
+        } else {
+          console.log("KYC verification congratulations already shown, not showing banner");
+          // Don't show banner if already shown before
+          setShowKycVerifiedBanner(false);
+        }
+      } else if (kycStatus === "submitted") {
+        // KYC is submitted, hide all popups
+        setShowKycPopup(false);
+        setShowKycRejectedPopup(false);
+      }
+    };
+
+    // Only process KYC status after it's been set and we're not loading
+    if (kycStatus && !isLoading) {
+      processKycStatus();
+    }
 
     // Fetch academy/user info (scoped by session cookie)
     const fetchAcademyInfo = async () => {
@@ -265,7 +266,7 @@ const Dashboard = () => {
 
     fetchAcademyInfo();
     fetchDashboardSummary();
-  }, []);
+  }, [kycStatus, isLoading]); // Add dependencies
 
   // Stats data
   const stats = [
@@ -289,6 +290,21 @@ const Dashboard = () => {
   };
 
   const isBrowser = typeof window !== "undefined";
+
+  // Show loading state while checking KYC status to prevent dashboard flash
+  if (isLoading) {
+    return (
+      <div className="flex flex-col space-y-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col space-y-6">
       {/* KYC Success Notification - Temporary toast-style popup */}
@@ -322,8 +338,8 @@ const Dashboard = () => {
       {/* Single KYC Status Banner - Consolidated notification logic */}
       {!showKycSuccessNotification && (
         <>
-          {/* Pending KYC - Show warning with days left */}
-          {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && (
+          {/* Pending KYC - Show warning with days left (only if NOT rejected) */}
+          {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
             <div className="w-full bg-orange-100 border-b-2 border-orange-400 text-orange-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
               Please complete verification to continue using the amazing features of UniqBrio —
               <span className="ml-2 font-bold">{kycDaysLeft} days</span> of verification pending.
@@ -337,17 +353,36 @@ const Dashboard = () => {
             </div>
           )}
           
-          {/* Verified KYC - Show success message */}
-          {kycStatus === 'verified' && (
+          {/* Verified KYC - Show success message (only once) */}
+          {showKycVerifiedBanner && (
             <div className="w-full bg-green-100 border-b-2 border-green-400 text-green-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
-              🎉 Congratulations! Your KYC is verified.
+              <div className="flex items-center justify-center relative">
+                <span>🎉 Congratulations! Your KYC is verified.</span>
+                <button
+                  onClick={() => setShowKycVerifiedBanner(false)}
+                  className="absolute right-0 text-green-600 hover:text-green-800 ml-4"
+                  aria-label="Close"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
           
-          {/* Rejected KYC - Show rejection message */}
+          {/* Rejected KYC - Show rejection message with action button */}
           {kycStatus === 'rejected' && (
             <div className="w-full bg-red-100 border-b-2 border-red-400 text-red-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
-              ❌ KYC Rejected. Please re-upload your documents to proceed.
+              <div className="flex items-center justify-center gap-4">
+                <span>❌ KYC Rejected. Please re-upload your documents to proceed.</span>
+                <button
+                  onClick={() => setShowKycForm(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded text-sm font-medium transition-colors"
+                >
+                  Upload KYC Again
+                </button>
+              </div>
             </div>
           )}
           
@@ -361,7 +396,7 @@ const Dashboard = () => {
       )}
       
       {/* KYC Popup - only show if KYC status is pending */}
-      {showKycPopup && kycStatus !== "submitted" && kycStatus !== "verified" && (
+      {showKycPopup && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-orange-400">
             <h2 className="text-2xl font-extrabold mb-3 text-purple-700">Continue using UniqBrio uninterrupted!</h2>
@@ -379,14 +414,51 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Verification Button - only show if KYC not submitted */}
-      {!showKycForm && kycStatus !== "submitted" && kycStatus !== "verified" && (
+      {/* KYC Rejected Popup */}
+      {showKycRejectedPopup && kycStatus === "rejected" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-red-500">
+            <div className="mb-4">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.232 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-extrabold mb-3 text-red-700">KYC Rejected</h2>
+            <p className="mb-6 text-gray-700">
+              Your KYC documents have been rejected. Please review the feedback and upload corrected documents to continue using UniqBrio.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                onClick={() => setShowKycRejectedPopup(false)}
+              >
+                Close
+              </button>
+              <button
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 transition-transform"
+                onClick={() => { setShowKycRejectedPopup(false); setShowKycForm(true); }}
+              >
+                <span className="mr-2">📄</span> Upload KYC Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Verification Button - show for pending, rejected, or expired KYCs */}
+      {!showKycForm && (kycStatus === "pending" || kycStatus === "rejected" || kycStatus === "expired" || (!kycStatus && kycStatus !== "submitted" && kycStatus !== "verified")) && (
         <div className="flex justify-end mb-4">
           <button
-            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+            className={`px-4 py-2 rounded font-medium transition-colors ${
+              kycStatus === "rejected" 
+                ? "bg-red-600 text-white hover:bg-red-700" 
+                : "bg-purple-600 text-white hover:bg-purple-700"
+            }`}
             onClick={() => setShowKycForm(true)}
           >
-            Verification
+            {kycStatus === "rejected" ? "Upload KYC Again" : "Verification"}
           </button>
         </div>
       )}

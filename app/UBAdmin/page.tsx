@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import KYCRejectionModal from "@/components/kyc-rejection-modal"
 import { 
   Users, 
   Shield, 
@@ -77,8 +78,13 @@ export default function UBAdminPage() {
   const checkAuthStatus = async () => {
     try {
       const response = await fetch("/api/admin-auth")
+      console.log("Auth check response:", response.status)
       if (response.ok) {
+        const data = await response.json()
+        console.log("Auth data:", data)
         setIsAuthenticated(true)
+      } else {
+        console.log("Auth failed:", response.status)
       }
     } catch (error) {
       console.error("Auth check failed:", error)
@@ -303,6 +309,8 @@ function AdminDashboard({ stats }: { stats: any }) {
 function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: () => void }) {
   const [selectedKYC, setSelectedKYC] = useState<any>(null)
   const [showDocuments, setShowDocuments] = useState(false)
+  const [rejectionModalOpen, setRejectionModalOpen] = useState(false)
+  const [kycToReject, setKycToReject] = useState<any>(null)
 
   const handleApproveKYC = async (kycId: string) => {
     try {
@@ -326,23 +334,36 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
   }
 
   const handleRejectKYC = async (kycId: string) => {
+    // Find the KYC item to get user info for the modal
+    const kycItem = kycQueue.find(item => item.id === kycId)
+    setKycToReject(kycItem)
+    setRejectionModalOpen(true)
+  }
+
+  const handleRejectionSubmit = async (rejectionData: { reasons: string[]; customMessage: string }) => {
+    if (!kycToReject) return
+
     try {
       const response = await fetch("/api/admin-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "update-kyc-status",
-          kycId,
-          status: "rejected"
+          action: "update-kyc-status-with-email",
+          kycId: kycToReject.id,
+          status: "rejected",
+          rejectionReasons: rejectionData.reasons,
+          customMessage: rejectionData.customMessage
         })
       })
 
       if (response.ok) {
         onRefresh()
-        alert("KYC rejected successfully!")
+        alert("KYC rejected and email sent successfully!")
+        setKycToReject(null)
       }
     } catch (error) {
-      alert("Failed to reject KYC")
+      console.error("Error rejecting KYC:", error)
+      throw error // Re-throw to let modal handle the error
     }
   }
 
@@ -369,18 +390,37 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
               kycQueue.map((item, index) => (
                 <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex-1">
-                    <h4 className="font-medium">{item.academyName}</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-medium">{item.academyName}</h4>
+                      {item.isResubmission && (
+                        <Badge variant="secondary" className="text-blue-600 border-blue-600 bg-blue-50">
+                          Resubmitted
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-600">
                       Owner: {item.ownerName} ({item.ownerEmail})
                     </p>
                     <p className="text-sm text-gray-600">
                       Location: {item.location} • Submitted: {new Date(item.submittedAt).toLocaleDateString()}
+                      {item.totalSubmissions > 1 && (
+                        <span className="ml-2 text-xs text-blue-600">
+                          (Submission #{item.totalSubmissions})
+                        </span>
+                      )}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-orange-600 border-orange-600">
-                      {item.status}
-                    </Badge>
+                    <div className="flex flex-col gap-1">
+                      <Badge variant="outline" className="text-orange-600 border-orange-600">
+                        {item.status}
+                      </Badge>
+                      {item.isResubmission && (
+                        <Badge variant="secondary" className="text-xs text-blue-700 bg-blue-100 border-blue-300">
+                          Resubmission
+                        </Badge>
+                      )}
+                    </div>
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -530,6 +570,20 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
           </div>
         </div>
       )}
+
+      {/* KYC Rejection Modal */}
+      <KYCRejectionModal
+        isOpen={rejectionModalOpen}
+        onClose={() => {
+          setRejectionModalOpen(false)
+          setKycToReject(null)
+        }}
+        onSubmit={handleRejectionSubmit}
+        userInfo={kycToReject ? {
+          name: kycToReject.ownerName,
+          email: kycToReject.ownerEmail
+        } : undefined}
+      />
     </div>
   )
 }

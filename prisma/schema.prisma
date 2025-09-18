@@ -34,6 +34,8 @@ model KycReview {
   reviewerId    String   // Admin user ID who reviewed
   status        String   // "approved" | "rejected"
   comments      String?  // Reason for rejection or approval notes
+  rejectionReasons String[] @default([]) // Array of specific rejection reasons (for detailed rejections)
+  customMessage String?  // Custom message from admin (for detailed rejections)
   reviewedAt    DateTime @default(now())
   
   // Relations

@@ -79,6 +79,25 @@ async function getKYCQueue() {
           select: { email: true, name: true, kycStatus: true, kycSubmissionDate: true }
         });
 
+        // Check if this is a resubmission by looking for previous rejections
+        const hasRejection = await prisma.kycReview.findFirst({
+          where: {
+            kyc: {
+              userId: submission.userId,
+              academyId: submission.academyId
+            },
+            status: 'rejected'
+          }
+        });
+
+        // Count total submissions for this user/academy to detect resubmissions
+        const totalSubmissions = await prisma.kycSubmission.count({
+          where: {
+            userId: submission.userId,
+            academyId: submission.academyId
+          }
+        });
+
         // Get academy name from registration data
         const registration = await prisma.registration.findFirst({
           where: { 
@@ -90,7 +109,10 @@ async function getKYCQueue() {
           select: { businessInfo: true }
         });
         
-        const academyName = registration?.businessInfo?.businessName || `Academy ${submission.academyId}`;
+        let academyName = `Academy ${submission.academyId}`;
+        if (registration?.businessInfo && typeof registration.businessInfo === 'object' && 'businessName' in registration.businessInfo) {
+          academyName = (registration.businessInfo as { businessName?: string }).businessName || academyName;
+        }
 
         // For now, we'll extract academy name from the location or use academy ID
         return {
@@ -109,7 +131,9 @@ async function getKYCQueue() {
           status: user?.kycStatus || 'pending',
           ownerImageUrl: submission.ownerImageUrl,
           bannerImageUrl: submission.bannerImageUrl,
-          ownerWithBannerImageUrl: submission.ownerWithBannerImageUrl
+          ownerWithBannerImageUrl: submission.ownerWithBannerImageUrl,
+          isResubmission: !!hasRejection || totalSubmissions > 1, // Flag for resubmissions
+          totalSubmissions: totalSubmissions // Count of submissions
         };
       })
     );
@@ -168,7 +192,14 @@ async function getAcademies() {
           select: { businessInfo: true }
         });
         
-        const academyName = registration?.businessInfo?.businessName || `Academy ${user.academyId}`;
+        let academyName = `Academy ${user.academyId}`;
+        if (
+          registration?.businessInfo &&
+          typeof registration.businessInfo === 'object' &&
+          'businessName' in registration.businessInfo
+        ) {
+          academyName = (registration.businessInfo as { businessName?: string }).businessName || academyName;
+        }
 
         return {
           academyId: user.academyId,
@@ -274,9 +305,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { action, kycId, status, notes } = await request.json();
+    const { action, kycId, status, notes, rejectionReasons, customMessage } = await request.json();
 
-    if (action === 'update-kyc-status') {
+    if (action === 'update-kyc-status' || action === 'update-kyc-status-with-email') {
       if (!kycId || !status) {
         return NextResponse.json({ error: "kycId and status are required" }, { status: 400 });
       }
@@ -304,11 +335,30 @@ export async function POST(request: NextRequest) {
         data: updateData,
       });
 
+      // Create KycReview record for audit trail
+      const reviewData: any = {
+        kycId: kycId,
+        reviewerId: "admin", // In a real app, this would be the actual admin's ID
+        status: status,
+        comments: notes || (status === 'approved' ? 'KYC approved by admin' : 'KYC rejected by admin'),
+      };
+
+      // Add detailed rejection data if available
+      if (action === 'update-kyc-status-with-email' && rejectionReasons && Array.isArray(rejectionReasons)) {
+        reviewData.rejectionReasons = rejectionReasons;
+        reviewData.customMessage = customMessage;
+      }
+
+      await prisma.kycReview.create({
+        data: reviewData
+      });
+
       // Notify user via email
       try {
         const userDoc = await prisma.user.findFirst({ where: { userId: latest.userId }, select: { email: true, name: true } });
         if (userDoc?.email) {
-          const { sendEmail } = await import("@/lib/email");
+          const { sendEmail, generateKYCRejectionEmail } = await import("@/lib/email");
+          
           if (status === 'approved') {
             await sendEmail({
               to: userDoc.email,
@@ -316,11 +366,24 @@ export async function POST(request: NextRequest) {
               html: `<p>Hi ${userDoc.name || 'there'},</p><p>Your KYC has been approved. You now have full access to UniqBrio.</p>`
             });
           } else if (status === 'rejected') {
-            await sendEmail({
-              to: userDoc.email,
-              subject: "KYC Rejected - UniqBrio",
-              html: `<p>Hi ${userDoc.name || 'there'},</p><p>Your KYC submission was rejected.${notes ? ` Reason: ${notes}` : ''}</p><p>Please resubmit your documents.</p>`
-            });
+            // Check if this is the new detailed rejection with email template
+            if (action === 'update-kyc-status-with-email' && rejectionReasons && Array.isArray(rejectionReasons)) {
+              // Use the new professional email template
+              const emailContent = generateKYCRejectionEmail(
+                userDoc.email,
+                userDoc.name || 'Valued User',
+                rejectionReasons,
+                customMessage
+              );
+              await sendEmail(emailContent);
+            } else {
+              // Fallback to old simple rejection email
+              await sendEmail({
+                to: userDoc.email,
+                subject: "KYC Rejected - UniqBrio",
+                html: `<p>Hi ${userDoc.name || 'there'},</p><p>Your KYC submission was rejected.${notes ? ` Reason: ${notes}` : ''}</p><p>Please resubmit your documents.</p>`
+              });
+            }
           }
         }
       } catch (e) {

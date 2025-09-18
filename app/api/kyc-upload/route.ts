@@ -208,11 +208,48 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // Get current user KYC status to determine if resubmission is allowed
+    const user = await prisma.user.findFirst({
+      where: { email: userEmail },
+      select: { kycStatus: true }
+    });
+
+    // Allow resubmission only if KYC status is rejected or expired, or if no previous submission exists
     if (existingKYC) {
-      console.log("[kyc-upload] KYC already exists for this academy:", { userId: finalUserId, academyId: finalAcademyId });
-      return NextResponse.json({
-        error: "KYC submission already exists for this academy"
-      }, { status: 400 });
+      const currentKycStatus = user?.kycStatus;
+      if (currentKycStatus === "rejected" || currentKycStatus === "expired") {
+        console.log("[kyc-upload] Allowing resubmission for rejected/expired KYC:", { 
+          userId: finalUserId, 
+          academyId: finalAcademyId, 
+          currentStatus: currentKycStatus 
+        });
+        
+        // Use transaction to ensure atomic deletion of related records
+        await prisma.$transaction(async (tx) => {
+          // Delete related KycReview records first to avoid constraint violation
+          console.log("[kyc-upload] Deleting related KycReview records...");
+          await tx.kycReview.deleteMany({
+            where: { kycId: existingKYC.id }
+          });
+          
+          // Then delete the existing submission to allow resubmission
+          console.log("[kyc-upload] Deleting existing KycSubmission...");
+          await tx.kycSubmission.delete({
+            where: { id: existingKYC.id }
+          });
+        });
+        
+        console.log("[kyc-upload] Successfully deleted existing KYC submission and reviews");
+      } else {
+        console.log("[kyc-upload] KYC already exists and not in resubmittable state:", { 
+          userId: finalUserId, 
+          academyId: finalAcademyId,
+          currentStatus: currentKycStatus
+        });
+        return NextResponse.json({
+          error: "KYC submission already exists for this academy and is not in a state that allows resubmission"
+        }, { status: 400 });
+      }
     }
 
     // Store all data in MongoDB Atlas via Prisma - Use transaction to update both KYC submission and user status

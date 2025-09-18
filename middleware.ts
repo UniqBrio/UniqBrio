@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verifyTokenEdge, getSessionCookieEdge } from '@/lib/auth-edge' // NEW IMPORT - Edge safe
 import { COOKIE_NAMES, COOKIE_EXPIRY } from '@/lib/cookies'; // Assuming COOKIE_EXPIRY is defined here
-import prisma from '@/lib/db'; // Import Prisma client
 
 // Helper function to get the default dashboard path based on role
 function getDefaultDashboard(role: string): string {
@@ -33,6 +32,7 @@ const publicPaths = [
   "/troubleshoot",
   "/reset-success",
   "/verification-pending",
+  "/kyc-blocked", // KYC blocked access page
   "/UBAdmin", // UniqBrio Admin panel
   // API Routes - Allow specific prefixes
   "/api/auth/",
@@ -119,36 +119,69 @@ export async function middleware(request: NextRequest) {
   // Check if user has completed registration before accessing protected areas
   if (payload?.email) {
     try {
-      const user = await prisma.user.findFirst({
-        where: { email: payload.email },
-        select: { 
-          registrationComplete: true,
-          verified: true
+      // Use API route instead of direct Prisma in middleware (edge environment)
+      const userInfoResponse = await fetch(`${request.nextUrl.origin}/api/user-registration-status`, {
+        headers: {
+          'Authorization': `Bearer ${sessionCookieValue}`,
+          'Content-Type': 'application/json'
         }
       });
 
-      // If user is not verified, redirect to verification
-      if (!user?.verified) {
-        console.log(`[Middleware] User ${payload.email} not verified, redirecting to verification-pending`);
-        return NextResponse.redirect(new URL('/verification-pending', request.url));
-      }
+      if (userInfoResponse.ok) {
+        const userData = await userInfoResponse.json();
+        
+        // If user is not verified, redirect to verification
+        if (!userData?.verified) {
+          console.log(`[Middleware] User ${payload.email} not verified, redirecting to verification-pending`);
+          return NextResponse.redirect(new URL('/verification-pending', request.url));
+        }
 
-      // If accessing dashboard but registration not complete, redirect to register
-      if (path.startsWith('/dashboard') && !user?.registrationComplete) {
-        console.log(`[Middleware] Registration incomplete for ${payload.email}, redirecting to /register`);
-        return NextResponse.redirect(new URL('/register', request.url));
-      }
+        // If accessing dashboard but registration not complete, redirect to register
+        if (path.startsWith('/dashboard') && !userData?.registrationComplete) {
+          console.log(`[Middleware] Registration incomplete for ${payload.email}, redirecting to /register`);
+          return NextResponse.redirect(new URL('/register', request.url));
+        }
 
-      // If accessing register but already complete, redirect to dashboard
-      if (path.startsWith('/register') && user?.registrationComplete) {
-        console.log(`[Middleware] Registration already complete for ${payload.email}, redirecting to /dashboard`);
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
+        // If accessing register but already complete, redirect to dashboard
+        if (path.startsWith('/register') && userData?.registrationComplete) {
+          console.log(`[Middleware] Registration already complete for ${payload.email}, redirecting to /dashboard`);
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
 
-      console.log(`[Middleware] Registration status check passed for ${payload.email} - verified: ${user?.verified}, complete: ${user?.registrationComplete}`);
+        // --- KYC Blocking Check ---
+        // Check if user has expired KYC (15+ days without submission) and block access
+        if (userData?.registrationComplete && !path.startsWith('/kyc-blocked') && 
+            path !== '/login' && path !== '/logout') {
+          
+          // Check if KYC is expired or if it should be expired
+          let shouldBlock = userData.kycStatus === 'expired';
+          
+          // If not already expired, check if it should be
+          if (!shouldBlock && userData.createdAt) {
+            const registeredAt = new Date(userData.createdAt);
+            const now = new Date();
+            const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+            
+            // Block access if 15+ days (grace period of 1 day after 14-day limit)
+            if (diffDays >= 15 && userData.kycStatus !== 'verified' && userData.kycStatus !== 'approved') {
+              shouldBlock = true;
+              console.log(`[Middleware] Should block user ${payload.email} - ${diffDays} days since registration, KYC status: ${userData.kycStatus}`);
+            }
+          }
+          
+          if (shouldBlock) {
+            console.log(`[Middleware] User ${payload.email} has expired KYC, redirecting to /kyc-blocked`);
+            return NextResponse.redirect(new URL('/kyc-blocked', request.url));
+          }
+        }
+
+        console.log(`[Middleware] Registration status check passed for ${payload.email} - verified: ${userData?.verified}, complete: ${userData?.registrationComplete}`);
+      } else {
+        console.log(`[Middleware] Failed to fetch user registration status: ${userInfoResponse.status}`);
+      }
     } catch (error) {
       console.error(`[Middleware] Error checking registration status for ${payload.email}:`, error);
-      // Continue with normal flow if database check fails
+      // Continue with normal flow if API check fails
     }
   }
 

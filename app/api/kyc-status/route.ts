@@ -39,6 +39,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ 
         status: "pending",
         hasSubmitted: false,
+        daysSinceRegistration: 0,
+        daysLeft: 14,
+        registrationDate: user?.createdAt || null,
         message: "Registration not complete"
       });
     }
@@ -63,8 +66,24 @@ export async function GET(request: NextRequest) {
       const registeredAt = new Date(user.createdAt);
       const now = new Date();
       const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+      const daysLeft = Math.max(14 - diffDays, 0);
+      
       if (diffDays >= 14 && user.kycStatus !== 'expired') {
-        await prisma.user.updateMany({ where: { email: payload.email }, data: { kycStatus: 'expired' } });
+        console.log("[kyc-status] Auto-expiring KYC for user:", payload.email, "Days since registration:", diffDays);
+        await prisma.user.updateMany({ 
+          where: { email: payload.email }, 
+          data: { kycStatus: 'expired' } 
+        });
+        
+        return NextResponse.json({
+          status: "expired",
+          hasSubmitted: false,
+          submissionDate: null,
+          daysSinceRegistration: diffDays,
+          daysLeft: 0,
+          registrationDate: user.createdAt,
+          message: "KYC verification period has expired"
+        });
       }
     }
 
@@ -98,17 +117,45 @@ export async function GET(request: NextRequest) {
 
     if (kycSubmission) {
       console.log("[kyc-status] KYC submission found:", kycSubmission.id);
+      
+      // Calculate days since registration for consistency
+      let daysSinceRegistration = 0;
+      let daysLeft = 14;
+      if (user.createdAt) {
+        const registeredAt = new Date(user.createdAt);
+        const now = new Date();
+        daysSinceRegistration = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+        daysLeft = Math.max(14 - daysSinceRegistration, 0);
+      }
+      
       return NextResponse.json({
         status: "submitted",
         hasSubmitted: true,
         submissionDate: kycSubmission.createdAt,
+        daysSinceRegistration,
+        daysLeft,
+        registrationDate: user.createdAt,
         message: "KYC submitted successfully"
       });
     } else {
       console.log("[kyc-status] No KYC submission found");
+      
+      // Calculate days since registration
+      let daysSinceRegistration = 0;
+      let daysLeft = 14;
+      if (user.createdAt) {
+        const registeredAt = new Date(user.createdAt);
+        const now = new Date();
+        daysSinceRegistration = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+        daysLeft = Math.max(14 - daysSinceRegistration, 0);
+      }
+      
       return NextResponse.json({
         status: "pending", 
         hasSubmitted: false,
+        daysSinceRegistration,
+        daysLeft,
+        registrationDate: user.createdAt,
         message: "KYC submission pending"
       });
     }
