@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import prisma from "@/lib/db";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, generateKYCSubmissionEmail } from "@/lib/email";
 
 const R2_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT!;
 const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!;
@@ -211,8 +211,29 @@ export async function POST(req: NextRequest) {
     // Get current user KYC status to determine if resubmission is allowed
     const user = await prisma.user.findFirst({
       where: { email: userEmail },
-      select: { kycStatus: true }
+      select: { kycStatus: true, name: true, academyId: true }
     });
+
+    // Get academy name from registration data for personalized email
+    let academyName: string | undefined;
+    try {
+      if (user?.academyId || academyId) {
+        const registration = await prisma.registration.findFirst({
+          where: { 
+            OR: [
+              { academyId: user?.academyId || academyId },
+              { userId: userId }
+            ]
+          },
+          select: { businessInfo: true }
+        });
+        
+        const businessInfo = registration?.businessInfo as any;
+        academyName = businessInfo?.businessName;
+      }
+    } catch (error) {
+      console.log("[kyc-upload] Could not fetch academy name:", error);
+    }
 
     // Allow resubmission only if KYC status is rejected or expired, or if no previous submission exists
     if (existingKYC) {
@@ -291,63 +312,8 @@ export async function POST(req: NextRequest) {
     try {
       console.log("[kyc-upload] Sending confirmation email to:", userEmail);
       
-      await sendEmail({
-        to: userEmail,
-        subject: "KYC Verification Submitted Successfully - UniqBrio",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
-            <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-              <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #7c3aed; margin: 0; font-size: 28px;">UniqBrio</h1>
-                <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #f97316, #7c3aed); margin: 10px auto;"></div>
-              </div>
-              
-              <h2 style="color: #16a34a; text-align: center; margin-bottom: 20px;">✅ KYC Verification Submitted Successfully!</h2>
-              
-              <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                Dear Valued User,
-              </p>
-              
-              <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                Thank you for completing your KYC (Know Your Customer) verification with UniqBrio. 
-                We have successfully received your documents and they are now under review by our verification team.
-              </p>
-              
-              <div style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-                <h3 style="color: #0ea5e9; margin: 0 0 10px 0; font-size: 18px;">📋 What happens next?</h3>
-                <ul style="color: #374151; margin: 0; padding-left: 20px;">
-                  <li style="margin-bottom: 8px;">Our team will review your submitted documents</li>
-                  <li style="margin-bottom: 8px;">Background verification will be conducted</li>
-                  <li style="margin-bottom: 8px;">You will receive email confirmation once approved</li>
-                  <li>Your account will be fully activated for all services</li>
-                </ul>
-              </div>
-              
-              <div style="background-color: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <p style="color: #92400e; margin: 0; font-weight: 600; text-align: center;">
-                  ⏰ Expected Timeline: You will receive confirmation within 24 business hours
-                </p>
-              </div>
-              
-              <p style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-                During this review period, you can continue using your UniqBrio account with basic features. 
-                Once verification is complete, all premium features will be unlocked.
-              </p>
-              
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-              
-              <p style="color: #6b7280; font-size: 14px; text-align: center; margin: 0;">
-                If you have any questions, please contact our support team at 
-                <a href="mailto:support@uniqbrio.com" style="color: #7c3aed;">support@uniqbrio.com</a>
-              </p>
-              
-              <p style="color: #6b7280; font-size: 12px; text-align: center; margin: 10px 0 0 0;">
-                © 2025 UniqBrio. All rights reserved.
-              </p>
-            </div>
-          </div>
-        `
-      });
+      const emailData = generateKYCSubmissionEmail(userEmail, user?.name, academyName);
+      await sendEmail(emailData);
       
       console.log("[kyc-upload] Confirmation email sent successfully");
     } catch (emailError) {

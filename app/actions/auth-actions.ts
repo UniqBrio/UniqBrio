@@ -118,7 +118,7 @@ export async function signup(formData: FormData) {
     // Send verification email with LINK only
     try {
       console.log("[AuthAction] signup: Generating verification email data for:", email);
-      const emailData = generateVerificationEmail(email, verificationToken)
+      const emailData = generateVerificationEmail(email, verificationToken, name)
       console.log("[AuthAction] signup: Email data generated. Attempting to send...");
       await sendEmail(emailData); // Await the result
       console.log("[AuthAction] signup: sendEmail function completed successfully for:", email);

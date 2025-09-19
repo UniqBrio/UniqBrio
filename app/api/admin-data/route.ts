@@ -181,7 +181,7 @@ async function getAcademies() {
           }
         });
 
-        // Get academy name from registration data
+        // Get comprehensive academy data from registration
         const registration = await prisma.registration.findFirst({
           where: { 
             OR: [
@@ -189,16 +189,19 @@ async function getAcademies() {
               { academyId: user.academyId! }
             ]
           },
-          select: { businessInfo: true }
+          select: { businessInfo: true, adminInfo: true, preferences: true }
         });
         
         let academyName = `Academy ${user.academyId}`;
-        if (
-          registration?.businessInfo &&
-          typeof registration.businessInfo === 'object' &&
-          'businessName' in registration.businessInfo
-        ) {
-          academyName = (registration.businessInfo as { businessName?: string }).businessName || academyName;
+        let businessInfo: any = {};
+        let adminInfo: any = {};
+        let preferences: any = {};
+        
+        if (registration) {
+          businessInfo = registration.businessInfo as any || {};
+          adminInfo = registration.adminInfo as any || {};
+          preferences = registration.preferences as any || {};
+          academyName = businessInfo.businessName || academyName;
         }
 
         return {
@@ -210,7 +213,37 @@ async function getAcademies() {
           verified: user.verified,
           hasKYC: !!kycSubmission,
           registeredAt: user.createdAt,
-          status: kycSubmission ? 'kyc_submitted' : 'registered'
+          status: kycSubmission ? 'kyc_submitted' : 'registered',
+          // Enhanced business data
+          businessInfo: {
+            legalEntityName: businessInfo.legalEntityName || '',
+            businessEmail: businessInfo.businessEmail || user.email,
+            phoneNumber: businessInfo.phoneNumber || '',
+            industryType: businessInfo.industryType || '',
+            servicesOffered: businessInfo.servicesOffered || [],
+            studentSize: businessInfo.studentSize || '',
+            staffCount: businessInfo.staffCount || '',
+            address: businessInfo.address || '',
+            city: businessInfo.city || '',
+            state: businessInfo.state || '',
+            country: businessInfo.country || '',
+            pincode: businessInfo.pincode || '',
+            website: businessInfo.website || '',
+            preferredLanguage: businessInfo.preferredLanguage || '',
+            taxId: businessInfo.taxId || ''
+          },
+          // Admin contact info
+          adminInfo: {
+            fullName: adminInfo.fullName || user.name,
+            email: adminInfo.email || user.email,
+            phone: adminInfo.phone || '',
+            socialProfile: adminInfo.socialProfile || ''
+          },
+          // Additional preferences
+          preferences: {
+            referralSource: preferences.referralSource || '',
+            featuresOfInterest: preferences.featuresOfInterest || []
+          }
         };
       })
     );
@@ -355,16 +388,38 @@ export async function POST(request: NextRequest) {
 
       // Notify user via email
       try {
-        const userDoc = await prisma.user.findFirst({ where: { userId: latest.userId }, select: { email: true, name: true } });
+        const userDoc = await prisma.user.findFirst({ 
+          where: { userId: latest.userId }, 
+          select: { email: true, name: true, academyId: true } 
+        });
+        
+        // Get academy name for personalized email
+        let academyName: string | undefined;
+        if (userDoc?.academyId) {
+          try {
+            const registration = await prisma.registration.findFirst({
+              where: { 
+                OR: [
+                  { academyId: userDoc.academyId },
+                  { userId: latest.userId }
+                ]
+              },
+              select: { businessInfo: true }
+            });
+            
+            const businessInfo = registration?.businessInfo as any;
+            academyName = businessInfo?.businessName;
+          } catch (error) {
+            console.log("[admin-data] Could not fetch academy name:", error);
+          }
+        }
+        
         if (userDoc?.email) {
-          const { sendEmail, generateKYCRejectionEmail } = await import("@/lib/email");
+          const { sendEmail, generateKYCRejectionEmail, generateKYCApprovalEmail } = await import("@/lib/email");
           
           if (status === 'approved') {
-            await sendEmail({
-              to: userDoc.email,
-              subject: "KYC Approved - UniqBrio",
-              html: `<p>Hi ${userDoc.name || 'there'},</p><p>Your KYC has been approved. You now have full access to UniqBrio.</p>`
-            });
+            const emailContent = generateKYCApprovalEmail(userDoc.email, userDoc.name, academyName);
+            await sendEmail(emailContent);
           } else if (status === 'rejected') {
             // Check if this is the new detailed rejection with email template
             if (action === 'update-kyc-status-with-email' && rejectionReasons && Array.isArray(rejectionReasons)) {
@@ -373,7 +428,8 @@ export async function POST(request: NextRequest) {
                 userDoc.email,
                 userDoc.name || 'Valued User',
                 rejectionReasons,
-                customMessage
+                customMessage,
+                academyName
               );
               await sendEmail(emailContent);
             } else {
