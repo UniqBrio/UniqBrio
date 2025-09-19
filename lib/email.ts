@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === "production" && (!process.env.EMAIL_USER || !proces
 }
 
 // Outlook-compatible email header with UniqBrio branding
-function getEmailHeader(title: string = "Welcome to UniqBrio!", subtitle: string = "You're now on the early access list") {
+function getEmailHeader(title: string = "Welcome to UniqBrio!", subtitle: string = "Your trusted education platform") {
   return `
     <div style="background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 25%, #C084FC 50%, #F97316 75%, #FB923C 100%); padding: 40px 20px; text-align: center; border-radius: 12px 12px 0 0;">
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 200px; margin: 0 auto;">
@@ -139,16 +139,16 @@ export function generateVerificationEmail(email: string, token: string, userName
             </div>
 
             <p style="color: #374151; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif; font-size: 16px; text-align: center;">
-              Thank you for joining the <span style="background-color: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: 600;">UniqBrio</span> early access waitlist! We're thrilled to have you on board.
+              Thank you for registering with <span style="background-color: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: 600;">UniqBrio</span>! To complete your account setup, please verify your email address by clicking the button below.
             </p>
 
             <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
-              <h3 style="color: #1e40af; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">What happens next?</h3>
+              <h3 style="color: #1e40af; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">Why verify your email?</h3>
               <ul style="color: #374151; margin: 0; padding-left: 20px; font-family: Arial, sans-serif; line-height: 1.6;">
-                <li style="margin-bottom: 8px;">🚀 You'll be among the first to access <span style="color: #F97316; font-weight: 600;">UniqBrio</span> when we launch</li>
-                <li style="margin-bottom: 8px;">💰 Exclusive 50% discount on your first year</li>
-                <li style="margin-bottom: 8px;">🎯 Priority customer support</li>
-                <li>📢 Regular updates on our development progress</li>
+                <li style="margin-bottom: 8px;">� Secure your account and protect your data</li>
+                <li style="margin-bottom: 8px;">� Receive important account notifications and updates</li>
+                <li style="margin-bottom: 8px;">🔑 Enable password recovery for your account</li>
+                <li>✅ Complete your account setup and unlock all features</li>
               </ul>
             </div>
 
