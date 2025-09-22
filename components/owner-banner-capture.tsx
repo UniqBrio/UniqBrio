@@ -34,10 +34,19 @@ const OwnerBannerCapture: React.FC<OwnerBannerCaptureProps> = ({ captureType = "
     stopCamera();
     startCamera();
     return () => {
+      console.log("[OwnerBannerCapture] Cleanup: Stopping camera on unmount");
       stopCamera();
     };
     // eslint-disable-next-line
   }, [facingMode, captureType]);
+
+  // Add cleanup effect for component unmount
+  useEffect(() => {
+    return () => {
+      console.log("[OwnerBannerCapture] Component unmounting: Cleaning up camera resources");
+      stopCamera();
+    };
+  }, []);
 
   const startCamera = async () => {
     setError(null);
@@ -56,8 +65,17 @@ const OwnerBannerCapture: React.FC<OwnerBannerCaptureProps> = ({ captureType = "
   };
 
   const stopCamera = () => {
+    console.log("[OwnerBannerCapture] Stopping camera...", { hasStream: !!stream });
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(track => {
+        console.log("[OwnerBannerCapture] Stopping track:", track.kind);
+        track.stop();
+      });
+      setStream(null);
+    }
+    // Also clear the video source to ensure camera is released
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
@@ -114,6 +132,7 @@ const OwnerBannerCapture: React.FC<OwnerBannerCaptureProps> = ({ captureType = "
   };
 
   const handleFlip = () => {
+    console.log("[OwnerBannerCapture] Flipping camera from", facingMode, "to", facingMode === 'user' ? 'environment' : 'user');
     stopCamera();
     setFacingMode(facingMode === 'user' ? 'environment' : 'user');
   };

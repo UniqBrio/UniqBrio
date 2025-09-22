@@ -398,18 +398,37 @@ const Dashboard = () => {
       {/* KYC Popup - only show if KYC status is pending */}
       {showKycPopup && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-orange-400">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-orange-400 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowKycPopup(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+
             <h2 className="text-2xl font-extrabold mb-3 text-purple-700">Continue using UniqBrio uninterrupted!</h2>
             <p className="mb-6 text-gray-700">
               <span className="inline-block px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold mr-1">{kycDaysLeft} days</span>
               left to upload your KYC and avoid service interruption.
             </p>
-            <button
-              className="bg-gradient-to-r from-orange-400 to-purple-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:scale-105 transition-transform"
-              onClick={() => { setShowKycPopup(false); setShowKycForm(true); }}
-            >
-              <span className="mr-2">&#x2714;</span> Verify
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                className="bg-gradient-to-r from-orange-400 to-purple-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:scale-105 transition-transform"
+                onClick={() => { setShowKycPopup(false); setShowKycForm(true); }}
+              >
+                <span className="mr-2">&#x2714;</span> Verify
+              </button>
+              <button
+                className="bg-gradient-to-r from-gray-400 to-gray-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:scale-105 transition-transform"
+                onClick={() => setShowKycPopup(false)}
+              >
+                I will do it in a while
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -467,9 +486,20 @@ const Dashboard = () => {
       {showKycForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-40 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl p-4 max-w-lg w-full border-2 border-purple-600 h-[90vh] overflow-y-auto">
-            <button className="float-right text-purple-600 hover:text-orange-500 text-2xl font-bold" onClick={() => setShowKycForm(false)}>&times;</button>
+            <button 
+              className="float-right text-purple-600 hover:text-orange-500 text-2xl font-bold" 
+              onClick={() => {
+                console.log("[Dashboard] Closing KYC form");
+                setShowKycForm(false);
+              }}
+            >
+              &times;
+            </button>
             <h2 className="text-xl font-extrabold mb-4 text-orange-500">KYC Upload</h2>
-            <KYCForm onSubmit={handleKycSuccess} />
+            <KYCForm 
+              onSubmit={handleKycSuccess} 
+              key={`kyc-form-${showKycForm}-${Date.now()}`} 
+            />
           </div>
         </div>
       )}

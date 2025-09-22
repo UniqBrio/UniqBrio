@@ -79,6 +79,16 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
     fetchUserAcademyInfo();
   }, []);
 
+  // Cleanup effect for camera when component unmounts
+  React.useEffect(() => {
+    return () => {
+      console.log("[KYC] KYC form unmounting - ensuring all dialogs are closed");
+      setShowOwnerDialog(false);
+      setShowBannerDialog(false);
+      setShowSelfieDialog(false);
+    };
+  }, []);
+
   // Test authentication before form submission
   const testAuthentication = async () => {
     try {
@@ -97,6 +107,11 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
   const handleCapture = () => {
     setShowSelfieDialog(true);
   };
+
+  // Helper function to check if all required images are provided
+  const areAllImagesProvided = () => {
+    return !!(ownerImage && bannerImage && ownerWithBannerImage);
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -108,6 +123,25 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
       userId,
       academyId
     });
+
+    // Validate that all required images are provided
+    if (!ownerImage) {
+      alert("Please capture or upload an image of the owner before submitting.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!bannerImage) {
+      alert("Please capture or upload an image of the academy banner before submitting.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!ownerWithBannerImage) {
+      alert("Please capture an image of the owner standing beside the banner before submitting.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Test authentication first
@@ -206,8 +240,11 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
           No fake info should be uploaded. If done, after verification your account will be blocked.
         </p>
         {/* 1. Capture or Upload image of user/owner */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2 text-purple-700">1. Capture or Upload Image of Owner</label>
+        <div className={`mb-6 ${!ownerImage ? 'border-2 border-red-200 rounded-lg p-3 bg-red-50' : ''}`}>
+          <label className="block font-semibold mb-2 text-purple-700">
+            1. Capture or Upload Image of Owner
+            {!ownerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
+          </label>
           <div className="flex flex-col md:flex-row items-center gap-4 mb-2">
             <div className="flex-shrink-0 flex flex-col items-center">
                 <img
@@ -246,8 +283,11 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
           </div>
         </div>
         {/* 2. Upload image of banner of the academy */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2 text-purple-700">2. Capture or Upload Image of Academy Banner</label>
+        <div className={`mb-6 ${!bannerImage ? 'border-2 border-red-200 rounded-lg p-3 bg-red-50' : ''}`}>
+          <label className="block font-semibold mb-2 text-purple-700">
+            2. Capture or Upload Image of Academy Banner
+            {!bannerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
+          </label>
           <div className="flex flex-col md:flex-row items-center gap-4 mb-2">
             <div className="flex-shrink-0 flex flex-col items-center">
                 <img
@@ -286,8 +326,11 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
           </div>
         </div>
         {/* 3. Capture image of Owner standing beside banner with location, time, date */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2 text-purple-700">3. Capture Image of Owner Beside Banner</label>
+        <div className={`mb-6 ${!ownerWithBannerImage ? 'border-2 border-red-200 rounded-lg p-3 bg-red-50' : ''}`}>
+          <label className="block font-semibold mb-2 text-purple-700">
+            3. Capture Image of Owner Beside Banner
+            {!ownerWithBannerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
+          </label>
           <div className="flex flex-col md:flex-row items-center gap-4 mb-2">
             {/* Reference image for Owner beside Banner capture, now on the left */}
             <div className="flex flex-col items-center">
@@ -317,20 +360,45 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
           
           
         </div>
+        
+        {/* Validation message for missing images */}
+        {!areAllImagesProvided() && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm font-medium mb-2">Please complete the following steps before submitting:</p>
+            <ul className="text-red-600 text-xs space-y-1">
+              {!ownerImage && <li>• Capture or upload owner image</li>}
+              {!bannerImage && <li>• Capture or upload academy banner image</li>}
+              {!ownerWithBannerImage && <li>• Capture image of owner beside banner</li>}
+            </ul>
+          </div>
+        )}
+        
         <button 
           type="submit" 
-          disabled={isLoading}
-          className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading || !areAllImagesProvided()}
+          className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed w-full"
         >
-          {isLoading ? "Submitting..." : "Submit KYC"}
+          {isLoading ? "Submitting..." : areAllImagesProvided() ? "Submit KYC" : "Complete All Steps to Submit"}
         </button>
       </form>
       {showOwnerDialog && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-60">
           <div className="bg-white rounded-xl shadow-2xl p-2 w-full max-w-md h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-purple-700 mb-2">Capture Owner Image</h3>
-            <OwnerBannerCapture captureType="owner" onSubmit={handleOwnerCaptureSubmit} />
-            <button className="mt-2 px-4 py-2 bg-gray-300 rounded" onClick={() => { setShowOwnerDialog(false); }}>Cancel</button>
+            <OwnerBannerCapture 
+              captureType="owner" 
+              onSubmit={handleOwnerCaptureSubmit}
+              key={`owner-${showOwnerDialog}`} 
+            />
+            <button 
+              className="mt-2 px-4 py-2 bg-gray-300 rounded" 
+              onClick={() => { 
+                console.log("[KYC] Closing owner dialog");
+                setShowOwnerDialog(false); 
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -338,8 +406,20 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-60">
           <div className="bg-white rounded-xl shadow-2xl p-2 w-full max-w-md h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-purple-700 mb-2">Capture Banner Image</h3>
-            <OwnerBannerCapture captureType="banner" onSubmit={handleBannerCaptureSubmit} />
-            <button className="mt-2 px-4 py-2 bg-gray-300 rounded" onClick={() => { setShowBannerDialog(false); }}>Cancel</button>
+            <OwnerBannerCapture 
+              captureType="banner" 
+              onSubmit={handleBannerCaptureSubmit}
+              key={`banner-${showBannerDialog}`}
+            />
+            <button 
+              className="mt-2 px-4 py-2 bg-gray-300 rounded" 
+              onClick={() => { 
+                console.log("[KYC] Closing banner dialog");
+                setShowBannerDialog(false); 
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -347,8 +427,20 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-60">
           <div className="bg-white rounded-xl shadow-2xl p-2 w-full max-w-md h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-purple-700 mb-2">Capture Owner Beside Banner</h3>
-            <OwnerBannerCapture captureType="ownerWithBanner" onSubmit={handleSelfieSubmit} />
-            <button className="mt-2 px-4 py-2 bg-gray-300 rounded" onClick={() => { setShowSelfieDialog(false); }}>Cancel</button>
+            <OwnerBannerCapture 
+              captureType="ownerWithBanner" 
+              onSubmit={handleSelfieSubmit}
+              key={`selfie-${showSelfieDialog}`}
+            />
+            <button 
+              className="mt-2 px-4 py-2 bg-gray-300 rounded" 
+              onClick={() => { 
+                console.log("[KYC] Closing selfie dialog");
+                setShowSelfieDialog(false); 
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -369,7 +461,12 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
               </p>
               <button
                 onClick={() => {
+                  console.log("[KYC] Success modal - Continue to Dashboard clicked");
                   setShowSuccessModal(false);
+                  // Ensure all camera dialogs are closed
+                  setShowOwnerDialog(false);
+                  setShowBannerDialog(false);
+                  setShowSelfieDialog(false);
                   // Call the onSubmit callback to update dashboard
                   if (onSubmit) onSubmit({ success: true });
                 }}
