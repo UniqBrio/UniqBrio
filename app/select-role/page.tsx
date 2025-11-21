@@ -10,7 +10,7 @@ export default function SelectRolePage() {
     // Redirect based on the selected role
     switch (role) {
       case "super_admin":
-        router.push("/super-admin/dashboard");
+        router.push("/dashboard"); // Super admin uses main dashboard
         break;
       case "admin":
         router.push("/admin/dashboard");

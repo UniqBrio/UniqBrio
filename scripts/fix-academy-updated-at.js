@@ -1,17 +1,13 @@
 // Migration script to fix null updatedAt values in Academy records
 // Use MongoDB client directly to bypass Prisma validation
 
-const { MongoClient } = require('mongodb');
+const { getMongoClient, closeConnections } = require('../lib/mongodb.js');
 require('dotenv').config();
 
 async function fixAcademyUpdatedAt() {
-  const client = new MongoClient(process.env.DATABASE_URL);
-  
   try {
     console.log('🔄 Connecting to MongoDB to fix Academy updatedAt...');
-    await client.connect();
-    
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     const academyCollection = db.collection('Academy');
 
     // Find all Academy records that have null updatedAt

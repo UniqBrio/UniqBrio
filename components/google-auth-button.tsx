@@ -19,9 +19,26 @@ export default function GoogleAuthButton({
     setIsLoading(true);
     try {
       // Redirect to the "Select Role" page after successful Google login
-      await signIn("google", {
+      const result = await signIn("google", {
         callbackUrl: "/select-role", // Redirect to the "Select Role" page
+        redirect: false, // Don't redirect immediately, let us handle the result
       });
+
+      if (result?.error) {
+        console.error("Google auth error:", result.error);
+        toast({
+          title: "Authentication Failed",
+          description: "Could not sign in with Google. Please try again or use email login.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // If successful and we have a URL, redirect manually
+      if (result?.url) {
+        window.location.href = result.url;
+      }
     } catch (error) {
       console.error("Google auth initiation error:", error);
       toast({

@@ -1,17 +1,8 @@
-const { MongoClient } = require('mongodb');
+const { getMongoClient, closeConnections } = require('../lib/mongodb.js');
 
 async function dropOldCollection() {
-  const mongoUrl = process.env.DATABASE_URL;
-  if (!mongoUrl) {
-    console.error('DATABASE_URL not found');
-    process.exit(1);
-  }
-
-  const client = new MongoClient(mongoUrl);
-  
   try {
-    await client.connect();
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     
     console.log('Dropping old "Registration" collection...');
     await db.collection('Registration').drop();

@@ -10,13 +10,13 @@ dotenv.config()
 async function main() {
   console.log("Starting database connection test...")
 
-  // Check if DATABASE_URL is set
-  if (!process.env.DATABASE_URL) {
-    console.error("❌ DATABASE_URL environment variable is not set")
+  // Check if MONGODB_URI is set
+  if (!process.env.MONGODB_URI) {
+    console.error("❌ MONGODB_URI environment variable is not set")
     process.exit(1)
   }
 
-  console.log("✅ DATABASE_URL is set")
+  console.log("✅ MONGODB_URI is set")
 
   // Create a new PrismaClient instance
   const prisma = new PrismaClient({

@@ -1,18 +1,9 @@
 require('dotenv').config();
-const { MongoClient } = require('mongodb');
+const { getMongoClient, closeConnections } = require('../lib/mongodb.js');
 
 async function cleanupRedundantCollections() {
-  const mongoUrl = process.env.DATABASE_URL;
-  if (!mongoUrl) {
-    console.error('DATABASE_URL not found');
-    process.exit(1);
-  }
-
-  const client = new MongoClient(mongoUrl);
-  
   try {
-    await client.connect();
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     
     console.log('🧹 Cleaning up redundant collections...');
     

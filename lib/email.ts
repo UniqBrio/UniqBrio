@@ -1,13 +1,15 @@
 // d:\UB\lib\email.ts
-// Email service using Gmail SMTP
+// Email service using Zoho Zeptomail SMTP
 import nodemailer from "nodemailer"
 
-// Create a transporter using Gmail SMTP
+// Create a transporter using Zoho Zeptomail SMTP
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.ZEPTO_HOST || "smtp.zeptomail.in",
+  port: Number(process.env.ZEPTO_PORT) || 587,
+  secure: false, // Use TLS
   auth: {
-    user: process.env.EMAIL_USER || "",
-    pass: process.env.EMAIL_APP_PASSWORD || "",
+    user: process.env.ZEPTO_USER || "",
+    pass: process.env.ZEPTO_PASS || "",
   },
   tls: {
     // Enforce certificate validation in production; allow relaxed in dev for local setups
@@ -16,8 +18,8 @@ const transporter = nodemailer.createTransport({
 })
 
 // Fail fast in production if email credentials are not configured
-if (process.env.NODE_ENV === "production" && (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD)) {
-  throw new Error("EMAIL_USER/EMAIL_APP_PASSWORD not configured for email sending");
+if (process.env.NODE_ENV === "production" && (!process.env.ZEPTO_USER || !process.env.ZEPTO_PASS)) {
+  throw new Error("ZEPTO_USER/ZEPTO_PASS not configured for email sending");
 }
 
 // Outlook-compatible email header with UniqBrio branding
@@ -69,9 +71,9 @@ export async function sendEmail({
   html: string
 }) {
   try {
-    // Send email using nodemailer
+    // Send email using nodemailer with Zeptomail
     const info = await transporter.sendMail({
-      from: `"UniqBrio" <${process.env.EMAIL_USER || "your-email@gmail.com"}>`,
+      from: `"UniqBrio" <${process.env.ZEPTO_FROM_EMAIL || "noreply@uniqbotz.com"}>`,
       to,
       subject,
       html,

@@ -723,7 +723,7 @@ export async function createBusinessProfile(formData: FormData) {
 
   let redirectPath = "/dashboard";
   switch (session.role) {
-    case "super_admin": redirectPath = "/super-admin/dashboard"; break;
+    case "super_admin": redirectPath = "/dashboard"; break; // Super admin uses main dashboard
     case "admin": redirectPath = "/admin/dashboard"; break;
     // Add other roles
     default: redirectPath = `/${session.role}/dashboard`;

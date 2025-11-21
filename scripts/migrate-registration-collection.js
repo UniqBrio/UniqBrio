@@ -1,13 +1,10 @@
 // Check if there are any records in the old "Registration" collection that need to be migrated
 
-const { MongoClient } = require('mongodb');
+const { getMongoClient, closeConnections } = require('../lib/mongodb.js');
 
 async function checkOldRegistrationCollection() {
-  const client = new MongoClient(process.env.DATABASE_URL);
-  
   try {
-    await client.connect();
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     
     console.log('🔍 Checking for records in old "Registration" collection...\n');
     

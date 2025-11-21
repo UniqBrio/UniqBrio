@@ -30,7 +30,7 @@ export default async function StudentDashboardPage() {
         redirect("/admin/dashboard");
         break; // Added break statement
       case "super_admin":
-        redirect("/super-admin/dashboard");
+        redirect("/dashboard"); // Super admin uses main dashboard
         break; // Added break statement
       case "instructor":
         redirect("/instructor/dashboard");

@@ -13,7 +13,7 @@ export default function AuthRedirectPage() {
       const role = session?.user?.role
 
       if (role === "super_admin") {
-        router.replace("/profile/create")
+        router.replace("/dashboard") // Super admin uses main dashboard
       } else if (role === "admin") {
         router.replace("/admin/dashboard")
       } else if (role === "instructor") {

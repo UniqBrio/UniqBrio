@@ -7,9 +7,8 @@ import { COOKIE_NAMES, COOKIE_EXPIRY } from '@/lib/cookies'; // Assuming COOKIE_
 function getDefaultDashboard(role: string): string {
   switch (role) {
     case "super_admin":
-      // If middleware catches a logged-in super_admin later, send them to their dashboard.
-      // The initial /profile/create redirect comes from the login action.
-      return "/super-admin/dashboard"
+      // Route super_admin to the main dashboard to avoid confusion
+      return "/dashboard"
     case "admin":
       return "/admin/dashboard"
     case "instructor":
@@ -214,7 +213,7 @@ export async function middleware(request: NextRequest) {
   const onboardingPath = "/profile/create"; // Specific path for super_admin onboarding
 
   // Define role-specific path prefixes
-  const superAdminPaths = ["/super-admin", "/admin", "/instructor", "/student", "/dashboard"]; // Super admin can access all role dashboards + their own + main dashboard
+  const superAdminPaths = ["/admin", "/instructor", "/student", "/dashboard"]; // Super admin can access all role dashboards + main dashboard
   const adminPaths = ["/admin", "/instructor", "/student", "/dashboard"]; // Admin can access admin, instructor, student, and dashboard
   const instructorPaths = ["/instructor", "/student", "/dashboard"]; // Instructor can access instructor, student, and dashboard
   const studentPaths = ["/student", "/dashboard"]; // Student can access student and dashboard

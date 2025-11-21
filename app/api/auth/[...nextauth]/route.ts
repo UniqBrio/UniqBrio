@@ -10,6 +10,13 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -62,7 +69,7 @@ const handler = NextAuth({
   },
   pages: {
     signIn: "/login",
-    error: "/login",
+    error: "/login", // OAuth errors will redirect here with error parameter
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -84,11 +91,16 @@ const handler = NextAuth({
           }
 
           // Issue custom session cookie compatible with middleware
-          const token = await (await import("@/lib/auth")).createToken({ email: dbUser.email }, "7d");
+          const token = await (await import("@/lib/auth")).createToken({ 
+            email: dbUser.email,
+            id: dbUser.id,
+            verified: dbUser.verified 
+          }, "7d");
           await (await import("@/lib/auth")).setSessionCookie(token);
           return true;
         } catch (error) {
           console.error("Error during Google sign-in:", error)
+          // Return false to trigger an error redirect instead of allowing signin
           return false
         }
       }
@@ -143,7 +155,7 @@ const handler = NextAuth({
       }
     },
   },
-  debug: process.env.NODE_ENV === "development",
+  // debug: process.env.NODE_ENV === "development", // Disabled to remove debug warnings
 })
 
 export { handler as GET, handler as POST }

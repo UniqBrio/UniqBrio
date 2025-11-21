@@ -1,15 +1,12 @@
 // Script to add kycStatus: "pending" to all existing KycSubmission documents
-const { MongoClient } = require('mongodb');
+const { getMongoClient, closeConnections } = require('../lib/mongodb.js');
 
-const uri = process.env.DATABASE_URL || 'mongodb+srv://<username>:<password>@uniqbriocluster.pvl6zgz.mongodb.net/uniqbrio';
 const dbName = 'uniqbrio';
 const collectionName = 'KycSubmission';
 
 async function main() {
-  const client = new MongoClient(uri);
   try {
-    await client.connect();
-    const db = client.db(dbName);
+    const { client, db } = await getMongoClient();
     const collection = db.collection(collectionName);
 
     // Update all documents missing kycStatus

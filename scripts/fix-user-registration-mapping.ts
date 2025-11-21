@@ -1,14 +1,10 @@
-import { MongoClient } from 'mongodb';
-
-const MONGODB_URI = process.env.DATABASE_URL!;
+import { getMongoClient, closeConnections } from '../lib/mongodb';
 
 async function fixUserRegistrationMapping() {
   try {
     console.log("\n=== Fixing User-Registration Data Mapping ===\n");
     
-    const client = new MongoClient(MONGODB_URI);
-    await client.connect();
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     
     // Get all users
     const users = await db.collection('User').find({}).toArray();

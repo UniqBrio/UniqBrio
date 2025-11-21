@@ -33,49 +33,50 @@ export default function LoginPage() {
 
   // --- useEffect for Toasts with Enhanced Logging ---
   useEffect(() => {
-  // Log exactly what params are seen when the effect runs
-  console.log("[LoginPage] useEffect: Running. Current searchParams:", searchParams?.toString());
+    // Log exactly what params are seen when the effect runs
+    console.log("[LoginPage] useEffect: Running. Current searchParams:", searchParams?.toString());
 
-  const verified = searchParams?.get('verified') === 'true';
-  const alreadyVerified = searchParams?.get('alreadyVerified') === 'true';
-  const resetSuccess = searchParams?.get('reset') === 'success';
-  const sessionExpired = searchParams?.get('sessionExpired') === 'true';
-  const oauthError = searchParams?.get('error'); // Get potential error message
+    const verified = searchParams?.get('verified') === 'true';
+    const alreadyVerified = searchParams?.get('alreadyVerified') === 'true';
+    const resetSuccess = searchParams?.get('reset') === 'success';
+    const sessionExpired = searchParams?.get('sessionExpired') === 'true';
+    const oauthError = searchParams?.get('error'); // Get potential error message
 
     let toastShown = false;
     const currentPath = '/login'; // Define the path to replace to
 
     // Use a function to avoid repeating router.replace logic
     const showToastAndReplaceUrl = (toastOptions: Parameters<typeof toast>[0]) => {
-        console.log(`[LoginPage] useEffect: Condition met for toast: ${toastOptions.title}. Showing toast.`);
-        toast(toastOptions);
-        toastShown = true;
-        console.log(`[LoginPage] useEffect: Calling router.replace('${currentPath}') to clean URL.`);
-        // Use setTimeout to slightly delay replace, allowing toast to potentially render first
-        // Adjust delay as needed, or remove if it causes other issues. Start with 0 or small value.
-        setTimeout(() => {
-            router.replace(currentPath);
-            console.log(`[LoginPage] useEffect: router.replace('${currentPath}') executed.`);
-        }, 50); // Small delay (e.g., 50ms)
+      console.log(`[LoginPage] useEffect: Condition met for toast: ${toastOptions.title}. Showing toast.`);
+      toast(toastOptions);
+      toastShown = true;
+      console.log(`[LoginPage] useEffect: Calling router.replace('${currentPath}') to clean URL.`);
+      // Use setTimeout to slightly delay replace, allowing toast to potentially render first
+      // Adjust delay as needed, or remove if it causes other issues. Start with 0 or small value.
+      setTimeout(() => {
+        router.replace(currentPath);
+        console.log(`[LoginPage] useEffect: router.replace('${currentPath}') executed.`);
+      }, 50); // Small delay (e.g., 50ms)
     }
 
+    // Handle different types of errors properly
     if (verified && !toastShown) {
       showToastAndReplaceUrl({
         title: "Account Created",
         description: "Account created successfully. Please log in.",
-        variant: "default", // Use "success" if you have it defined
+        variant: "default",
       });
     } else if (alreadyVerified && !toastShown) {
       showToastAndReplaceUrl({
         title: "Already Verified",
         description: "Your account was already verified. Please log in.",
-        variant: "default", // Use "info" if defined, or default
+        variant: "default",
       });
     } else if (resetSuccess && !toastShown) {
       showToastAndReplaceUrl({
         title: "Password Reset",
         description: "Password reset successfully. Please log in with your new password.",
-        variant: "default", // Use "success" if defined
+        variant: "default",
       });
     } else if (sessionExpired && !toastShown) {
       showToastAndReplaceUrl({
@@ -84,14 +85,51 @@ export default function LoginPage() {
         variant: "destructive",
       });
     } else if (oauthError && !toastShown) {
-       showToastAndReplaceUrl({
-         title: "Login Error",
-         // Decode the error message in case it's URL-encoded
-         description: `Failed to sign in with provider. Error: ${decodeURIComponent(oauthError)}`,
-         variant: "destructive",
-       });
+      // Handle specific OAuth error types
+      let errorTitle = "Authentication Failed";
+      let errorDescription = "Failed to sign in with Google. Please try again.";
+      
+      switch (oauthError.toLowerCase()) {
+        case 'oauthsignin':
+          errorDescription = "There was an error starting the Google sign-in process. Please try again.";
+          break;
+        case 'oauthcallback':
+          errorDescription = "There was an error during Google authentication callback. Please try again.";
+          break;
+        case 'oauthcreateaccount':
+          errorDescription = "Could not create your account with Google. Please try again or use email signup.";
+          break;
+        case 'emailcreateaccount':
+          errorDescription = "Could not create account with this email. Please try a different email.";
+          break;
+        case 'callback':
+          errorDescription = "Authentication callback failed. Please try signing in again.";
+          break;
+        case 'oauthaccountnotlinked':
+          errorDescription = "This email is already registered with a different sign-in method. Please use your original sign-in method.";
+          break;
+        case 'emailsignin':
+          errorDescription = "Could not send sign-in email. Please check your email address.";
+          break;
+        case 'credentialssignin':
+          errorDescription = "Invalid credentials. Please check your email and password.";
+          break;
+        case 'sessionrequired':
+          errorDescription = "You need to be signed in to access this page.";
+          break;
+        default:
+          // For any other error, use a generic message but log the specific error
+          console.error("[LoginPage] Unhandled OAuth error:", oauthError);
+          errorDescription = `Authentication failed: ${decodeURIComponent(oauthError)}. Please try again.`;
+      }
+
+      showToastAndReplaceUrl({
+        title: errorTitle,
+        description: errorDescription,
+        variant: "destructive",
+      });
     } else {
-        console.log("[LoginPage] useEffect: No relevant query parameters found for toast display.");
+      console.log("[LoginPage] useEffect: No relevant query parameters found for toast display.");
     }
 
   }, [searchParams, router]); // Dependencies are correct

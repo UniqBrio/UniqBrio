@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       collections,
       collectionCounts,
       databaseInfo: {
-        url: process.env.DATABASE_URL?.replace(/\/\/[^:]+:[^@]+@/, "//***:***@") || "Not set"
+        url: process.env.MONGODB_URI?.replace(/\/\/[^:]+:[^@]+@/, "//***:***@") || "Not set"
       }
     });
 

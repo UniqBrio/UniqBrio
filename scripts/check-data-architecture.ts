@@ -1,14 +1,10 @@
-import { MongoClient } from 'mongodb';
-
-const MONGODB_URI = process.env.DATABASE_URL!;
+import { getMongoClient, closeConnections } from '../lib/mongodb';
 
 async function checkDataArchitecture() {
   try {
     console.log("\n=== Analyzing Current Data Architecture ===\n");
     
-    const client = new MongoClient(MONGODB_URI);
-    await client.connect();
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     
     // Get all collection names
     const collections = await db.listCollections().toArray();

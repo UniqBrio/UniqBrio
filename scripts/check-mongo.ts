@@ -1,12 +1,8 @@
-import { MongoClient } from 'mongodb';
+import { getMongoClient, closeConnections } from '../lib/mongodb';
 
 async function checkCollections() {
-  const url = process.env.DATABASE_URL || '';
-  const client = new MongoClient(url);
-  
   try {
-    await client.connect();
-    const db = client.db();
+    const { client, db } = await getMongoClient();
     const collections = await db.listCollections().toArray();
     console.log('Available collections:', collections.map(c => c.name));
     

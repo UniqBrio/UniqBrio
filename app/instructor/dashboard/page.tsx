@@ -21,7 +21,7 @@ export default async function InstructorDashboardPage() {
       case "admin":
         redirect("/admin/dashboard")
       case "super_admin":
-        redirect("/super-admin/dashboard")
+        redirect("/dashboard") // Super admin uses main dashboard
       case "student":
         redirect("/student/dashboard")
     }
