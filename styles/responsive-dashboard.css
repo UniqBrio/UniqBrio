@@ -1,0 +1,276 @@
+/* Responsive Layout Utilities for CourseDashboardCharts and other modules */
+
+/* Mobile-first responsive container */
+.responsive-dashboard-container {
+  width: 100%;
+  padding: 1rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-dashboard-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-dashboard-container {
+    padding: 2rem;
+  }
+}
+
+/* Responsive chart containers */
+.responsive-chart-container {
+  width: 100%;
+  height: 250px; /* Mobile */
+  overflow: hidden;
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-chart-container {
+    height: 300px;
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-chart-container {
+    height: 320px;
+  }
+}
+
+/* Responsive card grid */
+.responsive-card-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-card-grid {
+    gap: 2rem;
+  }
+}
+
+/* Responsive typography */
+.responsive-heading {
+  font-size: 1.125rem; /* Mobile: text-lg */
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-heading {
+    font-size: 1.25rem; /* text-xl */
+    line-height: 1.75rem;
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-heading {
+    font-size: 1.5rem; /* text-2xl */
+    line-height: 2rem;
+  }
+}
+
+/* Responsive text sizes for charts */
+.responsive-chart-text {
+  font-size: 0.75rem; /* Mobile: text-xs */
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-chart-text {
+    font-size: 0.875rem; /* text-sm */
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-chart-text {
+    font-size: 1rem; /* text-base */
+  }
+}
+
+/* Responsive card padding */
+.responsive-card-padding {
+  padding: 0.75rem; /* Mobile: p-3 */
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-card-padding {
+    padding: 1.5rem; /* sm:p-6 */
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-card-padding {
+    padding: 1.5rem; /* lg:p-6 */
+  }
+}
+
+/* Responsive button sizes */
+.responsive-button {
+  padding: 0.5rem 1rem; /* Mobile: px-4 py-2 */
+  font-size: 0.875rem; /* text-sm */
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-button {
+    padding: 0.625rem 1.25rem; /* px-5 py-2.5 */
+    font-size: 0.875rem; /* text-sm */
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-button {
+    padding: 0.75rem 1.5rem; /* px-6 py-3 */
+    font-size: 1rem; /* text-base */
+  }
+}
+
+/* Touch-friendly interactive elements for mobile */
+@media (max-width: 640px) {
+  .touch-friendly {
+    min-height: 44px; /* iOS recommended minimum touch target */
+    min-width: 44px;
+  }
+  
+  .touch-friendly-button {
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+  }
+}
+
+/* Responsive table styles */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+@media (max-width: 640px) {
+  .responsive-table-container {
+    font-size: 0.75rem; /* Smaller text on mobile */
+  }
+  
+  .responsive-table-container th,
+  .responsive-table-container td {
+    padding: 0.5rem 0.75rem;
+    min-width: 100px; /* Minimum column width */
+  }
+}
+
+/* Responsive form elements */
+.responsive-form-input {
+  width: 100%;
+  padding: 0.75rem; /* Mobile: p-3 */
+  font-size: 1rem; /* Prevent zoom on iOS */
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-form-input {
+    font-size: 0.875rem; /* text-sm */
+  }
+}
+
+/* Responsive spacing utilities */
+.responsive-space-y {
+  margin-top: 0;
+}
+
+.responsive-space-y > * + * {
+  margin-top: 1rem; /* Mobile: space-y-4 */
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-space-y > * + * {
+    margin-top: 1.5rem; /* sm:space-y-6 */
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-space-y > * + * {
+    margin-top: 2rem; /* lg:space-y-8 */
+  }
+}
+
+/* Hide elements responsively */
+.mobile-only {
+  display: block;
+}
+
+.tablet-up {
+  display: none;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .mobile-only {
+    display: none;
+  }
+  
+  .tablet-up {
+    display: block;
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* Responsive navigation/sidebar adaptations */
+@media (max-width: 640px) {
+  .responsive-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 50;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .responsive-sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* Focus and accessibility improvements for mobile */
+@media (max-width: 640px) {
+  .focus-visible:focus-visible {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+  }
+}
+
+/* Responsive chart legend positioning */
+.responsive-chart-legend {
+  margin-top: 0.5rem; /* Mobile */
+  font-size: 0.75rem;
+}
+
+@media (min-width: 641px) { /* Tablet */
+  .responsive-chart-legend {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+  .responsive-chart-legend {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+  }
+}

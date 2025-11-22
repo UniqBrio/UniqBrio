@@ -1,0 +1,506 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { dbConnect } from '@/lib/mongodb';
+import StudentAttendance from '@/models/dashboard/student/StudentAttendance';
+import Student from '@/models/dashboard/student/Student';
+import mongoose from 'mongoose';
+import Cohort from '@/models/dashboard/Cohort';
+
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const formatDayRanges = (days?: number[]): string => {
+  if (!Array.isArray(days) || days.length === 0) return '';
+  const sorted = Array.from(new Set(days.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))).sort((a, b) => a - b);
+  if (!sorted.length) return '';
+
+  const ranges: string[] = [];
+  let rangeStart = sorted[0];
+  let prev = sorted[0];
+
+  const pushRange = (start: number, end: number) => {
+    if (start === undefined || end === undefined) return;
+    if (start === end) {
+      ranges.push(DAY_LABELS[start] ?? String(start));
+    } else {
+      ranges.push(`${DAY_LABELS[start] ?? start}–${DAY_LABELS[end] ?? end}`);
+    }
+  };
+
+  for (let i = 1; i <= sorted.length; i++) {
+    const current = sorted[i];
+    if (current === prev + 1) {
+      prev = current;
+      continue;
+    }
+    pushRange(rangeStart, prev);
+    rangeStart = current;
+    prev = current;
+  }
+
+  return ranges.join(', ');
+};
+
+const deriveCohortTiming = (cohort: any): string | undefined => {
+  if (!cohort) return undefined;
+  const startTime = cohort?.timeSlot?.startTime || cohort?.startTime || '';
+  const endTime = cohort?.timeSlot?.endTime || cohort?.endTime || '';
+  const timeRange = startTime && endTime ? `${startTime} - ${endTime}` : (startTime || endTime || '');
+  const dayLabel = formatDayRanges(cohort?.daysOfWeek);
+  const combined = [dayLabel, timeRange].filter(Boolean).join(' • ');
+  return combined || cohort?.timing || undefined;
+};
+
+// Define the Course schema for lookup
+const courseSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  name: String,
+  courseId: String,
+  description: String,
+  courseCategory: String,
+  type: String,
+  duration: String,
+  level: String,
+}, {
+  collection: 'courses',
+  strict: false
+});
+
+const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
+
+export async function GET(request: NextRequest) {
+  try {
+    await dbConnect("uniqbrio");
+
+    const { searchParams } = new URL(request.url);
+    const studentId = searchParams.get('studentId');
+    const cohortId = searchParams.get('cohortId');
+    const date = searchParams.get('date');
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
+    const status = searchParams.get('status');
+    const limit = searchParams.get('limit');
+    const offset = searchParams.get('offset');
+
+    // Build query filters
+    let query: any = {};
+    
+    if (studentId) {
+      query.studentId = studentId;
+    }
+    
+    if (cohortId) {
+      query.cohortId = cohortId;
+    }
+    
+    if (date) {
+      query.date = date;
+    } else if (dateFrom || dateTo) {
+      query.date = {};
+      if (dateFrom) query.date.$gte = dateFrom;
+      if (dateTo) query.date.$lte = dateTo;
+    }
+    
+    if (status) {
+      query.status = status;
+    }
+
+    // Build aggregation pipeline to join with student data for course details
+    let pipeline: any[] = [
+      { $match: query },
+      // Left join with students collection to get course details
+      {
+        $lookup: {
+          from: 'students',
+          localField: 'studentId',
+          foreignField: 'studentId',
+          as: 'studentInfo'
+        }
+      },
+      // Add course ID from student profile if not already present
+      {
+        $addFields: {
+          // Pull possible course identifiers from the student's profile
+          studentEnrolledCourseId: { $arrayElemAt: ["$studentInfo.enrolledCourseId", 0] },
+          studentEnrolledCourseName: { $arrayElemAt: ["$studentInfo.enrolledCourseName", 0] },
+          // Backward compatibility: extract ID from legacy enrolledCourse field (e.g., "COURSE0001 - Name")
+          legacyExtractedCourseId: {
+            $let: {
+              vars: { enrolledCourse: { $arrayElemAt: ["$studentInfo.enrolledCourse", 0] } },
+              in: {
+                $cond: {
+                  if: { $and: [{ $ne: ["$$enrolledCourse", null] }, { $ne: ["$$enrolledCourse", ""] }] },
+                  then: {
+                    $cond: {
+                      if: { $gt: [{ $indexOfCP: ["$$enrolledCourse", " - "] }, -1] },
+                      then: { $trim: { input: { $substrCP: ["$$enrolledCourse", 0, { $indexOfCP: ["$$enrolledCourse", " - "] }] } } },
+                      else: "$$enrolledCourse"
+                    }
+                  },
+                  else: null
+                }
+              }
+            }
+          },
+          // Primary candidate to look up by ID: priority order -> record.courseId -> student.enrolledCourseId -> legacyExtractedCourseId
+          lookupCourseId: {
+            $cond: {
+              if: { $and: [{ $ne: ["$courseId", null] }, { $ne: ["$courseId", ""] }] },
+              then: "$courseId",
+              else: {
+                $cond: {
+                  if: { $and: [{ $ne: ["$studentEnrolledCourseId", null] }, { $ne: ["$studentEnrolledCourseId", ""] }] },
+                  then: "$studentEnrolledCourseId",
+                  else: "$legacyExtractedCourseId"
+                }
+              }
+            }
+          }
+        }
+      },
+      // Left join with courses collection to get full course details
+      {
+        $lookup: {
+          from: 'courses',
+          let: { courseIdToLookup: "$lookupCourseId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $eq: ["$courseId", "$$courseIdToLookup"] },
+                    { $eq: [{ $toString: "$_id" }, "$$courseIdToLookup"] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'courseInfo'
+        }
+      },
+      // Secondary lookup by course name from student's profile (case-insensitive)
+      {
+        $lookup: {
+          from: 'courses',
+          let: { courseNameToLookup: "$studentEnrolledCourseName" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $ne: ["$$courseNameToLookup", null] },
+                    { $ne: ["$$courseNameToLookup", ""] },
+                    { $eq: [ { $toLower: "$name" }, { $toLower: "$$courseNameToLookup" } ] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'courseInfoByName'
+        }
+      },
+      // Add course details from lookup
+      {
+        $addFields: {
+          courseId: {
+            $cond: {
+              if: { $gt: [{ $size: "$courseInfo" }, 0] },
+              then: { $arrayElemAt: ["$courseInfo.courseId", 0] },
+              else: {
+                $cond: {
+                  if: { $gt: [{ $size: "$courseInfoByName" }, 0] },
+                  then: { $arrayElemAt: ["$courseInfoByName.courseId", 0] },
+                  else: "$lookupCourseId"
+                }
+              }
+            }
+          },
+          courseName: {
+            $cond: {
+              if: { $and: [{ $ne: ["$courseName", null] }, { $ne: ["$courseName", ""] }] },
+              then: "$courseName",
+              else: {
+                $cond: {
+                  if: { $gt: [{ $size: "$courseInfo" }, 0] },
+                  then: { $arrayElemAt: ["$courseInfo.name", 0] },
+                  else: {
+                    $cond: {
+                      if: { $gt: [{ $size: "$courseInfoByName" }, 0] },
+                      then: { $arrayElemAt: ["$courseInfoByName.name", 0] },
+                      else: "$studentEnrolledCourseName"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          courseCategory: {
+            $cond: {
+              if: { $gt: [{ $size: "$courseInfo" }, 0] },
+              then: { $arrayElemAt: ["$courseInfo.courseCategory", 0] },
+              else: { $arrayElemAt: ["$studentInfo.category", 0] }
+            }
+          },
+          courseType: {
+            $cond: {
+              if: { $gt: [{ $size: "$courseInfo" }, 0] },
+              then: { $arrayElemAt: ["$courseInfo.type", 0] },
+              else: { $arrayElemAt: ["$studentInfo.courseType", 0] }
+            }
+          },
+          courseLevel: {
+            $cond: {
+              if: { $gt: [{ $size: "$courseInfo" }, 0] },
+              then: { $arrayElemAt: ["$courseInfo.level", 0] },
+              else: { $arrayElemAt: ["$studentInfo.courseLevel", 0] }
+            }
+          },
+          courseDuration: { $arrayElemAt: ["$courseInfo.duration", 0] }
+        }
+      },
+  // Remove temporary fields and lookup arrays
+  { $unset: ["studentInfo", "courseInfo", "courseInfoByName", "lookupCourseId", "studentEnrolledCourseId", "studentEnrolledCourseName", "legacyExtractedCourseId"] }
+    ];
+
+    // Add sorting by date (newest first) and then by studentId
+    pipeline.push({ $sort: { date: -1, studentId: 1 } });
+
+    // Add pagination if specified
+    if (offset) {
+      pipeline.push({ $skip: parseInt(offset) });
+    }
+    if (limit) {
+      pipeline.push({ $limit: parseInt(limit) });
+    }
+
+    const records = await StudentAttendance.aggregate(pipeline);
+
+    const cohortIds = Array.from(
+      new Set(
+        records
+          .map((record: any) => (record?.cohortId ? String(record.cohortId) : null))
+          .filter((id): id is string => Boolean(id))
+      )
+    );
+    let enrichedRecords = records;
+
+    if (cohortIds.length) {
+      const cohorts = await Cohort.find({
+        $or: [
+          { cohortId: { $in: cohortIds } },
+          { id: { $in: cohortIds } }
+        ]
+      }).lean();
+
+      const cohortMap = new Map<string, { name?: string; instructor?: string; timing?: string }>();
+      cohorts.forEach((cohort: any) => {
+        const cohortTiming = deriveCohortTiming(cohort);
+        const cohortInstructor = cohort?.instructor || cohort?.instructorName;
+        const keys = new Set<string>();
+        if (cohort.cohortId) keys.add(String(cohort.cohortId).trim().toUpperCase());
+        if (cohort.id) keys.add(String(cohort.id).trim().toUpperCase());
+        if (cohort._id) keys.add(String(cohort._id).trim().toUpperCase());
+        keys.forEach((key) => {
+          cohortMap.set(key, {
+            name: cohort?.name,
+            instructor: cohortInstructor,
+            timing: cohortTiming
+          });
+        });
+      });
+
+      enrichedRecords = records.map((record: any) => {
+        if (!record.cohortId) return record;
+        const cohortKey = String(record.cohortId).trim().toUpperCase();
+        const cohortDetails = cohortMap.get(cohortKey);
+        if (!cohortDetails) return record;
+        const currentName = record.cohortName;
+        const needsNameOverride = !currentName || currentName.trim() === '' || currentName.trim().toUpperCase() === cohortKey;
+        return {
+          ...record,
+          cohortName: needsNameOverride ? (cohortDetails.name || currentName) : currentName,
+          cohortInstructor: record.cohortInstructor || cohortDetails.instructor,
+          cohortTiming: record.cohortTiming || cohortDetails.timing
+        };
+      });
+    }
+
+    // Note: avoid verbose logging in production
+
+    // Get total count for pagination (if filters are applied)
+    let totalCount = null;
+    if (limit || offset) {
+      const countResult = await StudentAttendance.countDocuments(query);
+      totalCount = countResult;
+    }
+
+    const response: any = {
+      success: true,
+      data: enrichedRecords,
+    };
+
+    if (totalCount !== null) {
+      response.pagination = {
+        total: totalCount,
+        limit: limit ? parseInt(limit) : null,
+        offset: offset ? parseInt(offset) : 0,
+      };
+    }
+
+    return NextResponse.json(response);
+  } catch (error: any) {
+    console.error('Error fetching attendance records:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to fetch attendance records',
+        message: error.message 
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await dbConnect("uniqbrio");
+
+    const body = await request.json();
+    const {
+      studentId,
+      studentName,
+      cohortId,
+      cohortName,
+      cohortInstructor,
+      cohortTiming,
+      courseId,
+      courseName,
+      date,
+      startTime,
+      endTime,
+      status,
+      notes
+    } = body;
+
+    // Validate required fields
+    if (!studentId) {
+      return NextResponse.json(
+        { success: false, error: 'Student ID is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!date) {
+      return NextResponse.json(
+        { success: false, error: 'Date is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if attendance record already exists for this student on this date
+    const existingRecord = await StudentAttendance.findOne({
+      studentId,
+      date
+    });
+
+    if (existingRecord) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Attendance record already exists for student ${studentId} on ${date}. Please edit the existing record or choose a different date.`,
+          existingRecord 
+        },
+        { status: 409 }
+      );
+    }
+
+  // Always try to get the most up-to-date student information from Student collection
+  let finalStudentName = studentName;
+  let finalCourseId: string | undefined = courseId;
+  let finalCourseName = courseName;
+    
+    if (studentId) {
+      const student = await Student.findOne({ studentId });
+      if (student) {
+        // Always use the current name from the Student record if available
+        if (student.name) {
+          finalStudentName = student.name;
+        }
+        // Prefer enrolledCourse (ID) if present; it may be an ID alone or in
+        // legacy format "COURSE0001 - Name". If not present, try resolving by
+        // enrolledCourseName via the Courses collection.
+        if (!finalCourseId) {
+          const enrolledCourse: any = (student as any).enrolledCourse;
+          if (enrolledCourse) {
+            // If it contains " - ", take the part before it; else use as-is
+            const sep = String(enrolledCourse).indexOf(" - ");
+            finalCourseId = sep >= 0 ? String(enrolledCourse).slice(0, sep).trim() : String(enrolledCourse);
+          }
+        }
+
+        // If we still don't have an ID, but have an enrolledCourseName, resolve by name
+        if (!finalCourseId && (student as any).enrolledCourseName) {
+          const byName = await Course.findOne({ name: (student as any).enrolledCourseName });
+          if (byName?.courseId) {
+            finalCourseId = byName.courseId as any;
+          }
+        }
+
+        // If we still don't have a name, fetch it now from Courses (by ID) or fall back to student's name
+        if (!finalCourseName) {
+          if (finalCourseId) {
+            const course = await Course.findOne({
+              $or: [
+                { courseId: finalCourseId },
+                // Attempt ObjectId lookup only if it looks like one
+                ...(mongoose.isValidObjectId(finalCourseId) ? [{ _id: new mongoose.Types.ObjectId(finalCourseId) }] : [])
+              ]
+            });
+            if (course) {
+              finalCourseName = course.name as any;
+            }
+          }
+          if (!finalCourseName && (student as any).enrolledCourseName) {
+            finalCourseName = (student as any).enrolledCourseName;
+          }
+        }
+      }
+    }
+
+    // Normalize status to accepted enum values
+    const normalizedStatus = (status || 'present').toLowerCase() === 'absent' ? 'absent' : 'present';
+
+    // Create new attendance record
+    const attendanceRecord = new StudentAttendance({
+      studentId,
+      studentName: finalStudentName || studentId,
+      cohortId,
+      cohortName,
+      cohortInstructor,
+      cohortTiming,
+      courseId: finalCourseId,
+      courseName: finalCourseName,
+      date,
+      startTime,
+      endTime,
+      status: normalizedStatus,
+      notes
+    });
+
+    const savedRecord = await attendanceRecord.save();
+
+    return NextResponse.json({
+      success: true,
+      data: savedRecord
+    }, { status: 201 });
+
+  } catch (error: any) {
+    console.error('Error creating attendance record:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to create attendance record',
+        message: error.message 
+      },
+      { status: 500 }
+    );
+  }
+}

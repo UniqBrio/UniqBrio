@@ -16,8 +16,7 @@
 
   body {
     @apply bg-background text-foreground;
-    /* Set Times New Roman as the default font */
-    font-family: "Times New Roman", Times, serif;
+    /* Font is applied via Next.js Inter font in layout.tsx */
   }
 
   * { /* Apply border-border to all elements by default, common in shadcn/ui setups */
@@ -30,11 +29,11 @@
     --background: 0 0% 100%; /* From your #ffffff */
     --foreground: 0 0% 3.9%; /* shadcn default, can be 0 0% 0% if pure black is preferred */
 
-    --primary: 34.9 98.2% 59.8%; /* From your #fd9c2d */
-    --primary-foreground: 0 0% 100%; /* White text on orange */
+    --primary: 271 81% 56%; /* Purple #8b5cf6 */
+    --primary-foreground: 0 0% 100%; /* White text on purple */
 
-    --secondary: 0 0% 85.1%; /* From your #d9d9d9 */
-    --secondary-foreground: 0 0% 0%; /* Black text on light grey */
+    --secondary: 25 95% 53%; /* Orange #fd9c2d */
+    --secondary-foreground: 0 0% 0%; /* Black text on orange */
 
     --accent: 277.1 100% 21.8%; /* From your #39006f */
     --accent-foreground: 0 0% 100%; /* White text on dark purple */
@@ -57,7 +56,7 @@
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%; /* Default input border */
-    --ring: 34.9 98.2% 59.8%; /* Using your primary color for focus rings */
+    --ring: 271 81% 56%; /* Using purple primary color for focus rings */
 
     --radius: 0.5rem; /* Default shadcn radius - adjust if needed */
 
@@ -85,10 +84,10 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%; /* Default dark secondary, adjust if custom dark needed */
-    --secondary-foreground: 0 0% 98%;
+    --primary: 271 81% 56%; /* Purple in dark mode */
+    --primary-foreground: 0 0% 100%; /* White text */
+    --secondary: 25 95% 53%; /* Orange in dark mode */
+    --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
     --accent: 0 0% 14.9%; /* Default dark accent, adjust if custom dark needed */
@@ -97,7 +96,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --ring: 271 81% 56%; /* Purple focus ring in dark mode */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

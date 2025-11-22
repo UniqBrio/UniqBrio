@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
-import prisma from "@/lib/db";
+import prisma, { withRetry } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     console.log("[kyc-status] Checking for user:", payload.email);
 
     // Get user's userId and academyId and KYC fields
-    const user = await prisma.user.findFirst({
+    const user = await withRetry(() => prisma.user.findFirst({
       where: { email: payload.email },
       select: { 
         userId: true, 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         kycSubmissionDate: true,
         createdAt: true,
       }
-    });
+    }));
 
     if (!user || !user.registrationComplete || !user.userId || !user.academyId) {
       console.log("[kyc-status] User registration not complete");
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if KYC submission exists
-    const kycSubmission = await prisma.kycSubmission.findFirst({
+    const kycSubmission = await withRetry(() => prisma.kycSubmission.findFirst({
       where: {
         userId: user.userId,
         academyId: user.academyId
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc'
       }
-    });
+    }));
 
     // Auto-expire logic: if no submission and more than 14 days since account creation and registration complete
     if (!kycSubmission && user.registrationComplete && user.createdAt) {
@@ -70,10 +70,10 @@ export async function GET(request: NextRequest) {
       
       if (diffDays >= 14 && user.kycStatus !== 'expired') {
         console.log("[kyc-status] Auto-expiring KYC for user:", payload.email, "Days since registration:", diffDays);
-        await prisma.user.updateMany({ 
+        await withRetry(() => prisma.user.updateMany({ 
           where: { email: payload.email }, 
           data: { kycStatus: 'expired' } 
-        });
+        }));
         
         return NextResponse.json({
           status: "expired",

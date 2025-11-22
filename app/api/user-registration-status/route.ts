@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
-import prisma from "@/lib/db";
+import prisma, { withRetry } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     console.log("[user-registration-status] Checking for user:", payload.email);
 
     // Get user registration status
-    const user = await prisma.user.findFirst({
+    const user = await withRetry(() => prisma.user.findFirst({
       where: { email: payload.email },
       select: { 
         registrationComplete: true,
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         kycStatus: true,
         createdAt: true
       }
-    });
+    }));
 
     if (!user) {
       console.log("[user-registration-status] User not found");

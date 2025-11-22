@@ -1,0 +1,7 @@
+export { default as BasicInfoTab } from './basic-info-tab'
+export { default as ChaptersTab } from './chapters-tab'
+export { default as ContentTab } from './content-tab'
+export { default as PricingTab } from './pricing-tab'
+export { default as ScheduleTab } from './schedule-tab'
+export { default as SettingsTab } from './settings-tab'
+export { default as MarketingTab } from './marketing-tab'

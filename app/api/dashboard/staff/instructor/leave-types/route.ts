@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { dbConnect } from '@/lib/mongodb';
+import { LeaveRequest } from '@/lib/dashboard/staff/models';
+
+export async function GET(request: NextRequest) {
+  try {
+    await dbConnect("uniqbrio");
+    const { searchParams } = new URL(request.url);
+    const checkType = searchParams.get('check');
+
+    if (checkType) {
+      const count = await LeaveRequest.countDocuments({ leaveType: checkType });
+      return NextResponse.json({ isUsed: count > 0, count });
+    }
+
+    const types = await LeaveRequest.distinct('leaveType');
+    const valid = (types as string[]).filter((t) => t && t.trim() !== '');
+    return NextResponse.json({ leaveTypes: valid });
+  } catch (e) {
+    console.error('GET /api/leave-types error', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await dbConnect("uniqbrio");
+    // This endpoint mirrors /api/roles sync behavior: no separate storage required.
+    // Custom types are effectively persisted when a leave request uses them.
+    const _ = await request.json();
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error('POST /api/leave-types error', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

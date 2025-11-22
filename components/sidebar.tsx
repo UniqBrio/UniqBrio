@@ -1,43 +1,61 @@
 "use client"
 function SidebarPositionSelector() {
   const { position, setPosition } = useSidebarPosition()
+  const { theme, toggleTheme } = useApp()
   return (
     <div className="border-t border-gray-200 p-2">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="w-full flex items-center justify-center">
-            <Move className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[120px] p-2" side="top">
-          <div className="flex gap-1">
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={position === 'left' ? 'default' : 'ghost'}
-                  className="h-7 w-12 px-0"
-                  onClick={() => setPosition('left')}
-                >
-                  <ArrowLeft className="h-3 w-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs">Left sidebar</TooltipContent>
-            </Tooltip>
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={position === 'right' ? 'default' : 'ghost'}
-                  className="h-7 w-12 px-0"
-                  onClick={() => setPosition('right')}
-                >
-                  <ArrowRight className="h-3 w-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs">Right sidebar</TooltipContent>
-            </Tooltip>
-          </div>
-        </PopoverContent>
-      </Popover>
+      <div className="flex gap-1">
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="flex-1 flex items-center justify-center"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs bg-purple-600 text-white font-semibold rounded-md px-2 py-1">
+            {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          </TooltipContent>
+        </Tooltip>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="flex-1 flex items-center justify-center">
+              <Move className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[120px] p-2" side="top">
+            <div className="flex gap-1">
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={position === 'left' ? 'default' : 'ghost'}
+                    className="h-7 w-12 px-0"
+                    onClick={() => setPosition('left')}
+                  >
+                    <ArrowLeft className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs bg-purple-600 text-white font-semibold rounded-md px-2 py-1">Left sidebar</TooltipContent>
+              </Tooltip>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={position === 'right' ? 'default' : 'ghost'}
+                    className="h-7 w-12 px-0"
+                    onClick={() => setPosition('right')}
+                  >
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs bg-purple-600 text-white font-semibold rounded-md px-2 py-1">Right sidebar</TooltipContent>
+              </Tooltip>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   )
 }
@@ -61,6 +79,7 @@ import {
   Users2,
   Settings,
   HelpCircle,
+  ScrollText,
   ChevronLeft,
   ChevronRight,
   Search,
@@ -82,14 +101,19 @@ import {
   ArrowDown,
   UserCircle,
   Move,
+  ShoppingCart,
+  Moon,
+  Sun,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/dashboard/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Input } from "@/components/ui/input"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
-import { useSidebarPosition } from "../app/contexts/sidebar-position-context"
+import { Badge } from "@/components/ui/badge"
+import { useSidebarPosition } from "@/app/contexts/sidebar-position-context"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useApp } from "@/contexts/dashboard/app-context"
 
 interface SidebarProps {
   position: "left" | "right" 
@@ -106,6 +130,10 @@ interface MenuItem {
   submenu?: MenuItem[]
   isFavorite?: boolean
   external?: boolean
+  badge?: {
+    text: string
+    variant: "comingSoon" | "integrated"
+  }
 }
 
 export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarProps) {
@@ -128,118 +156,80 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
   // Define all menu items
 
   const menuItems: MenuItem[] = [
+    
     {
       id: "home",
       name: "Home",
       icon: <Home className="h-5 w-5" />,
-      href: "/",
+      href: "/dashboard",
       tooltip: "Home",
     },
     {
       id: "services",
       name: "Services",
       icon: <Briefcase className="h-5 w-5" />,
-      href: "/services",
+      href: "/dashboard/services",
       tooltip: "Manage services",
       submenu: [
         {
           id: "schedule",
           name: "Schedule",
           icon: <Calendar className="h-5 w-5" />,
-          href: "/services/schedule",
+          href: "/dashboard/services/schedule",
           tooltip: "Manage schedules",
         },
         {
           id: "courses",
           name: "Course Management",
           icon: <BookOpen className="h-5 w-5" />,
-          href: "/services/courses",
+          href: "/dashboard/services/courses",
           tooltip: "Manage courses",
         },
       ],
+    },
+     {
+      id: "payments",
+      name: "Payments",
+      icon: <CreditCard className="h-5 w-5" />,
+      href: "/dashboard/payments",
+      tooltip: "Payments",
     },
     {
       id: "user",
       name: "User Management",
       icon: <UserCircle className="h-5 w-5" />,
-      href: "/user",
+      href: "/dashboard/user",
       tooltip: "Manage users",
       submenu: [
         {
           id: "students",
-          name: "Students Management", 
+          name: "Students Management",
           icon: <Users className="h-5 w-5" />,
-          href: "/dashboard/students",
+          href: "/dashboard/user/students",
           tooltip: "Manage students",
-          submenu: [
-            {
-              id: "attendance-students",
-              name: "Attendance",
-              icon: <ClipboardCheck className="h-5 w-5" />,
-              href: "/user/students/attendance",
-              tooltip: "Track student attendance",
-            },
-            {
-              id: "leave-students",
-              name: "Leave Management",
-              icon: <Calendar className="h-5 w-5" />,
-              href: "/user/students/leave",
-              tooltip: "Manage student leave",
-            },
-          ],
+          
         },
         {
           id: "staff",
           name: "Staff Management",
           icon: <Users className="h-5 w-5" />,
-          href: "/user/staff",
+          href: "/dashboard/user/staff",
           tooltip: "Manage staff",
+         
           submenu: [
             {
               id: "instructor",
               name: "Instructor",
               icon: <Users className="h-5 w-5" />,
-              href: "/user/staff/instructor",
+              href: "/dashboard/user/staff/instructor",
               tooltip: "Manage instructors",
-              submenu: [
-                {
-                  id: "attendance-instructor",
-                  name: "Attendance",
-                  icon: <ClipboardCheck className="h-5 w-5" />,
-                  href: "/user/staff/instructor/attendance",
-                  tooltip: "Track instructor attendance",
-                },
-                {
-                  id: "leave-instructor",
-                  name: "Leave Management",
-                  icon: <Calendar className="h-5 w-5" />,
-                  href: "/user/staff/instructor/leave",
-                  tooltip: "Manage instructor leave",
-                },
-              ],
             },
             {
               id: "non-instructor",
               name: "Non-Instructor",
               icon: <Users className="h-5 w-5" />,
-              href: "/user/staff/non-instructor",
+              href: "/dashboard/user/staff/non-instructor",
               tooltip: "Manage non-instructors",
-              submenu: [
-                {
-                  id: "attendance-noninstructor",
-                  name: "Attendance",
-                  icon: <ClipboardCheck className="h-5 w-5" />,
-                  href: "/user/staff/non-instructor/attendance",
-                  tooltip: "Track non-instructor attendance",
-                },
-                {
-                  id: "leave-noninstructor",
-                  name: "Leave Management",
-                  icon: <Calendar className="h-5 w-5" />,
-                  href: "/user/staff/non-instructor/leave",
-                  tooltip: "Manage non-instructor leave",
-                },
-              ],
             },
           ],
         },
@@ -247,53 +237,51 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
           id: "parents",
           name: "Parent Management",
           icon: <Users className="h-5 w-5" />,
-          href: "/user/parents",
+          href: "/dashboard/user/parents",
           tooltip: "Manage parents",
+          badge: {
+        text: "Coming Soon",
+        variant: "comingSoon"
+      }
         },
         {
           id: "alumni",
           name: "Alumni Management",
           icon: <GraduationCap className="h-5 w-5" />,
-          href: "/user/alumni",
+          href: "/dashboard/user/alumni",
           tooltip: "Manage alumni",
+          badge: {
+        text: "Coming Soon",
+        variant: "comingSoon"
+      }
         },
       ],
     },
-    {
-      id: "enquiries",
-      name: "Customer Relations",
-      icon: <MessageSquare className="h-5 w-5" />,
-      href: "/enquiries",
-      tooltip: "Enquiries and leads",
-      
-    },
-    {
-      id: "payments",
-      name: "Payments",
-      icon: <CreditCard className="h-5 w-5" />,
-      href: "/payments",
-      tooltip: "Payments",
-    },
+    
+   
     {
       id: "financials",
       name: "Financials",
       icon: <DollarSign className="h-5 w-5" />,
-      href: "/financials",
+      href: "/dashboard/financials",
       tooltip: "Manage financials",
     },
+   
     {
+      id: "task-management",
+      name: "Task Management",
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      href: "/dashboard/task-management",
+      tooltip: "Manage tasks and workflows",
+     
+    },
+      {
       id: "events",
       name: "Events",
       icon: <CalendarClock className="h-5 w-5" />,
-      href: "/events",
+      href: "/dashboard/events",
       tooltip: "Manage events",
-    },
-    {
-      id: "promotions",
-      name: "Promotions",
-      icon: <TrendingUp className="h-5 w-5" />,
-      href: "/promotions",
-      tooltip: "Manage promotions",
+      
     },
     {
       id: "community",
@@ -302,21 +290,64 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
       href: "https://dailybrio.uniqbrio.com/",
       tooltip: "Community",
       external: true,
+      
     },
     
     {
       id: "settings",
       name: "Settings",
       icon: <Settings className="h-5 w-5" />,
-      href: "/settings",
+      href: "/dashboard/settings",
       tooltip: "Settings",
+    },
+    {
+      id: "audit-logs",
+      name: "Audit logs",
+      icon: <ScrollText className="h-5 w-5" />,
+      href: "/dashboard/audit-logs",
+      tooltip: "View audit logs",
     },
     {
       id: "help",
       name: "Help",
       icon: <HelpCircle className="h-5 w-5" />,
-      href: "/help",
+      href: "/dashboard/help",
       tooltip: "Help",
+    },
+     {
+      id: "enquiries",
+      name: "Enquiries and Leads (CRM)",
+      icon: <MessageSquare className="h-5 w-5" />,
+      href: "/dashboard/crm",
+      tooltip: "Enquiries and leads",
+      badge: {
+        text: "Coming Soon",
+        variant: "comingSoon"
+      }
+      
+    },
+    {
+      id: "sell-services-products",
+      name: "Sell Products & Services",
+      icon: <ShoppingCart className="h-5 w-5" />,
+      href: "/dashboard/sell",
+      tooltip: "Sell products & services",
+      badge: {
+        text: "Coming Soon",
+        variant: "comingSoon"
+      }
+    },
+  
+    {
+      id: "promotions",
+      name: "Promotions",
+      icon: <TrendingUp className="h-5 w-5" />,
+      href: "/dashboard/promotion",
+      tooltip: "Manage promotions",
+      badge: {
+        text: "Coming Soon",
+        variant: "comingSoon"
+      }
     },
   ]
 
@@ -350,43 +381,79 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
       return newItem
     })
 
+
     // Filter by search term if provided
     if (searchTerm.trim() !== "") {
-      const searchResults: MenuItem[] = []
+      const lowerSearch = searchTerm.toLowerCase();
 
-    // Recursive search function to collect all matching items at any depth
-    const collectMatches = (menuItems: MenuItem[], parentIds: string[] = []): MenuItem[] => {
-      let results: MenuItem[] = [];
-      menuItems.forEach((item) => {
-        const matchesItem = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-        let matchedSubmenu: MenuItem[] = [];
-        if (item.submenu) {
-          matchedSubmenu = collectMatches(item.submenu, [...parentIds, item.id]);
-        }
-        if (matchesItem || matchedSubmenu.length > 0) {
-          // If item matches or any of its children match, include them
-          const itemCopy = { ...item };
-          if (matchedSubmenu.length > 0) {
-            itemCopy.submenu = matchedSubmenu;
-          } else {
-            delete itemCopy.submenu;
+      // Helper to find Course Management menu item
+      const findCourseManagement = (menuItems: MenuItem[]): MenuItem | null => {
+        for (const item of menuItems) {
+          if (
+            item.name.toLowerCase().includes("course management") ||
+            (item.id && item.id.toLowerCase().includes("courses"))
+          ) {
+            return item;
           }
-          results.push(itemCopy);
-          // Open all parent submenus for matches
-          parentIds.forEach(pid => {
-            if (!openSubmenus.includes(pid)) {
-              setOpenSubmenus(prev => [...prev, pid]);
+          if (item.submenu) {
+            const found = findCourseManagement(item.submenu);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      // Recursive search function to collect all matching items at any depth
+      const collectMatches = (menuItems: MenuItem[], parentIds: string[] = []): MenuItem[] => {
+        const results: MenuItem[] = [];
+        menuItems.forEach((item) => {
+          const matchesItem = item.name.toLowerCase().includes(lowerSearch);
+          let matchedSubmenu: MenuItem[] = [];
+          if (item.submenu) {
+            matchedSubmenu = collectMatches(item.submenu, [...parentIds, item.id]);
+          }
+          if (matchesItem || matchedSubmenu.length > 0) {
+            // If item matches or any of its children match, include them
+            const itemCopy = { ...item };
+            if (matchedSubmenu.length > 0) {
+              itemCopy.submenu = matchedSubmenu;
+            } else {
+              delete itemCopy.submenu;
             }
-          });
-          if (!openSubmenus.includes(item.id) && (matchedSubmenu.length > 0)) {
-            setOpenSubmenus(prev => [...prev, item.id]);
+            results.push(itemCopy);
+            // Open all parent submenus for matches
+            parentIds.forEach(pid => {
+              if (!openSubmenus.includes(pid)) {
+                setOpenSubmenus(prev => [...prev, pid]);
+              }
+            });
+            if (!openSubmenus.includes(item.id) && (matchedSubmenu.length > 0)) {
+              setOpenSubmenus(prev => [...prev, item.id]);
+            }
+          }
+        });
+        return results;
+      };
+
+      const searchResults = collectMatches(items);
+
+      // If searching for any prefix of "class" or "course", always include Course Management
+      const coursePrefixes = ["c", "cl", "cla", "clas", "class", "course"];
+      const matchesCoursePrefix = coursePrefixes.some(prefix => lowerSearch === prefix);
+      if (matchesCoursePrefix) {
+        const courseItem = findCourseManagement(menuItems);
+        if (courseItem) {
+          // Only add if not already present
+          const alreadyIncluded = searchResults.some(
+            (item) => item.id === courseItem.id
+          );
+          if (!alreadyIncluded) {
+            searchResults.push(courseItem);
           }
         }
-      });
-      return results;
-    };
+      }
 
-    items = collectMatches(items);
+      items = searchResults;
     }
 
     setFilteredMenuItems(items)
@@ -609,94 +676,161 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
     // Expanded mode: original rendering
     return (
       <div key={item.id} className={itemContainerClass}>
-        {hasSubmenu ? (
-          <Collapsible open={isOpen} onOpenChange={() => toggleSubmenu(item.id)}>
+        <>
+          {hasSubmenu ? (
+            <>
+              <div className="flex items-center w-full px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors justify-between">
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center flex-1"
+                      >
+                        <span className="text-gray-500 mr-3">{item.icon}</span>
+                        <span className="text-left">{item.name}</span>
+                        {item.badge && (
+                          item.badge.variant === "comingSoon" ? (
+                            <span className="ml-2 text-base" title="Coming Soon">🔜</span>
+                          ) : (
+                            <Badge 
+                              variant="default"
+                              className="ml-2 text-xs px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-200"
+                            >
+                              {item.badge.text}
+                            </Badge>
+                          )
+                        )}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="flex items-center flex-1"
+                      >
+                        <span className="text-gray-500 mr-3">{item.icon}</span>
+                        <span className="text-left">{item.name}</span>
+                        {item.badge && (
+                          item.badge.variant === "comingSoon" ? (
+                            <span className="ml-2 text-base" title="Coming Soon">🔜</span>
+                          ) : (
+                            <Badge 
+                              variant="default"
+                              className="ml-2 text-xs px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-200"
+                            >
+                              {item.badge.text}
+                            </Badge>
+                          )
+                        )}
+                      </Link>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="bg-purple-700 text-white">
+                    {item.tooltip}
+                  </TooltipContent>
+                </Tooltip>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  className={cn("inline-flex items-center justify-center h-6 w-6 mr-1 rounded text-gray-400 hover:text-orange-500 cursor-pointer", isFavorite ? "text-orange-500" : "text-gray-400")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(item.id);
+                  }}
+                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <Star className={cn("h-4 w-4", isFavorite ? "fill-orange-500" : "")} />
+                </span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  className={cn("inline-flex items-center justify-center h-6 w-6", "text-gray-500 hover:text-purple-700 cursor-pointer")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSubmenu(item.id);
+                  }}
+                  aria-label={isOpen ? "Collapse submenu" : "Expand submenu"}
+                >
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "transform rotate-180")} />
+                </span>
+              </div>
+              {isOpen && item.submenu ? (
+                <div className="space-y-1 mt-1">
+                  {item.submenu.map((subitem) => renderMenuItem(subitem, level + 1))}
+                </div>
+              ) : null}
+            </>
+          ) : (
             <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
-                <CollapsibleTrigger
-                  className={cn(
-                    "flex items-center w-full px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
-                    "justify-between",
-                  )}
-                >
-                  <div className="flex items-center">
-                    <span className="text-gray-500 mr-3">{item.icon}</span>
-                    <span className="text-left">{item.name}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      className={cn("inline-flex items-center justify-center h-6 w-6 mr-1 rounded text-gray-400 hover:text-orange-500 cursor-pointer", isFavorite ? "text-orange-500" : "text-gray-400")}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(item.id);
-                      }}
-                      aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                <div className="flex items-center">
+                  {item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
+                        "justify-start flex-1",
+                      )}
                     >
-                      <Star className={cn("h-4 w-4", isFavorite ? "fill-orange-500" : "")} />
-                    </span>
-                    <ChevronDown
-                      className={cn("h-4 w-4 text-gray-500 transition-transform", isOpen && "transform rotate-180")}
-                    />
-                  </div>
-                </CollapsibleTrigger>
+                      <span className="text-gray-500 mr-3">{item.icon}</span>
+                      <span className="text-left">{item.name}</span>
+                      {item.badge && (
+                        item.badge.variant === "comingSoon" ? (
+                          <span className="ml-2 text-base" title="Coming Soon">🔜</span>
+                        ) : (
+                          <Badge 
+                            variant="default"
+                            className="ml-2 text-xs px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-200"
+                          >
+                            {item.badge.text}
+                          </Badge>
+                        )
+                      )}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
+                        "justify-start flex-1",
+                      )}
+                    >
+                      <span className="text-gray-500 mr-3">{item.icon}</span>
+                      <span className="text-left">{item.name}</span>
+                      {item.badge && (
+                        item.badge.variant === "comingSoon" ? (
+                          <span className="ml-2 text-base" title="Coming Soon">🔜</span>
+                        ) : (
+                          <Badge 
+                            variant="default"
+                            className="ml-2 text-xs px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-200"
+                          >
+                            {item.badge.text}
+                          </Badge>
+                        )
+                      )}
+                    </Link>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-6 w-6 mr-1", isFavorite ? "text-orange-500" : "text-gray-400")}
+                    onClick={() => toggleFavorite(item.id)}
+                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Star className={cn("h-4 w-4", isFavorite ? "fill-orange-500" : "")}/>
+                  </Button>
+                </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="bg-purple-700 text-white">
                 {item.tooltip}
               </TooltipContent>
             </Tooltip>
-            {isOpen && item.submenu && (
-              <CollapsibleContent className="space-y-1 mt-1">
-                {item.submenu.map((subitem) => renderMenuItem(subitem, level + 1))}
-              </CollapsibleContent>
-            )}
-          </Collapsible>
-        ) : (
-          <Tooltip delayDuration={300}>
-            <TooltipTrigger asChild>
-              <div className="flex items-center">
-                {item.external ? (
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
-                      "justify-start flex-1",
-                    )}
-                  >
-                    <span className="text-gray-500 mr-3">{item.icon}</span>
-                    <span className="text-left">{item.name}</span>
-                  </a>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
-                      "justify-start flex-1",
-                    )}
-                  >
-                    <span className="text-gray-500 mr-3">{item.icon}</span>
-                    <span className="text-left">{item.name}</span>
-                  </Link>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-6 w-6 mr-1", isFavorite ? "text-orange-500" : "text-gray-400")}
-                  onClick={() => toggleFavorite(item.id)}
-                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                >
-                  <Star className={cn("h-4 w-4", isFavorite ? "fill-orange-500" : "")}/>
-                </Button>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="bg-purple-700 text-white">
-              {item.tooltip}
-            </TooltipContent>
-          </Tooltip>
-        )}
+          )}
+        </>
       </div>
     );
   }  
@@ -751,7 +885,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
           <div className="flex items-center justify-center w-full h-full relative">
             {!collapsed && (
               <a href="https://www.uniqbrio.com/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full">
-                <img src="/UniqBrio Logo Transparent.png" alt="UniqBrio Logo" className="h-30 w-40" />
+                <img src="/logo.png" alt="UniQBrio Logo" className="h-8 w-auto" />
               </a>
             )}
             <div className="absolute right-0 top-1/2 -translate-y-1/2">
@@ -780,47 +914,39 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
             ) : (
               menuItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-center w-full relative">
-                  <div className="flex items-center justify-between w-full">
-                    <Tooltip delayDuration={300}>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center">
-                          {item.href ? (
-                            item.external ? (
-                              <a
-                                href={item.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center px-2 py-2 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                aria-label={item.name}
-                              >
-                                <span className="text-gray-500">{item.icon}</span>
-                              </a>
-                            ) : (
-                              <Link
-                                href={item.href}
-                                className="flex items-center justify-center px-2 py-2 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                aria-label={item.name}
-                              >
-                                <span className="text-gray-500">{item.icon}</span>
-                              </Link>
-                            )
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center">
+                        {item.href ? (
+                          item.external ? (
+                            <a
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center px-2 py-2 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              aria-label={item.name}
+                            >
+                              <span className="text-gray-500">{item.icon}</span>
+                            </a>
                           ) : (
-                            <span className="text-gray-500 px-2 py-2">{item.icon}</span>
-                          )}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="bg-purple-700 text-white">
-                        {item.tooltip}
-                      </TooltipContent>
-                    </Tooltip>
-                    <button
-                      onClick={() => setAllMenuExpanded((prev) => !prev)}
-                      className="p-1 rounded hover:bg-gray-100 focus:outline-none"
-                      aria-label={allMenuExpanded ? "Collapse all menu items" : "Expand all menu items"}
-                    >
-                      {allMenuExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                    </button>
-                  </div>
+                            <Link
+                              href={item.href}
+                              className="flex items-center justify-center px-2 py-2 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              aria-label={item.name}
+                              passHref
+                            >
+                              <span className="text-gray-500">{item.icon}</span>
+                            </Link>
+                          )
+                        ) : (
+                          <span className="text-gray-500 px-2 py-2">{item.icon}</span>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="bg-purple-700 text-white">
+                      {item.tooltip}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               ))
             )}

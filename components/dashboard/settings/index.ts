@@ -1,0 +1,7 @@
+export { ProfileSettings } from "./profile-settings"
+export { SecuritySettings } from "./security-settings"
+export { AppearanceSettings } from "./appearance-settings"
+export { AdminSecuritySettings } from "./admin-security-settings"
+export { AdminSystemConfig } from "./admin-system-config"
+export { AcademyInfoSettings } from "./academy-info-settings"
+export { NotificationSettings } from "./notification-settings"

@@ -1,0 +1,50 @@
+/* Tabs: base appearance */
+.tabs-purple .tab-trigger {
+  color: #ff9800 !important; /* accent for inactive tabs */
+  background: #fff !important;
+  border: 2px solid #ff9800;
+  border-radius: 0.375rem;
+  margin-right: 12px;
+  transition: color 0.18s, background 0.18s, border 0.18s;
+  box-shadow: none !important;
+}
+
+
+/* Override base appearance for last two tabs (ROI Analysis and Forecasting) when inactive */
+.tabs-purple .tab-trigger:nth-child(n+4) {
+  color: #6B7280 !important; /* grey text */
+  border-color: #E5E7EB !important; /* light grey border */
+}
+
+/* First three tabs (1..3): active = purple */
+.tabs-purple .tab-trigger:nth-child(-n+3)[data-state="active"] {
+  color: #fff !important;
+  background: #a259ff !important; /* purple */
+  border: 2px solid #a259ff !important;
+  z-index: 1;
+}
+
+/* Last two tabs (4,5): active = grey */
+.tabs-purple .tab-trigger:nth-child(n+4)[data-state="active"] {
+  color: #fff !important;
+  background:#899497 !important; /* grey */
+  border: 2px solid #585b5b !important;
+  z-index: 1;
+}
+
+/* Hover states */
+.tabs-purple .tab-trigger:not([data-state="active"]):hover {
+  background: #fff7e6 !important;
+  color: #ff9800;
+  border-color: #ff9800;
+}
+.tabs-purple .tab-trigger:nth-child(n+4):not([data-state="active"]):hover {
+  /* subtle grey hover for last two tabs */
+  background: #F9FAFB !important;
+  color: #4B5563 !important;
+  border-color: #D1D5DB !important;
+}
+
+.tabs-purple .tab-trigger:last-child {
+  margin-right: 0;
+}

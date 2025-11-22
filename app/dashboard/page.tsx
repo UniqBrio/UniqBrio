@@ -1,11 +1,9 @@
-import MainLayout from "@/components/main-layout"
+"use client"
+
+export const dynamic = 'force-dynamic'
+
 import Dashboard from "@/components/dashboard"
 
 export default function Home() {
-  return (
-    <MainLayout>
-      <Dashboard />
-
-    </MainLayout>
-  )
+  return <Dashboard />
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { dbConnect } from "@/lib/mongodb";
+import { dbConnect } from '@/lib/mongodb';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     
     // Connect to MongoDB directly
     console.log("[debug-registrations] Testing database connection...");
-    await dbConnect();
+    await dbConnect("uniqbrio-admin");
     const mongoose = require('mongoose');
     console.log("[debug-registrations] Database connected successfully");
 

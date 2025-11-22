@@ -1,0 +1,459 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import { Label } from "@/components/dashboard/ui/label"
+import { Input } from "@/components/dashboard/ui/input"
+import { Button } from "@/components/dashboard/ui/button"
+import { Switch } from "@/components/dashboard/ui/switch"
+import { Separator } from "@/components/dashboard/ui/separator"
+import { Plus } from "lucide-react"
+
+interface PricingTabProps {
+  formData: any
+  onFormChange: (field: string, value: any) => void
+  mockReferralCodes?: any[]
+  courses?: any[]
+}
+
+export default function PricingTab({ 
+  formData, 
+  onFormChange, 
+  mockReferralCodes = [], 
+  courses = [] 
+}: PricingTabProps) {
+  const validateDateTimeRange = (startDateTime: string, endDateTime: string): boolean => {
+    if (!startDateTime || !endDateTime) return true;
+    const start = new Date(startDateTime);
+    const end = new Date(endDateTime);
+    return start < end;
+  };
+
+  // Function to calculate referral duration in days
+  const calculateReferralDuration = (startDateTime: string, endDateTime: string): number => {
+    if (!startDateTime || !endDateTime) return 0;
+    const start = new Date(startDateTime);
+    const end = new Date(endDateTime);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Function to validate pricing periods
+  const validatePricingPeriods = (periods: any[]): string[] => {
+    const errors: string[] = [];
+    
+    if (!periods || periods.length === 0) return errors;
+    
+    // Sort periods by start month
+    const sortedPeriods = [...periods].sort((a, b) => a.startMonth - b.startMonth);
+    
+    for (let i = 0; i < sortedPeriods.length; i++) {
+      const period = sortedPeriods[i];
+      
+      // Check if end month is greater than start month
+      if (period.endMonth <= period.startMonth) {
+        errors.push(`Period ${i + 1}: End month must be greater than start month`);
+      }
+      
+      // Check if price is valid
+      if (!period.price || isNaN(parseFloat(period.price)) || parseFloat(period.price) <= 0) {
+        errors.push(`Period ${i + 1}: Price must be a valid positive number`);
+      }
+      
+      // Check for overlaps with next period
+      if (i < sortedPeriods.length - 1) {
+        const nextPeriod = sortedPeriods[i + 1];
+        if (period.endMonth >= nextPeriod.startMonth) {
+          errors.push(`Period ${i + 1} and ${i + 2}: Periods cannot overlap`);
+        }
+      }
+    }
+    
+    return errors;
+  };
+
+  return (
+    <div className="space-y-2 compact-form">
+      <div className="max-w-md">
+        <div>
+          <Label htmlFor="paymentCategory" className="mb-1 text-xs">
+            Payment Category <span className="text-red-500">*</span>
+          </Label>
+          <select
+            id="paymentCategory"
+            className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent mb-2"
+            value={formData.paymentCategory || ''}
+            onChange={e => onFormChange('paymentCategory', e.target.value)}
+          >
+            <option value="">Select Payment Category</option>
+            <option value="One-time">One-time</option>
+            <option value="One-time with installments">One-time with installments</option>
+            <option value="Monthly subscription">Monthly subscription</option>
+            <option value="Monthly subscription with discounts">Monthly subscription with discounts</option>
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="priceINR" className="mb-1 text-xs">
+            {formData.courseCategory === 'Ongoing Training' 
+              ? 'Price per Month (INR)' 
+              : 'Price (INR)'} <span className="text-red-500">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="priceINR"
+              type="number"
+              min="1"
+              placeholder={formData.courseCategory === 'Ongoing Training' ? '5000' : '25000'}
+              className="pl-8 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              value={formData.priceINR || ''}
+              onKeyDown={e => {
+                if (e.key === '-') {
+                  e.preventDefault();
+                }
+                // Allow clearing the field with backspace/delete
+                if ((e.key === 'Backspace' || e.key === 'Delete') && e.currentTarget.value.length === 1) {
+                  onFormChange('priceINR', '');
+                  e.preventDefault();
+                }
+              }}
+              onChange={e => {
+                const value = e.target.value;
+                // Allow empty value for clearing
+                if (value === '') {
+                  onFormChange('priceINR', '');
+                  return;
+                }
+                const numValue = parseInt(value);
+                if (!isNaN(numValue) && numValue > 0) {
+                  onFormChange('priceINR', numValue.toString());
+                } else if (value === '0' || numValue === 0) {
+                  // Don't set 0 values, keep field empty
+                  onFormChange('priceINR', '');
+                }
+              }}
+            />
+          </div>
+          {formData.courseCategory === 'Ongoing Training' && (
+            <p className="text-xs text-gray-600 mt-1">
+              This price will be charged monthly
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Ongoing Training Pricing Section */}
+      {formData.courseCategory === 'Ongoing Training' && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <h4 className="font-medium text-sm inline-flex items-center gap-2">Ongoing Training Pricing <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+            
+            {/* Payment Frequency */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="paymentFrequency" className="mb-1 text-xs">Payment Frequency</Label>
+                <select
+                  id="paymentFrequency"
+                  className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                  value="monthly"
+                  disabled
+                >
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+              
+              <div>
+                <Label htmlFor="trainingDuration" className="mb-1 text-xs">Total Training Duration</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="trainingDuration"
+                    type="number"
+                    placeholder="12"
+                    className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent flex-1"
+                    disabled
+                  />
+                  <select
+                    id="durationUnit"
+                    className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent min-w-[80px]"
+                    value="months"
+                    disabled
+                  >
+                    <option value="months">Months</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Periods */}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm inline-flex items-center gap-2">Pricing Periods <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+
+              <div className="flex items-center space-x-1 text-xs">
+                <Switch id="enablePricingPeriods" disabled/>
+                <Label htmlFor="enablePricingPeriods" className="text-xs">Enable Pricing Periods</Label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div>
+                  <Label htmlFor="periodDuration" className="mb-1 text-xs">Period Duration (months)</Label>
+                  <Input disabled id="periodDuration" placeholder="4" type="number" className="px-2 py-1 text-sm" />
+                </div>
+                <div>
+                  <Label htmlFor="priceEscalation" className="mb-1 text-xs">Price Escalation (%)</Label>
+                  <Input disabled id="priceEscalation" placeholder="5" type="number" step="0.1" className="px-2 py-1 text-sm" />
+                </div>
+                <div>
+                  <Label htmlFor="totalPeriods" className="mb-1 text-xs">Total Periods</Label>
+                  <Input disabled id="totalPeriods" placeholder="3" type="number" className="px-2 py-1 text-sm" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      <Separator />
+
+      <div className="space-y-2">
+        <h4 className="font-medium text-sm">Affiliate Tracking</h4>
+
+        <div className="flex items-center space-x-1 text-xs">
+          <Switch 
+            id="enableAffiliate" 
+            checked={formData.affiliateEnabled || false}
+            onCheckedChange={(checked) => onFormChange('affiliateEnabled', checked)}
+          />
+          <Label htmlFor="enableAffiliate" className="text-xs">Enable Affiliate Tracking</Label>
+        </div>
+
+        {/* Referral Code Dropdown - Only active codes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="referralCode" className="mb-1 text-xs">Referral Code</Label>
+            <select
+              id="referralCode"
+              className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              value={formData.referralCode || ''}
+              onChange={e => {
+                const selectedCode = e.target.value;
+                // Find mock data for selected code
+                const mock = mockReferralCodes.find(r => r.code === selectedCode);
+                // Example mock data for demonstration
+                let commissionRate = '';
+                let referralStart = '';
+                let referralEnd = '';
+                if (mock) {
+                  // Example: hardcoded values for demo, replace with real data as needed
+                  if (mock.code === 'ART2024') {
+                    commissionRate = '10';
+                    referralStart = '2025-08-01T09:00';
+                    referralEnd = '2025-08-31T23:59';
+                  } else if (mock.code === 'PAINT50') {
+                    commissionRate = '15';
+                    referralStart = '2025-09-01T09:00';
+                    referralEnd = '2025-09-30T23:59';
+                  } else if (mock.code === 'NEWUSER10') {
+                    commissionRate = '5';
+                    referralStart = '2025-07-01T09:00';
+                    referralEnd = '2025-07-31T23:59';
+                  } else if (mock.code === 'SUMMER25') {
+                    commissionRate = '8';
+                    referralStart = '2025-06-01T09:00';
+                    referralEnd = '2025-06-30T23:59';
+                  } else if (mock.code === 'DIWALI2025') {
+                    commissionRate = '20';
+                    referralStart = '2025-10-15T09:00';
+                    referralEnd = '2025-11-15T23:59';
+                  }
+                }
+                onFormChange('referralCode', selectedCode);
+                onFormChange('commissionRate', commissionRate);
+                onFormChange('referralStart', referralStart);
+                onFormChange('referralEnd', referralEnd);
+              }}
+            >
+              <option value="">Select Referral Code</option>
+              {/* Only show active referral codes (mock + from courses) */}
+              {[
+                ...mockReferralCodes.filter(r => r.status === 'Active').map(r => r.code),
+                ...((Array.isArray(courses) ? courses : [])
+                  .flatMap(c => c.affiliateTracking && c.affiliateTracking.enabled && (c.affiliateTracking as any).status === 'Active' ? [c.affiliateTracking.referralCode] : [])
+                  .filter((v, i, arr) => v && arr.indexOf(v) === i))
+              ]
+                .filter((v, i, arr) => v && arr.indexOf(v) === i)
+                .map(code => (
+                  <option key={code} value={code}>{code}</option>
+                ))}
+            </select>
+          </div> 
+          <div>
+            <Label htmlFor="commissionRate" className="mb-1 text-xs">Commission Rate (%)</Label>
+            <Input
+              id="commissionRate"
+              placeholder="10"
+              type="number"
+              min="0"
+              max="100"
+              value={formData.commissionRate || ''}
+              onKeyDown={e => {
+                if (e.key === '-') {
+                  e.preventDefault();
+                }
+                // Allow clearing the field with backspace/delete
+                if ((e.key === 'Backspace' || e.key === 'Delete') && e.currentTarget.value.length === 1) {
+                  onFormChange('commissionRate', '');
+                  e.preventDefault();
+                }
+              }}
+              onChange={e => {
+                const value = e.target.value;
+                // Allow empty value for clearing
+                if (value === '') {
+                  onFormChange('commissionRate', '');
+                  return;
+                }
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
+                  onFormChange('commissionRate', numValue.toString());
+                }
+              }}
+              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        {/* Set Referral Code Start/End Date & Time */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+          <div>
+            <Label htmlFor="referralStart" className="mb-1 text-xs">Referral Start Date & Time</Label>
+            <div className="space-y-1">
+              <Input
+                id="referralStart"
+                type="datetime-local"
+                value={formData.referralStart || ''}
+                onChange={e => {
+                  const newStartDateTime = e.target.value;
+                  if (formData.referralEnd && !validateDateTimeRange(newStartDateTime, formData.referralEnd)) {
+                    return; // Don't update if start datetime is after end datetime
+                  }
+                  onFormChange('referralStart', newStartDateTime);
+                  
+                  // Calculate and update duration if both dates are available
+                  if (newStartDateTime && formData.referralEnd) {
+                    const duration = calculateReferralDuration(newStartDateTime, formData.referralEnd);
+                    onFormChange('referralDuration', duration.toString());
+                  }
+                }}
+                className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              />
+              {formData.referralStart && formData.referralEnd && 
+                !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
+                <p className="text-red-500 text-xs">Start date & time must be before end date & time</p>
+              )}
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="referralEnd" className="mb-1 text-xs">Referral End Date & Time</Label>
+            <div className="space-y-1">
+              <Input
+                id="referralEnd"
+                type="datetime-local"
+                value={formData.referralEnd || ''}
+                onChange={e => {
+                  const newEndDateTime = e.target.value;
+                  if (formData.referralStart && !validateDateTimeRange(formData.referralStart, newEndDateTime)) {
+                    return; // Don't update if end datetime is before start datetime
+                  }
+                  onFormChange('referralEnd', newEndDateTime);
+                  
+                  // Calculate and update duration if both dates are available
+                  if (formData.referralStart && newEndDateTime) {
+                    const duration = calculateReferralDuration(formData.referralStart, newEndDateTime);
+                    onFormChange('referralDuration', duration.toString());
+                  }
+                }}
+                className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              />
+              {formData.referralStart && formData.referralEnd && 
+                !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
+                <p className="text-red-500 text-xs">End date & time must be after start date & time</p>
+              )}
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="referralDuration" className="mb-1 text-xs">Referral Duration (Days)</Label>
+            <Input
+              id="referralDuration"
+              type="number"
+              value={formData.referralDuration || ''}
+              readOnly
+              className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-50 cursor-not-allowed focus:outline-none"
+              title="This field is automatically calculated based on start and end dates"
+            />
+          </div>
+        </div>
+      </div>
+      
+      <Separator />
+
+      <div className="space-y-2">
+        <h4 className="font-medium text-sm inline-flex items-center gap-2">Dynamic Pricing <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+
+        <div className="flex items-center space-x-1 text-xs">
+          <Switch id="enableDynamicPricing" disabled/>
+          <Label htmlFor="enableDynamicPricing" className="text-xs">Enable Dynamic Pricing</Label>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div>
+            <Label htmlFor="demandMultiplier" className="mb-1 text-xs">Demand Multiplier</Label>
+            <Input disabled id="demandMultiplier" placeholder="1.2" type="number" step="0.1" className="px-2 py-1 text-sm" />
+          </div>
+          <div>
+            <Label htmlFor="performanceBonus" className="mb-1 text-xs">Performance Bonus</Label>
+            <Input disabled id="performanceBonus" placeholder="0.1" type="number" step="0.1" className="px-2 py-1 text-sm" />
+          </div>
+          <div>
+            <Label htmlFor="enrollmentThreshold" className="mb-1 text-xs">Enrollment Threshold</Label>
+            <Input disabled id="enrollmentThreshold" placeholder="18" type="number" className="px-2 py-1 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-2">
+        <h4 className="font-medium text-sm inline-flex items-center gap-2">EMI Plans <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+
+        <div className="space-y-2">
+          <div className="border rounded-lg p-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+              <div>
+                <Label htmlFor="emi3Name" className="mb-1 text-xs">Plan Name</Label>
+                <Input disabled id="emi3Name" placeholder="3-Month Plan" className="px-2 py-1 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="emi3Installments" className="mb-1 text-xs">Installments</Label>
+                <Input disabled id="emi3Installments" placeholder="3" type="number" className="px-2 py-1 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="emi3Interest" className="mb-1 text-xs">Interest Rate (%)</Label>
+                <Input disabled id="emi3Interest" placeholder="0" type="number" step="0.1" className="px-2 py-1 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="emi3Processing" className="mb-1 text-xs">Processing Fee</Label>
+                <Input disabled id="emi3Processing" placeholder="99" type="number" className="px-2 py-1 text-sm" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Button variant="outline" size="sm" className="px-2 py-1 text-xs" disabled>
+          <Plus className="mr-1 h-3 w-3" />
+          Add EMI Plan <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1" />
+        </Button>
+      </div>
+    </div>
+  )
+}

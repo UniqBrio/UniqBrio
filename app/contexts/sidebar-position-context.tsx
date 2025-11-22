@@ -15,9 +15,11 @@ const SidebarPositionContext = createContext<SidebarPositionContextType | undefi
 export function SidebarPositionProvider({ children }: { children: React.ReactNode }) {
   // Try to get the saved position from localStorage, default to "left"
   const [position, setPosition] = useState<SidebarPosition>("left")
+  const [isClient, setIsClient] = useState(false)
 
   // Load the saved position from localStorage on component mount
   useEffect(() => {
+    setIsClient(true)
     const savedPosition = localStorage.getItem("sidebarPosition") as SidebarPosition | null
     if (savedPosition) {
       setPosition(savedPosition)
@@ -27,7 +29,9 @@ export function SidebarPositionProvider({ children }: { children: React.ReactNod
   // Save the position to localStorage whenever it changes
   const handleSetPosition = (newPosition: SidebarPosition) => {
     setPosition(newPosition)
-    localStorage.setItem("sidebarPosition", newPosition)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("sidebarPosition", newPosition)
+    }
   }
 
   return (

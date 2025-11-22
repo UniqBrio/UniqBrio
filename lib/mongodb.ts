@@ -4,27 +4,34 @@ import { MongoClient, Db } from "mongodb";
 // Cached connections for performance
 let cachedMongoose: typeof mongoose | null = null;
 let cachedClient: MongoClient | null = null;
-let cachedDb: Db | null = null;
+let cachedDbs: { [dbName: string]: Db } = {};
+
+// MongoDB URI without database specified
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://course:course1@cluster0.1gqwk5m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 /**
- * Connect to MongoDB using Mongoose (for Prisma/ORM operations)
- * Uses connection pooling and caching for optimal performance
+ * Connect to MongoDB using Mongoose with specific database name
+ * Routes specify which database to use: "uniqbrio" for dashboard, "uniqbrio-admin" for auth
  */
-export async function dbConnect(uri?: string): Promise<typeof mongoose> {
-  const mongoUri = uri || process.env.MONGODB_URI;
-  
-  if (!mongoUri) {
+export async function dbConnect(dbName: string): Promise<typeof mongoose> {
+  if (!MONGODB_URI) {
     throw new Error("MongoDB connection string (MONGODB_URI) not found.");
   }
 
-  // Return cached connection if available and connected
-  if (cachedMongoose && mongoose.connection.readyState === 1) {
+  // Return cached connection if available and connected to the same database
+  if (cachedMongoose && mongoose.connection.readyState === 1 && mongoose.connection.name === dbName) {
     return cachedMongoose;
   }
 
-  // Connect to MongoDB
-  await mongoose.connect(mongoUri, {
-    dbName: undefined, // Use default from URI
+  // If connected to different database, disconnect first
+  if (cachedMongoose && mongoose.connection.readyState === 1 && mongoose.connection.name !== dbName) {
+    await mongoose.disconnect();
+    cachedMongoose = null;
+  }
+
+  // Connect to MongoDB with specified database
+  await mongoose.connect(MONGODB_URI, {
+    dbName: dbName,
     maxPoolSize: 10,
     minPoolSize: 2,
     serverSelectionTimeoutMS: 5000,
@@ -37,42 +44,38 @@ export async function dbConnect(uri?: string): Promise<typeof mongoose> {
 
 /**
  * Get native MongoDB client and database instance
- * Useful for raw MongoDB operations and scripts
+ * Routes specify which database to use: "uniqbrio" for dashboard, "uniqbrio-admin" for auth
  */
-export async function getMongoClient(uri?: string): Promise<{ client: MongoClient; db: Db }> {
-  const mongoUri = uri || process.env.MONGODB_URI;
-  
-  if (!mongoUri) {
+export async function getMongoClient(dbName: string): Promise<{ client: MongoClient; db: Db }> {
+  if (!MONGODB_URI) {
     throw new Error("MongoDB connection string (MONGODB_URI) not found.");
   }
 
-  // Return cached client if available and connected
-  if (cachedClient && cachedDb) {
+  // Return cached client and db if available
+  if (cachedClient && cachedDbs[dbName]) {
     try {
-      // Ping to check if connection is alive
-      await cachedDb.admin().ping();
-      return { client: cachedClient, db: cachedDb };
+      await cachedDbs[dbName].admin().ping();
+      return { client: cachedClient, db: cachedDbs[dbName] };
     } catch (error) {
-      // Connection lost, reconnect
-      cachedClient = null;
-      cachedDb = null;
+      // Connection lost, will reconnect
     }
   }
 
-  // Create new connection
-  const client = new MongoClient(mongoUri, {
-    maxPoolSize: 10,
-    minPoolSize: 2,
-    serverSelectionTimeoutMS: 5000,
-  });
+  // Create new connection if needed
+  if (!cachedClient) {
+    cachedClient = new MongoClient(MONGODB_URI, {
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 5000,
+    });
+    await cachedClient.connect();
+  }
 
-  await client.connect();
-  const db = client.db();
+  // Get database instance
+  const db = cachedClient.db(dbName);
+  cachedDbs[dbName] = db;
 
-  cachedClient = client;
-  cachedDb = db;
-
-  return { client, db };
+  return { client: cachedClient, db };
 }
 
 /**
@@ -88,11 +91,17 @@ export async function closeConnections() {
   if (cachedClient) {
     await cachedClient.close();
     cachedClient = null;
-    cachedDb = null;
+    cachedDbs = {};
   }
 }
 
-// Legacy function for backward compatibility
+// Legacy functions for backward compatibility - defaults to uniqbrio database
 export async function connectToDatabase(uri?: string) {
-  return dbConnect(uri);
+  return dbConnect("uniqbrio");
 }
+
+export const connectDB = (dbName: string = "uniqbrio") => dbConnect(dbName);
+export const connectMongo = (dbName: string = "uniqbrio") => dbConnect(dbName);
+
+// Default export
+export default dbConnect;

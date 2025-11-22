@@ -1,0 +1,12 @@
+/* Highlight border for all form fields and popups */
+.highlight-border {
+  border: 2px solid #a855f7 !important; /* purple-500 */
+  border-radius: 0.5rem !important;
+  box-shadow: 0 0 0 2px #f3e8ff33;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.highlight-border:focus, .highlight-border:active {
+  border-color: #7c3aed !important; /* purple-700 */
+  box-shadow: 0 0 0 3px #c4b5fd66;
+}

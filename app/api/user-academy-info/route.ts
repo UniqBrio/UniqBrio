@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import prisma, { withRetry } from "@/lib/db";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,9 @@ export async function GET(request: NextRequest) {
     const userEmail = payload.email;
 
     // Get user details from User collection
-    const user = await prisma.user.findFirst({ where: { email: userEmail } });
+    const user = await withRetry(() => 
+      prisma.user.findFirst({ where: { email: userEmail } })
+    );
     if (!user) {
       console.log(`[user-academy-info] User not found for email: ${userEmail}`);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -40,10 +42,10 @@ export async function GET(request: NextRequest) {
     // PRIMARY SEARCH: Look for registration by email in adminInfo using raw MongoDB
     console.log(`[user-academy-info] Searching registrations by email: ${userEmail}...`);
     
-    const rawRegistrations = await prisma.$runCommandRaw({
+    const rawRegistrations = await withRetry(() => prisma.$runCommandRaw({
       find: "registrations",
       filter: { "adminInfo.email": userEmail }
-    }) as any;
+    })) as any;
 
     const matchingDocs = rawRegistrations.cursor.firstBatch;
     console.log(`[user-academy-info] Found ${matchingDocs.length} matching registrations`);
@@ -73,11 +75,11 @@ export async function GET(request: NextRequest) {
       if (user.userId) whereConditions.push({ userId: user.userId });
       if (user.academyId) whereConditions.push({ academyId: user.academyId });
       
-      const reg = await prisma.registration.findFirst({ 
+      const reg = await withRetry(() => prisma.registration.findFirst({ 
         where: { 
           OR: whereConditions
         } 
-      });
+      }));
       
       if (reg) {
         matchingRegistration = reg;
@@ -93,13 +95,13 @@ export async function GET(request: NextRequest) {
     if (matchingRegistration && (!user.userId || !user.academyId)) {
       console.log(`[user-academy-info] Updating User record with IDs for future use...`);
       try {
-        await prisma.user.update({
+        await withRetry(() => prisma.user.update({
           where: { id: user.id },
           data: {
             userId: userId,
             academyId: academyId
           }
-        });
+        }));
         console.log(`[user-academy-info] User record updated with userId: ${userId}, academyId: ${academyId}`);
       } catch (updateError) {
         console.error(`[user-academy-info] Failed to update User record:`, updateError);
@@ -108,7 +110,9 @@ export async function GET(request: NextRequest) {
 
     // If no academy name found yet, fetch from Academy collection as final fallback
     if (!academyName && academyId) {
-      const academy = await prisma.academy.findUnique({ where: { academyId } });
+      const academy = await withRetry(() => 
+        prisma.academy.findUnique({ where: { academyId } })
+      );
       if (academy?.name) {
         academyName = academy.name;
       }

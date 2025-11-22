@@ -136,7 +136,10 @@ const Dashboard = () => {
     // Immediately check KYC status to prevent dashboard flash
     const checkKycStatusImmediately = async () => {
       try {
+        console.log("[Dashboard] Fetching KYC status from /api/kyc-status");
         const response = await fetch("/api/kyc-status");
+        console.log("[Dashboard] KYC status response:", response.status, response.statusText);
+        
         if (response.ok) {
           const data = await response.json();
           console.log("KYC Status API Response:", data);
@@ -153,9 +156,11 @@ const Dashboard = () => {
             setKycDaysLeft(data.daysLeft);
             console.log("Days left calculated from API:", data.daysLeft);
           }
+        } else {
+          console.error("[Dashboard] KYC status API returned error:", response.status);
         }
       } catch (error) {
-        console.error("Error checking KYC status:", error);
+        console.error("[Dashboard] Error checking KYC status:", error);
       } finally {
         // Only set loading to false if we're not redirecting
         setIsLoading(false);
@@ -216,7 +221,10 @@ const Dashboard = () => {
     // Fetch academy/user info (scoped by session cookie)
     const fetchAcademyInfo = async () => {
       try {
+        console.log("[Dashboard] Fetching academy info from /api/user-academy-info");
         const response = await fetch("/api/user-academy-info");
+        console.log("[Dashboard] Academy info response:", response.status, response.statusText);
+        
         if (response.ok) {
           const data = await response.json();
           console.log("Academy Info API Response:", data); // Debug log
@@ -240,7 +248,7 @@ const Dashboard = () => {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch academy info:", error);
+        console.error("[Dashboard] Error fetching academy info:", error);
         // Set fallback values on network error
         setAcademyName("Academy");
         setUserName("User");
@@ -252,15 +260,18 @@ const Dashboard = () => {
     // Fetch dashboard summary (server filters by academyId/userId)
     const fetchDashboardSummary = async () => {
       try {
+        console.log("[Dashboard] Fetching dashboard summary from /api/dashboard/summary");
         const res = await fetch("/api/dashboard/summary");
+        console.log("[Dashboard] Dashboard summary response:", res.status, res.statusText);
         if (res.ok) {
           const data = await res.json();
+          console.log("[Dashboard] Dashboard summary data:", data);
           setRegistrationRecords(data.registrationRecords || 0);
           if (data.academyId) setAcademyId(data.academyId);
           if (data.userId) setUserId(data.userId);
         }
       } catch (e) {
-        console.error("Failed to fetch dashboard summary:", e);
+        console.error("[Dashboard] Error fetching dashboard summary:", e);
       }
     };
 

@@ -1,5 +1,5 @@
 import React, { Suspense } from "react" // Import Suspense 
-import { Inter } from "next/font/google"
+import { Source_Sans_3 } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -10,8 +10,12 @@ import TokenRefreshHandler from "../components/token-refresh-handler"
 
 
 import { SidebarPositionProvider } from "./contexts/sidebar-position-context"
+import { AppProvider } from "@/contexts/dashboard/app-context"
 
-const inter = Inter({ subsets: ["latin"] })
+const sourceSans = Source_Sans_3({ 
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"]
+})
 
 export const metadata = {
   applicationName: "UniqBrio App", // A specific name for the PWA
@@ -46,20 +50,22 @@ export default function RootLayout({
       <head />
       {/* Added a class for potential full-screen PWA styling */}
       {/* Ensure this class doesn't interfere with your existing styling */}
-      <body className={`${inter.className} pwa-body`}>
+      <body className={`${sourceSans.className} pwa-body`}>
         <NextAuthSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <SidebarPositionProvider>
-              {/* Allow children (like AuthLayout) to control their own full-screen display */}
-              <main className="min-h-screen">{children}</main>
-              <Toaster />
+              <AppProvider>
+                {/* Allow children (like AuthLayout) to control their own full-screen display */}
+                <main className="min-h-screen">{children}</main>
+                <Toaster />
 
-              {/* Wrap components that might use client-side hooks like useSearchParams */}
-              <Suspense fallback={null}>
-                <CookieConsent />
-                <MultiTabSessionHandler />
-                <TokenRefreshHandler />
-              </Suspense>
+                {/* Wrap components that might use client-side hooks like useSearchParams */}
+                <Suspense fallback={null}>
+                  <CookieConsent />
+                  <MultiTabSessionHandler />
+                  <TokenRefreshHandler />
+                </Suspense>
+              </AppProvider>
             </SidebarPositionProvider>
           </ThemeProvider>
         </NextAuthSessionProvider>

@@ -1,0 +1,19 @@
+/* Add vertical scrollbar to filter panel container */
+.filter-panel {
+  max-height: 250px; /* Adjust as needed */
+  overflow-y: auto;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #a259e6 #f1f1f1;
+}
+
+/* Optional: Style the scrollbar for Webkit browsers */
+.filter-panel::-webkit-scrollbar {
+  width: 8px;
+}
+.filter-panel::-webkit-scrollbar-thumb {
+  background: #a259e6;
+  border-radius: 4px;
+}
+.filter-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}

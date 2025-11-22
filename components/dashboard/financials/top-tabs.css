@@ -1,0 +1,42 @@
+/* Top Tabs: mimic the FinancialTabs style (orange outline, purple active), without nth-child overrides */
+.tabs-top .tab-trigger {
+  color: #ff9800 !important;
+  background: #fff !important;
+  border: 2px solid #ff9800;
+  border-radius: 0.375rem;
+  margin-right: 12px;
+  transition: color 0.18s, background 0.18s, border 0.18s;
+  box-shadow: none !important;
+}
+.tabs-top .tab-trigger:last-child { margin-right: 0; }
+.tabs-top .tab-trigger[data-state="active"] {
+  color: #fff !important;
+  background: #a259ff !important;
+  border: 2px solid #a259ff !important;
+  z-index: 1;
+}
+.tabs-top .tab-trigger:not([data-state="active"]):hover {
+  background: #fff7e6 !important;
+  color: #ff9800 !important;
+  border-color: #ff9800 !important;
+}
+
+/* Coming Soon tabs styling - grayed out appearance but clickable */
+.tabs-top .tab-trigger.coming-soon {
+  color: #9ca3af !important;
+  background: #f9fafb !important;
+  border: 2px solid #e5e7eb !important;
+  opacity: 0.7 !important;
+}
+
+.tabs-top .tab-trigger.coming-soon:hover {
+  color: #6b7280 !important;
+  background: #f3f4f6 !important;
+  border: 2px solid #d1d5db !important;
+}
+
+.tabs-top .tab-trigger.coming-soon[data-state="active"] {
+  color: #374151 !important;
+  background: #e5e7eb !important;
+  border: 2px solid #9ca3af !important;
+}

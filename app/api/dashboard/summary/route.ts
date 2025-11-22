@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import prisma, { withRetry } from "@/lib/db";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 
 // Helper to resolve the current user's context (userId, academyId) from the session
@@ -12,7 +12,9 @@ async function getUserContext() {
     return { error: "Invalid session", status: 401 } as const;
   }
 
-  const user = await prisma.user.findUnique({ where: { email: payload.email } });
+  const user = await withRetry(() => 
+    prisma.user.findUnique({ where: { email: payload.email } })
+  );
   if (!user) return { error: "User not found", status: 404 } as const;
   if (!user.verified) return { error: "Email not verified", status: 403 } as const;
   if (!user.registrationComplete) return { error: "Registration incomplete", status: 400 } as const;
@@ -36,7 +38,9 @@ export async function GET() {
     // const studentsCount = await prisma.student.count({ where: { academyId } });
 
     // Demo summary using available data
-    const registrations = await prisma.registration.findMany({ where: { userId, academyId } });
+    const registrations = await withRetry(() => 
+      prisma.registration.findMany({ where: { userId, academyId } })
+    );
 
     return NextResponse.json({
       userId,
