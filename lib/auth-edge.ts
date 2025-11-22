@@ -6,20 +6,25 @@ import { COOKIE_NAMES } from "./cookies"; // Import cookie constants
 
 // Ensure JWT_SECRET is defined and store it securely
 const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
+
+// Check if the original secret was actually set (but allow build time to pass)
+if (!JWT_SECRET && typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+  console.warn("WARNING: Missing JWT_SECRET in environment variables (Edge). This may cause runtime errors.");
+}
+
 const JWT_SECRET_UINT8: Uint8Array = new TextEncoder().encode(JWT_SECRET || 'fallback-secret-for-encoding'); // Encode secret for jose
 const JWT_ISSUER = 'urn:uniqbrio:issuer'; // Define an issuer for your tokens
 const JWT_AUDIENCE = 'urn:uniqbrio:audience'; // Define an audience for your tokens
 
-// Check if the original secret was actually set
-if (!JWT_SECRET) {
-  console.error("FATAL ERROR: Missing JWT_SECRET in environment variables (Edge)");
-  // Throwing an error here will prevent the middleware from running without a secret
-  throw new Error("Missing JWT_SECRET in environment variables. Application cannot securely function.");
-}
-
 // Verify a JWT token. Returns the payload if valid, otherwise null.
 // Renamed slightly to avoid potential naming conflicts if imported alongside server funcs
 export async function verifyTokenEdge(token: string): Promise<jose.JWTPayload | null> {
+  // Runtime check for JWT_SECRET
+  if (!JWT_SECRET) {
+    console.error("FATAL ERROR: Missing JWT_SECRET in environment variables at runtime (Edge)");
+    throw new Error("Missing JWT_SECRET in environment variables. Application cannot securely function.");
+  }
+  
   // console.log("[AuthLibEdge] verifyToken: Verifying JWT with jose"); // Optional: logging in edge
   if (!token) {
     return null;

@@ -1,7 +1,212 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
-import { Users, BookOpen, Calendar, UserCheck, BarChart3 } from "lucide-react";
+import { Users, BookOpen, Calendar, UserCheck, BarChart3, DollarSign, Coins } from "lucide-react";
+import { useCounterAnimation } from "@/components/dashboard/home/useCounterAnimation";
+
+// Custom animated bar shape
+const AnimatedBar = (props: any) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    // Small delay before starting animation
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const { fill, x, y, width, height, index } = props;
+  const animationDelay = index * 200; // 200ms delay between each bar
+
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fill}
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'scaleY(1)' : 'scaleY(0)',
+          transformOrigin: `${x + width / 2}px ${y + height}px`,
+          transition: `all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${animationDelay}ms`,
+        }}
+      />
+    </g>
+  );
+};
+
+// Basketball dunk animation component
+const BasketballDunk = ({ gradient }: { gradient: string }) => {
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [hideNet, setHideNet] = useState(false);
+
+  useEffect(() => {
+    // Start animation after counter completes (3 seconds)
+    const timer = setTimeout(() => {
+      setShowAnimation(true);
+    }, 3000);
+
+    // Hide the net after the ball goes through (at 1.2s into the animation)
+    const hideNetTimer = setTimeout(() => {
+      setHideNet(true);
+    }, 4200); // 3s + 1.2s
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(hideNetTimer);
+    };
+  }, []);
+
+  if (!showAnimation) return null;
+
+  return (
+    <>
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 pointer-events-none z-50">
+        {/* Professional basketball player dunking */}
+        <div 
+          className="relative text-5xl"
+          style={{
+            animation: 'dunk 1.2s ease-out forwards',
+          }}
+        >
+          ⛹️‍♂️
+        </div>
+
+        {/* Basketball hoop - fades out after dunk */}
+        <div 
+          className="absolute top-24 left-1/2 -translate-x-1/2 transition-opacity duration-500"
+          style={{
+            animation: 'hoop-shake 0.3s ease-in-out 1.2s',
+            opacity: hideNet ? 0 : 1,
+          }}
+        >
+          <div className={`w-14 h-1.5 bg-gradient-to-r ${gradient} rounded-full shadow-md relative`}>
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-sm" />
+          </div>
+          <div 
+            className="w-12 h-10 border-2 mx-auto mt-0 relative" 
+            style={{ 
+              borderColor: gradient.includes('green') ? 'rgba(34, 197, 94, 0.6)' : 'rgba(168, 85, 247, 0.6)',
+              borderRadius: '0 0 50% 50%',
+              borderTop: 'none',
+              borderStyle: 'solid',
+            }} 
+          >
+            {/* Net lines */}
+            <div className="absolute inset-0 flex flex-col justify-around opacity-40">
+              <div className="h-px bg-current mx-1" />
+              <div className="h-px bg-current mx-2" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes dunk {
+          0% {
+            transform: translateY(-100px) translateX(-30px) scale(0.6) rotate(-15deg);
+            opacity: 0;
+          }
+          30% {
+            transform: translateY(-40px) translateX(-15px) scale(0.8) rotate(-5deg);
+            opacity: 1;
+          }
+          60% {
+            transform: translateY(10px) translateX(0px) scale(1) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(50px) translateX(10px) scale(0.9) rotate(5deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes basketball-spin {
+          0% {
+            transform: translateY(0px) rotate(0deg) scale(1);
+            opacity: 1;
+          }
+          40% {
+            transform: translateY(-10px) rotate(180deg) scale(1.1);
+            opacity: 1;
+          }
+          70% {
+            transform: translateY(20px) rotate(360deg) scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(60px) rotate(540deg) scale(0.7);
+            opacity: 0;
+          }
+        }
+
+        @keyframes hoop-shake {
+          0%, 100% {
+            transform: translateX(-50%) rotate(0deg);
+          }
+          25% {
+            transform: translateX(-50%) rotate(-3deg) translateY(2px);
+          }
+          75% {
+            transform: translateX(-50%) rotate(3deg) translateY(2px);
+          }
+        }
+      `}</style>
+    </>
+  );
+};
+
+// Falling cash animation component
+const FallingCash = ({ gradient }: { gradient: string }) => {
+  const [coins, setCoins] = useState<Array<{ id: number; left: number; delay: number; duration: number; rotation: number }>>([]);
+
+  useEffect(() => {
+    // Generate random coins after counter animation completes (3 seconds) + dunk animation (1.2 seconds)
+    const generateTimer = setTimeout(() => {
+      const newCoins = Array.from({ length: 8 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 80 + 10, // Random position between 10% and 90%
+        delay: Math.random() * 2.5, // Stagger start times over 2.5 seconds
+        duration: 2 + Math.random() * 1, // Duration between 2-3 seconds
+        rotation: Math.random() * 720 - 360, // Random rotation
+      }));
+      setCoins(newCoins);
+    }, 4200); // 3s counter + 1.2s dunk animation
+
+    return () => clearTimeout(generateTimer);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {coins.map((coin) => (
+        <div
+          key={coin.id}
+          className={`absolute -top-4 bg-gradient-to-br ${gradient} rounded-full p-1.5 shadow-lg`}
+          style={{
+            left: `${coin.left}%`,
+            animation: `fall ${coin.duration}s ease-in ${coin.delay}s forwards`,
+            opacity: 0,
+          }}
+        >
+          <Coins className="h-3 w-3 text-white" />
+        </div>
+      ))}
+      <style jsx>{`
+        @keyframes fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(200px) rotate(${coins[0]?.rotation || 360}deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
 import {
   BarChart,
   Bar,
@@ -19,6 +224,12 @@ export function HomeMetrics() {
   const [cohorts, setCohorts] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
   const [scheduleCount, setScheduleCount] = useState<number | null>(null);
+
+  // Animated counters for each metric
+  const animatedStudentCount = useCounterAnimation({ targetValue: studentCount, duration: 3000 });
+  const animatedCoursesCount = useCounterAnimation({ targetValue: courses.length > 0 ? courses.length : null, duration: 3000 });
+  const animatedCohortsCount = useCounterAnimation({ targetValue: cohorts.length > 0 ? cohorts.length : null, duration: 3000 });
+  const animatedScheduleCount = useCounterAnimation({ targetValue: scheduleCount, duration: 3000 });
 
   useEffect(() => {
     // Fetch students - Using the correct endpoint
@@ -180,7 +391,7 @@ export function HomeMetrics() {
   const stats = [
     {
       title: "Total Students",
-      value: studentCount !== null ? studentCount : "-",
+      value: animatedStudentCount !== null ? animatedStudentCount : "-",
       change: studentCount !== null ? `${studentCount} enrolled` : "Loading...",
       icon: Users,
       gradient: "from-purple-500 to-blue-500",
@@ -188,7 +399,7 @@ export function HomeMetrics() {
     },
     {
       title: "Active Courses",
-      value: courses.length > 0 ? courses.length : "-",
+      value: animatedCoursesCount !== null ? animatedCoursesCount : "-",
       change: courses.length > 0 ? `${courses.length} courses` : "Loading...",
       icon: BookOpen,
       gradient: "from-blue-500 to-cyan-500",
@@ -196,7 +407,7 @@ export function HomeMetrics() {
     },
     {
       title: "Active Cohorts",
-      value: cohorts.length > 0 ? cohorts.length : "-",
+      value: animatedCohortsCount !== null ? animatedCohortsCount : "-",
       change: cohorts.length > 0 ? `${cohorts.length} cohorts` : "Loading...",
       icon: Users,
       gradient: "from-orange-500 to-red-500",
@@ -204,7 +415,7 @@ export function HomeMetrics() {
     },
     {
       title: "Scheduled Sessions",
-      value: scheduleCount !== null ? scheduleCount : "-",
+      value: animatedScheduleCount !== null ? animatedScheduleCount : "-",
       change: scheduleCount !== null ? `${scheduleCount} total` : "Loading...",
       icon: Calendar,
       gradient: "from-green-500 to-emerald-500",
@@ -214,18 +425,28 @@ export function HomeMetrics() {
 
   return (
     <section className="mt-16">
-      <h2 className="text-2xl font-bold tracking-tight mb-6">Platform Overview</h2>
+      <h2 className="text-2xl font-bold tracking-tight mb-6"></h2>
       
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
+          const showCashAnimation = stat.value !== "-"; // Only show animation when value is loaded
+          const isScheduledSessions = index === 3; // 4th card (Scheduled Sessions)
+          
           return (
-            <Card
-              key={index}
-              className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${stat.bgGradient}`}
-            >
+            <div key={index} className="relative">
+              {/* Basketball dunk animation - only for Scheduled Sessions card - positioned outside card */}
+              {showCashAnimation && isScheduledSessions && <BasketballDunk gradient={stat.gradient} />}
+              
+              <Card
+                className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${stat.bgGradient}`}
+              >
               <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-10 blur-2xl rounded-full -mr-16 -mt-16`} />
+              
+              {/* Falling cash animation */}
+              {showCashAnimation && <FallingCash gradient={stat.gradient} />}
+              
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   {stat.title}
@@ -243,6 +464,7 @@ export function HomeMetrics() {
                 </p>
               </CardContent>
             </Card>
+            </div>
           );
         })}
       </div>
@@ -281,7 +503,13 @@ export function HomeMetrics() {
                     domain={[0, (dataMax: number) => Math.max(1, Math.ceil(dataMax) + 1)]}
                   />
                   <Tooltip content={<CourseTooltip />} />
-                  <Bar dataKey="students" fill="url(#courseGradient)">
+                  <Bar 
+                    dataKey="students" 
+                    fill="url(#courseGradient)"
+                    shape={<AnimatedBar />}
+                    animationDuration={600}
+                    animationBegin={0}
+                  >
                     <LabelList dataKey="students" position="top" offset={5} />
                   </Bar>
                   <defs>
@@ -328,7 +556,13 @@ export function HomeMetrics() {
                     domain={[0, (dataMax: number) => Math.max(1, Math.ceil(dataMax) + 1)]}
                   />
                   <Tooltip content={<CohortTooltip />} />
-                  <Bar dataKey="students" fill="url(#cohortGradient)">
+                  <Bar 
+                    dataKey="students" 
+                    fill="url(#cohortGradient)"
+                    shape={<AnimatedBar />}
+                    animationDuration={600}
+                    animationBegin={0}
+                  >
                     <LabelList dataKey="students" position="top" offset={5} />
                   </Bar>
                   <defs>
