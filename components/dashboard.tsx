@@ -202,7 +202,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-6 responsive-dashboard-container">
       {/* KYC Success Notification - Temporary toast-style popup */}
       {showKycSuccessNotification && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-md">
@@ -401,16 +401,16 @@ const Dashboard = () => {
       )}
 
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-lg shadow-lg p-6 text-white">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+      <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-lg shadow-lg p-3 sm:p-4 lg:p-6 text-white responsive-dashboard-container">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 responsive-text-xl">
               Welcome back{userName && userName !== "User" ? `, ${userName}` : ''}!
             </h1>
             {academyName && academyName !== "Academy" && academyName !== "Academy Setup Required" && (
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
-                <p className="text-lg font-medium">
+                <p className="text-sm sm:text-base lg:text-lg font-medium responsive-text-base">
                   {academyName} Dashboard
                 </p>
               </div>
@@ -418,30 +418,30 @@ const Dashboard = () => {
             {academyName === "Academy Setup Required" && (
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
-                <p className="text-lg font-medium text-yellow-100">
+                <p className="text-sm sm:text-base lg:text-lg font-medium text-yellow-100 responsive-text-base">
                   Academy Registration Required
                 </p>
               </div>
             )}
             {(!academyName || academyName === "Academy") && (
-              <p className="text-lg opacity-90">
+              <p className="text-sm sm:text-base lg:text-lg opacity-90 responsive-text-base">
                 {userName && userName !== "User" ? "Your Academy Dashboard" : "Academy Dashboard"}
               </p>
             )}
           </div>
-          <div className="mt-4 sm:mt-0 flex flex-col items-end text-right">
+          <div className="flex flex-col items-start sm:items-end text-left sm:text-right gap-1 sm:gap-2 w-full sm:w-auto">
             {academyId && academyId !== "N/A" && (
-              <div className="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-medium mb-1">
+              <div className="bg-white bg-opacity-20 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                 Academy ID: {academyId}
               </div>
             )}
             {userId && userId !== "N/A" && (
-              <div className="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-medium">
+              <div className="bg-white bg-opacity-20 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                 User ID: {userId}
               </div>
             )}
             {(academyId === "N/A" || userId === "N/A") && (
-              <div className="bg-yellow-500 bg-opacity-80 px-3 py-1 rounded-full text-sm font-medium">
+              <div className="bg-yellow-500 bg-opacity-80 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                 Setup Required
               </div>
             )}
@@ -449,27 +449,31 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Home Dashboard Content */}
-      <HomeMetrics />
+      {/* Home Dashboard Content with Responsive Design */}
+      <div className="responsive-dashboard-container">
+        <HomeMetrics />
+      </div>
         
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main Content Grid with Responsive Layout */}
+      <div className="responsive-dashboard-container grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Activity & Announcements */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           <ActivityFeed />
           <Announcements />
         </div>
         
         {/* Right Column - Financial */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <FinancialSnapshot />
         </div>
       </div>
       
-      {/* Feature Sections */}
-      <FeatureGrid />
-      <RoleOverview />
-      <FeatureRoadmap />
+      {/* Feature Sections with Responsive Design */}
+      <div className="responsive-dashboard-container space-y-4 sm:space-y-6">
+        <FeatureGrid />
+        <RoleOverview />
+        <FeatureRoadmap />
+      </div>
     </div>
   );
 }

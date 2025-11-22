@@ -346,7 +346,7 @@ export default function ParentsPage() {
   }
 
   return (
-    <div className="container mx-auto p-2 space-y-4">
+    <div className="responsive-dashboard-container mx-auto p-2 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 lg:space-y-6">
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
@@ -362,19 +362,19 @@ export default function ParentsPage() {
 
           {/* Navigation Tabs */}
           <Tabs defaultValue="analytics" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 bg-transparent gap-2 p-0 h-auto">
+            <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
               <TabsTrigger
                 value="analytics"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <LayoutDashboard className="h-4 w-4" />
+                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
                 Analytics
               </TabsTrigger>
               <TabsTrigger
                 value="parents"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                 All Parents
               </TabsTrigger>
             </TabsList>

@@ -119,6 +119,7 @@ interface SidebarProps {
   position: "left" | "right" 
   collapsed: boolean
   toggleSidebar: () => void
+  isMobile?: boolean
 }
 
 interface MenuItem {
@@ -136,7 +137,7 @@ interface MenuItem {
   }
 }
 
-export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarProps) {
+export default function Sidebar({ position, collapsed, toggleSidebar, isMobile = false }: SidebarProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [filteredMenuItems, setFilteredMenuItems] = useState<MenuItem[]>([])
   const [openSubmenus, setOpenSubmenus] = useState<string[]>([])
@@ -641,18 +642,44 @@ export default function Sidebar({ position, collapsed, toggleSidebar }: SidebarP
     }
   }
 
-  // Determine sidebar classes based on position and collapsed state
+  // Determine sidebar classes based on position, collapsed state, and mobile responsiveness
   const getSidebarClasses = () => {
-    const baseClasses = "bg-white border-gray-200 transition-all duration-300 ease-in-out z-20 flex"
+    const baseClasses = "bg-white border-gray-200 transition-all duration-300 ease-in-out flex flex-col"
+    
+    // Mobile-specific classes
+    const mobileClasses = isMobile 
+      ? collapsed 
+        ? "fixed -translate-x-full md:translate-x-0" 
+        : "fixed translate-x-0 shadow-lg z-50"
+      : "z-20"
+
+    // Width and position classes
+    const widthClasses = isMobile
+      ? collapsed
+        ? "w-0 md:w-[70px]"
+        : "w-[280px] sm:w-[250px]"
+      : collapsed
+        ? "w-[70px]"
+        : "w-[250px] lg:w-[280px]"
 
     switch (position) {
       case "left":
-        return cn(baseClasses, "border-r h-screen flex-col", collapsed ? "w-[70px]" : "w-[250px]")
+        return cn(
+          baseClasses,
+          "border-r h-screen left-0 top-0",
+          widthClasses,
+          mobileClasses
+        )
       case "right":
-        return cn(baseClasses, "border-l h-screen flex-col", collapsed ? "w-[70px]" : "w-[250px]")
+        return cn(
+          baseClasses,
+          "border-l h-screen right-0 top-0",
+          widthClasses,
+          mobileClasses
+        )
       
       default:
-        return baseClasses
+        return cn(baseClasses, widthClasses, mobileClasses)
     }
   }
 

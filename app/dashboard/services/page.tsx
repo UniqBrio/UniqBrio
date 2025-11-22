@@ -330,11 +330,11 @@ export default function ServicesOverviewPage() {
 
   return (
     <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-6">
+        <div className="responsive-dashboard-container flex flex-col space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col items-start gap-4">
+        <div className="flex flex-col items-start gap-3 sm:gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 flex items-center gap-2 responsive-text-xl">
               <Activity className="h-8 w-8" />
               Services Overview
             </h1>
@@ -345,7 +345,7 @@ export default function ServicesOverviewPage() {
         </div>
 
         {/* Stats Overview - Matching Schedule Page Theme */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="responsive-card-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
 
           <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
             <CardContent className="p-4">
@@ -420,7 +420,7 @@ export default function ServicesOverviewPage() {
         </div>
 
         <Tabs defaultValue="service-areas" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
             <TabsTrigger
               value="dashboard"
               className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"

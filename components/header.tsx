@@ -19,37 +19,76 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface HeaderProps {
-  
   currentLanguage: string;
   changeLanguage: (language: string) => void;
   userRole: "admin" | "super admin";
   changeUserRole: (role: "admin" | "super admin") => void;
   academyName?: string;
   userName?: string;
+  toggleSidebar?: () => void;
+  isMobile?: boolean;
+  sidebarCollapsed?: boolean;
 }
 
-export default function Header({ currentLanguage, changeLanguage, userRole, changeUserRole, academyName = "", userName = "" }: HeaderProps) {
+export default function Header({ 
+  currentLanguage, 
+  changeLanguage, 
+  userRole, 
+  changeUserRole, 
+  academyName = "", 
+  userName = "",
+  toggleSidebar,
+  isMobile = false,
+  sidebarCollapsed = false
+}: HeaderProps) {
   const [notifications, setNotifications] = useState(3)
-  
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   return (
-    <header className="bg-white border-b border-gray-200 h-20 flex items-center justify-between px-4 md:px-6">
-      {/* Center section - Academy Logo, Name, Tagline */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="flex items-center gap-6">
-          <div className="relative h-12 w-20">
-            <Image src="/placeholder-logo.png" alt="Academy Logo" fill style={{ objectFit: "contain" }} priority />
+    <header className="bg-white border-b border-gray-200 h-16 sm:h-18 md:h-20 flex items-center justify-between px-2 sm:px-4 md:px-6 relative z-30">
+      {/* Mobile hamburger menu */}
+      {isMobile && toggleSidebar && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden p-2 hover:bg-gray-100"
+          onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          <div className="space-y-1">
+            <div className="w-5 h-0.5 bg-gray-600"></div>
+            <div className="w-5 h-0.5 bg-gray-600"></div>
+            <div className="w-5 h-0.5 bg-gray-600"></div>
           </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-xl font-bold text-purple-700 leading-tight">{academyName || "Academy"}</span>
-            <span className="text-sm text-gray-500 font-medium">Empowering Minds, Shaping Futures</span>
+        </Button>
+      )}
+      
+      {/* Center section - Academy Logo, Name, Tagline */}
+      <div className="flex-1 flex items-center justify-center px-2">
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
+          <div className="relative h-8 w-12 sm:h-10 sm:w-16 md:h-12 md:w-20">
+            <Image 
+              src="/placeholder-logo.png" 
+              alt="Academy Logo" 
+              fill 
+              style={{ objectFit: "contain" }} 
+              priority 
+              className="rounded"
+            />
+          </div>
+          <div className="flex flex-col justify-center min-w-0">
+            <span className="text-sm sm:text-lg md:text-xl font-bold text-purple-700 leading-tight truncate">
+              {academyName || "Academy"}
+            </span>
+            <span className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
+              Empowering Minds, Shaping Futures
+            </span>
           </div>
         </div>
       </div>
 
       {/* Right section - Utilities */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1 sm:space-x-2">
         {/* ...existing code... */}
         <TooltipProvider>
           <Tooltip>

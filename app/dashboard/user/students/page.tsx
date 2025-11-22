@@ -647,7 +647,7 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="container mx-auto p-2 space-y-4">
+    <div className="responsive-dashboard-container mx-auto p-2 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 lg:space-y-6">
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
@@ -663,48 +663,48 @@ export default function StudentsPage() {
           />
           {/* Navigation Tabs */}
           <Tabs defaultValue="dashboard" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-6 bg-transparent gap-2 p-0 h-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-4 sm:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
               <TabsTrigger 
                 value="dashboard" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <LayoutDashboard className="h-4 w-4" />
-                Analytics
+                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="students" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                 Students
               </TabsTrigger>
               <TabsTrigger 
                 value="student-attendance" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <ClipboardList className="h-4 w-4" />
-                Attendance
+                <ClipboardList className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden lg:inline">Attendance</span><span className="lg:hidden">Attend</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="student-leaves" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                 Leaves
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <Settings className="h-4 w-4" />
-                Settings
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden lg:inline">Settings</span><span className="lg:hidden">Config</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="achievements" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
               >
-                <Trophy className="h-4 w-4" />
-                <span className="inline-flex items-center gap-1">Achievements <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
+                <Trophy className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="inline-flex items-center gap-1"><span className="hidden lg:inline">Achievements</span><span className="lg:hidden">Awards</span> <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></span>
               </TabsTrigger>
             </TabsList>
 

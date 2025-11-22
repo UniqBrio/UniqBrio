@@ -323,20 +323,20 @@ function FinancialsPageContent() {
   };
 
   return (
-    <div className="pt-1 pb-4 relative">
+    <div className="responsive-dashboard-container pt-2 sm:pt-4 pb-3 sm:pb-6 relative">
       <div className="w-full">
-        <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
-          <h1 className="text-3xl md:text-4xl font-bold text-purple-700">Financial Management</h1>
+        <div className="flex items-center mb-2 sm:mb-4 flex-wrap gap-2 sm:gap-4 relative min-h-[40px] sm:min-h-[48px]">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-purple-700 responsive-text-xl">Financial Management</h1>
         </div>
         
         {/* Top navigation tabs styled like the 5 tabs below */}
-        <div className="w-full mt-3">
+        <div className="w-full mt-2 sm:mt-4">
           <TopTabs value={topTab} onChange={setTopTab} />
         </div>
 
         {/* Page content based on selected top tab */}
         {topTab === 'dashboard' && (
-          <div className="mt-10">
+          <div className="mt-4 sm:mt-6 lg:mt-10">
             {/* Stats Overview */}
             <StatsOverview />
             {/* Financial Tabs */}
@@ -356,45 +356,49 @@ function FinancialsPageContent() {
         )}
 
         {topTab === 'income' && (
-          <IncomeExpensesSection
-            setShowIncomeDialog={setShowIncomeDialog}
-            setShowExpenseDialog={setShowExpenseDialog}
-            setShowBankDialog={setShowBankDialog}
-            setSelectedIncome={setSelectedIncome}
-            setSelectedExpense={setSelectedExpense}
-            setIncomeDialogMode={setIncomeDialogMode}
-            setExpenseDialogMode={setExpenseDialogMode}
-            incomes={incomes}
-            setIncomes={setIncomes}
-            expenses={expenses}
-            setExpenses={setExpenses}
-            setIncomeDraftId={setIncomeDraftId}
-            setExpenseDraftId={setExpenseDraftId}
-            visibleSection="income"
-          />
+          <div className="mt-4 sm:mt-6 lg:mt-10">
+            <IncomeExpensesSection
+              setShowIncomeDialog={setShowIncomeDialog}
+              setShowExpenseDialog={setShowExpenseDialog}
+              setShowBankDialog={setShowBankDialog}
+              setSelectedIncome={setSelectedIncome}
+              setSelectedExpense={setSelectedExpense}
+              setIncomeDialogMode={setIncomeDialogMode}
+              setExpenseDialogMode={setExpenseDialogMode}
+              incomes={incomes}
+              setIncomes={setIncomes}
+              expenses={expenses}
+              setExpenses={setExpenses}
+              setIncomeDraftId={setIncomeDraftId}
+              setExpenseDraftId={setExpenseDraftId}
+              visibleSection="income"
+            />
+          </div>
         )}
 
         {topTab === 'expense' && (
-          <IncomeExpensesSection
-            setShowIncomeDialog={setShowIncomeDialog}
-            setShowExpenseDialog={setShowExpenseDialog}
-            setShowBankDialog={setShowBankDialog}
-            setSelectedIncome={setSelectedIncome}
-            setSelectedExpense={setSelectedExpense}
-            setIncomeDialogMode={setIncomeDialogMode}
-            setExpenseDialogMode={setExpenseDialogMode}
-            incomes={incomes}
-            setIncomes={setIncomes}
-            expenses={expenses}
-            setExpenses={setExpenses}
-            setIncomeDraftId={setIncomeDraftId}
-            setExpenseDraftId={setExpenseDraftId}
-            visibleSection="expense"
-          />
+          <div className="mt-4 sm:mt-6 lg:mt-10">
+            <IncomeExpensesSection
+              setShowIncomeDialog={setShowIncomeDialog}
+              setShowExpenseDialog={setShowExpenseDialog}
+              setShowBankDialog={setShowBankDialog}
+              setSelectedIncome={setSelectedIncome}
+              setSelectedExpense={setSelectedExpense}
+              setIncomeDialogMode={setIncomeDialogMode}
+              setExpenseDialogMode={setExpenseDialogMode}
+              incomes={incomes}
+              setIncomes={setIncomes}
+              expenses={expenses}
+              setExpenses={setExpenses}
+              setIncomeDraftId={setIncomeDraftId}
+              setExpenseDraftId={setExpenseDraftId}
+              visibleSection="expense"
+            />
+          </div>
         )}
 
         {topTab === 'report' && (
-          <div className="mt-10">
+          <div className="mt-4 sm:mt-6 lg:mt-10">
             <ReportsSection
               statsTimeframe={reportsTimeframe}
               setStatsTimeframe={setReportsTimeframe}
@@ -407,13 +411,13 @@ function FinancialsPageContent() {
         )}
 
         {topTab === 'roi' && (
-          <div className="mt-10">
+          <div className="mt-4 sm:mt-6 lg:mt-10">
             <ROICalculator />
           </div>
         )}
 
         {topTab === 'forecast' && (
-          <div className="mt-10">
+          <div className="mt-4 sm:mt-6 lg:mt-10">
             <ForecastSection />
           </div>
         )}

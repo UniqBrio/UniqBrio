@@ -366,7 +366,7 @@ export default function PaymentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="responsive-dashboard-container mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">Payment Management</h1>
           <p className="text-gray-600 text-sm">
@@ -386,7 +386,7 @@ export default function PaymentsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-transparent p-0 h-auto gap-3">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-transparent p-0 h-auto gap-1 sm:gap-2 lg:gap-3">
           <TabsTrigger
             value="analytics"
             className="bg-white border-2 border-orange-400 text-orange-600 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 transition-all"
