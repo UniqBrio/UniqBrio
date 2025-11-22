@@ -48,17 +48,17 @@ export function ForecastTab({ forecastPeriod, setForecastPeriod }: ForecastTabPr
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <div>
-            <CardTitle>Financial Forecasting</CardTitle>
-            <CardDescription>Predict future financial performance</CardDescription>
+      <CardHeader className="pb-4 sm:pb-6 lg:pb-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+          <div className="min-w-0 flex-1 space-y-2">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl break-words leading-tight font-bold">Financial Forecasting</CardTitle>
+            <CardDescription className="text-sm sm:text-base mt-2 leading-relaxed">Predict future financial performance</CardDescription>
           </div>
-          <div className="mt-2 sm:mt-0 flex items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="forecast-period">Forecast Period</Label>
+          <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <Label htmlFor="forecast-period" className="text-sm font-medium whitespace-nowrap">Forecast Period</Label>
               <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
-                <SelectTrigger className="w-[150px]" id="forecast-period">
+                <SelectTrigger className="w-full sm:w-40 lg:w-48 min-w-0 h-10 sm:h-11" id="forecast-period">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
                 <SelectContent>
@@ -68,7 +68,6 @@ export function ForecastTab({ forecastPeriod, setForecastPeriod }: ForecastTabPr
                 </SelectContent>
               </Select>
             </div>
-            
           </div>
         </div>
       </CardHeader>

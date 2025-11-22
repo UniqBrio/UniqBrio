@@ -323,20 +323,20 @@ function FinancialsPageContent() {
   };
 
   return (
-    <div className="responsive-dashboard-container pt-2 sm:pt-4 pb-3 sm:pb-6 relative">
-      <div className="w-full">
-        <div className="flex items-center mb-2 sm:mb-4 flex-wrap gap-2 sm:gap-4 relative min-h-[40px] sm:min-h-[48px]">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-purple-700 responsive-text-xl">Financial Management</h1>
+    <div className="responsive-dashboard-container px-2 sm:px-3 lg:px-4 pt-2 sm:pt-3 pb-3 sm:pb-4 relative max-w-full overflow-hidden">
+      <div className="w-full min-w-0">
+        <div className="flex items-center mb-2 sm:mb-3 lg:mb-4 flex-wrap gap-1 sm:gap-2 lg:gap-4 relative">
+          <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-purple-700 leading-tight truncate">Financial Management</h1>
         </div>
         
-        {/* Top navigation tabs styled like the 5 tabs below */}
-        <div className="w-full mt-2 sm:mt-4">
+        {/* Top navigation tabs - mobile optimized */}
+        <div className="w-full mt-2 sm:mt-3 lg:mt-4 overflow-hidden">
           <TopTabs value={topTab} onChange={setTopTab} />
         </div>
 
         {/* Page content based on selected top tab */}
         {topTab === 'dashboard' && (
-          <div className="mt-4 sm:mt-6 lg:mt-10">
+          <div className="mt-2 sm:mt-3 lg:mt-4 space-y-2 sm:space-y-3 lg:space-y-4">
             {/* Stats Overview */}
             <StatsOverview />
             {/* Financial Tabs */}

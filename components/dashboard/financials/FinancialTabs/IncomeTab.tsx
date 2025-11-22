@@ -100,16 +100,16 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <CardTitle>Income Management & Analysis</CardTitle>
-            <CardDescription>Advanced income tracking with category and source analysis</CardDescription>
+      <CardHeader className="pb-4 sm:pb-6 lg:pb-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+          <div className="min-w-0 flex-1 space-y-2">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl break-words leading-tight font-bold">Income Management & Analysis</CardTitle>
+            <CardDescription className="text-sm sm:text-base mt-2 leading-relaxed">Advanced income tracking with category and source analysis</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="year-select" className="text-sm font-medium"></Label>
+          <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
+            <Label htmlFor="year-select" className="text-sm font-medium sr-only">Year Selection</Label>
             <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48 lg:w-56 min-w-0 h-10 sm:h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -124,32 +124,43 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded">{error}</div>}
-        {loading && <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded">Loading income data...</div>}
+      <CardContent className="p-3 sm:p-6 space-y-3 sm:space-y-4 lg:space-y-6">
+        {error && <div className="text-red-600 text-xs sm:text-sm p-2 sm:p-3 bg-red-50 rounded">{error}</div>}
+        {loading && <div className="text-xs sm:text-sm text-muted-foreground p-2 sm:p-3 bg-gray-50 rounded">Loading income data...</div>}
         
         {/* Debug info */}
         {!loading && !error && (
-          <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
-            Debug: Chart data: {data.length} | Categories: {categoryData.length} | Sources: {sourceData.length} | Top cats: {topPerformers.topCategories.length} | Top sources: {topPerformers.topSources.length}
+          <div className="text-[10px] sm:text-xs text-gray-500 p-2 sm:p-3 bg-gray-50 rounded overflow-hidden">
+            <div className="break-all">
+              Debug: Chart data: {data.length} | Categories: {categoryData.length} | Sources: {sourceData.length} | Top cats: {topPerformers.topCategories.length} | Top sources: {topPerformers.topSources.length}
+            </div>
           </div>
         )}
         
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">Income Trend Analysis</h3>
+        <Card className="p-3 sm:p-4 lg:p-6 w-full overflow-hidden">
+          <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 break-words">Income Trend Analysis</h3>
           {data.length === 0 ? (
-            <div className="h-80 flex items-center justify-center bg-gray-50 rounded">
-              <p className="text-gray-500">No income data available for {selectedYear}</p>
+            <div className="h-60 sm:h-80 flex items-center justify-center bg-gray-50 rounded">
+              <p className="text-gray-500 text-sm sm:text-base text-center px-4">No income data available for {selectedYear}</p>
             </div>
           ) : (
-            <div className="h-80">
+            <div className="h-60 sm:h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data} margin={{ top: 25, right: 20, bottom: 80, left: 70 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                <AreaChart 
+                  data={data} 
+                  margin={{ 
+                    top: 15, 
+                    right: 15, 
+                    bottom: 40, 
+                    left: 40 
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis
                     dataKey="name"
                     tickFormatter={formatMonthLabel}
-                    label={{ value: 'Period', position: 'insideBottom', offset: -30 }}
+                    tick={{ fontSize: 11 }}
+                    className="text-xs"
                   />
                   <YAxis
                     domain={[0, (dataMax: number) => {
@@ -159,30 +170,49 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
                       const magnitude = Math.pow(10, Math.floor(Math.log10(maxWithBuffer)));
                       return Math.ceil(maxWithBuffer / magnitude) * magnitude;
                     }]}
-                    label={{ value: 'Income', angle: -90, position: 'insideLeft', offset: -30 }}
+                    tick={{ fontSize: 11 }}
+                    className="text-xs"
+                    width={35}
                   />
-                  <RechartsTooltip formatter={(value: number) => `INR ${value.toLocaleString()}`} />
-                  <Area type="monotone" dataKey="income" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} name="Income" label={{ position: 'top', offset: 5, fill: '#8b5cf6', fontSize: 12 }} />
+                  <RechartsTooltip 
+                    formatter={(value: number) => [`INR ${value.toLocaleString()}`, 'Income']}
+                    contentStyle={{
+                      fontSize: '12px',
+                      padding: '6px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid hsl(var(--border))',
+                      backgroundColor: 'hsl(var(--background))'
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="income" 
+                    stroke="#8b5cf6" 
+                    fill="#8b5cf6" 
+                    fillOpacity={0.3} 
+                    name="Income"
+                    strokeWidth={2}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           )}
         </Card>
         {topPerformers.topCategories.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-4 text-purple-700">Top Income Categories</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+            <Card className="p-3 sm:p-4 lg:p-6 w-full overflow-hidden">
+              <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 text-purple-700 break-words">Top Income Categories</h3>
               {topPerformers.topCategories.length === 0 ? (
-                <div className="text-sm text-gray-500 p-4 text-center">No category data available</div>
+                <div className="text-xs sm:text-sm text-gray-500 p-3 sm:p-4 text-center">No category data available</div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {topPerformers.topCategories.map(cat => (
-                    <div key={cat.category} className="flex justify-between items-center p-3 bg-purple-50 rounded">
-                      <span className="font-medium">{cat.category}</span>
-                      <div className="text-right">
-                        <div className="font-bold text-purple-700">INR {cat.income.toLocaleString()}</div>
-                        <div className="text-xs text-purple-600">{cat.count} transactions</div>
-                        <div className="text-xs text-purple-600">Avg: INR {cat.avgAmount.toLocaleString()}</div>
+                    <div key={cat.category} className="flex justify-between items-center p-2 sm:p-3 bg-purple-50 rounded gap-2">
+                      <span className="font-medium text-xs sm:text-sm min-w-0 flex-1 truncate">{cat.category}</span>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-bold text-purple-700 text-xs sm:text-sm">INR {cat.income.toLocaleString()}</div>
+                        <div className="text-[10px] sm:text-xs text-purple-600">{cat.count} transactions</div>
+                        <div className="text-[10px] sm:text-xs text-purple-600">Avg: INR {cat.avgAmount.toLocaleString()}</div>
                       </div>
                     </div>
                   ))}
@@ -190,16 +220,16 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
               )}
             </Card>
             {topPerformers.topSources.length > 0 && (
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4 text-orange-700">Top Income Sources</h3>
-                <div className="space-y-3">
+              <Card className="p-3 sm:p-4 lg:p-6 w-full overflow-hidden">
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 text-orange-700 break-words">Top Income Sources</h3>
+                <div className="space-y-2 sm:space-y-3">
                   {topPerformers.topSources.map(source => (
-                    <div key={source.source} className="flex justify-between items-center p-3 bg-orange-50 rounded">
-                      <span className="font-medium">{source.source}</span>
-                      <div className="text-right">
-                        <div className="font-bold text-orange-700">INR {source.income.toLocaleString()}</div>
-                        <div className="text-xs text-orange-600">{source.count} transactions</div>
-                        <div className="text-xs text-orange-600">Avg: INR {source.avgAmount.toLocaleString()}</div>
+                    <div key={source.source} className="flex justify-between items-center p-2 sm:p-3 bg-orange-50 rounded gap-2">
+                      <span className="font-medium text-xs sm:text-sm min-w-0 flex-1 truncate">{source.source}</span>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-bold text-orange-700 text-xs sm:text-sm">INR {source.income.toLocaleString()}</div>
+                        <div className="text-[10px] sm:text-xs text-orange-600">{source.count} transactions</div>
+                        <div className="text-[10px] sm:text-xs text-orange-600">Avg: INR {source.avgAmount.toLocaleString()}</div>
                       </div>
                     </div>
                   ))}
@@ -211,9 +241,9 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
         
         {/* Show message when no data */}
         {!loading && !error && topPerformers.topCategories.length === 0 && (
-          <div className="text-center p-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-600">No income data available for {selectedYear}</p>
-            <p className="text-sm text-gray-500 mt-2">Income data will appear here once transactions are recorded</p>
+          <div className="text-center p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg">
+            <p className="text-sm sm:text-base text-gray-600">No income data available for {selectedYear}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Income data will appear here once transactions are recorded</p>
           </div>
         )}
       </CardContent>

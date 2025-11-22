@@ -163,57 +163,57 @@ export default function SignupPage() {
   return (
     // Wrap with AuthLayout
     <AuthLayout>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
 
         {/* Full Name */}
-        <div className="space-y-2">
-          <label htmlFor="name" className="block text-[#8a3ffc] font-medium">
+        <div className="space-y-1">
+          <label htmlFor="name" className="block text-black font-medium text-sm">
             Full Name
           </label>
           <input
             id="name"
             type="text"
             placeholder="Enter your full name"
-            className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
+            className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
             {...register("name")}
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
         </div>
 
         {/* Email */}
-        <div className="space-y-2">
-          <label htmlFor="email" className="block text-[#8a3ffc] font-medium">
+        <div className="space-y-1">
+          <label htmlFor="email" className="block text-black font-medium text-sm">
             Enter your email address
           </label>
           <input
             id="email"
             type="email"
             placeholder="abc@abc.com"
-            className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
+            className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
             {...register("email")}
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
         </div>
 
         {/* Phone Number */}
-        <div className="space-y-2">
-          <label htmlFor="phone" className="block text-[#8a3ffc] font-medium">
+        <div className="space-y-1">
+          <label htmlFor="phone" className="block text-black font-medium text-sm">
             Phone Number
           </label>
           <input
             id="phone"
             type="tel"
             placeholder="Enter your phone number"
-            className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
+            className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
             {...register("phone")}
           />
           {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
         </div>
 
         {/* Password */}
-        <div className="space-y-2">
-          <label htmlFor="password" className="block text-[#8a3ffc] font-medium">
+        <div className="space-y-1">
+          <label htmlFor="password" className="block text-black font-medium text-sm">
             Enter password (8 to 12 Characters)
           </label>
           <div className="relative">
@@ -221,7 +221,7 @@ export default function SignupPage() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter strong password"
-              className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.password ? "border-red-500" : ""}`}
+              className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.password ? "border-red-500" : ""}`}
               {...register("password")}
             />
             <button
@@ -236,22 +236,22 @@ export default function SignupPage() {
 
           {/* Password Strength Indicator */}
           {password && (
-            <div className="mt-2">
-              <div className="flex justify-between items-center mb-1">
+            <div className="mt-1">
+              <div className="flex justify-between items-center mb-0.5">
                 <span className="text-xs text-gray-500">Password strength:</span>
                 <span className={`text-xs font-medium text-${getPasswordStrengthText().color}-500`}>
                   {getPasswordStrengthText().text}
                 </span>
               </div>
-              <div className="w-full bg-white rounded-full h-1.5">
+              <div className="w-full bg-white rounded-full h-1">
                 <div
-                  className={`h-1.5 rounded-full bg-${getPasswordStrengthText().color}-500`}
+                  className={`h-1 rounded-full bg-${getPasswordStrengthText().color}-500`}
                   style={{ width: `${(passwordStrength / 5) * 100}%` }} // Divide by 5 criteria
                 ></div>
               </div>
 
               {/* Password Criteria List */}
-              <ul className="text-xs text-gray-500 mt-2 space-y-1">
+              <ul className="text-xs text-gray-500 mt-1 space-y-0.5">
                 <li className="flex items-center">
                   {/^.{8,12}$/.test(password) ? (
                     <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
@@ -298,8 +298,8 @@ export default function SignupPage() {
         </div>
 
         {/* Confirm Password */}
-        <div className="space-y-2">
-          <label htmlFor="confirmPassword" className="block text-[#8a3ffc] font-medium">
+        <div className="space-y-1">
+          <label htmlFor="confirmPassword" className="block text-black font-medium text-sm">
             Confirm Password
           </label>
           <div className="relative">
@@ -307,7 +307,7 @@ export default function SignupPage() {
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
-              className={`w-full h-14 px-4 bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.confirmPassword ? "border-red-500" : ""}`}
+              className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.confirmPassword ? "border-red-500" : ""}`}
               {...register("confirmPassword")}
             />
             <button
@@ -352,12 +352,12 @@ export default function SignupPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full h-14 text-xl font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center"
+          className="w-full h-10 text-base font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="animate-spin mr-2" size={20} />
+              <Loader2 className="animate-spin mr-2" size={16} />
               Signing up...
             </>
           ) : (
@@ -367,9 +367,9 @@ export default function SignupPage() {
       </form>
 
       {/* Login Link */}
-      <div className="mt-4 text-center">
+      <div className="mt-2 text-center text-sm">
         Already on UniqBrio?{" "}
-        <Link href="/login" className="text-orange-500 hover:underline">
+        <Link href="/login" className="text-orange-500 hover:underline font-bold">
           Login
         </Link>
       </div>

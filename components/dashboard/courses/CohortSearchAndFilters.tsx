@@ -579,7 +579,7 @@ export default function CohortSearchAndFilters({
         </div>
 
         {/* Import/Export Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <input
             id="import-cohort-csv-input"
             type="file"
@@ -613,7 +613,7 @@ export default function CohortSearchAndFilters({
             size="sm"
             onClick={onAddCohort}
             title="Add New Cohort"
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Cohorts

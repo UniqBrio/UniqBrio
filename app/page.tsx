@@ -1,13 +1,5 @@
-import { Suspense } from "react"
-
-import PageContent from "./PageContent"
+import { redirect } from "next/navigation"
 
 export default function Home() {
-  return (
-    <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <PageContent />
-      </Suspense>
-    </>
-  )
+  redirect("/login")
 }

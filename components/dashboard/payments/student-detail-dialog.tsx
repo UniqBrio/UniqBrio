@@ -209,26 +209,26 @@ export function StudentDetailDialog({
       label: "Course Fee",
       value: (
         <span className="text-base font-semibold text-slate-900">
-          ?{formatCurrency(payment.courseFee || 0)}
+          INR {formatCurrency(payment.courseFee || 0)}
         </span>
       ),
     },
     {
       icon: CreditCard,
       label: "Student Registration",
-      value: `?${formatCurrency(payment.studentRegistrationFee || 0)}`,
+      value: `INR ${formatCurrency(payment.studentRegistrationFee || 0)}`,
     },
     {
       icon: CreditCard,
       label: "Course Registration",
-      value: `?${formatCurrency(payment.courseRegistrationFee || 0)}`,
+      value: `INR ${formatCurrency(payment.courseRegistrationFee || 0)}`,
     },
     {
       icon: Calculator,
       label: "Total To Be Paid",
       value: (
         <span className="font-bold text-purple-700 text-base">
-          ?{formatCurrency(totalToBePaid)}
+          INR {formatCurrency(totalToBePaid)}
         </span>
       ),
     },
@@ -237,7 +237,7 @@ export function StudentDetailDialog({
       label: "Total Paid",
       value: (
         <span className="font-semibold text-emerald-600">
-          ?{formatCurrency(payment.receivedAmount || 0)}
+          INR {formatCurrency(payment.receivedAmount || 0)}
         </span>
       ),
     },
@@ -246,7 +246,7 @@ export function StudentDetailDialog({
       label: "Balance",
       value: (
         <span className="font-semibold text-red-600">
-          ?{formatCurrency(payment.outstandingAmount || 0)}
+          INR {formatCurrency(payment.outstandingAmount || 0)}
         </span>
       ),
     },
@@ -274,24 +274,6 @@ export function StudentDetailDialog({
   ];
 
   const paymentDetailsFields: InfoField[] = [
-    {
-      icon: CreditCard,
-      label: "Payment Category",
-      value: (
-        <Badge 
-          variant="outline" 
-          className={`text-xs
-            ${(payment.paymentOption === 'One Time With Installments' || payment.planType === 'ONE_TIME_WITH_INSTALLMENTS') ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-            ${(payment.paymentOption === 'One Time' || payment.planType === 'ONE_TIME') ? 'bg-green-50 text-green-700 border-green-200' : ''}
-            ${(payment.paymentOption === 'Monthly' || payment.planType === 'MONTHLY_SUBSCRIPTION') ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
-            ${(payment.paymentOption === 'EMI' || payment.planType === 'EMI') ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
-            ${(!payment.paymentOption && !payment.planType) ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
-          `}
-        >
-          {payment.paymentOption || payment.planType || 'Not Set'}
-        </Badge>
-      ),
-    },
     {
       icon: Bell,
       label: "Reminder",

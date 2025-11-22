@@ -8,47 +8,57 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     // Main container: flex column to stack logo on top of content
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="flex flex-col min-h-screen w-full relative overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Animated Background */}
+      <div className="absolute inset-0 z-0">
+        {/* Gradient background with mesh effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/40 via-white/60 to-orange-100/40"></div>
+        
+        {/* Animated circles - positioned away from left panel */}
+        <div className="absolute top-20 -right-20 w-96 h-96 bg-gradient-to-br from-orange-300 to-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-20 right-1/4 w-96 h-96 bg-gradient-to-br from-pink-300 to-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+      </div>
 
-      {/* Logo and Tagline Section - Centered at the top */}
-      {/* This div takes full width and centers its flex children */}
-      <div className="flex flex-col items-center justify-center py-2 bg-[#f9f6ff] lg:bg-transparent">
+      {/* Content wrapper with z-index */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Logo and Tagline Section - Centered at the top */}
+        {/* This div takes full width and centers its flex children */}
+        <div className="flex flex-col items-center justify-center py-3 bg-transparent animate-fadeIn">
         <Image
           src="/UniqBrio Logo Transparent.png" // Ensure this path is correct
           alt="UniqBrio Logo"
-          width={200} // Adjust size as needed
-          height={100} // Adjust size as needed
+          width={180} // Adjust size as needed
+          height={90} // Adjust size as needed
           priority
-          className="mb-2" // Add some space below the logo
+          className="mb-1 drop-shadow-lg" // Add some space below the logo
         />
-        <p className="text-gray-600 text-lg -mt-14 italic">Mentoring Businesses, Nurturing Learners</p>
+        <p className="text-gray-700 text-base -mt-12 italic font-medium">Mentoring Businesses, Nurturing Learners</p>
       </div>
 
       {/* Wrapper for Left and Right Panels - This will be a flex row */}
       <div className="flex flex-1 w-full">
         {/* Left side - Features (Centered horizontally and vertically) */}
-        <div className="hidden items-center justify-center lg:flex lg:w-1/2 flex-col bg-[#f9f6ff] p-8">
-          <div className="text-center items-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">
-              <span className="text-[#5a2ca0]">Streamline Your</span>{" "}
-              <span className="text-[#e67e22]">Academy Management</span>
+        <div className="hidden items-center justify-center lg:flex lg:w-1/2 flex-col bg-transparent p-4 animate-slideInLeft">
+          <div className="text-center items-center mb-6">
+            <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
+              Streamline Your Academy Management
             </h2>
-            <p className="text-gray-600 max-w-md mx-auto">
-              The complete solution for managing classes, courses, payments, and staff-
+            <p className="text-gray-700 text-base max-w-md mx-auto leading-relaxed">
+              The complete solution for managing classes,<br /> courses, payments, and staff-<br />
               <span className="font-semibold">All in one place.</span>
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-8 max-w-lg mx-auto"> {/* Added max-w-lg and mx-auto */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 bg-[#f0e6ff] rounded-lg flex items-center justify-center mb-4">
+          <div className="grid grid-cols-2 gap-4 mt-6 max-w-lg mx-auto"> {/* Added max-w-lg and mx-auto */}
+            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-purple-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-purple-300 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#5a2ca0"
+                  stroke="white"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -56,19 +66,19 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-1">Course Management</h3>
-              <p className="text-sm text-gray-600">Organize all your courses</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-purple-600 transition-colors">Course Management</h3>
+              <p className="text-xs text-gray-600">Organize all your courses</p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 bg-[#f0e6ff] rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-orange-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-orange-300 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#5a2ca0"
+                  stroke="white"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -79,19 +89,19 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <line x1="3" x2="21" y1="10" y2="10" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-1">Class Scheduling</h3>
-              <p className="text-sm text-gray-600">Effortless scheduling</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-orange-600 transition-colors">Class Scheduling</h3>
+              <p className="text-xs text-gray-600">Effortless scheduling</p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 bg-[#f0e6ff] rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-pink-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-pink-300 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#5a2ca0"
+                  stroke="white"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -100,19 +110,19 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <line x1="2" x2="22" y1="10" y2="10" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-1">Payment Tracking</h3>
-              <p className="text-sm text-gray-600">Manage all transactions</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-pink-600 transition-colors">Payment Tracking</h3>
+              <p className="text-xs text-gray-600">Manage all transactions</p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <div className="w-10 h-10 bg-[#f0e6ff] rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-indigo-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-indigo-300 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#5a2ca0"
+                  stroke="white"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -123,23 +133,24 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </div>
-              <h3 className="font-semibold mb-1">Staff Management</h3>
-              <p className="text-sm text-gray-600">Coordinate your team</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-indigo-600 transition-colors">Staff Management</h3>
+              <p className="text-xs text-gray-600">Coordinate your team</p>
             </div>
           </div>
         </div>
 
         {/* Right side - Auth forms */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 bg-gray-100">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-3 md:p-6 bg-transparent animate-slideInRight">
           {/* Card container for AuthTabs and form */}
-          <div className="w-full max-w-md "> {/* Added card styling back */}
+          <div className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-6 hover:shadow-3xl transition-all duration-500"> {/* Added card styling back */}
             <AuthTabs /> {/* AuthTabs handles its own internal spacing and negative margins */}
             {/* Padding for the form content area below AuthTabs */}
-            <div className="px-6 py-8 sm:px-8">
+            <div className="px-4 py-4 sm:px-6">
               {children}
             </div>
           </div>
         </div>
+      </div>
       </div>
 
     </div>

@@ -348,6 +348,20 @@ export default function PaymentSettings() {
         </div>
       </div>
 
+      {/* Information Alert */}
+      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <div className="flex items-start">
+          <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-blue-900">Settings Integration Active</h3>
+            <p className="text-xs text-blue-700 mt-1">
+              These settings directly control the Manual Payment Dialog. Disabling payment categories will hide them from the payment options, 
+              and installment counts will automatically update throughout the system.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <Tabs defaultValue="payment-types" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 bg-white border-2 border-purple-200">
           <TabsTrigger value="payment-types" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
@@ -406,6 +420,16 @@ export default function PaymentSettings() {
                     <p className="text-sm text-gray-600 mt-1">
                       Fixed {installmentsCount} installments spread across course duration
                     </p>
+                    {oneTimeInstallmentsEnabled && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        ✓ Will appear in payment dialog as "One-Time With Installments ({installmentsCount} EMIs)"
+                      </p>
+                    )}
+                    {!oneTimeInstallmentsEnabled && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        ⚠ This option will be hidden from the payment dialog
+                      </p>
+                    )}
                   </div>
                   <Switch
                     checked={oneTimeInstallmentsEnabled}
@@ -476,6 +500,16 @@ export default function PaymentSettings() {
                     <p className="text-sm text-gray-600 mt-1">
                       Discounted monthly plans with lock-in periods
                     </p>
+                    {discountedSubscriptionEnabled && (
+                      <p className="text-xs text-pink-600 mt-1">
+                        ✓ Will appear in payment dialog for Ongoing Training courses
+                      </p>
+                    )}
+                    {!discountedSubscriptionEnabled && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        ⚠ This option will be hidden from the payment dialog
+                      </p>
+                    )}
                   </div>
                   <Switch
                     checked={discountedSubscriptionEnabled}

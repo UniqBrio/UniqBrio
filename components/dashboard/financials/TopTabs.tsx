@@ -11,31 +11,39 @@ type TopTabKey = 'dashboard' | 'income' | 'expense' | 'report' | 'roi' | 'foreca
 export function TopTabs({ value, onChange }: { value: TopTabKey, onChange: (v: TopTabKey) => void }) {
   return (
     <div className="w-full">
-      <Tabs value={value} onValueChange={(v) => onChange(v as TopTabKey)} className="space-y-2 tabs-top">
-        <TabsList className="grid grid-cols-2 md:grid-cols-6 gap-2 bg-transparent border-0 p-0">
-          <TabsTrigger value="dashboard" className="tab-trigger">
-            <LayoutDashboard className="w-4 h-4 mr-2" />
-            Analytics
+      <Tabs value={value} onValueChange={(v) => onChange(v as TopTabKey)} className="space-y-2 tabs-top w-full overflow-hidden">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-1 sm:gap-2 bg-transparent border-0 p-0 w-full min-h-0">
+          <TabsTrigger value="dashboard" className="tab-trigger min-w-0 flex-1">
+            <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+            <span className="text-[10px] sm:text-xs lg:text-sm truncate">Analytics</span>
           </TabsTrigger>
-          <TabsTrigger value="income" className="tab-trigger">
-            <CreditCard className="w-4 h-4 mr-2" />
-            Income
+          <TabsTrigger value="income" className="tab-trigger min-w-0 flex-1">
+            <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+            <span className="text-[10px] sm:text-xs lg:text-sm truncate">Income</span>
           </TabsTrigger>
-          <TabsTrigger value="expense" className="tab-trigger">
-            <Wallet className="w-4 h-4 mr-2" />
-            Expense
+          <TabsTrigger value="expense" className="tab-trigger min-w-0 flex-1">
+            <Wallet className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+            <span className="text-[10px] sm:text-xs lg:text-sm truncate">Expense</span>
           </TabsTrigger>
-          <TabsTrigger value="report" className="tab-trigger">
-            <FileText className="w-4 h-4 mr-2" />
-            Report
+          <TabsTrigger value="report" className="tab-trigger min-w-0 flex-1">
+            <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+            <span className="text-[10px] sm:text-xs lg:text-sm truncate">Report</span>
           </TabsTrigger>
-          <TabsTrigger value="roi" className="tab-trigger coming-soon">
-            <Calculator className="w-4 h-4 mr-2" />
-            <span className="inline-flex items-center gap-2">ROI Analysis <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></span>
+          <TabsTrigger value="roi" className="tab-trigger coming-soon min-w-0 flex-1">
+            <Calculator className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+            <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs lg:text-sm min-w-0">
+              <span className="hidden sm:inline truncate">ROI Analysis</span>
+              <span className="sm:hidden truncate">ROI</span>
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={8} height={8} className="sm:w-2 sm:h-2 lg:w-3 lg:h-3 flex-shrink-0" />
+            </span>
           </TabsTrigger>
-          <TabsTrigger value="forecast" className="tab-trigger coming-soon">
-            <TrendingUp className="w-4 h-4 mr-2" />
-            <span className="inline-flex items-center gap-2">Forecasting <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></span>
+          <TabsTrigger value="forecast" className="tab-trigger coming-soon min-w-0 flex-1">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+            <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs lg:text-sm min-w-0">
+              <span className="hidden sm:inline truncate">Forecasting</span>
+              <span className="sm:hidden truncate">Forecast</span>
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={8} height={8} className="sm:w-2 sm:h-2 lg:w-3 lg:h-3 flex-shrink-0" />
+            </span>
           </TabsTrigger>
         </TabsList>
       </Tabs>

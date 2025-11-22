@@ -62,45 +62,46 @@ export function StatsOverview() {
     return () => { abort = true }
   }, []) // No dependencies since we always use This month
 
-  // Icon mapping for each stat
+  // Icon mapping for each stat - mobile-optimized sizing
   const statIcons = [
     // Revenue, Expenses, Net Profit, Health
     {
       bg: "bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200",
-      icon: <Banknote className="h-8 w-8 text-orange-500" />,
+      icon: <Banknote className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-500 flex-shrink-0" />,
     },
     {
       bg: "bg-gradient-to-br from-red-50 to-red-100 border-red-200",
-      icon: <CreditCard className="h-8 w-8 text-red-500" />,
+      icon: <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-red-500 flex-shrink-0" />,
     },
     {
       bg: "bg-gradient-to-br from-green-50 to-green-100 border-green-200",
-      icon: <TrendingUp className="h-8 w-8 text-green-500" />,
+      icon: <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-500 flex-shrink-0" />,
     },
     {
       bg: "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200",
-      icon: <ShieldCheck className="h-8 w-8 text-blue-500" />,
+      icon: <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-500 flex-shrink-0" />,
     },
   ]
 
   return (
     <>
-      {/* Stats Overview Header */}
-     
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+      {/* Stats Overview - Mobile-optimized layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6">
         {stats.map((stat, index) => {
           const style = statIcons[index] || statIcons[0]
           return (
-            <Card key={index} className={style.bg}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`text-sm font-medium ${index === 0 ? "text-orange-600" : index === 1 ? "text-red-600" : index === 2 ? "text-green-600" : "text-blue-600"}`}>{stat.title}</p>
-                    <p className={`text-2xl font-bold ${index === 0 ? "text-orange-900" : index === 1 ? "text-red-900" : index === 2 ? "text-green-900" : "text-blue-900"}`}>{stat.value}</p>
+            <Card key={index} className={`${style.bg} min-h-0 overflow-hidden`}>
+              <CardContent className="p-2 sm:p-3 lg:p-4">
+                <div className="flex flex-col space-y-1 sm:space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className={`text-xs sm:text-sm font-medium leading-tight flex-1 min-w-0 ${index === 0 ? "text-orange-600" : index === 1 ? "text-red-600" : index === 2 ? "text-green-600" : "text-blue-600"}`}>{stat.title}</p>
+                    <div className="flex-shrink-0">{style.icon}</div>
                   </div>
-                  {style.icon}
+                  <div className="min-w-0">
+                    <p className={`text-sm sm:text-base lg:text-lg font-bold leading-tight break-words hyphens-auto overflow-wrap-anywhere ${index === 0 ? "text-orange-900" : index === 1 ? "text-red-900" : index === 2 ? "text-green-900" : "text-blue-900"}`}>{stat.value}</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">{stat.change}</p>
+                <p className="text-xs text-muted-foreground leading-tight mt-1 truncate">{stat.change}</p>
               </CardContent>
             </Card>
           )

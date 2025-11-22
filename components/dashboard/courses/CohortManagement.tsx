@@ -1280,20 +1280,20 @@ export default function CohortManagement({
   }, [cohorts, searchTerm, selectedFilters, sortBy, sortOrder, courses]);
 
   return (
-    <div className="mb-8">
+    <div className="space-y-4">
       {/* Header Section - Same as Course Page */}
-      <div className="pt-1 pb-6">
-        <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
-          <h1 className="text-3xl md:text-4xl font-bold text-purple-700">Cohort Management</h1>
+      <div className="pt-1 pb-4 sm:pb-6">
+        <div className="flex items-center mb-2 flex-wrap gap-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-700">Cohort Management</h1>
         </div>
-        <p className="text-lg mb-0 text-gray-700">
+        <p className="text-sm sm:text-base md:text-lg text-gray-600">
           Organize students into cohorts for better learning experiences and streamlined management.
         </p>
       </div>
 
       {/* Unified Card Container - Same as Course Page */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           {/* Search and Filters Component */}
           <CohortSearchAndFilters
             searchTerm={searchTerm}
@@ -1345,14 +1345,14 @@ export default function CohortManagement({
           />
           
           {/* Results Counter */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 mb-4 p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm font-medium text-purple-700">
+              <span className="text-xs sm:text-sm font-medium text-purple-700">
                 {filteredAndSortedCohorts.length} cohort{filteredAndSortedCohorts.length !== 1 ? 's' : ''} found
               </span>
               {selectedCohortIds.length > 0 && (
-                <span className="text-xs text-blue-700 ml-2">{selectedCohortIds.length} selected</span>
+                <span className="text-xs text-blue-700">{selectedCohortIds.length} selected</span>
               )}
             </div>
             
@@ -1363,19 +1363,19 @@ export default function CohortManagement({
                   variant="outline"
                   size="icon"
                   onClick={columnManagement.openColumnSelector}
-                  className="h-8 w-8 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                  className="h-7 w-7 sm:h-8 sm:w-8 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100"
                   title="Column Selection"
                 >
-                  <GridIcon className="h-4 w-4" />
+                  <GridIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             )}
           </div>
           
           {/* Cohort Display */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
       {viewMode === 'list' ? (
-        <div className="table-container-with-sticky-header">
+        <div className="table-container-with-sticky-header min-w-full">
           <Table>
             <TableHeader>
               <TableRow>
@@ -1524,10 +1524,9 @@ export default function CohortManagement({
         </div>
       ) : (
         <div className="bg-white border border-purple-200 rounded-lg shadow-sm">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {filteredAndSortedCohorts.length > 0 ? (
-              <div className="overflow-x-auto pb-4">
-                <div className="flex gap-4 w-max">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredAndSortedCohorts.map((cohort: Cohort) => {
                     // Find the course for this cohort
                     const cohortCourse = courses.find((course: Course) => 
@@ -1537,7 +1536,7 @@ export default function CohortManagement({
                     return (
                       <div 
                         key={cohort.id} 
-                        className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-4 hover:shadow-md transition-all w-80 flex-shrink-0 cursor-pointer"
+                        className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer"
                         onClick={() => handleViewCohort(cohort)}
                       >
                         <div className="flex justify-between items-start mb-3">
@@ -1758,10 +1757,9 @@ export default function CohortManagement({
                       </div>
                     );
                   })}
-                </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-500">
                 No cohorts found matching your criteria
               </div>
             )}
@@ -1771,7 +1769,7 @@ export default function CohortManagement({
                   variant="outline"
                   size="sm"
                   onClick={() => setViewAllCohorts(true)}
-                  className="text-purple-600 border-purple-300 hover:bg-purple-50"
+                  className="text-xs sm:text-sm text-purple-600 border-purple-300 hover:bg-purple-50"
                 >
                   View All {filteredAndSortedCohorts.length} Cohorts
                 </Button>
@@ -1787,8 +1785,8 @@ export default function CohortManagement({
       {/* Add Cohort Modal */}
       <Dialog open={isAddCohortOpen} onOpenChange={handleCohortDialogOpenChange}>
         <DialogContent 
-          className="max-w-md max-h-[90vh] overflow-hidden flex flex-col" 
-          style={{ minWidth: '400px', padding: '18px 16px' }}
+          className="max-w-md max-h-[90vh] overflow-hidden flex flex-col w-[95vw] sm:w-full" 
+          style={{ padding: '18px 16px' }}
           onInteractOutside={(e) => {
             // Show confirmation dialog when clicking outside
             e.preventDefault();
@@ -1801,11 +1799,11 @@ export default function CohortManagement({
           }}
         >
           <div className="flex items-center justify-between mb-1">
-            <DialogTitle className="font-bold text-base">{newCohortEditId ? 'Edit Cohort' : 'Add New Cohort'}</DialogTitle>
+            <DialogTitle className="font-bold text-sm sm:text-base">{newCohortEditId ? 'Edit Cohort' : 'Add New Cohort'}</DialogTitle>
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 flex-shrink-0"
               onClick={handleCohortDialogClose}
               title="Close"
             >
@@ -2047,6 +2045,7 @@ export default function CohortManagement({
                   <div className="flex items-center gap-2 mb-2">
                     <Checkbox 
                       checked={useCustomSchedule}
+                      className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                       onCheckedChange={(checked) => {
                         setUseCustomSchedule(!!checked);
                         // If switching to inherit from course, populate the dates
@@ -2403,11 +2402,11 @@ export default function CohortManagement({
                           setSelectedDays(prev => prev.filter(d => d !== day.value))
                         }
                       }}
-                      className="h-3 w-3"
+                      className="h-3 w-3 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                     />
                     <span className={`px-2 py-1 rounded text-xs ${
                       selectedDays.includes(day.value) 
-                        ? 'bg-blue-100 text-blue-700 font-medium' 
+                        ? 'bg-purple-100 text-purple-700 font-medium' 
                         : 'bg-gray-100 text-gray-600'
                     }`}>
                       {day.label}
@@ -2440,9 +2439,10 @@ export default function CohortManagement({
             />
             </div>
           </div>
-          <div className="flex justify-end mt-4 gap-0.5">
-            <Button variant="outline" onClick={handleCohortDialogClose}>Cancel</Button>
+          <div className="flex justify-end mt-4 gap-1 sm:gap-2">
+            <Button variant="outline" onClick={handleCohortDialogClose} className="text-xs sm:text-sm">Cancel</Button>
             <Button
+              className="bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm"
               disabled={(() => {
                 // Check if all mandatory fields are filled
                 const isCohortNameValid = newCohort.name && newCohort.name.trim() !== '';
@@ -2716,9 +2716,9 @@ export default function CohortManagement({
 
       {/* Add Members Modal */}
       <Dialog open={!!addMembersCohortId} onOpenChange={() => {}}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[95vw] sm:w-full">
           <div className="flex items-center justify-between mb-2">
-            <DialogTitle className="font-bold">Add Members</DialogTitle>
+            <DialogTitle className="font-bold text-sm sm:text-base">Add Members</DialogTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -2884,9 +2884,9 @@ export default function CohortManagement({
 
       {/* View Members Dialog */}
       <Dialog open={!!selectedCohortForMembers} onOpenChange={() => {}}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[95vw] sm:w-full">
           <div className="flex items-center justify-between mb-2">
-            <DialogTitle className="font-bold">
+            <DialogTitle className="font-bold text-sm sm:text-base">
               Members - {selectedCohortForMembers?.name}
               <span className="text-sm font-normal text-gray-500 ml-2">
                 ({selectedCohortForMembers?.members.length} / {selectedCohortForMembers?.capacity})
@@ -3023,7 +3023,7 @@ export default function CohortManagement({
 
       {/* View All Cohorts Dialog */}
       <Dialog open={!!viewAllCohortsForCourse} onOpenChange={() => {}}>
-        <DialogContent className="max-w-7xl max-h-[85vh] overflow-hidden">
+        <DialogContent className="max-w-7xl w-[95vw] sm:w-full max-h-[85vh] overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <DialogTitle className="font-bold">
               All Cohorts - {viewAllCohortsForCourse?.name}

@@ -29,6 +29,7 @@ interface StudentPaymentTableProps {
   selectedIds?: string[];
   toggleSelect?: (id: string, checked: boolean) => void;
   toggleSelectAll?: (checked: boolean) => void;
+  onRefresh?: () => void;
 }
 
 export function StudentPaymentTable({ 
@@ -38,6 +39,7 @@ export function StudentPaymentTable({
   selectedIds = [],
   toggleSelect,
   toggleSelectAll,
+  onRefresh,
 }: StudentPaymentTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<keyof Payment>("studentId");
@@ -195,8 +197,13 @@ export function StudentPaymentTable({
         description: paymentData.message || `Payment recorded successfully.`,
       });
 
-      // Refresh the page to show updated data
-      window.location.reload();
+      // Call onRefresh to update data without reloading the entire page
+      if (onRefresh) {
+        onRefresh();
+      } else {
+        // Fallback to reload if onRefresh is not provided
+        window.location.reload();
+      }
     } catch (error: any) {
       console.error('Error handling payment save:', error);
       toast({
@@ -370,6 +377,7 @@ export function StudentPaymentTable({
                               e.stopPropagation();
                               handleOpenPaymentDialog(payment);
                             }}
+                            disabled={payment.collectionRate >= 100 && !(payment.paymentOption === 'Monthly' || payment.planType === 'MONTHLY_SUBSCRIPTION')}
                           >
                             <CreditCard className="h-4 w-4 mr-1" />
                             Payment
@@ -431,11 +439,10 @@ export function StudentPaymentTable({
         // List View (Table)
       <Card>
         <CardContent className="p-0">
-          {filteredPayments.length > 3 ? (
-          <div className="table-container-with-sticky-header">
-            <Table className="min-w-max w-full">
-              <TableHeader>
-                <TableRow>
+          <div className="table-container-with-sticky-header" style={{ width: '100%' }}>
+            <table className="w-full caption-bottom text-sm min-w-max" style={{ width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead className="[&_tr]:border-b">
+                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                   <TableHead className="w-12 sticky-table-header">
                     <Checkbox 
                       checked={selectedIds.length > 0 && selectedIds.length === filteredPayments.length}
@@ -451,7 +458,7 @@ export function StudentPaymentTable({
                   {shouldShowColumn('Course Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Fee (INR)</TableHead>}
                   {shouldShowColumn('Course Reg Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee (INR)</TableHead>}
                   {shouldShowColumn('Student Reg Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee (INR)</TableHead>}
-                  {shouldShowColumn('Total To Be Paid (INR)') && <TableHead className="font-semibold sticky-table-header bg-purple-50 text-purple-700 min-w-[150px]">Total To Be Paid (INR)</TableHead>}
+                  {shouldShowColumn('Total To Be Paid (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total To Be Paid (INR)</TableHead>}
                   {shouldShowColumn('Total Paid (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Paid (INR)</TableHead>}
                   {shouldShowColumn('Balance (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Balance (INR)</TableHead>}
                   {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Status</TableHead>}
@@ -463,9 +470,9 @@ export function StudentPaymentTable({
                   {shouldShowColumn('Invoice') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Invoice</TableHead>}
                   {shouldShowColumn('Send Reminder') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Send Reminder</TableHead>}
                   {shouldShowColumn('Actions') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                </tr>
+              </thead>
+              <tbody className="[&_tr:last-child]:border-0">
                 {filteredPayments.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={18} className="text-center py-8 text-gray-500">
@@ -726,6 +733,7 @@ export function StudentPaymentTable({
                                 e.stopPropagation();
                                 handleOpenPaymentDialog(payment);
                               }}
+                              disabled={payment.collectionRate >= 100 && !(payment.paymentOption === 'Monthly' || payment.planType === 'MONTHLY_SUBSCRIPTION')}
                             >
                               <CreditCard className="mr-2 h-4 w-4" />
                               Payment
@@ -736,238 +744,9 @@ export function StudentPaymentTable({
                     </TableRow>
                   ))
                 )}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
-          ) : (
-            <Table className="min-w-max w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox 
-                      checked={selectedIds.length > 0 && selectedIds.length === filteredPayments.length}
-                      onCheckedChange={(checked) => toggleSelectAll?.(!!checked)}
-                    />
-                  </TableHead>
-                  {shouldShowColumn('Student ID') && <TableHead className="font-semibold text-gray-600">Student ID</TableHead>}
-                  {shouldShowColumn('Student Name') && <TableHead className="font-semibold text-gray-600">Student Name</TableHead>}
-                  {shouldShowColumn('Enrolled Course') && <TableHead className="font-semibold text-gray-600">Enrolled Course</TableHead>}
-                  {shouldShowColumn('Payment Category') && <TableHead className="font-semibold text-gray-600">Payment Category</TableHead>}
-                  {shouldShowColumn('Cohort') && <TableHead className="font-semibold text-gray-600">Cohort</TableHead>}
-                  {shouldShowColumn('Course Type') && <TableHead className="font-semibold text-gray-600">Course Type</TableHead>}
-                  {shouldShowColumn('Course Reg Fee') && <TableHead className="font-semibold text-gray-600">Course Reg Fee</TableHead>}
-                  {shouldShowColumn('Student Reg Fee') && <TableHead className="font-semibold text-gray-600">Student Reg Fee</TableHead>}
-                  {shouldShowColumn('Course Fee (INR)') && <TableHead className="font-semibold text-gray-600">Course Fee (INR)</TableHead>}
-                  {shouldShowColumn('Total Paid (INR)') && <TableHead className="font-semibold text-gray-600">Total Paid (INR)</TableHead>}
-                  {shouldShowColumn('Balance (INR)') && <TableHead className="font-semibold text-gray-600">Balance (INR)</TableHead>}
-                  {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600">Status</TableHead>}
-                  {shouldShowColumn('Paid Date') && <TableHead className="font-semibold text-gray-600">Paid Date</TableHead>}
-                  {shouldShowColumn('Start Date') && <TableHead className="font-semibold text-gray-600">Start Date</TableHead>}
-                  {shouldShowColumn('End Date') && <TableHead className="font-semibold text-gray-600">End Date</TableHead>}
-                  {shouldShowColumn('Next Reminder Date') && <TableHead className="font-semibold text-gray-600">Next Reminder Date</TableHead>}
-                  {shouldShowColumn('Next Due Date') && <TableHead className="font-semibold text-gray-600">Next Due Date</TableHead>}
-                  {shouldShowColumn('Invoice') && <TableHead className="font-semibold text-gray-600">Invoice</TableHead>}
-                  {shouldShowColumn('Send Reminder') && <TableHead className="font-semibold text-gray-600">Send Reminder</TableHead>}
-                  {shouldShowColumn('Actions') && <TableHead className="font-semibold text-gray-600">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPayments.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={18} className="text-center py-8 text-gray-500">
-                      No payments found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredPayments.map((payment, index) => (
-                    <TableRow 
-                      key={payment.id || payment.studentId || index} 
-                      className="hover:bg-gray-50 cursor-pointer"
-                      onClick={() => handleOpenDetailDialog(payment)}
-                    >
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Checkbox 
-                          checked={selectedIds.includes(payment.id)}
-                          onCheckedChange={(checked) => toggleSelect?.(payment.id, !!checked)}
-                        />
-                      </TableCell>
-                      {shouldShowColumn('Student ID') && (
-                        <TableCell className="font-semibold">
-                          {payment.studentId}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Student Name') && (
-                        <TableCell className="font-medium">{payment.studentName}</TableCell>
-                      )}
-                      {shouldShowColumn('Enrolled Course') && (
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-purple-600 text-sm font-medium">
-                              {payment.enrolledCourse || "N/A"}
-                            </div>
-                            <div className="text-gray-700 font-medium">
-                              {payment.enrolledCourseName || "-"}
-                            </div>
-                          </div>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Payment Category') && (
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={`
-                              ${payment.studentCategory === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
-                              ${payment.studentCategory === 'Regular' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                              ${payment.studentCategory === 'Basic' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                              ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
-                            `}
-                          >
-                            {payment.studentCategory || 'Not Set'}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Cohort') && (
-                        <TableCell>
-                          {payment.cohortId ? (
-                            <div>
-                              <div className="text-purple-700 font-medium">{payment.cohortId}</div>
-                              {!cohortsLoading && (
-                                <div className="text-xs text-gray-500">{getCohortDisplayName(payment.cohortId, cohortMap)}</div>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Course Type') && (
-                        <TableCell>
-                          <Badge 
-                            variant="secondary" 
-                            className={`
-                              ${payment.courseType === 'Online' ? 'bg-green-100 text-green-700 border-0' : ''}
-                              ${payment.courseType === 'Offline' ? 'bg-blue-100 text-blue-700 border-0' : ''}
-                              ${payment.courseType === 'Hybrid' ? 'bg-orange-100 text-orange-700 border-0' : ''}
-                              ${payment.courseType === 'Individual' || payment.courseType === 'Not Set' || !payment.courseType ? 'bg-gray-100 text-gray-700 border-0' : ''}
-                            `}
-                          >
-                            {payment.courseType || 'Not Set'}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Course Reg Fee') && (
-                        <TableCell>{payment.courseRegistrationFee?.toLocaleString() || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('Student Reg Fee') && (
-                        <TableCell>{payment.studentRegistrationFee?.toLocaleString() || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('Course Fee (INR)') && (
-                        <TableCell className="font-medium">{payment.courseFee?.toLocaleString() || 0}</TableCell>
-                      )}
-                      {shouldShowColumn('Total Paid (INR)') && (
-                        <TableCell className="text-green-600 font-semibold">
-                          {payment.totalPaid?.toLocaleString() || 0}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Balance (INR)') && (
-                        <TableCell className="text-red-600 font-semibold">
-                          {((payment.courseFee || 0) - (payment.totalPaid || 0)).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Status') && (
-                        <TableCell>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            payment.status === 'Paid' ? 'bg-green-100 text-green-700' :
-                            payment.status === 'Pending' ? 'bg-red-100 text-red-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>
-                            {payment.status}
-                          </span>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Paid Date') && (
-                        <TableCell>{payment.lastPaymentDate || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('Start Date') && (
-                        <TableCell>{payment.startDate || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('End Date') && (
-                        <TableCell>{payment.endDate || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('Next Reminder Date') && (
-                        <TableCell>{payment.nextReminderDate || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('Next Due Date') && (
-                        <TableCell>{payment.nextDueDate || '-'}</TableCell>
-                      )}
-                      {shouldShowColumn('Invoice') && (
-                        <TableCell>
-                          {payment.status === "N/A" || !payment.invoiceUrl ? (
-                            <span className="text-gray-400">N/A</span>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-purple-600 border-purple-600 hover:bg-purple-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (payment.invoiceUrl) {
-                                  window.open(payment.invoiceUrl, '_blank');
-                                }
-                              }}
-                            >
-                              <FileText className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                          )}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Send Reminder') && (
-                        <TableCell>
-                          {payment.status === "N/A" ? (
-                            <span className="text-gray-400">N/A</span>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedPayment(payment);
-                                setReminderDialogOpen(true);
-                              }}
-                            >
-                              <Send className="h-4 w-4 mr-1" />
-                              Reminder
-                            </Button>
-                          )}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Actions') && (
-                        <TableCell>
-                          {payment.status === "N/A" ? (
-                            <span className="text-gray-400">N/A</span>
-                          ) : (
-                            <Button 
-                              size="sm" 
-                              className="bg-purple-600 hover:bg-purple-700 text-white"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenPaymentDialog(payment);
-                              }}
-                            >
-                              <CreditCard className="mr-2 h-4 w-4" />
-                              Payment
-                            </Button>
-                          )}
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
         </CardContent>
       </Card>
       )}

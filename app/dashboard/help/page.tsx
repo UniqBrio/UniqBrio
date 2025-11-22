@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import MainLayout from "@/components/dashboard/main-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { Input } from "@/components/dashboard/ui/input"
@@ -550,9 +549,8 @@ export default function HelpPage() {
   }
 
   return (
-    <MainLayout>
-      <div className="container mx-auto">
-        <div className="flex flex-col space-y-6">
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -901,7 +899,6 @@ export default function HelpPage() {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
 
       {/* Edit Chat Name Dialog */}
       <Dialog open={editingChatId !== null} onOpenChange={(open) => !open && setEditingChatId(null)}>
@@ -1134,6 +1131,6 @@ export default function HelpPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </div>
   )
 }

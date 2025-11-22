@@ -152,6 +152,22 @@ export function formatDateForInput(date: Date): string {
 }
 
 /**
+ * Format date to dd-mmm-yy for display (e.g., 23-Nov-25)
+ */
+export function formatDateForDisplay(date: Date | string | null | undefined): string {
+  if (!date) return 'N/A';
+  
+  const d = typeof date === 'string' ? new Date(date) : date;
+  
+  const day = String(d.getDate()).padStart(2, '0');
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[d.getMonth()];
+  const year = String(d.getFullYear()).slice(-2);
+  
+  return `${day}-${month}-${year}`;
+}
+
+/**
  * Check if date is in the past (before today)
  */
 export function isDateInPast(date: Date): boolean {

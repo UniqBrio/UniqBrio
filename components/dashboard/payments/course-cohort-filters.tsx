@@ -6,7 +6,7 @@ import { Input } from "@/components/dashboard/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu";
 import { ArrowUpDown, Check, Download, Filter, Search, X } from "lucide-react";
-import MultiSelectDropdown from "@/components/dashboard/students/MultiSelectDropDown";
+
 import type { CoursePaymentSummary } from "@/types/dashboard/payment";
 import { format as formatDateFns } from 'date-fns';
 import { ColumnSelectorModal } from "@/contexts/dashboard/ColumnSelectorModal";
@@ -311,7 +311,7 @@ export default function CourseCohortFilters({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-              <ArrowUpDown className="mr-2 h-4 w-4" />
+               <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
               <span className="ml-1 text-xs text-gray-600">{(() => {
                 const label = [
                   { value: "courseId", label: "Course ID" },
@@ -325,7 +325,7 @@ export default function CourseCohortFilters({
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
               })()}</span>
-              <span className="ml-2 text-xs text-gray-500">{sortOrder === "asc" ? "?" : "?"}</span>
+              <span className="ml-2 text-xs text-gray-500">{sortOrder === "asc" ? "↑" : "↓"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

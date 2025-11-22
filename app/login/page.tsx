@@ -229,19 +229,19 @@ export default function LoginPage() {
     // Keep your existing JSX structure here...
     // Wrap with AuthLayout
     <AuthLayout>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
 
         {/* Email or Phone */}
         <div className="space-y-1">
-          <label htmlFor="emailOrPhone" className="text-[#fd9c2d] font-semibold text-base">
+          <label htmlFor="emailOrPhone" className="text-black font-medium text-sm">
             Email or Phone
           </label>
           <input
             id="emailOrPhone"
             type="text"
             placeholder="abc@abc.com or phone number"
-            className={`w-full h-14 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.emailOrPhone ? "border-red-500" : "border-[#fd9c2d]"}`}
+            className={`w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.emailOrPhone ? "border-red-500" : "border-[#fd9c2d]"}`}
             {...register("emailOrPhone")}
             autoComplete="username"
           />
@@ -250,7 +250,7 @@ export default function LoginPage() {
 
         {/* Password */}
         <div className="space-y-1">
-          <label htmlFor="password" className="text-[#fd9c2d] font-semibold text-base">
+          <label htmlFor="password" className="text-black font-medium text-sm">
             Password
           </label>
           <div className="relative">
@@ -258,7 +258,7 @@ export default function LoginPage() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className={`w-full h-14 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.password ? "border-red-500" : "border-[#fd9c2d]"}`}
+              className={`w-full h-10 px-3 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.password ? "border-red-500" : "border-[#fd9c2d]"}`}
               {...register("password")}
               autoComplete="current-password"
             />
@@ -284,12 +284,12 @@ export default function LoginPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full h-14 text-xl font-semibold text-white bg-orange-500 hover:bg-[#e08c28] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+          className="w-full h-10 text-base font-semibold text-white bg-orange-500 hover:bg-[#e08c28] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="animate-spin mr-2" size={20} />
+              <Loader2 className="animate-spin mr-2" size={16} />
               Logging in...
             </>
           ) : (
@@ -299,16 +299,16 @@ export default function LoginPage() {
       </form>
 
       {/* Signup Link */}
-      <div className="mt-6 text-center text-m">
+      <div className="mt-3 text-center text-sm">
         Not a member?{" "}
-        <Link href="/signup" className="text-purple-700 font-semibold hover:underline">
-          Signup
+        <Link href="/signup" className="text-purple-700 font-bold hover:underline">
+          Sign up
         </Link>
       </div>
 
       {/* Troubleshoot Link */}
-      <div className="mt-2 text-center text-m">
-        <Link href="/troubleshoot" className="text-[#fd9c2d] hover:underline">
+      <div className="mt-2 text-center text-sm">
+        <Link href="/troubleshoot" className="text-black hover:underline font-medium">
           Having trouble logging in? Contact Support
         </Link>
       </div>

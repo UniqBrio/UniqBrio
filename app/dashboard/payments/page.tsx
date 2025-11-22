@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -174,29 +174,6 @@ export default function PaymentsPage() {
       }
     };
   }, [pathname, fetchData]); // Run on mount and when pathname changes
-  
-  // Additional effect to handle focus/visibility changes
-  useEffect(() => {
-    const handleFocus = () => {
-      console.log('Window focused, refreshing payment data');
-      fetchData();
-    };
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !loading) {
-        console.log('Page visible, refreshing payment data');
-        fetchData();
-      }
-    };
-    
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [fetchData, loading]);
 
   // Helper function to format dates consistently as dd-MMM-yyyy
   const formatExportDate = (dateString?: string): string => {
@@ -368,7 +345,7 @@ export default function PaymentsPage() {
       {/* Header */}
       <div className="responsive-dashboard-container mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Payment Management</h1>
+          <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">Payment Management</h1>
           <p className="text-gray-600 text-sm">
             Track student payments, send reminders, and manage financial records
           </p>
@@ -510,14 +487,16 @@ export default function PaymentsPage() {
 
               {/* Second Row - Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
                 <RevenueBySourceChart data={analytics.revenueBySource} />
-                <PaymentCompletionChart distribution={analytics.paymentCompletionDistribution} />
+                 <MonthlyTrendChart data={analytics.monthlyTrend} />
               </div>
 
               {/* Third Row - Additional Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PaymentMethodChart distribution={analytics.paymentMethodDistribution} />
-                <MonthlyTrendChart data={analytics.monthlyTrend} />
+              
+                <PaymentCompletionChart distribution={analytics.paymentCompletionDistribution} />
               </div>
             </>
           )}
@@ -551,6 +530,10 @@ export default function PaymentsPage() {
             selectedIds={selectedPaymentIds}
             toggleSelect={toggleSelectPayment}
             toggleSelectAll={toggleSelectAllPayments}
+            onRefresh={() => {
+              setActiveTab("student-wise");
+              fetchData();
+            }}
           />
         </TabsContent>
 

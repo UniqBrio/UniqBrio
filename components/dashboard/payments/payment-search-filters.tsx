@@ -50,6 +50,7 @@ interface PaymentSearchFiltersProps {
 type Filters = {
   courses: string[];
   statuses: string[];
+  paymentCategories: string[];
   dateRange: { start: string; end: string };
 };
 
@@ -150,26 +151,30 @@ export default function PaymentSearchFilters({
     return Array.from(set);
   }, [payments]);
 
-  const statuses = useMemo(() => {
-    const set = new Set<string>();
-    payments.forEach(p => {
-      if (p.status) {
-        set.add(p.status);
-      }
-    });
-    return Array.from(set);
-  }, [payments]);
+  // Predefined statuses
+  const statuses = ['Completed', 'Partial', 'Recurring', 'Pending'];
+
+  // Predefined payment categories
+  const paymentCategories = [
+    'Monthly subscription',
+    'Monthly subscription with discounts',
+    'One-time',
+    'One-time with installments',
+    'Recurring'
+  ];
 
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [filterAction, setFilterAction] = useState<"applied" | "cleared" | null>(null);
   const [pendingFilters, setPendingFilters] = useState<Filters>({
     courses: [],
     statuses: [],
+    paymentCategories: [],
     dateRange: { start: "", end: "" },
   });
   const [selectedFilters, setSelectedFilters] = useState<Filters>({
     courses: [],
     statuses: [],
+    paymentCategories: [],
     dateRange: { start: "", end: "" },
   });
 
@@ -199,6 +204,13 @@ export default function PaymentSearchFilters({
     if (selectedFilters.statuses.length) {
       data = data.filter(p => {
         return selectedFilters.statuses.includes(p.status || "");
+      });
+    }
+
+    // Payment Category filter
+    if (selectedFilters.paymentCategories.length) {
+      data = data.filter(p => {
+        return selectedFilters.paymentCategories.includes(p.studentCategory || "");
       });
     }
 
@@ -292,13 +304,13 @@ export default function PaymentSearchFilters({
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-96 p-0"
+            className="w-96 p-0 bg-white border border-gray-200 shadow-lg z-50"
             onCloseAutoFocus={e => e.preventDefault()}
             onEscapeKeyDown={() => setFilterDropdownOpen(false)}
             onInteractOutside={() => setFilterDropdownOpen(false)}
             onOpenAutoFocus={e => { e.preventDefault(); firstCheckboxRef.current?.focus(); }}
           >
-            <div className="max-h-96 overflow-y-auto p-4">
+            <div className="max-h-96 overflow-y-auto p-4 bg-white">
               <MultiSelectDropdown
                 label="Enrolled Course"
                 options={courses}
@@ -307,30 +319,21 @@ export default function PaymentSearchFilters({
                 className="mb-3"
               />
 
-              {!!statuses.length && (
-                <>
-                  <div className="mb-2 font-semibold text-sm">Filter by Status</div>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {statuses.map(status => (
-                      <label key={status} className="flex items-center gap-1 text-xs p-1 hover:bg-gray-100 rounded cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={pendingFilters.statuses.includes(String(status))}
-                          onChange={() => {
-                            setPendingFilters(prev => ({
-                              ...prev,
-                              statuses: prev.statuses.includes(String(status))
-                                ? prev.statuses.filter(s => s !== String(status))
-                                : [...prev.statuses, String(status)],
-                            }));
-                          }}
-                        />
-                        {status}
-                      </label>
-                    ))}
-                  </div>
-                </>
-              )}
+              <MultiSelectDropdown
+                label="Filter by Status"
+                options={statuses}
+                selected={pendingFilters.statuses}
+                onChange={(next) => setPendingFilters(prev => ({ ...prev, statuses: next }))}
+                className="mb-3"
+              />
+
+              <MultiSelectDropdown
+                label="Filter by Payment Category"
+                options={paymentCategories}
+                selected={pendingFilters.paymentCategories}
+                onChange={(next) => setPendingFilters(prev => ({ ...prev, paymentCategories: next }))}
+                className="mb-3"
+              />
 
               <div className="mb-2 font-semibold text-sm">Paid Date</div>
               <div className="flex items-center gap-2">
@@ -342,8 +345,8 @@ export default function PaymentSearchFilters({
                     max={(pendingFilters.dateRange.end && pendingFilters.dateRange.end < todayIso)
                       ? pendingFilters.dateRange.end
                       : todayIso}
-                    displayFormat="dd-MMM-yyyy"
-                    placeholder="From date"
+                    displayFormat="dd-MMM-yy"
+                    placeholder="dd-mm-yyyy"
                     className="text-xs py-1"
                   />
                 </div>
@@ -355,8 +358,8 @@ export default function PaymentSearchFilters({
                     onChange={(isoDate) => setPendingFilters(prev => ({ ...prev, dateRange: { ...prev.dateRange, end: isoDate } }))}
                     min={pendingFilters.dateRange.start || undefined}
                     max={todayIso}
-                    displayFormat="dd-MMM-yyyy"
-                    placeholder="To date"
+                    displayFormat="dd-MMM-yy"
+                    placeholder="dd-mm-yyyy"
                     className="text-xs py-1"
                   />
                 </div>
@@ -365,8 +368,7 @@ export default function PaymentSearchFilters({
               <div className="flex justify-between gap-2 mt-4">
                 <Button
                   size="sm"
-                  variant="default"
-                  className="flex-1"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                   onClick={() => {
                     setSelectedFilters({ ...pendingFilters });
                     setFilterDropdownOpen(false);
@@ -380,8 +382,8 @@ export default function PaymentSearchFilters({
                   variant="outline"
                   className="flex-1"
                   onClick={() => {
-                    setPendingFilters({ courses: [], statuses: [], dateRange: { start: "", end: "" } });
-                    setSelectedFilters({ courses: [], statuses: [], dateRange: { start: "", end: "" } });
+                    setPendingFilters({ courses: [], statuses: [], paymentCategories: [], dateRange: { start: "", end: "" } });
+                    setSelectedFilters({ courses: [], statuses: [], paymentCategories: [], dateRange: { start: "", end: "" } });
                     setFilterDropdownOpen(false);
                     setFilterAction("cleared");
                   }}
@@ -396,9 +398,9 @@ export default function PaymentSearchFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-              <ArrowUpDown className="mr-2 h-4 w-4" />
-              <span className="ml-1 text-xs text-gray-600">{(() => {
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
+              <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{(() => {
                 const label = [
                   { value: "studentId", label: "Student ID" },
                   { value: "studentName", label: "Student Name" },
@@ -408,7 +410,7 @@ export default function PaymentSearchFilters({
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
               })()}</span>
-              <span className="ml-2 text-xs text-gray-500">{sortOrder === "asc" ? "↑" : "↓"}</span>
+              <span className="ml-2 text-xs text-gray-500 group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

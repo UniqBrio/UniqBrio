@@ -176,16 +176,16 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <CardTitle>Expense Management & Analysis</CardTitle>
-            <CardDescription>Advanced expense tracking with category, vendor, and payment analysis</CardDescription>
+      <CardHeader className="pb-4 sm:pb-6 lg:pb-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+          <div className="min-w-0 flex-1 space-y-2">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl break-words leading-tight font-bold">Expense Management & Analysis</CardTitle>
+            <CardDescription className="text-sm sm:text-base mt-2 leading-relaxed">Advanced expense tracking with category, vendor, and payment analysis</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="year-select" className="text-sm font-medium"></Label>
+          <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
+            <Label htmlFor="year-select" className="text-sm font-medium sr-only">Year Selection</Label>
             <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48 lg:w-56 min-w-0 h-10 sm:h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

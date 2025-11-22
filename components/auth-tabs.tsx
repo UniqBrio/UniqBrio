@@ -11,22 +11,26 @@ export default function AuthTabs() {
   return (
     <div>
       {/* Tabs Section */}
-      <div className="grid grid-cols-2 gap-2 mb-8">
+      <div className="grid grid-cols-2 gap-3 mb-6 p-1 bg-gray-100/80 rounded-xl backdrop-blur-sm">
         <Link
           href="/login"
-          className={`flex items-center justify-center h-16 text-xl font-medium rounded-lg ${
-            isLoginActive ? "bg-orange-400 text-white" : "bg-[#d9d9d9] text-black"
+          className={`flex items-center justify-center h-11 text-sm font-semibold rounded-lg transition-all duration-300 ${
+            isLoginActive 
+              ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg scale-105" 
+              : "bg-transparent text-gray-700 hover:bg-white/50 hover:text-orange-600"
           }`}
         >
           Login
         </Link>
         <Link
           href="/signup"
-          className={`flex items-center justify-center h-16 text-xl font-medium rounded-lg ${
-            isSignupActive ? "bg-purple-700 text-white" : "bg-[#d9d9d9] text-black"
+          className={`flex items-center justify-center h-11 text-sm font-semibold rounded-lg transition-all duration-300 ${
+            isSignupActive 
+              ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105" 
+              : "bg-transparent text-gray-700 hover:bg-white/50 hover:text-purple-600"
           }`}
         >
-          Signup
+          Sign up
         </Link>
       </div>
     </div>
