@@ -14,7 +14,7 @@
     "seed:help": "tsx --env-file=.env scripts/seed-help-data.ts"
   },
   "dependencies": {
-    "@auth/core": "0.34.2",
+    "@auth/core": "0.34.3",
     "@aws-sdk/client-s3": "^3.901.0",
     "@hookform/resolvers": "^3.9.1",
     "@next-auth/prisma-adapter": "^1.0.7",
@@ -131,6 +131,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "nodemailer": "^6.9.15"
+    "nodemailer": "^6.9.15",
+    "@auth/core": "0.34.3"
   }
 }
