@@ -59,7 +59,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
-    "date-fns": "latest",
+    "date-fns": "^3.6.0",
     "dotenv": "^17.2.3",
     "embla-carousel-react": "8.5.1",
     "file-saver": "^2.0.5",
@@ -132,6 +132,7 @@
   },
   "overrides": {
     "nodemailer": "^6.9.15",
-    "@auth/core": "0.34.3"
+    "@auth/core": "0.34.3",
+    "date-fns": "^3.6.0"
   }
 }
