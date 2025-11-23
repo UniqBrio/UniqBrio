@@ -225,23 +225,24 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         <CardContent className="space-y-4">
           {/* Color Palette Selection */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <Label className="font-medium">Custom Color Palette</Label>
                 <p className="text-sm text-gray-500 mt-1">
                   Select up to 5 colors for your theme ({selectedColors.length}/5)
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={resetToDefaultColors}
-                  className="gap-2"
+                  className="gap-2 flex-1 sm:flex-initial"
                 >
                   <RotateCcw className="h-4 w-4" />
-                  Reset Theme
+                  <span className="hidden sm:inline">Reset Theme</span>
+                  <span className="sm:hidden">Reset</span>
                 </Button>
                 <Button
                   type="button"
@@ -249,34 +250,35 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                   size="sm"
                   onClick={addColor}
                   disabled={selectedColors.length >= 5}
-                  className="gap-2"
+                  className="gap-2 flex-1 sm:flex-initial"
                 >
                   <Palette className="h-4 w-4" />
-                  Add Color
+                  <span className="hidden sm:inline">Add Color</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </div>
             </div>
 
             <div className="space-y-3">
               {selectedColors.map((color, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-2 flex-1">
-                    <Label className="text-sm font-medium min-w-20">Color {index + 1}</Label>
+                <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 border rounded-lg bg-gray-50">
+                  <div className="flex items-center gap-2 flex-1 w-full">
+                    <Label className="text-sm font-medium min-w-16 sm:min-w-20">Color {index + 1}</Label>
                     <Input
                       type="color"
                       value={color}
                       onChange={(e) => updateColor(index, e.target.value)}
-                      className="w-20 h-10 cursor-pointer"
+                      className="w-16 sm:w-20 h-10 cursor-pointer flex-shrink-0"
                     />
                     <Input
                       type="text"
                       value={color}
                       onChange={(e) => updateColor(index, e.target.value)}
                       placeholder="#000000"
-                      className="flex-1"
+                      className="flex-1 min-w-0"
                     />
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 self-end sm:self-center">
                     <Button
                       type="button"
                       variant="ghost"
@@ -344,8 +346,9 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="dateFormat">Date Format</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="dateFormat">Date Format</Label>
             <Select
               value={settings.dateFormat}
               onValueChange={(value) => setSettings(prev => ({ ...prev, dateFormat: value }))}
@@ -378,6 +381,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                 <SelectItem value="24h">24-hour</SelectItem>
               </SelectContent>
             </Select>
+          </div>
           </div>
 
           <div className="space-y-2">

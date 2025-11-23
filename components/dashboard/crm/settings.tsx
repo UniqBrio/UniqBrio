@@ -20,7 +20,7 @@ import {
 } from "@/components/dashboard/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/dashboard/ui/table"
 import { Plus, Edit, Trash2, Mail, MessageSquare, Phone, Bell, Users, Tag, Save, Upload, Download } from "lucide-react"
-import { CRMNavigation } from "@/components/dashboard/crm-navigation"
+import { format } from "date-fns"
 
 interface CommunicationTemplate {
   id: string
@@ -235,106 +235,209 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">CRM Settings</h1>
-        <p className="text-gray-500">Configure communication templates and automation rules</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">CRM Settings</h1>
+        <p className="text-sm sm:text-base text-gray-500">Configure communication templates and automation rules</p>
       </div>
 
+      {/* Tabs */}
       <Tabs defaultValue="templates" className="w-full">
-        <TabsList>
-          <TabsTrigger value="templates">Communication Templates</TabsTrigger>
-          <TabsTrigger value="tagging">Auto-Tagging Rules</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="roles">User Roles</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-4">
+          <TabsList className="inline-flex w-full sm:w-auto gap-2 bg-gray-100 p-1 rounded-lg min-w-max">
+            <TabsTrigger 
+              value="templates" 
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              Communication Templates
+            </TabsTrigger>
+            <TabsTrigger 
+              value="tagging" 
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              Auto-Tagging Rules
+            </TabsTrigger>
+            <TabsTrigger 
+              value="notifications" 
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger 
+              value="roles" 
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              User Roles
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="templates" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+        <TabsContent value="templates" className="space-y-4 mt-6">
+          <Card className="border-gray-200">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 pb-4">
               <div>
-                <CardTitle>Communication Templates</CardTitle>
-                <CardDescription>Manage email, SMS, and WhatsApp templates</CardDescription>
+                <CardTitle className="text-lg sm:text-xl font-bold">Communication Templates</CardTitle>
+                <CardDescription className="text-sm mt-1">Manage email, SMS, and WhatsApp templates</CardDescription>
               </div>
-              <Button onClick={() => setShowTemplateDialog(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Template
+              <Button 
+                onClick={() => setShowTemplateDialog(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Template</span>
               </Button>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Template Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Used</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {templates.map((template) => (
-                    <TableRow key={template.id}>
-                      <TableCell className="font-medium">{template.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
+            <CardContent className="p-0">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 border-y">
+                      <TableHead className="font-semibold text-gray-600">Template Name</TableHead>
+                      <TableHead className="font-semibold text-gray-600">Type</TableHead>
+                      <TableHead className="font-semibold text-gray-600">Status</TableHead>
+                      <TableHead className="font-semibold text-gray-600">Last Used</TableHead>
+                      <TableHead className="font-semibold text-gray-600 text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {templates.map((template) => (
+                      <TableRow key={template.id} className="hover:bg-gray-50">
+                        <TableCell className="font-medium text-gray-900">{template.name}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getTemplateIcon(template.type)}
+                            <Badge 
+                              variant="secondary"
+                              className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 font-medium"
+                            >
+                              {template.type}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Switch 
+                            checked={template.isActive}
+                            className="data-[state=checked]:bg-purple-600"
+                          />
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-600">
+                          {template.lastUsed ? format(new Date(template.lastUsed), "yyyy-MM-dd'T'HH:mm:ss'Z'") : "Never"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1 justify-end">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-gray-100"
+                            >
+                              <Edit className="w-4 h-4 text-gray-600" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y">
+                {templates.map((template) => (
+                  <div key={template.id} className="p-4 hover:bg-gray-50">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 mb-2">{template.name}</h4>
+                        <div className="flex items-center gap-2 mb-2">
                           {getTemplateIcon(template.type)}
-                          <Badge className={getTemplateColor(template.type)}>
+                          <Badge 
+                            variant="secondary"
+                            className="bg-blue-50 text-blue-700 border-0 font-medium text-xs"
+                          >
                             {template.type}
                           </Badge>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Switch checked={template.isActive} />
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-500">
-                        {template.lastUsed || "Never"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                      <Switch 
+                        checked={template.isActive}
+                        className="data-[state=checked]:bg-purple-600"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">
+                        Last used: {template.lastUsed ? format(new Date(template.lastUsed), "yyyy-MM-dd'T'HH:mm:ss'Z'") : "Never"}
+                      </span>
+                      <div className="flex gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-gray-100"
+                        >
+                          <Edit className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="tagging" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+        <TabsContent value="tagging" className="space-y-4 mt-6">
+          <Card className="border-gray-200">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
               <div>
-                <CardTitle>Auto-Tagging Rules</CardTitle>
-                <CardDescription>Automatically tag leads based on conditions</CardDescription>
+                <CardTitle className="text-lg sm:text-xl font-bold">Auto-Tagging Rules</CardTitle>
+                <CardDescription className="text-sm mt-1">Automatically tag leads based on conditions</CardDescription>
               </div>
-              <Button onClick={() => setShowTagRuleDialog(true)}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button 
+                onClick={() => setShowTagRuleDialog(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+              >
+                <Plus className="w-4 h-4" />
                 Add Rule
               </Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {tagRules.map((rule) => (
-                  <div key={rule.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium">{rule.name}</h4>
-                        <Badge variant="outline" className="text-xs">{rule.tag}</Badge>
+                  <div key={rule.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h4 className="font-medium text-gray-900">{rule.name}</h4>
+                        <Badge variant="outline" className="text-xs border-purple-200 text-purple-700 bg-purple-50">
+                          {rule.tag}
+                        </Badge>
                       </div>
-                      <p className="text-sm text-gray-500">{rule.condition} → {rule.action}</p>
+                      <p className="text-sm text-gray-600 break-words">{rule.condition} → {rule.action}</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Switch checked={rule.isActive} />
-                      <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
+                    <div className="flex items-center gap-3 self-end sm:self-center flex-shrink-0">
+                      <Switch 
+                        checked={rule.isActive}
+                        className="data-[state=checked]:bg-purple-600"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-gray-100"
+                      >
+                        <Edit className="w-4 h-4 text-gray-600" />
                       </Button>
                     </div>
                   </div>
@@ -344,21 +447,24 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-4">
-          <Card>
+        <TabsContent value="notifications" className="space-y-4 mt-6">
+          <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle>Notification Settings</CardTitle>
-              <CardDescription>Configure notification preferences</CardDescription>
+              <CardTitle className="text-lg sm:text-xl font-bold">Notification Settings</CardTitle>
+              <CardDescription className="text-sm mt-1">Configure notification preferences</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="divide-y divide-gray-200">
                 {notifications.map((notification) => (
-                  <div key={notification.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                    <div>
-                      <h4 className="font-medium">{notification.type}</h4>
-                      <p className="text-sm text-gray-500">Frequency: {notification.frequency}</p>
+                  <div key={notification.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 first:pt-0 last:pb-0 gap-3">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">{notification.type}</h4>
+                      <p className="text-sm text-gray-600 mt-1">Frequency: {notification.frequency}</p>
                     </div>
-                    <Switch checked={notification.enabled} />
+                    <Switch 
+                      checked={notification.enabled}
+                      className="data-[state=checked]:bg-purple-600 self-end sm:self-center"
+                    />
                   </div>
                 ))}
               </div>
@@ -366,26 +472,32 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="roles" className="space-y-4">
-          <Card>
+        <TabsContent value="roles" className="space-y-4 mt-6">
+          <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle>User Roles & Permissions</CardTitle>
-              <CardDescription>Manage user roles and access levels</CardDescription>
+              <CardTitle className="text-lg sm:text-xl font-bold">User Roles & Permissions</CardTitle>
+              <CardDescription className="text-sm mt-1">Manage user roles and access levels</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {userRoles.map((role) => (
-                  <div key={role.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
+                  <div key={role.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3">
+                    <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Users className="w-4 h-4 text-gray-500" />
-                        <h4 className="font-medium">{role.name}</h4>
-                        <Badge variant="secondary" className="text-xs">{role.userCount} users</Badge>
+                        <Users className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                        <h4 className="font-medium text-gray-900">{role.name}</h4>
+                        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
+                          {role.userCount} users
+                        </Badge>
                       </div>
-                      <p className="text-sm text-gray-500">{role.permissions.length} permissions</p>
+                      <p className="text-sm text-gray-600 ml-6">{role.permissions.length} permissions</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      <Edit className="w-4 h-4 mr-2" />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="gap-2 self-end sm:self-center border-gray-300 hover:bg-gray-50"
+                    >
+                      <Edit className="w-4 h-4" />
                       Edit
                     </Button>
                   </div>

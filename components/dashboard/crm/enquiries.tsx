@@ -192,7 +192,7 @@ export default function EnquiriesPage() {
             </div>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
-                <Button className="w-full md:w-auto gradient-bg text-white">
+                <Button className="w-full md:w-auto bg-purple-500 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Enquiry
                 </Button>

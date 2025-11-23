@@ -25,11 +25,18 @@ export const metadata = {
   },
   description: "A unique and brilliant application.", // Your app's description  
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
   manifest: "/manifest.json", // Link to your manifest file
   appleWebApp: {
     capable: true, // Enable add to homescreen for iOS
+    title: "UniqBrio App",
+    statusBarStyle: "default",
   }
 }
 

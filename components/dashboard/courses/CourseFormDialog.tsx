@@ -805,14 +805,49 @@ export default function CourseFormDialog({
 
         <div className="sticky top-0 bg-white z-10 border-b border-gray-200 pb-2">
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full tabs-purple">
-            <TabsList className="grid w-full grid-cols-7 gap-0.5 py-1">
-              <TabsTrigger value="basic" className="text-xs tab-trigger px-2 py-1">Basic Info</TabsTrigger>
-              <TabsTrigger value="pricing" className="text-xs tab-trigger px-2 py-1">Pricing</TabsTrigger>
-              <TabsTrigger value="chapters" className="text-xs tab-trigger px-2 py-1">Chapters</TabsTrigger>
-              <TabsTrigger value="schedule" className="text-xs tab-trigger px-2 py-1">Schedule</TabsTrigger>
-              <TabsTrigger value="content" className="text-xs tab-trigger px-2 py-1 inline-flex items-center gap-1">Content <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></TabsTrigger>
-              <TabsTrigger value="settings" className="text-xs tab-trigger px-2 py-1 inline-flex items-center gap-1">Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></TabsTrigger>
-              <TabsTrigger value="marketing" className="text-xs tab-trigger px-2 py-1 inline-flex items-center gap-1">Marketing <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></TabsTrigger>
+            <TabsList className="grid w-full grid-cols-7 gap-2 bg-transparent p-0 h-auto">
+              <TabsTrigger 
+                value="basic" 
+                className="text-xs px-3 py-2 border-2 border-transparent bg-purple-500 text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-purple-600 data-[state=inactive]:hover:bg-orange-50"
+              >
+                Basic Info
+              </TabsTrigger>
+              <TabsTrigger 
+                value="pricing" 
+                className="text-xs px-3 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+              >
+                Pricing
+              </TabsTrigger>
+              <TabsTrigger 
+                value="chapters" 
+                className="text-xs px-3 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+              >
+                Chapters
+              </TabsTrigger>
+              <TabsTrigger 
+                value="schedule" 
+                className="text-xs px-3 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+              >
+                Schedule
+              </TabsTrigger>
+              <TabsTrigger 
+                value="content" 
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+              >
+                Content <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+              >
+                Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
+              </TabsTrigger>
+              <TabsTrigger 
+                value="marketing" 
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+              >
+                Marketing <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

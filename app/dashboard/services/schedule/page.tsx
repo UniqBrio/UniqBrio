@@ -2422,12 +2422,12 @@ export default function EnhancedSchedulePage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 flex items-center gap-1 relative"
+                            className="h-9 flex items-center gap-1 relative group"
                             title="Filter"
                             aria-label="Filter options"
                           >
                             <span className="relative inline-block">
-                              <Filter className="h-3.5 w-3.5 text-purple-500" />
+                              <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:text-white" />
                               {filterAction === "applied" && (
                                 <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                                   <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -2446,7 +2446,7 @@ export default function EnhancedSchedulePage() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent 
-                          className="w-80 p-4 filter-panel"
+                          className="w-80 p-4 bg-white border border-gray-200 shadow-lg z-50"
                           onCloseAutoFocus={(event) => {
                             event.preventDefault();
                           }}
@@ -2594,9 +2594,9 @@ export default function EnhancedSchedulePage() {
                       {/* Sort Dropdown */}
                       <DropdownMenu>
                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-9 flex items-center gap-1">
-                            <ArrowUpDown className="mr-2 h-4 w-4" />
-                            <span className="ml-1 text-xs text-gray-600">
+                          <Button variant="outline" size="sm" className="h-9 flex items-center gap-1 group">
+                            <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
+                            <span className="ml-1 text-xs text-gray-600 group-hover:text-white">
                               {sortBy === "date" ? "Date" : 
                                sortBy === "title" ? "Course" : 
                                sortBy === "cohortName" ? "Cohort" :
@@ -2604,7 +2604,7 @@ export default function EnhancedSchedulePage() {
                                sortBy === "status" ? "Status" :
                                sortBy === "location" ? "Location" : sortBy}
                             </span>
-                            {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+                            {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
@@ -2816,9 +2816,10 @@ export default function EnhancedSchedulePage() {
                                     ) : (
                                       <Badge 
                                         variant={event.status === "Upcoming" ? "default" : 
-                                                 event.status === "Cancelled" ? "destructive" : 
-                                                 event.status === "Completed" ? "secondary" : "outline"}
-                                        className="text-xs"
+                                                 event.status === "Cancelled" ? "destructive" : "outline"}
+                                        className={`text-xs ${
+                                          event.status === "Completed" ? "bg-green-500 text-white hover:bg-green-500" : ""
+                                        }`}
                                       >
                                         {event.status}
                                       </Badge>
@@ -3283,8 +3284,8 @@ export default function EnhancedSchedulePage() {
 
       {/* Add Session Dialog */}
       <Dialog open={isAddSessionDialogOpen} onOpenChange={setIsAddSessionDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="sticky top-0 bg-white z-10 pb-4 border-b">
             <DialogTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5 text-purple-500" />
               Add New Session
@@ -3294,7 +3295,8 @@ export default function EnhancedSchedulePage() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+          <div className="overflow-y-auto flex-1 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
               {/* Basic Information */}
@@ -3801,8 +3803,9 @@ export default function EnhancedSchedulePage() {
               </div>
             </div>
           </div>
+          </div>
 
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-white z-10 pt-4 border-t">
             <Button 
               variant="outline" 
               onClick={() => setIsAddSessionDialogOpen(false)}
@@ -3836,7 +3839,7 @@ export default function EnhancedSchedulePage() {
                     onClick={() => setIsCohortViewDialogOpen(false)}
                     className="h-6 w-6 p-0 hover:bg-gray-100"
                   >
-                    <X className="h-4 w-4" />
+                   
                   </Button>
                   {selectedCohort.isModified && (
                     <Badge 
@@ -3868,8 +3871,8 @@ export default function EnhancedSchedulePage() {
                 <div className="flex items-center gap-4">
                   <Badge 
                     variant={selectedCohort.status === "Upcoming" ? "default" : 
-                             selectedCohort.status === "Cancelled" ? "destructive" : 
-                             selectedCohort.status === "Completed" ? "secondary" : "outline"}
+                             selectedCohort.status === "Cancelled" ? "destructive" : "outline"}
+                    className={selectedCohort.status === "Completed" ? "bg-green-500 text-white hover:bg-green-500" : ""}
                   >
                     {selectedCohort.status}
                   </Badge>

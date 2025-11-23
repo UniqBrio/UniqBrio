@@ -261,7 +261,7 @@ export default function TrialsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Trial Sessions</h1>
           <p className="text-gray-500">Schedule and manage trial classes</p>
         </div>
-        <Button onClick={() => setShowAddDialog(true)}>
+        <Button className="w-full md:w-auto bg-purple-500 text-white"  onClick={() => setShowAddDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Schedule Trial
         </Button>

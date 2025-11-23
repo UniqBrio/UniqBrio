@@ -29,9 +29,8 @@ export default function PaymentsPage() {
   const mountTimeRef = useRef(Date.now());
   const hasInitializedRef = useRef(false);
   
-  // Refs for cleanup and preventing concurrent calls
+  // Refs for cleanup
   const abortControllerRef = useRef<AbortController | null>(null);
-  const isFetchingRef = useRef(false);
 
   // State for different data
   const [analytics, setAnalytics] = useState<PaymentAnalytics | null>(null);
@@ -69,18 +68,11 @@ export default function PaymentsPage() {
 
 
   const fetchData = useCallback(async () => {
-    // Prevent concurrent calls
-    if (isFetchingRef.current) {
-      console.log('Fetch already in progress, skipping...');
-      return;
-    }
-    
     // Abort previous request if still running
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     
-    isFetchingRef.current = true;
     setLoading(true);
     setError(null);
     
@@ -150,21 +142,17 @@ export default function PaymentsPage() {
       console.error("Error fetching payment data:", err);
       setError(err.message || "Failed to load payment data");
     } finally {
-      isFetchingRef.current = false;
       setLoading(false);
       abortControllerRef.current = null;
     }
   }, []); // Empty deps, fetchData is stable
   
-  // Effect to fetch data on mount and pathname changes - ensures data loads on navigation
+  // Effect to fetch data on mount - ensures data loads on initial navigation
   useEffect(() => {
-    // Always fetch data when navigating to this page
-    if (pathname === '/dashboard/payments') {
-      console.log('PaymentsPage accessed via navigation, pathname:', pathname);
-      mountTimeRef.current = Date.now();
-      hasInitializedRef.current = true;
-      fetchData();
-    }
+    console.log('PaymentsPage mounted, pathname:', pathname);
+    mountTimeRef.current = Date.now();
+    hasInitializedRef.current = true;
+    fetchData();
     
     // Cleanup on unmount
     return () => {
@@ -173,7 +161,7 @@ export default function PaymentsPage() {
         abortControllerRef.current.abort();
       }
     };
-  }, [pathname, fetchData]); // Run on mount and when pathname changes
+  }, []); // Run only on mount
 
   // Helper function to format dates consistently as dd-MMM-yyyy
   const formatExportDate = (dateString?: string): string => {
@@ -306,42 +294,28 @@ export default function PaymentsPage() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-purple-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading payment data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="max-w-2xl">
+  return (
+    <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
           <CardContent className="p-6">
             <div className="text-center">
               <p className="text-red-600 font-semibold mb-2">Error Loading Payment Data</p>
               <div className="text-gray-600 text-sm mb-4 max-h-40 overflow-y-auto">
-                <pre className="whitespace-pre-wrap text-left bg-gray-50 p-3 rounded">{error}</pre>
+                <pre className="whitespace-pre-wrap text-left bg-white p-3 rounded">{error}</pre>
               </div>
-              <button
+              <Button
                 onClick={fetchData}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="bg-red-600 hover:bg-red-700 text-white"
               >
                 Retry
-              </button>
+              </Button>
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
+      )}
 
-  return (
-    <div className="space-y-6">
       {/* Header */}
       <div className="responsive-dashboard-container mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>

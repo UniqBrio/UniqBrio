@@ -46,6 +46,9 @@ interface CourseCohortFiltersProps {
 
 type Filters = {
   statuses: string[];
+  collectionRateRanges: string[];
+  studentCountRanges: string[];
+  outstandingAmountRanges: string[];
 };
 
 export default function CourseCohortFilters({
@@ -128,9 +131,15 @@ export default function CourseCohortFilters({
   const [filterAction, setFilterAction] = useState<"applied" | "cleared" | null>(null);
   const [pendingFilters, setPendingFilters] = useState<Filters>({
     statuses: [],
+    collectionRateRanges: [],
+    studentCountRanges: [],
+    outstandingAmountRanges: [],
   });
   const [selectedFilters, setSelectedFilters] = useState<Filters>({
     statuses: [],
+    collectionRateRanges: [],
+    studentCountRanges: [],
+    outstandingAmountRanges: [],
   });
 
   // Filtering + sorting logic
@@ -158,6 +167,47 @@ export default function CourseCohortFilters({
     if (selectedFilters.statuses.length) {
       data = data.filter(c => {
         return selectedFilters.statuses.includes(c.status || "");
+      });
+    }
+
+    // Collection Rate filter
+    if (selectedFilters.collectionRateRanges.length) {
+      data = data.filter(c => {
+        const rate = c.collectionRate || 0;
+        return selectedFilters.collectionRateRanges.some(range => {
+          if (range === '80-100') return rate >= 80;
+          if (range === '50-80') return rate >= 50 && rate < 80;
+          if (range === '0-50') return rate >= 0 && rate < 50;
+          return false;
+        });
+      });
+    }
+
+    // Student Count filter
+    if (selectedFilters.studentCountRanges.length) {
+      data = data.filter(c => {
+        const count = c.totalStudents || 0;
+        return selectedFilters.studentCountRanges.some(range => {
+          if (range === '50+') return count >= 50;
+          if (range === '20-49') return count >= 20 && count < 50;
+          if (range === '10-19') return count >= 10 && count < 20;
+          if (range === '1-9') return count >= 1 && count < 10;
+          return false;
+        });
+      });
+    }
+
+    // Outstanding Amount filter
+    if (selectedFilters.outstandingAmountRanges.length) {
+      data = data.filter(c => {
+        const amount = c.outstandingAmount || 0;
+        return selectedFilters.outstandingAmountRanges.some(range => {
+          if (range === '100000+') return amount >= 100000;
+          if (range === '50000-99999') return amount >= 50000 && amount < 100000;
+          if (range === '10000-49999') return amount >= 10000 && amount < 50000;
+          if (range === '0-9999') return amount >= 0 && amount < 10000;
+          return false;
+        });
       });
     }
 
@@ -217,40 +267,41 @@ export default function CourseCohortFilters({
         <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
           <PopoverTrigger asChild>
             <Button
-              variant="outline"
-              size="sm"
-              className="h-9 flex items-center gap-1 relative"
-              aria-label="Filter options"
-              title="Filter"
-              tabIndex={0}
-            >
-              <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 text-purple-500" />
-                {filterAction === "applied" && (
-                  <span className="absolute -top-1 -right-1">
-                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
-                      <Check className="w-2 h-2 text-white" />
-                    </span>
-                  </span>
-                )}
-                {filterAction === "cleared" && (
-                  <span className="absolute -top-1 -right-1">
-                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500">
-                      <X className="w-2 h-2 text-white" />
-                    </span>
-                  </span>
-                )}
-              </span>
-            </Button>
+                         variant="outline"
+                         size="sm"
+                         className="h-9 flex items-center gap-1 relative group"
+                         aria-label="Filter options"
+                         title="Filter"
+                         tabIndex={0}
+                       >
+                         <span className="relative inline-block">
+                           <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:text-white transition-colors" />
+                           {filterAction === "applied" && (
+                             <span className="absolute -top-1 -right-1">
+                               <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
+                                 <Check className="w-2 h-2 text-white" />
+                               </span>
+                             </span>
+                           )}
+                           {filterAction === "cleared" && (
+                             <span className="absolute -top-1 -right-1">
+                               <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500">
+                                 <X className="w-2 h-2 text-white" />
+                               </span>
+                             </span>
+                           )}
+                         </span>
+                       </Button>
+          
           </PopoverTrigger>
           <PopoverContent
-            className="w-96 p-0"
+            className="w-96 p-0 bg-white border border-gray-200 shadow-lg z-50"
             onCloseAutoFocus={e => e.preventDefault()}
             onEscapeKeyDown={() => setFilterDropdownOpen(false)}
             onInteractOutside={() => setFilterDropdownOpen(false)}
             onOpenAutoFocus={e => { e.preventDefault(); firstCheckboxRef.current?.focus(); }}
           >
-            <div className="max-h-96 overflow-y-auto p-4">
+            <div className="max-h-96 overflow-y-auto p-4 bg-white">
               {!!statuses.length && (
                 <>
                   <div className="mb-2 font-semibold text-sm">Filter by Status</div>
@@ -276,26 +327,109 @@ export default function CourseCohortFilters({
                 </>
               )}
 
+              {/* Collection Rate Filter */}
+              <div className="mb-2 font-semibold text-sm">Filter by Collection Rate</div>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {['80-100', '50-80', '0-50'].map(range => (
+                  <label key={range} className="flex items-center gap-1 text-xs p-1 hover:bg-gray-100 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={pendingFilters.collectionRateRanges.includes(range)}
+                      onChange={() => {
+                        setPendingFilters(prev => ({
+                          ...prev,
+                          collectionRateRanges: prev.collectionRateRanges.includes(range)
+                            ? prev.collectionRateRanges.filter(r => r !== range)
+                            : [...prev.collectionRateRanges, range],
+                        }));
+                      }}
+                    />
+                    {range === '80-100' && '≥80% (Excellent)'}
+                    {range === '50-80' && '50-79% (Good)'}
+                    {range === '0-50' && '<50% (Needs Attention)'}
+                  </label>
+                ))}
+              </div>
+
+              {/* Student Count Filter */}
+              <div className="mb-2 font-semibold text-sm">Filter by Student Count</div>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {['50+', '20-49', '10-19', '1-9'].map(range => (
+                  <label key={range} className="flex items-center gap-1 text-xs p-1 hover:bg-gray-100 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={pendingFilters.studentCountRanges.includes(range)}
+                      onChange={() => {
+                        setPendingFilters(prev => ({
+                          ...prev,
+                          studentCountRanges: prev.studentCountRanges.includes(range)
+                            ? prev.studentCountRanges.filter(r => r !== range)
+                            : [...prev.studentCountRanges, range],
+                        }));
+                      }}
+                    />
+                    {range === '50+' && '50+ students'}
+                    {range === '20-49' && '20-49 students'}
+                    {range === '10-19' && '10-19 students'}
+                    {range === '1-9' && '1-9 students'}
+                  </label>
+                ))}
+              </div>
+
+              {/* Outstanding Amount Filter */}
+              <div className="mb-2 font-semibold text-sm">Filter by Outstanding Amount (INR)</div>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {['100000+', '50000-99999', '10000-49999', '0-9999'].map(range => (
+                  <label key={range} className="flex items-center gap-1 text-xs p-1 hover:bg-gray-100 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={pendingFilters.outstandingAmountRanges.includes(range)}
+                      onChange={() => {
+                        setPendingFilters(prev => ({
+                          ...prev,
+                          outstandingAmountRanges: prev.outstandingAmountRanges.includes(range)
+                            ? prev.outstandingAmountRanges.filter(r => r !== range)
+                            : [...prev.outstandingAmountRanges, range],
+                        }));
+                      }}
+                    />
+                    {range === '100000+' && '₹1L+'}
+                    {range === '50000-99999' && '₹50K-99K'}
+                    {range === '10000-49999' && '₹10K-49K'}
+                    {range === '0-9999' && '<₹10K'}
+                  </label>
+                ))}
+              </div>
+
               <div className="flex justify-between gap-2 mt-4">
                 <Button
-                  size="sm"
-                  variant="default"
-                  className="flex-1"
-                  onClick={() => {
-                    setSelectedFilters({ ...pendingFilters });
-                    setFilterDropdownOpen(false);
-                    setFilterAction("applied");
-                  }}
-                >
-                  Apply Filters
-                </Button>
+                                  size="sm"
+                                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                                  onClick={() => {
+                                    setSelectedFilters({ ...pendingFilters });
+                                    setFilterDropdownOpen(false);
+                                    setFilterAction("applied");
+                                  }}
+                                >
+                                  Apply Filters
+                                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   className="flex-1"
                   onClick={() => {
-                    setPendingFilters({ statuses: [] });
-                    setSelectedFilters({ statuses: [] });
+                    setPendingFilters({ 
+                      statuses: [], 
+                      collectionRateRanges: [], 
+                      studentCountRanges: [], 
+                      outstandingAmountRanges: [] 
+                    });
+                    setSelectedFilters({ 
+                      statuses: [], 
+                      collectionRateRanges: [], 
+                      studentCountRanges: [], 
+                      outstandingAmountRanges: [] 
+                    });
                     setFilterDropdownOpen(false);
                     setFilterAction("cleared");
                   }}
@@ -310,9 +444,9 @@ export default function CourseCohortFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-               <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600">{(() => {
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+                         <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
+              <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{(() => {
                 const label = [
                   { value: "courseId", label: "Course ID" },
                   { value: "courseName", label: "Course Name" },
@@ -325,7 +459,7 @@ export default function CourseCohortFilters({
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
               })()}</span>
-              <span className="ml-2 text-xs text-gray-500">{sortOrder === "asc" ? "↑" : "↓"}</span>
+              <span className="ml-2 text-xs text-gray-500 group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -342,14 +476,14 @@ export default function CourseCohortFilters({
             ].map(option => (
               <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
                 {option.label}
-                {sortBy === option.value && <span className="ml-2">?</span>}
+                {sortBy === option.value && <span className="ml-2">✔</span>}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => setSortOrder("asc")}>Ascending ? {sortOrder === "asc" && <span className="ml-2">?</span>}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortOrder("desc")}>Descending ? {sortOrder === "desc" && <span className="ml-2">?</span>}</DropdownMenuItem>
-          </DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => setSortOrder("asc")}>Ascending ↑ {sortOrder === "asc" && <span className="ml-2">✔</span>}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setSortOrder("desc")}>Descending ↓ {sortOrder === "desc" && <span className="ml-2">✔</span>}</DropdownMenuItem>
+                      </DropdownMenuContent>
         </DropdownMenu>
 
         {/* View toggle (match Achievements segmented buttons) */}

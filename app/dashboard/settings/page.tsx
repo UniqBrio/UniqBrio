@@ -176,28 +176,28 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="flex flex-col space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
-                <SettingsIcon className="h-8 w-8" />Settings
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-purple-700 flex items-center gap-2">
+                <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8" />Settings
               </h1>
-              <p className="text-gray-500 mt-1">Manage your account settings and preferences
+              <p className="text-sm sm:text-base text-gray-500 mt-1">Manage your account settings and preferences
                 
               </p>
             </div>
             
             {user && (
-              <Card className="w-full md:w-auto">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-lg">
+              <Card className="w-full lg:w-auto lg:min-w-[240px]">
+                <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-base sm:text-lg flex-shrink-0">
                     {user.name?.charAt(0) || "U"}
                   </div>
-                  <div>
-                    <p className="font-semibold">{user.name}</p>
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm sm:text-base truncate">{user.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-xs">
                         {user.role}
                       </Badge>
@@ -213,49 +213,51 @@ export default function SettingsPage() {
 
           {/* Settings Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5 gap-2 bg-transparent p-0 h-auto">
-              
-
-              <TabsTrigger
-                value="academy-info"
-                className="text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none"
-              >
-                <GraduationCap className="h-4 w-4 mr-2" />
-                Academy Info
-              </TabsTrigger>
-              <TabsTrigger
-                value="profile"
-                className="text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="appearance"
-                className="text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none"
-              >
-                <Palette className="h-4 w-4 mr-2" />
-                Theme
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="system-config"
-                className="text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none"
-              >
-                <Server className="h-4 w-4 mr-2" />
-                <span className="inline-flex items-center gap-1">System Config <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="notifications"
-                className="text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none"
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                <span className="inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
-              </TabsTrigger>
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex lg:grid w-full lg:grid-cols-5 gap-2 bg-transparent p-0 h-auto min-w-max lg:min-w-0">
                 
-            </TabsList>
+
+                <TabsTrigger
+                  value="academy-info"
+                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                >
+                  <GraduationCap className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Academy Info</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="profile"
+                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                >
+                  <User className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Profile</span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="appearance"
+                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                >
+                  <Palette className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Theme</span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="system-config"
+                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                >
+                  <Server className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline-flex items-center gap-1">System Config <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="notifications"
+                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                >
+                  <Bell className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
+                </TabsTrigger>
+                  
+              </TabsList>
+            </div>
 
             <TabsContent value="profile" className="space-y-4">
               <ProfileSettings user={user} onUpdate={handleProfileUpdate} />

@@ -355,14 +355,15 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <div className="flex gap-2">
-                <Phone className="h-4 w-4 text-gray-400 mt-3" />
+              <div className="relative">
+                <Phone className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="+1 (555) 123-4567"
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className="sm:pl-10"
                 />
               </div>
             </div>
@@ -377,27 +378,29 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <div className="flex gap-2">
-                <Mail className="h-4 w-4 text-gray-400 mt-3" />
+              <div className="relative">
+                <Mail className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="contact@academy.com"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
+                  className="sm:pl-10"
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
-              <div className="flex gap-2">
-                <Globe className="h-4 w-4 text-gray-400 mt-3" />
+              <div className="relative">
+                <Globe className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="website"
                   type="url"
                   placeholder="https://www.academy.com"
                   value={formData.website}
                   onChange={(e) => handleInputChange("website", e.target.value)}
+                  className="sm:pl-10"
                 />
               </div>
             </div>
@@ -551,11 +554,11 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       </Card>
 
       {/* Submit Button */}
-      <div className="flex justify-end gap-4">
-        <Button type="button" variant="outline" disabled={isLoading}>
+      <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+        <Button type="button" variant="outline" disabled={isLoading} className="w-full sm:w-auto">
           Cancel
         </Button>
-        <Button type="submit" disabled={isLoading} className="bg-purple-600 hover:bg-purple-700">
+        <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700">
           {isLoading ? "Saving..." : "Save Academy Information"}
         </Button>
       </div>

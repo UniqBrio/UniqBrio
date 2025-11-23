@@ -145,9 +145,9 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Avatar Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <div className="relative group">
-            <Avatar className="h-24 w-24 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <AvatarImage src={avatarPreview || user?.avatar} alt={user?.name} />
               <AvatarFallback className="text-2xl bg-purple-100 text-purple-700">
                 {user?.name?.charAt(0) || "U"}
@@ -240,7 +240,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
 
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <CountryCodeSelector
                 value={formData.phoneCountryCode}
                 onValueChange={(dial) => {
@@ -345,7 +345,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
 
         {/* Action Buttons */}
         {isEditing && (
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               onClick={handleSave}
               disabled={isSaving}

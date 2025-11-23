@@ -1,9 +1,8 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -266,15 +265,19 @@ export default function UserManagementPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      
+        <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>)
+        </div>
+      
+    )
   }
 
-  const totalUsers = userStats.students.total + userStats.staff.total + userStats.parents.total + userStats.alumni.total
+  const totalUsers = userStats.students.total + userStats.staff.total
 
   return (
-    <div className="container mx-auto py-6">
+    
+      <div className="container mx-auto py-6">
         <div className="flex flex-col space-y-6">
           {/* Header */}
           <div className="flex flex-col items-start gap-4">
@@ -301,7 +304,7 @@ export default function UserManagementPage() {
                   <Users className="h-8 w-8 text-purple-500" />
                 </div>
                 <p className="text-xs text-purple-600 mt-1">
-                  across all categories
+                  students & staff
                 </p>
               </CardContent>
             </Card>
@@ -316,7 +319,7 @@ export default function UserManagementPage() {
                   <GraduationCap className="h-8 w-8 text-purple-500" />
                 </div>
                 <p className="text-xs text-purple-600 mt-1">
-                  {userStats.students.active} active
+                  total students
                 </p>
               </CardContent>
             </Card>
@@ -336,31 +339,31 @@ export default function UserManagementPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300">
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-purple-500">Parents</p>
-                    <p className="text-2xl font-bold text-purple-800">{userStats.parents.total}</p>
+                    <p className="text-sm font-medium text-blue-600">Parents</p>
+                    <p className="text-2xl font-bold text-blue-800">{userStats.parents.total}</p>
                   </div>
-                  <Users2 className="h-8 w-8 text-purple-400" />
+                  <Users2 className="h-8 w-8 text-blue-500" />
                 </div>
-                <p className="text-xs text-purple-500 mt-1">
+                <p className="text-xs text-blue-600 mt-1">
                   {userStats.parents.verified} verified
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300">
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-300">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-purple-600">Alumni</p>
-                    <p className="text-2xl font-bold text-purple-800">{userStats.alumni.total}</p>
+                    <p className="text-sm font-medium text-green-600">Alumni</p>
+                    <p className="text-2xl font-bold text-green-800">{userStats.alumni.total}</p>
                   </div>
-                  <PartyPopper className="h-8 w-8 text-purple-500" />
+                  <PartyPopper className="h-8 w-8 text-green-500" />
                 </div>
-                <p className="text-xs text-purple-600 mt-1">
+                <p className="text-xs text-green-600 mt-1">
                   {userStats.alumni.active} active
                 </p>
               </CardContent>
@@ -399,23 +402,10 @@ export default function UserManagementPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-purple-700">Active Students</span>
-                        <span className="text-purple-900">{userStats.students.active}/{userStats.students.total}</span>
-                      </div>
-                      <Progress 
-                        value={(userStats.students.active / userStats.students.total) * 100} 
-                        className="h-2 bg-purple-100 [&>div]:bg-purple-500" 
-                      />
-                    </div>
-
-                    
-
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="bg-white/50 p-2 rounded border border-purple-200">
                         <div className="text-purple-600">Total Students</div>
-                        <div className="font-semibold text-purple-800">{userStats.students.enrolled}</div>
+                        <div className="font-semibold text-purple-800">{userStats.students.total}</div>
                       </div>
                       <div className="bg-white/50 p-2 rounded border border-purple-200">
                         <div className="text-purple-600">On Leave Today</div>
@@ -574,10 +564,10 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Parents Management */}
-                <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 opacity-75">
-                  <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-purple-600">
-                      <Users2 className="h-5 w-5 text-purple-500" />
+                <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 opacity-75">
+                  <CardHeader className="pb-2 border-b border-blue-200 bg-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-blue-700">
+                      <Users2 className="h-5 w-5 text-blue-600" />
                       Parent Management <span title="Coming Soon"> 🔜</span>
                     </CardTitle>
                     <CardDescription className="text-gray-600">
@@ -587,36 +577,36 @@ export default function UserManagementPage() {
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-purple-600">Active Parents</span>
-                        <span className="text-purple-800">-</span>
+                        <span className="text-blue-700">Active Parents</span>
+                        <span className="text-blue-900">-</span>
                       </div>
                       <Progress 
                         value={0} 
-                        className="h-2 bg-purple-100 [&>div]:bg-purple-500" 
+                        className="h-2 bg-blue-100 [&>div]:bg-blue-500" 
                       />
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-purple-600">Verification Rate</span>
-                        <span className="text-purple-800">-</span>
+                        <span className="text-blue-700">Verification Rate</span>
+                        <span className="text-blue-900">-</span>
                       </div>
-                      <Progress value={0} className="h-2 bg-purple-100 [&>div]:bg-purple-500" />
+                      <Progress value={0} className="h-2 bg-blue-100 [&>div]:bg-blue-500" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-purple-200">
-                        <div className="text-purple-600">Verified</div>
-                        <div className="font-semibold text-purple-800">-</div>
+                      <div className="bg-white/50 p-2 rounded border border-blue-200">
+                        <div className="text-blue-600">Verified</div>
+                        <div className="font-semibold text-blue-800">-</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-purple-200">
-                        <div className="text-purple-600">Pending</div>
-                        <div className="font-semibold text-purple-800">-</div>
+                      <div className="bg-white/50 p-2 rounded border border-blue-200">
+                        <div className="text-blue-600">Pending</div>
+                        <div className="font-semibold text-blue-800">-</div>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       onClick={() => router.push("/dashboard/user/parents")}
                     >
                       <Users2 className="mr-2 h-4 w-4" />
@@ -626,10 +616,10 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Alumni Management */}
-                <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 opacity-75">
-                  <CardHeader className="pb-2 border-b border-orange-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-orange-700">
-                      <PartyPopper className="h-5 w-5 text-orange-600" />
+                <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 opacity-75">
+                  <CardHeader className="pb-2 border-b border-green-200 bg-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-green-700">
+                      <PartyPopper className="h-5 w-5 text-green-600" />
                       Alumni Management
                      <span title="Coming Soon"> 🔜</span>
                     </CardTitle>
@@ -640,36 +630,36 @@ export default function UserManagementPage() {
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700">Active Alumni</span>
-                        <span className="text-orange-900">-</span>
+                        <span className="text-green-700">Active Alumni</span>
+                        <span className="text-green-900">-</span>
                       </div>
                       <Progress 
                         value={0} 
-                        className="h-2 bg-orange-100 [&>div]:bg-orange-500" 
+                        className="h-2 bg-green-100 [&>div]:bg-green-500" 
                       />
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700">Engagement Rate</span>
-                        <span className="text-orange-900">-</span>
+                        <span className="text-green-700">Engagement Rate</span>
+                        <span className="text-green-900">-</span>
                       </div>
-                      <Progress value={0} className="h-2 bg-orange-100 [&>div]:bg-orange-500" />
+                      <Progress value={0} className="h-2 bg-green-100 [&>div]:bg-green-500" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-orange-200">
-                        <div className="text-orange-600">Engaged</div>
-                        <div className="font-semibold text-orange-800">-</div>
+                      <div className="bg-white/50 p-2 rounded border border-green-200">
+                        <div className="text-green-600">Engaged</div>
+                        <div className="font-semibold text-green-800">-</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-orange-200">
-                        <div className="text-orange-600">Inactive</div>
-                        <div className="font-semibold text-orange-800">-</div>
+                      <div className="bg-white/50 p-2 rounded border border-green-200">
+                        <div className="text-green-600">Inactive</div>
+                        <div className="font-semibold text-green-800">-</div>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => router.push("/dashboard/user/alumni")}
                     >
                       <PartyPopper className="mr-2 h-4 w-4" />
@@ -823,133 +813,49 @@ export default function UserManagementPage() {
                   </CardContent>
                 </Card>
 
-                {/* Activity Status Chart */}
+                {/* Recent Activity Feed */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5 text-orange-600" />
-                      User Activity Status
+                      <Activity className="h-5 w-5 text-purple-600" />
+                      Recent Activity
                     </CardTitle>
                     <CardDescription>
-                      Active vs total users across categories
+                      Latest updates and changes across all user categories
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-6">
-                      <div className="relative h-56 bg-gradient-to-t from-gray-50 to-transparent rounded-lg p-6">
-                        <div className="absolute inset-6">
-                          <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500">
-                            <span>100%</span>
-                            <span>75%</span>
-                            <span>50%</span>
-                            <span>25%</span>
-                            <span>0%</span>
+                    <div className="space-y-3">
+                      {recentActivities.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className={`flex items-start gap-3 p-4 rounded-lg border ${getActivityColor(activity.status)}`}
+                        >
+                          <div className="mt-0.5">
+                            {getActivityIcon(activity.type, activity.status)}
                           </div>
-                          
-                          <div className="ml-8 h-full flex items-end justify-around gap-4">
-                            <div className="flex flex-col items-center flex-1">
-                              <div className="text-xs font-semibold text-purple-700 mb-1">{userStats.students.active}/{userStats.students.total}</div>
-                              <div className="relative w-12 mb-3">
-                                <div className="absolute inset-0 bg-purple-300 rounded-lg blur-sm opacity-50"></div>
-                                <div 
-                                  className="relative bg-gradient-to-t from-purple-400 via-purple-500 to-purple-600 rounded-lg transition-all duration-1000 flex items-end justify-center text-white text-xs font-bold pb-1 shadow-lg"
-                                  style={{ height: `${(userStats.students.active / userStats.students.total) * 160}px` }}
-                                >
-                                  {Math.round((userStats.students.active / userStats.students.total) * 100)}%
-                                </div>
-                              </div>
-                              <span className="text-xs font-medium text-purple-700">Students</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-medium text-sm">{activity.title}</h4>
+                              <Badge variant="outline" className="text-xs">
+                                {activity.type}
+                              </Badge>
                             </div>
-
-                            <div className="flex flex-col items-center flex-1">
-                              <div className="text-xs font-semibold text-orange-700 mb-1">{userStats.staff.total - userStats.staff.onLeave}/{userStats.staff.total}</div>
-                              <div className="relative w-12 mb-3">
-                                <div className="absolute inset-0 bg-orange-300 rounded-lg blur-sm opacity-50"></div>
-                                <div 
-                                  className="relative bg-gradient-to-t from-orange-400 via-orange-500 to-orange-600 rounded-lg transition-all duration-1000 flex items-end justify-center text-white text-xs font-bold pb-1 shadow-lg"
-                                  style={{ height: `${((userStats.staff.total - userStats.staff.onLeave) / userStats.staff.total) * 160}px` }}
-                                >
-                                  {Math.round(((userStats.staff.total - userStats.staff.onLeave) / userStats.staff.total) * 100)}%
-                                </div>
-                              </div>
-                              <span className="text-xs font-medium text-orange-700">Staff</span>
-                            </div>
-
-                            <div className="flex flex-col items-center flex-1">
-                              <div className="text-xs font-semibold text-purple-700 mb-1">{userStats.parents.active}/{userStats.parents.total}</div>
-                              <div className="relative w-12 mb-3">
-                                <div className="absolute inset-0 bg-purple-300 rounded-lg blur-sm opacity-50"></div>
-                                <div 
-                                  className="relative bg-gradient-to-t from-purple-400 via-purple-500 to-purple-600 rounded-lg transition-all duration-1000 flex items-end justify-center text-white text-xs font-bold pb-1 shadow-lg"
-                                  style={{ height: `${userStats.parents.total > 0 ? (userStats.parents.active / userStats.parents.total) * 160 : 0}px` }}
-                                >
-                                  {userStats.parents.total > 0 && Math.round((userStats.parents.active / userStats.parents.total) * 100) + '%'}
-                                </div>
-                              </div>
-                              <span className="text-xs font-medium text-purple-700">Parents</span>
-                            </div>
-
-                            <div className="flex flex-col items-center flex-1">
-                              <div className="text-xs font-semibold text-orange-700 mb-1">{userStats.alumni.active}/{userStats.alumni.total}</div>
-                              <div className="relative w-12 mb-3">
-                                <div className="absolute inset-0 bg-orange-300 rounded-lg blur-sm opacity-50"></div>
-                                <div 
-                                  className="relative bg-gradient-to-t from-orange-400 via-orange-500 to-orange-600 rounded-lg transition-all duration-1000 flex items-end justify-center text-white text-xs font-bold pb-1 shadow-lg"
-                                  style={{ height: `${userStats.alumni.total > 0 ? (userStats.alumni.active / userStats.alumni.total) * 160 : 0}px` }}
-                                >
-                                  {userStats.alumni.total > 0 && Math.round((userStats.alumni.active / userStats.alumni.total) * 100) + '%'}
-                                </div>
-                              </div>
-                              <span className="text-xs font-medium text-orange-700">Alumni</span>
-                            </div>
+                            <p className="text-sm text-gray-600">{activity.description}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(activity.timestamp).toLocaleString()}
+                            </p>
                           </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Recent Activity Feed */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-purple-600" />
-                    Recent Activity
-                  </CardTitle>
-                  <CardDescription>
-                    Latest updates and changes across all user categories
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {recentActivities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className={`flex items-start gap-3 p-4 rounded-lg border ${getActivityColor(activity.status)}`}
-                      >
-                        <div className="mt-0.5">
-                          {getActivityIcon(activity.type, activity.status)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-sm">{activity.title}</h4>
-                            <Badge variant="outline" className="text-xs">
-                              {activity.type}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-600">{activity.description}</p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(activity.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
           </Tabs>
         </div>
-      </div>)
+      </div>
+    
+  )
 }

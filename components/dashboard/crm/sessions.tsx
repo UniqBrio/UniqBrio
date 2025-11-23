@@ -228,7 +228,7 @@ export default function SessionsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Counseling Sessions</h1>
           <p className="text-gray-500">Manage and track counseling sessions</p>
         </div>
-        <Button onClick={() => setShowAddDialog(true)}>
+        <Button className="w-full md:w-auto bg-purple-500 text-white" onClick={() => setShowAddDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Add Session
         </Button>

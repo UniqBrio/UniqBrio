@@ -157,7 +157,7 @@ export default function CRMDashboard() {
               <p className="text-gray-600">Welcome back! Here's what's happening with your leads today.</p>
             </div>
             <div className="mt-4 md:mt-0">
-              <Button className="w-full md:w-auto gradient-bg text-white">
+              <Button className="w-full md:w-auto bg-purple-500 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Quick Add
               </Button>

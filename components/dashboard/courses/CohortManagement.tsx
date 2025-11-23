@@ -1373,13 +1373,14 @@ export default function CohortManagement({
           </div>
           
           {/* Cohort Display */}
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
       {viewMode === 'list' ? (
-        <div className="table-container-with-sticky-header min-w-full">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-8 sticky-table-header">
+        <Card>
+        <CardContent className="p-0">
+        <div className="table-container-with-sticky-header" style={{ width: '100%' }}>
+          <table className="w-full caption-bottom text-sm min-w-max" style={{ width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
+            <thead className="[&_tr]:border-b">
+              <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <TableHead className="w-12 sticky-table-header">
                   <Checkbox
                     checked={filteredAndSortedCohorts.length > 0 && filteredAndSortedCohorts.every(c => selectedCohortIds.includes(c.id))}
                     onCheckedChange={(checked) => {
@@ -1405,10 +1406,10 @@ export default function CohortManagement({
                     </TableHead>
                   );
                 })}
-                <TableHead className="text-right sticky-table-header"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="divide-y divide-gray-200">
+                <TableHead className="text-right sticky-table-header w-40"></TableHead>
+              </tr>
+            </thead>
+            <tbody className="[&_tr:last-child]:border-0">
               {filteredAndSortedCohorts.map((cohort) => (
                 <TableRow 
                   key={cohort.id} 
@@ -1519,14 +1520,16 @@ export default function CohortManagement({
                     </TableCell>
                   </TableRow>
                 ))}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
+        </CardContent>
+        </Card>
       ) : (
         <div className="bg-white border border-purple-200 rounded-lg shadow-sm">
           <div className="p-4 sm:p-6">
             {filteredAndSortedCohorts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className={filteredAndSortedCohorts.length > 3 ? "flex gap-4 overflow-x-auto pb-4" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>
                   {filteredAndSortedCohorts.map((cohort: Cohort) => {
                     // Find the course for this cohort
                     const cohortCourse = courses.find((course: Course) => 
@@ -1536,12 +1539,97 @@ export default function CohortManagement({
                     return (
                       <div 
                         key={cohort.id} 
-                        className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer"
+                        className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer relative min-w-[320px] flex-shrink-0"
                         onClick={() => handleViewCohort(cohort)}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
+                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="flex items-center gap-0.5 text-purple-600 hover:text-purple-800 focus:outline-none p-1"
+                                  onClick={() => {
+                                    setAddMembersCohortId(cohort.id ?? '');
+                                    setSelectedMembers([]);
+                                  }}
+                                  title="Add Members"
+                                >
+                                  <Users className="h-4 w-4" />
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                                <button
+                                  className="text-purple-500 hover:text-purple-700 focus:outline-none p-1"
+                                  onClick={() => {
+                                    setNewCohort({
+                                      name: cohort.name || '',
+                                      id: cohort.id || '',
+                                      courseId: cohort.courseId || '',
+                                      notes: cohort.notes || '',
+                                      status: cohort.status || 'Active',
+                                      startDate: cohort.startDate || '',
+                                      endDate: cohort.endDate || '',
+                                      startTime: cohort.startTime || '',
+                                      endTime: cohort.endTime || '',
+                                      capacity: cohort.capacity ? String(cohort.capacity) : '',
+                                      location: cohort.location || '',
+                                      instructorName: cohort.instructorName || ''
+                                    });
+                                    const selectedCourse = courses.find(c => c.courseId === cohort.courseId || c.id === cohort.courseId);
+                                    const hasCustomDates = selectedCourse?.schedulePeriod && (
+                                      cohort.startDate !== new Date(selectedCourse.schedulePeriod.startDate).toISOString().split('T')[0] ||
+                                      cohort.endDate !== new Date(selectedCourse.schedulePeriod.endDate).toISOString().split('T')[0]
+                                    );
+                                    setUseCustomSchedule(!!hasCustomDates);
+                                    setNewCohortEditId(cohort.id);
+                                    setIsAddCohortOpen(true);
+                                  }}
+                                  title="Edit Cohort"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
+                                  className="text-red-500 hover:text-red-700 focus:outline-none p-1"
+                                  onClick={() => {
+                                    showDeleteConfirmation(
+                                      "Delete Cohort",
+                                      "Are you sure you want to delete this cohort? This will remove all members from the cohort and cannot be undone.",
+                                      async () => {
+                                        try {
+                                          const response = await fetch('/api/dashboard/services/cohorts', {
+                                            method: 'DELETE',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ id: cohort.id }),
+                                          });
+
+                                          const data = await response.json();
+                                          
+                                          if (data.success) {
+                                            setCohorts(prev => prev.filter(c => c.id !== cohort.id));
+                                            toast({
+                                              title: "Cohort Deleted",
+                                              description: `${cohort.name} has been deleted successfully.`,
+                                            });
+                                          } else {
+                                            throw new Error(data.error || 'Failed to delete cohort');
+                                          }
+                                        } catch (error) {
+                                          toast({
+                                            title: "Error",
+                                            description: error instanceof Error ? error.message : "Failed to delete cohort",
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      },
+                                      cohort.name
+                                    );
+                                  }}
+                                  title="Delete Cohort"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
                             <p className="text-xs text-gray-500 mt-1">ID: {cohort.id}</p>
                             {cohortCourse && (
                               <p className="text-xs text-blue-600 mt-1 font-medium">
@@ -1579,92 +1667,6 @@ export default function CohortManagement({
                                 )}
                               </div>
                             )}
-                          </div>
-                          <div className="flex gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => { setAddMembersCohortId(cohort.id ?? ''); setSelectedMembers([]); }}
-                              title="Add Members"
-                            >
-                              <span className="text-sm">??+</span>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-purple-500 hover:text-purple-600"
-                              onClick={() => {
-                                setNewCohort({
-                                  name: cohort.name || '',
-                                  id: cohort.id || '',
-                                  courseId: cohort.courseId || '',
-                                  notes: cohort.notes || '',
-                                  status: cohort.status || 'Active',
-                                  startDate: cohort.startDate || '',
-                                  endDate: cohort.endDate || '',
-                                  startTime: cohort.startTime || '',
-                                  endTime: cohort.endTime || '',
-                                  capacity: cohort.capacity ? String(cohort.capacity) : '',
-                                  location: cohort.location || '',
-                                  instructorName: cohort.instructorName || ''
-                                });
-                                // Check if cohort has custom dates different from course
-                                const selectedCourse = courses.find(c => c.courseId === cohort.courseId || c.id === cohort.courseId);
-                                const hasCustomDates = selectedCourse?.schedulePeriod && (
-                                  cohort.startDate !== new Date(selectedCourse.schedulePeriod.startDate).toISOString().split('T')[0] ||
-                                  cohort.endDate !== new Date(selectedCourse.schedulePeriod.endDate).toISOString().split('T')[0]
-                                );
-                                setUseCustomSchedule(!!hasCustomDates);
-                                setNewCohortEditId(cohort.id);
-                                setIsAddCohortOpen(true);
-                              }}
-                              title="Edit Cohort"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-red-600 hover:text-red-900"
-                              onClick={() => {
-                                showDeleteConfirmation(
-                                  "Delete Cohort",
-                                  "Are you sure you want to delete this cohort? This will remove all members from the cohort and cannot be undone.",
-                                  async () => {
-                                    try {
-                                      const response = await fetch('/api/dashboard/services/cohorts', {
-                                        method: 'DELETE',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ id: cohort.id }),
-                                      });
-
-                                      const data = await response.json();
-                                      
-                                      if (data.success) {
-                                        setCohorts(prev => prev.filter(c => c.id !== cohort.id));
-                                        toast({
-                                          title: "Cohort Deleted",
-                                          description: `${cohort.name} has been deleted successfully.`,
-                                        });
-                                      } else {
-                                        throw new Error(data.error || 'Failed to delete cohort');
-                                      }
-                                    } catch (error) {
-                                      toast({
-                                        title: "Error",
-                                        description: error instanceof Error ? error.message : "Failed to delete cohort",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  },
-                                  cohort.name
-                                );
-                              }}
-                              title="Delete Cohort"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </div>
                         </div>
                         
@@ -1778,7 +1780,6 @@ export default function CohortManagement({
           </div>
         </div>
       )}
-      </div>
         </CardContent>
       </Card>
 

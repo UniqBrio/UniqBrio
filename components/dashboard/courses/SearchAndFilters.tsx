@@ -137,34 +137,34 @@ export default function SearchAndFilters({
         >
           <PopoverTrigger asChild>
             <Button
-              variant="outline"
-              size="sm"
-              className="h-9 flex items-center gap-1 relative"
-              aria-label="Filter options"
-              title="Filter"
-              tabIndex={0}
-            >
-              <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 text-purple-500" />
-                {filterAction === "applied" && (
-                  <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
-                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
-                      <Check className="w-2 h-2 text-white" />
-                    </span>
-                  </span>
-                )}
-                {filterAction === "cleared" && (
-                  <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
-                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500">
-                      <X className="w-2 h-2 text-white" />
-                    </span>
-                  </span>
-                )}
-              </span>
-            </Button>
+                                     variant="outline"
+                                     size="sm"
+                                     className="h-9 flex items-center gap-1 relative group"
+                                     aria-label="Filter options"
+                                     title="Filter"
+                                     tabIndex={0}
+                                   >
+                                     <span className="relative inline-block">
+                                       <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:text-white transition-colors" />
+                                       {filterAction === "applied" && (
+                                         <span className="absolute -top-1 -right-1">
+                                           <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
+                                             <Check className="w-2 h-2 text-white" />
+                                           </span>
+                                         </span>
+                                       )}
+                                       {filterAction === "cleared" && (
+                                         <span className="absolute -top-1 -right-1">
+                                           <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500">
+                                             <X className="w-2 h-2 text-white" />
+                                           </span>
+                                         </span>
+                                       )}
+                                     </span>
+                                   </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-80 p-4 filter-panel" 
+            className="w-80 p-4 bg-white border border-gray-200 shadow-lg z-50" 
             onCloseAutoFocus={(event) => {
               event.preventDefault();
             }}
@@ -295,8 +295,9 @@ export default function SearchAndFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-              <ArrowUpDown className="mr-2 h-4 w-4" />
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
+              <span className="ml-1 text-xs text-gray-600 group-hover:text-white">
               {(() => {
                 const label = [
                   { value: "courseId", label: "Course ID" },
@@ -304,10 +305,10 @@ export default function SearchAndFilters({
                   { value: "priceINR", label: "Price (INR)" },
                   { value: "duration", label: "Duration" },
                 ].find(o => o.value === sortBy)?.label;
-                return label ? <span className="ml-1 text-xs text-gray-600">{label}</span> : null;
-              })()}
-              {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
-            </Button>
+                return label ? <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{label}</span> : null;
+              })()}</span>
+             <span className="ml-2 text-xs text-gray-500 group-hover:text-white">{sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+            </span></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>Sort By</DropdownMenuLabel>

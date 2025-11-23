@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/dashboard/ui/di
 import type { Course } from "@/types/dashboard/course"
 import { useState } from "react"
 import ConfirmationDialog from "./ConfirmationDialog"
-import { Pencil, Trash2, Plus, X } from "lucide-react";
+import { Pencil, Trash2, Plus, X, MapPin } from "lucide-react";
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 
 interface CourseListProps {
@@ -101,19 +101,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
     },
     name: { 
       label: 'Course Name', 
-      render: (course: Course) => {
-        const cohortCount = cohortCountForCourse(course)
-        return (
-          <div className="space-y-0.5">
-            <span>{course.name}</span>
-            {typeof cohortCount === "number" && (
-              <span className="text-[11px] text-gray-500">
-                {cohortCount === 0 ? 'No cohorts yet' : `${cohortCount} cohort${cohortCount === 1 ? '' : 's'}`}
-              </span>
-            )}
-          </div>
-        )
-      }
+      render: (course: Course) => course.name
     },
     instructor: { label: 'Instructor', render: (course: Course) => course.instructor },
     location: { label: 'Location', render: (course: Course) => course.location || '-' },
@@ -203,11 +191,13 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
       <>
         {deleteDialog}
         {courses.length > 2 ? (
-          <div className="table-container-with-sticky-header">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8 sticky-table-header">
+          <Card>
+          <CardContent className="p-0">
+          <div className="table-container-with-sticky-header" style={{ width: '100%' }}>
+            <table className="w-full caption-bottom text-sm min-w-max" style={{ width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead className="[&_tr]:border-b">
+                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                  <TableHead className="w-12 sticky-table-header">
                     <Checkbox
                       checked={courses.length > 0 && courses.every((c, i) => selectedCourseIds.includes(getId(c, `course-${i}`)))}
                       onCheckedChange={(checked) => {
@@ -221,10 +211,10 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       {columnConfig[columnId as keyof typeof columnConfig]?.label || columnId}
                     </TableHead>
                   ))}
-                  <TableHead className="sticky-table-header"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-gray-200">
+                  <TableHead className="sticky-table-header w-40"></TableHead>
+                </tr>
+              </thead>
+              <tbody className="[&_tr:last-child]:border-0">
                 {courses.length === 0 ? (
                   <TableRow>
                   <TableCell colSpan={displayedColumns.length + 2} className="text-center text-gray-500">
@@ -279,16 +269,20 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       </TableCell>
                     </TableRow>
                   ))
-                )}
-              </TableBody>
-            </Table>
+                  )}
+              </tbody>
+            </table>
           </div>
+          </CardContent>
+          </Card>
         ) : (
+          <Card>
+          <CardContent className="p-0">
           <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8 sticky-table-header">
+            <table className="w-full caption-bottom text-sm">
+              <thead className="[&_tr]:border-b">
+                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                  <TableHead className="w-12 sticky-table-header">
                     <Checkbox
                       checked={courses.length > 0 && courses.every((c, i) => selectedCourseIds.includes(getId(c, `course-${i}`)))}
                       onCheckedChange={(checked) => {
@@ -302,10 +296,10 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       {columnConfig[columnId as keyof typeof columnConfig]?.label || columnId}
                     </TableHead>
                   ))}
-                  <TableHead className="sticky-table-header"></TableHead>
-                </TableRow>
-              </TableHeader>
-            <TableBody className="divide-y divide-gray-200">
+                  <TableHead className="sticky-table-header w-40"></TableHead>
+                </tr>
+              </thead>
+            <tbody className="[&_tr:last-child]:border-0">
               {courses.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={displayedColumns.length + 2} className="text-center text-gray-500">
@@ -357,11 +351,13 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
+          </CardContent>
+          </Card>
         )}
       </>
     );
@@ -432,7 +428,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       ))}
                     </div>
                     <p className="text-sm text-gray-700 mb-1"> <span className="font-medium text-gray-900">{course.instructor}</span></p>
-                    {course.location && <p className="text-xs text-gray-600 mb-1">?? {course.location}</p>}
+                    {course.location && <p className="text-xs text-gray-600 mb-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {course.location}</p>}
                     {course.description && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
@@ -534,7 +530,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       ))}
                     </div>
                     <p className="text-sm text-gray-700 mb-1"> <span className="font-medium text-gray-900">{course.instructor}</span></p>
-                    {course.location && <p className="text-xs text-gray-600 mb-1">?? {course.location}</p>}
+                    {course.location && <p className="text-xs text-gray-600 mb-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {course.location}</p>}
                     {course.description && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>

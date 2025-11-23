@@ -733,16 +733,16 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
   }
 
   return (
-    <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="flex flex-col space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex flex-col items-start gap-3 sm:gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
-                <Activity className="h-8 w-8" />
-                Audit Logs & Activity Tracking
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-700 flex items-center gap-2">
+                <Activity className="h-6 w-6 sm:h-8 sm:w-8" />
+                <span>Audit Logs & Activity Tracking</span>
               </h1>
-              <p className="text-gray-500">
+              <p className="text-sm sm:text-base text-gray-500 mt-1">
                 Monitor every action across the platform with detailed logs, analytics, and export options
               </p>
             </div>
@@ -770,84 +770,84 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
             {/* Analytics Tab Content */}
             <TabsContent value="analytics" className="mt-6">
               {/* Stats Overview */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-purple-600">Total Logs</p>
-                        <p className="text-2xl font-bold text-purple-900">{filteredLogs.length}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-purple-600 truncate">Total Logs</p>
+                        <p className="text-xl sm:text-2xl font-bold text-purple-900">{filteredLogs.length}</p>
                       </div>
-                      <FileText className="h-8 w-8 text-purple-500" />
+                      <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 flex-shrink-0" />
                     </div>
                     <p className="text-xs text-purple-600 mt-1">of {auditLogs.length} total</p>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-orange-600">Today's Activity</p>
-                        <p className="text-2xl font-bold text-orange-900">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-orange-600 truncate">Today's Activity</p>
+                        <p className="text-xl sm:text-2xl font-bold text-orange-900">
                           {todayDate ? filteredLogs.filter(log => format(log.timestamp, "yyyy-MM-dd") === format(todayDate, "yyyy-MM-dd")).length : 0}
                         </p>
                       </div>
-                      <Clock className="h-8 w-8 text-orange-500" />
+                      <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 flex-shrink-0" />
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-500">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-green-600">Active Users</p>
-                        <p className="text-2xl font-bold text-green-900">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-green-600 truncate">Active Users</p>
+                        <p className="text-xl sm:text-2xl font-bold text-green-900">
                           {new Set(filteredLogs.map(log => log.changedBy)).size}
                         </p>
                       </div>
-                      <Users className="h-8 w-8 text-green-500" />
+                      <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 flex-shrink-0" />
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-500">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-blue-600">Modules</p>
-                        <p className="text-2xl font-bold text-blue-900">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-blue-600 truncate">Modules</p>
+                        <p className="text-xl sm:text-2xl font-bold text-blue-900">
                           {new Set(filteredLogs.map(log => log.module)).size}
                         </p>
                       </div>
-                      <Activity className="h-8 w-8 text-blue-500" />
+                      <Activity className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0" />
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-orange-600">Actions</p>
-                        <p className="text-2xl font-bold text-orange-900">{filteredLogs.length}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-orange-600 truncate">Actions</p>
+                        <p className="text-xl sm:text-2xl font-bold text-orange-900">{filteredLogs.length}</p>
                       </div>
-                      <CheckCircle className="h-8 w-8 text-orange-500" />
+                      <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 flex-shrink-0" />
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="grid gap-6">
+              <div className="grid gap-4 sm:gap-6">
                 {/* Charts Row 1 */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Activity Over Time</CardTitle>
-                      <CardDescription>Actions performed in the last 7 days</CardDescription>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base sm:text-lg">Activity Over Time</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Actions performed in the last 7 days</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-2 sm:px-6">
                       <ChartContainer
                         config={{
                           count: {
@@ -855,17 +855,25 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                             color: "#a855f7",
                           },
                         }}
-                        className="h-[300px]"
+                        className="h-[250px] sm:h-[300px] w-full"
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={analyticsData.timeData}>
-                            <XAxis dataKey="date" stroke="#888888" fontSize={12}>
-                              <Label value="Date" offset={-5} position="insideBottom" />
-                            </XAxis>
-                            <YAxis stroke="#888888" fontSize={12}>
-                              <Label value="Activities" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
-                            </YAxis>
-                            <Line type="monotone" dataKey="count" stroke="#a855f7" strokeWidth={2} dot={{ r: 4, fill: "#a855f7" }} />
+                          <LineChart data={analyticsData.timeData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                            <XAxis 
+                              dataKey="date" 
+                              stroke="#888888" 
+                              fontSize={10} 
+                              tickMargin={5}
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
+                            />
+                            <YAxis 
+                              stroke="#888888" 
+                              fontSize={10}
+                              tickMargin={5}
+                            />
+                            <Line type="monotone" dataKey="count" stroke="#a855f7" strokeWidth={2} dot={{ r: 3, fill: "#a855f7" }} />
                             <ChartTooltip content={<ChartTooltipContent />} />
                           </LineChart>
                         </ResponsiveContainer>
@@ -874,11 +882,11 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                   </Card>
 
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Actions Distribution</CardTitle>
-                      <CardDescription>Breakdown by action type</CardDescription>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base sm:text-lg">Actions Distribution</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Breakdown by action type</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-2 sm:px-6">
                       <ChartContainer
                         config={{
                           count: {
@@ -886,18 +894,26 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                             color: "#f97316",
                           },
                         }}
-                        className="h-[300px]"
+                        className="h-[250px] sm:h-[300px] w-full"
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={analyticsData.actionData}>
-                            <XAxis dataKey="action" stroke="#888888" fontSize={12}>
-                              <Label value="Action Type" offset={-5} position="insideBottom" />
-                            </XAxis>
-                            <YAxis stroke="#888888" fontSize={12}>
-                              <Label value="Count" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
-                            </YAxis>
+                          <BarChart data={analyticsData.actionData} margin={{ top: 20, right: 5, left: -20, bottom: 5 }}>
+                            <XAxis 
+                              dataKey="action" 
+                              stroke="#888888" 
+                              fontSize={10}
+                              tickMargin={5}
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
+                            />
+                            <YAxis 
+                              stroke="#888888" 
+                              fontSize={10}
+                              tickMargin={5}
+                            />
                             <Bar dataKey="count" fill="#f97316" radius={[8, 8, 0, 0]}>
-                              <LabelList dataKey="count" position="top" style={{ fill: '#f97316', fontWeight: 'bold' }} />
+                              <LabelList dataKey="count" position="top" style={{ fill: '#f97316', fontWeight: 'bold', fontSize: '10px' }} />
                             </Bar>
                             <ChartTooltip content={<ChartTooltipContent />} />
                           </BarChart>
@@ -908,13 +924,13 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                 </div>
 
                 {/* Charts Row 2 */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Top Active Users</CardTitle>
-                      <CardDescription>Users with most activity</CardDescription>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base sm:text-lg">Top Active Users</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Users with most activity</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-2 sm:px-6">
                       <ChartContainer
                         config={{
                           count: {
@@ -922,18 +938,26 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                             color: "#9333ea",
                           },
                         }}
-                        className="h-[300px]"
+                        className="h-[250px] sm:h-[300px] w-full"
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={analyticsData.userData} layout="vertical">
-                            <XAxis type="number" stroke="#888888" fontSize={12}>
-                              <Label value="Number of Actions" offset={-5} position="insideBottom" />
-                            </XAxis>
-                            <YAxis type="category" dataKey="user" stroke="#888888" fontSize={12} width={100}>
-                              <Label value="User" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
-                            </YAxis>
+                          <BarChart data={analyticsData.userData} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                            <XAxis 
+                              type="number" 
+                              stroke="#888888" 
+                              fontSize={10}
+                              tickMargin={5}
+                            />
+                            <YAxis 
+                              type="category" 
+                              dataKey="user" 
+                              stroke="#888888" 
+                              fontSize={9} 
+                              width={70}
+                              tickMargin={5}
+                            />
                             <Bar dataKey="count" fill="#9333ea" radius={[0, 8, 8, 0]}>
-                              <LabelList dataKey="count" position="right" style={{ fill: '#9333ea', fontWeight: 'bold' }} />
+                              <LabelList dataKey="count" position="right" style={{ fill: '#9333ea', fontWeight: 'bold', fontSize: '10px' }} />
                             </Bar>
                             <ChartTooltip content={<ChartTooltipContent />} />
                           </BarChart>
@@ -943,11 +967,11 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                   </Card>
 
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Role Distribution</CardTitle>
-                      <CardDescription>Activity by user role</CardDescription>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base sm:text-lg">Role Distribution</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Activity by user role</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-2 sm:px-6">
                       <ChartContainer
                         config={{
                           count: {
@@ -955,7 +979,7 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                             color: "#a855f7",
                           },
                         }}
-                        className="h-[300px]"
+                        className="h-[250px] sm:h-[300px] w-full"
                       >
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPieChart>
@@ -965,8 +989,14 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                               nameKey="role"
                               cx="50%"
                               cy="50%"
-                              outerRadius={80}
-                              label={({ role, percent = 0 }) => `${role}: ${(percent * 100).toFixed(0)}%`}
+                              outerRadius={60}
+                              label={({ role, percent = 0 }) => {
+                                // Shorter labels for mobile
+                                const shortRole = role.length > 10 ? role.substring(0, 8) + '...' : role;
+                                return `${shortRole}: ${(percent * 100).toFixed(0)}%`;
+                              }}
+                              labelLine={{ strokeWidth: 1 }}
+                              style={{ fontSize: '10px' }}
                             >
                               {analyticsData.roleData.map((entry, index) => {
                                 const colors = ["#9333ea", "#a855f7", "#c084fc", "#f97316", "#fb923c", "#fdba74"];

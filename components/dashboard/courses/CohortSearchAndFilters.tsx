@@ -315,13 +315,13 @@ export default function CohortSearchAndFilters({
             <Button
               variant="outline"
               size="sm"
-              className="h-9 flex items-center gap-1 relative"
+              className="h-9 flex items-center gap-1 relative group"
               aria-label="Filter options"
               title="Filter"
               tabIndex={0}
             >
               <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 text-purple-500" />
+                <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:text-white transition-colors" />
                 {filterAction === "applied" && (
                   <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                     <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -340,7 +340,7 @@ export default function CohortSearchAndFilters({
             </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-80 p-4 filter-panel" 
+            className="w-80 p-4 bg-white border border-gray-200 shadow-lg z-50" 
             onCloseAutoFocus={(event) => {
               event.preventDefault();
             }}
@@ -492,8 +492,8 @@ export default function CohortSearchAndFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-              <ArrowUpDown className="mr-2 h-4 w-4" />
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
               {(() => {
                 const label = [
                   { value: "cohortId", label: "Cohort ID" },
@@ -502,9 +502,9 @@ export default function CohortSearchAndFilters({
                   { value: "capacity", label: "Capacity" },
                   { value: "members", label: "Members Count" },
                 ].find(o => o.value === sortBy)?.label;
-                return label ? <span className="ml-1 text-xs text-gray-600">{label}</span> : null;
+                return label ? <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{label}</span> : null;
               })()}
-              {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+              {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
