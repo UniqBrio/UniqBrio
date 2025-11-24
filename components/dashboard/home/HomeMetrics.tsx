@@ -223,13 +223,17 @@ export function HomeMetrics() {
   const [students, setStudents] = useState<any[]>([]);
   const [cohorts, setCohorts] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
-  const [scheduleCount, setScheduleCount] = useState<number | null>(null);
+  const [totalRevenue, setTotalRevenue] = useState<number | null>(null);
+  const [instructorCount, setInstructorCount] = useState<number | null>(null);
+  const [nonInstructorCount, setNonInstructorCount] = useState<number | null>(null);
 
   // Animated counters for each metric
   const animatedStudentCount = useCounterAnimation({ targetValue: studentCount, duration: 3000 });
   const animatedCoursesCount = useCounterAnimation({ targetValue: courses.length > 0 ? courses.length : null, duration: 3000 });
   const animatedCohortsCount = useCounterAnimation({ targetValue: cohorts.length > 0 ? cohorts.length : null, duration: 3000 });
-  const animatedScheduleCount = useCounterAnimation({ targetValue: scheduleCount, duration: 3000 });
+  const animatedRevenueCount = useCounterAnimation({ targetValue: totalRevenue, duration: 3000 });
+  const totalStaffs = (instructorCount !== null && nonInstructorCount !== null) ? instructorCount + nonInstructorCount : null;
+  const animatedStaffsCount = useCounterAnimation({ targetValue: totalStaffs, duration: 3000 });
 
   useEffect(() => {
     // Fetch students - Using the correct endpoint
@@ -290,21 +294,54 @@ export function HomeMetrics() {
         setCohorts([]);
       });
 
-    // Fetch schedules count
-    fetch("/api/dashboard/services/schedules")
+    // Fetch total revenue
+    const params = new URLSearchParams({ 
+      timeframe: 'monthly',
+      _t: Date.now().toString()
+    });
+    fetch(`/api/dashboard/financial/financials/metrics?${params.toString()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setScheduleCount(data.length);
-        } else if (data.count !== undefined) {
-          setScheduleCount(data.count);
-        } else if (data.schedules && Array.isArray(data.schedules)) {
-          setScheduleCount(data.schedules.length);
+        if (data.totalRevenue !== undefined) {
+          setTotalRevenue(data.totalRevenue);
         }
       })
       .catch((err) => {
-        console.error("Error fetching schedules:", err);
-        setScheduleCount(null);
+        console.error("Error fetching revenue:", err);
+        setTotalRevenue(null);
+      });
+
+    // Fetch instructors
+    fetch("/api/dashboard/payments/instructors")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setInstructorCount(data.length);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching instructors:", err);
+        setInstructorCount(null);
+      });
+
+    // Fetch non-instructors
+    fetch("/api/dashboard/payments/non-instructors")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setNonInstructorCount(data.length);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching non-instructors:", err);
+        setNonInstructorCount(null);
       });
   }, []);
 
@@ -390,6 +427,14 @@ export function HomeMetrics() {
 
   const stats = [
     {
+      title: "Total Staffs",
+      value: animatedStaffsCount !== null ? animatedStaffsCount : "-",
+      change: totalStaffs !== null ? `${instructorCount || 0} instructors + ${nonInstructorCount || 0} non-instructors` : "Loading...",
+      icon: UserCheck,
+      gradient: "from-pink-500 to-rose-500",
+      bgGradient: "from-pink-50 to-rose-50 dark:from-pink-950/50 dark:to-rose-950/50",
+    },
+    {
       title: "Total Students",
       value: animatedStudentCount !== null ? animatedStudentCount : "-",
       change: studentCount !== null ? `${studentCount} enrolled` : "Loading...",
@@ -406,25 +451,17 @@ export function HomeMetrics() {
       bgGradient: "from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50",
     },
     {
-      title: "Active Cohorts",
-      value: animatedCohortsCount !== null ? animatedCohortsCount : "-",
-      change: cohorts.length > 0 ? `${cohorts.length} cohorts` : "Loading...",
-      icon: Users,
-      gradient: "from-orange-500 to-red-500",
-      bgGradient: "from-orange-50 to-red-50 dark:from-orange-950/50 dark:to-red-950/50",
-    },
-    {
-      title: "Scheduled Sessions",
-      value: animatedScheduleCount !== null ? animatedScheduleCount : "-",
-      change: scheduleCount !== null ? `${scheduleCount} total` : "Loading...",
-      icon: Calendar,
+      title: "Total Revenue",
+      value: animatedRevenueCount !== null ? `${animatedRevenueCount.toLocaleString('en-IN', { maximumFractionDigits: 0 })} INR` : "-",
+      change: totalRevenue !== null ? "This month" : "Loading...",
+      icon: DollarSign,
       gradient: "from-green-500 to-emerald-500",
       bgGradient: "from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50",
     },
   ];
 
   return (
-    <section className="mt-16">
+    <section className="mt-16 responsive-dashboard-container">
       <h2 className="text-2xl font-bold tracking-tight mb-6"></h2>
       
       {/* Stats Grid */}
@@ -432,12 +469,12 @@ export function HomeMetrics() {
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           const showCashAnimation = stat.value !== "-"; // Only show animation when value is loaded
-          const isScheduledSessions = index === 3; // 4th card (Scheduled Sessions)
+          const isTotalRevenue = index === 3; // 4th card (Total Revenue)
           
           return (
             <div key={index} className="relative">
-              {/* Basketball dunk animation - only for Scheduled Sessions card - positioned outside card */}
-              {showCashAnimation && isScheduledSessions && <BasketballDunk gradient={stat.gradient} />}
+              {/* Basketball dunk animation - only for Total Revenue card - positioned outside card */}
+              {showCashAnimation && isTotalRevenue && <BasketballDunk gradient={stat.gradient} />}
               
               <Card
                 className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${stat.bgGradient}`}

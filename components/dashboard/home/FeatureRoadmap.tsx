@@ -7,6 +7,7 @@ import {
   Zap,
   MapPin,
   Calendar as CalendarIcon,
+  Heart,
 } from "lucide-react";
 
 interface Feature {
@@ -44,7 +45,7 @@ const features: Feature[] = [
     category: "User Management",
   },
   {
-    title: "Instructor Management",
+    title: "Staff Management",
     description: "Session modifications, attendance & leave",
     status: "integrated",
     category: "User Management",
@@ -70,6 +71,12 @@ const features: Feature[] = [
   {
     title: "Leave Management",
     description: "Request and approve leave for staff",
+    status: "integrated",
+    category: "Operations",
+  },
+  {
+    title: "Event Management",
+    description: "Organize and track academy events",
     status: "integrated",
     category: "Operations",
   },
@@ -102,26 +109,13 @@ const features: Feature[] = [
     releaseQuarter: "Q1 2026",
   },
   {
-    title: "Marketing Tools",
+    title: "Promotions",
     description: "Poster designer, social media scheduler",
     status: "coming-soon",
     category: "Promotions",
     releaseQuarter: "Q2 2026",
   },
-  {
-    title: "Certificate Generator",
-    description: "Create and manage certificates & awards",
-    status: "coming-soon",
-    category: "Promotions",
-    releaseQuarter: "Q1 2026",
-  },
-  {
-    title: "Event Management",
-    description: "Organize and track academy events",
-    status: "coming-soon",
-    category: "Operations",
-    releaseQuarter: "Q2 2026",
-  },
+  
 ];
 
 interface FeatureRoadmapProps {
@@ -129,9 +123,23 @@ interface FeatureRoadmapProps {
 }
 
 export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
+  const [likedFeatures, setLikedFeatures] = React.useState<Set<string>>(new Set());
+  
   const integrated = features.filter((f) => f.status === "integrated");
   const comingSoon = features.filter((f) => f.status === "coming-soon");
   const inProgress = features.filter((f) => f.status === "in-progress");
+
+  const toggleLike = (featureTitle: string) => {
+    setLikedFeatures((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(featureTitle)) {
+        newSet.delete(featureTitle);
+      } else {
+        newSet.add(featureTitle);
+      }
+      return newSet;
+    });
+  };
 
   const getStatusBadge = (status: Feature["status"]) => {
     const badges = {
@@ -163,24 +171,16 @@ export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
 
   return (
     <section className={`${className}`} aria-labelledby="roadmap-heading">
-      <Card className="border-neutral-200 dark:border-neutral-800">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
-                <CalendarIcon className="w-4 h-4" />
-              </div>
-              Feature Roadmap
-            </CardTitle>
-            <a
-              href="/docs/UniqBrio-Help-Guide"
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-            >
-              Full Documentation
-            </a>
-          </div>
+      <Card className="border-neutral-200 dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300">
+        <CardHeader className="pb-4 bg-gradient-to-br from-indigo-50/80 via-purple-50/60 to-violet-50/80 dark:from-indigo-950/30 dark:via-purple-950/20 dark:to-violet-950/30 rounded-t-lg">
+          <CardTitle className="text-xl font-bold flex items-center gap-2">
+            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg transform hover:scale-110 transition-transform duration-200">
+              <CalendarIcon className="w-4 h-4" />
+            </div>
+            Feature Roadmap
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-gradient-to-b from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 rounded-b-lg">
           {/* Summary Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="p-4 rounded-xl bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
@@ -240,9 +240,9 @@ export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
             </div>
           </div>
 
-          {/* Feature List */}
-          <div className="space-y-6">
-            {/* Integrated Features */}
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Integrated Features */}
             {integrated.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3 flex items-center gap-2">
@@ -270,7 +270,6 @@ export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
                             className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${badge.className}`}
                           >
                             {badge.icon}
-                            {badge.label}
                           </span>
                         </div>
                       </div>
@@ -280,7 +279,7 @@ export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
               </div>
             )}
 
-            {/* Coming Soon Features */}
+            {/* Right Column - Coming Soon Features */}
             {comingSoon.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3 flex items-center gap-2">
@@ -300,22 +299,27 @@ export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
                             <h4 className="font-semibold text-sm text-neutral-900 dark:text-white mb-0.5">
                               {feature.title}
                             </h4>
-                            <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400">
                               {feature.description}
                             </p>
-                            {feature.releaseQuarter && (
-                              <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                                <CalendarIcon className="w-3 h-3" />
-                                Target: {feature.releaseQuarter}
-                              </span>
-                            )}
                           </div>
-                          <span
-                            className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${badge.className}`}
+                          <button
+                            onClick={() => toggleLike(feature.title)}
+                            className={`flex-shrink-0 p-2 rounded-lg transition-colors group ${
+                              likedFeatures.has(feature.title)
+                                ? 'bg-red-50 dark:bg-red-950/30'
+                                : 'hover:bg-red-50 dark:hover:bg-red-950/30'
+                            }`}
+                            aria-label={likedFeatures.has(feature.title) ? "Unlike this feature" : "Like this feature"}
                           >
-                            {badge.icon}
-                            {badge.label}
-                          </span>
+                            <Heart 
+                              className={`w-5 h-5 transition-colors ${
+                                likedFeatures.has(feature.title)
+                                  ? 'text-red-500 fill-red-500'
+                                  : 'text-neutral-400 group-hover:text-red-500 group-hover:fill-red-500'
+                              }`}
+                            />
+                          </button>
                         </div>
                       </div>
                     );

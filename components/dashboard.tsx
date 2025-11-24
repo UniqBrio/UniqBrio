@@ -8,8 +8,7 @@ import {
   FinancialSnapshot, 
   Announcements, 
   FeatureRoadmap,
-  FeatureGrid,
-  RoleOverview
+  FeatureGrid
 } from "@/components/dashboard/home"
 
 const Dashboard = () => {
@@ -202,7 +201,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-6 responsive-dashboard-container">
+    <div className="flex flex-col space-y-0 responsive-dashboard-container">
       {/* KYC Success Notification - Temporary toast-style popup */}
       {showKycSuccessNotification && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-md">
@@ -449,30 +448,15 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Home Dashboard Content with Responsive Design */}
-      <div className="responsive-dashboard-container">
-        <HomeMetrics />
-      </div>
+      <HomeMetrics />
         
-      {/* Main Content Grid with Responsive Layout */}
-      <div className="responsive-dashboard-container grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Left Column - Activity & Announcements */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          <ActivityFeed />
-          <Announcements />
-        </div>
-        
-        {/* Right Column - Financial */}
-        <div className="space-y-4 sm:space-y-6">
-          <FinancialSnapshot />
-        </div>
-      </div>
-      
-      {/* Feature Sections with Responsive Design */}
+      {/* Main Dashboard Content */}
       <div className="responsive-dashboard-container space-y-4 sm:space-y-6">
+        <Announcements />
+        <FinancialSnapshot />
         <FeatureGrid />
-        <RoleOverview />
         <FeatureRoadmap />
+        <ActivityFeed />
       </div>
     </div>
   );

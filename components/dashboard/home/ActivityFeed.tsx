@@ -175,11 +175,11 @@ export function ActivityFeed({
   };
 
   return (
-    <Card className={`${className} border-neutral-200 dark:border-neutral-800`}>
-      <CardHeader className="pb-4">
+    <Card className={`${className} border-neutral-200 dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300`}>
+      <CardHeader className="pb-4 bg-gradient-to-br from-purple-50/80 via-blue-50/60 to-indigo-50/80 dark:from-purple-950/30 dark:via-blue-950/20 dark:to-indigo-950/30 rounded-t-lg">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg transform hover:scale-110 transition-transform duration-200">
               <Bell className="w-4 h-4" />
             </div>
             Recent Activity
@@ -192,7 +192,7 @@ export function ActivityFeed({
           </a>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-gradient-to-b from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 rounded-b-lg">
         {loading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
@@ -266,19 +266,6 @@ export function ActivityFeed({
                 </div>
               </a>
             ))}
-          </div>
-        )}
-
-        {/* Quick Action Button */}
-        {activities.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-            <a
-              href="/dashboard/audit-logs"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-            >
-              <Users className="w-4 h-4" />
-              View Complete Activity Log
-            </a>
           </div>
         )}
       </CardContent>

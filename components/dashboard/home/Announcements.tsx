@@ -35,7 +35,7 @@ export function Announcements({
     {
       id: "1",
       type: "achievement",
-      title: "?? New Milestone Reached!",
+      title: "New Milestone Reached!",
       message: "Our academy has successfully enrolled 500+ students this semester!",
       timestamp: new Date(Date.now() - 2 * 60 * 60000),
       isRead: false,
@@ -48,7 +48,7 @@ export function Announcements({
       message: "New features added: Enhanced scheduling, improved attendance tracking, and financial analytics dashboard.",
       timestamp: new Date(Date.now() - 24 * 60 * 60000),
       isRead: false,
-      link: "/docs/UniqBrio-Help-Guide",
+      
       priority: "medium",
     },
     {
@@ -60,15 +60,7 @@ export function Announcements({
       isRead: true,
       priority: "high",
     },
-    {
-      id: "4",
-      type: "info",
-      title: "Winter Break Schedule",
-      message: "Classes will be suspended from Dec 20 - Jan 5. Regular schedule resumes Jan 6.",
-      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60000),
-      isRead: true,
-      priority: "medium",
-    },
+    
   ]);
 
   const getAnnouncementIcon = (type: Announcement["type"]) => {
@@ -137,11 +129,11 @@ export function Announcements({
   const displayedAnnouncements = announcements.slice(0, maxItems);
 
   return (
-    <Card className={`${className} border-neutral-200 dark:border-neutral-800`}>
-      <CardHeader className="pb-4">
+    <Card className={`${className} border-neutral-200 dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300`}>
+      <CardHeader className="pb-4 bg-gradient-to-br from-blue-50/80 via-cyan-50/60 to-sky-50/80 dark:from-blue-950/30 dark:via-cyan-950/20 dark:to-sky-950/30 rounded-t-lg">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg transform hover:scale-110 transition-transform duration-200">
               <Megaphone className="w-4 h-4" />
             </div>
             Announcements
@@ -151,7 +143,7 @@ export function Announcements({
           </span>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-gradient-to-b from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 rounded-b-lg">
         {displayedAnnouncements.length === 0 ? (
           <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
             <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-30" />
