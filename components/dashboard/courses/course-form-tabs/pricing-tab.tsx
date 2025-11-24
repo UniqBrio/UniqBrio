@@ -8,6 +8,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Switch } from "@/components/dashboard/ui/switch"
 import { Separator } from "@/components/dashboard/ui/separator"
 import { Plus } from "lucide-react"
+import { useCurrency } from "@/contexts/currency-context";
 
 interface PricingTabProps {
   formData: any
@@ -22,6 +23,8 @@ export default function PricingTab({
   mockReferralCodes = [], 
   courses = [] 
 }: PricingTabProps) {
+  const { currency } = useCurrency();
+  
   const validateDateTimeRange = (startDateTime: string, endDateTime: string): boolean => {
     if (!startDateTime || !endDateTime) return true;
     const start = new Date(startDateTime);
@@ -96,8 +99,8 @@ export default function PricingTab({
         <div>
           <Label htmlFor="priceINR" className="mb-1 text-xs">
             {formData.courseCategory === 'Ongoing Training' 
-              ? 'Price per Month (INR)' 
-              : 'Price (INR)'} <span className="text-red-500">*</span>
+              ? `Price per Month (${currency})` 
+              : `Price (${currency})`} <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
             <Input

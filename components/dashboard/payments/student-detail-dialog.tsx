@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 
 import {
   Dialog,
@@ -44,6 +45,7 @@ export function StudentDetailDialog({
   open,
   onOpenChange,
 }: StudentDetailDialogProps) {
+  const { currency } = useCurrency();
   const [cohortMap, setCohortMap] = useState<Map<string, CohortInfo>>(new Map());
   const [cohortsLoading, setCohortsLoading] = useState(false);
 
@@ -82,7 +84,10 @@ export function StudentDetailDialog({
   };
 
   const formatCurrency = (amount: number) => {
-    return `${amount.toLocaleString()}`;
+    if (!currency) {
+      return amount.toLocaleString();
+    }
+    return `${currency} ${amount.toLocaleString()}`;
   };
 
   const formatDate = (date: string | Date | null | undefined) => {
@@ -209,26 +214,26 @@ export function StudentDetailDialog({
       label: "Course Fee",
       value: (
         <span className="text-base font-semibold text-slate-900">
-          INR {formatCurrency(payment.courseFee || 0)}
+          {currency} {formatCurrency(payment.courseFee || 0)}
         </span>
       ),
     },
     {
       icon: CreditCard,
       label: "Student Registration",
-      value: `INR ${formatCurrency(payment.studentRegistrationFee || 0)}`,
+      value: `${currency} ${formatCurrency(payment.studentRegistrationFee || 0)}`,
     },
     {
       icon: CreditCard,
       label: "Course Registration",
-      value: `INR ${formatCurrency(payment.courseRegistrationFee || 0)}`,
+      value: `${currency} ${formatCurrency(payment.courseRegistrationFee || 0)}`,
     },
     {
       icon: Calculator,
       label: "Total To Be Paid",
       value: (
         <span className="font-bold text-purple-700 text-base">
-          INR {formatCurrency(totalToBePaid)}
+          {currency} {formatCurrency(totalToBePaid)}
         </span>
       ),
     },
@@ -237,7 +242,7 @@ export function StudentDetailDialog({
       label: "Total Paid",
       value: (
         <span className="font-semibold text-emerald-600">
-          INR {formatCurrency(payment.receivedAmount || 0)}
+          {currency} {formatCurrency(payment.receivedAmount || 0)}
         </span>
       ),
     },
@@ -246,7 +251,7 @@ export function StudentDetailDialog({
       label: "Balance",
       value: (
         <span className="font-semibold text-red-600">
-          INR {formatCurrency(payment.outstandingAmount || 0)}
+          {currency} {formatCurrency(payment.outstandingAmount || 0)}
         </span>
       ),
     },

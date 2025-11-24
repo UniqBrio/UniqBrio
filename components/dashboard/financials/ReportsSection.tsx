@@ -3,6 +3,7 @@
 
 import React from "react";
 import Image from "next/image"
+import { useCurrency } from "@/contexts/currency-context"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/dashboard/ui/card"
 import { Label } from "@/components/dashboard/ui/label"
@@ -28,6 +29,7 @@ export function ReportsSection({
   customEndDate,
   setCustomEndDate
 }: ReportsSectionProps) {
+  const { currency } = useCurrency();
   // State for error message
   const [dateError, setDateError] = React.useState<string>("");
   const [recordCountError, setRecordCountError] = React.useState<string>("");
@@ -122,9 +124,9 @@ export function ReportsSection({
         'From Account',
         'To Account',
         'Payment Mode',
-        'Income Amount (INR)',
-        'Expense Amount (INR)',
-        'Overall Balance (INR)'
+        `Income Amount (${currency})`,
+        `Expense Amount (${currency})`,
+        `Overall Balance (${currency})`
       ];
 
       let runningBalance = 0;
@@ -163,9 +165,9 @@ export function ReportsSection({
       // Place 'Total' label under Payment Mode, totals for income & expense, and final balance
       const totalRow = Array(columns.length).fill('');
       totalRow[columns.indexOf('Payment Mode')] = 'Total';
-      totalRow[columns.indexOf('Income Amount (INR)')] = totalIncome;
-      totalRow[columns.indexOf('Expense Amount (INR)')] = totalExpense;
-      totalRow[columns.indexOf('Overall Balance (INR)')] = finalBalance;
+      totalRow[columns.indexOf(`Income Amount (${currency})`)] = totalIncome;
+      totalRow[columns.indexOf(`Expense Amount (${currency})`)] = totalExpense;
+      totalRow[columns.indexOf(`Overall Balance (${currency})`)] = finalBalance;
       rows.push(totalRow);
 
       // CSV content

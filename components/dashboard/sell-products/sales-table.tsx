@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { Button } from "@/components/dashboard/ui/button"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Input } from "@/components/dashboard/ui/input"
@@ -60,6 +61,7 @@ const formatDate = (dateString: string) => {
 }
 
 export function SalesTable({ sales }: SalesTableProps) {
+  const { currency } = useCurrency();
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSales, setSelectedSales] = useState<Set<string>>(new Set())
   const [filters, setFilters] = useState<FilterState>({
@@ -134,7 +136,7 @@ export function SalesTable({ sales }: SalesTableProps) {
   }, [filteredSales, sortBy, sortOrder])
 
   const handleExport = () => {
-    const headers = ['Invoice #', 'Customer Name', 'Customer Email', 'Customer Phone', 'Date', 'Amount (₹)', 'Payment Method', 'Status']
+    const headers = ['Invoice #', 'Customer Name', 'Customer Email', 'Customer Phone', 'Date', 'Amount', 'Payment Method', 'Status']
     const csvData = sortedSales.map(sale => [
       sale.invoiceNumber,
       sale.customerName,
@@ -342,7 +344,7 @@ export function SalesTable({ sales }: SalesTableProps) {
               )}
               {isVisible("amount") && (
                 <TableHead className="text-gray-700 font-semibold">
-                  Amount (INR)
+                  Amount ({currency})
                 </TableHead>
               )}
               {isVisible("paymentMethod") && (
@@ -402,7 +404,7 @@ export function SalesTable({ sales }: SalesTableProps) {
                       <TableCell className="text-gray-700">{formatDate(sale.date)}</TableCell>
                     )}
                     {isVisible("amount") && (
-                      <TableCell className="font-bold text-purple-600">₹{sale.finalAmount}</TableCell>
+                      <TableCell className="font-bold text-purple-600">{currency} {sale.finalAmount}</TableCell>
                     )}
                     {isVisible("paymentMethod") && (
                       <TableCell>

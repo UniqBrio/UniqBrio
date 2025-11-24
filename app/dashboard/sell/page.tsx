@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { HeroSection } from "@/components/dashboard/sell-products/hero-section"
 import { ProductsGrid } from "@/components/dashboard/sell-products/products-grid"
@@ -42,6 +43,7 @@ interface Sale {
 }
 
 export default function ProductsServicesPage() {
+  const { currency } = useCurrency();
   const [currentView, setCurrentView] = useState<"products" | "sales" | "analytics">("analytics")
   
   const [showAddProductDialog, setShowAddProductDialog] = useState(false)
@@ -312,12 +314,12 @@ export default function ProductsServicesPage() {
                           />
                           <div>
                             <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
-                            <p className="text-sm text-gray-600">₹{item.product.price} each</p>
+                            <p className="text-sm text-gray-600">{currency} {item.product.price} each</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
                           <span className="text-gray-700">Qty: {item.quantity}</span>
-                          <span className="font-semibold gradient-text text-lg">₹{item.product.price * item.quantity}</span>
+                          <span className="font-semibold gradient-text text-lg">{currency} {item.product.price * item.quantity}</span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -331,7 +333,7 @@ export default function ProductsServicesPage() {
                     ))}
                     <div className="text-right pt-4 border-t border-gray-200">
                       <div className="text-xl font-bold gradient-text">
-                        Total: ₹{cartTotal}
+                        Total: {currency} {cartTotal}
                       </div>
                     </div>
                   </div>

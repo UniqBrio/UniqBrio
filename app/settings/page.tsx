@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "@/components/ui/use-toast"
 import { Loader2, Save, User, Lock, Bell, Shield } from "lucide-react"
+import { ProfileSettings } from "@/components/dashboard/settings/profile-settings"
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -35,6 +36,60 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profile")
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false)
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false)
+  const [profileData, setProfileData] = useState<any>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+
+  // Fetch profile data
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const response = await fetch("/api/user-profile")
+        if (!response.ok) throw new Error("Failed to fetch profile")
+        const data = await response.json()
+        if (data.success) {
+          setProfileData(data.user)
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingProfile(false)
+      }
+    }
+    fetchProfile()
+  }, [])
+
+  // Handle profile update
+  const handleProfileUpdate = async (updates: any) => {
+    try {
+      const response = await fetch("/api/user-profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+      })
+
+      if (!response.ok) throw new Error("Failed to update profile")
+      
+      const data = await response.json()
+      if (data.success) {
+        // Refresh profile data
+        const refreshResponse = await fetch("/api/user-profile")
+        const refreshData = await refreshResponse.json()
+        if (refreshData.success) {
+          setProfileData(refreshData.user)
+        }
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      throw error
+    }
+  }
 
   const {
     register: registerProfile,
@@ -146,67 +201,17 @@ export default function SettingsPage() {
         <div className="bg-white rounded-lg shadow-sm p-6">
           {activeTab === "profile" && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
-              <form onSubmit={handleSubmitProfile(onSubmitProfile)} className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    className={`w-full p-2 border rounded-lg ${profileErrors.name ? "border-red-500" : "border-gray-300"}`}
-                    {...registerProfile("name")}
-                  />
-                  {profileErrors.name && <p className="text-red-500 text-sm">{profileErrors.name.message}</p>}
+              {isLoadingProfile ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
                 </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    className={`w-full p-2 border rounded-lg ${profileErrors.email ? "border-red-500" : "border-gray-300"}`}
-                    {...registerProfile("email")}
-                  />
-                  {profileErrors.email && <p className="text-red-500 text-sm">{profileErrors.email.message}</p>}
+              ) : profileData ? (
+                <ProfileSettings user={profileData} onUpdate={handleProfileUpdate} />
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  Failed to load profile data
                 </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <input
-                    id="phone"
-                    type="text"
-                    className={`w-full p-2 border rounded-lg ${profileErrors.phone ? "border-red-500" : "border-gray-300"}`}
-                    {...registerProfile("phone")}
-                  />
-                  {profileErrors.phone && <p className="text-red-500 text-sm">{profileErrors.phone.message}</p>}
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={isSubmittingProfile}
-                    className="py-2 px-4 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center"
-                  >
-                    {isSubmittingProfile ? (
-                      <>
-                        <Loader2 className="animate-spin mr-2" size={18} />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2" size={18} />
-                        Save Changes
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+              )}
             </div>
           )}
 

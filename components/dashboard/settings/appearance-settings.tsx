@@ -75,7 +75,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         const data = await response.json()
         
         // Convert object to array and add popular currencies first
-        const popularCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'AUD', 'CAD', 'CNY']
+        const popularCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CNY']
         const currencyList: Currency[] = []
         
         // Add popular currencies first
@@ -105,14 +105,13 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         console.error('Error fetching currencies:', error)
         // Fallback to default currencies
         setCurrencies([
-          { code: "USD", name: "US Dollar", symbol: "$" },
-          { code: "EUR", name: "Euro", symbol: "�" },
-          { code: "GBP", name: "British Pound", symbol: "�" },
-          { code: "JPY", name: "Japanese Yen", symbol: "�" },
-          { code: "INR", name: "Indian Rupee", symbol: "?" },
-          { code: "AUD", name: "Australian Dollar", symbol: "A$" },
-          { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
-          { code: "CNY", name: "Chinese Yuan", symbol: "�" },
+          { code: "USD", name: "US Dollar", symbol: "" },
+          { code: "EUR", name: "Euro", symbol: "" },
+          { code: "GBP", name: "British Pound", symbol: "" },
+          { code: "JPY", name: "Japanese Yen", symbol: "" },
+          { code: "AUD", name: "Australian Dollar", symbol: "" },
+          { code: "CAD", name: "Canadian Dollar", symbol: "" },
+          { code: "CNY", name: "Chinese Yuan", symbol: "" },
         ])
       } finally {
         setIsLoadingCurrencies(false)
@@ -125,10 +124,10 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   // Helper function to get currency symbols
   const getCurrencySymbol = (code: string): string => {
     const symbols: { [key: string]: string } = {
-      USD: "$", EUR: "�", GBP: "�", JPY: "�", INR: "?",
-      AUD: "A$", CAD: "C$", CNY: "�", CHF: "Fr", BRL: "R$",
-      MXN: "$", ZAR: "R", SEK: "kr", NOK: "kr", DKK: "kr",
-      RUB: "?", KRW: "?", SGD: "S$", HKD: "HK$", NZD: "NZ$"
+      USD: "", EUR: "", GBP: "", JPY: "",
+      AUD: "", CAD: "", CNY: "", CHF: "", BRL: "",
+      MXN: "", ZAR: "", SEK: "", NOK: "", DKK: "",
+      RUB: "", KRW: "", SGD: "", HKD: "", NZD: ""
     }
     return symbols[code] || code
   }

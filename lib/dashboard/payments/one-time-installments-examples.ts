@@ -26,7 +26,7 @@ export function example1_GenerateInstallments() {
   // Course details
   const courseStartDate = new Date('2025-10-10');
   const courseEndDate = new Date('2025-12-30');
-  const totalFees = 26500; // ₹25,000 (course) + ₹1,000 (course reg) + ₹500 (student reg)
+  const totalFees = 26500; // 25,000 (course) + 1,000 (course reg) + 500 (student reg)
 
   // Generate installments
   const config = generateOneTimeInstallments(
@@ -37,7 +37,7 @@ export function example1_GenerateInstallments() {
   );
 
   console.log('Installments Configuration:');
-  console.log(`Total Amount: ₹${config.totalAmount.toLocaleString()}`);
+  console.log(`Total Amount: ${config.totalAmount.toLocaleString()}`);
   console.log(`Course Duration: ${config.courseDuration.durationInDays} days`);
   console.log(`Auto Stop on Full Payment: ${config.autoStopOnFullPayment}`);
   console.log(`Partial Payment Allowed: ${config.partialPaymentAllowed}\n`);
@@ -74,7 +74,7 @@ export function example2_RecordFirstPayment() {
   );
 
   console.log('Payment recorded successfully!\n');
-  console.log(`Remaining Balance: ₹${calculateRemainingBalance(config).toLocaleString()}`);
+  console.log(`Remaining Balance: ${calculateRemainingBalance(config).toLocaleString()}`);
   console.log(`Next unpaid: ${formatInstallmentSummary(getNextUnpaidInstallment(config)!)}\n`);
 
   return config;
@@ -101,7 +101,7 @@ export function example3_CompletePaymentCycle() {
       `TXN00${i + 1}`
     );
 
-    console.log(`✓ Paid. Remaining: ₹${calculateRemainingBalance(config).toLocaleString()}`);
+    console.log(`✓ Paid. Remaining: ${calculateRemainingBalance(config).toLocaleString()}`);
 
     if (areAllInstallmentsPaid(config)) {
       console.log('\n🎉 ALL INSTALLMENTS PAID!');

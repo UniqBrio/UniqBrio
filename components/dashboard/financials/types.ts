@@ -268,8 +268,9 @@ export const TIMEFRAMES = [
   { label: "Custom", value: "custom" },
 ]
 
-export function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 })
+export function formatCurrency(value: number, currency: string = '') {
+  const formatted = value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return currency ? `${currency} ${formatted}` : formatted;
 }
 
 export function validateNumber(value: string) {

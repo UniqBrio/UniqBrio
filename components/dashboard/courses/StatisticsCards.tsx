@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { BookOpen, CheckCircle, Users, Banknote, Star, Trophy } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 
 interface Stats {
   totalCourses: number;
@@ -17,6 +18,7 @@ interface StatisticsCardsProps {
 }
 
 export default function StatisticsCards({ stats: propStats }: StatisticsCardsProps) {
+  const { currency } = useCurrency();
   const [stats, setStats] = useState<Stats>(propStats || {
     totalCourses: 0,
     activeCourses: 0,
@@ -101,7 +103,7 @@ export default function StatisticsCards({ stats: propStats }: StatisticsCardsPro
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-orange-600">Revenue (INR)</p>
+              <p className="text-sm font-medium text-orange-600">Revenue ({currency})</p>
               <p className="text-2xl font-bold text-orange-900">{stats.totalRevenue.toLocaleString('en-IN')}  </p>
             </div>
             <Banknote className="h-8 w-8 text-orange-500" />

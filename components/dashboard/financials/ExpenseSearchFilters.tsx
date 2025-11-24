@@ -12,6 +12,7 @@ import MultiSelectDropdown from "./MultiSelectDropdown";
 import { MonthYearFilter } from "./MonthYearFilter";
 import { useToast } from "@/hooks/dashboard/use-toast";
 import { Progress } from "@/components/dashboard/ui/progress";
+import { useCurrency } from "@/contexts/currency-context";
 interface ExpenseSearchFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -49,6 +50,8 @@ export default function ExpenseSearchFilters({
   setShowExpenseDraftsDialog,
   draftsCount = 0,
 }: ExpenseSearchFiltersProps) {
+  const { currency } = useCurrency();
+  
   // Month/Year filter state - default to current month/year
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1); // getMonth() returns 0-11
@@ -476,7 +479,7 @@ export default function ExpenseSearchFilters({
                 onChange={(next) => setPendingFilters(prev => ({ ...prev, paymentMode: next }))}
                 placeholder="All Modes"
               />
-            <div className="mb-2 font-semibold text-sm">Amount Range (INR)</div>
+            <div className="mb-2 font-semibold text-sm">Amount Range ({currency || 'Amount'})</div>
             <div className="flex flex-wrap gap-2 mb-3">
               <input
                 type="number"

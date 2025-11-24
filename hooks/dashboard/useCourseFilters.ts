@@ -1,7 +1,7 @@
 ﻿import { useState, useMemo } from 'react'
 import { Course } from '@/types/dashboard/course'
 
-export function useCourseFilters(courses: Course[], currency: "USD" | "INR") {
+export function useCourseFilters(courses: Course[], currency: string) {
   // Filter states
   const [selectedFilters, setSelectedFilters] = useState({
     level: [] as string[],
@@ -34,7 +34,8 @@ export function useCourseFilters(courses: Course[], currency: "USD" | "INR") {
       const matchesType = selectedFilters.type.length === 0 || selectedFilters.type.includes(course.type)
       const matchesStatus = selectedFilters.status.length === 0 || selectedFilters.status.includes(course.status)
 
-      const price = currency === "INR" ? (course.priceINR || 0) : (course.price || 0)
+      // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
+      const price = course.priceINR || course.price || 0
       const matchesPrice = price >= selectedFilters.priceRange[0] && price <= selectedFilters.priceRange[1]
 
       const matchesTab = activeTab === "all" || course.status?.toLowerCase() === activeTab.toLowerCase()

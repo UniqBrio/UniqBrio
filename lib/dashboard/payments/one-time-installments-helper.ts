@@ -304,7 +304,7 @@ export function formatInstallmentSummary(installment: OneTimeInstallment): strin
   const statusLabel = installment.status === 'PAID' ? '✓ Paid' : 'Unpaid';
   const dueDate = installment.dueDate.toLocaleDateString('en-IN');
   
-  return `${stageLabel} - ₹${installment.amount.toLocaleString()} - Due: ${dueDate} - ${statusLabel}`;
+  return `${stageLabel} - ${installment.amount.toLocaleString()} - Due: ${dueDate} - ${statusLabel}`;
 }
 
 /**

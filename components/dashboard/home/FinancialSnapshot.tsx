@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import {
   DollarSign,
@@ -40,6 +41,7 @@ export function FinancialSnapshot({
   className = "",
   userRole = "Staff",
 }: FinancialSnapshotProps) {
+  const { currency } = useCurrency();
   const [data, setData] = useState<FinancialData | null>(null);
   const [chartData, setChartData] = useState<Array<{ name: string; income: number; expense: number; profit: number }>>([]);
   const [loading, setLoading] = useState(true);
@@ -157,12 +159,16 @@ export function FinancialSnapshot({
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
+    if (!currency) {
+      return amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+    }
+    return `${currency} ${amount.toLocaleString("en-IN", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    })}`;
   };
 
   return (
@@ -315,7 +321,7 @@ export function FinancialSnapshot({
                   >
                     {chartConfig.showLabels && (
                       <Label 
-                        value="Amount (INR)" 
+                        value={`Amount (${currency})`} 
                         angle={-90} 
                         position="insideLeft" 
                         style={{ textAnchor: 'middle' }} 
@@ -323,7 +329,7 @@ export function FinancialSnapshot({
                     )}
                   </YAxis>
                   <RechartsTooltip 
-                    formatter={(value: number) => [`INR ${value.toLocaleString()}`, 'Amount']}
+                    formatter={(value: number) => [`${currency} ${value.toLocaleString()}`, 'Amount']}
                     contentStyle={{
                       fontSize: screenSize === "mobile" ? '11px' : '14px',
                       padding: screenSize === "mobile" ? '6px 8px' : '8px 12px',

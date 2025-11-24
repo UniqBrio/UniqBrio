@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useMemo } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { v4 as uuidv4 } from "uuid"
 import Image from "next/image"
 
@@ -81,6 +82,8 @@ type CourseNumberingStrategy = 'sequential' | 'uuid'
 
 
 export default function EnhancedCourseManagementPage() {
+  const { currency } = useCurrency();
+  
   function GridIcon({ className = "w-6 h-6" }) {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -122,7 +125,7 @@ export default function EnhancedCourseManagementPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [isEditMode, setIsEditMode] = useState(false)
   const [editCourseId, setEditCourseId] = useState<string | null>(null)
-  const [currency, setCurrency] = useState<"USD" | "INR">("INR")
+  // Currency now comes from global context - no local state needed
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
   const [filterAction, setFilterAction] = useState<string | null>(null)
@@ -722,7 +725,8 @@ export default function EnhancedCourseManagementPage() {
     totalCourses: Array.isArray(courses) ? courses.length : 0,
     activeCourses: Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0,
     totalStudents: studentCount,
-    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + (currency === "INR" ? (c.priceINR || 0) : (c.price || 0)) * (c.enrolledStudents || 0), 0) : 0,
+    // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
+    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.priceINR || c.price || 0) * (c.enrolledStudents || 0)), 0) : 0,
     averageRating: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.rating || 0), 0) / courses.length : 0,
     completionRate: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length : 0,
   }
@@ -758,7 +762,8 @@ export default function EnhancedCourseManagementPage() {
       const matchesType = selectedFilters.type.length === 0 || selectedFilters.type.includes(course.type)
       const matchesStatus = selectedFilters.status.length === 0 || selectedFilters.status.includes(course.status)
 
-      const price = currency === "INR" ? (course.priceINR || 0) : (course.price || 0)
+      // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
+      const price = course.priceINR || course.price || 0
       const matchesPrice = price >= selectedFilters.priceRange[0] && price <= selectedFilters.priceRange[1]
 
       const matchesTab = activeTab === "all" || course.status?.toLowerCase() === activeTab.toLowerCase()
@@ -1089,8 +1094,8 @@ export default function EnhancedCourseManagementPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-orange-600">Revenue (INR)</p>
-                      <p className="text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + (currency === "INR" ? (c.priceINR || 0) : (c.price || 0)) * (c.enrolledStudents || 0), 0) : 0}</p>
+                      <p className="text-sm font-medium text-orange-600">Revenue ({currency})</p>
+                      <p className="text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.priceINR || c.price || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
                     </div>
                     <svg className="h-8 w-8 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3s3-1.343 3-3s-1.343-3-3-3zm0 0V4m0 10v4" /></svg>
                   </div>
@@ -1436,7 +1441,7 @@ export default function EnhancedCourseManagementPage() {
                     <h4 className="font-semibold mb-2">Capacity & Pricing</h4>
                     <dl className="grid grid-cols-[120px_1fr] gap-y-1 text-sm">
                       <dt className="text-gray-500">Price:</dt>
-                      <dd className="text-green-600 font-semibold">INR {selectedCourse.priceINR?.toLocaleString()}</dd>
+                      <dd className="text-green-600 font-semibold">${currency} {selectedCourse.priceINR?.toLocaleString()}</dd>
                       <dt className="text-gray-500">Max Students:</dt>
                       <dd>{selectedCourse.maxStudents}</dd>
                     </dl>

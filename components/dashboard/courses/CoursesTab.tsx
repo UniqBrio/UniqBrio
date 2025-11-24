@@ -29,7 +29,7 @@ interface CoursesTabProps {
   setSortBy: (sort: string) => void
   sortOrder: "asc" | "desc"
   setSortOrder: (order: "asc" | "desc") => void
-  currency: "USD" | "INR"
+  currency: string
   viewMode: "grid" | "list"
   setViewMode: (mode: "grid" | "list") => void
   filteredAndSortedCourses: Course[]

@@ -10,6 +10,7 @@ import MultiSelectDropdown from "@/components/dashboard/payments/multi-select-dr
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input";
 import type { Payment } from "@/types/dashboard/payment";
 import { ColumnSelectorModal } from "@/contexts/dashboard/ColumnSelectorModal";
+import { useCurrency } from "@/contexts/currency-context";
 
 // Grid icon component for column selector
 function GridIcon({ className = "w-6 h-6" }) {
@@ -72,6 +73,7 @@ export default function PaymentSearchFilters({
   toggleSelect,
   toggleSelectAll,
 }: PaymentSearchFiltersProps) {
+  const { currency } = useCurrency();
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], []);
   const firstCheckboxRef = useRef<HTMLInputElement | null>(null);
 
@@ -85,12 +87,12 @@ export default function PaymentSearchFilters({
     'Course Type',
     'Course Reg Fee',
     'Student Reg Fee',
-    'Course Fee (INR)',
-    'Course Reg Fee (INR)',
-    'Student Reg Fee (INR)',
-    'Total To Be Paid (INR)',
-    'Total Paid (INR)',
-    'Balance (INR)',
+    `Course Fee (${currency})`,
+    `Course Reg Fee (${currency})`,
+    `Student Reg Fee (${currency})`,
+    `Total To Be Paid (${currency})`,
+    `Total Paid (${currency})`,
+    `Balance (${currency})`,
     'Status',
     'Paid Date',
     'Start Date',
@@ -101,7 +103,7 @@ export default function PaymentSearchFilters({
     'Send Reminder',
     'Actions'
   ];
-  const defaultDisplayedColumns = ['Student ID', 'Student Name', 'Enrolled Course', 'Cohort', 'Payment Category', 'Course Fee (INR)', 'Course Reg Fee (INR)', 'Student Reg Fee (INR)', 'Total To Be Paid (INR)', 'Total Paid (INR)', 'Balance (INR)', 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions'];
+  const defaultDisplayedColumns = ['Student ID', 'Student Name', 'Enrolled Course', 'Cohort', 'Payment Category', `Course Fee (${currency})`, `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Paid (${currency})`, `Balance (${currency})`, 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions'];
   const currentDisplayedColumns = displayedColumns || defaultDisplayedColumns;
   const [showColumnSelector, setShowColumnSelector] = useState(false);
 

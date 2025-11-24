@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { useMemo } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { 
@@ -43,6 +44,8 @@ export function EventAnalytics({ events }: EventAnalyticsProps) {
     return "Ongoing"
   }
 
+  const { currency } = useCurrency();
+
   // Statistics cards
   const topStats = useMemo(() => {
     const upcoming = events.filter(e => getEventStatus(e.startDate, e.endDate) === "Upcoming").length
@@ -53,7 +56,7 @@ export function EventAnalytics({ events }: EventAnalyticsProps) {
     
     return [
       { title: "Total Events", value: events.length, subtitle: "All events" },
-      { title: "Total Revenue", value: `₹${(totalRevenue / 100000).toFixed(1)}L`, subtitle: "Revenue generated" },
+      { title: "Total Revenue", value: `${currency} ${(totalRevenue / 100000).toFixed(1)}L`, subtitle: "Revenue generated" },
       { title: "Total Participants", value: totalParticipants, subtitle: "Across all events" },
       { title: "Ongoing Events", value: ongoing, subtitle: "Currently active" },
       { title: "Upcoming", value: upcoming, subtitle: "Not started" },

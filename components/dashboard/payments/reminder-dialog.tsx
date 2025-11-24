@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ export function ReminderDialog({
   open,
   onOpenChange,
 }: ReminderDialogProps) {
+  const { currency } = useCurrency();
   const [selectedMode, setSelectedMode] = useState<"email" | "inapp" | "whatsapp" | "sms">("email");
   const [isEditing, setIsEditing] = useState(false);
   const [messageContent, setMessageContent] = useState("");
@@ -47,7 +49,7 @@ Student ID: ${payment.studentId}
 Student Name: ${payment.studentName}
 Course ID: ${payment.enrolledCourse || "N/A"}
 Course: ${payment.enrolledCourseName}
-Outstanding: INR${(payment.outstandingAmount || 0).toLocaleString()}
+Outstanding: ${currency}${(payment.outstandingAmount || 0).toLocaleString()}
 
 Tap to pay now via:
 � UPI: -
@@ -66,7 +68,7 @@ Student ID: ${payment.studentId}
 Student Name: ${payment.studentName}
 Course ID: ${payment.enrolledCourse || "N/A"}
 Course: ${payment.enrolledCourseName}
-Outstanding: INR${(payment.outstandingAmount || 0).toLocaleString()}
+Outstanding: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
 
 Tap to pay now via:
 � UPI: -
@@ -90,7 +92,7 @@ Payment QR
 Included Payment Options:
 � UPI ID: -
 � Payment Link
-� Amount: INR${(payment.outstandingAmount || 0).toLocaleString()}
+� Amount: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
 � Course: ${payment.enrolledCourse || "N/A"}
 
 QR auto-generated for Email & WhatsApp previews.`;
@@ -176,7 +178,7 @@ QR auto-generated for Email & WhatsApp previews.`;
               <span className="font-semibold">Course details:</span> {payment.enrolledCourseName} ({payment.enrolledCourse || "N/A"})
             </div>
             <div>
-              <span className="font-semibold">Balance:</span> INR{(payment.outstandingAmount || 0).toLocaleString()}
+              <span className="font-semibold">Balance:</span> {currency} {(payment.outstandingAmount || 0).toLocaleString()}
             </div>
           </div>
 

@@ -90,9 +90,10 @@ export async function sendPaymentConfirmationEmail(
     monthlyInstallment?: number;
     isLastPayment?: boolean;
     dueAmount?: number;
+    currency?: string; // Currency symbol
   }
 ): Promise<boolean> {
-  const { amount, paymentDate, paymentMode, courseName, invoiceNumber, paymentOption, paymentSubType, invoiceUrl, nextPaymentDate, monthlyInstallment, isLastPayment, dueAmount } = paymentDetails;
+  const { amount, paymentDate, paymentMode, courseName, invoiceNumber, paymentOption, paymentSubType, invoiceUrl, nextPaymentDate, monthlyInstallment, isLastPayment, dueAmount, currency = '' } = paymentDetails;
 
   // Determine if this is a One-Time payment
   const isOneTimePayment = paymentOption === 'One Time' || paymentOption === 'ONE_TIME_PAYMENT';
@@ -140,7 +141,7 @@ export async function sendPaymentConfirmationEmail(
           
           <div class="details-box">
             <h3>Payment Details</h3>
-            <p><strong>Amount:</strong> ₹${amount.toLocaleString('en-IN')}</p>
+            <p><strong>Amount:</strong> ${currency}${amount.toLocaleString('en-IN')}</p>
             <p><strong>Payment Date:</strong> ${new Date(paymentDate).toLocaleDateString('en-IN', { 
               day: '2-digit', 
               month: 'long', 
@@ -170,14 +171,14 @@ export async function sendPaymentConfirmationEmail(
           <div class="warning-box">
             <h3>${isOneTimePayment ? '⏰ Partial Payment - Due Balance' : 'Next Payment Due'}</h3>
             ${dueAmount && dueAmount > 0 ? `
-              <p><strong>Remaining Due Amount:</strong> ₹${dueAmount.toLocaleString('en-IN')}</p>
+              <p><strong>Remaining Due Amount:</strong> ${currency}${dueAmount.toLocaleString('en-IN')}</p>
             ` : ''}
             <p><strong>${isOneTimePayment ? 'Due Date' : 'Due Date'}:</strong> ${new Date(nextPaymentDate).toLocaleDateString('en-IN', { 
               day: '2-digit', 
               month: 'long', 
               year: 'numeric' 
             })}</p>
-            ${monthlyInstallment ? `<p><strong>Amount:</strong> ₹${monthlyInstallment.toLocaleString('en-IN')}</p>` : ''}
+            ${monthlyInstallment ? `<p><strong>Amount:</strong> ${currency}${monthlyInstallment.toLocaleString('en-IN')}</p>` : ''}
             ${isOneTimePayment ? `
               <p><strong>Reminder Frequency:</strong> Daily at 10:00 AM</p>
               <p><strong>Duration:</strong> Unlimited reminders until fully paid</p>
@@ -218,7 +219,7 @@ Dear ${studentName},
 We have successfully received your payment. Thank you for your prompt payment!
 
 Payment Details:
-- Amount: ₹${amount.toLocaleString('en-IN')}
+- Amount: ${currency}${amount.toLocaleString('en-IN')}
 - Payment Date: ${new Date(paymentDate).toLocaleDateString('en-IN')}
 - Payment Mode: ${paymentMode}
 - Course: ${courseName}
@@ -227,7 +228,7 @@ Payment Details:
 ${isLastPayment 
   ? '\n🎉 Congratulations! All your dues have been cleared. Thank you for your timely payments throughout the course!\n' 
   : nextPaymentDate 
-  ? `\n${paymentOption === 'One Time' || paymentOption === 'ONE_TIME_PAYMENT' ? 'Partial Payment - Next Payment Due' : 'Next Payment Due'}:\n- Due Date: ${new Date(nextPaymentDate).toLocaleDateString('en-IN')}\n${dueAmount && dueAmount > 0 ? `- Remaining Due Amount: ₹${dueAmount.toLocaleString('en-IN')}\n` : ''}${monthlyInstallment ? `- Amount: ₹${monthlyInstallment.toLocaleString('en-IN')}\n` : ''}${paymentOption === 'One Time' || paymentOption === 'ONE_TIME_PAYMENT' ? '\n- Reminder Frequency: Daily at 10:00 AM\n- Duration: Unlimited reminders until fully paid\n- We will send you daily reminders starting tomorrow until the balance is paid in full.\n' : '\n'}\n` 
+  ? `\n${paymentOption === 'One Time' || paymentOption === 'ONE_TIME_PAYMENT' ? 'Partial Payment - Next Payment Due' : 'Next Payment Due'}:\n- Due Date: ${new Date(nextPaymentDate).toLocaleDateString('en-IN')}\n${dueAmount && dueAmount > 0 ? `- Remaining Due Amount: ${currency}${dueAmount.toLocaleString('en-IN')}\n` : ''}${monthlyInstallment ? `- Amount: ${currency}${monthlyInstallment.toLocaleString('en-IN')}\n` : ''}${paymentOption === 'One Time' || paymentOption === 'ONE_TIME_PAYMENT' ? '\n- Reminder Frequency: Daily at 10:00 AM\n- Duration: Unlimited reminders until fully paid\n- We will send you daily reminders starting tomorrow until the balance is paid in full.\n' : '\n'}\n` 
   : ''
 }
 
@@ -262,9 +263,10 @@ export async function sendPaymentReminderEmail(
     dueDate: Date;
     amount: number;
     outstandingBalance: number;
+    currency?: string; // Currency symbol
   }
 ): Promise<boolean> {
-  const { courseName, dueDate, amount, outstandingBalance } = reminderDetails;
+  const { courseName, dueDate, amount, outstandingBalance, currency = '' } = reminderDetails;
 
   const subject = '⏰ Payment Reminder - UniqBrio';
 
@@ -299,8 +301,8 @@ export async function sendPaymentReminderEmail(
               month: 'long', 
               year: 'numeric' 
             })}</p>
-            <p><strong>Amount Due:</strong> ₹${amount.toLocaleString('en-IN')}</p>
-            <p><strong>Outstanding Balance:</strong> ₹${outstandingBalance.toLocaleString('en-IN')}</p>
+            <p><strong>Amount Due:</strong> ${currency}${amount.toLocaleString('en-IN')}</p>
+            <p><strong>Outstanding Balance:</strong> ${currency}${outstandingBalance.toLocaleString('en-IN')}</p>
           </div>
           
           <p>Please make your payment before the due date to avoid any inconvenience.</p>

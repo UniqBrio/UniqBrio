@@ -2,6 +2,7 @@
 
 // Events Management Page
 import React, { useState, useMemo, useEffect } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import type { Event, EventFilters } from '@/types/dashboard/events/event'
 import { EventManagement, EventViewModal, EventFormModal } from "@/components/dashboard/events"
 import EventHeroSection from "@/components/dashboard/events/EventHeroSection"
@@ -349,7 +350,7 @@ function EventDashboard({ events }: { events: Event[] }) {
   const topStats = [
     {
       title: "Revenue Generated",
-      value: `₹${stats.totalRevenue.toLocaleString()}`,
+      value: `${currency} ${stats.totalRevenue.toLocaleString()}`,
       subtitle: "Generated",
     },
     { 
@@ -416,7 +417,7 @@ function EventDashboard({ events }: { events: Event[] }) {
                     width={40}
                   />
                   <RechartsTooltip 
-                    formatter={(value) => `₹${(value as number).toLocaleString()}`}
+                    formatter={(value) => `${currency} ${(value as number).toLocaleString()}`}
                     labelStyle={{ color: '#000', fontSize: '11px' }}
                     contentStyle={{ fontSize: '11px' }}
                   />
@@ -482,6 +483,7 @@ function EventDashboard({ events }: { events: Event[] }) {
 }
 
 export default function EventsPage() {
+  const { currency } = useCurrency();
   const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)

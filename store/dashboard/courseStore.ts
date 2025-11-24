@@ -63,7 +63,7 @@ interface CourseState {
   pendingFilters: Filters;
   sortBy: string;
   sortOrder: 'asc' | 'desc';
-  currency: 'USD' | 'INR';
+  currency: string;
   viewMode: 'grid' | 'list';
   activeTab: string;
   
@@ -90,7 +90,7 @@ interface CourseState {
   setPendingFilters: (filters: Filters) => void;
   setSortBy: (sortBy: string) => void;
   setSortOrder: (order: 'asc' | 'desc') => void;
-  setCurrency: (currency: 'USD' | 'INR') => void;
+  setCurrency: (currency: string) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setActiveTab: (tab: string) => void;
   
@@ -150,7 +150,7 @@ export const useCourseStore = create<CourseState>()(
         pendingFilters: defaultFilters,
         sortBy: 'courseId',
         sortOrder: 'asc',
-        currency: 'INR',
+        currency: 'USD',
         viewMode: 'grid',
         activeTab: 'all',
         
@@ -227,7 +227,8 @@ export const useCourseStore = create<CourseState>()(
               selectedFilters.status.includes(course.status);
             
             // Price filter
-            const price = currency === "INR" ? (course.priceINR || 0) : (course.price || 0);
+            // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
+            const price = course.priceINR || course.price || 0;
             const matchesPrice = price >= selectedFilters.priceRange[0] && 
               price <= selectedFilters.priceRange[1];
             
@@ -276,7 +277,8 @@ export const useCourseStore = create<CourseState>()(
             activeCourses: courses.filter(c => c.status === "Active").length,
             totalStudents: courses.reduce((sum, c) => sum + (c.enrolledStudents || 0), 0),
             totalRevenue: courses.reduce((sum, c) => {
-              const price = currency === "INR" ? (c.priceINR || 0) : (c.price || 0);
+              // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
+              const price = c.priceINR || c.price || 0;
               return sum + price * (c.enrolledStudents || 0);
             }, 0),
             averageRating: courses.length > 0 
@@ -292,6 +294,21 @@ export const useCourseStore = create<CourseState>()(
         fetchCourses: async () => {
           try {
             set({ loading: true, error: null });
+            
+            // Fetch academy currency from settings
+            try {
+              const academyResponse = await fetch("/api/dashboard/academy-info");
+              if (academyResponse.ok) {
+                const academyData = await academyResponse.json();
+                if (academyData.businessInfo?.currency) {
+                  set({ currency: academyData.businessInfo.currency });
+                }
+              }
+            } catch (error) {
+              console.error('Failed to fetch academy currency:', error);
+              // Continue with default currency if fetch fails
+            }
+            
             const response = await fetch("/api/dashboard/services/courses");
             const data = await response.json();
             

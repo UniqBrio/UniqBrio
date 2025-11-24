@@ -92,7 +92,7 @@ function FinancialsPageContent() {
   };
 
   const defaultIncomes: Income[] = [
-    { id: generateId(), date: "2025-09-15", amount: 45000, incomeCategory: "Course Fees", sourceType: "Students", paymentMode: "UPI", status: "Completed", description: "15 students � 3,000 INR", addToAccount: "HDFC Bank", receivedBy: "Academy Staff", receivedFrom: "Student Fees", receiptNumber: "REC-2025-001" },
+    { id: generateId(), date: "2025-09-15", amount: 45000, incomeCategory: "Course Fees", sourceType: "Students", paymentMode: "UPI", status: "Completed", description: "15 students � 3,000 ${currency}", addToAccount: "HDFC Bank", receivedBy: "Academy Staff", receivedFrom: "Student Fees", receiptNumber: "REC-2025-001" },
     { id: generateId(), date: "2025-09-10", amount: 25000, incomeCategory: "Workshop Fees", sourceType: "Corporate", paymentMode: "Bank Transfer", status: "Pending", description: "Special event workshop", addToAccount: "ICICI Bank", receivedBy: "Finance Team", receivedFrom: "ABC Corp", receiptNumber: "REC-2025-002" },
     { id: generateId(), date: "2025-09-08", amount: 12000, incomeCategory: "Equipment Rental", sourceType: "Others", paymentMode: "Cash", status: "Completed", description: "Rental for sound and lighting", addToAccount: "Cash", receivedBy: "Operations Manager", receivedFrom: "Event Organizer", receiptNumber: "REC-2025-003" },
   ];

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import { Card, CardContent } from "@/components/dashboard/ui/card";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Button } from "@/components/dashboard/ui/button";
@@ -41,6 +42,7 @@ export function StudentPaymentTable({
   toggleSelectAll,
   onRefresh,
 }: StudentPaymentTableProps) {
+  const { currency } = useCurrency();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<keyof Payment>("studentId");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -93,7 +95,7 @@ export function StudentPaymentTable({
   }, [payments, toast]);
 
   // Use default columns if not provided
-  const defaultColumns = ['Student ID', 'Student Name', 'Enrolled Course', 'Cohort', 'Payment Category', 'Course Fee (INR)', 'Course Reg Fee (INR)', 'Student Reg Fee (INR)', 'Total To Be Paid (INR)', 'Total Paid (INR)', 'Balance (INR)', 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions'];
+  const defaultColumns = ['Student ID', 'Student Name', 'Enrolled Course', 'Cohort', 'Payment Category', `Course Fee (${currency})`, `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Paid (${currency})`, `Balance (${currency})`, 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions'];
   const columns = displayedColumns || defaultColumns;
 
   // Helper to check if column should be displayed
@@ -300,19 +302,19 @@ export function StudentPaymentTable({
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Course Fee:</span>
                         <span className="font-semibold text-gray-900">
-                          INR{(payment.courseFee || 0).toLocaleString()}
+                          {currency} {(payment.courseFee || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Total Paid:</span>
                         <span className="font-semibold text-green-600">
-                          INR{(payment.receivedAmount || 0).toLocaleString()}
+                          {currency} {(payment.receivedAmount || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Balance:</span>
                         <span className="font-semibold text-red-600">
-                          INR{(payment.outstandingAmount || 0).toLocaleString()}
+                          {currency} {(payment.outstandingAmount || 0).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -455,12 +457,12 @@ export function StudentPaymentTable({
                   {shouldShowColumn('Payment Category') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Payment Category</TableHead>}
                   {shouldShowColumn('Cohort') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Cohort</TableHead>}
                   {shouldShowColumn('Course Type') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Type</TableHead>}
-                  {shouldShowColumn('Course Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Fee (INR)</TableHead>}
-                  {shouldShowColumn('Course Reg Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee (INR)</TableHead>}
-                  {shouldShowColumn('Student Reg Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee (INR)</TableHead>}
-                  {shouldShowColumn('Total To Be Paid (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total To Be Paid (INR)</TableHead>}
-                  {shouldShowColumn('Total Paid (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Paid (INR)</TableHead>}
-                  {shouldShowColumn('Balance (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Balance (INR)</TableHead>}
+                  {shouldShowColumn(`Course Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Fee ({currency})</TableHead>}
+                  {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee ({currency})</TableHead>}
+                  {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee ({currency})</TableHead>}
+                  {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total To Be Paid ({currency})</TableHead>}
+                  {shouldShowColumn(`Total Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Paid ({currency})</TableHead>}
+                  {shouldShowColumn(`Balance (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Balance ({currency})</TableHead>}
                   {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Status</TableHead>}
                   {shouldShowColumn('Paid Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Paid Date</TableHead>}
                   {shouldShowColumn('Start Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Start Date</TableHead>}
@@ -566,32 +568,32 @@ export function StudentPaymentTable({
                           </Badge>
                         </TableCell>
                       )}
-                      {shouldShowColumn('Course Fee (INR)') && (
+                      {shouldShowColumn(`Course Fee (${currency})`) && (
                         <TableCell className="text-right">
-                          {(payment.courseFee || 0).toLocaleString()}
+                          {currency} {(payment.courseFee || 0).toLocaleString()}
                         </TableCell>
                       )}
-                      {shouldShowColumn('Course Reg Fee (INR)') && (
+                      {shouldShowColumn(`Course Reg Fee (${currency})`) && (
                         <TableCell className="text-right">
                           {(payment.courseRegistrationFee || 0).toLocaleString()}
                         </TableCell>
                       )}
-                      {shouldShowColumn('Student Reg Fee (INR)') && (
+                      {shouldShowColumn(`Student Reg Fee (${currency})`) && (
                         <TableCell className="text-right">
                           {(payment.studentRegistrationFee || 0).toLocaleString()}
                         </TableCell>
                       )}
-                      {shouldShowColumn('Total To Be Paid (INR)') && (
+                      {shouldShowColumn(`Total To Be Paid (${currency})`) && (
                         <TableCell className="text-right font-bold text-purple-700 bg-purple-50 min-w-[150px]">
                           {((payment.courseFee || 0) + (payment.courseRegistrationFee || 0) + (payment.studentRegistrationFee || 0)).toLocaleString()}
                         </TableCell>
                       )}
-                      {shouldShowColumn('Total Paid (INR)') && (
+                      {shouldShowColumn(`Total Paid (${currency})`) && (
                         <TableCell className="text-right text-green-600 font-semibold">
                           {(payment.receivedAmount || 0).toLocaleString()}
                         </TableCell>
                       )}
-                      {shouldShowColumn('Balance (INR)') && (
+                      {shouldShowColumn(`Balance (${currency})`) && (
                         <TableCell className="text-right text-red-600 font-semibold">
                           {(payment.outstandingAmount || 0).toLocaleString()}
                         </TableCell>

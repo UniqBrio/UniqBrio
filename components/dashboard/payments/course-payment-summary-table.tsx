@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Card, CardContent } from "@/components/dashboard/ui/card";
 import {
@@ -24,6 +25,7 @@ interface CoursePaymentSummaryTableProps {
 }
 
 export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, viewMode = 'list' }: CoursePaymentSummaryTableProps) {
+  const { currency } = useCurrency();
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
   const [selectedCohort, setSelectedCohort] = useState<Cohort | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -33,7 +35,7 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
   const [cohortsLoading, setCohortsLoading] = useState(false);
 
   // Use default columns if not provided
-  const defaultColumns = ['CourseID', 'Course Name', 'Students', 'Course Reg Fee (INR)', 'Student Reg Fee (INR)', 'Total To Be Paid (INR)', 'Total Amount (INR)', 'Received (INR)', 'Outstanding (INR)', 'Collection Rate', 'Status'];
+  const defaultColumns = ['CourseID', 'Course Name', 'Students', `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Amount (${currency})`, `Received (${currency})`, `Outstanding (${currency})`, 'Collection Rate', 'Status'];
   const columns = displayedColumns || defaultColumns;
 
   // Helper to check if column should be displayed
@@ -168,37 +170,37 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Course Reg Fee:</span>
                         <span className="font-semibold text-blue-600">
-                          INR{(course.totalCourseRegistrationFees || 0).toLocaleString()}
+                          {currency}{(course.totalCourseRegistrationFees || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Student Reg Fee:</span>
                         <span className="font-semibold text-purple-600">
-                          INR{(course.totalStudentRegistrationFees || 0).toLocaleString()}
+                          {currency}{(course.totalStudentRegistrationFees || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Total To Be Paid:</span>
                         <span className="font-bold text-indigo-600">
-                          INR{(course.totalToBePaid || 0).toLocaleString()}
+                          {currency} {(course.totalToBePaid || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Total Amount:</span>
                         <span className="font-semibold text-gray-900">
-                          INR{(course.totalAmount || 0).toLocaleString()}
+                          {currency} {(course.totalAmount || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Received:</span>
                         <span className="font-bold text-green-600">
-                          INR{(course.receivedAmount || 0).toLocaleString()}
+                          {currency} {(course.receivedAmount || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Outstanding:</span>
                         <span className="font-bold text-red-600">
-                          INR{(course.outstandingAmount || 0).toLocaleString()}
+                          {currency} {(course.outstandingAmount || 0).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -269,12 +271,12 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                 {shouldShowColumn('CourseID') && <TableHead className="font-semibold text-gray-600 sticky-table-header">CourseID</TableHead>}
                 {shouldShowColumn('Course Name') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Name</TableHead>}
                 {shouldShowColumn('Students') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Students</TableHead>}
-                {shouldShowColumn('Course Reg Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee (INR)</TableHead>}
-                {shouldShowColumn('Student Reg Fee (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee (INR)</TableHead>}
-                {shouldShowColumn('Total To Be Paid (INR)') && <TableHead className="font-semibold sticky-table-header bg-purple-50 text-purple-700">Total To Be Paid (INR)</TableHead>}
-                {shouldShowColumn('Total Amount (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Amount (INR)</TableHead>}
-                {shouldShowColumn('Received (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Received (INR)</TableHead>}
-                {shouldShowColumn('Outstanding (INR)') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Outstanding (INR)</TableHead>}
+                {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee ({currency})</TableHead>}
+                {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee ({currency})</TableHead>}
+                {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold sticky-table-header bg-purple-50 text-purple-700">Total To Be Paid ({currency})</TableHead>}
+                {shouldShowColumn(`Total Amount (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Amount ({currency})</TableHead>}
+                {shouldShowColumn(`Received (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Received ({currency})</TableHead>}
+                {shouldShowColumn(`Outstanding (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Outstanding ({currency})</TableHead>}
                 {shouldShowColumn('Collection Rate') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Collection Rate / Status</TableHead>}
                 {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Status</TableHead>}
               </TableRow>
@@ -314,32 +316,32 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                         </span>
                       </TableCell>
                     )}
-                    {shouldShowColumn('Course Reg Fee (INR)') && (
+                    {shouldShowColumn(`Course Reg Fee (${currency})`) && (
                       <TableCell className="font-semibold text-blue-600">
                         {(course.totalCourseRegistrationFees || 0).toLocaleString()}
                       </TableCell>
                     )}
-                    {shouldShowColumn('Student Reg Fee (INR)') && (
+                    {shouldShowColumn(`Student Reg Fee (${currency})`) && (
                       <TableCell className="font-semibold text-purple-600">
                         {(course.totalStudentRegistrationFees || 0).toLocaleString()}
                       </TableCell>
                     )}
-                    {shouldShowColumn('Total To Be Paid (INR)') && (
+                    {shouldShowColumn(`Total To Be Paid (${currency})`) && (
                       <TableCell className="font-bold text-indigo-600">
                         {(course.totalToBePaid || 0).toLocaleString()}
                       </TableCell>
                     )}
-                    {shouldShowColumn('Total Amount (INR)') && (
+                    {shouldShowColumn(`Total Amount (${currency})`) && (
                       <TableCell className="font-semibold">
                         {(course.totalAmount || 0).toLocaleString()}
                       </TableCell>
                     )}
-                    {shouldShowColumn('Received (INR)') && (
+                    {shouldShowColumn(`Received (${currency})`) && (
                       <TableCell className="text-green-600 font-bold">
                         {(course.receivedAmount || 0).toLocaleString()}
                       </TableCell>
                     )}
-                    {shouldShowColumn('Outstanding (INR)') && (
+                    {shouldShowColumn(`Outstanding (${currency})`) && (
                       <TableCell className="text-red-600 font-bold">
                         {/* Show N/A only for truly ongoing monthly subscriptions */}
                         {(course.outstandingAmount === 0 && (course.receivedAmount || 0) > 0 && 
@@ -398,12 +400,12 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                                   <TableHead className="font-semibold text-purple-700 bg-purple-100">Cohort ID</TableHead>
                                   <TableHead className="font-semibold text-purple-700 bg-purple-100">Cohort</TableHead>
                                   <TableHead className="font-semibold text-purple-700 bg-purple-100">Students</TableHead>
-                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Course Reg Fee (INR)</TableHead>
-                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Student Reg Fee (INR)</TableHead>
-                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Total To Be Paid (INR)</TableHead>
-                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Total Amount (INR)</TableHead>
-                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Received (INR)</TableHead>
-                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Outstanding (INR)</TableHead>
+                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Course Reg Fee (${currency})</TableHead>
+                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Student Reg Fee (${currency})</TableHead>
+                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Total To Be Paid (${currency})</TableHead>
+                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Total Amount (${currency})</TableHead>
+                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Received (${currency})</TableHead>
+                                  <TableHead className="font-semibold text-purple-700 bg-purple-100">Outstanding (${currency})</TableHead>
                                   <TableHead className="font-semibold text-purple-700 bg-purple-100">Collection Rate</TableHead>
                                 </TableRow>
                               </TableHeader>

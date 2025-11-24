@@ -34,6 +34,7 @@ export interface InvoiceData {
   remainingBalance?: number;
   nextPaymentDate?: Date; // For monthly subscriptions
   monthlyInstallment?: number; // Monthly subscription amount
+  currency?: string; // Currency code (e.g., "USD", "EUR", "CAD")
 }
 
 /**
@@ -43,7 +44,8 @@ export function generateInvoiceData(
   payment: any,
   transaction: any, // Transaction object with extended properties
   invoiceNumber: string,
-  previousTransactions?: any[]
+  previousTransactions?: any[],
+  currency: string = '' // Currency symbol
 ): InvoiceData {
   const finalAmount =
     transaction.amount +
@@ -67,6 +69,7 @@ export function generateInvoiceData(
     specialCharges: transaction.specialCharges,
     finalAmount,
     notes: transaction.notes,
+    currency,
   };
 
   // Add EMI details if applicable
@@ -102,7 +105,7 @@ export function generateInvoiceData(
     invoiceData.totalPaidToDate = totalPaidToDate;
     invoiceData.remainingBalance = Math.max(totalFees - totalPaidToDate, 0);
     
-    console.log(`Payment History: ${(previousTransactions || []).length} previous payments, Total paid: ₹${totalPaidToDate}, Remaining: ₹${invoiceData.remainingBalance}`);
+    console.log(`Payment History: ${(previousTransactions || []).length} previous payments, Total paid: ${currency}${totalPaidToDate}, Remaining: ${currency}${invoiceData.remainingBalance}`);
   } else {
     // For single payments, still calculate totals
     invoiceData.totalPaidToDate = transaction.amount;
@@ -248,7 +251,7 @@ export function generateThankYouEmail(
       
       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Payment Details</h3>
-        <p><strong>Amount:</strong> ₹${transaction.amount.toLocaleString()}</p>
+        <p><strong>Amount:</strong> ${transaction.currency}${transaction.amount.toLocaleString()}</p>
         <p><strong>Payment Date:</strong> ${new Date(transaction.paymentDate).toLocaleDateString()}</p>
         <p><strong>Payment Mode:</strong> ${transaction.paymentMode}</p>
         <p><strong>Course:</strong> ${payment.enrolledCourseName}</p>
@@ -267,7 +270,7 @@ export function generateThankYouEmail(
         <div style="background-color: #fff3e0; padding: 20px; border-radius: 5px; margin: 20px 0;">
           <h3 style="color: #e65100; margin-top: 0;">Next Payment Due</h3>
           <p><strong>Date:</strong> ${new Date(payment.nextPaymentDate).toLocaleDateString()}</p>
-          <p><strong>Amount:</strong> ₹${(payment.monthlyInstallment || 0).toLocaleString()}</p>
+          <p><strong>Amount:</strong> ${payment.currency}${(payment.monthlyInstallment || 0).toLocaleString()}</p>
         </div>
       `
           : ''
@@ -290,7 +293,7 @@ Dear ${payment.studentName},
 We have received your payment. Thank you!
 
 Payment Details:
-- Amount: ₹${transaction.amount.toLocaleString()}
+- Amount: ${transaction.currency}${transaction.amount.toLocaleString()}
 - Payment Date: ${new Date(transaction.paymentDate).toLocaleDateString()}
 - Payment Mode: ${transaction.paymentMode}
 - Course: ${payment.enrolledCourseName}
@@ -299,7 +302,7 @@ ${
   isLastPayment
     ? '\n🎉 Congratulations! All your dues have been cleared. Thank you for your timely payments!\n'
     : payment.nextPaymentDate
-    ? `\nNext Payment Due:\n- Date: ${new Date(payment.nextPaymentDate).toLocaleDateString()}\n- Amount: ₹${(payment.monthlyInstallment || 0).toLocaleString()}\n`
+    ? `\nNext Payment Due:\n- Date: ${new Date(payment.nextPaymentDate).toLocaleDateString()}\n- Amount: ${payment.currency}${(payment.monthlyInstallment || 0).toLocaleString()}\n`
     : ''
 }
 

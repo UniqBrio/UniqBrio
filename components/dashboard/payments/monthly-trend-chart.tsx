@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
+import { useCurrency } from "@/contexts/currency-context";
 import { TrendingUp } from "lucide-react";
 import { type MonthlyTrend } from "@/types/dashboard/payment";
 
@@ -9,6 +10,7 @@ interface MonthlyTrendChartProps {
 }
 
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
+  const { currency } = useCurrency();
   const maxRevenue = Math.max(...data.map(d => d.revenue), 1);
   
   // Reverse the data so current month appears at the top
@@ -27,7 +29,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         <div className="flex items-center gap-3 pb-2 border-b border-gray-200">
           <div className="w-28 text-xs font-semibold text-gray-500 uppercase tracking-wide">Month</div>
           <div className="flex-1 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Revenue Progress</div>
-          <div className="w-36 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Amount (INR)</div>
+          <div className="w-36 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Amount ({currency})</div>
         </div>
         
         <div className="space-y-4">
@@ -51,7 +53,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
                     ></div>
                   </div>
                   <div className="w-36 text-sm font-bold text-right text-gray-900">
-                    INR {item.revenue.toLocaleString()}
+                    {currency} {item.revenue.toLocaleString()}
                   </div>
                 </div>
               </div>

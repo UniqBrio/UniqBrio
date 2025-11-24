@@ -9,6 +9,7 @@ import { Pencil, Trash2, RefreshCw } from "lucide-react";
 import { ExpenseDraftsAPI, type ExpenseDraft } from "@/lib/dashboard/expense-drafts-api";
 import { useToast } from "@/hooks/dashboard/use-toast";
 import { ExpenseFormData } from "@/components/dashboard/financials/types";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface ExpenseDraftsDialogProps {
   open: boolean;
@@ -42,6 +43,7 @@ export function ExpenseDraftsDialog({
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [draftToDelete, setDraftToDelete] = useState<ExpenseDraft | null>(null);
   const { toast } = useToast();
+  const { currency } = useCurrency();
 
   // Load drafts from backend API
   const loadDrafts = async () => {
@@ -230,7 +232,7 @@ export function ExpenseDraftsDialog({
                         </h3>
                         <p className="text-sm text-gray-600 mb-2">
                                                 <div className="text-sm text-muted-foreground">
-                          {draft.category} {draft.amount && draft.amount !== '0' && `� ${draft.amount} INR`}
+                          {draft.category} {draft.amount && draft.amount !== '0' && `${currency} ${draft.amount}`}
                         </div>
                         </p>
                         <div className="flex items-center gap-2 mb-2">

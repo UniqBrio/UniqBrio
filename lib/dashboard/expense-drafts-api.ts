@@ -75,7 +75,7 @@ export class ExpenseDraftsAPI {
     const parts: string[] = [];
     
     if (data.expenseCategory) parts.push(data.expenseCategory);
-    if (data.amount) parts.push(`${data.amount} INR`);
+    if (data.amount) parts.push(`${data.amount}`);
     if (data.vendorName) parts.push(data.vendorName);
     
     if (parts.length === 0) return 'Untitled Expense';

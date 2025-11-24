@@ -8,6 +8,7 @@ import { Label } from "@/components/dashboard/ui/label";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Loader2, Search, RefreshCw, BookOpen, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/dashboard/use-toast";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface CoursePaymentDetails {
   courseId: string;
@@ -22,6 +23,7 @@ interface CoursePaymentDetails {
 }
 
 export default function CoursePaymentFetcher() {
+  const { currency } = useCurrency();
   const { toast } = useToast();
   const [courseId, setCourseId] = useState("");
   const [courseDetails, setCourseDetails] = useState<CoursePaymentDetails | null>(null);
@@ -195,7 +197,7 @@ export default function CoursePaymentFetcher() {
                 </div>
                 {courseDetails.priceINR && (
                   <div>
-                    <Label className="text-xs text-muted-foreground">Course Fee (INR)</Label>
+                    <Label className="text-xs text-muted-foreground">Course Fee ({currency})</Label>
                     <div className="text-sm font-semibold flex items-center gap-1">
                       <DollarSign className="h-3 w-3" />
                       ?{courseDetails.priceINR.toLocaleString()}
@@ -204,7 +206,7 @@ export default function CoursePaymentFetcher() {
                 )}
                 {courseDetails.registrationFee && (
                   <div>
-                    <Label className="text-xs text-muted-foreground">Registration Fee (INR)</Label>
+                    <Label className="text-xs text-muted-foreground">Registration Fee ({currency})</Label>
                     <div className="text-sm font-semibold flex items-center gap-1">
                       <DollarSign className="h-3 w-3" />
                       ?{courseDetails.registrationFee.toLocaleString()}

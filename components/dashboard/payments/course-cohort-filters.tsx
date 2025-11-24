@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useRef, useState } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
@@ -66,6 +67,7 @@ export default function CourseCohortFilters({
   viewMode = 'list',
   setViewMode,
 }: CourseCohortFiltersProps) {
+  const { currency } = useCurrency();
   const firstCheckboxRef = useRef<HTMLInputElement | null>(null);
 
   // Column management
@@ -73,13 +75,13 @@ export default function CourseCohortFilters({
     'CourseID',
     'Course Name',
     'Students',
-    'Total Amount (INR)',
-    'Received (INR)',
-    'Outstanding (INR)',
+    `Total Amount (${currency})`,
+    `Received (${currency})`,
+    `Outstanding (${currency})`,
     'Collection Rate',
     'Status'
   ];
-  const defaultDisplayedColumns = ['CourseID', 'Course Name', 'Students', 'Total Amount (INR)', 'Received (INR)', 'Outstanding (INR)', 'Collection Rate', 'Status'];
+  const defaultDisplayedColumns = ['CourseID', 'Course Name', 'Students', `Total Amount (${currency})`, `Received (${currency})`, `Outstanding (${currency})`, 'Collection Rate', 'Status'];
   const currentDisplayedColumns = displayedColumns || defaultDisplayedColumns;
   const [showColumnSelector, setShowColumnSelector] = useState(false);
 
@@ -377,7 +379,7 @@ export default function CourseCohortFilters({
               </div>
 
               {/* Outstanding Amount Filter */}
-              <div className="mb-2 font-semibold text-sm">Filter by Outstanding Amount (INR)</div>
+              <div className="mb-2 font-semibold text-sm">Filter by Outstanding Amount ({currency})</div>
               <div className="flex flex-wrap gap-2 mb-3">
                 {['100000+', '50000-99999', '10000-49999', '0-9999'].map(range => (
                   <label key={range} className="flex items-center gap-1 text-xs p-1 hover:bg-gray-100 rounded cursor-pointer">
@@ -393,10 +395,12 @@ export default function CourseCohortFilters({
                         }));
                       }}
                     />
-                    {range === '100000+' && '₹1L+'}
-                    {range === '50000-99999' && '₹50K-99K'}
-                    {range === '10000-49999' && '₹10K-49K'}
-                    {range === '0-9999' && '<₹10K'}
+                    <span>
+                      {range === '100000+' && '1L+'}
+                      {range === '50000-99999' && '50K-99K'}
+                      {range === '10000-49999' && '10K-49K'}
+                      {range === '0-9999' && '<10K'}
+                    </span>
                   </label>
                 ))}
               </div>

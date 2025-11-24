@@ -9,6 +9,7 @@ import { useState } from "react"
 import ConfirmationDialog from "./ConfirmationDialog"
 import { Pencil, Trash2, Plus, X, MapPin } from "lucide-react";
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
+import { useCurrency } from "@/contexts/currency-context";
 
 interface CourseListProps {
   courses: Course[];
@@ -31,6 +32,7 @@ interface CourseListProps {
 }
 
 export default function CourseList({ courses, viewMode, onCourseClick, onEditCourse, onDeleteCourse, onAddCourse, cohorts = [], displayedColumns = ['courseId', 'name', 'instructor', 'location', 'type', 'level', 'priceINR', 'status'], selectedCourseIds = [], onToggleCourseSelect, onToggleAllVisible, showIdBadges = false, enrollmentSettings }: CourseListProps) {
+  const { currency } = useCurrency();
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [viewAllCourses, setViewAllCourses] = useState(false);
 
@@ -107,7 +109,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
     location: { label: 'Location', render: (course: Course) => course.location || '-' },
     type: { label: 'Type', render: (course: Course) => course.type },
     level: { label: 'Level', render: (course: Course) => course.level },
-    priceINR: { label: 'Price (INR)', render: (course: Course) => `INR ${course.priceINR?.toLocaleString()}` },
+    priceINR: { label: `Price (${currency})`, render: (course: Course) => `${currency} ${course.priceINR?.toLocaleString()}` },
     status: { 
       label: 'Status', 
       render: (course: Course) => (
@@ -432,7 +434,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     {course.description && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
-                        <span className="text-xl font-bold text-purple-700">INR {course.priceINR?.toLocaleString()}</span>
+                        <span className="text-xl font-bold text-purple-700">{currency} {course.priceINR?.toLocaleString()}</span>
                         {renderCapacityIndicator(course, true)}
                       </div>
                     </div>
@@ -534,7 +536,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     {course.description && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
-                        <span className="text-xl font-bold text-purple-700">INR {course.priceINR?.toLocaleString()}</span>
+                        <span className="text-xl font-bold text-purple-700">{currency} {course.priceINR?.toLocaleString()}</span>
                       </div>
                     </div>
                   </CardContent>

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image"
+import { useCurrency } from "@/contexts/currency-context"
 
 // Mock forecast data generator
 function getForecastData(period: number, type: string) {
@@ -25,6 +26,7 @@ const typeOptions = ["Income & Expense", "Income", "Expense"];
 const compareOptions = ["None", "Previous Period", "Same Period Last Year"];
 
 export function ForecastSection() {
+  const { currency } = useCurrency();
   // Coming soon flag – greys out the section & disables controls
   const isComingSoon = true;
   const [period, setPeriod] = useState(3);
@@ -126,10 +128,10 @@ export function ForecastSection() {
               return (
                 <tr key={row.month} className="border-b last:border-none">
                   <td className="px-4 py-2">{row.month}</td>
-                  {(type === "Income & Expense" || type === "Income") && <td className="px-4 py-2 text-right">₹{row.income.toLocaleString()}</td>}
-                  {(type === "Income & Expense" || type === "Expense") && <td className="px-4 py-2 text-right">₹{row.expense.toLocaleString()}</td>}
-                  <td className={`px-4 py-2 text-right font-semibold ${net >= 0 ? "text-green-700" : "text-red-700"}`}>₹{net.toLocaleString()}</td>
-                  {compare !== "None" && <td className={`px-4 py-2 text-right ${diff && diff < 0 ? "text-red-600" : "text-green-600"}`}>{diff !== null ? (diff >= 0 ? "+" : "") + `₹${diff.toLocaleString()}` : "-"}</td>}
+                  {(type === "Income & Expense" || type === "Income") && <td className="px-4 py-2 text-right">{currency} {row.income.toLocaleString()}</td>}
+                  {(type === "Income & Expense" || type === "Expense") && <td className="px-4 py-2 text-right">{currency} {row.expense.toLocaleString()}</td>}
+                  <td className={`px-4 py-2 text-right font-semibold ${net >= 0 ? "text-green-700" : "text-red-700"}`}>{currency} {net.toLocaleString()}</td>
+                  {compare !== "None" && <td className={`px-4 py-2 text-right ${diff && diff < 0 ? "text-red-600" : "text-green-600"}`}>{diff !== null ? (diff >= 0 ? "+" : "") + `${currency} ${diff.toLocaleString()}` : "-"}</td>}
                 </tr>
               );
             })}

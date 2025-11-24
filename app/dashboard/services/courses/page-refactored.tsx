@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import MainLayout from "@/components/dashboard/main-layout"
@@ -74,7 +74,7 @@ export default function EnhancedCourseManagementPage() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [editCourseId, setEditCourseId] = useState<string | null>(null)
-  const [currency, setCurrency] = useState<"USD" | "INR">("INR")
+  const [currency, setCurrency] = useState<"USD" | "${currency}">("${currency}")
 
   // Dialog states
   const [isAddCourseDialogOpen, setIsAddCourseDialogOpen] = useState(false)

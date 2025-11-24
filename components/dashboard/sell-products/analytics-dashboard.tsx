@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
+import { useCurrency } from "@/contexts/currency-context"
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
+  const { currency } = useCurrency();
   const [reportPeriod, setReportPeriod] = useState("monthly")
 
   const salesData = [
@@ -59,7 +61,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-green-50 border border-green-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-md font-semibold text-green-700">Revenue (INR)</CardTitle>
+            <CardTitle className="text-md font-semibold text-green-700">Revenue ({currency})</CardTitle>
             <TrendingUp className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>

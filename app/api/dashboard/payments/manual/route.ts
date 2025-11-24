@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
           const course = await Course.findOne({ courseId }).lean();
           if (course && (course as any).priceINR) {
             courseFee = (course as any).priceINR;
-            console.log(`Fetched course fee for ${courseId}: ₹${courseFee}`);
+            console.log(`Fetched course fee for ${courseId}: ${courseFee}`);
           } else {
             console.warn(`Course ${courseId} not found or has no priceINR`);
           }
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
       });
       
       console.log('Created new payment record:', payment._id);
-      console.log(`Total fees: ₹${payment.outstandingAmount} (Course: ₹${courseFee}, CourseReg: ₹${courseRegistrationFee}, StudentReg: ₹${studentRegistrationFee})`);
+      console.log(`Total fees: ${payment.outstandingAmount} (Course: ${courseFee}, CourseReg: ${courseRegistrationFee}, StudentReg: ${studentRegistrationFee})`);
     }
 
     // Check if existing payment record has zero or missing fees and update them
@@ -254,7 +254,7 @@ export async function POST(request: NextRequest) {
           const course = await Course.findOne({ courseId }).lean();
           if (course && (course as any).priceINR) {
             courseFee = (course as any).priceINR;
-            console.log(`Fetched course fee for ${courseId}: ₹${courseFee}`);
+            console.log(`Fetched course fee for ${courseId}: ${courseFee}`);
           }
           if (course && (course as any).type) {
             courseType = (course as any).type;
@@ -339,8 +339,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: isFirstPayment 
-              ? `Payment amount (₹${amount}) cannot exceed ₹${maxAllowedAmount} (course fee + registration fees)`
-              : `Payment amount (₹${amount}) cannot exceed outstanding amount (₹${payment.outstandingAmount})`,
+              ? `Payment amount (${amount}) cannot exceed ${maxAllowedAmount} (course fee + registration fees)`
+              : `Payment amount (${amount}) cannot exceed outstanding amount (${payment.outstandingAmount})`,
           },
           { status: 400 }
         );

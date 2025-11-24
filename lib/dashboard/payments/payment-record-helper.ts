@@ -9,13 +9,17 @@ import { PaymentRecord, PaymentBalance, AddPaymentRecordData } from '@/types/das
 /**
  * Format currency amount
  */
-export function formatCurrency(amount: number, currency: string = 'INR'): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency,
+export function formatCurrency(amount: number, currency: string = ''): string {
+  if (!currency) {
+    return amount.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+  return `${currency} ${amount.toLocaleString('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  })}`;
 }
 
 /**

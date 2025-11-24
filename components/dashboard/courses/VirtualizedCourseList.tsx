@@ -9,7 +9,7 @@ import type { Course } from '@/store/dashboard/courseStore';
 interface VirtualizedCourseListProps {
   courses: Course[];
   viewMode: 'grid' | 'list';
-  currency: 'USD' | 'INR';
+  currency: string;
   onCourseClick: (course: Course) => void;
   onEditCourse?: (course: Course) => void;
   onDeleteCourse?: (courseId: string) => void;
@@ -25,7 +25,7 @@ const CourseItem = React.memo<{
   data: {
     courses: Course[];
     viewMode: 'grid' | 'list';
-    currency: 'USD' | 'INR';
+    currency: string;
     onCourseClick: (course: Course) => void;
     onEditCourse?: (course: Course) => void;
     onDeleteCourse?: (courseId: string) => void;
@@ -94,15 +94,15 @@ CourseItem.displayName = 'CourseItem';
 // Memoized grid card component
 const GridCourseCard = React.memo<{
   course: Course;
-  currency: 'USD' | 'INR';
+  currency: string;
   onCourseClick: (course: Course) => void;
   onEditCourse?: (course: Course) => void;
   onDeleteCourse?: (courseId: string) => void;
   isSelected: boolean;
   onToggleSelection?: (courseId: string) => void;
 }>(({ course, currency, onCourseClick, onEditCourse, onDeleteCourse, isSelected, onToggleSelection }) => {
-  const price = currency === "INR" ? course.priceINR || course.price : course.price;
-  const currencySymbol = currency === "INR" ? "INR " : "$";
+  const price = course.priceINR || course.price;
+  const currencySymbol = `${currency} `;
 
   const handleClick = useCallback(() => {
     onCourseClick(course);
@@ -200,15 +200,15 @@ GridCourseCard.displayName = 'GridCourseCard';
 // Memoized list card component
 const ListCourseCard = React.memo<{
   course: Course;
-  currency: 'USD' | 'INR';
+  currency: string;
   onCourseClick: (course: Course) => void;
   onEditCourse?: (course: Course) => void;
   onDeleteCourse?: (courseId: string) => void;
   isSelected: boolean;
   onToggleSelection?: (courseId: string) => void;
 }>(({ course, currency, onCourseClick, onEditCourse, onDeleteCourse, isSelected, onToggleSelection }) => {
-  const price = currency === "INR" ? course.priceINR || course.price : course.price;
-  const currencySymbol = currency === "INR" ? "INR " : "$";
+  const price = course.priceINR || course.price;
+  const currencySymbol = `${currency} `;
 
   const handleClick = useCallback(() => {
     onCourseClick(course);

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
 import { Progress } from "@/components/dashboard/ui/progress"
+import { useCurrency } from "@/contexts/currency-context"
 import {
   Star,
   Users,
@@ -38,18 +39,18 @@ interface CourseCardProps {
 export default function CourseCard({ course, onView }: CourseCardProps) {
   // Use instructorName if available, else fallback to instructor
   const instructorDisplay = course.instructor || 'Unknown Instructor';
-  const formatCurrency = (amount: number, currency: "USD" | "INR") => {
-    if (currency === "INR") {
-      return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(amount)
-    } else {
+  const { currency } = useCurrency();
+  const formatCurrency = (amount: number, currencyCode: string) => {
+    // Note: priceINR is a legacy field name, but now stores price in academy's selected currency
+    try {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: currencyCode,
+        maximumFractionDigits: 0,
       }).format(amount)
+    } catch (error) {
+      // Fallback if currency code is not supported
+      return `${currencyCode} ${amount.toLocaleString()}`
     }
   }
 
@@ -228,7 +229,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <span className="text-gray-600">{course.name || 'Untitled Course'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-purple-700 font-bold text-lg">{course.priceINR ? `?${course.priceINR}` : 'INR'}</span>
+              <span className="text-purple-700 font-bold text-lg">{course.priceINR ? `${currency} ${course.priceINR}` : currency}</span>
             </div>
           </div>
 
@@ -266,12 +267,12 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <span className="text-sm text-gray-500">({course.enrolledStudents} reviews)</span>
             </div>
             <div className="text-right">
-              <div className="font-bold text-lg text-purple-600">{formatCurrency(course.priceINR, "INR")}</div>
+              <div className="font-bold text-lg text-purple-600">{formatCurrency(course.priceINR, currency)}</div>
                  {course.dynamicPricing?.enabled &&
                 course.dynamicPricing.suggestedPrice !== undefined &&
                 course.dynamicPricing.suggestedPrice !== course.priceINR && (
                   <div className="text-xs text-gray-500 line-through">
-                    {formatCurrency(course.dynamicPricing.suggestedPrice, "INR")}
+                    {formatCurrency(course.dynamicPricing.suggestedPrice, currency)}
                   </div>
                 )}
             </div>

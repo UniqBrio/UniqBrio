@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useMemo } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
 import { Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, Upload, Download, Check, X, Plus, FileText } from "lucide-react"
@@ -78,6 +79,7 @@ export default function SearchAndFilters({
   selectedCount = 0,
   draftsCount = 0
 }: SearchAndFiltersProps) {
+  const { currency } = useCurrency()
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [filterAction, setFilterAction] = useState<string | null>(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
@@ -221,7 +223,7 @@ export default function SearchAndFilters({
               </div>
 
               <div>
-                <div className="mb-2 font-semibold text-sm">Price Range (INR)</div>
+                <div className="mb-2 font-semibold text-sm">Price Range ({currency})</div>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -302,7 +304,7 @@ export default function SearchAndFilters({
                 const label = [
                   { value: "courseId", label: "Course ID" },
                   { value: "name", label: "Course Name" },
-                  { value: "priceINR", label: "Price (INR)" },
+                  { value: "priceINR", label: `Price (${currency})` },
                   { value: "duration", label: "Duration" },
                 ].find(o => o.value === sortBy)?.label;
                 return label ? <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{label}</span> : null;
@@ -315,7 +317,7 @@ export default function SearchAndFilters({
             {[
               { value: "courseId", label: "Course ID" },
               { value: "name", label: "Course Name" },
-              { value: "priceINR", label: "Price (INR)" },                                
+              { value: "priceINR", label: `Price (${currency})` },                                
               { value: "duration", label: "Duration" },
             ].map((option) => (
               <DropdownMenuItem
@@ -420,8 +422,8 @@ export default function SearchAndFilters({
             { header: 'Location', key: 'location' },
             { header: 'Virtual Classroom URL', key: 'virtualClassroomUrl' },
             // Pricing and referral related fields
-            { header: 'Price (INR)', key: 'priceINR' },
-            { header: 'Discount Price (INR)', key: 'discountPrice' },
+            { header: `Price (${currency})`, key: 'priceINR' },
+            { header: `Discount Price (${currency})`, key: 'discountPrice' },
             { header: 'Referral Code', key: 'referralCode' },
             { header: 'Commission Rate (%)', key: 'commissionRate' },
             { header: 'Referral Start Date', key: 'referralStart' },

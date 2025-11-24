@@ -37,6 +37,7 @@ import { useApp } from "@/contexts/dashboard/app-context"
 export default function SettingsPage() {
   const { user, setUser } = useApp()
   const [isLoading, setIsLoading] = useState(true)
+  const [profileData, setProfileData] = useState<any>(null)
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("appearance")
   
@@ -53,7 +54,17 @@ export default function SettingsPage() {
     // Load user data
     const loadUserData = async () => {
       try {
-        // Simulate API call
+        // Fetch actual profile data from API
+        const response = await fetch("/api/user-profile")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.user) {
+            setProfileData(data.user)
+            console.log('[Settings] Profile data loaded:', data.user)
+          }
+        } else {
+          console.warn('[Settings] Failed to fetch profile:', response.status)
+        }
         setIsLoading(false)
       } catch (error) {
         console.error("Failed to load user data:", error)
@@ -66,8 +77,8 @@ export default function SettingsPage() {
 
   const handleProfileUpdate = async (updates: any) => {
     try {
-      // In a real app, this would call the API
-      const response = await fetch("/api/dashboard/settings/profile", {
+      // Call the user-profile API to update
+      const response = await fetch("/api/user-profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -75,8 +86,15 @@ export default function SettingsPage() {
 
       if (!response.ok) throw new Error("Failed to update profile")
 
-      const updatedUser = await response.json()
-      setUser(updatedUser)
+      // Refresh profile data after update
+      const refreshResponse = await fetch("/api/user-profile")
+      if (refreshResponse.ok) {
+        const data = await refreshResponse.json()
+        if (data.success && data.user) {
+          setProfileData(data.user)
+          console.log('[Settings] Profile updated and refreshed')
+        }
+      }
       
       return Promise.resolve()
     } catch (error) {
@@ -189,34 +207,11 @@ export default function SettingsPage() {
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex flex-col space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-purple-700 flex items-center gap-2">
-                <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8" />Settings
-              </h1>
-              <p className="text-sm sm:text-base text-gray-500 mt-1">Manage your account settings and preferences
-                
-              </p>
-            </div>
-            
-            {user && (
-              <Card className="w-full lg:w-auto lg:min-w-[240px]">
-                <CardContent className="p-3 sm:p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-base sm:text-lg flex-shrink-0">
-                    {user.name?.charAt(0) || "U"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm sm:text-base truncate">{user.name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Badge variant="outline" className="text-xs">
-                        {user.role}
-                      </Badge>
-                      
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-purple-700 flex items-center gap-2">
+              <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8" />Settings
+            </h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">Manage your account settings and preferences</p>
           </div>
 
 
@@ -247,7 +242,7 @@ export default function SettingsPage() {
                   className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <Palette className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Localisation</span>
+                  <span className="hidden sm:inline">Localization</span>
                 </TabsTrigger>
 
                 <TabsTrigger
@@ -270,7 +265,17 @@ export default function SettingsPage() {
             </div>
 
             <TabsContent value="profile" className="space-y-4">
-              <ProfileSettings user={user} onUpdate={handleProfileUpdate} />
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+              ) : profileData ? (
+                <ProfileSettings user={profileData} onUpdate={handleProfileUpdate} />
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  Failed to load profile data. Please refresh the page.
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="academy-info" className="space-y-4">
@@ -296,3 +301,4 @@ export default function SettingsPage() {
         </div>
       </div>)
 }
+

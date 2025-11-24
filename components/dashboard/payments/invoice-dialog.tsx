@@ -15,6 +15,7 @@ import { type Payment } from "@/types/dashboard/payment";
 import { useToast } from "@/hooks/dashboard/use-toast";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface PaymentRecord {
   _id: string;
@@ -38,6 +39,7 @@ export function InvoiceDialog({
   open,
   onOpenChange,
 }: InvoiceDialogProps) {
+  const { currency } = useCurrency();
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
@@ -382,7 +384,7 @@ export function InvoiceDialog({
               <thead className="bg-gray-100">
                 <tr>
                   <th className="text-left p-3 font-semibold border">Description</th>
-                  <th className="text-right p-3 font-semibold border">Amount (INR)</th>
+                  <th className="text-right p-3 font-semibold border">Amount ({currency})</th>
                 </tr>
               </thead>
               <tbody>

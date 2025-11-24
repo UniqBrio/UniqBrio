@@ -11,6 +11,7 @@ import { Badge } from "@/components/dashboard/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/dashboard/ui/avatar";
 import { type Cohort } from "@/data/dashboard/cohorts";
 import { type Student } from "@/types/dashboard/student";
+import { useCurrency } from "@/contexts/currency-context";
 import {
   Hash,
   BookOpen,
@@ -40,6 +41,7 @@ export function CohortDetailDialog({
   open,
   onOpenChange,
 }: CohortDetailDialogProps) {
+  const { currency } = useCurrency();
   const [students, setStudents] = useState<Student[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -126,8 +128,8 @@ export function CohortDetailDialog({
   };
 
   const formatCurrency = (amount: number | undefined) => {
-    if (!amount) return "INR 0";
-    return `INR ${amount.toLocaleString()}`;
+    if (!amount) return `${currency} 0`;
+    return `${currency} ${amount.toLocaleString()}`;
   };
 
   const formatDaysOfWeek = (days?: number[]) => {

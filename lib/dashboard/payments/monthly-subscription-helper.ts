@@ -241,7 +241,7 @@ export function formatMonthlySubscriptionSummary(
   
   let summary = `Monthly Subscription - Current: ${currentRecord.month}\n`;
   summary += `Paid Months: ${paidMonths}\n`;
-  summary += `Current Month Fee: ₹${currentRecord.amount.toLocaleString()}`;
+  summary += `Current Month Fee: ${currentRecord.amount.toLocaleString()}`;
   
   if (currentRecord.isDiscountApplied && subscriptionState.commitmentPeriod) {
     const remainingDiscountMonths = subscriptionState.commitmentPeriod - paidMonths;

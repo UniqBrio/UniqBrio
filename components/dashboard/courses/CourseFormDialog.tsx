@@ -186,7 +186,7 @@ export default function CourseFormDialog({
     const errors: string[] = [];
     
     if (!newCourseForm?.priceINR || parseFloat(newCourseForm.priceINR) <= 0) {
-      errors.push('Price (INR)');
+      errors.push('Price');
     }
     
     if (!newCourseForm?.paymentCategory) {
@@ -458,7 +458,7 @@ export default function CourseFormDialog({
         totalSessions: parseInt(newCourseForm.totalSessions) || 10,
         completedSessions: parseInt(newCourseForm.completedSessions) || 0,
         price: parseFloat(newCourseForm.priceINR) || parseFloat(newCourseForm.price) || 0,
-        currency: newCourseForm.currency || 'INR',
+        currency: newCourseForm.currency,
         discountPrice: parseFloat(newCourseForm.discountPrice) || 0,
         thumbnail: newCourseForm.thumbnail || 'https://via.placeholder.com/400x300',
         images: newCourseForm.images || [],

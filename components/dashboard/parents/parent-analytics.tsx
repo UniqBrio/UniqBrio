@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import React from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
 import { Badge } from "@/components/dashboard/ui/badge";
@@ -44,6 +45,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
     return Array.from(cats).sort() as string[];
   }, [parents]);
 
+  const { currency } = useCurrency();
+
   // Consistent number formatting function
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('en-US').format(num);
@@ -58,12 +61,12 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
     },
     { 
       title: "Total Revenue", 
-      value: `${parents[0]?.currency || 'INR'} ${formatNumber(parents.reduce((sum, p) => sum + (p.amountPaid || 0), 0))}`, 
+      value: `${parents[0]?.currency } ${formatNumber(parents.reduce((sum, p) => sum + (p.amountPaid || 0), 0))}`, 
       subtitle: "Amount collected" 
     },
     { 
       title: "Pending Payments", 
-      value: `${parents[0]?.currency || 'INR'} ${formatNumber(parents.reduce((sum, p) => sum + (p.dueAmount || 0), 0))}`, 
+      value: `${parents[0]?.currency } ${formatNumber(parents.reduce((sum, p) => sum + (p.dueAmount || 0), 0))}`, 
       subtitle: "Amount due" 
     },
     { 
@@ -414,10 +417,10 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" label={{ value: 'Month', position: 'insideBottom', offset: -5 }} />
                       <YAxis 
-                        label={{ value: 'Amount (₹000s)', angle: -90, position: 'insideLeft' }}
+                        label={{ value: 'Amount (000s)', angle: -90, position: 'insideLeft' }}
                       />
                       <Tooltip 
-                        formatter={(value: any) => `${parents[0]?.currency || 'INR'} ${formatNumber(value * 1000)}`}
+                        formatter={(value: any) => `${currency} ${formatNumber(value * 1000)}`}
                         labelFormatter={(label: string) => `${label}`}
                       />
                       <Legend />

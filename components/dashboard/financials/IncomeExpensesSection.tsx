@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { format as formatDate } from "date-fns";
+import { useCurrency } from "@/contexts/currency-context";
 // 3x3 grid icon
 function GridIcon({ className = "w-6 h-6" }) {
   return (
@@ -81,6 +82,9 @@ export function IncomeExpensesSection({
   setExpenseDraftId,
   visibleSection = 'both'
 }: IncomeExpensesSectionProps) {
+
+  // Currency context
+  const { currency } = useCurrency();
 
   // Toast
   const { toast } = useToast();
@@ -521,7 +525,7 @@ export function IncomeExpensesSection({
                             ? "sticky top-0 z-20 px-6 py-3 text-center font-semibold "
                             : "sticky top-0 z-20 px-6 py-3 text-left font-semibold ") + "bg-[#f8f8fc]"}
                         >
-                          {col === "Actions" ? '' : col === "Amount" ? "Amount (INR)" : col}
+                          {col === "Actions" ? '' : col === "Amount" ? `Amount (${currency})` : col}
                         </th>
                       ))}
                     </tr>
@@ -654,7 +658,7 @@ export function IncomeExpensesSection({
                       {income.receivedFrom && <p>From: {income.receivedFrom}</p>}
                     </div>
                     <div className="flex justify-between items-end mt-2">
-                      <span className="text-xl font-bold text-purple-700">{income.amount.toLocaleString()} <span className="text-sm font-semibold text-purple-600">INR</span></span>
+                      <span className="text-xl font-bold text-purple-700">{income.amount.toLocaleString()} <span className="text-sm font-semibold text-purple-600">{currency}</span></span>
                     </div>
                   </CardContent>
                   {/* Delete icon bottom right */}
@@ -786,7 +790,7 @@ export function IncomeExpensesSection({
                             ? "sticky top-0 z-20 px-6 py-3 text-center font-semibold "
                             : "sticky top-0 z-20 px-6 py-3 text-left font-semibold ") + "bg-[#f8f8fc]"}
                         >
-                          {col === "Actions" ? '' : col === "Amount" ? "Amount (INR)" : col}
+                          {col === "Actions" ? '' : col === "Amount" ? `Amount (${currency})` : col}
                         </th>
                       ))}
                     </tr>
@@ -915,7 +919,7 @@ export function IncomeExpensesSection({
                       {income.receivedFrom && <p>From: {income.receivedFrom}</p>}
                     </div>
                     <div className="flex justify-between items-end mt-2">
-                      <span className="text-xl font-bold text-purple-700">{income.amount.toLocaleString()} <span className="text-sm font-semibold text-purple-600">INR</span></span>
+                      <span className="text-xl font-bold text-purple-700">{income.amount.toLocaleString()} <span className="text-sm font-semibold text-purple-600">{currency}</span></span>
                     </div>
                   </CardContent>
                   {/* Delete icon bottom right */}

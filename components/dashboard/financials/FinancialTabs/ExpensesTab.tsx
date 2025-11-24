@@ -1,5 +1,6 @@
 "use client"
 
+import { useCurrency } from '@/contexts/currency-context'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -33,6 +34,8 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
   const [vendorData, setVendorData] = React.useState<Array<{ vendor: string; expense: number; count: number; avgAmount: number }>>([])
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  
+  const { currency } = useCurrency();
   
   // Only year filter
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear())
@@ -239,7 +242,7 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
                     }]}
                     label={{ value: 'Expense', angle: -90, position: 'insideLeft', offset: -30 }}
                   />
-                  <RechartsTooltip formatter={(value: number) => `INR ${value.toLocaleString()}`} />
+                  <RechartsTooltip formatter={(value: number) => `${currency} ${value.toLocaleString()}`} />
                   <Legend />
                   <Area 
                     type="monotone" 
@@ -276,9 +279,9 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
                   <div key={cat.category} className="flex justify-between items-center p-3 bg-orange-50 rounded">
                     <span className="font-medium">{cat.category}</span>
                     <div className="text-right">
-                      <div className="font-bold text-orange-700">INR {cat.expense.toLocaleString()}</div>
+                      <div className="font-bold text-orange-700">{currency} {cat.expense.toLocaleString()}</div>
                       <div className="text-xs text-orange-600">{cat.count} transactions</div>
-                      <div className="text-xs text-orange-600">Avg: INR {cat.avgAmount.toLocaleString()}</div>
+                      <div className="text-xs text-orange-600">Avg: {currency} {cat.avgAmount.toLocaleString()}</div>
                     </div>
                   </div>
                 ))}
@@ -293,9 +296,9 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
                     <div key={vendor.vendor} className="flex justify-between items-center p-3 bg-red-50 rounded">
                       <span className="font-medium">{vendor.vendor}</span>
                       <div className="text-right">
-                        <div className="font-bold text-red-700">INR {vendor.expense.toLocaleString()}</div>
+                        <div className="font-bold text-red-700">{currency} {vendor.expense.toLocaleString()}</div>
                         <div className="text-xs text-red-600">{vendor.count} transactions</div>
-                        <div className="text-xs text-red-600">Avg: INR {vendor.avgAmount.toLocaleString()}</div>
+                        <div className="text-xs text-red-600">Avg: {currency} {vendor.avgAmount.toLocaleString()}</div>
                       </div>
                     </div>
                   ))}
@@ -311,8 +314,8 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
                     <span className="font-medium">{cat.category}</span>
                     <div className="text-right">
                       <div className="font-bold text-purple-700">{cat.count} times</div>
-                      <div className="text-xs text-purple-600">INR {cat.expense.toLocaleString()} total</div>
-                      <div className="text-xs text-purple-600">Avg: INR {cat.avgAmount.toLocaleString()}</div>
+                      <div className="text-xs text-purple-600">{currency} {cat.expense.toLocaleString()} total</div>
+                      <div className="text-xs text-purple-600">Avg: {currency} {cat.avgAmount.toLocaleString()}</div>
                     </div>
                   </div>
                 ))}

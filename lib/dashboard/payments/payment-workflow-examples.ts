@@ -182,7 +182,7 @@ export async function validatePaymentAmount(courseId: string, paymentAmount: num
           expectedAmount: totalCourseFee,
           message: paymentAmount === totalCourseFee 
             ? 'Full payment amount is correct' 
-            : `Expected full payment: ₹${totalCourseFee}, received: ₹${paymentAmount}`
+            : `Expected full payment: ${totalCourseFee}, received: ${paymentAmount}`
         };
 
       case 'partial':
@@ -192,7 +192,7 @@ export async function validatePaymentAmount(courseId: string, paymentAmount: num
           expectedAmount: minPartialAmount,
           message: paymentAmount >= minPartialAmount 
             ? 'Partial payment amount is valid' 
-            : `Minimum partial payment: ₹${minPartialAmount}, received: ₹${paymentAmount}`
+            : `Minimum partial payment: ${minPartialAmount}, received: ${paymentAmount}`
         };
 
       case 'installment':
@@ -202,7 +202,7 @@ export async function validatePaymentAmount(courseId: string, paymentAmount: num
           expectedAmount: maxInstallmentAmount,
           message: paymentAmount <= maxInstallmentAmount 
             ? 'Installment amount is valid' 
-            : `Maximum installment amount: ₹${maxInstallmentAmount}, received: ₹${paymentAmount}`
+            : `Maximum installment amount: ${maxInstallmentAmount}, received: ${paymentAmount}`
         };
 
       default:

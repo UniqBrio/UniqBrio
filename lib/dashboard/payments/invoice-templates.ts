@@ -90,7 +90,7 @@ export function generateOneTimeInvoiceHTML(invoiceData: InvoiceData): string {
         <tr>
           <td>${index + 1}</td>
           <td>${new Date(payment.date).toLocaleDateString('en-IN')}</td>
-          <td>₹${payment.amount.toLocaleString()}</td>
+          <td>${invoiceData.currency }${payment.amount.toLocaleString()}</td>
           <td>${payment.mode}</td>
           <td>${payment.invoiceNumber || '-'}</td>
         </tr>
@@ -112,23 +112,23 @@ export function generateOneTimeInvoiceHTML(invoiceData: InvoiceData): string {
       <tbody>
         <tr>
           <td>Payment Amount</td>
-          <td style="text-align: right;">₹${invoiceData.paymentAmount.toLocaleString()}</td>
+          <td style="text-align: right;">${invoiceData.currency }${invoiceData.paymentAmount.toLocaleString()}</td>
         </tr>
         ${invoiceData.discount && invoiceData.discount > 0 ? `
         <tr>
           <td>Discount</td>
-          <td style="text-align: right; color: #4CAF50;">- ₹${invoiceData.discount.toLocaleString()}</td>
+          <td style="text-align: right; color: #4CAF50;">- ${invoiceData.currency }${invoiceData.discount.toLocaleString()}</td>
         </tr>
         ` : ''}
         ${invoiceData.specialCharges && invoiceData.specialCharges > 0 ? `
         <tr>
           <td>Special Charges</td>
-          <td style="text-align: right;">₹${invoiceData.specialCharges.toLocaleString()}</td>
+          <td style="text-align: right;">${invoiceData.currency }${invoiceData.specialCharges.toLocaleString()}</td>
         </tr>
         ` : ''}
         <tr style="font-weight: bold; background: #e8f5e9;">
           <td>Amount Paid</td>
-          <td style="text-align: right;">₹${invoiceData.finalAmount.toLocaleString()}</td>
+          <td style="text-align: right;">${invoiceData.currency }${invoiceData.finalAmount.toLocaleString()}</td>
         </tr>
       </tbody>
     </table>
@@ -136,11 +136,11 @@ export function generateOneTimeInvoiceHTML(invoiceData: InvoiceData): string {
 
   <div class="totals">
     ${isPartialPayment ? `
-    <div><span>Total Course Fee:</span><span>₹${((invoiceData.paymentAmount) + (invoiceData.remainingBalance || 0)).toLocaleString()}</span></div>
-    <div><span>Total Paid to Date:</span><span>₹${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
-    <div class="grand-total"><span>Remaining Balance:</span><span>₹${(invoiceData.remainingBalance || 0).toLocaleString()}</span></div>
+    <div><span>Total Course Fee:</span><span>${invoiceData.currency }${((invoiceData.paymentAmount) + (invoiceData.remainingBalance || 0)).toLocaleString()}</span></div>
+    <div><span>Total Paid to Date:</span><span>${invoiceData.currency }${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
+    <div class="grand-total"><span>Remaining Balance:</span><span>${invoiceData.currency }${(invoiceData.remainingBalance || 0).toLocaleString()}</span></div>
     ` : `
-    <div class="grand-total"><span>✅ Fully Paid:</span><span>₹${invoiceData.finalAmount.toLocaleString()}</span></div>
+    <div class="grand-total"><span>✅ Fully Paid:</span><span>${invoiceData.currency }${invoiceData.finalAmount.toLocaleString()}</span></div>
     `}
   </div>
 
@@ -241,7 +241,7 @@ export function generateEMIInvoiceHTML(invoiceData: InvoiceData): string {
         <tr ${index + 1 === currentEMI ? 'class="current-emi"' : ''}>
           <td>EMI ${index + 1}</td>
           <td>${new Date(payment.date).toLocaleDateString('en-IN')}</td>
-          <td>₹${payment.amount.toLocaleString()}</td>
+          <td>${invoiceData.currency }${payment.amount.toLocaleString()}</td>
           <td><span class="badge-paid">PAID</span></td>
           <td>${payment.invoiceNumber || '-'}</td>
         </tr>
@@ -249,7 +249,7 @@ export function generateEMIInvoiceHTML(invoiceData: InvoiceData): string {
         <tr ${invoiceData.paymentHistory.length === currentEMI - 1 ? 'class="current-emi"' : ''}>
           <td>EMI ${currentEMI}</td>
           <td>${new Date(invoiceData.invoiceDate).toLocaleDateString('en-IN')}</td>
-          <td>₹${invoiceData.paymentAmount.toLocaleString()}</td>
+          <td>${invoiceData.currency }${invoiceData.paymentAmount.toLocaleString()}</td>
           <td><span class="badge-paid">PAID</span></td>
           <td>${invoiceData.invoiceNumber}</td>
         </tr>
@@ -257,7 +257,7 @@ export function generateEMIInvoiceHTML(invoiceData: InvoiceData): string {
         <tr>
           <td>EMI ${currentEMI + i + 1}</td>
           <td>-</td>
-          <td>₹${invoiceData.paymentAmount.toLocaleString()}</td>
+          <td>${invoiceData.currency }${invoiceData.paymentAmount.toLocaleString()}</td>
           <td><span class="badge-pending">PENDING</span></td>
           <td>-</td>
         </tr>
@@ -268,9 +268,9 @@ export function generateEMIInvoiceHTML(invoiceData: InvoiceData): string {
   ` : ''}
 
   <div class="totals">
-    <div><span>Total Course Fee:</span><span>₹${((invoiceData.totalPaidToDate || 0) + (invoiceData.remainingBalance || 0)).toLocaleString()}</span></div>
-    <div><span>EMIs Paid (${currentEMI}/${totalEMIs}):</span><span>₹${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
-    <div class="grand-total"><span>Remaining Balance:</span><span>₹${(invoiceData.remainingBalance || 0).toLocaleString()}</span></div>
+    <div><span>Total Course Fee:</span><span>${invoiceData.currency }${((invoiceData.totalPaidToDate || 0) + (invoiceData.remainingBalance || 0)).toLocaleString()}</span></div>
+    <div><span>EMIs Paid (${currentEMI}/${totalEMIs}):</span><span>${invoiceData.currency }${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
+    <div class="grand-total"><span>Remaining Balance:</span><span>${invoiceData.currency }${(invoiceData.remainingBalance || 0).toLocaleString()}</span></div>
   </div>
 
   ${invoiceData.notes ? `
@@ -356,36 +356,36 @@ export function generateMonthlyInvoiceHTML(invoiceData: InvoiceData): string {
     <tbody>
       <tr>
         <td>Monthly Subscription Fee</td>
-        <td style="text-align: right;">₹${invoiceData.paymentAmount.toLocaleString()}</td>
+        <td style="text-align: right;">${invoiceData.currency }${invoiceData.paymentAmount.toLocaleString()}</td>
       </tr>
       ${invoiceData.discount && invoiceData.discount > 0 ? `
       <tr>
         <td>Discount Applied</td>
-        <td style="text-align: right; color: #4CAF50;">- ₹${invoiceData.discount.toLocaleString()}</td>
+        <td style="text-align: right; color: #4CAF50;">- ${invoiceData.currency }${invoiceData.discount.toLocaleString()}</td>
       </tr>
       ` : ''}
       ${invoiceData.specialCharges && invoiceData.specialCharges > 0 ? `
       <tr>
         <td>Additional Charges</td>
-        <td style="text-align: right;">₹${invoiceData.specialCharges.toLocaleString()}</td>
+        <td style="text-align: right;">${invoiceData.currency }${invoiceData.specialCharges.toLocaleString()}</td>
       </tr>
       ` : ''}
       <tr style="font-weight: bold; background: #e3f2fd;">
         <td>Total Paid This Month</td>
-        <td style="text-align: right;">₹${invoiceData.finalAmount.toLocaleString()}</td>
+        <td style="text-align: right;">${invoiceData.currency }${invoiceData.finalAmount.toLocaleString()}</td>
       </tr>
     </tbody>
   </table>
 
   <div class="totals">
-    <div class="grand-total"><span>✅ Monthly Payment Received:</span><span>₹${invoiceData.finalAmount.toLocaleString()}</span></div>
+    <div class="grand-total"><span>✅ Monthly Payment Received:</span><span>${invoiceData.currency }${invoiceData.finalAmount.toLocaleString()}</span></div>
   </div>
 
   ${invoiceData.nextPaymentDate ? `
   <div class="next-payment">
     <h3>⏰ Next Payment Due</h3>
     <p style="font-size: 18px; margin: 10px 0;"><strong>Date:</strong> ${new Date(invoiceData.nextPaymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-    <p style="font-size: 16px; color: #E65100;"><strong>Amount:</strong> ₹${(invoiceData.monthlyInstallment || invoiceData.paymentAmount).toLocaleString()}</p>
+    <p style="font-size: 16px; color: #E65100;"><strong>Amount:</strong> ${invoiceData.currency }${(invoiceData.monthlyInstallment || invoiceData.paymentAmount).toLocaleString()}</p>
   </div>
   ` : ''}
 
@@ -483,7 +483,7 @@ export function generateInstallmentsInvoiceHTML(invoiceData: InvoiceData): strin
         <tr>
           <td>${index === 0 ? '1st' : index === 1 ? '2nd' : 'Final'} Installment</td>
           <td>${new Date(payment.date).toLocaleDateString('en-IN')}</td>
-          <td>₹${payment.amount.toLocaleString()}</td>
+          <td>${invoiceData.currency }${payment.amount.toLocaleString()}</td>
           <td><span class="badge-paid">PAID</span></td>
           <td>${payment.invoiceNumber || '-'}</td>
         </tr>
@@ -491,7 +491,7 @@ export function generateInstallmentsInvoiceHTML(invoiceData: InvoiceData): strin
         <tr class="current-installment">
           <td>${invoiceData.paymentSubType || 'Current'} Installment</td>
           <td>${new Date(invoiceData.invoiceDate).toLocaleDateString('en-IN')}</td>
-          <td>₹${invoiceData.paymentAmount.toLocaleString()}</td>
+          <td>${invoiceData.currency }${invoiceData.paymentAmount.toLocaleString()}</td>
           <td><span class="badge-paid">PAID</span></td>
           <td>${invoiceData.invoiceNumber}</td>
         </tr>
@@ -501,12 +501,12 @@ export function generateInstallmentsInvoiceHTML(invoiceData: InvoiceData): strin
   ` : ''}
 
   <div class="totals">
-    <div><span>Total Course Fee:</span><span>₹${((invoiceData.totalPaidToDate || 0) + (invoiceData.remainingBalance || 0)).toLocaleString()}</span></div>
-    <div><span>Total Paid to Date:</span><span>₹${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
+    <div><span>Total Course Fee:</span><span>${invoiceData.currency }${((invoiceData.totalPaidToDate || 0) + (invoiceData.remainingBalance || 0)).toLocaleString()}</span></div>
+    <div><span>Total Paid to Date:</span><span>${invoiceData.currency }${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
     ${invoiceData.remainingBalance && invoiceData.remainingBalance > 0 ? `
-    <div class="grand-total"><span>Remaining Balance:</span><span>₹${invoiceData.remainingBalance.toLocaleString()}</span></div>
+    <div class="grand-total"><span>Remaining Balance:</span><span>${invoiceData.currency }${invoiceData.remainingBalance.toLocaleString()}</span></div>
     ` : `
-    <div class="grand-total"><span>✅ Fully Paid:</span><span>₹${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
+    <div class="grand-total"><span>✅ Fully Paid:</span><span>${invoiceData.currency }${(invoiceData.totalPaidToDate || invoiceData.paymentAmount).toLocaleString()}</span></div>
     `}
   </div>
 

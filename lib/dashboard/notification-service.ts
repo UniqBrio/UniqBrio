@@ -21,6 +21,7 @@ export async function sendPaymentConfirmationNotification(
     monthlyInstallment?: number;
     isLastPayment?: boolean;
     dueAmount?: number;
+    currency?: string; // Currency symbol
   }
 ): Promise<{ emailSent: boolean; inAppCreated: boolean }> {
   const results = { emailSent: false, inAppCreated: false };
@@ -46,10 +47,10 @@ export async function sendPaymentConfirmationNotification(
         ? '🎉 Payment Complete - Thank You!'
         : '✅ Payment Received',
       message: paymentDetails.isLastPayment
-        ? `Your payment of ₹${paymentDetails.amount.toLocaleString('en-IN')} has been received and all dues are now cleared. Thank you!`
+        ? `Your payment of {paymentDetails.currency}{paymentDetails.amount.toLocaleString('en-IN')} has been received and all dues are now cleared. Thank you!`
         : isPartial && isOneTimePayment
-        ? `Payment of ₹${paymentDetails.amount.toLocaleString('en-IN')} received. Remaining balance: ₹${paymentDetails.dueAmount?.toLocaleString('en-IN')}. Daily reminders will be sent until fully paid.`
-        : `Payment of ₹${paymentDetails.amount.toLocaleString('en-IN')} has been successfully received. Thank you for your payment!`,
+        ? `Payment of {paymentDetails.currency}{paymentDetails.amount.toLocaleString('en-IN')} received. Remaining balance: {paymentDetails.currency}{paymentDetails.dueAmount?.toLocaleString('en-IN')}. Daily reminders will be sent until fully paid.`
+        : `Payment of {paymentDetails.currency}{paymentDetails.amount.toLocaleString('en-IN')} has been successfully received. Thank you for your payment!`,
       metadata: {
         amount: paymentDetails.amount,
         dueAmount: paymentDetails.dueAmount || 0,
@@ -93,6 +94,7 @@ export async function sendPaymentReminderNotification(
     amount: number;
     outstandingBalance: number;
     reminderCount?: number;
+    currency?: string; // Currency symbol
   }
 ): Promise<{ emailSent: boolean; inAppCreated: boolean }> {
   const results = { emailSent: false, inAppCreated: false };
@@ -112,7 +114,7 @@ export async function sendPaymentReminderNotification(
       type: 'payment_reminder',
       channel: 'in-app',
       title: '🔔 Payment Reminder',
-      message: `Reminder: You have an outstanding balance of ₹${reminderDetails.outstandingBalance.toLocaleString('en-IN')} for ${reminderDetails.courseName}. Due date: ${new Date(reminderDetails.dueDate).toLocaleDateString('en-IN')}.`,
+      message: `Reminder: You have an outstanding balance of {reminderDetails.currency}{reminderDetails.outstandingBalance.toLocaleString('en-IN')} for ${reminderDetails.courseName}. Due date: ${new Date(reminderDetails.dueDate).toLocaleDateString('en-IN')}.`,
       metadata: {
         amount: reminderDetails.amount,
         dueAmount: reminderDetails.outstandingBalance,

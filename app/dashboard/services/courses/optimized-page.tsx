@@ -20,7 +20,7 @@ const ErrorFallback = () => (
 );
 
 // Lazy load heavy components
-const VirtualizedCourseList = dynamic(() => import('@/components/courses/VirtualizedCourseList'), {
+const VirtualizedCourseList = dynamic(() => import('@/components/dashboard/courses/VirtualizedCourseList'), {
   loading: () => <div className="flex items-center justify-center h-64">Loading courses...</div>
 });
 
@@ -36,11 +36,10 @@ const StatsCard = React.memo<{
     if (typeof value === 'number') {
       switch (format) {
         case 'currency':
-          return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
+          return value.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
             maximumFractionDigits: 0
-          }).format(value);
+          });
         case 'percentage':
           return `${value.toFixed(1)}%`;
         case 'number':
@@ -255,13 +254,6 @@ export default function OptimizedCourseManagementPage() {
                 onClick={() => setViewMode('list')}
               >
                 <List className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')}
-              >
-                {currency}
               </Button>
             </div>
           </div>

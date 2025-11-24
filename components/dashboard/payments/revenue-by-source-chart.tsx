@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
+import { useCurrency } from "@/contexts/currency-context";
 import { BookOpen } from "lucide-react";
 import {
   BarChart,
@@ -22,6 +23,7 @@ interface RevenueBySourceChartProps {
 }
 
 export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
+  const { currency } = useCurrency();
   // Transform data for the chart - limit to top 3
   const chartData = data.slice(0, 3).map((item) => ({
     course: item.courseId,
@@ -69,7 +71,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
               <YAxis
                 width={150}
                 label={{
-                  value: 'Revenue (INR)',
+                  value: `Revenue (${currency})`,
                   angle: -90,
                   position: 'outside',
                   offset: 25,
@@ -77,7 +79,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                 }}
                 style={{ fontSize: '12px', fontWeight: '500' }}
                 tick={{ fill: '#374151', dx: -5 }}
-                tickFormatter={(value) => `INR ${(value / 1000).toFixed(0)}k`}
+                tickFormatter={(value) => `${currency} ${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
                 formatter={(value: any, name: string, props: any) => {
@@ -85,7 +87,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                   return [
                     <div key="revenue-tooltip" className="space-y-1">
                       <div className="font-semibold text-purple-700">{courseName}</div>
-                      <div className="text-lg font-bold">INR {value.toLocaleString()}</div>
+                      <div className="text-lg font-bold">{currency} {value.toLocaleString()}</div>
                       <div className="text-sm text-gray-600">Course ID: {props.payload?.course}</div>
                     </div>,
                     ''
@@ -104,7 +106,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                 <LabelList
                   dataKey="amount"
                   position="top"
-                  formatter={(value: number) => value > 0 ? `INR ${value.toLocaleString()}` : 'INR 0'}
+                  formatter={(value: number) => value > 0 ? `${currency} ${value.toLocaleString()}` : `${currency} 0`}
                   style={{ fontSize: '12px', fontWeight: '600', fill: '#4B5563' }}
                 />
               </Bar>
@@ -136,7 +138,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                   </span>
                 </div>
                 <div className="text-sm font-semibold text-gray-900">
-                  INR {item.amount.toLocaleString()}
+                  {currency} {item.amount.toLocaleString()}
                 </div>
               </div>
             ))}

@@ -1,5 +1,6 @@
 "use client"
 
+import { useCurrency } from '@/contexts/currency-context'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/dashboard/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Button } from "@/components/dashboard/ui/button"
@@ -49,6 +50,8 @@ export function OverviewTab() {
       strokeWidth: 3
     }
   })
+
+  const { currency } = useCurrency();
 
   // Primary chart data (only chart we keep)
   const [chartData, setChartData] = React.useState<Array<{ name: string; income: number; expense: number; profit: number; roi: number }>>([]);
@@ -214,7 +217,7 @@ export function OverviewTab() {
                   >
                     {chartConfig.showLabels && (
                       <Label 
-                        value="Amount (INR)" 
+                        value={`Amount (${currency || 'Amount'})`} 
                         angle={-90} 
                         position="insideLeft" 
                         style={{ textAnchor: 'middle' }} 
@@ -222,7 +225,7 @@ export function OverviewTab() {
                     )}
                   </YAxis>
                   <RechartsTooltip 
-                    formatter={(value: number) => [`INR ${value.toLocaleString()}`, 'Amount']}
+                    formatter={(value: number) => [`${currency} ${value.toLocaleString()}`, 'Amount']}
                     contentStyle={{
                       fontSize: screenSize === "mobile" ? '11px' : '14px',
                       padding: screenSize === "mobile" ? '6px 8px' : '8px 12px',

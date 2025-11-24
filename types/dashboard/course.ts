@@ -80,7 +80,7 @@ export interface Course {
   price: number;
   priceINR: number;
   paymentCategory?: string;
-  currency: "USD" | "INR";
+  currency: string;
   rating: number;
   status: "Active" | "Inactive" | "Completed" | "Cancelled" | "Draft" | "Upcoming";
   tags: string[];

@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
 import { Card, CardContent } from "@/components/dashboard/ui/card";
+import { useCurrency } from "@/contexts/currency-context";
 import { RevenueBySourceChart } from "@/components/dashboard/payments/revenue-by-source-chart";
 import { PaymentCompletionChart } from "@/components/dashboard/payments/payment-completion-chart";
 import { PaymentMethodChart } from "@/components/dashboard/payments/payment-method-chart";
@@ -20,6 +21,7 @@ import { useToast } from "@/hooks/dashboard/use-toast";
 import { Button } from "@/components/dashboard/ui/button";
 
 export default function PaymentsPage() {
+  const { currency } = useCurrency();
   const { toast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
@@ -43,14 +45,14 @@ export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("studentId");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [displayedColumns, setDisplayedColumns] = useState<string[]>(['Student ID', 'Student Name', 'Enrolled Course', 'Payment Category', 'Course Fee (INR)', 'Course Reg Fee (INR)', 'Student Reg Fee (INR)', 'Total To Be Paid (INR)', 'Total Paid (INR)', 'Balance (INR)', 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions']);
+  const [displayedColumns, setDisplayedColumns] = useState<string[]>(['Student ID', 'Student Name', 'Enrolled Course', 'Payment Category', `Course Fee (${currency})`, `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Paid (${currency})`, `Balance (${currency})`, 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions']);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   // Filter and sort state for Course & Cohort tab
   const [courseSearchTerm, setCourseSearchTerm] = useState("");
   const [courseSortBy, setCourseSortBy] = useState("courseName");
   const [courseSortOrder, setCourseSortOrder] = useState<"asc" | "desc">("asc");
-  const [courseDisplayedColumns, setCourseDisplayedColumns] = useState<string[]>(['CourseID', 'Course Name', 'Students', 'Total Amount (INR)', 'Received (INR)', 'Outstanding (INR)', 'Collection Rate', 'Status']);
+  const [courseDisplayedColumns, setCourseDisplayedColumns] = useState<string[]>(['CourseID', 'Course Name', 'Students', `Total Amount (${currency})`, `Received (${currency})`, `Outstanding (${currency})`, 'Collection Rate', 'Status']);
   const [courseViewMode, setCourseViewMode] = useState<'list' | 'grid'>('list');
 
   // Selection state for export
@@ -240,7 +242,7 @@ export default function PaymentsPage() {
       const lines: string[] = [];
       
       // Header for course summary
-      lines.push('Type,Course ID,Course Name,Cohort ID,Cohort Name,Students,Total Amount (INR),Received (INR),Outstanding (INR),Collection Rate (%),Status');
+      lines.push(`Type,Course ID,Course Name,Cohort ID,Cohort Name,Students,Total Amount (${currency}),Received (${currency}),Outstanding (${currency}),Collection Rate (%),Status`);
       
       // Add course and cohort data
       filteredCourseSummaries.forEach(course => {
@@ -382,7 +384,7 @@ export default function PaymentsPage() {
                           Total Received
                         </p>
                         <p className="text-3xl font-bold text-purple-900">
-                          INR {(analytics.totalReceived || 0).toLocaleString()}
+                          {currency} {(analytics.totalReceived || 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-purple-600 mt-1">All time</p>
                       </div>
@@ -403,7 +405,7 @@ export default function PaymentsPage() {
                           Monthly Revenue
                         </p>
                         <p className="text-3xl font-bold text-green-900">
-                          INR {(analytics.monthlyRevenue || 0).toLocaleString()}
+                          {currency} {(analytics.monthlyRevenue || 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-green-600 mt-1">This month</p>
                       </div>
@@ -424,7 +426,7 @@ export default function PaymentsPage() {
                           Weekly Revenue
                         </p>
                         <p className="text-3xl font-bold text-blue-900">
-                          INR {(analytics.weeklyRevenue || 0).toLocaleString()}
+                          {currency} {(analytics.weeklyRevenue || 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-blue-600 mt-1">This week</p>
                       </div>
@@ -445,7 +447,7 @@ export default function PaymentsPage() {
                           Outstanding
                         </p>
                         <p className="text-3xl font-bold text-red-900">
-                          INR {(analytics.totalOutstanding || 0).toLocaleString()}
+                          {currency} {(analytics.totalOutstanding || 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-red-600 mt-1">Pending</p>
                       </div>

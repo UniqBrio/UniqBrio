@@ -75,7 +75,7 @@ export class IncomeDraftsAPI {
     const parts: string[] = [];
     
     if (data.incomeCategory) parts.push(data.incomeCategory);
-    if (data.amount) parts.push(`${data.amount} INR`);
+    if (data.amount) parts.push(`${data.amount}`);
     if (data.sourceType) parts.push(data.sourceType);
     
     if (parts.length === 0) return 'Untitled Income';

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from 'react';
+import { useCurrency } from '@/contexts/currency-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/dashboard/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/dashboard/ui/select';
 import { Label } from '@/components/dashboard/ui/label';
@@ -10,6 +11,7 @@ import { formatMonthLabel } from '@/lib/dashboard/utils';
 interface IncomeTabProps { incomeFilter: string; setIncomeFilter: (value: string) => void }
 
 export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
+  const { currency } = useCurrency();
   const [data, setData] = React.useState<Array<{ name: string; income: number }>>([]);
   const [categoryData, setCategoryData] = React.useState<Array<{ category: string; income: number; count: number; avgAmount: number; percentage: number }>>([]);
   const [sourceData, setSourceData] = React.useState<Array<{ source: string; income: number; count: number; avgAmount: number }>>([]);
@@ -175,7 +177,7 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
                     width={35}
                   />
                   <RechartsTooltip 
-                    formatter={(value: number) => [`INR ${value.toLocaleString()}`, 'Income']}
+                    formatter={(value: number) => [`${currency} ${value.toLocaleString()}`, 'Income']}
                     contentStyle={{
                       fontSize: '12px',
                       padding: '6px 8px',
@@ -210,9 +212,9 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
                     <div key={cat.category} className="flex justify-between items-center p-2 sm:p-3 bg-purple-50 rounded gap-2">
                       <span className="font-medium text-xs sm:text-sm min-w-0 flex-1 truncate">{cat.category}</span>
                       <div className="text-right flex-shrink-0">
-                        <div className="font-bold text-purple-700 text-xs sm:text-sm">INR {cat.income.toLocaleString()}</div>
+                        <div className="font-bold text-purple-700 text-xs sm:text-sm">{currency} {cat.income.toLocaleString()}</div>
                         <div className="text-[10px] sm:text-xs text-purple-600">{cat.count} transactions</div>
-                        <div className="text-[10px] sm:text-xs text-purple-600">Avg: INR {cat.avgAmount.toLocaleString()}</div>
+                        <div className="text-[10px] sm:text-xs text-purple-600">Avg: {currency} {cat.avgAmount.toLocaleString()}</div>
                       </div>
                     </div>
                   ))}
@@ -227,9 +229,9 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
                     <div key={source.source} className="flex justify-between items-center p-2 sm:p-3 bg-orange-50 rounded gap-2">
                       <span className="font-medium text-xs sm:text-sm min-w-0 flex-1 truncate">{source.source}</span>
                       <div className="text-right flex-shrink-0">
-                        <div className="font-bold text-orange-700 text-xs sm:text-sm">INR {source.income.toLocaleString()}</div>
+                        <div className="font-bold text-orange-700 text-xs sm:text-sm">{currency} {source.income.toLocaleString()}</div>
                         <div className="text-[10px] sm:text-xs text-orange-600">{source.count} transactions</div>
-                        <div className="text-[10px] sm:text-xs text-orange-600">Avg: INR {source.avgAmount.toLocaleString()}</div>
+                        <div className="text-[10px] sm:text-xs text-orange-600">Avg: {currency} {source.avgAmount.toLocaleString()}</div>
                       </div>
                     </div>
                   ))}

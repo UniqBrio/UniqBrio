@@ -3,23 +3,25 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { CreditCard, ShieldCheck, Banknote, Receipt, TrendingUp, HeartPulse } from "lucide-react"
 import { StatData } from "./types"
+import { useCurrency } from "@/contexts/currency-context"
 
 interface StatsOverviewProps {
   // No props needed - component will show current month data by default
 }
 
 export function StatsOverview() {
+  const { currency } = useCurrency()
   // Loading & error state + fetched stats
   const [stats, setStats] = React.useState<StatData[]>([
-    { title: 'Total Revenue', value: '�', change: 'Loading...' },
-    { title: 'Total Expenses', value: '�', change: 'Loading...' },
-    { title: 'Net Profit', value: '�', change: 'Loading...' },
-    { title: 'Financial Health', value: '�', change: 'Loading...' },
+    { title: 'Total Revenue', value: '—', change: 'Loading...' },
+    { title: 'Total Expenses', value: '—', change: 'Loading...' },
+    { title: 'Net Profit', value: '—', change: 'Loading...' },
+    { title: 'Financial Health', value: '—', change: 'Loading...' },
   ])
   const [loading, setLoading] = React.useState<boolean>(true)
   const [fetchError, setFetchError] = React.useState<string | null>(null)
 
-  const formatINR = (value: number) => `${value.toLocaleString("en-IN", { maximumFractionDigits: 0 })} INR`
+  const formatCurrency = (value: number) => `${value.toLocaleString("en-IN", { maximumFractionDigits: 0 })} ${currency}`
 
   React.useEffect(() => {
     let abort = false
@@ -45,10 +47,10 @@ export function StatsOverview() {
         
         const displayTimeframe = 'This month'
         setStats([
-          { title: 'Total Revenue', value: formatINR(data.totalRevenue), change: displayTimeframe },
-          { title: 'Total Expenses', value: formatINR(data.totalExpenses), change: displayTimeframe },
-          { title: 'Net Profit', value: formatINR(data.netProfit), change: displayTimeframe },
-          { title: 'Financial Health', value: data.financialHealth, change: data.profitMargin != null ? `Margin ${data.profitMargin}%` : '�' },
+          { title: 'Total Revenue', value: formatCurrency(data.totalRevenue), change: displayTimeframe },
+          { title: 'Total Expenses', value: formatCurrency(data.totalExpenses), change: displayTimeframe },
+          { title: 'Net Profit', value: formatCurrency(data.netProfit), change: displayTimeframe },
+          { title: 'Financial Health', value: data.financialHealth, change: data.profitMargin != null ? `Margin ${data.profitMargin}%` : '—' },
         ])
       } catch (e: any) {
         if (abort) return
@@ -60,7 +62,7 @@ export function StatsOverview() {
     }
     load()
     return () => { abort = true }
-  }, []) // No dependencies since we always use This month
+  }, [currency]) // Re-fetch when currency changes
 
   // Icon mapping for each stat - mobile-optimized sizing
   const statIcons = [

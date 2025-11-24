@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import "./ScheduleFilters.css"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -746,7 +747,7 @@ const syncSessionsToDatabase = async (events: ScheduleEvent[]) => {
         isRecurring: false,
         createdBy: 'System',
         lastModifiedBy: 'System',
-        currency: 'USD',
+        currency: currency || '',
         paymentRequired: false,
         version: 1
       }
@@ -854,6 +855,7 @@ export default function EnhancedSchedulePage() {
   }
 
   const { user, theme, toggleTheme, language, setLanguage, isOffline } = useApp()
+  const { currency } = useCurrency()
   const [events, setEvents] = useState<ScheduleEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -1395,7 +1397,7 @@ export default function EnhancedSchedulePage() {
     students: 0,
     waitlist: [] as string[],
     price: 0,
-    currency: "USD",
+    currency: "",
     paymentRequired: false,
     attendanceRequired: true,
     isRecurring: false,
@@ -1853,7 +1855,7 @@ export default function EnhancedSchedulePage() {
         students: 0,
         waitlist: [],
         price: 0,
-        currency: "USD",
+        currency: "",
         paymentRequired: false,
         attendanceRequired: true,
         isRecurring: false,
@@ -3783,7 +3785,7 @@ export default function EnhancedSchedulePage() {
                           <SelectItem value="USD">USD</SelectItem>
                           <SelectItem value="EUR">EUR</SelectItem>
                           <SelectItem value="GBP">GBP</SelectItem>
-                          <SelectItem value="INR">INR</SelectItem>
+                          <SelectItem value="${currency}">${currency}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

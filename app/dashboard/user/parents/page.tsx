@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import React, { useMemo, useState, useCallback } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -70,6 +71,7 @@ interface ParentFilters {
 }
 
 export default function ParentsPage() {
+  const { currency } = useCurrency()
   const { toast } = useToast()
   const [loading, setLoading] = useState<boolean>(false)
   const [viewMode, setViewMode] = useState<"list" | "grid">("list")
@@ -733,7 +735,7 @@ export default function ParentsPage() {
                                     {parent.paymentStatus}
                                   </Badge>
                                   <span className="text-xs text-gray-600">
-                                    {parent.currency} {parent.dueAmount} due
+                                    {currency || parent.currency} {parent.dueAmount} due
                                   </span>
                                 </div>
                               </td>
@@ -812,7 +814,7 @@ export default function ParentsPage() {
                         <p className="text-xs text-gray-600">📧 {parent.email}</p>
                         <p className="text-xs text-gray-600">📱 {parent.countryCode} {parent.mobile}</p>
                         <p className="text-sm font-medium">
-                          {parent.currency} {parent.totalFees} | {" "}
+                          {currency || parent.currency} {parent.totalFees} | {" "}
                           <Badge className={getPaymentStatusColor(parent.paymentStatus)} variant="outline">
                             {parent.paymentStatus}
                           </Badge>

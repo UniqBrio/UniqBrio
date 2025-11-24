@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import Image from "next/image"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -26,6 +27,7 @@ interface ProductsGridProps {
 }
 
 export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProps) {
+  const { currency } = useCurrency();
   const [searchQuery, setSearchQuery] = useState("")
   const [hoveredProductId, setHoveredProductId] = useState<string | null>(null)
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
@@ -252,7 +254,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
               {/* Price and Stock */}
               <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold gradient-text">₹{product.price}</span>
+                  <span className="text-2xl font-bold gradient-text">{currency} {product.price}</span>
                   <span className="text-sm text-gray-600">Stock: {product.stock}</span>
                 </div>
               </div>

@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/dashboard/ui/card";
 import { BookOpen, Users, CheckCircle2, AlertCircle } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface PaymentAnalyticsCardsProps {
   totalCourses: number;
@@ -16,6 +17,8 @@ export function PaymentAnalyticsCards({
   totalReceived,
   totalOutstanding,
 }: PaymentAnalyticsCardsProps) {
+  const { currency } = useCurrency();
+  
   const stats = [
     {
       title: "Total Courses",
@@ -35,7 +38,7 @@ export function PaymentAnalyticsCards({
     },
     {
       title: "Total Received",
-      value: `INR ${(totalReceived || 0).toLocaleString()}`,
+      value: `${currency} ${(totalReceived || 0).toLocaleString()}`,
       icon: CheckCircle2,
       bgColor: "bg-gradient-to-br from-green-50 to-green-100",
       iconColor: "text-green-600",
@@ -43,7 +46,7 @@ export function PaymentAnalyticsCards({
     },
     {
       title: "Outstanding",
-      value: `INR ${(totalOutstanding || 0).toLocaleString()}`,
+      value: `${currency} ${(totalOutstanding || 0).toLocaleString()}`,
       icon: AlertCircle,
       bgColor: "bg-gradient-to-br from-red-50 to-red-100",
       iconColor: "text-red-600",

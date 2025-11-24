@@ -10,7 +10,7 @@ const columnDefinitions = {
       { id: 'location', label: 'Location' },
       { id: 'type', label: 'Type' },
       { id: 'level', label: 'Level' },
-      { id: 'priceINR', label: 'Price (INR)' },
+      { id: 'priceINR', label: 'Price' },
       { id: 'status', label: 'Status' },
       { id: 'courseCategory', label: 'Category' },
       { id: 'maxStudents', label: 'Max Students' },

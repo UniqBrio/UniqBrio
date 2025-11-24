@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { useState, useEffect } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -84,6 +85,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
+  const { currency } = useCurrency();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(false)
   const [timeFilter, setTimeFilter] = useState("30")
@@ -195,7 +197,7 @@ export default function AnalyticsPage() {
             type: "warning",
             title: "QR Code Campaign Underperforming",
             description:
-              "QR code leads have only 7.1% conversion rate with ₹5000 cost. Consider optimizing landing page or targeting.",
+              `QR code leads have only 7.1% conversion rate with ${currency} 5000 cost. Consider optimizing landing page or targeting.`,
             impact: "medium",
             actionable: true,
           },

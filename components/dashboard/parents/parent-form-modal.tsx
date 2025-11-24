@@ -53,7 +53,7 @@ export function ParentFormModal({
     totalFees: 0,
     amountPaid: 0,
     dueAmount: 0,
-    currency: 'INR',
+    currency: '',
     verificationStatus: 'Pending',
     status: 'Active',
     joinDate: new Date().toISOString().split('T')[0],
@@ -86,7 +86,7 @@ export function ParentFormModal({
           totalFees: initialParent.totalFees || 0,
           amountPaid: initialParent.amountPaid || 0,
           dueAmount: initialParent.dueAmount || 0,
-          currency: initialParent.currency || 'INR',
+          currency: initialParent.currency ,
           verificationStatus: initialParent.verificationStatus || 'Pending',
           status: initialParent.status || 'Active',
           joinDate: initialParent.joinDate ? String(initialParent.joinDate) : new Date().toISOString().split('T')[0],
@@ -113,7 +113,7 @@ export function ParentFormModal({
           totalFees: 0,
           amountPaid: 0,
           dueAmount: 0,
-          currency: 'INR',
+          currency: '',
           verificationStatus: 'Pending',
           status: 'Active',
           joinDate: new Date().toISOString().split('T')[0],
@@ -223,7 +223,7 @@ export function ParentFormModal({
       totalFees: 0,
       amountPaid: 0,
       dueAmount: 0,
-      currency: 'INR',
+      currency: 'USD',
       verificationStatus: 'Pending',
       status: 'Active',
       joinDate: new Date().toISOString().split('T')[0],
@@ -539,7 +539,7 @@ export function ParentFormModal({
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  <option value="INR">INR</option>
+                  <option value="USD">USD</option>
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
                   <option value="GBP">GBP</option>

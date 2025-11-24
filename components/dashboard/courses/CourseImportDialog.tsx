@@ -1,10 +1,11 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { Button } from "@/components/dashboard/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { Upload, Download, FileText, AlertCircle, CheckCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/dashboard/ui/alert"
+import { useCurrency } from "@/contexts/currency-context";
 
 interface CourseImportDialogProps {
   isOpen: boolean
@@ -17,6 +18,7 @@ export default function CourseImportDialog({
   onOpenChange, 
   onImportComplete 
 }: CourseImportDialogProps) {
+  const { currency } = useCurrency();
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<{
     type: 'success' | 'error' | null
@@ -57,7 +59,7 @@ export default function CourseImportDialog({
       'Required field - Category like Sports, Arts, etc.',
       'Optional - Location for offline courses',
       'Required field - Maximum number of students',
-      'Required field - Price in INR',
+      `Required field - Price in ${currency}`,
       'Optional - Comma separated tags',
       'Optional - Guidelines for students',
       'Optional - Start date (YYYY-MM-DD format)',
@@ -184,11 +186,11 @@ export default function CourseImportDialog({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-medium text-blue-900 mb-2">Import Instructions:</h4>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>� Download the template file first</li>
-              <li>� Fill in the required fields (marked in template)</li>
-              <li>� Do not modify the header row</li>
-              <li>� Course ID will be auto-generated</li>
-              <li>� Imported courses are saved as drafts</li>
+              <li>? Download the template file first</li>
+              <li>? Fill in the required fields (marked in template)</li>
+              <li>? Do not modify the header row</li>
+              <li>? Course ID will be auto-generated</li>
+              <li>? Imported courses are saved as drafts</li>
             </ul>
           </div>
 

@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import React, { useState, useMemo, useEffect } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 import { 
   Plus, 
   Search, 
@@ -74,6 +75,7 @@ function getEventStatus(startDate: string, endDate: string): "Upcoming" | "Ongoi
 }
 
 export const EventManagement: React.FC<EventManagementProps> = (props) => {
+  const { currency } = useCurrency();
   const {
     events: externalEvents,
     onAddEvent,
@@ -769,8 +771,8 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                     {visibleColumns.includes('skillLevel') && <td className="px-6 py-4 text-sm text-gray-600">{event.skillLevel}</td>}
                     {visibleColumns.includes('format') && <td className="px-6 py-4 text-sm text-gray-600">{event.format}</td>}
                     {visibleColumns.includes('ageGroup') && <td className="px-6 py-4 text-sm text-gray-600">{event.ageGroup}</td>}
-                    {visibleColumns.includes('entryFee') && <td className="px-6 py-4 text-sm text-gray-600">₹{event.entryFee}</td>}
-                    {visibleColumns.includes('revenue') && <td className="px-6 py-4 text-sm text-gray-600">₹{(event.entryFee || 0) * (event.participants || 0)}</td>}
+                    {visibleColumns.includes('entryFee') && <td className="px-6 py-4 text-sm text-gray-600">{currency} {event.entryFee}</td>}
+                    {visibleColumns.includes('revenue') && <td className="px-6 py-4 text-sm text-gray-600">{currency} {(event.entryFee || 0) * (event.participants || 0)}</td>}
                     {visibleColumns.includes('status') && <td className="px-6 py-4 text-sm">
                       <Badge className={getStatusColor(getEventStatus(event.startDate, event.endDate))}>
                         {getEventStatus(event.startDate, event.endDate)}
@@ -1421,7 +1423,7 @@ export function EventFormModal({
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Fees & Prizes</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee (₹) <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   value={formData.entryFee || ""}
@@ -1475,6 +1477,8 @@ export function EventViewModal({
   event: Event
   onClose: () => void
 }) {
+  const { currency } = useCurrency();
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[95vh] overflow-y-auto">
@@ -1578,7 +1582,7 @@ export function EventViewModal({
                 {event.entryFee ? (
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Entry Fee</p>
-                    <p className="font-semibold text-purple-600">₹{event.entryFee}</p>
+                    <p className="font-semibold text-purple-600">{currency} {event.entryFee}</p>
                   </div>
                 ) : null}
                 {event.prizes && (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
+import { useCurrency } from "@/contexts/currency-context"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter as AlertFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription as AlertDescription } from "@/components/dashboard/ui/alert-dialog" // alias footer/description to avoid name clash
 import { Label } from "@/components/dashboard/ui/label"
 import { Button } from "@/components/dashboard/ui/button"
@@ -29,6 +30,7 @@ interface IncomeDialogProps {
 
 export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 'add', onSave, draftId = null, onDraftSave }: IncomeDialogProps) {
   const { toast } = useToast();
+  const { currency } = useCurrency();
   const [incomeFormError, setIncomeFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
   // Track if a successful save occurred (bypass unsaved guard)
@@ -373,7 +375,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 text-sm">
                 <Detail label="Date" value={formatDateForDisplay(incomeForm.date)} />
-                <Detail label="Amount" value={incomeForm.amount ? `${incomeForm.amount} INR` : '-'} />
+                <Detail label="Amount" value={incomeForm.amount ? `${currency} ${incomeForm.amount}` : '-'} />
                 <Detail label="Category" value={incomeForm.incomeCategory || '-'} />
                 <Detail label="Source" value={incomeForm.sourceType || '-'} />
                 <Detail label="Income Mode" value={incomeForm.paymentMode || '-'} />

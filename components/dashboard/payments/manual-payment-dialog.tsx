@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useCurrency } from "@/contexts/currency-context";
 import {
   Dialog,
   DialogContent,
@@ -128,6 +129,7 @@ export function ManualPaymentDialog({
   onOpenChange,
   onSave,
 }: ManualPaymentDialogProps) {
+  const { currency } = useCurrency();
   const { toast } = useToast();
   
   // Payment Settings from localStorage
@@ -600,7 +602,7 @@ export function ManualPaymentDialog({
 
         toast({
           title: "Installments Generated",
-          description: `3 installments created for INR ${totalAmount.toLocaleString()}`,
+          description: `3 installments created for ${currency} ${totalAmount.toLocaleString()}`,
         });
       } catch (error: any) {
         console.error('Error generating installments:', error);
@@ -1090,9 +1092,9 @@ export function ManualPaymentDialog({
     
     if (numAmount > maxAllowedAmount) {
       if (isFirstPayment) {
-        setPaymentAmountError(`Payment cannot exceed INR ${maxAllowedAmount.toLocaleString()} (course fee + registration fees)`);
+        setPaymentAmountError(`Payment cannot exceed ${currency} ${maxAllowedAmount.toLocaleString()} (course fee + registration fees)`);
       } else {
-        setPaymentAmountError(`Payment cannot exceed remaining balance of INR ${balance.toLocaleString()}`);
+        setPaymentAmountError(`Payment cannot exceed remaining balance of ${currency} ${balance.toLocaleString()}`);
       }
     } else {
       setPaymentAmountError("");
@@ -1444,10 +1446,10 @@ export function ManualPaymentDialog({
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Fee Configuration Required</AlertTitle>
                 <AlertDescription>
-                  The total fees (Course Fee + Registration Fees) are currently set to INR 0. 
+                  The total fees (Course Fee + Registration Fees) are currently set to {currency} 0. 
                   Please update the student's fee information before recording a payment.
                   <br />
-                  <strong>Expected Total: INR 31,500</strong> (or your actual total)
+                  <strong>Expected Total: {currency} 31,500</strong> (or your actual total)
                 </AlertDescription>
               </Alert>
             );
@@ -1504,13 +1506,13 @@ export function ManualPaymentDialog({
               </div>
               <div>
                 <span className="text-gray-600 text-sm">Course Fee: </span>
-                <span className="font-medium text-sm">INR {((fetchedFees?.courseFee || payment.courseFee) || 0).toLocaleString()}</span>
+                <span className="font-medium text-sm">{currency} {((fetchedFees?.courseFee || payment.courseFee) || 0).toLocaleString()}</span>
               </div>
               {/* Outstanding Amount - Only show for non-monthly subscription payment categories */}
               {courseInfo.paymentCategory !== 'Monthly subscription' && (
                 <div>
                   <span className="text-gray-600 text-sm">Outstanding Amount (Total): </span>
-                  <span className="font-medium text-orange-600 text-sm">INR {(payment.outstandingAmount || 0).toLocaleString()}</span>
+                  <span className="font-medium text-orange-600 text-sm">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</span>
                 </div>
               )}
               <div>
@@ -1658,7 +1660,7 @@ export function ManualPaymentDialog({
                         value={index.toString()}
                         disabled={emi.status === 'PAID'}
                       >
-                        EMI {emi.emiNumber} - INR {emi.amount.toLocaleString()} 
+                        EMI {emi.emiNumber} - {currency} {emi.amount.toLocaleString()} 
                         {emi.status === 'PAID' ? ' (PAID)' : ` (Due: ${formatDateForDisplay(emi.dueDate)})`}
                       </SelectItem>
                     ))}
@@ -1667,7 +1669,7 @@ export function ManualPaymentDialog({
                 {payment.emiSchedule[emiIndex] && (
                   <div className="text-xs bg-blue-50 p-2 rounded">
                     <p><strong>EMI {payment.emiSchedule[emiIndex].emiNumber}:</strong></p>
-                    <p>Amount: INR {payment.emiSchedule[emiIndex].amount.toLocaleString()}</p>
+                    <p>Amount: {currency} {payment.emiSchedule[emiIndex].amount.toLocaleString()}</p>
                     <p>Due Date: {formatDateForDisplay(payment.emiSchedule[emiIndex].dueDate)}</p>
                     <p>Status: {payment.emiSchedule[emiIndex].status}</p>
                   </div>
@@ -1694,12 +1696,12 @@ export function ManualPaymentDialog({
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <p className="text-gray-600">Total Amount:</p>
-                      <p className="font-bold text-lg">INR {installmentsConfig.totalAmount.toLocaleString()}</p>
+                      <p className="font-bold text-lg">{currency} {installmentsConfig.totalAmount.toLocaleString()}</p>
                     </div>
                     <div>
                       <p className="text-gray-600">Remaining Balance:</p>
                       <p className="font-bold text-lg text-orange-600">
-                        INR {calculateRemainingBalance(installmentsConfig).toLocaleString()}
+                        {currency} {calculateRemainingBalance(installmentsConfig).toLocaleString()}
                       </p>
                     </div>
                     <div>
@@ -1708,7 +1710,7 @@ export function ManualPaymentDialog({
                     </div>
                     <div>
                       <p className="text-gray-600">Per Installment:</p>
-                      <p className="font-medium">~INR {Math.round(installmentsConfig.totalAmount / paymentSettings.installmentsCount).toLocaleString()}</p>
+                      <p className="font-medium">~{currency} {Math.round(installmentsConfig.totalAmount / paymentSettings.installmentsCount).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -1746,7 +1748,7 @@ export function ManualPaymentDialog({
                               {inst.stage === 'last' && 'Final'} 
                               {' '}Installment
                             </span>
-                            <span className="ml-4">INR {inst.amount.toLocaleString()}</span>
+                            <span className="ml-4">{currency} {inst.amount.toLocaleString()}</span>
                             {inst.status === 'PAID' && <span className="ml-2 text-green-600">? Paid</span>}
                           </div>
                         </SelectItem>
@@ -1776,7 +1778,7 @@ export function ManualPaymentDialog({
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
                               <p className="text-gray-600">Amount:</p>
-                              <p className="font-bold">INR {inst.amount.toLocaleString()}</p>
+                              <p className="font-bold">{currency} {inst.amount.toLocaleString()}</p>
                             </div>
                             <div>
                               <p className="text-gray-600">Due Date:</p>
@@ -1867,7 +1869,7 @@ export function ManualPaymentDialog({
                     <div className="bg-white rounded-lg p-4 space-y-3 border border-blue-200">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600 font-medium">Base Monthly Fee:</span>
-                        <span className="text-2xl font-bold text-blue-900">INR {baseMonthlyAmount.toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-blue-900">{currency} {baseMonthlyAmount.toLocaleString()}</span>
                       </div>
                       <p className="text-xs text-gray-500">Calculated from course fee and duration</p>
                     </div>
@@ -1920,7 +1922,7 @@ export function ManualPaymentDialog({
                         type="text"
                         value={lateFeeRule}
                         onChange={(e) => setLateFeeRule(e.target.value)}
-                        placeholder="e.g., INR 100 per day after grace period"
+                        placeholder="e.g., 100 per day after grace period"
                       />
                       <p className="text-xs text-gray-500">Penalty for late payments</p>
                     </div>
@@ -1965,7 +1967,7 @@ export function ManualPaymentDialog({
                     <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-4 border-2 border-blue-400">
                       <p className="text-sm text-gray-800 leading-relaxed">
                         <ClipboardList className="h-4 w-4 inline mr-1" /> <strong>Summary:</strong> Pay{' '}
-                        <span className="font-bold text-blue-900 text-lg">INR {baseMonthlyAmount.toLocaleString()}</span>{' '}
+                        <span className="font-bold text-blue-900 text-lg">{currency} {baseMonthlyAmount.toLocaleString()}</span>{' '}
                         on the <span className="font-bold">{billingDueDate}{billingDueDate === 1 ? 'st' : billingDueDate === 2 ? 'nd' : billingDueDate === 3 ? 'rd' : 'th'}</span> of every month.
                         {autoRenew && <span className="text-blue-700 inline-flex items-center gap-1"> Auto-renewal enabled <Check className="h-3 w-3" /></span>}
                         {monthlySubscriptionState.isFirstPayment && <span className="text-orange-600 inline-flex items-center gap-1"><br/><AlertTriangle className="h-3 w-3" /> First payment includes registration fees</span>}
@@ -1994,7 +1996,7 @@ export function ManualPaymentDialog({
                     <div className="bg-white rounded-lg p-3 border border-purple-100">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Base Monthly Fee:</span>
-                        <span className="font-bold text-lg line-through text-gray-400">INR {baseMonthlyAmount.toLocaleString()}</span>
+                        <span className="font-bold text-lg line-through text-gray-400">{currency} {baseMonthlyAmount.toLocaleString()}</span>
                       </div>
                     </div>
 
@@ -2047,7 +2049,7 @@ export function ManualPaymentDialog({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="percentage" className="flex items-center gap-2"><BarChart3 className="h-3 w-3 inline mr-1" /> Percentage (%)</SelectItem>
-                            <SelectItem value="amount" className="flex items-center gap-2"><DollarSign className="h-3 w-3 inline mr-1" /> Flat Amount (INR)</SelectItem>
+                            <SelectItem value="amount" className="flex items-center gap-2"><DollarSign className="h-3 w-3 inline mr-1" /> Flat Amount ({currency})</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -2066,7 +2068,7 @@ export function ManualPaymentDialog({
                           step={discountType === 'percentage' ? '1' : '100'}
                         />
                         <p className="text-xs text-gray-500">
-                          {discountType === 'percentage' ? 'Percentage discount (0-100)' : 'Fixed amount in INR'}
+                          {discountType === 'percentage' ? 'Percentage discount (0-100)' : 'Fixed amount in {currency}'}
                         </p>
                       </div>
                     </div>
@@ -2148,7 +2150,7 @@ export function ManualPaymentDialog({
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-gray-600">Base Fee:</span>
-                              <span className="font-medium line-through text-gray-400">INR {baseMonthlyAmount.toLocaleString()}</span>
+                              <span className="font-medium line-through text-gray-400">{currency} {baseMonthlyAmount.toLocaleString()}</span>
                             </div>
                             
                             <div className="flex items-center justify-between">
@@ -2156,13 +2158,13 @@ export function ManualPaymentDialog({
                               <span className="font-semibold text-green-600">
                                 {discountType === 'percentage' 
                                   ? `${discountValue}% OFF` 
-                                  : `-INR ${parseFloat(discountValue).toLocaleString()}`}
+                                  : `-{currency} ${parseFloat(discountValue).toLocaleString()}`}
                               </span>
                             </div>
                             
                             <div className="flex items-center justify-between border-t border-purple-100 pt-2">
                               <span className="text-sm font-semibold text-purple-900">Final Monthly Price:</span>
-                              <span className="text-2xl font-bold text-purple-900">INR {discountedMonthlyAmount.toLocaleString()}</span>
+                              <span className="text-2xl font-bold text-purple-900">{currency} {discountedMonthlyAmount.toLocaleString()}</span>
                             </div>
                             
                             <div className="flex items-center justify-between">
@@ -2172,12 +2174,12 @@ export function ManualPaymentDialog({
                             
                             <div className="flex items-center justify-between border-t border-purple-100 pt-2 bg-purple-50 -mx-4 px-4 py-2">
                               <span className="text-sm font-bold text-purple-900">Total Payable:</span>
-                              <span className="text-2xl font-bold text-purple-900">INR {totalPayable.toLocaleString()}</span>
+                              <span className="text-2xl font-bold text-purple-900">{currency} {totalPayable.toLocaleString()}</span>
                             </div>
                             
                             <div className="flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border-2 border-green-300">
                               <span className="text-sm font-bold text-green-700 flex items-center gap-1"><PartyPopper className="h-4 w-4" /> Total Savings:</span>
-                              <span className="text-2xl font-bold text-green-700">INR {totalSavings.toLocaleString()}</span>
+                              <span className="text-2xl font-bold text-green-700">{currency} {totalSavings.toLocaleString()}</span>
                             </div>
                           </div>
                         </div>
@@ -2186,11 +2188,11 @@ export function ManualPaymentDialog({
                         <Alert className="bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 border-2 border-purple-400">
                           <AlertDescription className="text-sm font-medium text-gray-900 leading-relaxed">
                             <PartyPopper className="h-4 w-4 inline mr-1" /> <strong>Your Plan:</strong> Pay{' '}
-                            <span className="font-bold text-purple-900 text-lg">INR {discountedMonthlyAmount.toLocaleString()}/month</span>{' '}
+                            <span className="font-bold text-purple-900 text-lg">{currency} {discountedMonthlyAmount.toLocaleString()}/month</span>{' '}
                             for <span className="font-bold text-purple-900">{lockInMonths} months</span>.{' '}
                             <br />
                             <span className="text-green-700 font-bold">
-                              Save INR {totalSavings.toLocaleString()} compared to normal billing!
+                              Save {currency} {totalSavings.toLocaleString()} compared to normal billing!
                             </span>
                           </AlertDescription>
                         </Alert>
@@ -2384,7 +2386,7 @@ export function ManualPaymentDialog({
                   />
                   <label className="flex-1 cursor-pointer text-sm">
                     <span className="font-medium">Course Payment </span>
-                    <span className="text-gray-600">INR {courseFee.toLocaleString()}</span>
+                    <span className="text-gray-600">{currency} {courseFee.toLocaleString()}</span>
                   </label>
                 </div>
 
@@ -2396,7 +2398,7 @@ export function ManualPaymentDialog({
                   />
                   <label className={`flex-1 text-sm ${payment.studentRegistrationFeePaid ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                     <span className="font-medium">Student Registration Fee </span>
-                    <span className="text-gray-600">INR {studentRegistrationFee.toLocaleString()}</span>
+                    <span className="text-gray-600">{currency} {studentRegistrationFee.toLocaleString()}</span>
                     {payment.studentRegistrationFeePaid && (
                       <span className="ml-2 text-xs text-green-600 font-semibold">? PAID</span>
                     )}
@@ -2411,7 +2413,7 @@ export function ManualPaymentDialog({
                   />
                   <label className={`flex-1 text-sm ${payment.courseRegistrationFeePaid ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                     <span className="font-medium">Course Registration Fee </span>
-                    <span className="text-gray-600">INR {courseRegistrationFee.toLocaleString()}</span>
+                    <span className="text-gray-600">{currency} {courseRegistrationFee.toLocaleString()}</span>
                     {payment.courseRegistrationFeePaid && (
                       <span className="ml-2 text-xs text-green-600 font-semibold">? PAID</span>
                     )}
@@ -2449,7 +2451,7 @@ export function ManualPaymentDialog({
                 {/* Ongoing Training - Monthly Subscription */}
                 {courseInfo.courseCategory === "Ongoing Training" && paymentOption === "Monthly" && baseMonthlyAmount > 0 && (
                   <>
-                    <p className="font-medium text-blue-700">Monthly Subscription Amount: INR{baseMonthlyAmount.toLocaleString()}</p>
+                    <p className="font-medium text-blue-700">Monthly Subscription Amount: {currency} {baseMonthlyAmount.toLocaleString()}</p>
                     <p className="text-xs text-blue-600 flex items-center gap-1"><Lightbulb className="h-3 w-3" /> Course fee is charged monthly (not divided by duration)</p>
                     {(!payment.receivedAmount || payment.receivedAmount === 0) ? (
                       // First payment - show registration fees if applicable
@@ -2457,9 +2459,9 @@ export function ManualPaymentDialog({
                         {((!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee) || 
                           (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee)) && (
                           <p className="text-xs">
-                            First payment includes: Base monthly INR {baseMonthlyAmount.toLocaleString()}
-                            {!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee && ` + Student Reg INR ${payment.studentRegistrationFee.toLocaleString()}`}
-                            {!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee && ` + Course Reg INR ${payment.courseRegistrationFee.toLocaleString()}`}
+                            First payment includes: Base monthly {currency} {baseMonthlyAmount.toLocaleString()}
+                            {!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee && ` + Student Reg {currency} ${payment.studentRegistrationFee.toLocaleString()}`}
+                            {!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee && ` + Course Reg {currency} ${payment.courseRegistrationFee.toLocaleString()}`}
                           </p>
                         )}
                       </>
@@ -2474,8 +2476,8 @@ export function ManualPaymentDialog({
                 {courseInfo.courseCategory === "Ongoing Training" && paymentOption === "Monthly With Discounts" && discountedMonthlyAmount > 0 && (
                   <>
                     <p className="font-medium text-purple-700">
-                      Discounted Monthly: INR{discountedMonthlyAmount.toLocaleString()} 
-                      <span className="text-gray-500 line-through ml-2">INR{baseMonthlyAmount.toLocaleString()}</span>
+                      Discounted Monthly: {currency}{discountedMonthlyAmount.toLocaleString()} 
+                      <span className="text-gray-500 line-through ml-2">{currency}{baseMonthlyAmount.toLocaleString()}</span>
                     </p>
                     {(!payment.receivedAmount || payment.receivedAmount === 0) ? (
                       // First payment - show registration fees if applicable
@@ -2483,9 +2485,9 @@ export function ManualPaymentDialog({
                         {((!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee) || 
                           (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee)) && (
                           <p className="text-xs">
-                            First payment includes: Discounted monthly INR {discountedMonthlyAmount.toLocaleString()}
-                            {!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee && ` + Student Reg INR ${payment.studentRegistrationFee.toLocaleString()}`}
-                            {!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee && ` + Course Reg INR ${payment.courseRegistrationFee.toLocaleString()}`}
+                            First payment includes: Discounted monthly {currency} {discountedMonthlyAmount.toLocaleString()}
+                            {!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee && ` + Student Reg {currency} ${payment.studentRegistrationFee.toLocaleString()}`}
+                            {!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee && ` + Course Reg {currency} ${payment.courseRegistrationFee.toLocaleString()}`}
                           </p>
                         )}
                       </>
@@ -2494,7 +2496,7 @@ export function ManualPaymentDialog({
                       <p className="text-xs text-gray-500">Recurring monthly payment (no registration fees)</p>
                     )}
                     <p className="text-xs text-green-600 font-medium flex items-center gap-1">
-                      <Wallet className="h-3 w-3" /> Saving INR{(baseMonthlyAmount - discountedMonthlyAmount).toLocaleString()}/month
+                      <Wallet className="h-3 w-3" /> Saving {currency} {(baseMonthlyAmount - discountedMonthlyAmount).toLocaleString()}/month
                     </p>
                   </>
                 )}
@@ -2502,16 +2504,16 @@ export function ManualPaymentDialog({
                 {/* Other payment types (non-Ongoing Training) */}
                 {paymentOption === "Monthly" && courseInfo.courseCategory !== "Ongoing Training" && (
                   <>
-                    <p>Default monthly total: INR{defaultMonthly.toLocaleString()}</p>
+                    <p>Default monthly total: {currency} {defaultMonthly.toLocaleString()}</p>
                     {(!payment.receivedAmount || payment.receivedAmount === 0) ? (
                       <p className="text-xs">
-                        Includes: Monthly installment INR{displayMonthlyInstallment.toLocaleString()} + Registration fees INR
+                        Includes: Monthly installment {currency} {displayMonthlyInstallment.toLocaleString()} + Registration fees {currency}
                         {((payment.studentRegistrationFee || 0) + (payment.courseRegistrationFee || 0)).toLocaleString()} 
-                        (Student INR{(payment.studentRegistrationFee || 0).toLocaleString()} + Course INR{(payment.courseRegistrationFee || 0).toLocaleString()})
+                        (Student {currency} {(payment.studentRegistrationFee || 0).toLocaleString()} + Course {currency} {(payment.courseRegistrationFee || 0).toLocaleString()})
                       </p>
                     ) : (
                       <p className="text-xs">
-                        Monthly installment: INR{displayMonthlyInstallment.toLocaleString()}
+                        Monthly installment: {currency} {displayMonthlyInstallment.toLocaleString()}
                       </p>
                     )}
                   </>
@@ -2556,7 +2558,7 @@ export function ManualPaymentDialog({
                                 {formatDateForDisplay(record.paidDate)}
                               </td>
                               <td className="px-2 py-1.5 font-semibold text-green-700">
-                                INR {(record.paidAmount || 0).toLocaleString()}
+                                {currency} {(record.paidAmount || 0).toLocaleString()}
                               </td>
                               <td className="px-2 py-1.5">
                                 <Badge variant="outline" className="text-xs">
@@ -2584,7 +2586,7 @@ export function ManualPaymentDialog({
                           <tr className="bg-indigo-100 border-t-2 border-indigo-300 font-semibold">
                             <td colSpan={2} className="px-3 py-2 text-right">Total Paid:</td>
                             <td className="px-3 py-2 text-green-700">
-                              INR {paymentHistory.reduce((sum, r) => sum + (r.paidAmount || 0), 0).toLocaleString()}
+                              {currency} {paymentHistory.reduce((sum, r) => sum + (r.paidAmount || 0), 0).toLocaleString()}
                             </td>
                             <td colSpan={2}></td>
                           </tr>
@@ -2596,15 +2598,15 @@ export function ManualPaymentDialog({
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="bg-white p-2 rounded border border-indigo-200">
                         <p className="text-gray-600">Course Fee</p>
-                        <p className="font-bold text-indigo-900">INR {(payment.courseFee || 0).toLocaleString()}</p>
+                        <p className="font-bold text-indigo-900">{currency} {(payment.courseFee || 0).toLocaleString()}</p>
                       </div>
                       <div className="bg-green-50 p-2 rounded border border-green-200">
                         <p className="text-gray-600">Total Paid</p>
-                        <p className="font-bold text-green-700">INR {(payment.receivedAmount || 0).toLocaleString()}</p>
+                        <p className="font-bold text-green-700">{currency} {(payment.receivedAmount || 0).toLocaleString()}</p>
                       </div>
                       <div className="bg-orange-50 p-2 rounded border border-orange-200">
                         <p className="text-gray-600">Balance Due {courseInfo.paymentCategory === 'Monthly subscription' ? '(Monthly)' : '(Total)'}</p>
-                        <p className="font-bold text-orange-700">INR {(payment.outstandingAmount || 0).toLocaleString()}</p>
+                        <p className="font-bold text-orange-700">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</p>
                       </div>
                     </div>
 
@@ -2702,11 +2704,11 @@ export function ManualPaymentDialog({
                 <div className="text-sm space-y-1">
                   <div className="flex justify-between">
                     <span>Base Amount:</span>
-                    <span className="font-medium">INR {parseFloat(paymentAmount || '0').toLocaleString()}</span>
+                    <span className="font-medium">{currency} {parseFloat(paymentAmount || '0').toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-red-600">
                     <span>Discount ({parseFloat(discount)}%):</span>
-                    <span>- INR {((parseFloat(paymentAmount || '0') * parseFloat(discount)) / 100).toLocaleString()}</span>
+                    <span>- {currency} {((parseFloat(paymentAmount || '0') * parseFloat(discount)) / 100).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between font-bold text-base border-t pt-1 mt-1">
                     <span>Final Amount:</span>
@@ -2763,15 +2765,15 @@ export function ManualPaymentDialog({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-gray-700">Total Fees:</span>
-                      <span className="text-base font-bold text-gray-900">INR {totalFees.toLocaleString()}</span>
+                      <span className="text-base font-bold text-gray-900">{currency} {totalFees.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-gray-700">Already Paid:</span>
-                      <span className="text-base font-bold text-gray-900">INR {currentlyPaid.toLocaleString()}</span>
+                      <span className="text-base font-bold text-gray-900">{currency} {currentlyPaid.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold text-gray-700">Current Payment:</span>
-                      <span className="text-base font-bold text-blue-700">INR {enteredAmount.toLocaleString()}</span>
+                      <span className="text-base font-bold text-blue-700">{currency} {enteredAmount.toLocaleString()}</span>
                     </div>
                     <div className="border-t border-gray-300 my-2"></div>
                     <div className="flex items-center justify-between">
@@ -2787,7 +2789,7 @@ export function ManualPaymentDialog({
                             : 'text-gray-700'
                         }`}
                       >
-                        INR {Math.max(0, remainingBalance).toLocaleString()}
+                        {currency} {Math.max(0, remainingBalance).toLocaleString()}
                       </span>
                     </div>
                     
@@ -2799,7 +2801,7 @@ export function ManualPaymentDialog({
                     
                     {isOverpaid && (
                       <p className="text-xs text-green-700 bg-green-100 p-2 rounded mt-2 flex items-center gap-1">
-                        <Info className="h-3 w-3" /> Overpaid by INR {Math.abs(remainingBalance).toLocaleString()}. Payment marked as complete.
+                        <Info className="h-3 w-3" /> Overpaid by {currency} {Math.abs(remainingBalance).toLocaleString()}. Payment marked as complete.
                       </p>
                     )}
                     
@@ -2875,7 +2877,7 @@ export function ManualPaymentDialog({
                     <div>
                       <p className="font-semibold text-amber-900">Partial Payment Detected</p>
                       <p className="text-sm text-amber-800 mt-1">
-                        Current Due: <span className="font-bold">INR {(() => {
+                        Current Due: <span className="font-bold">{currency} {(() => {
                           const effectiveFees = getEffectiveFees();
                           return (effectiveFees.courseFee + effectiveFees.courseRegistrationFee + effectiveFees.studentRegistrationFee - (payment.receivedAmount || 0)).toLocaleString();
                         })()}</span>
@@ -2968,7 +2970,7 @@ export function ManualPaymentDialog({
                         <div className="mt-3 pt-3 border-t border-blue-200">
                           <p className="text-xs text-blue-600 flex items-center gap-1">
                             <Lightbulb className="h-3 w-3" /> <strong>Current Status:</strong> {payment.outstandingAmount > 0 
-                              ? `Partial payment recorded (INR ${payment.receivedAmount.toLocaleString()} paid, INR ${payment.outstandingAmount.toLocaleString()} remaining) - Reminders are active`
+                              ? `Partial payment recorded (${currency} ${payment.receivedAmount.toLocaleString()} paid, ${currency} ${payment.outstandingAmount.toLocaleString()} remaining) - Reminders are active`
                               : 'Fully paid - No reminders needed'
                             }
                           </p>

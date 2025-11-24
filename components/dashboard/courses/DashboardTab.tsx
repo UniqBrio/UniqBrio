@@ -10,7 +10,7 @@ interface DashboardTabProps {
   courses: Course[]
   cohorts: any[]
   studentCount: number | null
-  currency: "USD" | "INR"
+  currency: string
 }
 
 export default function DashboardTab({ courses, cohorts, studentCount, currency }: DashboardTabProps) {
@@ -19,7 +19,7 @@ export default function DashboardTab({ courses, cohorts, studentCount, currency 
     totalCourses: Array.isArray(courses) ? courses.length : 0,
     activeCourses: Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0,
     totalStudents: studentCount,
-    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + (currency === "INR" ? (c.priceINR || 0) : (c.price || 0)) * (c.enrolledStudents || 0), 0) : 0,
+    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + (c.priceINR || c.price || 0) * (c.enrolledStudents || 0), 0) : 0,
     averageRating: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.rating || 0), 0) / courses.length : 0,
     completionRate: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length : 0,
   }), [courses, cohorts, studentCount, currency])
@@ -111,7 +111,7 @@ export default function DashboardTab({ courses, cohorts, studentCount, currency 
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-600">Revenue (INR)</p>
+                <p className="text-sm font-medium text-orange-600">Revenue (${currency})</p>
                 <p className="text-2xl font-bold text-orange-900">{stats.totalRevenue}</p>
               </div>
               <DollarSign className="h-8 w-8 text-orange-500" />

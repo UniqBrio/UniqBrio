@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { TrendingUp } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 import {
   BarChart,
   Bar,
@@ -34,6 +35,7 @@ interface PaymentCompletionChartProps {
 }
 
 export function PaymentCompletionChart({ distribution }: PaymentCompletionChartProps) {
+  const { currency } = useCurrency();
   // Safely extract data with fallbacks
   const safeDistribution = {
     oneTime: distribution?.oneTime || { count: 0, totalToBePaid: 0, courseFees: 0, courseRegFees: 0, studentRegFees: 0, totalPaid: 0 },
@@ -118,12 +120,16 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
   ];
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    if (!currency) {
+      return amount.toLocaleString('en-IN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+    }
+    return `${currency} ${amount.toLocaleString('en-IN', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    })}`;
   };
 
   return (

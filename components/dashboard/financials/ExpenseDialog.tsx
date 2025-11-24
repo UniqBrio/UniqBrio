@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
+import { useCurrency } from "@/contexts/currency-context"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog"
 import { Label } from "@/components/dashboard/ui/label"
 import { Button } from "@/components/dashboard/ui/button"
@@ -29,6 +30,7 @@ interface ExpenseDialogProps {
 
 export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode = 'add', onSave, draftId = null, onDraftSave }: ExpenseDialogProps) {
   const { toast } = useToast();
+  const { currency } = useCurrency();
   // Vendor Type search/add state
   const [vendorTypeSearchTerm, setVendorTypeSearchTerm] = useState("");
   const [vendorNameSearchTerm, setVendorNameSearchTerm] = useState("");
@@ -426,7 +428,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 text-sm">
                 <Detail label="Date" value={formatDateForDisplay(expenseForm.date)} />
-                <Detail label="Amount" value={expenseForm.amount ? `${expenseForm.amount} INR` : '-'} />
+                <Detail label="Amount" value={expenseForm.amount ? `${currency} ${expenseForm.amount}` : '-'} />
                 <Detail label="Category" value={expenseForm.expenseCategory || '-'} />
                 <Detail label="Vendor Name" value={expenseForm.vendorName || '-'} />
                 <Detail label="Vendor Type" value={expenseForm.vendorType || '-'} />

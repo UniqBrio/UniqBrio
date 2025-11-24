@@ -2,6 +2,7 @@
 
 import { useState, Fragment } from "react"
 import Image from "next/image"
+import { useCurrency } from "@/contexts/currency-context"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/dashboard/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -41,6 +42,7 @@ export function ROICalculator() {
 }
 
 function ROICalculatorMultiStep() {
+  const { currency } = useCurrency();
   const [roiType, setRoiType] = useState(ROI_TYPES[0])
   const [fields, setFields] = useState({
     academyName: "",
@@ -292,7 +294,7 @@ function ROICalculatorMultiStep() {
                 <CardTitle className="text-lg text-purple-700">Total Profit / Loss</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{netProfit.toLocaleString("en-IN", { maximumFractionDigits: 0 })} INR</div>
+                <div className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{currency} {netProfit.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</div>
               </CardContent>
             </Card>
             <Card className="bg-white border border-orange-200">
@@ -396,7 +398,7 @@ function ROICalculatorMultiStep() {
               const ws = XLSX.utils.json_to_sheet([
                 { Metric: 'ROI %', Value: roi.toFixed(2) },
                 { Metric: 'Annualized ROI %', Value: annualROI.toFixed(2) },
-                { Metric: 'Total Profit/Loss', Value: netProfit.toLocaleString("en-IN", { maximumFractionDigits: 0 }) + ' INR' },
+                { Metric: 'Total Profit/Loss', Value: netProfit.toLocaleString("en-IN", { maximumFractionDigits: 0 }) + ` ${currency}` },
                 { Metric: 'Payback Duration', Value: showPayback ? `${paybackMonths!.toFixed(1)} months (${paybackYears?.toFixed(2)} yrs)` : "N/A" },
                 { Metric: 'Breakeven Status', Value: breakeven ? "Achieved" : "Not Achieved" },
                 { Metric: 'Breakeven Enrollments', Value: showBreakevenEnrollments ? breakevenEnrollments!.toFixed(0) : "N/A" },
