@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Users, BookOpen, Calendar, UserCheck, BarChart3, DollarSign, Coins } from "lucide-react";
 import { useCounterAnimation } from "@/components/dashboard/home/useCounterAnimation";
+import { useCurrency } from "@/contexts/currency-context";
 
 // Custom animated bar shape
 const AnimatedBar = (props: any) => {
@@ -219,6 +220,7 @@ import {
 } from "recharts";
 
 export function HomeMetrics() {
+  const { currency } = useCurrency();
   const [studentCount, setStudentCount] = useState<number | null>(null);
   const [students, setStudents] = useState<any[]>([]);
   const [cohorts, setCohorts] = useState<any[]>([]);
@@ -427,18 +429,17 @@ export function HomeMetrics() {
 
   const stats = [
     {
-      title: "Total Revenue",
-      value: animatedRevenueCount !== null ? `${animatedRevenueCount.toLocaleString('en-IN', { maximumFractionDigits: 0 })} INR` : "-",
-      change: totalRevenue !== null ? "This month" : "Loading...",
-      icon: DollarSign,
-      gradient: "from-green-500 to-emerald-500",
-      bgGradient: "from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50",
+      title: "Total Staffs",
+      value: animatedStaffsCount !== null ? animatedStaffsCount : "-",
+      change: totalStaffs !== null ? `${instructorCount || 0} instructors + ${nonInstructorCount || 0} non-instructors` : "Loading...",
+      icon: UserCheck,
+      gradient: "from-pink-500 to-rose-500",
+      bgGradient: "from-pink-50 to-rose-50 dark:from-pink-950/50 dark:to-rose-950/50",
     },
-    
     {
       title: "Total Students",
       value: animatedStudentCount !== null ? animatedStudentCount : "-",
-      change: `Active students`,
+      change: studentCount !== null ? `${studentCount} enrolled` : "Loading...",
       icon: Users,
       gradient: "from-purple-500 to-blue-500",
       bgGradient: "from-purple-50 to-blue-50 dark:from-purple-950/50 dark:to-blue-950/50",
@@ -446,18 +447,18 @@ export function HomeMetrics() {
     {
       title: "Active Courses",
       value: animatedCoursesCount !== null ? animatedCoursesCount : "-",
-      change: `Active courses`,
+      change: courses.length > 0 ? `${courses.length} courses` : "Loading...",
       icon: BookOpen,
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50",
     },
     {
-      title: "Total Staffs",
-      value: animatedStaffsCount !== null ? animatedStaffsCount : "-",
-      change: totalStaffs !== null ? `${instructorCount || 0} instructors + ${nonInstructorCount || 0} non-instructors` : "Loading...",
-      icon: UserCheck,
-      gradient: "from-pink-500 to-rose-500",
-      bgGradient: "from-pink-50 to-rose-50 dark:from-pink-950/50 dark:to-rose-950/50",
+      title: "Total Revenue",
+      value: animatedRevenueCount !== null ? `${animatedRevenueCount.toLocaleString('en-IN', { maximumFractionDigits: 0 })} ${currency}` : "-",
+      change: totalRevenue !== null ? "This month" : "Loading...",
+      icon: DollarSign,
+      gradient: "from-green-500 to-emerald-500",
+      bgGradient: "from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50",
     },
   ];
 
