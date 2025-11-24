@@ -6,15 +6,24 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
             <div className="space-y-2">
-              {["Privacy Policy", "Terms of Service", "Contact Us"].map((link) => (
-                <a
-                  key={link}
-                  href="#"
-                  className="block text-gray-600 hover:text-orange-500 transition-smooth"
-                >
-                  {link}
-                </a>
-              ))}
+              <a
+                href="/legal/privacy"
+                className="block text-gray-600 hover:text-orange-500 transition-smooth"
+              >
+                How We Protect Your Academy
+              </a>
+              <a
+                href="/legal/terms"
+                className="block text-gray-600 hover:text-orange-500 transition-smooth"
+              >
+                Our Promise to You
+              </a>
+              <a
+                href="/legal/cookies"
+                className="block text-gray-600 hover:text-orange-500 transition-smooth"
+              >
+                Cookie Policy
+              </a>
             </div>
           </div>
           <div>

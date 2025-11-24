@@ -12,14 +12,14 @@ export default function Footer() {
         </div>
 
         <div className="flex space-x-4 mb-4 md:mb-0">
-          <Link href="/privacy" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-            Privacy Policy
+          <Link href="/legal/privacy" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
+            How We Protect Your Academy
           </Link>
-          <Link href="/terms" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-            Terms of Service
+          <Link href="/legal/terms" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
+            Our Promise to You
           </Link>
-          <Link href="/contact" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
-            Contact Us
+          <Link href="/legal/cookies" className="text-sm text-gray-500 hover:text-purple-600 transition-colors">
+            Cookie Policy
           </Link>
         </div>
 

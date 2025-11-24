@@ -1,6 +1,8 @@
 import type { ReactNode } from "react"
 import AuthTabs from "./auth-tabs" // Import the AuthTabs component
 import Image from "next/image"
+import GlobalFooter from "./global-footer"
+
 interface AuthLayoutProps {
   children: ReactNode
 }
@@ -151,6 +153,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           </div>
         </div>
       </div>
+      
+      <GlobalFooter />
       </div>
 
     </div>

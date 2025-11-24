@@ -12,6 +12,7 @@ import { signup } from "../actions/auth-actions"
 import { toast } from "@/components/ui/use-toast"
 import AuthLayout from "@/components/auth-layout" // Import AuthLayout
 import { useSearchParams } from "next/navigation"
+import ConfettiCelebration from "@/components/confetti-celebration"
 
 const signupSchema = z
   .object({
@@ -28,7 +29,7 @@ const signupSchema = z
       .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
     confirmPassword: z.string(),
     termsAccepted: z.literal(true, {
-      errorMap: () => ({ message: "You must accept the terms and conditions" }),
+      errorMap: () => ({ message: "You must agree to the policies to continue" }),
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -43,6 +44,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [showCelebration, setShowCelebration] = useState(false)
   const searchParams = useSearchParams()
 
   // Check for URL parameters
@@ -74,15 +76,17 @@ export default function SignupPage() {
     handleSubmit,
     watch,
     reset, // <-- Import reset function
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<FormData>({
     resolver: zodResolver(signupSchema),
+    mode: "onChange",
     defaultValues: {
       // role: "student", // Remove default role
     },
   })
 
   const password = watch("password", "")
+  const termsAccepted = watch("termsAccepted")
 
   useEffect(() => {
     // Calculate password strength
@@ -118,18 +122,24 @@ export default function SignupPage() {
       formData.append("confirmPassword", data.confirmPassword)
       formData.append("role", "admin") // Always assign 'admin' role
       formData.append("termsAccepted", data.termsAccepted ? "true" : "false")
+      // TODO: Backend integration - store terms acceptance timestamp in user profile
+      // Example: formData.append("termsAcceptedAt", new Date().toISOString())
 
       const result = await signup(formData)
       if (result?.success) {
-        // Show the specific verification message regardless of server message content
-        toast({
-          title: "Signup Submitted Successfully", // Updated title
-          description: "Verification link has been sent to your mail. Please click on the verification link to complete account creation.", // Specific message
-          variant: "default", // Or 'success' if you have that variant
-          // Optional: Increase duration if needed
-          // duration: 9000,
-        });
-        reset(); // Reset the form fields to their default values
+        // Show confetti celebration
+        setShowCelebration(true)
+        
+        // After celebration (3 seconds), show the verification toast
+        setTimeout(() => {
+          toast({
+            title: "Signup Submitted Successfully",
+            description: "Verification link has been sent to your mail. Please click on the verification link to complete account creation.",
+            variant: "default",
+          })
+        }, 3000)
+        
+        reset() // Reset the form fields to their default values
       } else if (result && !result.success) {
         // --- ERROR: Show specific error from server action ---
         const errorMsg =
@@ -322,38 +332,58 @@ export default function SignupPage() {
         </div>
 
         {/* Terms and Conditions */}
-        <div className="flex items-start">
+        <div className="flex items-start pt-2">
           <div className="flex items-center h-5">
             <input
               id="terms"
               type="checkbox"
-              className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-[#8a3ffc]"
+              className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-[#8a3ffc] cursor-pointer"
               {...register("termsAccepted")}
             />
           </div>
-          <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
-            By clicking join now, you agree to UniqBrio's{" "}
-            <Link href="/terms" className="text-[#8a3ffc] font-medium hover:underline">
+          <label htmlFor="terms" className="ml-2 text-sm text-gray-700 leading-relaxed">
+            I agree to the{" "}
+            <a 
+              href="/legal/terms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[#8a3ffc] font-medium hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
               User Agreement
-            </Link>
+            </a>
             ,{" "}
-            <Link href="/privacy" className="text-[#8a3ffc] font-medium hover:underline">
+            <a 
+              href="/legal/privacy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[#8a3ffc] font-medium hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
               Privacy Policy
-            </Link>
+            </a>
             , and{" "}
-            <Link href="/cookies" className="text-[#8a3ffc] font-medium hover:underline">
+            <a 
+              href="/legal/cookies" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[#8a3ffc] font-medium hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
               Cookie Policy
-            </Link>
+            </a>
             .
           </label>
         </div>
-        {errors.termsAccepted && <p className="text-red-500 text-sm">{errors.termsAccepted.message}</p>}
+        {errors.termsAccepted && (
+          <p className="text-red-500 text-sm mt-1">{errors.termsAccepted.message}</p>
+        )}
 
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full h-10 text-base font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center"
-          disabled={isSubmitting}
+          className="w-full h-10 text-base font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSubmitting || !termsAccepted}
         >
           {isSubmitting ? (
             <>
@@ -378,6 +408,14 @@ export default function SignupPage() {
 
       {/* Google Auth Button */}
       <GoogleAuthButton mode="signup" color="purple" />
+
+      {/* Confetti Celebration */}
+      {showCelebration && (
+        <ConfettiCelebration 
+          message="Welcome to the family! Let's grow your academy together 🎉"
+          onComplete={() => setShowCelebration(false)}
+        />
+      )}
     </AuthLayout>
   )
 }

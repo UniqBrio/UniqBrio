@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Sidebar from "./sidebar"
 import Header from "./header"
+import GlobalFooter from "./global-footer"
 import "../styles/responsive-dashboard.css"
 
 import ErrorBoundary from "./error-boundary"
@@ -112,6 +113,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   </div>
                 </ErrorBoundary>
               </main>
+              <GlobalFooter />
             </div>
           </div>
         )
@@ -143,7 +145,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   {children}
                 </ErrorBoundary>
               </main>
-              
+              <GlobalFooter />
             </div>
             <Sidebar position={position} collapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
           </div>
