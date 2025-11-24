@@ -41,6 +41,8 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     country: user?.country || "",
     stateProvince: user?.stateProvince || "",
     address: typeof user?.address === "string" ? user?.address : user?.address?.street || "",
+    position: user?.position || "",
+    linkedinUrl: user?.linkedinUrl || "",
     bio: user?.instructorProfile?.bio || user?.studentProfile?.goals?.join(", ") || "",
     avatar: user?.avatar || "",
   })
@@ -239,6 +241,29 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="position">Role/Position</Label>
+            <Input
+              id="position"
+              placeholder="Founder, CEO, Director, etc."
+              value={formData.position}
+              onChange={(e) => handleInputChange("position", e.target.value)}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+            <Input
+              id="linkedinUrl"
+              type="url"
+              placeholder="https://linkedin.com/in/yourprofile"
+              value={formData.linkedinUrl}
+              onChange={(e) => handleInputChange("linkedinUrl", e.target.value)}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
             <div className="flex flex-col sm:flex-row gap-2">
               <CountryCodeSelector
@@ -372,6 +397,8 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                   country: user?.country || "",
                   stateProvince: user?.stateProvince || "",
                   address: typeof user?.address === "string" ? user?.address : user?.address?.street || "",
+                  position: user?.position || "",
+                  linkedinUrl: user?.linkedinUrl || "",
                   bio: user?.instructorProfile?.bio || user?.studentProfile?.goals?.join(", ") || "",
                   avatar: user?.avatar || "",
                 })

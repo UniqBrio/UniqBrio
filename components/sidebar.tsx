@@ -104,6 +104,7 @@ import {
   ShoppingCart,
   Moon,
   Sun,
+  ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/dashboard/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -289,7 +290,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       name: "Community",
       icon: <Users2 className="h-5 w-5" />,
       href: "https://dailybrio.uniqbrio.com/",
-      tooltip: "Community",
+      tooltip: "Community (Opens in new tab)",
       external: true,
       
     },
@@ -717,7 +718,10 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                         className="flex items-center flex-1"
                       >
                         <span className="text-gray-500 mr-3">{item.icon}</span>
-                        <span className="text-left">{item.name}</span>
+                        <span className="text-left flex items-center gap-1">
+                          {item.name}
+                          <ExternalLink className="h-3 w-3 text-gray-400" />
+                        </span>
                         {item.badge && (
                           item.badge.variant === "comingSoon" ? (
                             <span className="ml-2 text-base" title="Coming Soon">🔜</span>
@@ -803,7 +807,10 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       )}
                     >
                       <span className="text-gray-500 mr-3">{item.icon}</span>
-                      <span className="text-left">{item.name}</span>
+                      <span className="text-left flex items-center gap-1">
+                        {item.name}
+                        <ExternalLink className="h-3 w-3 text-gray-400" />
+                      </span>
                       {item.badge && (
                         item.badge.variant === "comingSoon" ? (
                           <span className="ml-2 text-base" title="Coming Soon">🔜</span>

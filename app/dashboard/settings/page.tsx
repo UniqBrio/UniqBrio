@@ -3,11 +3,13 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { toast } from "@/components/dashboard/ui/use-toast"
+
 import {
   Settings as SettingsIcon,
   User,
@@ -35,8 +37,16 @@ import { useApp } from "@/contexts/dashboard/app-context"
 export default function SettingsPage() {
   const { user, setUser } = useApp()
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("profile")
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState("appearance")
   
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab && ["profile", "academy-info", "appearance", "system-config", "notifications"].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
   
 
   useEffect(() => {
@@ -237,7 +247,7 @@ export default function SettingsPage() {
                   className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <Palette className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Theme</span>
+                  <span className="hidden sm:inline">Localisation</span>
                 </TabsTrigger>
 
                 <TabsTrigger

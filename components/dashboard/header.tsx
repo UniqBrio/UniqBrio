@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Bell, SettingsIcon, User, ChevronDown, X } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Bell, SettingsIcon, User, ChevronDown, X, LogOut } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +16,7 @@ import {
 } from "@/components/dashboard/ui/dropdown-menu"
 import { Button } from "@/components/dashboard/ui/button"
 import { Badge } from "@/components/dashboard/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/dashboard/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 
 interface HeaderProps {
@@ -25,8 +27,20 @@ interface HeaderProps {
 
 export default function Header({  userRole, changeUserRole }: HeaderProps) {
   const [notifications, setNotifications] = useState(3)
-  
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      // Call logout API
+      await fetch("/api/auth/logout", { method: "POST" })
+      // Redirect to login page
+      router.push("/login")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
+  }
 
   return (
     <header className="bg-white border-b border-gray-200 h-20 flex items-center justify-between px-4 md:px-6">
@@ -65,36 +79,21 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
           </Tooltip>
         </TooltipProvider>
 
-        <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Settings">
-                    <SettingsIcon className="h-5 w-5" />
-                  </Button>
-                </DialogTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Settings</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader className="flex flex-row items-center justify-between">
-              <DialogTitle>Settings</DialogTitle>
-              <DialogClose asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full">
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogClose>
-            </DialogHeader>
-            <div className="py-4">
-              <p className="text-sm text-gray-500">
-                Configure your application settings and preferences. Changes will be applied immediately.
-              </p>
-              {/* Settings content would go here */}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                aria-label="Settings"
+                onClick={() => router.push("/dashboard/settings")}
+              >
+                <SettingsIcon className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Settings</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -112,13 +111,49 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Account Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/dashboard/settings?tab=profile")}>
+              <User className="h-4 w-4 mr-2" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/dashboard/settings?tab=academy-info")}>
+              <SettingsIcon className="h-4 w-4 mr-2" />
+              Account Settings
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log Out</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setLogoutDialogOpen(true)} className="text-red-600 focus:text-red-600">
+              <LogOut className="h-4 w-4 mr-2" />
+              Log Out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Logout Confirmation Dialog */}
+        <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirm Logout</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to log out? You will need to sign in again to access your account.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setLogoutDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  setLogoutDialogOpen(false)
+                  handleLogout()
+                }}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Log Out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </header>
   )

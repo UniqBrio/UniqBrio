@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     // Generate unique ticket ID
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substr(2, 4).toUpperCase();
-    const ticketId = `TKT-${timestamp}${random}`;
+    const ticketId = `UB-${timestamp}${random}`;
     
     // Create new ticket
     const newTicket = new HelpTicket({
