@@ -343,7 +343,17 @@ export async function sendTicketCreationEmail(
 ): Promise<boolean> {
   const { ticketId, title, description, priority, status, createdAt } = ticketDetails;
 
-  const subject = `✅ Support Ticket Created - ${ticketId}`;
+  const subject = `Support Ticket Confirmation: We're Here to Help`;
+
+  const formattedDate = new Date(createdAt).toLocaleString('en-US', { 
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
 
   const html = `
     <!DOCTYPE html>
@@ -352,78 +362,82 @@ export async function sendTicketCreationEmail(
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #7C3AED; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
-        .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
-        .details-box { background-color: #fff; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #7C3AED; }
-        .details-box h3 { margin-top: 0; color: #7C3AED; }
-        .details-box p { margin: 10px 0; }
-        .details-box strong { color: #333; }
-        .info-box { background-color: #EDE9FE; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #7C3AED; }
-        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-        .ticket-id { font-size: 24px; font-weight: bold; color: #7C3AED; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .badge-priority { background-color: #FEF3C7; color: #92400E; }
-        .badge-status { background-color: #DBEAFE; color: #1E40AF; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; }
+        .header { background-color: #7C3AED; color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .header h2 { margin: 0; font-size: 24px; }
+        .content { background-color: #f9f9f9; padding: 30px 25px; border-radius: 0 0 8px 8px; }
+        .content p { margin: 15px 0; line-height: 1.8; }
+        .ticket-table { width: 100%; border-collapse: collapse; margin: 25px 0; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .ticket-table th { background-color: #7C3AED; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        .ticket-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+        .ticket-table tr:last-child td { border-bottom: none; }
+        .section-title { color: #7C3AED; font-size: 18px; font-weight: bold; margin: 25px 0 15px 0; }
+        .expectations-list { background-color: #ffffff; padding: 20px 25px; border-radius: 8px; border-left: 4px solid #7C3AED; margin: 20px 0; }
+        .expectations-list ol { margin: 10px 0; padding-left: 20px; }
+        .expectations-list li { margin: 10px 0; line-height: 1.6; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 13px; margin-top: 20px; border-top: 1px solid #e5e7eb; }
+        .signature { margin-top: 25px; }
+        .signature p { margin: 5px 0; }
+        strong { color: #333; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h2>✅ Support Ticket Created</h2>
-          <p class="ticket-id">${ticketId}</p>
+          <h2>Support Ticket Confirmation: We're Here to Help</h2>
         </div>
         <div class="content">
-          <p>Dear Customer,</p>
-          <p><strong>Thank you for contacting UniqBrio Support!</strong></p>
-          <p>We have successfully received your support ticket and our team will review it shortly. We will get back to you as soon as possible.</p>
+          <p><strong>Dear Customer,</strong></p>
           
-          <div class="details-box">
-            <h3>Ticket Details</h3>
-            <p><strong>Ticket ID:</strong> ${ticketId}</p>
-            <p><strong>Title:</strong> ${title}</p>
-            <p><strong>Description:</strong> ${description}</p>
-            <p>
-              <strong>Priority:</strong> 
-              <span class="badge badge-priority">${priority}</span>
-            </p>
-            <p>
-              <strong>Status:</strong> 
-              <span class="badge badge-status">${status}</span>
-            </p>
-            <p><strong>Created:</strong> ${new Date(createdAt).toLocaleString('en-IN', { 
-              day: '2-digit', 
-              month: 'long', 
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</p>
+          <p>Thank you for reaching out to Uniqbrio Support. We understand how important it is to have your issue resolved quickly, and we are committed to providing you with our full support.</p>
+          
+          <p>We have successfully received your request and are already reviewing the details.</p>
+          
+          <h3 class="section-title">🎫 Your Support Ticket Details</h3>
+          
+          <table class="ticket-table">
+            <tr>
+              <th>Detail</th>
+              <th>Information</th>
+            </tr>
+            <tr>
+              <td><strong>Ticket Number</strong></td>
+              <td>${ticketId}</td>
+            </tr>
+            <tr>
+              <td><strong>Issue Type</strong></td>
+              <td>${title}</td>
+            </tr>
+            <tr>
+              <td><strong>Date Submitted</strong></td>
+              <td>${formattedDate}</td>
+            </tr>
+          </table>
+          
+          <h3 class="section-title">⏱️ What You Can Expect Next</h3>
+          
+          <div class="expectations-list">
+            <ol>
+              <li><strong>Review:</strong> Our dedicated support team will immediately review the information you provided.</li>
+              <li><strong>Response:</strong> We guarantee a response from a support agent via email within <strong>24 hours</strong>.</li>
+              <li><strong>Resolution:</strong> We assure you that we will work diligently and collaboratively with you until your issue is fully resolved to your satisfaction.</li>
+            </ol>
           </div>
           
-          <div class="info-box">
-            <h3>📋 What Happens Next?</h3>
-            <p>1. <strong>Review:</strong> Our support team will review your ticket and assess the priority.</p>
-            <p>2. <strong>Investigation:</strong> We will investigate the issue and work on a solution.</p>
-            <p>3. <strong>Response:</strong> You will receive an email update once we have progress on your ticket.</p>
-            <p>4. <strong>Resolution:</strong> We'll notify you when your issue is resolved.</p>
+          <p>If you have any additional details or information that could help us resolve your issue faster, please simply reply to this email.</p>
+          
+          <p>We appreciate your patience and look forward to helping you succeed.</p>
+          
+          <div class="signature">
+            <p><strong>Sincerely,</strong></p>
+            <p><strong>The Uniqbrio Support Team</strong></p>
+            <p><a href="mailto:support@uniqbrio.com" style="color: #7C3AED; text-decoration: none;">support@uniqbrio.com</a></p>
           </div>
-          
-          <p><strong>Response Time:</strong> We typically respond to tickets within 24-48 hours during business days. High priority tickets are addressed sooner.</p>
-          
-          <p><strong>Ticket Reference:</strong> Please reference ticket ID <strong>${ticketId}</strong> in any future correspondence regarding this issue.</p>
-          
-          <p>If you have any additional information or questions, please reply to this email with your ticket ID.</p>
-          
-          <p>Thank you for your patience!</p>
-          
-          <p>Best regards,<br>
-          <strong>UniqBrio Support Team</strong></p>
         </div>
         <div class="footer">
+          <p>© ${new Date().getFullYear()} Uniqbrio. All rights reserved.</p>
           <p>This is an automated confirmation message.</p>
-          <p>© ${new Date().getFullYear()} UniqBrio. All rights reserved.</p>
-          <p>For urgent matters, please contact us at support@uniqbrio.com</p>
         </div>
       </div>
     </body>
@@ -431,43 +445,37 @@ export async function sendTicketCreationEmail(
   `;
 
   const text = `
-Support Ticket Created Successfully
-
-Ticket ID: ${ticketId}
+Support Ticket Confirmation: We're Here to Help
 
 Dear Customer,
 
-Thank you for contacting UniqBrio Support!
+Thank you for reaching out to Uniqbrio Support. We understand how important it is to have your issue resolved quickly, and we are committed to providing you with our full support.
 
-We have successfully received your support ticket and our team will review it shortly. We will get back to you as soon as possible.
+We have successfully received your request and are already reviewing the details.
 
-Ticket Details:
-- Ticket ID: ${ticketId}
-- Title: ${title}
-- Description: ${description}
-- Priority: ${priority}
-- Status: ${status}
-- Created: ${new Date(createdAt).toLocaleString('en-IN')}
+🎫 Your Support Ticket Details
+--------------------------------
+Ticket Number: ${ticketId}
+Issue Type: ${title}
+Date Submitted: ${formattedDate}
 
-What Happens Next?
-1. Review: Our support team will review your ticket and assess the priority.
-2. Investigation: We will investigate the issue and work on a solution.
-3. Response: You will receive an email update once we have progress on your ticket.
-4. Resolution: We'll notify you when your issue is resolved.
+⏱️ What You Can Expect Next
+----------------------------
+1. Review: Our dedicated support team will immediately review the information you provided.
+2. Response: We guarantee a response from a support agent via email within 24 hours.
+3. Resolution: We assure you that we will work diligently and collaboratively with you until your issue is fully resolved to your satisfaction.
 
-Response Time: We typically respond to tickets within 24-48 hours during business days. High priority tickets are addressed sooner.
+If you have any additional details or information that could help us resolve your issue faster, please simply reply to this email.
 
-Please reference ticket ID ${ticketId} in any future correspondence regarding this issue.
+We appreciate your patience and look forward to helping you succeed.
 
-Thank you for your patience!
-
-Best regards,
-UniqBrio Support Team
+Sincerely,
+The Uniqbrio Support Team
+support@uniqbrio.com
 
 ---
+© ${new Date().getFullYear()} Uniqbrio. All rights reserved.
 This is an automated confirmation message.
-© ${new Date().getFullYear()} UniqBrio. All rights reserved.
-For urgent matters, please contact us at support@uniqbrio.com
   `;
 
   return await sendEmail({
