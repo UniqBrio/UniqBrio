@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         {/* This div takes full width and centers its flex children */}
         <div className="flex flex-col items-center justify-center py-3 bg-transparent animate-fadeIn">
         <Image
-          src="/UniqBrio Logo Transparent.png" // Ensure this path is correct
+          src="/UniqBrio%20Logo%20Transparent.png" // URL-encoded space in filename
           alt="UniqBrio Logo"
           width={180} // Adjust size as needed
           height={90} // Adjust size as needed
