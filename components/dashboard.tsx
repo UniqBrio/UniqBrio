@@ -201,7 +201,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="flex flex-col space-y-0 responsive-dashboard-container">
+    <div className="flex flex-col space-y-6 responsive-dashboard-container">
       {/* KYC Success Notification - Temporary toast-style popup */}
       {showKycSuccessNotification && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-md">
@@ -400,7 +400,7 @@ const Dashboard = () => {
       )}
 
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-lg shadow-lg p-3 sm:p-4 lg:p-6 text-white responsive-dashboard-container">
+      <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-lg shadow-lg p-3 sm:p-4 lg:p-6 text-white">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 responsive-text-xl">
@@ -451,7 +451,7 @@ const Dashboard = () => {
       <HomeMetrics />
         
       {/* Main Dashboard Content */}
-      <div className="responsive-dashboard-container space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Announcements />
         <FinancialSnapshot />
         <FeatureGrid />

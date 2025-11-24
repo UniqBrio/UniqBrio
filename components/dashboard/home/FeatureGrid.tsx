@@ -20,7 +20,7 @@ const features: FeatureItem[] = [
   },
   {
     title: "Courses",
-    description: "Catalog, import, draft & publish curricula.",
+    description: "Catalog, import, draft and add courses.",
     href: "/services/courses",
     icon: <BookOpen className="w-5 h-5" />,
     gradient: "from-purple-500 to-pink-500"
@@ -34,7 +34,7 @@ const features: FeatureItem[] = [
   },
   {
     title: "Instructor",
-    description: "Session modifications, attendance & leave management.",
+    description: "Hiring, attendance & leave management.",
     href: "/user/staff/instructor",
     icon: <GraduationCap className="w-5 h-5" />,
     gradient: "from-green-500 to-emerald-500"
@@ -72,30 +72,32 @@ const features: FeatureItem[] = [
 export function FeatureGrid() {
   return (
     <section aria-labelledby="features-heading" className="mt-16">
-      <div className="flex items-center justify-between mb-6">
-        <h2 id="features-heading" className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
-            <SettingsIcon className="w-4 h-4" />
+      <div className="flex items-center gap-3 mb-8">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+        <h2 id="features-heading" className="text-2xl font-bold tracking-tight flex items-center gap-3 text-neutral-800 dark:text-neutral-200">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
+            <SettingsIcon className="w-5 h-5" />
           </div>
           Platform Modules
         </h2>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {features.map(f => (
           <a
             key={f.title}
             href={f.href}
-            className="group relative rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 bg-white dark:bg-neutral-900 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 overflow-hidden"
+            className="group relative rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 p-6 bg-gradient-to-br from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_15px_50px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 overflow-hidden hover:border-neutral-300 dark:hover:border-neutral-700"
             aria-label={`${f.title} module`}
           >
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${f.gradient} opacity-10 blur-2xl group-hover:opacity-20 transition-opacity rounded-full -mr-12 -mt-12`} />
-            <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${f.gradient} text-white mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${f.gradient} opacity-10 blur-3xl group-hover:opacity-20 group-hover:scale-150 transition-all duration-700 rounded-full -mr-16 -mt-16`} />
+            <div className={`relative inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${f.gradient} text-white mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
               {f.icon}
             </div>
-            <h3 className="font-semibold text-base mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3 className="relative font-bold text-lg mb-2 text-neutral-900 dark:text-white group-hover:bg-gradient-to-r group-hover:from-violet-600 group-hover:to-fuchsia-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
               {f.title}
             </h3>
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">{f.description}</p>
+            <p className="relative text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">{f.description}</p>
           </a>
         ))}
       </div>

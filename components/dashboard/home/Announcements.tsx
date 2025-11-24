@@ -129,21 +129,25 @@ export function Announcements({
   const displayedAnnouncements = announcements.slice(0, maxItems);
 
   return (
-    <Card className={`${className} border-neutral-200 dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300`}>
-      <CardHeader className="pb-4 bg-gradient-to-br from-blue-50/80 via-cyan-50/60 to-sky-50/80 dark:from-blue-950/30 dark:via-cyan-950/20 dark:to-sky-950/30 rounded-t-lg">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg transform hover:scale-110 transition-transform duration-200">
-              <Megaphone className="w-4 h-4" />
+    <Card className={`${className} border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900`}>
+      <CardHeader className="pb-6 bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 relative overflow-hidden">
+        {/* Decorative gradient orbs */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        
+        <div className="flex items-center justify-between relative z-10">
+          <CardTitle className="text-xl font-bold flex items-center gap-3 text-white">
+            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transform hover:rotate-12 hover:scale-110 transition-all duration-300">
+              <Megaphone className="w-6 h-6" />
             </div>
-            Announcements
+            Latest Updates
           </CardTitle>
-          <span className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-medium">
+          <span className="text-xs px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-blue-700 font-bold shadow-lg">
             {announcements.filter((a) => !a.isRead).length} New
           </span>
         </div>
       </CardHeader>
-      <CardContent className="bg-gradient-to-b from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 rounded-b-lg">
+      <CardContent className="bg-gradient-to-b from-neutral-50/50 to-white dark:from-neutral-900/50 dark:to-neutral-900 pt-6">
         {displayedAnnouncements.length === 0 ? (
           <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
             <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -157,33 +161,33 @@ export function Announcements({
               return (
                 <div
                   key={announcement.id}
-                  className={`group relative p-4 rounded-xl border ${
+                  className={`group relative p-5 rounded-xl border-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
                     announcement.isRead
-                      ? "border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 opacity-75"
-                      : `${colors.border} ${colors.bg}`
-                  } hover:shadow-md transition-all`}
+                      ? "border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 opacity-70"
+                      : `${colors.border} ${colors.bg} shadow-md`
+                  }`}
                 >
                   {/* Dismiss Button */}
                   <button
                     onClick={() => dismissAnnouncement(announcement.id)}
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-lg hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80 backdrop-blur-sm"
                     aria-label="Dismiss announcement"
                   >
-                    <X className="w-3.5 h-3.5 text-neutral-500" />
+                    <X className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
                   </button>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     {/* Icon */}
                     <div
-                      className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${colors.gradient} text-white flex items-center justify-center shadow-sm`}
+                      className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${colors.gradient} text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
                     >
                       {getAnnouncementIcon(announcement.type)}
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 pr-6">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-sm text-neutral-900 dark:text-white">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <h4 className="font-bold text-base text-neutral-900 dark:text-white">
                           {announcement.title}
                         </h4>
                         {!announcement.isRead && (

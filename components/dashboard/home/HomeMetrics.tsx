@@ -461,11 +461,9 @@ export function HomeMetrics() {
   ];
 
   return (
-    <section className="mt-16 responsive-dashboard-container">
-      <h2 className="text-2xl font-bold tracking-tight mb-6"></h2>
-      
+    <section className="mb-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           const showCashAnimation = stat.value !== "-"; // Only show animation when value is loaded
@@ -477,26 +475,28 @@ export function HomeMetrics() {
               {showCashAnimation && isTotalRevenue && <BasketballDunk gradient={stat.gradient} />}
               
               <Card
-                className={`relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${stat.bgGradient}`}
+                className={`group relative overflow-hidden border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 hover:-translate-y-2 bg-gradient-to-br ${stat.bgGradient} backdrop-blur-sm`}
               >
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-10 blur-2xl rounded-full -mr-16 -mt-16`} />
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-20 blur-2xl rounded-full -mr-16 -mt-16 group-hover:opacity-30 transition-opacity duration-500`} />
+              <div className={`absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr ${stat.gradient} opacity-10 blur-2xl rounded-full -ml-12 -mb-12`} />
               
               {/* Falling cash animation */}
               {showCashAnimation && <FallingCash gradient={stat.gradient} />}
               
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
+                <CardTitle className="text-sm font-semibold text-neutral-600 dark:text-neutral-300 tracking-wide uppercase">
                   {stat.title}
                 </CardTitle>
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.gradient} shadow-lg`}>
-                  <Icon className="h-4 w-4 text-white" />
+                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                  <Icon className="h-5 w-5 text-white" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold bg-gradient-to-r from-neutral-900 to-neutral-700 dark:from-white dark:to-neutral-300 bg-clip-text text-transparent">
+              <CardContent className="relative z-10">
+                <div className="text-4xl font-bold bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700 dark:from-white dark:via-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent mb-2 tracking-tight">
                   {stat.value}
                 </div>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-2 flex items-center gap-1.5">
+                  <span className={`inline-block w-1.5 h-1.5 rounded-full bg-gradient-to-r ${stat.gradient} animate-pulse`}></span>
                   {stat.change}
                 </p>
               </CardContent>
@@ -507,18 +507,34 @@ export function HomeMetrics() {
       </div>
 
       {/* Charts Section - Only Top 3 Courses and Top 3 Cohorts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="space-y-6">
+        {/* Section Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-purple-600" />
+            Performance Analytics
+          </h3>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top 3 Courses by Students */}
-        <Card className="shadow-lg border-0 bg-white/80 dark:bg-neutral-900/80 backdrop-blur">
+        <Card className="group shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] border-0 bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 dark:from-neutral-900 dark:via-purple-950/20 dark:to-blue-950/20 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+          {/* Decorative gradient orb */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+          
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 shadow-md">
-                <BarChart3 className="h-4 w-4 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                <BarChart3 className="h-5 w-5 text-white" />
               </div>
-              <CardTitle className="text-lg text-purple-600 dark:text-purple-400">Top 3 Courses by Students</CardTitle>
+              <CardTitle className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+                Top 3 Courses by Students
+              </CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
@@ -562,16 +578,21 @@ export function HomeMetrics() {
         </Card>
 
         {/* Top 3 Cohorts by Students */}
-        <Card className="shadow-lg border-0 bg-white/80 dark:bg-neutral-900/80 backdrop-blur">
+        <Card className="group shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] border-0 bg-gradient-to-br from-white via-orange-50/30 to-red-50/30 dark:from-neutral-900 dark:via-orange-950/20 dark:to-red-950/20 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+          {/* Decorative gradient orb */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+          
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 shadow-md">
-                <Users className="h-4 w-4 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                <Users className="h-5 w-5 text-white" />
               </div>
-              <CardTitle className="text-lg text-purple-600 dark:text-purple-400">Top 3 Cohorts by Students</CardTitle>
+              <CardTitle className="text-lg font-bold bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
+                Top 3 Cohorts by Students
+              </CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
@@ -613,6 +634,7 @@ export function HomeMetrics() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </section>
   );

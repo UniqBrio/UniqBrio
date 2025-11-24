@@ -53,19 +53,19 @@ export function FinancialSnapshot({
   const chartConfig = useResponsiveValue({
     mobile: {
       fontSize: 10,
-      margins: { left: 15, right: 5, bottom: 40, top: 5 },
+      margins: { left: 25, right: 15, bottom: 50, top: 15 },
       showLabels: false,
       strokeWidth: 2
     },
     tablet: {
       fontSize: 11,
-      margins: { left: 50, right: 15, bottom: 60, top: 20 },
+      margins: { left: 70, right: 25, bottom: 70, top: 25 },
       showLabels: true,
       strokeWidth: 2
     },
     desktop: {
       fontSize: 12,
-      margins: { left: 70, right: 20, bottom: 80, top: 25 },
+      margins: { left: 90, right: 30, bottom: 90, top: 30 },
       showLabels: true,
       strokeWidth: 3
     }
@@ -166,16 +166,20 @@ export function FinancialSnapshot({
   };
 
   return (
-    <Card className={`${className} border-neutral-200 dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300`}>
-      <CardHeader className="pb-4 bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-green-50/80 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-green-950/30 rounded-t-lg">
-        <CardTitle className="text-xl font-bold flex items-center gap-2">
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg transform hover:scale-110 transition-transform duration-200">
-            <DollarSign className="w-4 h-4" />
+    <Card className={`${className} border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900`}>
+      <CardHeader className="pb-6 bg-gradient-to-br from-emerald-500 via-teal-500 to-green-500 relative overflow-hidden">
+        {/* Decorative gradient orbs */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        
+        <CardTitle className="text-xl font-bold flex items-center gap-3 text-white relative z-10">
+          <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transform hover:rotate-12 hover:scale-110 transition-all duration-300">
+            <DollarSign className="w-6 h-6" />
           </div>
           Financial Overview
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6 bg-gradient-to-b from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 rounded-b-lg">
+      <CardContent className="space-y-6 bg-gradient-to-b from-neutral-50/50 to-white dark:from-neutral-900/50 dark:to-neutral-900 pt-6">
         {/* Financial Cards */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -193,69 +197,72 @@ export function FinancialSnapshot({
         ) : data ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Net Profit Card */}
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 dark:from-green-950/30 dark:to-green-900/30 dark:border-green-800">
-              <CardContent className="p-6">
+            <Card className="group bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-0 shadow-lg hover:shadow-2xl dark:from-emerald-950/40 dark:via-green-950/40 dark:to-teal-950/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">
+                    <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wider">
                       Net Profit
                     </p>
-                    <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                    <p className="text-3xl font-bold bg-gradient-to-r from-emerald-700 to-green-700 dark:from-emerald-300 dark:to-green-300 bg-clip-text text-transparent">
                       {formatCurrency(data.netProfit)}
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-lg bg-green-200 dark:bg-green-900 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-300" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                    <TrendingUp className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <div className="text-xs text-green-700 dark:text-green-400">
-                  Margin: {data.profitMargin.toFixed(1)}%
+                  This month
                 </div>
               </CardContent>
             </Card>
 
             {/* Monthly Expenses Card */}
-            <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 dark:from-red-950/30 dark:to-red-900/30 dark:border-red-800">
-              <CardContent className="p-6">
+            <Card className="group bg-gradient-to-br from-rose-50 via-red-50 to-pink-50 border-0 shadow-lg hover:shadow-2xl dark:from-rose-950/40 dark:via-red-950/40 dark:to-pink-950/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-rose-400/20 to-red-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-2">
+                    <p className="text-sm font-bold text-rose-700 dark:text-rose-300 mb-2 uppercase tracking-wider">
                       Monthly Expenses
                     </p>
-                    <p className="text-2xl font-bold text-red-900 dark:text-red-100">
+                    <p className="text-3xl font-bold bg-gradient-to-r from-rose-700 to-red-700 dark:from-rose-300 dark:to-red-300 bg-clip-text text-transparent">
                       {formatCurrency(data.totalExpenses)}
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-lg bg-red-200 dark:bg-red-900 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-red-600 dark:text-red-300" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                    <CreditCard className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 {data.expenseAlerts > 0 && (
                   <div className="text-xs text-red-600 dark:text-red-400 font-medium">
-                    ⚠ {data.expenseAlerts} alerts
+                    This month
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* Financial Health Card */}
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 dark:from-blue-950/30 dark:to-blue-900/30 dark:border-blue-800">
-              <CardContent className="p-6">
+            <Card className="group bg-gradient-to-br from-blue-50 via-cyan-50 to-sky-50 border-0 shadow-lg hover:shadow-2xl dark:from-blue-950/40 dark:via-cyan-950/40 dark:to-sky-950/40 transition-all duration-500 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
+                    <p className="text-sm font-bold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wider">
                       Financial Health
                     </p>
-                    <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                    <p className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-cyan-700 dark:from-blue-300 dark:to-cyan-300 bg-clip-text text-transparent">
                       {data.financialHealth}
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-lg bg-blue-200 dark:bg-blue-900 flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                    <ShieldCheck className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <div className="text-xs text-blue-700 dark:text-blue-400">
-                  Profit margin {data.profitMargin > 30 ? 'excellent' : data.profitMargin > 15 ? 'good' : 'needs attention'}
+                  Margin: {data.profitMargin.toFixed(1)}%
                 </div>
               </CardContent>
             </Card>
@@ -304,7 +311,7 @@ export function FinancialSnapshot({
                     }]}
                     tick={{ fontSize: chartConfig.fontSize }}
                     className="text-xs sm:text-sm"
-                    width={screenSize === "mobile" ? 40 : 60}
+                    width={screenSize === "mobile" ? 50 : 75}
                   >
                     {chartConfig.showLabels && (
                       <Label 

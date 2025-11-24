@@ -175,24 +175,28 @@ export function ActivityFeed({
   };
 
   return (
-    <Card className={`${className} border-neutral-200 dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300`}>
-      <CardHeader className="pb-4 bg-gradient-to-br from-purple-50/80 via-blue-50/60 to-indigo-50/80 dark:from-purple-950/30 dark:via-blue-950/20 dark:to-indigo-950/30 rounded-t-lg">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg transform hover:scale-110 transition-transform duration-200">
-              <Bell className="w-4 h-4" />
+    <Card className={`${className} border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900`}>
+      <CardHeader className="pb-6 bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 relative overflow-hidden">
+        {/* Decorative gradient orbs */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        
+        <div className="flex items-center justify-between relative z-10">
+          <CardTitle className="text-xl font-bold flex items-center gap-3 text-white">
+            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transform hover:rotate-12 hover:scale-110 transition-all duration-300">
+              <Bell className="w-6 h-6" />
             </div>
             Recent Activity
           </CardTitle>
           <a
             href="/dashboard/audit-logs"
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+            className="text-sm text-white/90 hover:text-white font-semibold px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
           >
             View All
           </a>
         </div>
       </CardHeader>
-      <CardContent className="bg-gradient-to-b from-white to-neutral-50/50 dark:from-neutral-900 dark:to-neutral-900/50 rounded-b-lg">
+      <CardContent className="bg-gradient-to-b from-neutral-50/50 to-white dark:from-neutral-900/50 dark:to-neutral-900 pt-6">
         {loading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
@@ -214,26 +218,26 @@ export function ActivityFeed({
             <p>No recent activities</p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-3 max-h-[500px] overflow-y-auto px-1 -mx-1 custom-scrollbar">
             {activities.map((activity) => (
               <a
                 key={activity.id}
                 href={activity.link || "#"}
-                className="group block p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all"
+                className="group block p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-purple-400 dark:hover:border-purple-600 hover:shadow-lg transition-all duration-300"
               >
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   {/* Icon */}
                   <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${getTypeGradient(
+                    className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${getTypeGradient(
                       activity.type
-                    )} text-white flex items-center justify-center shadow-sm`}
+                    )} text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
                   >
                     {getActivityIcon(activity.type)}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
                       <h4 className="font-semibold text-sm text-neutral-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                         {activity.title}
                       </h4>
