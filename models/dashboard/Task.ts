@@ -1,4 +1,5 @@
 import mongoose, { Schema, Model } from "mongoose"
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 export type TaskDoc = {
   name: string
@@ -28,6 +29,9 @@ const TaskSchema = new Schema<TaskDoc>(
   },
   { timestamps: true }
 )
+
+// Apply tenant plugin for multi-tenant isolation
+TaskSchema.plugin(tenantPlugin);
 
 // Ensure schema changes are applied in dev by resetting the model if it exists
 const Task: Model<TaskDoc> = (mongoose.models.Task as Model<TaskDoc> | undefined)

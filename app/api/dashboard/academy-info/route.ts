@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { verifyToken } from "@/lib/auth"
-import prisma from "@/lib/prisma"
+import UserModel from "@/models/User"
+import RegistrationModel from "@/models/Registration"
+import { dbConnect } from "@/lib/mongodb"
 
 export async function GET(req: NextRequest) {
   console.log("[Academy Info API] GET request received")
@@ -24,9 +26,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get user
-    const user = await prisma.user.findUnique({
-      where: { email: decoded.email as string },
-    })
+    const user = await UserModel.findOne({ email: decoded.email as string }).lean()
 
     console.log("[Academy Info API] User found:", !!user, "userId:", user?.userId)
 
@@ -35,9 +35,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get registration data
-    const registration = await prisma.registration.findFirst({
-      where: { userId: user.userId || "" },
-    })
+    const registration = await RegistrationModel.findOne({ userId: user.userId || "" });
 
     console.log("[Academy Info API] Registration found:", !!registration)
     console.log("[Academy Info API] BusinessInfo keys:", registration?.businessInfo ? Object.keys(registration.businessInfo as object) : "none")
@@ -79,22 +77,24 @@ export async function PUT(req: NextRequest) {
     const body = await req.json()
 
     // Get user
-    const user = await prisma.user.findUnique({
-      where: { email: decoded.email as string },
-    })
+    await dbConnect();
+    const user = await UserModel.findOne({ email: decoded.email as string });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
     // Update registration data
-    const updatedRegistration = await prisma.registration.update({
-      where: { userId: user.userId || "" },
-      data: {
-        businessInfo: body.businessInfo,
-        updatedAt: new Date(),
+    const updatedRegistration = await RegistrationModel.findOneAndUpdate(
+      { userId: user.userId || "" },
+      {
+        $set: {
+          businessInfo: body.businessInfo,
+          updatedAt: new Date(),
+        }
       },
-    })
+      { new: true }
+    );
 
     return NextResponse.json({
       success: true,

@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import StudentAttendanceDraft from '@/models/dashboard/student/StudentAttendanceDraft';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -62,9 +69,16 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -121,9 +135,16 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 export async function DELETE(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -156,4 +177,6 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 const GuardianSchema = new mongoose.Schema(
   {
@@ -58,6 +59,13 @@ const StudentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Apply tenant plugin for multi-tenancy support
+StudentSchema.plugin(tenantPlugin);
+
+// Add tenant-specific indexes
+StudentSchema.index({ tenantId: 1, studentId: 1 }, { unique: true });
+StudentSchema.index({ tenantId: 1, email: 1 }, { unique: true });
 
 // Performance indexes (avoid duplicates):
 // 'studentId' and 'email' already have unique constraints in field definitions.

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import prisma from "@/lib/db"
+import UserModel from "@/models/User"
+import { dbConnect } from "@/lib/mongodb"
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,12 +11,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if token exists and is not expired
-    const user = await prisma.user.findFirst({
-      where: {
-        resetToken: token,
-        resetTokenExpiry: {
-          gt: new Date(),
-        },
+    await dbConnect();
+    const user = await UserModel.findOne({
+      resetToken: token,
+      resetTokenExpiry: {
+        $gt: new Date(),
       },
     })
 

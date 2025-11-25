@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { dbConnect } from '@/lib/mongodb';
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,21 +8,25 @@ export async function GET(request: NextRequest) {
     
     // Connect to MongoDB directly
     console.log("[debug-registrations] Testing database connection...");
-    await dbConnect("uniqbrio-admin");
+    await dbConnect();
     const mongoose = require('mongoose');
     console.log("[debug-registrations] Database connected successfully");
 
     // Check total counts in different ways
     console.log("[debug-registrations] Checking collection counts...");
     
-    // Method 1: Using direct MongoDB query on "registrations" collection
+    // Method 1: Using RegistrationModel
+    const regCountModel = await RegistrationModel.countDocuments();
+    console.log(`[debug-registrations] RegistrationModel count: ${regCountModel}`);
+
+    // Method 2: Using direct MongoDB query on "registrations" collection
     const regCount = await mongoose.connection.db.collection('registrations').countDocuments();
     console.log(`[debug-registrations] registrations collection count: ${regCount}`);
 
-    // Method 2: Find all registrations with detailed logging
+    // Method 3: Find all registrations with detailed logging
     console.log("[debug-registrations] Fetching all registrations...");
-    const allRegistrations = await mongoose.connection.db.collection('registrations').find({}).toArray();
-    console.log(`[debug-registrations] Found ${allRegistrations.length} registrations via direct query`);
+    const allRegistrations = await RegistrationModel.find({}).lean();
+    console.log(`[debug-registrations] Found ${allRegistrations.length} registrations via RegistrationModel`);
 
     // Log details of each registration
     allRegistrations.forEach((reg: any, index: number) => {

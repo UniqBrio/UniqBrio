@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
-import prisma, { withRetry } from "@/lib/db";
+import UserModel from "@/models/User";
+import KycSubmissionModel from "@/models/KycSubmission";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,17 +24,10 @@ export async function GET(request: NextRequest) {
     console.log("[kyc-status] Checking for user:", payload.email);
 
     // Get user's userId and academyId and KYC fields
-    const user = await withRetry(() => prisma.user.findFirst({
-      where: { email: payload.email },
-      select: { 
-        userId: true, 
-        academyId: true,
-        registrationComplete: true,
-        kycStatus: true,
-        kycSubmissionDate: true,
-        createdAt: true,
-      }
-    }));
+    await dbConnect();
+    const user = await UserModel.findOne({ email: payload.email }).select(
+      'userId academyId registrationComplete kycStatus kycSubmissionDate createdAt'
+    );
 
     if (!user || !user.registrationComplete || !user.userId || !user.academyId) {
       console.log("[kyc-status] User registration not complete");
@@ -47,19 +42,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if KYC submission exists
-    const kycSubmission = await withRetry(() => prisma.kycSubmission.findFirst({
-      where: {
-        userId: user.userId,
-        academyId: user.academyId
-      },
-      select: {
-        id: true,
-        createdAt: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    }));
+    const kycSubmission = await KycSubmissionModel.findOne({
+      userId: user.userId,
+      academyId: user.academyId
+    }).select('_id createdAt').sort({ createdAt: -1 });
 
     // Auto-expire logic: if no submission and more than 14 days since account creation and registration complete
     if (!kycSubmission && user.registrationComplete && user.createdAt) {
@@ -70,10 +56,11 @@ export async function GET(request: NextRequest) {
       
       if (diffDays >= 14 && user.kycStatus !== 'expired') {
         console.log("[kyc-status] Auto-expiring KYC for user:", payload.email, "Days since registration:", diffDays);
-        await withRetry(() => prisma.user.updateMany({ 
-          where: { email: payload.email }, 
-          data: { kycStatus: 'expired' } 
-        }));
+        await UserModel.updateMany({ 
+          email: payload.email 
+        }, {
+          $set: { kycStatus: 'expired' }
+        });
         
         return NextResponse.json({
           status: "expired",
@@ -116,7 +103,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (kycSubmission) {
-      console.log("[kyc-status] KYC submission found:", kycSubmission.id);
+      console.log("[kyc-status] KYC submission found:", kycSubmission._id);
       
       // Calculate days since registration for consistency
       let daysSinceRegistration = 0;
@@ -166,7 +153,5 @@ export async function GET(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

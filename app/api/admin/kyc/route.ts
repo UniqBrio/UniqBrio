@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import KycSubmissionModel from "@/models/KycSubmission";
+import { dbConnect } from "@/lib/mongodb";
 import { jwtVerify } from "jose";
 import { sendEmail } from "@/lib/email";
 
@@ -29,21 +31,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "submissionId and decision (approved|rejected) are required" }, { status: 400 });
     }
 
-    const kyc = await prisma.kycSubmission.findFirst({
-      where: { id: submissionId },
-      select: { userId: true, academyId: true }
-    });
+    await dbConnect();
+    const kyc = await KycSubmissionModel.findById(submissionId).select('userId academyId');
     if (!kyc?.userId) return NextResponse.json({ error: "KYC submission not found" }, { status: 404 });
 
-    const updated = await prisma.user.updateMany({
-      where: { userId: kyc.userId },
-      data: {
-        kycStatus: decision as any,
-        ...(decision === 'approved' ? { kycSubmissionDate: new Date() } : {}),
-      },
-    });
+    const updated = await UserModel.updateMany(
+      { userId: kyc.userId },
+      {
+        $set: {
+          kycStatus: decision,
+          ...(decision === 'approved' ? { kycSubmissionDate: new Date() } : {}),
+        }
+      }
+    );
 
-    const userDoc = await prisma.user.findFirst({ where: { userId: kyc.userId }, select: { email: true, name: true } });
+    const userDoc = await UserModel.findOne({ userId: kyc.userId }).select('email name');
     if (userDoc?.email) {
       if (decision === 'approved') {
         await sendEmail({

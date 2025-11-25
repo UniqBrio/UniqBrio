@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import KycSubmissionModel from "@/models/KycSubmission";
+import { dbConnect } from "@/lib/mongodb";
 import { sendEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
@@ -22,30 +24,16 @@ export async function POST(request: NextRequest) {
     console.log("[kyc/auto-expire] Looking for users registered before:", fourteenDaysAgo);
 
     // Get users who need KYC expiry
-    const usersToExpire = await prisma.user.findMany({
-      where: {
-        registrationComplete: true,
-        kycStatus: 'pending', // Only expire users with pending status
-        createdAt: {
-          lte: fourteenDaysAgo
-        },
-        // Ensure they haven't submitted KYC
-        userId: {
-          not: null
-        },
-        academyId: {
-          not: null
-        }
+    await dbConnect();
+    const usersToExpire = await UserModel.find({
+      registrationComplete: true,
+      kycStatus: 'pending',
+      createdAt: {
+        $lte: fourteenDaysAgo
       },
-      select: {
-        id: true,
-        userId: true,
-        academyId: true,
-        email: true,
-        name: true,
-        createdAt: true
-      }
-    });
+      userId: { $ne: null },
+      academyId: { $ne: null }
+    }).select('_id userId academyId email name createdAt');
 
     console.log(`[kyc/auto-expire] Found ${usersToExpire.length} users to check for expiry`);
 
@@ -55,25 +43,20 @@ export async function POST(request: NextRequest) {
     for (const user of usersToExpire) {
       try {
         // Check if user has any KYC submissions
-        const hasKycSubmission = await prisma.kycSubmission.findFirst({
-          where: {
-            userId: user.userId!,
-            academyId: user.academyId!
-          },
-          select: { id: true }
-        });
+        const hasKycSubmission = await KycSubmissionModel.findOne({
+          userId: user.userId!,
+          academyId: user.academyId!
+        }).select('_id');
 
         // Only expire users who haven't submitted KYC
         if (!hasKycSubmission) {
           console.log(`[kyc/auto-expire] Expiring KYC for user: ${user.email} (${user.userId})`);
           
           // Update user's KYC status to expired
-          await prisma.user.updateMany({
-            where: { id: user.id },
-            data: { 
-              kycStatus: 'expired'
-            }
-          });
+          await UserModel.updateMany(
+            { _id: user._id },
+            { $set: { kycStatus: 'expired' } }
+          );
 
           expiredCount++;
 
@@ -196,8 +179,6 @@ export async function POST(request: NextRequest) {
       { error: "Auto-expire process failed", details: (error as any)?.message || 'Unknown error' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

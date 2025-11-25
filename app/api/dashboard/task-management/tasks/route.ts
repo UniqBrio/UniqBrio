@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbConnect } from '@/lib/mongodb';
 import Task from "@/models/dashboard/Task"
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Route segment config for optimal performance
 export const dynamic = 'force-dynamic'
@@ -23,6 +25,11 @@ function toDoc(body: any) {
 }
 
 export async function GET() {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     const tasks = await Task.find().sort({ targetDate: 1, createdAt: -1 }).lean()
@@ -46,9 +53,16 @@ export async function GET() {
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message || "Failed to fetch tasks" }, { status: 500 })
   }
+    }
+  );
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     const body = await req.json()
     await dbConnect("uniqbrio")
@@ -57,4 +71,6 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message || "Failed to create task" }, { status: 400 })
   }
+    }
+  );
 }

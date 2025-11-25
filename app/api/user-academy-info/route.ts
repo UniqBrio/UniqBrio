@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { withRetry } from "@/lib/db";
+import UserModel from "@/models/User";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -19,9 +21,8 @@ export async function GET(request: NextRequest) {
     const userEmail = payload.email;
 
     // Get user details from User collection
-    const user = await withRetry(() => 
-      prisma.user.findFirst({ where: { email: userEmail } })
-    );
+    await dbConnect();
+    const user = await UserModel.findOne({ email: userEmail });
     if (!user) {
       console.log(`[user-academy-info] User not found for email: ${userEmail}`);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -39,31 +40,25 @@ export async function GET(request: NextRequest) {
 
     console.log(`[user-academy-info] Initial IDs - userId: ${userId}, academyId: ${academyId}`);
 
-    // PRIMARY SEARCH: Look for registration by email in adminInfo using raw MongoDB
+    // PRIMARY SEARCH: Look for registration by email in adminInfo
     console.log(`[user-academy-info] Searching registrations by email: ${userEmail}...`);
     
-    const rawRegistrations = await withRetry(() => prisma.$runCommandRaw({
-      find: "registrations",
-      filter: { "adminInfo.email": userEmail }
-    })) as any;
+    let matchingRegistration = await RegistrationModel.findOne({
+      'adminInfo.email': userEmail
+    });
 
-    const matchingDocs = rawRegistrations.cursor.firstBatch;
-    console.log(`[user-academy-info] Found ${matchingDocs.length} matching registrations`);
+    console.log(`[user-academy-info] Found ${matchingRegistration ? 1 : 0} matching registrations`);
     
-    let matchingRegistration = null;
-    
-    if (matchingDocs.length > 0) {
-      const reg = matchingDocs[0]; // Take the first match
-      matchingRegistration = reg;
-      userId = reg.userId;
-      academyId = reg.academyId;
-      academyName = reg.businessInfo?.businessName || "";
+    if (matchingRegistration) {
+      userId = matchingRegistration.userId;
+      academyId = matchingRegistration.academyId;
+      academyName = (matchingRegistration.businessInfo as any)?.businessName || "";
       
       console.log(`[user-academy-info] Found matching registration by email!`, {
         userId,
         academyId,
         academyName,
-        regId: reg._id
+        regId: matchingRegistration._id
       });
     }
 
@@ -75,11 +70,9 @@ export async function GET(request: NextRequest) {
       if (user.userId) whereConditions.push({ userId: user.userId });
       if (user.academyId) whereConditions.push({ academyId: user.academyId });
       
-      const reg = await withRetry(() => prisma.registration.findFirst({ 
-        where: { 
-          OR: whereConditions
-        } 
-      }));
+      const reg = await RegistrationModel.findOne({ 
+        $or: whereConditions
+      });
       
       if (reg) {
         matchingRegistration = reg;
@@ -95,28 +88,19 @@ export async function GET(request: NextRequest) {
     if (matchingRegistration && (!user.userId || !user.academyId)) {
       console.log(`[user-academy-info] Updating User record with IDs for future use...`);
       try {
-        await withRetry(() => prisma.user.update({
-          where: { id: user.id },
-          data: {
+        await UserModel.findByIdAndUpdate(user._id, {
+          $set: {
             userId: userId,
             academyId: academyId
           }
-        }));
+        });
         console.log(`[user-academy-info] User record updated with userId: ${userId}, academyId: ${academyId}`);
       } catch (updateError) {
         console.error(`[user-academy-info] Failed to update User record:`, updateError);
       }
     }
 
-    // If no academy name found yet, fetch from Academy collection as final fallback
-    if (!academyName && academyId) {
-      const academy = await withRetry(() => 
-        prisma.academy.findUnique({ where: { academyId } })
-      );
-      if (academy?.name) {
-        academyName = academy.name;
-      }
-    }
+    // Academy name comes from registration businessInfo only (no separate Academy collection)
 
     return NextResponse.json({
       userId,

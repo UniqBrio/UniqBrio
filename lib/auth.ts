@@ -2,7 +2,8 @@
 import { compare, hash } from "bcryptjs";
 import * as jose from 'jose'; // Import jose
 import { cookies } from "next/headers";
-import prisma from "./db";
+import UserModel from "@/models/User";
+import { dbConnect } from "./mongodb";
 import crypto from "crypto";
 import { COOKIE_NAMES, COOKIE_EXPIRY } from "./cookies"; // Import cookie constants
 
@@ -104,49 +105,42 @@ export async function deleteSessionCookie() {
 
 // Increment failed login attempts and lock account if threshold reached
 export async function incrementFailedAttempts(email: string): Promise<number> {
-  // Use Prisma transaction for atomicity (optional but safer)
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    await dbConnect();
+    const user = await UserModel.findOne({ email });
 
     // If user doesn't exist, return 0 but maybe log this attempt?
     if (!user) return 0;
 
-    // Prevent incrementing if already locked? Depends on desired logic.
-    // if (user.lockedUntil && user.lockedUntil > new Date()) {
-    //   return user.failedAttempts;
-    // }
-
     const failedAttempts = user.failedAttempts + 1;
-    const MAX_ATTEMPTS = 5; // Make this a constant?
+    const MAX_ATTEMPTS = 5;
     const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 
     const lockedUntil = failedAttempts >= MAX_ATTEMPTS
       ? new Date(Date.now() + LOCKOUT_DURATION_MS)
       : null;
 
-    await prisma.user.update({
-      where: { email },
-      data: { failedAttempts, lockedUntil },
-    });
+    await UserModel.updateOne(
+      { email },
+      { $set: { failedAttempts, lockedUntil } }
+    );
 
     return failedAttempts;
   } catch (error) {
     console.error("Error incrementing failed attempts for", email, error);
-    return 0; // Return 0 or throw? Depends on how you handle errors upstream.
+    return 0;
   }
 }
 
 // Reset failed login attempts (typically on successful login or password reset)
 export async function resetFailedAttempts(email: string): Promise<void> {
-   try {
-     // Check if user exists first? Optional.
-     await prisma.user.update({
-       where: { email },
-       data: { failedAttempts: 0, lockedUntil: null },
-     });
+  try {
+     await dbConnect();
+     await UserModel.updateOne(
+       { email },
+       { $set: { failedAttempts: 0, lockedUntil: null } }
+     );
    } catch (error) {
-     // Log error if user not found or other DB issue
      console.error("Error resetting failed attempts for", email, error);
-     // Decide if you need to throw or handle this error.
    }
 }

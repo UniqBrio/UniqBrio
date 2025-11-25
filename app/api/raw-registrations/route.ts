@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
     console.log("[raw-registrations] Fetching raw registration documents...");
     
-    // Use raw MongoDB query to get the actual documents
-    const rawDocs = await prisma.$runCommandRaw({
-      find: "registrations",
-      limit: 10
-    }) as any;
-
-    console.log("[raw-registrations] Raw documents found:", rawDocs.cursor.firstBatch.length);
+    await dbConnect();
     
-    const documents = rawDocs.cursor.firstBatch;
+    // Use Mongoose to get the actual documents
+    const documents = await RegistrationModel.find({}).limit(10).lean();
+
+    console.log("[raw-registrations] Raw documents found:", documents.length);
     
     // Log each document structure
     documents.forEach((doc: any, index: number) => {

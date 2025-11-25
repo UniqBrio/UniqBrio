@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // Course Interface
 export interface ICourse extends Document {
@@ -312,7 +313,13 @@ const courseSchema = new Schema<ICourse>({
   versionKey: false // Disable __v field
 });
 
+// Apply tenant plugin for multi-tenancy support
+courseSchema.plugin(tenantPlugin);
+
 // Indexes for efficient querying
+courseSchema.index({ tenantId: 1, courseId: 1 }, { unique: true, sparse: true });
+courseSchema.index({ tenantId: 1, name: 1 });
+courseSchema.index({ tenantId: 1, status: 1 });
 courseSchema.index({ name: 1 });
 courseSchema.index({ instructor: 1 });
 courseSchema.index({ status: 1 });

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { IncomeModel, ExpenseModel, BankAccountModel, PaymentTransactionModel } from "@/lib/dashboard/models";
 import { processDropdownValues } from "@/lib/dashboard/dropdown-utils";
+import { getUserSession } from "@/lib/tenant/api-helpers";
+import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
 function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
@@ -28,6 +30,11 @@ function getCollection(model: string) {
 
 // GET /api?collection=incomes|expenses|bankaccounts&id=optional
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -72,10 +79,17 @@ export async function GET(req: NextRequest) {
     console.error("GET /api error", err);
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }
 
 // POST /api?collection=
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -118,7 +132,12 @@ export async function POST(req: NextRequest) {
       body.amount = amount;
     }
 
-    const created = await Model.create(body);
+    const created = await Model.create({
+      ...body,
+      tenantId: session?.tenantId,
+      academyId: session?.academyId,
+      userId: session?.userId,
+    });
 
     // Auto-add dropdown values to their respective collections
     if (collection === "income" || collection === "incomes") {
@@ -148,10 +167,17 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }
 
 // PUT /api?collection=&id=
 export async function PUT(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -212,10 +238,17 @@ export async function PUT(req: NextRequest) {
     
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }
 
 // DELETE /api?collection=&id=
 export async function DELETE(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -233,4 +266,6 @@ export async function DELETE(req: NextRequest) {
     console.error("DELETE /api error", err);
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }

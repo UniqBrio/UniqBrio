@@ -1,7 +1,8 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
-import prisma from "@/lib/db"
+import UserModel from "@/models/User"
+import { dbConnect } from "@/lib/mongodb"
 import { verifyPassword } from "@/lib/auth"
 import { updateLastActivity } from "@/lib/cookies"
 
@@ -30,10 +31,9 @@ const handler = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [{ email: credentials.email }, { phone: credentials.email }],
-          },
+        await dbConnect();
+        const user = await UserModel.findOne({
+          $or: [{ email: credentials.email }, { phone: credentials.email }],
         })
 
         if (!user || !user.password) {
@@ -75,19 +75,18 @@ const handler = NextAuth({
     async signIn({ user, account, profile }) {
       if (account?.provider === "google" && profile?.email) {
         try {
-          let dbUser = await prisma.user.findUnique({ where: { email: profile.email } });
+          await dbConnect();
+          let dbUser = await UserModel.findOne({ email: profile.email });
           if (!dbUser) {
-            dbUser = await prisma.user.create({
-              data: {
-                email: profile.email,
-                name: profile.name || "",
-                googleId: user.id,
-                verified: true,
-                phone: "",
-              },
+            dbUser = await UserModel.create({
+              email: profile.email,
+              name: profile.name || "",
+              googleId: user.id,
+              verified: true,
+              phone: "",
             });
           } else if (!dbUser.googleId && user.id) {
-            await prisma.user.update({ where: { id: dbUser.id }, data: { googleId: user.id } });
+            await UserModel.updateOne({ _id: dbUser._id }, { $set: { googleId: user.id } });
           }
 
           // Issue custom session cookie compatible with middleware
@@ -117,8 +116,9 @@ const handler = NextAuth({
 
       if (account?.provider === "google") {
         try {
-          const dbUser = await prisma.user.findUnique({
-            where: { email: token.email || "" },
+          await dbConnect();
+          const dbUser = await UserModel.findOne({
+            email: token.email || "",
           })
 
           if (dbUser) {

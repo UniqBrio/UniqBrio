@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import KycSubmissionModel from "@/models/KycSubmission";
+import KycReviewModel from "@/models/KycReview";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 import { sendEmail, generateKYCSubmissionEmail } from "@/lib/email";
+import mongoose from "mongoose";
 
 const R2_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT!;
 const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!;
@@ -166,7 +171,8 @@ export async function POST(req: NextRequest) {
       console.log("[kyc-upload] Missing userId/academyId in form, fetching from user record...");
       
       // Get user from database to get their userId and academyId
-      const user = await prisma.user.findFirst({ where: { email: userEmail } });
+      await dbConnect();
+      const user = await UserModel.findOne({ email: userEmail });
       if (!user) {
         return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
       }
@@ -201,32 +207,27 @@ export async function POST(req: NextRequest) {
     });
 
     // Check if KYC submission already exists for this academy
-    const existingKYC = await prisma.kycSubmission.findFirst({
-      where: {
-        userId: finalUserId,
-        academyId: finalAcademyId
-      }
+    await dbConnect();
+    const existingKYC = await KycSubmissionModel.findOne({
+      userId: finalUserId,
+      academyId: finalAcademyId
     });
 
     // Get current user KYC status to determine if resubmission is allowed
-    const user = await prisma.user.findFirst({
-      where: { email: userEmail },
-      select: { kycStatus: true, name: true, academyId: true }
-    });
+    const user = await UserModel.findOne(
+      { email: userEmail },
+    ).select('kycStatus name academyId');
 
     // Get academy name from registration data for personalized email
     let academyName: string | undefined;
     try {
       if (user?.academyId || academyId) {
-        const registration = await prisma.registration.findFirst({
-          where: { 
-            OR: [
-              { academyId: user?.academyId || academyId },
-              { userId: userId }
-            ]
-          },
-          select: { businessInfo: true }
-        });
+        const registration = await RegistrationModel.findOne({ 
+          $or: [
+            { academyId: user?.academyId || academyId },
+            { userId: userId }
+          ]
+        }).select('businessInfo');
         
         const businessInfo = registration?.businessInfo as any;
         academyName = businessInfo?.businessName;
@@ -246,19 +247,21 @@ export async function POST(req: NextRequest) {
         });
         
         // Use transaction to ensure atomic deletion of related records
-        await prisma.$transaction(async (tx) => {
+        const session = await mongoose.startSession();
+        await session.withTransaction(async () => {
           // Delete related KycReview records first to avoid constraint violation
           console.log("[kyc-upload] Deleting related KycReview records...");
-          await tx.kycReview.deleteMany({
-            where: { kycId: existingKYC.id }
-          });
+          await KycReviewModel.deleteMany({
+            kycId: existingKYC._id
+          }).session(session);
           
           // Then delete the existing submission to allow resubmission
           console.log("[kyc-upload] Deleting existing KycSubmission...");
-          await tx.kycSubmission.delete({
-            where: { id: existingKYC.id }
-          });
+          await KycSubmissionModel.deleteOne({
+            _id: existingKYC._id
+          }).session(session);
         });
+        session.endSession();
         
         console.log("[kyc-upload] Successfully deleted existing KYC submission and reviews");
       } else {
@@ -273,37 +276,40 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Store all data in MongoDB Atlas via Prisma - Use transaction to update both KYC submission and user status
-    const result = await prisma.$transaction(async (tx) => {
+    // Store all data in MongoDB Atlas via Mongoose - Use transaction to update both KYC submission and user status
+    const session = await mongoose.startSession();
+    const result = await session.withTransaction(async () => {
       // Create KYC submission
-      const kycSubmission = await tx.kycSubmission.create({
-        data: {
-          userId: finalUserId,
-          academyId: finalAcademyId,
-          ownerImageUrl,
-          bannerImageUrl,
-          ownerWithBannerImageUrl,
-          location,
-          latitude,
-          longitude,
-          address,
-          dateTime,
-        },
-      });
+      const kycSubmission = await KycSubmissionModel.create([{
+        userId: finalUserId,
+        academyId: finalAcademyId,
+        ownerImageUrl,
+        bannerImageUrl,
+        ownerWithBannerImageUrl,
+        location,
+        latitude,
+        longitude,
+        address,
+        dateTime,
+      }], { session });
 
       // Update user record with KYC submission date and set status to pending
-      const updatedUser = await tx.user.update({
-        where: { email: userEmail },
-        data: {
-          kycStatus: "pending",
-          kycSubmissionDate: new Date()
-        }
-      });
+      const updatedUser = await UserModel.findOneAndUpdate(
+        { email: userEmail },
+        {
+          $set: {
+            kycStatus: "pending",
+            kycSubmissionDate: new Date()
+          }
+        },
+        { session, new: true }
+      );
 
       console.log("[kyc-upload] Updated user KYC status to pending for:", userEmail);
 
-      return { kycSubmission, updatedUser };
+      return { kycSubmission: kycSubmission[0], updatedUser };
     });
+    session.endSession();
 
     const { kycSubmission } = result;
     console.log("[kyc-upload] KYC submission created successfully:", kycSubmission.id);

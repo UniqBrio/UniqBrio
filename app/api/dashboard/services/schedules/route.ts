@@ -2,8 +2,15 @@ import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { Schedule } from "@/models/dashboard"
 import type { ISchedule } from "@/models/dashboard"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export async function POST(request: Request) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     const body = await request.json()
@@ -132,9 +139,16 @@ export async function POST(request: Request) {
       details: details
     }, { status })
   }
+    }
+  );
 }
 
 export async function GET(request: Request) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     const { searchParams } = new URL(request.url)
@@ -271,9 +285,16 @@ export async function GET(request: Request) {
       error: message 
     }, { status: 500 })
   }
+    }
+  );
 }
 
 export async function PUT(request: Request) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     const body = await request.json()
@@ -345,9 +366,16 @@ export async function PUT(request: Request) {
       error: message 
     }, { status })
   }
+    }
+  );
 }
 
 export async function DELETE(request: Request) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     const body = await request.json()
@@ -386,4 +414,6 @@ export async function DELETE(request: Request) {
       error: message 
     }, { status: 500 })
   }
+    }
+  );
 }

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // User interfaces
 export interface IUserPreferences {
@@ -278,10 +279,15 @@ const userSchema = new Schema<IUser>({
   timestamps: true
 });
 
+// Apply tenant plugin for multi-tenancy support
+userSchema.plugin(tenantPlugin);
+
 // Indexes
 userSchema.index({ role: 1 });
 userSchema.index({ 'instructorProfile.expertise': 1 });
 userSchema.index({ isActive: 1 });
+userSchema.index({ tenantId: 1, email: 1 }, { unique: true });
+userSchema.index({ tenantId: 1, studentId: 1 }, { sparse: true });
 
 // Methods
 userSchema.methods.toJSON = function() {

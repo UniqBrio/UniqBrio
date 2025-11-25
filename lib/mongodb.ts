@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { MongoClient, Db } from "mongodb";
+import { getTenantContext } from "./tenant/tenant-context";
 
 // Cached connections for performance
 let cachedMongoose: typeof mongoose | null = null;
@@ -9,11 +10,15 @@ let cachedDbs: { [dbName: string]: Db } = {};
 // MongoDB URI without database specified
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://course:course1@cluster0.1gqwk5m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
+// Single consolidated database name
+export const DB_NAME = "uniqbrio";
+
 /**
- * Connect to MongoDB using Mongoose with specific database name
- * Routes specify which database to use: "uniqbrio" for dashboard, "uniqbrio-admin" for auth
+ * Connect to MongoDB using Mongoose
+ * Uses single consolidated database: "uniqbrio"
+ * Supports tenant isolation through tenantId in queries (handled by tenant plugin)
  */
-export async function dbConnect(dbName: string): Promise<typeof mongoose> {
+export async function dbConnect(dbName: string = DB_NAME): Promise<typeof mongoose> {
   if (!MONGODB_URI) {
     throw new Error("MongoDB connection string (MONGODB_URI) not found.");
   }
@@ -44,9 +49,9 @@ export async function dbConnect(dbName: string): Promise<typeof mongoose> {
 
 /**
  * Get native MongoDB client and database instance
- * Routes specify which database to use: "uniqbrio" for dashboard, "uniqbrio-admin" for auth
+ * Uses single consolidated database: "uniqbrio"
  */
-export async function getMongoClient(dbName: string): Promise<{ client: MongoClient; db: Db }> {
+export async function getMongoClient(dbName: string = DB_NAME): Promise<{ client: MongoClient; db: Db }> {
   if (!MONGODB_URI) {
     throw new Error("MongoDB connection string (MONGODB_URI) not found.");
   }
@@ -95,13 +100,13 @@ export async function closeConnections() {
   }
 }
 
-// Legacy functions for backward compatibility - defaults to uniqbrio database
+// Legacy functions for backward compatibility - defaults to consolidated database
 export async function connectToDatabase(uri?: string) {
-  return dbConnect("uniqbrio");
+  return dbConnect(DB_NAME);
 }
 
-export const connectDB = (dbName: string = "uniqbrio") => dbConnect(dbName);
-export const connectMongo = (dbName: string = "uniqbrio") => dbConnect(dbName);
+export const connectDB = (dbName: string = DB_NAME) => dbConnect(dbName);
+export const connectMongo = (dbName: string = DB_NAME) => dbConnect(dbName);
 
 // Default export
 export default dbConnect;

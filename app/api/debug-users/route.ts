@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import { dbConnect } from "@/lib/mongodb";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -19,29 +20,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    await dbConnect();
+
     // Get all users (for debugging)
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        userId: true,
-        academyId: true,
-        verified: true,
-        registrationComplete: true
-      }
-    });
+    const users = await UserModel.find({})
+      .select('_id name email userId academyId verified registrationComplete')
+      .lean();
 
     // Get all registrations (for debugging)
-    const registrations = await prisma.registration.findMany({
-      select: {
-        id: true,
-        userId: true,
-        academyId: true,
-        businessInfo: true,
-        adminInfo: true
-      }
-    });
+    const registrations = await RegistrationModel.find({})
+      .select('_id userId academyId businessInfo adminInfo')
+      .lean();
 
     return NextResponse.json({
       sessionInfo,

@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import UserModel from "@/models/User";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
     console.log("[test-user-academy] Testing user-academy-info API logic...");
     
+    await dbConnect();
+    
     // Simulate the specific user we know exists: shaziafarheen74@gmail.com
     const testEmail = "shaziafarheen74@gmail.com";
     
     // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: testEmail }
-    });
+    const user = await UserModel.findOne({ email: testEmail }).lean();
 
     if (!user) {
       return NextResponse.json({ error: "Test user not found" }, { status: 404 });
@@ -29,15 +31,10 @@ export async function GET(request: NextRequest) {
 
     console.log(`[test-user-academy] Initial IDs - userId: ${userId}, academyId: ${academyId}`);
 
-    // PRIMARY SEARCH: Look for registration by email in adminInfo using raw MongoDB
+    // PRIMARY SEARCH: Look for registration by email in adminInfo
     console.log(`[test-user-academy] Searching registrations by email: ${testEmail}...`);
     
-    const rawRegistrations = await prisma.$runCommandRaw({
-      find: "registrations",
-      filter: { "adminInfo.email": testEmail }
-    }) as any;
-
-    const matchingDocs = rawRegistrations.cursor.firstBatch;
+    const matchingDocs = await RegistrationModel.find({ 'adminInfo.email': testEmail }).lean();
     console.log(`[test-user-academy] Found ${matchingDocs.length} matching registrations`);
     
     let matchingRegistration = null;
@@ -61,11 +58,7 @@ export async function GET(request: NextRequest) {
       console.log(`[test-user-academy] No registration found for email: ${testEmail}`);
       
       // Get all registrations for debugging
-      const allRawRegs = await prisma.$runCommandRaw({
-        find: "registrations"
-      }) as any;
-      
-      const allDocs = allRawRegs.cursor.firstBatch;
+      const allDocs = await RegistrationModel.find({}).lean();
       
       return NextResponse.json({ 
         error: "No registration found",
@@ -90,7 +83,7 @@ export async function GET(request: NextRequest) {
         academyNameSource: "Registration.businessInfo.businessName",
         userIdFromUser: user.userId,
         academyIdFromUser: user.academyId,
-        foundRegistrationId: matchingRegistration.id
+        foundRegistrationId: (matchingRegistration as any)._id
       }
     });
 

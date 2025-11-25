@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verifyTokenEdge, getSessionCookieEdge } from '@/lib/auth-edge' // NEW IMPORT - Edge safe
 import { COOKIE_NAMES, COOKIE_EXPIRY } from '@/lib/cookies'; // Assuming COOKIE_EXPIRY is defined here
+import { tenantMiddleware } from '@/lib/tenant/tenant-middleware'; // Tenant support
 
 // Helper function to get the default dashboard path based on role
 function getDefaultDashboard(role: string): string {
@@ -286,6 +287,18 @@ export async function middleware(request: NextRequest) {
       maxAge: lastActivityMaxAgeDays * 24 * 60 * 60, // Convert days to seconds
       path: "/",
     });
+  }
+
+  // --- Tenant Context Injection ---
+  // Add tenant context to request headers for API routes and pages
+  try {
+    const tenantResponse = await tenantMiddleware(request);
+    // Merge tenant headers with existing response headers
+    tenantResponse.headers.forEach((value, key) => {
+      response.headers.set(key, value);
+    });
+  } catch (error) {
+    console.error('[Middleware] Error injecting tenant context:', error);
   }
 
   return response;

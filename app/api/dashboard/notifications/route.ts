@@ -6,12 +6,19 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from '@/lib/dashboard/notification-service';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * GET /api/notifications?studentId=xxx
  * Get notifications for a student
  */
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -55,6 +62,8 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 /**
@@ -62,6 +71,11 @@ export async function GET(request: NextRequest) {
  * Mark notification(s) as read
  */
 export async function PATCH(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -95,4 +109,6 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

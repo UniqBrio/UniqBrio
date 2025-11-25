@@ -4,6 +4,8 @@ import StudentAttendance from '@/models/dashboard/student/StudentAttendance';
 import Student from '@/models/dashboard/student/Student';
 import mongoose from 'mongoose';
 import Cohort from '@/models/dashboard/Cohort';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -67,6 +69,11 @@ const courseSchema = new mongoose.Schema({
 const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
 
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -357,9 +364,16 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -503,4 +517,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

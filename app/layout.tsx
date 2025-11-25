@@ -69,7 +69,7 @@ export default function RootLayout({
                 {/* Wrap components that might use client-side hooks like useSearchParams */}
                 <Suspense fallback={null}>
                   <CookieConsent />
-                  <MultiTabSessionHandler />
+                  {/* <MultiTabSessionHandler /> */}
                   <TokenRefreshHandler />
                 </Suspense>
               </AppProvider>

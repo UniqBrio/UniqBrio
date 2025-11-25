@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface IInstructor extends Document {
   instructorId?: string
@@ -105,12 +106,17 @@ const InstructorSchema = new Schema<IInstructor>({
   status: { type: String, default: "Active" },
 }, { timestamps: true })
 
+// Apply tenant plugin for multi-tenancy support
+InstructorSchema.plugin(tenantPlugin);
+
 // Enforce unique externalId (already inline), and make email unique only when non-empty
 // This allows multiple documents with missing or empty email, while preventing true duplicates
 InstructorSchema.index({ email: 1 }, {
   unique: true,
   partialFilterExpression: { email: { $exists: true, $type: "string", $ne: "" } },
 })
+InstructorSchema.index({ tenantId: 1, externalId: 1 }, { unique: true, sparse: true });
+InstructorSchema.index({ tenantId: 1, email: 1 }, { sparse: true });
 
 // Keep instructorId in sync with externalId on inserts/updates without touching callers
 InstructorSchema.pre('save', function(next) {

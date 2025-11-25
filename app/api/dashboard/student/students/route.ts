@@ -4,6 +4,8 @@ import Student from '@/models/dashboard/student/Student';
 import Achievement from '@/models/dashboard/student/Achievement';
 import Cohort from '@/models/dashboard/student/Cohort';
 import { enrollStudentInCohort, removeStudentFromCohort } from '@/lib/dashboard/studentCohortSync';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Helper: generate the next available (gap-filling) student ID like STU0003.
 // Strategy:
@@ -51,6 +53,11 @@ async function generateNextStudentId(): Promise<string> {
 
 // GET all students with achievements populated
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   const url = new URL(req.url);
   const debug = url.searchParams.has('debug');
@@ -205,10 +212,17 @@ export async function GET(req: NextRequest) {
     console.error('Error fetching students:', error);
     return NextResponse.json({ error: 'Failed to fetch students' }, { status: 500 });
   }
+    }
+  );
 }
 
 // POST a new student (optionally with achievements)
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
     const data = await req.json();
@@ -361,10 +375,17 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ error: 'Failed to create student' }, { status: 500 });
   }
+    }
+  );
 }
 
 // PUT update an existing student by studentId
 export async function PUT(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
   const data = await req.json();
@@ -509,10 +530,17 @@ export async function PUT(req: NextRequest) {
     console.error('PUT /api/students - Error updating student:', error);
     return NextResponse.json({ error: 'Failed to update student' }, { status: 500 });
   }
+    }
+  );
 }
 
 // DELETE a student by studentId
 export async function DELETE(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
     const { id, studentId, hardDelete } = await req.json();
@@ -552,4 +580,6 @@ export async function DELETE(req: NextRequest) {
     console.error('Delete student error:', error);
     return NextResponse.json({ error: 'Failed to delete student' }, { status: 500 });
   }
+    }
+  );
 }

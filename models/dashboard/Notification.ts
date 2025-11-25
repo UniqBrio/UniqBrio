@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 const NotificationSchema = new mongoose.Schema(
   {
@@ -35,6 +36,9 @@ const NotificationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Apply tenant plugin for multi-tenant isolation
+NotificationSchema.plugin(tenantPlugin);
 
 // Indexes for performance
 NotificationSchema.index({ studentId: 1, createdAt: -1 });

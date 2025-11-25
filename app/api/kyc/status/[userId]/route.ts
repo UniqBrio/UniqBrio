@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import KycSubmissionModel from "@/models/KycSubmission";
+import { dbConnect } from "@/lib/mongodb";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET(
@@ -23,19 +25,10 @@ export async function GET(
     }
 
     // Find user by userId
-    const user = await prisma.user.findFirst({
-      where: { userId: params.userId },
-      select: { 
-        userId: true, 
-        academyId: true,
-        email: true,
-        name: true,
-        registrationComplete: true,
-        kycStatus: true,
-        kycSubmissionDate: true,
-        createdAt: true,
-      }
-    });
+    await dbConnect();
+    const user = await UserModel.findOne({ userId: params.userId }).select(
+      'userId academyId email name registrationComplete kycStatus kycSubmissionDate createdAt'
+    );
 
     if (!user) {
       console.log("[kyc/status/userId] User not found for userId:", params.userId);
@@ -59,21 +52,10 @@ export async function GET(
     }
 
     // Get the latest KYC submission with rejection details
-    const kycSubmission = await prisma.kycSubmission.findFirst({
-      where: {
-        userId: user.userId,
-        academyId: user.academyId
-      },
-      select: {
-        id: true,
-        createdAt: true,
-        rejectionReason: true,
-        // status: true // Will enable once Prisma client is regenerated
-      } as any,
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    const kycSubmission = await KycSubmissionModel.findOne({
+      userId: user.userId,
+      academyId: user.academyId
+    }).select('_id createdAt rejectionReason').sort({ createdAt: -1 });
 
     // Auto-expire logic: if no submission and more than 14 days since account creation
     if (!kycSubmission && user.registrationComplete && user.createdAt) {
@@ -81,9 +63,10 @@ export async function GET(
       const now = new Date();
       const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
       if (diffDays >= 14 && user.kycStatus !== 'expired') {
-        await prisma.user.updateMany({ 
-          where: { userId: params.userId }, 
-          data: { kycStatus: 'expired' } 
+        await UserModel.updateMany({ 
+          userId: params.userId 
+        }, {
+          $set: { kycStatus: 'expired' }
         });
         
         return NextResponse.json({
@@ -170,7 +153,5 @@ export async function GET(
       { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

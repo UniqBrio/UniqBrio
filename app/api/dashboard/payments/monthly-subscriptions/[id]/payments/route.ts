@@ -4,19 +4,7 @@ import MonthlySubscription from '@/models/dashboard/payments/MonthlySubscription
 import PaymentTransaction from '@/models/dashboard/payments/PaymentTransaction';
 import { validateRecurringPayment } from '@/lib/dashboard/payments/subscription-validation';
 import { generateInvoiceNumber } from '@/lib/dashboard/payments/payment-processing-service';
-
-// Connect to MongoDB
-async function dbConnect() {
-  if (mongoose.connections[0].readyState) {
-    return;
-  }
-  
-  try {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-  } catch (error) {
-    throw new Error('Failed to connect to database');
-  }
-}
+import { dbConnect } from '@/lib/mongodb';
 
 /**
  * POST /api/payments/monthly-subscriptions/[id]/payments

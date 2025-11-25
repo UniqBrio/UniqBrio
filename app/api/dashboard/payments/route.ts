@@ -4,8 +4,15 @@ import Payment from '@/models/dashboard/payments/Payment';
 import Student from '@/models/dashboard/student/Student';
 import mongoose from 'mongoose';
 import { fetchMultipleCoursePaymentDetails } from '@/lib/dashboard/payments/course-payment-server';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -75,9 +82,16 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -149,9 +163,16 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 export async function PATCH(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -189,5 +210,7 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 

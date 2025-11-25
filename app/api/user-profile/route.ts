@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,22 +21,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Find user by email from the token
-    const user = await prisma.user.findFirst({
-      where: { 
-        email: decoded.email as string
-      },
-      select: {
-        userId: true,
-        academyId: true,
-        name: true,
-        email: true,
-        kycStatus: true,
-        registrationComplete: true,
-        createdAt: true,
-        updatedAt: true,
-        verified: true
-      }
-    });
+    await dbConnect();
+    const user = await UserModel.findOne({ 
+      email: decoded.email as string
+    }).select('userId academyId name email kycStatus registrationComplete createdAt updatedAt verified');
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -47,35 +37,20 @@ export async function GET(request: NextRequest) {
       if (user.userId) whereConditions.push({ userId: user.userId });
       if (user.academyId) whereConditions.push({ academyId: user.academyId });
       
-      registration = await prisma.registration.findFirst({
-        where: {
-          OR: whereConditions
-        },
-        select: {
-          adminInfo: true,
-          businessInfo: true,
-          preferences: true
-        }
-      });
+      registration = await RegistrationModel.findOne({
+        $or: whereConditions
+      }).select('adminInfo businessInfo preferences');
     }
 
-    // If no registration found by userId/academyId, try searching by email in adminInfo using raw MongoDB query
+    // If no registration found by userId/academyId, try searching by email in adminInfo
     if (!registration && decoded.email) {
       console.log('[user-profile] No registration found by IDs, searching by email in adminInfo...');
       try {
-        const rawRegistrations = await prisma.$runCommandRaw({
-          find: "registrations",
-          filter: { "adminInfo.email": decoded.email }
-        }) as any;
-
-        const matchingDocs = rawRegistrations.cursor.firstBatch;
-        if (matchingDocs.length > 0) {
-          const reg = matchingDocs[0];
-          registration = {
-            adminInfo: reg.adminInfo,
-            businessInfo: reg.businessInfo,
-            preferences: reg.preferences
-          };
+        registration = await RegistrationModel.findOne({
+          'adminInfo.email': decoded.email
+        }).select('adminInfo businessInfo preferences');
+        
+        if (registration) {
           console.log('[user-profile] Found registration by email in adminInfo');
         }
       } catch (mongoError) {
@@ -139,17 +114,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find user by email from the token
-    const user = await prisma.user.findFirst({
-      where: { 
-        email: decoded.email as string
-      },
-      select: {
-        id: true,
-        userId: true,
-        academyId: true,
-        email: true
-      }
-    });
+    const user = await UserModel.findOne({ email: decoded.email as string })
+      .select('_id userId academyId email')
+      .lean();
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -161,12 +128,10 @@ export async function PUT(request: NextRequest) {
     // Update user name if changed
     if (updates.firstName || updates.lastName) {
       const fullName = `${updates.firstName || ''} ${updates.middleName || ''} ${updates.lastName || ''}`.trim();
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          name: fullName
-        }
-      });
+      await UserModel.updateOne(
+        { _id: (user as any)._id },
+        { $set: { name: fullName }}
+      );
     }
 
     // Update registration if exists
@@ -175,11 +140,9 @@ export async function PUT(request: NextRequest) {
       if (user.userId) whereConditions.push({ userId: user.userId });
       if (user.academyId) whereConditions.push({ academyId: user.academyId });
       
-      const registration = await prisma.registration.findFirst({
-        where: {
-          OR: whereConditions
-        }
-      });
+      const registration = await RegistrationModel.findOne({
+        $or: whereConditions
+      }).lean();
 
       if (registration) {
         const adminInfo = registration.adminInfo as any || {};
@@ -201,13 +164,13 @@ export async function PUT(request: NextRequest) {
           address: updates.address || businessInfo.address
         };
 
-        await prisma.registration.update({
-          where: { id: registration.id },
-          data: {
+        await RegistrationModel.updateOne(
+          { _id: (registration as any)._id },
+          { $set: {
             adminInfo: updatedAdminInfo,
             businessInfo: updatedBusinessInfo
-          }
-        });
+          }}
+        );
       }
     }
 

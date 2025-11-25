@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
-import prisma, { withRetry } from "@/lib/db";
+import UserModel from "@/models/User";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,15 +23,10 @@ export async function GET(request: NextRequest) {
     console.log("[user-registration-status] Checking for user:", payload.email);
 
     // Get user registration status
-    const user = await withRetry(() => prisma.user.findFirst({
-      where: { email: payload.email },
-      select: { 
-        registrationComplete: true,
-        verified: true,
-        kycStatus: true,
-        createdAt: true
-      }
-    }));
+    await dbConnect();
+    const user = await UserModel.findOne({ email: payload.email }).select(
+      'registrationComplete verified kycStatus createdAt'
+    );
 
     if (!user) {
       console.log("[user-registration-status] User not found");

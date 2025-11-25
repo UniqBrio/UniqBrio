@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,8 +10,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, message: "Token is required" }, { status: 400 });
   }
 
-  const tokenExists = await prisma.user.findFirst({
-    where: { resetToken: token, resetTokenExpiry: { gte: new Date() } },
+  await dbConnect();
+  const tokenExists = await UserModel.findOne({
+    resetToken: token,
+    resetTokenExpiry: { $gte: new Date() },
   });
 
   if (!tokenExists) {

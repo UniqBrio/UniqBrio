@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { ExpenseDraftModel } from "@/lib/dashboard/models";
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET /api/expensedrafts/[id] - Get single draft
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -31,10 +38,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 // PUT /api/expensedrafts/[id] - Update draft
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -82,10 +96,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 // DELETE /api/expensedrafts/[id] - Delete draft
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -106,4 +127,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       { status: 500 }
     );
   }
+    }
+  );
 }

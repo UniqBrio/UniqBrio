@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Event from '@/models/dashboard/events/Event';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Helper: generate next event ID like EVT0001
 async function generateNextEventId(): Promise<string> {
@@ -40,6 +42,11 @@ async function generateNextEventId(): Promise<string> {
  *   - limit: items per page (default 10)
  */
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -111,6 +118,8 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 /**
@@ -118,6 +127,11 @@ export async function GET(request: NextRequest) {
  * Create a new event
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -234,4 +248,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

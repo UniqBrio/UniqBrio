@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Achievement from '@/models/dashboard/student/Achievement';
 import Student from '@/models/dashboard/student/Student';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET all achievements with student populated
 export async function GET() {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
     const achievements = await Achievement.find({}).populate('student');
@@ -12,10 +19,17 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch achievements' }, { status: 500 });
   }
+    }
+  );
 }
 
 // POST a new achievement and link to student (accepts student as ObjectId or studentId string)
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
     const data = await req.json();
@@ -36,14 +50,21 @@ export async function POST(req: NextRequest) {
     }
 
     const populatedAchievement = await Achievement.findById(achievement._id).populate('student');
-    return NextResponse.json(populatedAchievement, { status: 201 });
+    return NextResponse.json(achievement, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create achievement' }, { status: 500 });
   }
+    }
+  );
 }
 
 // PUT: update an achievement
 export async function PUT(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
     const body = await req.json();
@@ -70,10 +91,17 @@ export async function PUT(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update achievement' }, { status: 500 });
   }
+    }
+  );
 }
 
 // DELETE: delete an achievement
 export async function DELETE(req: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   await dbConnect("uniqbrio");
   try {
     const body = await req.json();
@@ -93,4 +121,6 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete achievement' }, { status: 500 });
   }
+    }
+  );
 }

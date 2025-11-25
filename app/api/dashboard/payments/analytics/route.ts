@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -167,8 +174,10 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Error fetching payment analytics:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch payment analytics', details: error.message },
+      { error: 'Failed to fetch analytics', details: error.message },
       { status: 500 }
     );
   }
+    }
+  );
 }

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { IncomeDraftModel } from "@/lib/dashboard/models";
+import { getUserSession } from "@/lib/tenant/api-helpers";
+import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
 // Main route handler for income drafts (GET all, POST create)
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -25,9 +32,16 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  return runWithTenantContext(
+    { tenantId: session?.tenantId || 'default' },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -66,4 +80,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

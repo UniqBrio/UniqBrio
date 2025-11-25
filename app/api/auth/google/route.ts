@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET() {
   const oauth2Client = new google.auth.OAuth2(
@@ -50,16 +51,16 @@ export async function POST(request: Request) {
     }
 
     // Check if user exists in the database
-    let user = await prisma.user.findUnique({ where: { email } });
+    await dbConnect();
+    let user = await UserModel.findOne({ email });
 
     if (!user) {
       // Create a new user if not found
-      user = await prisma.user.create({
-        data: {
-          email,
-          name,
-          googleId,
-        },
+      user = await UserModel.create({
+        email,
+        name,
+        googleId,
+        verified: true,
       });
     }
 

@@ -1,165 +1,183 @@
 
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
+import mongoose from "mongoose";
 
 export async function POST(req: Request) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
+    await dbConnect();
+    
     // Enforce authenticated, verified user and derive identity from session
-    const session = await getSessionCookie();
-    if (!session) {
+    const sessionToken = await getSessionCookie();
+    if (!sessionToken) {
+      await session.abortTransaction();
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-    const payload = await verifyToken(session);
+    const payload = await verifyToken(sessionToken);
     if (!payload?.email || typeof payload.email !== "string") {
+      await session.abortTransaction();
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
     const body = await req.json();
-
     const email = payload.email as string;
 
-    // Find user by email (Prisma)
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    // Find user by email (Mongoose)
+    const existingUser = await UserModel.findOne({ email }).session(session);
     if (!existingUser) {
+      await session.abortTransaction();
       return NextResponse.json({ error: "No user found for this session." }, { status: 404 });
     }
 
     if (!existingUser.verified) {
+      await session.abortTransaction();
       return NextResponse.json({ error: "Email not verified." }, { status: 403 });
     }
 
     if (existingUser.registrationComplete) {
+      await session.abortTransaction();
       return NextResponse.json({ error: "Registration already completed." }, { status: 400 });
     }
 
     // Validate required fields from request body
     if (!body?.adminInfo?.fullName) {
+      await session.abortTransaction();
       return NextResponse.json({ error: "Full name is required." }, { status: 400 });
     }
     
     if (!body?.businessInfo?.businessName) {
+      await session.abortTransaction();
       return NextResponse.json({ error: "Business name is required." }, { status: 400 });
     }
 
     let academyId = existingUser.academyId;
     let userId = existingUser.userId;
 
-    // Use Prisma transaction to ensure all operations succeed or fail together
-    const result = await prisma.$transaction(async (tx) => {
-      // Check if user already has a registration inside transaction
-      const existingRegistration = await tx.registration.findFirst({
-        where: { 
-          OR: [
-            { userId: existingUser.userId || undefined },
-            { academyId: existingUser.academyId || undefined }
-          ]
-        }
-      });
+    // Check if user already has a registration
+    const existingRegistration = await RegistrationModel.findOne({
+      $or: [
+        { userId: existingUser.userId || undefined },
+        { academyId: existingUser.academyId || undefined }
+      ]
+    }).session(session);
 
-      // Use existing IDs or generate new ones
-      let finalAcademyId = academyId || existingUser.academyId;
-      let finalUserId = userId || existingUser.userId;
+    // Use existing IDs or generate new ones
+    let finalAcademyId = academyId || existingUser.academyId;
+    let finalUserId = userId || existingUser.userId;
 
-      // Only generate new IDs if user doesn't have them and there's no existing registration
-      if (!finalAcademyId && !existingRegistration) {
-        // Generate sequential academyId using Prisma (check registrations with proper numeric format)
-        const allRegistrations = await tx.registration.findMany({
-          where: { academyId: { startsWith: 'AC' } },
-          select: { academyId: true }
+    // Only generate new IDs if user doesn't have them and there's no existing registration
+    if (!finalAcademyId && !existingRegistration) {
+      // Generate sequential academyId using Mongoose
+      const allRegistrations = await RegistrationModel.find({
+        academyId: { $regex: /^AC/ }
+      }).select('academyId').session(session);
+      
+      // Filter and sort only properly formatted academy IDs (AC followed by digits)
+      const numericAcademyIds = allRegistrations
+        .map((reg: any) => reg.academyId)
+        .filter((id: string) => /^AC\d+$/.test(id))
+        .sort((a: string, b: string) => {
+          const numA = parseInt(a.replace('AC', ''));
+          const numB = parseInt(b.replace('AC', ''));
+          return numB - numA; // Descending order
         });
-        
-        // Filter and sort only properly formatted academy IDs (AC followed by digits)
-        const numericAcademyIds = allRegistrations
-          .map(reg => reg.academyId)
-          .filter(id => /^AC\d+$/.test(id))
-          .sort((a, b) => {
-            const numA = parseInt(a.replace('AC', ''));
-            const numB = parseInt(b.replace('AC', ''));
-            return numB - numA; // Descending order
-          });
 
-        let nextAcademyNum = 1;
-        if (numericAcademyIds.length > 0) {
-          const lastAcademyId = numericAcademyIds[0]; // First element is the highest
-          nextAcademyNum = parseInt(lastAcademyId.replace("AC", "")) + 1;
-        }
-        finalAcademyId = `AC${nextAcademyNum.toString().padStart(6, "0")}`;
-      } else if (existingRegistration && !finalAcademyId) {
-        finalAcademyId = existingRegistration.academyId;
+      let nextAcademyNum = 1;
+      if (numericAcademyIds.length > 0) {
+        const lastAcademyId = numericAcademyIds[0];
+        nextAcademyNum = parseInt(lastAcademyId.replace("AC", "")) + 1;
       }
+      finalAcademyId = `AC${nextAcademyNum.toString().padStart(6, "0")}`;
+    } else if (existingRegistration && !finalAcademyId) {
+      finalAcademyId = existingRegistration.academyId;
+    }
 
-      if (!finalUserId && !existingRegistration) {
-        // Generate sequential userId using Prisma with proper filtering
-        const allUsers = await tx.user.findMany({
-          where: { userId: { startsWith: 'AD' } },
-          select: { userId: true }
+    if (!finalUserId && !existingRegistration) {
+      // Generate sequential userId using Mongoose
+      const allUsers = await UserModel.find({
+        userId: { $regex: /^AD/ }
+      }).select('userId').session(session);
+      
+      // Filter and sort only properly formatted user IDs (AD followed by digits)
+      const numericUserIds = allUsers
+        .map((user: any) => user.userId)
+        .filter((id: string | null) => id && /^AD\d+$/.test(id))
+        .sort((a: string, b: string) => {
+          const numA = parseInt(a.replace('AD', ''));
+          const numB = parseInt(b.replace('AD', ''));
+          return numB - numA; // Descending order
         });
-        
-        // Filter and sort only properly formatted user IDs (AD followed by digits)
-        const numericUserIds = allUsers
-          .map(user => user.userId)
-          .filter(id => id && /^AD\d+$/.test(id)) // Filter out null and non-matching IDs
-          .sort((a, b) => {
-            const numA = parseInt(a!.replace('AD', '')); // Use non-null assertion after filter
-            const numB = parseInt(b!.replace('AD', '')); // Use non-null assertion after filter
-            return numB - numA; // Descending order
-          });
 
-        let nextUserNum = 1;
-        if (numericUserIds.length > 0) {
-          const lastUserId = numericUserIds[0]; // First element is the highest
-          nextUserNum = parseInt(lastUserId!.replace("AD", "")) + 1; // Non-null assertion after array check
-        }
-        finalUserId = `AD${nextUserNum.toString().padStart(6, "0")}`;
-      } else if (existingRegistration && !finalUserId) {
-        finalUserId = existingRegistration.userId;
+      let nextUserNum = 1;
+      if (numericUserIds.length > 0) {
+        const lastUserId = numericUserIds[0];
+        nextUserNum = parseInt(lastUserId.replace("AD", "")) + 1;
       }
+      finalUserId = `AD${nextUserNum.toString().padStart(6, "0")}`;
+    } else if (existingRegistration && !finalUserId) {
+      finalUserId = existingRegistration.userId;
+    }
 
-      // Update basic user info and persist IDs
-      const updatedUser = await tx.user.update({
-        where: { email },
-        data: {
+    // Update basic user info and persist IDs
+    await UserModel.updateOne(
+      { email },
+      {
+        $set: {
           name: body.adminInfo.fullName,
           phone: body?.adminInfo?.phone || existingUser.phone,
-          role: existingUser.role, // keep current role (server-controlled)
           userId: finalUserId,
           academyId: finalAcademyId,
-        },
-      });
+          tenantId: finalAcademyId, // Set tenantId = academyId for multi-tenant isolation
+        }
+      },
+      { session }
+    );
 
-      // Create or update Registration record using upsert
-      const registration = await tx.registration.upsert({
-        where: { 
-          academyId: finalAcademyId || 'TEMP' // Use a temp value if still null, but this shouldn't happen
-        },
-        update: {
+    // Create or update Registration record
+    await RegistrationModel.findOneAndUpdate(
+      { academyId: finalAcademyId },
+      {
+        $set: {
           userId: finalUserId!,
+          tenantId: finalAcademyId!,
           businessInfo: body?.businessInfo || {},
           adminInfo: body?.adminInfo || {},
           preferences: body?.preferences || {},
-        },
-        create: {
-          academyId: finalAcademyId!,
-          userId: finalUserId!,
-          businessInfo: body?.businessInfo || {},
-          adminInfo: body?.adminInfo || {},
-          preferences: body?.preferences || {},
-        },
-      });
+        }
+      },
+      { 
+        upsert: true, 
+        session,
+        new: true 
+      }
+    );
 
-      // Only after all operations succeed, mark registration as complete
-      const finalUser = await tx.user.update({
-        where: { email },
-        data: { registrationComplete: true },
-      });
+    // Mark registration as complete
+    await UserModel.updateOne(
+      { email },
+      { $set: { registrationComplete: true } },
+      { session }
+    );
 
-      return { updatedUser, registration, finalUser, academyId: finalAcademyId, userId: finalUserId };
+    await session.commitTransaction();
+    
+    return NextResponse.json({ 
+      success: true, 
+      userId: finalUserId, 
+      academyId: finalAcademyId 
     });
-
-    return NextResponse.json({ success: true, userId: result.userId, academyId: result.academyId });
+    
   } catch (error) {
+    await session.abortTransaction();
     console.error("Registration error:", error);
     return NextResponse.json({ error: "Registration failed." }, { status: 500 });
+  } finally {
+    session.endSession();
   }
 }

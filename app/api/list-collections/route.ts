@@ -1,31 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getMongoClient } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
     console.log("[list-collections] Checking available MongoDB collections...");
     
+    const { db } = await getMongoClient();
+    
     // Get all collection names
-    const result = await prisma.$runCommandRaw({
-      listCollections: 1
-    }) as any;
-
-    const collections = result.cursor.firstBatch.map((collection: any) => ({
-      name: collection.name,
-      type: collection.type
+    const collections = await db.listCollections().toArray();
+    const collectionInfo = collections.map(c => ({
+      name: c.name,
+      type: c.type
     }));
 
-    console.log("[list-collections] Collections found:", collections);
+    console.log("[list-collections] Collections found:", collectionInfo);
 
     // Also count documents in each collection
     const collectionCounts: any = {};
     
-    for (const collection of collections) {
+    for (const collection of collectionInfo) {
       try {
-        const count = await prisma.$runCommandRaw({
-          count: collection.name
-        }) as any;
-        collectionCounts[collection.name] = count.n || 0;
+        const count = await db.collection(collection.name).countDocuments();
+        collectionCounts[collection.name] = count;
       } catch (e) {
         collectionCounts[collection.name] = "Error counting";
       }
@@ -35,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      collections,
+      collections: collectionInfo,
       collectionCounts,
       databaseInfo: {
         url: process.env.MONGODB_URI?.replace(/\/\/[^:]+:[^@]+@/, "//***:***@") || "Not set"

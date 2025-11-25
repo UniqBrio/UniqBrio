@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 const PaymentSchema = new mongoose.Schema(
   {
@@ -148,6 +149,9 @@ PaymentSchema.pre('save', function(next) {
   }
   next();
 });
+
+// Apply tenant plugin for multi-tenant isolation
+PaymentSchema.plugin(tenantPlugin);
 
 // Use the existing model if it exists (Next.js hot reload), otherwise create new
 // Explicitly specify collection name as 'payments'

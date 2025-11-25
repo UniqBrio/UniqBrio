@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import UserModel from "@/models/User";
+import RegistrationModel from "@/models/Registration";
+import { dbConnect } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
     console.log("[test-auth-api] Testing authenticated user-academy-info...");
+    
+    await dbConnect();
     
     // Mock a session for the test user
     const mockEmail = "shaziafarheen74@gmail.com";
@@ -11,9 +15,7 @@ export async function GET(request: NextRequest) {
     console.log(`[test-auth-api] Testing with email: ${mockEmail}`);
 
     // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { email: mockEmail }
-    });
+    const user = await UserModel.findOne({ email: mockEmail }).lean();
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -31,15 +33,10 @@ export async function GET(request: NextRequest) {
 
     console.log(`[test-auth-api] Initial IDs - userId: ${userId}, academyId: ${academyId}`);
 
-    // PRIMARY SEARCH: Look for registration by email in adminInfo using raw MongoDB
+    // PRIMARY SEARCH: Look for registration by email in adminInfo
     console.log(`[test-auth-api] Searching registrations by email: ${mockEmail}...`);
     
-    const rawRegistrations = await prisma.$runCommandRaw({
-      find: "registrations",
-      filter: { "adminInfo.email": mockEmail }
-    }) as any;
-
-    const matchingDocs = rawRegistrations.cursor.firstBatch;
+    const matchingDocs = await RegistrationModel.find({ 'adminInfo.email': mockEmail }).lean();
     console.log(`[test-auth-api] Found ${matchingDocs.length} matching registrations`);
     
     let matchingRegistration = null;
@@ -67,11 +64,9 @@ export async function GET(request: NextRequest) {
       if (user.userId) whereConditions.push({ userId: user.userId });
       if (user.academyId) whereConditions.push({ academyId: user.academyId });
       
-      const reg = await prisma.registration.findFirst({ 
-        where: { 
-          OR: whereConditions
-        } 
-      });
+      const reg = await RegistrationModel.findOne({
+        $or: whereConditions
+      }).lean();
       
       if (reg) {
         matchingRegistration = reg;
@@ -87,26 +82,20 @@ export async function GET(request: NextRequest) {
     if (matchingRegistration && (!user.userId || !user.academyId)) {
       console.log(`[test-auth-api] Updating User record with IDs for future use...`);
       try {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
+        await UserModel.updateOne(
+          { _id: (user as any)._id },
+          { $set: {
             userId: userId,
             academyId: academyId
-          }
-        });
+          }}
+        );
         console.log(`[test-auth-api] User record updated with userId: ${userId}, academyId: ${academyId}`);
       } catch (updateError) {
         console.error(`[test-auth-api] Failed to update User record:`, updateError);
       }
     }
 
-    // If no academy name found yet, fetch from Academy collection as final fallback
-    if (!academyName && academyId) {
-      const academy = await prisma.academy.findUnique({ where: { academyId } });
-      if (academy?.name) {
-        academyName = academy.name;
-      }
-    }
+    // No academy collection anymore, academy name comes from registration
 
     return NextResponse.json({
       userId,

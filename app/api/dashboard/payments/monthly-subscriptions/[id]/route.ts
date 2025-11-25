@@ -2,19 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import MonthlySubscription from '@/models/dashboard/payments/MonthlySubscription';
 import { validateSubscriptionStatusUpdate } from '@/lib/dashboard/payments/subscription-validation';
-
-// Connect to MongoDB
-async function dbConnect() {
-  if (mongoose.connections[0].readyState) {
-    return;
-  }
-  
-  try {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-  } catch (error) {
-    throw new Error('Failed to connect to database');
-  }
-}
+import { dbConnect } from '@/lib/mongodb';
 
 /**
  * GET /api/payments/monthly-subscriptions/[id]
@@ -25,7 +13,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect("uniqbrio");
+    await dbConnect();
     
     const subscription = await MonthlySubscription.findById(params.id)
       .populate('paymentRecords');

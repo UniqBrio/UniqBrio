@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface INonInstructor extends Document {
   externalId?: string // Stable ID used by UI (e.g., NON INS0001)
@@ -92,11 +93,16 @@ const NonInstructorSchema = new Schema<INonInstructor>({
   status: { type: String, default: "Active" },
 }, { timestamps: true, collection: 'non_instructors' })
 
+// Apply tenant plugin for multi-tenancy support
+NonInstructorSchema.plugin(tenantPlugin);
+
 // Unique email when non-empty (same behavior as Instructor)
 NonInstructorSchema.index({ email: 1 }, {
   unique: true,
   partialFilterExpression: { email: { $exists: true, $type: "string", $ne: "" } },
 })
+NonInstructorSchema.index({ tenantId: 1, externalId: 1 }, { unique: true, sparse: true });
+NonInstructorSchema.index({ tenantId: 1, email: 1 }, { sparse: true });
 
 let NonInstructorModel: Model<INonInstructor>
 try {

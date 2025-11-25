@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import prisma from "@/lib/db";
+import UserModel from "@/models/User";
+import RegistrationModel from "@/models/Registration";
+import KycSubmissionModel from "@/models/KycSubmission";
+import KycReviewModel from "@/models/KycReview";
+import { dbConnect } from "@/lib/mongodb";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
 
@@ -51,12 +55,12 @@ export async function GET(request: NextRequest) {
 
 async function getKYCQueue() {
   try {
-    // Get all KYC submissions, but group by userId and academyId to avoid duplicates
-    const kycSubmissions = await prisma.kycSubmission.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    await dbConnect();
+
+    // Get all KYC submissions, ordered by creation date
+    const kycSubmissions = await KycSubmissionModel.find({})
+      .sort({ createdAt: -1 })
+      .lean();
 
     // Remove duplicates by keeping only the latest submission per academy
     const uniqueSubmissions = new Map();
@@ -71,52 +75,43 @@ async function getKYCQueue() {
     // Convert back to array
     const latestSubmissions = Array.from(uniqueSubmissions.values());
 
-    // Get user and academy data separately since we need to join through userId/academyId
+    // Get user and academy data separately
     const enrichedSubmissions = await Promise.all(
-      latestSubmissions.map(async (submission) => {
-        const user = await prisma.user.findFirst({
-          where: { userId: submission.userId },
-          select: { email: true, name: true, kycStatus: true, kycSubmissionDate: true }
-        });
+      latestSubmissions.map(async (submission: any) => {
+        const user = await UserModel.findOne({ userId: submission.userId })
+          .select('email name kycStatus kycSubmissionDate')
+          .lean();
 
         // Check if this is a resubmission by looking for previous rejections
-        const hasRejection = await prisma.kycReview.findFirst({
-          where: {
-            kyc: {
-              userId: submission.userId,
-              academyId: submission.academyId
-            },
-            status: 'rejected'
-          }
-        });
+        const hasRejection = await KycReviewModel.findOne({
+          userId: submission.userId,
+          academyId: submission.academyId,
+          status: 'rejected'
+        }).lean();
 
-        // Count total submissions for this user/academy to detect resubmissions
-        const totalSubmissions = await prisma.kycSubmission.count({
-          where: {
-            userId: submission.userId,
-            academyId: submission.academyId
-          }
+        // Count total submissions for this user/academy
+        const totalSubmissions = await KycSubmissionModel.countDocuments({
+          userId: submission.userId,
+          academyId: submission.academyId
         });
 
         // Get academy name from registration data
-        const registration = await prisma.registration.findFirst({
-          where: { 
-            OR: [
-              { userId: submission.userId },
-              { academyId: submission.academyId }
-            ]
-          },
-          select: { businessInfo: true }
-        });
+        const registration = await RegistrationModel.findOne({
+          $or: [
+            { userId: submission.userId },
+            { academyId: submission.academyId }
+          ]
+        })
+          .select('businessInfo')
+          .lean();
         
         let academyName = `Academy ${submission.academyId}`;
         if (registration?.businessInfo && typeof registration.businessInfo === 'object' && 'businessName' in registration.businessInfo) {
           academyName = (registration.businessInfo as { businessName?: string }).businessName || academyName;
         }
 
-        // For now, we'll extract academy name from the location or use academy ID
         return {
-          id: submission.id,
+          id: submission._id,
           academyId: submission.academyId,
           userId: submission.userId,
           academyName: academyName,
@@ -132,8 +127,8 @@ async function getKYCQueue() {
           ownerImageUrl: submission.ownerImageUrl,
           bannerImageUrl: submission.bannerImageUrl,
           ownerWithBannerImageUrl: submission.ownerWithBannerImageUrl,
-          isResubmission: !!hasRejection || totalSubmissions > 1, // Flag for resubmissions
-          totalSubmissions: totalSubmissions // Count of submissions
+          isResubmission: !!hasRejection || totalSubmissions > 1,
+          totalSubmissions: totalSubmissions
         };
       })
     );
@@ -151,46 +146,35 @@ async function getKYCQueue() {
 
 async function getAcademies() {
   try {
+    await dbConnect();
+
     // Get all users with completed registrations
-    const users = await prisma.user.findMany({
-      where: {
-        registrationComplete: true,
-        userId: { not: null },
-        academyId: { not: null }
-      },
-      select: {
-        email: true,
-        name: true,
-        userId: true,
-        academyId: true,
-        verified: true,
-        createdAt: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    const users = await UserModel.find({
+      registrationComplete: true,
+      userId: { $ne: null },
+      academyId: { $ne: null }
+    })
+      .select('email name userId academyId verified createdAt')
+      .sort({ createdAt: -1 })
+      .lean();
 
     // Check which academies have KYC submissions
     const academiesWithKYC = await Promise.all(
-      users.map(async (user) => {
-        const kycSubmission = await prisma.kycSubmission.findFirst({
-          where: {
-            userId: user.userId!,
-            academyId: user.academyId!
-          }
-        });
+      users.map(async (user: any) => {
+        const kycSubmission = await KycSubmissionModel.findOne({
+          userId: user.userId,
+          academyId: user.academyId
+        }).lean();
 
         // Get comprehensive academy data from registration
-        const registration = await prisma.registration.findFirst({
-          where: { 
-            OR: [
-              { userId: user.userId! },
-              { academyId: user.academyId! }
-            ]
-          },
-          select: { businessInfo: true, adminInfo: true, preferences: true }
-        });
+        const registration = await RegistrationModel.findOne({
+          $or: [
+            { userId: user.userId },
+            { academyId: user.academyId }
+          ]
+        })
+          .select('businessInfo adminInfo preferences')
+          .lean();
         
         let academyName = `Academy ${user.academyId}`;
         let businessInfo: any = {};
@@ -261,31 +245,27 @@ async function getAcademies() {
 
 async function getDashboardStats() {
   try {
+    await dbConnect();
+
     // Get total counts
-    const totalAcademies = await prisma.user.count({
-      where: { registrationComplete: true }
+    const totalAcademies = await UserModel.countDocuments({
+      registrationComplete: true
     });
 
-    const totalKYCSubmissions = await prisma.kycSubmission.count();
+    const totalKYCSubmissions = await KycSubmissionModel.countDocuments();
 
-    const verifiedUsers = await prisma.user.count({
-      where: { 
-        registrationComplete: true,
-        verified: true 
-      }
+    const verifiedUsers = await UserModel.countDocuments({
+      registrationComplete: true,
+      verified: true
     });
 
     // Calculate pending KYC (registered but no KYC submission)
-    const usersWithKYC = await prisma.kycSubmission.findMany({
-      select: { userId: true }
-    });
+    const usersWithKYC = await KycSubmissionModel.find({}).select('userId').lean();
     const userIdsWithKYC = usersWithKYC.map(k => k.userId);
     
-    const pendingKYC = await prisma.user.count({
-      where: {
-        registrationComplete: true,
-        userId: { notIn: userIdsWithKYC }
-      }
+    const pendingKYC = await UserModel.countDocuments({
+      registrationComplete: true,
+      userId: { $nin: userIdsWithKYC }
     });
 
     return NextResponse.json({
@@ -293,9 +273,9 @@ async function getDashboardStats() {
       data: {
         totalAcademies,
         totalKYCSubmissions,
-        verifiedAcademies: totalKYCSubmissions, // Assuming submitted KYC means verified for now
+        verifiedAcademies: totalKYCSubmissions,
         pendingKYC,
-        monthlyGrowth: 18 // Calculate this based on dates later
+        monthlyGrowth: 18
       }
     });
 
@@ -307,11 +287,13 @@ async function getDashboardStats() {
 
 async function getAnalytics() {
   try {
-    const totalUsers = await prisma.user.count();
-    const completedRegistrations = await prisma.user.count({
-      where: { registrationComplete: true }
+    await dbConnect();
+
+    const totalUsers = await UserModel.countDocuments();
+    const completedRegistrations = await UserModel.countDocuments({
+      registrationComplete: true
     });
-    const kycSubmissions = await prisma.kycSubmission.count();
+    const kycSubmissions = await KycSubmissionModel.countDocuments();
 
     return NextResponse.json({
       success: true,
@@ -345,11 +327,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "kycId and status are required" }, { status: 400 });
       }
 
+      await dbConnect();
+
       // Find latest submission to infer user/academy
-      const latest = await prisma.kycSubmission.findFirst({
-        where: { id: kycId },
-        select: { userId: true, academyId: true }
-      });
+      const latest = await KycSubmissionModel.findById(kycId)
+        .select('userId academyId')
+        .lean();
 
       if (!latest?.userId) {
         return NextResponse.json({ error: "KYC submission not found" }, { status: 404 });
@@ -363,15 +346,17 @@ export async function POST(request: NextRequest) {
         updateData.kycSubmissionDate = new Date();
       }
 
-      await prisma.user.updateMany({
-        where: { userId: latest.userId },
-        data: updateData,
-      });
+      await UserModel.updateMany(
+        { userId: latest.userId },
+        { $set: updateData }
+      );
 
       // Create KycReview record for audit trail
       const reviewData: any = {
         kycId: kycId,
-        reviewerId: "admin", // In a real app, this would be the actual admin's ID
+        userId: latest.userId,
+        academyId: latest.academyId,
+        reviewerId: "admin",
         status: status,
         comments: notes || (status === 'approved' ? 'KYC approved by admin' : 'KYC rejected by admin'),
       };
@@ -382,30 +367,26 @@ export async function POST(request: NextRequest) {
         reviewData.customMessage = customMessage;
       }
 
-      await prisma.kycReview.create({
-        data: reviewData
-      });
+      await KycReviewModel.create(reviewData);
 
       // Notify user via email
       try {
-        const userDoc = await prisma.user.findFirst({ 
-          where: { userId: latest.userId }, 
-          select: { email: true, name: true, academyId: true } 
-        });
+        const userDoc = await UserModel.findOne({ userId: latest.userId })
+          .select('email name academyId')
+          .lean();
         
         // Get academy name for personalized email
         let academyName: string | undefined;
         if (userDoc?.academyId) {
           try {
-            const registration = await prisma.registration.findFirst({
-              where: { 
-                OR: [
-                  { academyId: userDoc.academyId },
-                  { userId: latest.userId }
-                ]
-              },
-              select: { businessInfo: true }
-            });
+            const registration = await RegistrationModel.findOne({
+              $or: [
+                { academyId: userDoc.academyId },
+                { userId: latest.userId }
+              ]
+            })
+              .select('businessInfo')
+              .lean();
             
             const businessInfo = registration?.businessInfo as any;
             academyName = businessInfo?.businessName;

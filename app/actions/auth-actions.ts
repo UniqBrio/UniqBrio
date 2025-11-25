@@ -1,7 +1,11 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import prisma from "@/lib/db"
+import mongoose from "mongoose"
+import UserModel from "@/models/User"
+import RegistrationModel from "@/models/Registration"
+import SupportTicketModel from "@/models/SupportTicket"
+import { dbConnect } from "@/lib/mongodb"
 import {
   createToken,
   deleteSessionCookie,
@@ -39,6 +43,7 @@ type SessionData = {
   verified: boolean
   name?: string
   lastActivity?: number
+  tenantId?: string // Add tenantId for multi-tenant isolation
 }
 
 // --- MODIFIED Signup action ---
@@ -74,9 +79,8 @@ export async function signup(formData: FormData) {
   try {
     // Check if user already exists
     console.log("[AuthAction] signup: Checking if user exists:", email);
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
+    await dbConnect();
+    const existingUser = await UserModel.findOne({ email });
 
     if (existingUser) {
       console.log("[AuthAction] signup: User already exists:", email);
@@ -101,19 +105,18 @@ export async function signup(formData: FormData) {
     const userRole = "super_admin"
 
     // Create user
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        phone,
-        password: hashedPassword,
-        role: userRole,
-        verified: false,
-        verificationToken,
-        registrationComplete: false,
-      },
-    })
-    console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser.id);
+    const newUser = await UserModel.create({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role: userRole,
+      verified: false,
+      verificationToken,
+      registrationComplete: false,
+      tenantId: 'default', // Will be updated to academyId during registration
+    });
+    console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser._id);
 
     // Send verification email with LINK only
     try {
@@ -138,9 +141,9 @@ export async function signup(formData: FormData) {
 
   } catch (error) {
     console.error("[AuthAction] signup: !!! Error caught in main signup block:", error);
-     // Handle potential database errors (e.g., unique constraint if check failed somehow)
-     if (error instanceof Error && 'code' in error && (error as any).code === 'P2002') {
-        console.error("[AuthAction] signup: Prisma unique constraint violation.");
+     // Handle potential database errors (e.g., unique constraint)
+     if (error instanceof Error && 'code' in error && (error as any).code === 11000) {
+        console.error("[AuthAction] signup: MongoDB unique constraint violation.");
         return { success: false, message: "An account with this email or phone number already exists." };
      }
     return { success: false, message: "An unexpected error occurred during signup." }
@@ -168,11 +171,14 @@ export async function login(formData: FormData) {
   try {
     // Find user by email or phone
     console.log("[AuthAction] login: Attempting to find user:", emailOrPhone);
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: emailOrPhone }, { phone: emailOrPhone }],
-      },
-    })
+    await dbConnect();
+    console.log("[AuthAction] login: Connected to database:", mongoose.connection.name);
+    console.log("[AuthAction] login: Database ready state:", mongoose.connection.readyState);
+    
+    const user = await UserModel.findOne({
+      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
+    });
+    console.log("[AuthAction] login: Query executed, result:", user ? "User found" : "No user");
 
     // User not found
     if (!user) {
@@ -226,6 +232,7 @@ export async function login(formData: FormData) {
       verified: user.verified,
       name: user.name,
       lastActivity: Date.now(),
+      tenantId: user.academyId || user.tenantId || 'default', // Add tenantId from academyId for multi-tenant isolation
     };
     const token = await createToken(sessionData)
     console.log("[AuthAction] login: Session token created.");
@@ -279,7 +286,8 @@ export async function verifyOtp(formData: FormData) {
 
   try {
     console.log("[AuthAction] verifyOtp: Finding user:", email);
-    const user = await prisma.user.findUnique({ where: { email } });
+    await dbConnect();
+    const user = await UserModel.findOne({ email });
     if (!user) {
         console.log("[AuthAction] verifyOtp: User not found:", email);
         return { success: false, message: "User not found" };
@@ -300,14 +308,15 @@ export async function verifyOtp(formData: FormData) {
 
     // Update user - Remove OTP fields, ensure 'verified' is handled correctly
     console.log("[AuthAction] verifyOtp: Updating user (clearing OTP fields):", email);
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        // verified: true, // DO NOT set verified=true here if OTP is for 2FA etc.
-        // otp: null, // Clear OTP fields if they exist
-        // otpExpiry: null,
-      },
-    });
+    await UserModel.updateOne(
+      { _id: user._id },
+      {
+        $unset: {
+          // otp: "",
+          // otpExpiry: ""
+        }
+      }
+    );
     console.log("[AuthAction] verifyOtp: User updated successfully:", email);
     return { success: true, message: "OTP verified successfully.", redirect: "/login" }; // Adjust redirect/message
   } catch (error) {
@@ -324,7 +333,8 @@ export async function resendOtp(email: string) {
    // update user's token, call generateVerificationEmail(email, newToken).
   try {
     console.log("[AuthAction] resendOtp: Finding user:", email);
-    const user = await prisma.user.findUnique({ where: { email } });
+    await dbConnect();
+    const user = await UserModel.findOne({ email });
     if (!user) {
         console.log("[AuthAction] resendOtp: User not found:", email);
         return { success: false, message: "User not found" };
@@ -379,9 +389,8 @@ export async function verifyEmail(token: string) {
   try {
     // Find user with the verification token
     console.log("[AuthAction] verifyEmail: Finding user by token:", token);
-    const user = await prisma.user.findFirst({
-      where: { verificationToken: token },
-    })
+    await dbConnect();
+    const user = await UserModel.findOne({ verificationToken: token });
 
     // No user found for this token (maybe expired, invalid, or already used)
     if (!user) {
@@ -399,13 +408,13 @@ export async function verifyEmail(token: string) {
 
     // Update user: Mark as verified and clear the token (do NOT mark registrationComplete here)
     console.log("[AuthAction] verifyEmail: Updating user as verified and clearing token:", user.email);
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        verified: true,
-        verificationToken: null, // Important: Clear the token so it can't be reused
-      },
-    })
+    await UserModel.updateOne(
+      { _id: user._id },
+      {
+        $set: { verified: true },
+        $unset: { verificationToken: "" }
+      }
+    );
     console.log("[AuthAction] verifyEmail: User updated successfully:", user.email);
 
     // --- MODIFICATION: Return success and redirect instruction ---
@@ -517,7 +526,8 @@ export async function requestPasswordReset(formData: FormData) {
 
   try {
     console.log("[AuthAction] requestPasswordReset: Finding user:", email);
-    const user = await prisma.user.findUnique({ where: { email } })
+    await dbConnect();
+    const user = await UserModel.findOne({ email });
 
     if (user) {
       console.log("[AuthAction] requestPasswordReset: User found:", user.id);
@@ -525,10 +535,15 @@ export async function requestPasswordReset(formData: FormData) {
       const resetToken = generateToken()
       const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
       console.log("[AuthAction] requestPasswordReset: Updating user with reset token:", resetToken);
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { resetToken, resetTokenExpiry },
-      })
+      await UserModel.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            resetToken,
+            resetTokenExpiry
+          }
+        }
+      );
       console.log("[AuthAction] requestPasswordReset: Generating password reset email data for:", user.email);
       const emailData = generatePasswordResetEmail(email, resetToken)
       console.log("[AuthAction] requestPasswordReset: Sending password reset email...");
@@ -582,11 +597,10 @@ export async function resetPassword(token: string, formData: FormData) {
       "[AuthAction] resetPassword: Finding user by valid token:",
       token
     );
-    const user = await prisma.user.findFirst({
-      where: {
-        resetToken: token,
-        resetTokenExpiry: { gt: new Date() },
-      },
+    await dbConnect();
+    const user = await UserModel.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: new Date() },
     });
 
     if (!user) {
@@ -613,16 +627,20 @@ export async function resetPassword(token: string, formData: FormData) {
       "[AuthAction] resetPassword: Updating user password and clearing token/attempts for:",
       user.email
     );
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        resetToken: null,
-        resetTokenExpiry: null,
-        failedAttempts: 0, // Corrected field name
-        lockedUntil: null,
-      },
-    });
+    await UserModel.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: hashedPassword,
+          failedAttempts: 0,
+        },
+        $unset: {
+          resetToken: "",
+          resetTokenExpiry: "",
+          lockedUntil: ""
+        }
+      }
+    );
     console.log("[AuthAction] resetPassword: User password updated successfully.");
 
     console.log(
@@ -662,9 +680,8 @@ export async function submitSupportTicket(formData: FormData) {
     console.log("[AuthAction] submitSupportTicket: Ticket number generated:", ticketNumber);
 
     console.log("[AuthAction] submitSupportTicket: Creating ticket in DB for:", email);
-    await prisma.supportTicket.create({
-      data: { email, issueType, description, ticketNumber },
-    })
+    await dbConnect();
+    await SupportTicketModel.create({ email, issueType, description, ticketNumber });
     console.log("[AuthAction] submitSupportTicket: Ticket created successfully in DB.");
 
     console.log("[AuthAction] submitSupportTicket: Generating support ticket email data.");

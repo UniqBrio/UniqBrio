@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // Recurring Pattern Interface
 export interface IRecurringPattern {
@@ -622,6 +623,9 @@ scheduleSchema.post('save', function(this: ISchedule) {
   // Here you could trigger notifications or other side effects
   console.log(`Schedule ${this.title} saved with status: ${this.status}`);
 });
+
+// Apply tenant plugin for multi-tenant isolation
+scheduleSchema.plugin(tenantPlugin);
 
 // Create and export the model
 const Schedule: Model<ISchedule> = mongoose.models.Schedule || mongoose.model<ISchedule>('Schedule', scheduleSchema);
