@@ -479,7 +479,7 @@ export function LeaveManagement() {
                                     title={record.studentName}
                                   >
                                     {record.studentName}
-                                  </p>
+                                  </h3>
                                   <p className="text-sm text-gray-500 dark:text-white">{record.studentId}</p>
                                 </div>
                                 <Badge className="bg-red-100 text-red-800">Absent</Badge>
