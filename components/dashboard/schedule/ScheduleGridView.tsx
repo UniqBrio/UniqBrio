@@ -124,7 +124,7 @@ export default function ScheduleGridView({
         <CardContent className="pb-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-2 text-gray-500" />
+              <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.startTime} - {event.endTime}
               {event.rescheduleInfo && event.originalSessionData && (
                 <span className="ml-2 text-xs text-purple-600 line-through">
@@ -133,15 +133,15 @@ export default function ScheduleGridView({
               )}
             </div>
             <div className="flex items-center">
-              <User className="h-4 w-4 mr-2 text-gray-500" />
+              <User className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.instructor}
             </div>
             <div className="flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+              <MapPin className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.location}
             </div>
             <div className="flex items-center">
-              <Users className="h-4 w-4 mr-2 text-gray-500" />
+              <Users className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.students}/{event.maxCapacity} students
               {event.waitlist && event.waitlist.length > 0 && (
                 <span className="ml-1 text-orange-600">(+{event.waitlist.length} waitlist)</span>
@@ -300,7 +300,7 @@ export default function ScheduleGridView({
     return (
       <Card>
         <CardContent className="py-12">
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-500 dark:text-white">
             <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <h3 className="text-lg font-medium mb-2">No schedules found</h3>
             <p>Try adjusting your filters or create a new schedule.</p>

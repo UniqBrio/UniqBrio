@@ -374,7 +374,7 @@ export function TaskFiltersAndSort({
                         className={`w-full pl-3 ${fromFocused ? '' : 'text-transparent'}`}
                       />
                       {!fromFocused && (
-                        <div className="absolute inset-0 flex items-center pl-3 pr-3 text-sm pointer-events-none text-gray-900">
+                        <div className="absolute inset-0 flex items-center pl-3 pr-3 text-sm pointer-events-none text-gray-900 dark:text-white">
                           {formatDateOverlay(pendingDateRange?.from)}
                         </div>
                       )}
@@ -403,7 +403,7 @@ export function TaskFiltersAndSort({
                         className={`w-full pl-3 ${toFocused ? '' : 'text-transparent'}`}
                       />
                       {!toFocused && (
-                        <div className="absolute inset-0 flex items-center pl-3 pr-3 text-sm pointer-events-none text-gray-900">
+                        <div className="absolute inset-0 flex items-center pl-3 pr-3 text-sm pointer-events-none text-gray-900 dark:text-white">
                           {formatDateOverlay(pendingDateRange?.to)}
                         </div>
                       )}

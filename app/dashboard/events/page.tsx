@@ -136,8 +136,8 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
   if (upcomingEvents.length === 0) {
     return (
       <div className="text-center py-12">
-        <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600 text-lg">No upcoming events scheduled</p>
+        <Calendar className="h-16 w-16 text-gray-400 dark:text-white mx-auto mb-4" />
+        <p className="text-gray-600 dark:text-white text-lg">No upcoming events scheduled</p>
       </div>
     )
   }
@@ -153,7 +153,7 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
             {/* Header with Sport Badge */}
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{event.name}</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{event.name}</h3>
                 <Badge className="bg-blue-600 text-white">{event.sport}</Badge>
               </div>
               <Badge className="bg-blue-100 text-blue-800 border border-blue-300">
@@ -167,29 +167,29 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
               <div className="flex items-center gap-3">
                 <Calendar className="h-5 w-5 text-blue-600" />
                 <div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-white">
                     {new Date(event.startDate).toLocaleDateString()} at {event.startTime}
                   </p>
-                  <p className="text-xs text-gray-500">to {new Date(event.endDate).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 dark:text-white">to {new Date(event.endDate).toLocaleDateString()}</p>
                 </div>
               </div>
 
               {/* Venue */}
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-blue-600" />
-                <p className="text-sm text-gray-700">{event.venue}</p>
+                <p className="text-sm text-gray-700 dark:text-white">{event.venue}</p>
               </div>
 
               {/* Staff */}
               <div className="flex items-center gap-3">
                 <Users className="h-5 w-5 text-blue-600" />
-                <p className="text-sm text-gray-700">{event.staff}</p>
+                <p className="text-sm text-gray-700 dark:text-white">{event.staff}</p>
               </div>
 
               {/* Participants */}
               <div className="flex items-center gap-3">
                 <Trophy className="h-5 w-5 text-blue-600" />
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-white">
                   {event.participants}/{event.maxParticipants} participants
                 </p>
               </div>
@@ -207,13 +207,13 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
 
             {/* Description */}
             {event.description && (
-              <p className="text-sm text-gray-700 mb-4 line-clamp-2">{event.description}</p>
+              <p className="text-sm text-gray-700 dark:text-white mb-4 line-clamp-2">{event.description}</p>
             )}
 
             {/* Registration Deadline */}
-            <div className="bg-white rounded-lg p-3 mb-4">
-              <p className="text-xs text-gray-600">Registration Deadline</p>
-              <p className="text-sm font-semibold text-gray-900">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 mb-4">
+              <p className="text-xs text-gray-600 dark:text-white">Registration Deadline</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">
                 {new Date(event.registrationDeadline).toLocaleDateString()}
               </p>
             </div>
@@ -393,8 +393,8 @@ function EventDashboard({ events }: { events: Event[] }) {
       {/* Revenue and Events Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Revenue by Event - Bar Chart */}
-        <div className="bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 md:p-6 shadow-sm">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-4 md:p-6 shadow-sm">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center gap-2">
             <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
             <span className="truncate">Revenue by Event</span>
           </h3>
@@ -426,15 +426,15 @@ function EventDashboard({ events }: { events: Event[] }) {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-60 sm:h-80 flex items-center justify-center text-gray-500">
+            <div className="h-60 sm:h-80 flex items-center justify-center text-gray-500 dark:text-white">
               <p className="text-sm">No revenue data available</p>
             </div>
           )}
         </div>
 
         {/* Events by Timeline - Line Chart */}
-        <div className="bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 md:p-6 shadow-sm">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-3 sm:p-4 md:p-6 shadow-sm">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center gap-2">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
             <span className="truncate">Events Timeline</span>
           </h3>
@@ -472,7 +472,7 @@ function EventDashboard({ events }: { events: Event[] }) {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-60 sm:h-80 flex items-center justify-center text-gray-500">
+            <div className="h-60 sm:h-80 flex items-center justify-center text-gray-500 dark:text-white">
               <p className="text-sm">No event data available</p>
             </div>
           )}
@@ -744,7 +744,7 @@ export default function EventsPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading events...</p>
+            <p className="text-gray-600 dark:text-white">Loading events...</p>
           </div>
         </div>
       ) : (
@@ -760,7 +760,7 @@ export default function EventsPage() {
                 {/* Analytics tab */}
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
                 >
                   <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Analytics</span>
@@ -769,7 +769,7 @@ export default function EventsPage() {
                 {/* Ongoing Events tab */}
                 <TabsTrigger 
                   value="events" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Ongoing</span>
@@ -777,7 +777,7 @@ export default function EventsPage() {
                 {/* Upcoming Events tab */}
                 <TabsTrigger 
                   value="upcoming" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Upcoming</span>
@@ -786,7 +786,7 @@ export default function EventsPage() {
                 {/* Completed Events tab */}
                 <TabsTrigger 
                   value="completed" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Completed</span>
@@ -802,7 +802,7 @@ export default function EventsPage() {
                 <div className="flex items-center justify-center py-12">
                   <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                    <p className="text-gray-600">Loading events...</p>
+                    <p className="text-gray-600 dark:text-white">Loading events...</p>
                   </div>
                 </div>
               ) : (
@@ -819,14 +819,14 @@ export default function EventsPage() {
                       <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
                       {/* Title */}
                       <div>
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Ongoing Events</h2>
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Ongoing Events</h2>
                       </div>
       
                       {/* Controls Row: Search, Filters, Import/Export, View Toggle, Add Button */}
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Search Bar */}
                         <div className="relative flex-1 min-w-[200px] sm:min-w-[250px]">
-                          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-white" />
                           <input
                             type="text"
                             placeholder="Search events..."
@@ -977,7 +977,7 @@ export default function EventsPage() {
       
                       {/* Results Summary with Column Selector */}
                       <div className="flex items-center justify-between px-0.5 sm:px-1 py-1.5 sm:py-2">
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-600 dark:text-white">
                           {events.filter(e => e.status === 'Ongoing').length} events
                         </span>
                         <button
@@ -985,7 +985,7 @@ export default function EventsPage() {
                           onClick={() => setShowColumnSelector(true)}
                           title="Select columns"
                         >
-                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
+                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-white" />
                         </button>
                       </div>
                     </div>
@@ -1018,14 +1018,14 @@ export default function EventsPage() {
                         <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
                       {/* Title */}
                       <div>
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Upcoming Events</h2>
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Upcoming Events</h2>
                       </div>
       
                       {/* Controls Row: Search, Filters, Import/Export, View Toggle, Add Button */}
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Search Bar */}
                         <div className="relative flex-1 min-w-[200px] sm:min-w-[250px]">
-                          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-white" />
                           <input
                             type="text"
                             placeholder="Search events..."
@@ -1174,7 +1174,7 @@ export default function EventsPage() {
       
                       {/* Results Summary with Column Selector */}
                       <div className="flex items-center justify-between px-0.5 sm:px-1 py-1.5 sm:py-2">
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-600 dark:text-white">
                           {events.filter(e => e.status === 'Upcoming').length} events
                         </span>
                         <button
@@ -1182,7 +1182,7 @@ export default function EventsPage() {
                           onClick={() => setShowColumnSelector(true)}
                           title="Select columns"
                         >
-                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
+                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-white" />
                         </button>
                       </div>
                     </div>
@@ -1216,14 +1216,14 @@ export default function EventsPage() {
                         <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
                       {/* Title */}
                       <div>
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Completed Events</h2>
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Completed Events</h2>
                       </div>
       
                       {/* Controls Row: Search, Filters, Import/Export, View Toggle, Add Button */}
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Search Bar */}
                         <div className="relative flex-1 min-w-[200px] sm:min-w-[250px]">
-                          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400" />
+                          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 dark:text-white" />
                           <input
                             type="text"
                             placeholder="Search events..."
@@ -1374,7 +1374,7 @@ export default function EventsPage() {
       
                       {/* Results Summary with Column Selector */}
                       <div className="flex items-center justify-between px-0.5 sm:px-1 py-1.5 sm:py-2">
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-600 dark:text-white">
                           {events.filter(e => e.status === 'Completed').length} events
                         </span>
                         <button
@@ -1382,7 +1382,7 @@ export default function EventsPage() {
                           onClick={() => setShowColumnSelector(true)}
                           title="Select columns"
                         >
-                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
+                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-white" />
                         </button>
                       </div>
                       </div>

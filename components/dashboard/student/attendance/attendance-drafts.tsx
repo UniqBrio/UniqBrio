@@ -184,19 +184,19 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
           <div className="w-full pr-12">
             <div>
               <DialogTitle>Drafts (Add Attendance)</DialogTitle>
-              <p className="text-sm text-gray-600 mt-1">Manage your saved drafts. Click to continue from draft or delete. ({drafts.length} drafts found)</p>
+              <p className="text-sm text-gray-600 dark:text-white mt-1">Manage your saved drafts. Click to continue from draft or delete. ({drafts.length} drafts found)</p>
             </div>
           </div>
         </DialogHeader>
         <div className="p-4">
           {loading ? (
-            <div className="text-center text-gray-500 py-8">
-              <RefreshCcw className="h-8 w-8 mx-auto mb-4 text-gray-400 animate-spin" />
+            <div className="text-center text-gray-500 dark:text-white py-8">
+              <RefreshCcw className="h-8 w-8 mx-auto mb-4 text-gray-400 dark:text-white animate-spin" />
               <p>Loading drafts...</p>
             </div>
           ) : drafts.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+            <div className="text-center text-gray-500 dark:text-white py-8">
+              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400 dark:text-white" />
               <p>No attendance drafts found</p>
               <p className="text-sm">Drafts will appear here when you save attendance records as drafts</p>
             </div>
@@ -205,7 +205,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
               {drafts.map(d => (
                 <div
                   key={d.id}
-                  className="group border border-gray-200 rounded-xl p-4 bg-white hover:shadow-sm transition cursor-pointer"
+                  className="group border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900 hover:shadow-sm transition cursor-pointer"
                   onClick={() => {
                     onContinue(d);
                     // Close the dialog when continuing from a draft
@@ -214,11 +214,11 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="text-base font-semibold truncate">{d.studentName} <span className="text-gray-500 font-normal">({d.studentId})</span></div>
+                      <div className="text-base font-semibold truncate">{d.studentName} <span className="text-gray-500 dark:text-white font-normal">({d.studentId})</span></div>
                       {d.cohortName && (
-                        <div className="text-sm text-gray-600 truncate mt-1">{d.cohortName}</div>
+                        <div className="text-sm text-gray-600 dark:text-white truncate mt-1">{d.cohortName}</div>
                       )}
-                      <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
+                      <div className="mt-2 flex items-center gap-3 text-xs text-gray-600 dark:text-white">
                         <span className="inline-flex items-center gap-1">
                           {formatDateForDisplay(d.date)} � {d.startTime ? formatTimeTo12Hour(d.startTime) : '--:--'} - {d.endTime ? formatTimeTo12Hour(d.endTime) : '--:--'}
                         </span>
@@ -227,9 +227,9 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                         </span>
                       </div>
                       {d.notes && (
-                        <div className="text-xs text-gray-500 mt-2 line-clamp-1" title={d.notes}>{d.notes}</div>
+                        <div className="text-xs text-gray-500 dark:text-white mt-2 line-clamp-1" title={d.notes}>{d.notes}</div>
                       )}
-                      <div className="text-xs text-gray-500 mt-3">Last updated: {d.savedAt ? formatDateForDisplay(d.savedAt) : formatDateForDisplay(new Date().toISOString())}</div>
+                      <div className="text-xs text-gray-500 dark:text-white mt-3">Last updated: {d.savedAt ? formatDateForDisplay(d.savedAt) : formatDateForDisplay(new Date().toISOString())}</div>
                     </div>
                     <div className="shrink-0 flex items-center gap-2" onClick={(e)=> e.stopPropagation()}>
                       <button

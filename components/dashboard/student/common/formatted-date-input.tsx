@@ -45,7 +45,7 @@ export function FormattedDateInput({
   return (
     <div className="space-y-1">
       {label ? (
-        <label htmlFor={id} className="text-sm font-medium text-gray-700">
+        <label htmlFor={id} className="text-sm font-medium text-gray-700 dark:text-white">
           {label} {required ? <span className="text-red-500">*</span> : null}
         </label>
       ) : null}
@@ -54,7 +54,7 @@ export function FormattedDateInput({
         {/* Left small calendar icon (custom) - clickable to open date picker */}
         <svg
           aria-hidden="true"
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white cursor-pointer hover:text-gray-800 dark:text-white transition-colors"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -88,7 +88,7 @@ export function FormattedDateInput({
             "outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent",
             error ? "border-red-300 bg-red-50" : "border-gray-300",
             // When not focused and a value exists, hide the native text so the overlay shows
-            !focused && value ? "text-transparent caret-transparent" : "text-gray-900",
+            !focused && value ? "text-transparent caret-transparent" : "text-gray-900 dark:text-white",
             disabled ? "opacity-60 cursor-not-allowed" : "",
             className,
           ].join(" ")}
@@ -101,7 +101,7 @@ export function FormattedDateInput({
 
         {/* Formatted overlay (shows only when not focused and value exists) */}
         {!focused && value ? (
-          <div className="absolute inset-y-0 left-9 right-3 flex items-center text-sm text-gray-900 pointer-events-none z-10">
+          <div className="absolute inset-y-0 left-9 right-3 flex items-center text-sm text-gray-900 dark:text-white pointer-events-none z-10">
             {formatForDisplay(value)}
           </div>
         ) : null}

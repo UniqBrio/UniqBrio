@@ -1,4 +1,4 @@
-﻿import MainLayout from "@/components/dashboard/main-layout"
+import MainLayout from "@/components/dashboard/main-layout"
 import InstructorListWithFilters from "@/components/dashboard/instructor/instructor-profile/InstructorListWithFilters"
 
 export default function Home() {

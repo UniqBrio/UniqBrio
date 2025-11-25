@@ -98,7 +98,7 @@ export default function ChaptersTab({
       <div className="flex items-center justify-between">
         <div>
           <Label className="text-sm font-medium">Course Chapters</Label>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-white mt-1">
             Add chapters to organize your course content. You can attach reference materials and assignments.
           </p>
         </div>
@@ -212,7 +212,7 @@ export default function ChaptersTab({
                   <div className="mt-2 p-2 bg-gray-50 rounded border flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <File className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm text-gray-700">{chapter.referencePdf.name}</span>
+                      <span className="text-sm text-gray-700 dark:text-white">{chapter.referencePdf.name}</span>
                     </div>
                     <div className="flex space-x-1">
                       <Button
@@ -264,7 +264,7 @@ export default function ChaptersTab({
                   <div className="mt-2 p-2 bg-gray-50 rounded border flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <File className="h-4 w-4 text-green-600" />
-                      <span className="text-sm text-gray-700">{chapter.assignmentPdf.name}</span>
+                      <span className="text-sm text-gray-700 dark:text-white">{chapter.assignmentPdf.name}</span>
                     </div>
                     <div className="flex space-x-1">
                       <Button
@@ -315,7 +315,7 @@ export default function ChaptersTab({
 
       {chapters.length === 0 && (
         <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-          <p className="text-gray-500 mb-4">No chapters added yet</p>
+          <p className="text-gray-500 dark:text-white mb-4">No chapters added yet</p>
           <Button onClick={addChapter} className="bg-purple-600 hover:bg-purple-700 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Add First Chapter

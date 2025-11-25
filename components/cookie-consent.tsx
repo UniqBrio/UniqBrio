@@ -59,13 +59,13 @@ export default function CookieConsent() {
   // Preferences Panel
   if (showPreferences) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white shadow-2xl z-50 p-6 rounded-2xl border-2 border-purple-200">
+      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 p-6 rounded-2xl border-2 border-purple-200 dark:border-purple-700">
         <div className="mb-4">
           <div className="flex items-start justify-between mb-3">
-            <h3 className="text-lg font-bold text-gray-900">Cookie Preferences</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Cookie Preferences</h3>
             <button 
               onClick={() => setShowConsent(false)} 
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 dark:text-white hover:text-gray-600 dark:text-white dark:hover:text-gray-300 dark:text-white transition-colors"
               aria-label="Close"
             >
               <X size={20} />
@@ -85,11 +85,11 @@ export default function CookieConsent() {
                   disabled
                   className="w-4 h-4 rounded border-gray-300 cursor-not-allowed opacity-50"
                 />
-                <label htmlFor="strictlyNecessary" className="font-semibold text-gray-900 text-sm">
+                <label htmlFor="strictlyNecessary" className="font-semibold text-gray-900 dark:text-white text-sm">
                   Strictly Necessary
                 </label>
               </div>
-              <p className="text-xs text-gray-500 ml-6">
+              <p className="text-xs text-gray-500 dark:text-white ml-6">
                 Required for the site to work (login, security)
               </p>
             </div>
@@ -106,11 +106,11 @@ export default function CookieConsent() {
                   onChange={(e) => setPreferences({ ...preferences, analytics: e.target.checked })}
                   className="w-4 h-4 rounded border-gray-300 text-purple-700 focus:ring-purple-500 cursor-pointer"
                 />
-                <label htmlFor="analytics" className="font-semibold text-gray-900 text-sm cursor-pointer">
+                <label htmlFor="analytics" className="font-semibold text-gray-900 dark:text-white text-sm cursor-pointer">
                   Analytics
                 </label>
               </div>
-              <p className="text-xs text-gray-500 ml-6">
+              <p className="text-xs text-gray-500 dark:text-white ml-6">
                 Help us understand how you use UniqBrio
               </p>
             </div>
@@ -127,11 +127,11 @@ export default function CookieConsent() {
                   onChange={(e) => setPreferences({ ...preferences, marketing: e.target.checked })}
                   className="w-4 h-4 rounded border-gray-300 text-purple-700 focus:ring-purple-500 cursor-pointer"
                 />
-                <label htmlFor="marketing" className="font-semibold text-gray-900 text-sm cursor-pointer">
+                <label htmlFor="marketing" className="font-semibold text-gray-900 dark:text-white text-sm cursor-pointer">
                   Marketing
                 </label>
               </div>
-              <p className="text-xs text-gray-500 ml-6">
+              <p className="text-xs text-gray-500 dark:text-white ml-6">
                 Personalized ads (we don't use these)
               </p>
             </div>
@@ -141,7 +141,7 @@ export default function CookieConsent() {
         <div className="flex gap-3">
           <button
             onClick={goBack}
-            className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium text-base"
+            className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium text-base"
           >
             Back
           </button>
@@ -153,7 +153,7 @@ export default function CookieConsent() {
           </button>
         </div>
 
-        <p className="text-xs text-gray-500 mt-4 text-center">
+        <p className="text-xs text-gray-500 dark:text-white mt-4 text-center">
           Learn more in our{" "}
           <Link href="/legal/cookies" target="_blank" className="text-purple-700 hover:underline">
             Cookie Policy
@@ -165,23 +165,23 @@ export default function CookieConsent() {
 
   // Initial Banner
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white shadow-2xl z-50 p-6 rounded-2xl border-2 border-purple-200">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 p-6 rounded-2xl border-2 border-purple-200 dark:border-purple-700">
       <div className="mb-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🍪</span>
-            <h3 className="font-bold text-gray-900 text-base">We use a few cookies to keep you logged in</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white text-base">We use a few cookies to keep you logged in</h3>
           </div>
           <button 
             onClick={() => setShowConsent(false)} 
-            className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-2"
+            className="text-gray-400 dark:text-white hover:text-gray-600 dark:text-white dark:hover:text-gray-300 dark:text-white transition-colors flex-shrink-0 ml-2"
             aria-label="Close"
           >
             <X size={20} />
           </button>
         </div>
 
-        <p className="text-gray-600 leading-relaxed text-sm">
+        <p className="text-gray-600 dark:text-white leading-relaxed text-sm">
           We use a few cookies to keep you logged in and make UniqBrio faster. Nothing creepy – promise! Learn more in our{" "}
           <Link href="/legal/cookies" target="_blank" className="text-purple-700 hover:underline font-medium">
             Cookie Policy
@@ -193,7 +193,7 @@ export default function CookieConsent() {
       <div className="flex flex-col sm:flex-row gap-2">
         <button
           onClick={showPreferencesPanel}
-          className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium text-base"
+          className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium text-base"
         >
           Let me choose
         </button>

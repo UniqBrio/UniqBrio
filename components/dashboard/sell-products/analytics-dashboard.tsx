@@ -108,7 +108,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Revenue Trends</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Revenue Trends</h2>
             <Select value={reportPeriod} onValueChange={setReportPeriod}>
               <SelectTrigger className="w-32 border-gray-200 bg-gray-50">
                 <SelectValue />
@@ -152,7 +152,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-6">Category-wise Sales</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Category-wise Sales</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

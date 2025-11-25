@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { CRMContext } from "@/contexts/dashboard/crm-context"
@@ -53,7 +53,7 @@ export default function CRMPageContent() {
                 <MessageSquare className="h-8 w-8" />
                 Customer Relationship Management
               </h1>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-white">
                 Manage leads, enquiries, sessions, and customer interactions
               </p>
             </div>

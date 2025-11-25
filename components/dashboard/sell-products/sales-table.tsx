@@ -195,7 +195,7 @@ export function SalesTable({ sales }: SalesTableProps) {
   const someSelected = selectedSales.size > 0 && selectedSales.size < sortedSales.length
 
   return (
-    <div className="bg-white border-t border-gray-200">
+    <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
       <div className="p-6">
         <div className="mb-4">
           <h2 className="text-xl font-bold text-purple-700">Recent Sales & Invoices</h2>
@@ -204,7 +204,7 @@ export function SalesTable({ sales }: SalesTableProps) {
         {/* Search and Filters */}
         <div className="flex flex-wrap gap-3 items-center mb-4">
           <div className="relative flex-1 min-w-[250px]">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white" />
             <Input
               placeholder="Search by customer, email, invoice..."
               value={searchTerm}
@@ -272,7 +272,7 @@ export function SalesTable({ sales }: SalesTableProps) {
             <Button
               variant="outline"
               size="sm"
-              className="border-gray-300 hover:bg-gray-100 text-gray-700"
+              className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white"
             >
               <Upload className="h-4 w-4 mr-2" />
               Import
@@ -281,7 +281,7 @@ export function SalesTable({ sales }: SalesTableProps) {
               variant="outline"
               size="sm"
               onClick={handleExport}
-              className="border-gray-300 hover:bg-gray-100 text-gray-700"
+              className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white"
             >
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -310,7 +310,7 @@ export function SalesTable({ sales }: SalesTableProps) {
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-200 bg-gray-50">
+            <TableRow className="border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               <TableHead className="w-[44px]">
                 <Checkbox
                   aria-label="Select all"
@@ -319,49 +319,49 @@ export function SalesTable({ sales }: SalesTableProps) {
                 />
               </TableHead>
               {isVisible("invoiceNumber") && (
-                <TableHead className="text-gray-700 font-semibold">
+                <TableHead className="text-gray-700 dark:text-white font-semibold">
                   Invoice #
                 </TableHead>
               )}
               {isVisible("customerName") && (
-                <TableHead className="text-gray-700 font-semibold">
+                <TableHead className="text-gray-700 dark:text-white font-semibold">
                   Customer
                 </TableHead>
               )}
               {isVisible("customerEmail") && (
-                <TableHead className="text-gray-700 font-semibold">Customer Email</TableHead>
+                <TableHead className="text-gray-700 dark:text-white font-semibold">Customer Email</TableHead>
               )}
               {isVisible("customerPhone") && (
-                <TableHead className="text-gray-700 font-semibold">Phone</TableHead>
+                <TableHead className="text-gray-700 dark:text-white font-semibold">Phone</TableHead>
               )}
               {isVisible("productService") && (
-                <TableHead className="text-gray-700 font-semibold">Product/Service</TableHead>
+                <TableHead className="text-gray-700 dark:text-white font-semibold">Product/Service</TableHead>
               )}
               {isVisible("date") && (
-                <TableHead className="text-gray-700 font-semibold">
+                <TableHead className="text-gray-700 dark:text-white font-semibold">
                   Date
                 </TableHead>
               )}
               {isVisible("amount") && (
-                <TableHead className="text-gray-700 font-semibold">
+                <TableHead className="text-gray-700 dark:text-white font-semibold">
                   Amount ({currency})
                 </TableHead>
               )}
               {isVisible("paymentMethod") && (
-                <TableHead className="text-gray-700 font-semibold">Payment</TableHead>
+                <TableHead className="text-gray-700 dark:text-white font-semibold">Payment</TableHead>
               )}
               {isVisible("status") && (
-                <TableHead className="text-gray-700 font-semibold">Status</TableHead>
+                <TableHead className="text-gray-700 dark:text-white font-semibold">Status</TableHead>
               )}
               {isVisible("actions") && (
-                <TableHead className="text-gray-700 font-semibold">Actions</TableHead>
+                <TableHead className="text-gray-700 dark:text-white font-semibold">Actions</TableHead>
               )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedSales.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={11} className="text-center py-8 text-gray-500 dark:text-white">
                   No sales found matching your criteria
                 </TableCell>
               </TableRow>
@@ -369,7 +369,7 @@ export function SalesTable({ sales }: SalesTableProps) {
               sortedSales.map((sale) => {
                 const productNames = sale.items?.map(item => item.productName || item.productId).join(', ') || 'N/A'
                 return (
-                  <TableRow key={sale.id} className="border-gray-200 hover:bg-gray-50 transition-smooth">
+                  <TableRow key={sale.id} className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-smooth">
                     <TableCell className="w-[44px]" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         aria-label={`Select ${sale.customerName}`}
@@ -378,30 +378,30 @@ export function SalesTable({ sales }: SalesTableProps) {
                       />
                     </TableCell>
                     {isVisible("invoiceNumber") && (
-                      <TableCell className="font-mono text-gray-700">{sale.invoiceNumber}</TableCell>
+                      <TableCell className="font-mono text-gray-700 dark:text-white">{sale.invoiceNumber}</TableCell>
                     )}
                     {isVisible("customerName") && (
                       <TableCell>
-                        <div className="font-semibold text-gray-900">{sale.customerName}</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">{sale.customerName}</div>
                       </TableCell>
                     )}
                     {isVisible("customerEmail") && (
                       <TableCell>
-                        <div className="text-sm text-gray-600">{sale.customerEmail}</div>
+                        <div className="text-sm text-gray-600 dark:text-white">{sale.customerEmail}</div>
                       </TableCell>
                     )}
                     {isVisible("customerPhone") && (
-                      <TableCell className="text-sm text-gray-600">{sale.customerPhone}</TableCell>
+                      <TableCell className="text-sm text-gray-600 dark:text-white">{sale.customerPhone}</TableCell>
                     )}
                     {isVisible("productService") && (
-                      <TableCell className="text-gray-700">
+                      <TableCell className="text-gray-700 dark:text-white">
                         <div className="max-w-xs truncate" title={productNames}>
                           {productNames}
                         </div>
                       </TableCell>
                     )}
                     {isVisible("date") && (
-                      <TableCell className="text-gray-700">{formatDate(sale.date)}</TableCell>
+                      <TableCell className="text-gray-700 dark:text-white">{formatDate(sale.date)}</TableCell>
                     )}
                     {isVisible("amount") && (
                       <TableCell className="font-bold text-purple-600">{currency} {sale.finalAmount}</TableCell>

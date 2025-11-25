@@ -61,11 +61,11 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
       case "Upcoming":
         return "bg-blue-100 text-blue-800 border-blue-200"
       case "Completed":
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700"
       case "Draft":
         return "bg-orange-100 text-orange-800 border-orange-200"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700"
     }
   }
 
@@ -148,7 +148,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <h3 className="font-semibold text-lg leading-tight mb-2 group-hover:text-purple-700 transition-colors">
                 {course.name || 'Untitled Course'}
               </h3>
-              <p className="text-sm text-gray-600 line-clamp-2 mb-3">{course.description || 'No description provided.'}</p>
+              <p className="text-sm text-gray-600 dark:text-white line-clamp-2 mb-3">{course.description || 'No description provided.'}</p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-1 mb-3">
@@ -206,7 +206,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
                 <Users className="h-3 w-3 text-purple-600" />
               </div>
-              <span className="text-gray-600">{instructorDisplay}</span>
+              <span className="text-gray-600 dark:text-white">{instructorDisplay}</span>
             </div>
             <Badge
               variant="outline"
@@ -225,8 +225,8 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
           {/* Course Stats */}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-gray-400" />
-              <span className="text-gray-600">{course.name || 'Untitled Course'}</span>
+              <BookOpen className="h-4 w-4 text-gray-400 dark:text-white" />
+              <span className="text-gray-600 dark:text-white">{course.name || 'Untitled Course'}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-purple-700 font-bold text-lg">{course.priceINR ? `${currency} ${course.priceINR}` : currency}</span>
@@ -236,13 +236,13 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
           {/* Enrollment Progress */}
           <div>
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-gray-600">Enrollment</span>
+              <span className="text-gray-600 dark:text-white">Enrollment</span>
               <span className="font-medium">
                 {Number(course.enrolledStudents || 0)}/{Number(course.maxStudents || 0)}
               </span>
             </div>
             <Progress value={enrollmentPercentage} className="h-2" />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-white mt-1">
               <span>{isNaN(enrollmentPercentage) ? '0%' : Math.round(enrollmentPercentage) + '%'} filled</span>
               {Number(course.maxStudents || 0) - Number(course.enrolledStudents || 0) > 0 && (
                 <span>{Number(course.maxStudents || 0) - Number(course.enrolledStudents || 0)} spots left</span>
@@ -253,7 +253,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
           {/* Completion Rate */}
           <div>
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-gray-600">Completion Rate</span>
+              <span className="text-gray-600 dark:text-white">Completion Rate</span>
               <span className="font-medium">{course.completionRate}%</span>
             </div>
             <Progress value={course.completionRate} className="h-2" />
@@ -264,14 +264,14 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <span className="font-medium">{course.rating}</span>
-              <span className="text-sm text-gray-500">({course.enrolledStudents} reviews)</span>
+              <span className="text-sm text-gray-500 dark:text-white">({course.enrolledStudents} reviews)</span>
             </div>
             <div className="text-right">
               <div className="font-bold text-lg text-purple-600">{formatCurrency(course.priceINR, currency)}</div>
                  {course.dynamicPricing?.enabled &&
                 course.dynamicPricing.suggestedPrice !== undefined &&
                 course.dynamicPricing.suggestedPrice !== course.priceINR && (
-                  <div className="text-xs text-gray-500 line-through">
+                  <div className="text-xs text-gray-500 dark:text-white line-through">
                     {formatCurrency(course.dynamicPricing.suggestedPrice, currency)}
                   </div>
                 )}

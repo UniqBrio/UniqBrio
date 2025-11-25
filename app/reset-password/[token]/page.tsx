@@ -101,10 +101,10 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
   // Show loading state while checking token
   if (!isTokenChecked) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-        <div className="w-full max-w-md bg-white rounded-lg p-8 text-center">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950 p-4">
+        <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg p-8 text-center">
           <Loader2 className="animate-spin mx-auto mb-4" size={32} />
-          <p className="text-gray-600">Verifying reset link...</p>
+          <p className="text-gray-600 dark:text-white">Verifying reset link...</p>
         </div>
       </div>
     );
@@ -113,11 +113,11 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
   // Show error if token is invalid
   if (!isTokenValid) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-        <div className="w-full max-w-md bg-white rounded-lg p-8 text-center">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950 p-4">
+        <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg p-8 text-center">
           <AlertCircle className="text-red-500 mx-auto mb-4" size={32} />
           <h1 className="text-2xl font-bold mb-4">Invalid or Expired Link</h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-white mb-6">
             This password reset link is invalid or has expired. Please request a new one.
           </p>
           <Link
@@ -132,8 +132,8 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg p-8">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg p-8">
         <h1 className="text-2xl font-bold text-center mb-6">Choose a new password</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
@@ -144,14 +144,14 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                className={`w-full p-3 bg-gray-200 rounded-lg pr-10 ${
+                className={`w-full p-3 bg-gray-200 dark:bg-gray-800 dark:text-white rounded-lg pr-10 ${
                   errors.password ? "border-2 border-red-500" : ""
                 }`}
                 {...register("password")}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -168,14 +168,14 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
               <input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                className={`w-full p-3 bg-gray-200 rounded-lg pr-10 ${
+                className={`w-full p-3 bg-gray-200 dark:bg-gray-800 dark:text-white rounded-lg pr-10 ${
                   errors.confirmPassword ? "border-2 border-red-500" : ""
                 }`}
                 {...register("confirmPassword")}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}

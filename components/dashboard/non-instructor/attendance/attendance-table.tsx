@@ -104,7 +104,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
         );
       case 'Remarks':
         return (
-          <div className="text-sm text-gray-600 truncate max-w-xs" title={row.notes}>
+          <div className="text-sm text-gray-600 dark:text-white truncate max-w-xs" title={row.notes}>
             {row.notes || '-'}
           </div>
         );
@@ -145,8 +145,8 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
   // Empty state (match student list style)
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-500 bg-white rounded-xl border border-dashed border-purple-200">
-        <Users className="h-16 w-16 text-gray-300 mb-4" />
+      <div className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white dark:bg-gray-900 rounded-xl border border-dashed border-purple-200 dark:border-gray-700">
+        <Users className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
         <h3 className="text-lg font-medium mb-2">No attendance records found</h3>
         <p className="text-sm">Try adjusting your filters or search criteria</p>
       </div>
@@ -159,7 +159,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
         <TableHeader className="sticky top-0 bg-white z-20 shadow-sm">
           <TableRow>
             {(onToggleSelect ? ['__select'] : []).concat(cols).map((col) => (
-              <TableHead key={col} className="sticky top-0 bg-white z-20 px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <TableHead key={col} className="sticky top-0 bg-white dark:bg-gray-900 z-20 px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">
                 {col === '__select' ? (
                   <input
                     type="checkbox"
@@ -179,7 +179,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
         <TableBody>
         {data.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={cols.length + (onToggleSelect ? 1 : 0)} className="text-center text-gray-500 py-10 text-sm">
+            <TableCell colSpan={cols.length + (onToggleSelect ? 1 : 0)} className="text-center text-gray-500 dark:text-white py-10 text-sm">
               No attendance records found
             </TableCell>
           </TableRow>

@@ -360,7 +360,7 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                   } ${createdOnFocused || !formData.createdOn ? '' : 'text-transparent'}`}
                 />
                 {!createdOnFocused && formData.createdOn && (
-                  <div className="absolute inset-0 flex items-center px-3 text-sm pointer-events-none text-gray-900">
+                  <div className="absolute inset-0 flex items-center px-3 text-sm pointer-events-none text-gray-900 dark:text-white">
                     {formatDateForDisplay(formData.createdOn)}
                   </div>
                 )}
@@ -451,7 +451,7 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                     required
                   />
                   {!targetDateFocused && formData.targetDate && (
-                    <div className="absolute inset-0 flex items-center px-3 text-sm pointer-events-none text-gray-900">
+                    <div className="absolute inset-0 flex items-center px-3 text-sm pointer-events-none text-gray-900 dark:text-white">
                       {formatDateForDisplay(formData.targetDate)}
                     </div>
                   )}

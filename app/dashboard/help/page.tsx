@@ -558,7 +558,7 @@ export default function HelpPage() {
                 <HelpCircle className="h-8 w-8" />
                 Help Center
               </h1>
-              <p className="text-gray-500 mt-1">
+              <p className="text-gray-500 dark:text-white mt-1">
                 Create support tickets and get AI-powered assistance
               </p>
             </div>
@@ -610,22 +610,22 @@ export default function HelpPage() {
                 <CardContent className="pt-6">
                   {isLoadingTickets ? (
                     <div className="text-center py-8">
-                      <p className="text-gray-500">Loading tickets...</p>
+                      <p className="text-gray-500 dark:text-white">Loading tickets...</p>
                     </div>
                   ) : tickets.length === 0 ? (
                     <div className="text-center py-8">
-                      <p className="text-gray-500">No tickets found. Create your first ticket!</p>
+                      <p className="text-gray-500 dark:text-white">No tickets found. Create your first ticket!</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-gray-50 border-b-2 border-purple-200">
+                        <thead className="bg-gray-50 dark:bg-gray-800 border-b-2 border-purple-200 dark:border-purple-700">
                           <tr>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Ticket ID</th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Title</th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Priority</th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Ticket ID</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Title</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Status</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Priority</th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Date</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -633,12 +633,12 @@ export default function HelpPage() {
                             <tr 
                               key={ticket.id}
                               onClick={() => setViewingTicket(ticket)}
-                              className={`border-b border-gray-200 hover:bg-purple-50 transition-colors cursor-pointer ${
-                                highlightedTicketId === ticket.id ? 'bg-purple-100' : ''
+                              className={`border-b border-gray-200 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors cursor-pointer ${
+                                highlightedTicketId === ticket.id ? 'bg-purple-100 dark:bg-purple-900/30' : ''
                               }`}
                             >
-                              <td className="px-4 py-3 text-sm font-medium text-gray-900">{ticket.id}</td>
-                              <td className="px-4 py-3 text-sm text-gray-700">{ticket.title}</td>
+                              <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{ticket.id}</td>
+                              <td className="px-4 py-3 text-sm text-gray-700 dark:text-white">{ticket.title}</td>
                               <td className="px-4 py-3">
                                 <Badge className={`${getStatusColor(ticket.status)} text-white text-xs`}>
                                   {ticket.status}
@@ -649,7 +649,7 @@ export default function HelpPage() {
                                   {ticket.priority}
                                 </Badge>
                               </td>
-                              <td className="px-4 py-3 text-sm text-gray-600">{ticket.date}</td>
+                              <td className="px-4 py-3 text-sm text-gray-600 dark:text-white">{ticket.date}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -677,7 +677,7 @@ export default function HelpPage() {
                           <ArrowLeft className="h-4 w-4" />
                         </Button>
                       )}
-                      <div className="p-2 bg-purple-600 rounded-lg">
+                      <div className="p-2 bg-purple-600 dark:bg-purple-700 rounded-lg">
                         <Sparkles className="h-6 w-6 text-white" />
                       </div>
                       <div>
@@ -694,7 +694,7 @@ export default function HelpPage() {
                     <div className="space-y-6">
                       {/* Conversation History */}
                       {selectedChatId && currentConversation.length > 0 && (
-                        <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           {currentConversation.map((msg, index) => (
                             <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                               <div className={`max-w-[80%] rounded-lg p-3 ${
@@ -711,7 +711,7 @@ export default function HelpPage() {
                                   </span>
                                 </div>
                                 <p className={`text-sm whitespace-pre-line ${
-                                  msg.role === 'user' ? 'text-white' : 'text-gray-700'
+                                  msg.role === 'user' ? 'text-white' : 'text-gray-700 dark:text-white'
                                 }`}>
                                   {msg.message}
                                 </p>
@@ -756,7 +756,7 @@ export default function HelpPage() {
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <p className="text-sm text-gray-700 whitespace-pre-line">{aiResponse}</p>
+                            <p className="text-sm text-gray-700 dark:text-white whitespace-pre-line">{aiResponse}</p>
                             <div className="mt-4 flex gap-2">
                               <Button variant="outline" size="sm" className="border-purple-400 text-purple-600 hover:bg-purple-50">
                                 Was this helpful?
@@ -845,13 +845,13 @@ export default function HelpPage() {
                       {chats.map((chat) => (
                         <Card 
                           key={chat.id} 
-                          className="border border-gray-200 hover:border-purple-300 transition-colors cursor-pointer"
+                          className="border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-colors cursor-pointer"
                           onClick={() => handleViewChat(chat.id)}
                         >
                           <CardContent className="pt-4">
                             <div className="space-y-2">
                               <div className="flex items-start justify-between gap-2">
-                                <h4 className="text-sm font-semibold text-gray-800 line-clamp-2 flex-1">
+                                <h4 className="text-sm font-semibold text-gray-800 dark:text-white line-clamp-2 flex-1">
                                   {chat.question}
                                 </h4>
                                 <div className="flex items-center gap-1">
@@ -1014,17 +1014,17 @@ export default function HelpPage() {
                     className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors w-full"
                   >
                     <Paperclip className="h-4 w-4 text-purple-600" />
-                    <span className="text-sm text-gray-600">Click to attach files (PNG, JPG, JPEG, CSV, MP4)</span>
+                    <span className="text-sm text-gray-600 dark:text-white">Click to attach files (PNG, JPG, JPEG, CSV, MP4)</span>
                   </label>
                 </div>
                 {attachments.length > 0 && (
                   <div className="space-y-2">
                     {attachments.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                      <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
                         <div className="flex items-center gap-2 flex-1">
-                          <Paperclip className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                          <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(1)} KB)</span>
+                          <Paperclip className="h-4 w-4 text-gray-500 dark:text-white" />
+                          <span className="text-sm text-gray-700 dark:text-white truncate">{file.name}</span>
+                          <span className="text-xs text-gray-500 dark:text-white">({(file.size / 1024).toFixed(1)} KB)</span>
                         </div>
                         <Button
                           type="button"
@@ -1074,49 +1074,49 @@ export default function HelpPage() {
           {viewingTicket && (
             <div className="space-y-4 py-4">
               <div>
-                <label className="text-sm font-semibold text-gray-700">Title</label>
-                <p className="text-sm text-gray-900 mt-1">{viewingTicket.title}</p>
+                <label className="text-sm font-semibold text-gray-700 dark:text-white">Title</label>
+                <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.title}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Customer Email</label>
-                <p className="text-sm text-gray-900 mt-1">{viewingTicket.customerEmail}</p>
+                <label className="text-sm font-semibold text-gray-700 dark:text-white">Customer Email</label>
+                <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.customerEmail}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Contact Type</label>
-                <p className="text-sm text-gray-900 mt-1">{viewingTicket.contactType}</p>
+                <label className="text-sm font-semibold text-gray-700 dark:text-white">Contact Type</label>
+                <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.contactType}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Description</label>
-                <p className="text-sm text-gray-900 mt-1">{viewingTicket.description}</p>
+                <label className="text-sm font-semibold text-gray-700 dark:text-white">Description</label>
+                <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.description}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">Impact</label>
-                  <p className="text-sm text-gray-900 mt-1">{viewingTicket.impact}</p>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-white">Impact</label>
+                  <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.impact}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">Urgency</label>
-                  <p className="text-sm text-gray-900 mt-1">{viewingTicket.urgency}</p>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-white">Urgency</label>
+                  <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.urgency}</p>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Calculated Priority</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-white">Calculated Priority</label>
                 <div className="mt-1">
                   <Badge className="bg-purple-600 text-white">{viewingTicket.calculatedPriority}</Badge>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Date Submitted</label>
-                <p className="text-sm text-gray-900 mt-1">{viewingTicket.date}</p>
+                <label className="text-sm font-semibold text-gray-700 dark:text-white">Date Submitted</label>
+                <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.date}</p>
               </div>
               {viewingTicket.attachments && viewingTicket.attachments.length > 0 && (
                 <div>
-                  <label className="text-sm font-semibold text-gray-700">Attachments</label>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-white">Attachments</label>
                   <div className="mt-2 space-y-2">
                     {viewingTicket.attachments.map((attachment: string, index: number) => (
-                      <div key={index} className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
-                        <Paperclip className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-700">{attachment}</span>
+                      <div key={index} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+                        <Paperclip className="h-4 w-4 text-gray-500 dark:text-white" />
+                        <span className="text-sm text-gray-700 dark:text-white">{attachment}</span>
                       </div>
                     ))}
                   </div>

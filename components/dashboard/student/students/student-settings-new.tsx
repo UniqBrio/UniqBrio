@@ -188,8 +188,8 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
       {/* Header */}
       <div className="flex items-center justify-between border-b pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Student Management Settings</h2>
-          <p className="text-sm text-gray-500 mt-1">Customize student identity and enrollment settings</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Student Management Settings</h2>
+          <p className="text-sm text-gray-500 dark:text-white mt-1">Customize student identity and enrollment settings</p>
         </div>
         <Button
           variant="outline"
@@ -208,7 +208,7 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <LayoutDashboard className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Student Identity & ID Configuration</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Student Identity & ID Configuration</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
               <div className="space-y-2">
@@ -219,7 +219,7 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
                   onChange={(event) => handleLocalChange('identity', 'customIdPrefix', event.target.value)}
                   placeholder="e.g. STU or STUD-"
                 />
-                <p className="text-xs text-gray-500">Prefix shown at the start of every student ID.</p>
+                <p className="text-xs text-gray-500 dark:text-white">Prefix shown at the start of every student ID.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="studentIdStrategy">ID Numbering Strategy</Label>
@@ -301,7 +301,7 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Enrollment & Cohort Rules</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Enrollment & Cohort Rules</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
               <div className="flex items-center justify-between space-x-2">

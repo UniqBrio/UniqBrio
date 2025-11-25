@@ -70,16 +70,16 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="bg-white/80 rounded-2xl p-4 border border-gray-200 space-y-4 shadow-sm">
+      <div className="bg-white/80 dark:bg-gray-900/80 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center space-x-4 flex-wrap gap-4 flex-1">
             <div className="relative flex-1 min-w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white h-4 w-4" />
               <Input
                 placeholder="Search services and products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 bg-gray-50 text-gray-900 placeholder:text-gray-500 border-gray-200"
+                className="pl-10 h-10 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:text-white dark:placeholder:text-white border-gray-200 dark:border-gray-700"
               />
             </div>
             
@@ -89,7 +89,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                 <Button
                   variant="outline"
                   size="default"
-                  className="border-gray-300 hover:bg-gray-100 text-gray-700 transition-smooth relative h-12 px-4"
+                  className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white transition-smooth relative h-12 px-4"
                 >
                   <span className="relative inline-block">
                     <Filter className="h-4 w-4 text-purple-500" />
@@ -113,7 +113,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
               <PopoverContent className="w-80 p-4" align="start">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-sm mb-3 text-gray-900">Filter by Category</h3>
+                    <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Filter by Category</h3>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {categories.map((category) => (
                         <label
@@ -126,7 +126,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                             onChange={() => toggleCategory(category)}
                             className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                           />
-                          <span className="text-sm text-gray-700">{category}</span>
+                          <span className="text-sm text-gray-700 dark:text-white">{category}</span>
                         </label>
                       ))}
                     </div>
@@ -230,8 +230,8 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
 
             {/* Product Info */}
             <div className="p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">{product.name}</h3>
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">{product.name}</h3>
+              <p className="text-sm text-gray-600 dark:text-white mb-3 line-clamp-2">{product.description}</p>
 
               {/* Rating */}
               <div className="flex items-center gap-2 mb-3">
@@ -239,11 +239,11 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                   {[...Array(5)].map((_, i) => (
                     <Star 
                       key={i} 
-                      className={`h-4 w-4 ${i < Math.floor(product.rating || 0) ? "fill-yellow-400 text-yellow-400" : "fill-gray-300 text-gray-300"}`}
+                      className={`h-4 w-4 ${i < Math.floor(product.rating || 0) ? "fill-yellow-400 text-yellow-400" : "fill-gray-300 text-gray-300 dark:text-white"}`}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-600 font-medium">{product.rating || 0}</span>
+                <span className="text-sm text-gray-600 dark:text-white font-medium">{product.rating || 0}</span>
               </div>
 
               {/* Category Badge */}
@@ -255,12 +255,12 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
               <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold gradient-text">{currency} {product.price}</span>
-                  <span className="text-sm text-gray-600">Stock: {product.stock}</span>
+                  <span className="text-sm text-gray-600 dark:text-white">Stock: {product.stock}</span>
                 </div>
               </div>
 
               {/* Footer Stats */}
-              <div className="flex items-center justify-between text-xs text-gray-600 pb-3 border-t border-gray-200 pt-3">
+              <div className="flex items-center justify-between text-xs text-gray-600 dark:text-white pb-3 border-t border-gray-200 pt-3">
                 <span>{product.sales} sold</span>
                 <span className="text-orange-500">⚡</span>
               </div>

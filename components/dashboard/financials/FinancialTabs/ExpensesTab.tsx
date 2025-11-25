@@ -210,7 +210,7 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
         
         {/* Debug info */}
         {!loading && !error && (
-          <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+          <div className="text-xs text-gray-500 dark:text-white p-2 bg-gray-50 rounded">
             Debug: Chart data: {data.length} | Categories: {categoryData.length} | Vendors: {vendorData.length} | Top cats: {topSpenders.topCategories.length} | Top vendors: {topSpenders.topVendors.length}
           </div>
         )}
@@ -220,7 +220,7 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
           <h3 className="text-lg font-semibold mb-4">Expense Trend Analysis</h3>
           {data.length === 0 ? (
             <div className="h-80 flex items-center justify-center bg-gray-50 rounded">
-              <p className="text-gray-500">No expense data available for {selectedYear}</p>
+              <p className="text-gray-500 dark:text-white">No expense data available for {selectedYear}</p>
             </div>
           ) : (
             <div className="h-80">
@@ -327,8 +327,8 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
         {/* Show message when no data */}
         {!loading && !error && topSpenders.topCategories.length === 0 && (
           <div className="text-center p-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-600">No expense data available for {selectedYear}</p>
-            <p className="text-sm text-gray-500 mt-2">Expense data will appear here once transactions are recorded</p>
+            <p className="text-gray-600 dark:text-white">No expense data available for {selectedYear}</p>
+            <p className="text-sm text-gray-500 dark:text-white mt-2">Expense data will appear here once transactions are recorded</p>
           </div>
         )}
       </CardContent>

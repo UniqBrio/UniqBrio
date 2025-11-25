@@ -48,8 +48,8 @@ export default function TaskSettings({ settings, onUpdateSetting, onResetSetting
       {/* Header */}
       <div className="flex items-center justify-between border-b pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Task-Specific Settings</h2>
-          <p className="text-sm text-gray-500 mt-1">Configure task management preferences</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Task-Specific Settings</h2>
+          <p className="text-sm text-gray-500 dark:text-white mt-1">Configure task management preferences</p>
         </div>
         <Button
           variant="outline"
@@ -66,7 +66,7 @@ export default function TaskSettings({ settings, onUpdateSetting, onResetSetting
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Task Display</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Task Display</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
           <div className="flex items-center justify-between space-x-2">
@@ -102,7 +102,7 @@ export default function TaskSettings({ settings, onUpdateSetting, onResetSetting
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Task Reminders</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Task Reminders</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
           <div className="flex items-center justify-between space-x-2">

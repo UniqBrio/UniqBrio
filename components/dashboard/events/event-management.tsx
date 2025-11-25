@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useState, useMemo, useEffect } from "react"
 import { useCurrency } from "@/contexts/currency-context"
@@ -136,7 +136,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           setEvents(response.data)
         } else {
           toast({
-            title: "❌ Failed to Load Events",
+            title: "? Failed to Load Events",
             description: response.error || "Could not fetch events from the server.",
             duration: 3000,
           })
@@ -144,7 +144,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       } catch (error) {
         console.error('Failed to load events:', error)
         toast({
-          title: "❌ Failed to Load Events",
+          title: "? Failed to Load Events",
           description: "An error occurred while fetching events.",
           duration: 3000,
         })
@@ -301,7 +301,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
     const csv = toCSV(filteredEvents)
     download(`events-all-${format(new Date(), 'dd-MMM-yyyy')}.csv`, csv)
     toast({
-      title: "✅ Export completed",
+      title: "? Export completed",
       description: `Exported ${filteredEvents.length} event(s) successfully.`,
       duration: 3000,
     })
@@ -317,7 +317,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
     const csv = toCSV(rows)
     download(`events-selected-${format(new Date(), 'dd-MMM-yyyy')}.csv`, csv)
     toast({
-      title: "✅ Export completed",
+      title: "? Export completed",
       description: `Exported ${rows.length} selected event(s) successfully.`,
       duration: 3000,
     })
@@ -416,7 +416,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
         }
         
         toast({
-          title: "🗑️ Event Deleted",
+          title: "??? Event Deleted",
           description: "Event has been successfully deleted from the database.",
           duration: 3000,
         })
@@ -424,7 +424,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       } else {
         console.error('Delete failed with error:', response.error);
         toast({
-          title: "❌ Delete Failed",
+          title: "? Delete Failed",
           description: response.error || "Failed to delete event",
           duration: 3000,
         })
@@ -433,7 +433,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
     } catch (error) {
       console.error('Error deleting event:', error)
       toast({
-        title: "❌ Delete Error",
+        title: "? Delete Error",
         description: "An error occurred while deleting the event.",
         duration: 3000,
       })
@@ -472,11 +472,11 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
         setEvents(prev => prev.map(e => (e.id === updatedEvent.eventId || e.id === updatedEvent._id) ? ({ ...e, participants: updatedEvent.participants }) : e))
         if (onUpdateEvent) onUpdateEvent(updatedEvent)
       } else {
-        toast({ title: '❌ Update Failed', description: response.error || 'Failed to update participants', duration: 3000 })
+        toast({ title: '? Update Failed', description: response.error || 'Failed to update participants', duration: 3000 })
       }
     } catch (err) {
       console.error('Error changing participants:', err)
-      toast({ title: '❌ Error', description: 'Could not change participants', duration: 3000 })
+      toast({ title: '? Error', description: 'Could not change participants', duration: 3000 })
     }
   }
 
@@ -552,7 +552,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           }
 
           toast({
-            title: "✏️ Event Updated",
+            title: "?? Event Updated",
             description: "Event has been successfully updated in the database.",
             duration: 3000,
           })
@@ -564,7 +564,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           console.log('Event updated locally and modal closed. Updated participants:', updatedEvent.participants)
         } else {
           toast({
-            title: "❌ Update Failed",
+            title: "? Update Failed",
             description: response.error || "Failed to update event",
             duration: 3000,
           })
@@ -572,7 +572,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       } catch (error) {
         console.error('Error updating event:', error)
         toast({
-          title: "❌ Update Error",
+          title: "? Update Error",
           description: "An error occurred while updating the event.",
           duration: 3000,
         })
@@ -617,7 +617,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           !newEvent.staff || !newEvent.skillLevel || !newEvent.format || !newEvent.ageGroup ||
           newEvent.maxParticipants <= 0) {
         toast({
-          title: "❌ Validation Error",
+          title: "? Validation Error",
           description: "Please fill all required fields before saving.",
           duration: 3000,
         })
@@ -660,7 +660,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           onAddEvent(newEvent)
         }
         toast({
-          title: "✅ Event Created Successfully",
+          title: "? Event Created Successfully",
           description: `"${newEvent.name}" has been posted and saved to the database.`,
           duration: 3000,
         })
@@ -669,7 +669,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
         setFormData({})
       } else {
         toast({
-          title: "❌ Creation Failed",
+          title: "? Creation Failed",
           description: response.error || "Failed to create event",
           duration: 3000,
         })
@@ -694,7 +694,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       case "Completed":
         return "bg-green-100 text-green-800 border-green-300"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -705,15 +705,15 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           <div className="bg-white rounded-lg shadow-md p-12 flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-gray-600 text-sm">Loading events...</p>
+            <p className="text-gray-600 dark:text-white text-sm">Loading events...</p>
           </div>
         </div>
       ) : viewMode === 'list' ? (
         <div className="bg-white rounded-lg shadow-md overflow-hidden max-h-[400px] overflow-y-auto overflow-x-auto">
           <table className="w-full min-w-max">
-            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-10">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white w-10">
                   <div className="flex items-center justify-center">
                     <Checkbox
                       checked={filteredEvents.length > 0 && filteredEvents.every(e => selectedIds.includes(e.id))}
@@ -722,28 +722,28 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                       />
                     </div>
                   </th>
-                  {visibleColumns.includes('name') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Event Name</th>}
-                  {visibleColumns.includes('sport') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Sport</th>}
-                  {visibleColumns.includes('type') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Type</th>}
-                  {visibleColumns.includes('staff') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Staff</th>}
-                  {visibleColumns.includes('venue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Venue</th>}
-                  {(visibleColumns.includes('startDate') || visibleColumns.includes('endDate')) && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Dates</th>}
-                  {visibleColumns.includes('participants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Participants</th>}
-                  {visibleColumns.includes('maxParticipants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Max Participants</th>}
-                  {visibleColumns.includes('skillLevel') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Skill Level</th>}
-                  {visibleColumns.includes('format') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Format</th>}
-                  {visibleColumns.includes('ageGroup') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Age Group</th>}
-                  {visibleColumns.includes('entryFee') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Entry Fee</th>}
-                  {visibleColumns.includes('revenue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Revenue</th>}
-                  {visibleColumns.includes('status') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Status</th>}
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider"></th>
+                  {visibleColumns.includes('name') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Event Name</th>}
+                  {visibleColumns.includes('sport') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Sport</th>}
+                  {visibleColumns.includes('type') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Type</th>}
+                  {visibleColumns.includes('staff') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Staff</th>}
+                  {visibleColumns.includes('venue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Venue</th>}
+                  {(visibleColumns.includes('startDate') || visibleColumns.includes('endDate')) && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Dates</th>}
+                  {visibleColumns.includes('participants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Participants</th>}
+                  {visibleColumns.includes('maxParticipants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Max Participants</th>}
+                  {visibleColumns.includes('skillLevel') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Skill Level</th>}
+                  {visibleColumns.includes('format') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Format</th>}
+                  {visibleColumns.includes('ageGroup') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Age Group</th>}
+                  {visibleColumns.includes('entryFee') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Entry Fee</th>}
+                  {visibleColumns.includes('revenue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Revenue</th>}
+                  {visibleColumns.includes('status') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Status</th>}
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider"></th>
                 </tr>
               </thead>
               <tbody>
                 {filteredEvents.map((event) => (
                   <tr
                     key={event.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                    className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     <td onClick={(e) => e.stopPropagation()} className="px-4 py-4">
                       <Checkbox
@@ -752,27 +752,27 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                         aria-label={`Select ${event.name}`}
                       />
                     </td>
-                    {visibleColumns.includes('name') && <td className="px-6 py-4 text-sm font-medium text-gray-900">{event.name}</td>}
-                    {visibleColumns.includes('sport') && <td className="px-6 py-4 text-sm text-gray-600">
+                    {visibleColumns.includes('name') && <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{event.name}</td>}
+                    {visibleColumns.includes('sport') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">
                       <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">{event.sport}</Badge>
                     </td>}
-                    {visibleColumns.includes('type') && <td className="px-6 py-4 text-sm text-gray-600">{event.type}</td>}
-                    {visibleColumns.includes('staff') && <td className="px-6 py-4 text-sm text-gray-600">{event.staff}</td>}
-                    {visibleColumns.includes('venue') && <td className="px-6 py-4 text-sm text-gray-600">{event.venue}</td>}
-                    {(visibleColumns.includes('startDate') || visibleColumns.includes('endDate')) && <td className="px-6 py-4 text-sm text-gray-600">
+                    {visibleColumns.includes('type') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.type}</td>}
+                    {visibleColumns.includes('staff') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.staff}</td>}
+                    {visibleColumns.includes('venue') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.venue}</td>}
+                    {(visibleColumns.includes('startDate') || visibleColumns.includes('endDate')) && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">
                       {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
                     </td>}
-                    {visibleColumns.includes('participants') && <td className="px-6 py-4 text-sm text-gray-600">
+                    {visibleColumns.includes('participants') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">
                       <span>{event.participants}/{event.maxParticipants}</span>
                     </td>}
-                    {visibleColumns.includes('maxParticipants') && <td className="px-6 py-4 text-sm text-gray-600">
+                    {visibleColumns.includes('maxParticipants') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">
                       <span>{event.maxParticipants}</span>
                     </td>}
-                    {visibleColumns.includes('skillLevel') && <td className="px-6 py-4 text-sm text-gray-600">{event.skillLevel}</td>}
-                    {visibleColumns.includes('format') && <td className="px-6 py-4 text-sm text-gray-600">{event.format}</td>}
-                    {visibleColumns.includes('ageGroup') && <td className="px-6 py-4 text-sm text-gray-600">{event.ageGroup}</td>}
-                    {visibleColumns.includes('entryFee') && <td className="px-6 py-4 text-sm text-gray-600">{currency} {event.entryFee}</td>}
-                    {visibleColumns.includes('revenue') && <td className="px-6 py-4 text-sm text-gray-600">{currency} {(event.entryFee || 0) * (event.participants || 0)}</td>}
+                    {visibleColumns.includes('skillLevel') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.skillLevel}</td>}
+                    {visibleColumns.includes('format') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.format}</td>}
+                    {visibleColumns.includes('ageGroup') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.ageGroup}</td>}
+                    {visibleColumns.includes('entryFee') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{currency} {event.entryFee}</td>}
+                    {visibleColumns.includes('revenue') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{currency} {(event.entryFee || 0) * (event.participants || 0)}</td>}
                     {visibleColumns.includes('status') && <td className="px-6 py-4 text-sm">
                       <Badge className={getStatusColor(getEventStatus(event.startDate, event.endDate))}>
                         {getEventStatus(event.startDate, event.endDate)}
@@ -810,7 +810,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
 
           {filteredEvents.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-sm">No events found. Try adjusting your filters.</p>
+              <p className="text-gray-500 dark:text-white text-sm">No events found. Try adjusting your filters.</p>
             </div>
           )}
         </div>
@@ -833,12 +833,12 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
               return (
                 <div
                   key={event.id}
-                  className="group relative flex flex-col rounded-xl border border-orange-600 bg-white shadow-sm transition-all duration-200 hover:shadow-md p-4 h-[220px] cursor-pointer flex-shrink-0"
+                  className="group relative flex flex-col rounded-xl border border-orange-600 dark:border-orange-500 bg-background dark:bg-gray-900 shadow-sm transition-all duration-200 hover:shadow-md p-4 h-[220px] cursor-pointer flex-shrink-0"
                   style={{ minWidth: '320px', width: '320px' }}
                   onClick={() => handleViewEvent(event)}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-lg text-gray-900">{event.name}</span>
+                    <span className="font-bold text-lg text-gray-900 dark:text-white">{event.name}</span>
                     <span className="absolute top-2 right-2 flex items-center gap-1">
                       <Badge className={getStatusColor(eventStatus)}>
                         {eventStatus}
@@ -865,23 +865,23 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                   </div>
                   
                   <div className="mb-1">
-                    <span className="text-xs text-gray-500 font-medium">Staff:</span>
-                    <span className="ml-1 text-gray-900">{event.staff}</span>
+                    <span className="text-xs text-gray-500 dark:text-white font-medium">Staff:</span>
+                    <span className="ml-1 text-gray-900 dark:text-white">{event.staff}</span>
                   </div>
 
                   <div className="mb-1">
-                    <span className="text-xs text-gray-500 font-medium">Dates:</span>
-                    <span className="ml-1 text-gray-900">{new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</span>
+                    <span className="text-xs text-gray-500 dark:text-white font-medium">Dates:</span>
+                    <span className="ml-1 text-gray-900 dark:text-white">{new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</span>
                   </div>
 
                   <div className="mb-1">
-                    <span className="text-xs text-gray-500 font-medium">Venue:</span>
-                    <span className="ml-1 text-gray-900">{event.venue || 'N/A'}</span>
+                    <span className="text-xs text-gray-500 dark:text-white font-medium">Venue:</span>
+                    <span className="ml-1 text-gray-900 dark:text-white">{event.venue || 'N/A'}</span>
                   </div>
 
                   <div className="mb-1">
-                    <span className="text-xs text-gray-500 font-medium">Participants:</span>
-                    <span className="ml-1 text-gray-900">{event.participants}/{event.maxParticipants}</span>
+                    <span className="text-xs text-gray-500 dark:text-white font-medium">Participants:</span>
+                    <span className="ml-1 text-gray-900 dark:text-white">{event.participants}/{event.maxParticipants}</span>
                   </div>
                   
                   <button
@@ -889,7 +889,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                       e.stopPropagation()
                       openDeleteDialog(event.id)
                     }}
-                    className="absolute bottom-2 right-2 text-gray-400 hover:text-red-600 p-1.5"
+                    className="absolute bottom-2 right-2 text-gray-400 dark:text-white hover:text-red-600 p-1.5"
                     title="Delete"
                   >
                     <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-500 hover:text-red-600">
@@ -906,7 +906,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
 
             {filteredEvents.length === 0 && (
               <div className="w-full text-center py-12">
-                <p className="text-gray-500 text-sm">No events found. Try adjusting your filters.</p>
+                <p className="text-gray-500 dark:text-white text-sm">No events found. Try adjusting your filters.</p>
               </div>
             )}
           </div>
@@ -944,7 +944,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-gray-900">Delete Event</DialogTitle>
+            <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">Delete Event</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this event? This action cannot be undone.
               {pendingDeleteId ? ` "${events.find(e => e.id === pendingDeleteId)?.name}"` : ''}
@@ -1132,25 +1132,25 @@ export function EventFormModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[95vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="sticky top-0 bg-background dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             {event ? "Edit Event" : "Create New Event"}
           </h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded transition-colors"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-5 w-5 text-gray-600 dark:text-white" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
           {/* Basic Information */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Name <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Event Name <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={formData.name || ""}
@@ -1163,7 +1163,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Category <span className="text-red-500">*</span></label>
                 <select
                   value={formData.sport || ""}
                   onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
@@ -1181,7 +1181,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Event Type</label>
                 <select
                   value={formData.type || ""}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as Event["type"] })}
@@ -1197,7 +1197,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Staff Incharge <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Staff Incharge <span className="text-red-500">*</span></label>
                 <select
                   value={formData.staff || ""}
                   onChange={(e) => setFormData({ ...formData, staff: e.target.value })}
@@ -1217,9 +1217,9 @@ export function EventFormModal({
 
           {/* Description & Details */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Description & Details</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Description & Details</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Description</label>
               <textarea
                 value={formData.description || ""}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -1230,7 +1230,7 @@ export function EventFormModal({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rules & Regulations</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Rules & Regulations</label>
                 <textarea
                   value={formData.rules || ""}
                   onChange={(e) => setFormData({ ...formData, rules: e.target.value })}
@@ -1240,7 +1240,7 @@ export function EventFormModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Equipment Required</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Equipment Required</label>
                 <input
                   type="text"
                   value={formData.equipment || ""}
@@ -1254,10 +1254,10 @@ export function EventFormModal({
 
           {/* Dates & Deadlines */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Dates & Deadlines</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Dates & Deadlines</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date & Time <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Start Date & Time <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="date"
@@ -1277,7 +1277,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date & Time <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">End Date & Time <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="date"
@@ -1298,7 +1298,7 @@ export function EventFormModal({
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Registration Deadline <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Registration Deadline <span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={formData.registrationDeadline || ""}
@@ -1313,10 +1313,10 @@ export function EventFormModal({
 
           {/* Venue & Participation */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Venue & Participation</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Venue & Participation</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Venue <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Venue <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={formData.venue || ""}
@@ -1329,7 +1329,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Age Group <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Age Group <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={formData.ageGroup || ""}
@@ -1342,7 +1342,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Participants <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Max Participants <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   value={formData.maxParticipants || ""}
@@ -1356,7 +1356,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Participants <span className="text-amber-600">(for revenue calculation)</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Participants <span className="text-amber-600">(for revenue calculation)</span></label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -1381,10 +1381,10 @@ export function EventFormModal({
                     +
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Revenue = Entry Fee × Participants</p>
+                <p className="text-xs text-gray-500 dark:text-white mt-1">Revenue = Entry Fee � Participants</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Skill Level <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Skill Level <span className="text-red-500">*</span></label>
                 <select
                   value={formData.skillLevel || ""}
                   onChange={(e) => setFormData({ ...formData, skillLevel: e.target.value as Event["skillLevel"] })}
@@ -1400,7 +1400,7 @@ export function EventFormModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Format <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Format <span className="text-red-500">*</span></label>
                 <select
                   value={formData.format || ""}
                   onChange={(e) => setFormData({ ...formData, format: e.target.value as Event["format"] })}
@@ -1420,10 +1420,10 @@ export function EventFormModal({
 
           {/* Fees & Prizes */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Fees & Prizes</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Fees & Prizes</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Entry Fee <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   value={formData.entryFee || ""}
@@ -1434,7 +1434,7 @@ export function EventFormModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prizes</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Prizes</label>
                 <input
                   type="text"
                   value={formData.prizes || ""}
@@ -1447,7 +1447,7 @@ export function EventFormModal({
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex gap-3 justify-between">
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3 justify-between">
           <Button
             variant="outline"
             onClick={onClose}
@@ -1485,7 +1485,7 @@ export function EventViewModal({
         <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">{event.name}</h2>
-            <p className="text-purple-100 mt-1">{event.sport} • {event.type}</p>
+            <p className="text-purple-100 mt-1">{event.sport} � {event.type}</p>
           </div>
           <button
             onClick={onClose}
@@ -1499,7 +1499,7 @@ export function EventViewModal({
           {/* Key Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Status</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-1">Status</p>
               {event && (
                 <Badge className={`${
                   getEventStatus(event.startDate, event.endDate) === "Upcoming" ? "bg-blue-100 text-blue-800" :
@@ -1511,31 +1511,31 @@ export function EventViewModal({
               )}
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Coach Incharge</p>
-              <p className="font-semibold text-gray-900">{event.staff}</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-1">Coach Incharge</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{event.staff}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Skill Level</p>
-              <p className="font-semibold text-gray-900">{event.skillLevel}</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-1">Skill Level</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{event.skillLevel}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Format</p>
-              <p className="font-semibold text-gray-900">{event.format}</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-1">Format</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{event.format}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Age Group</p>
-              <p className="font-semibold text-gray-900">{event.ageGroup}</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-1">Age Group</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{event.ageGroup}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Max Participants</p>
-              <p className="font-semibold text-gray-900">{event.maxParticipants}</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-1">Max Participants</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{event.maxParticipants}</p>
             </div>
           </div>
 
           {event.description && (
             <div>
-              <p className="text-sm text-gray-600 mb-2">Description</p>
-              <p className="text-gray-900">{event.description}</p>
+              <p className="text-sm text-gray-600 dark:text-white mb-2">Description</p>
+              <p className="text-gray-900 dark:text-white">{event.description}</p>
             </div>
           )}
 
@@ -1544,8 +1544,8 @@ export function EventViewModal({
             <div className="flex items-start gap-3">
               <Calendar className="h-5 w-5 text-purple-600 mt-1" />
               <div>
-                <p className="text-sm text-gray-600">Event Dates & Times</p>
-                <p className="font-semibold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-white">Event Dates & Times</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
                   {new Date(event.startDate).toLocaleDateString()} {event.startTime} - {new Date(event.endDate).toLocaleDateString()} {event.endTime}
                 </p>
               </div>
@@ -1553,8 +1553,8 @@ export function EventViewModal({
             <div className="flex items-start gap-3">
               <Clock className="h-5 w-5 text-purple-600 mt-1" />
               <div>
-                <p className="text-sm text-gray-600">Registration Deadline</p>
-                <p className="font-semibold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-white">Registration Deadline</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
                   {new Date(event.registrationDeadline).toLocaleDateString()}
                 </p>
               </div>
@@ -1562,8 +1562,8 @@ export function EventViewModal({
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-purple-600 mt-1" />
               <div>
-                <p className="text-sm text-gray-600">Venue</p>
-                <p className="font-semibold text-gray-900">{event.venue}</p>
+                <p className="text-sm text-gray-600 dark:text-white">Venue</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{event.venue}</p>
               </div>
             </div>
           </div>
@@ -1571,30 +1571,30 @@ export function EventViewModal({
           {/* Additional Info */}
           {(event.equipment || event.entryFee || event.prizes || event.rules) && (
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Additional Information</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Additional Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {event.equipment && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Equipment Required</p>
-                    <p className="text-gray-900">{event.equipment}</p>
+                    <p className="text-sm text-gray-600 dark:text-white mb-1">Equipment Required</p>
+                    <p className="text-gray-900 dark:text-white">{event.equipment}</p>
                   </div>
                 )}
                 {event.entryFee ? (
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Entry Fee</p>
+                    <p className="text-sm text-gray-600 dark:text-white mb-1">Entry Fee</p>
                     <p className="font-semibold text-purple-600">{currency} {event.entryFee}</p>
                   </div>
                 ) : null}
                 {event.prizes && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Prizes</p>
-                    <p className="text-gray-900">{event.prizes}</p>
+                    <p className="text-sm text-gray-600 dark:text-white mb-1">Prizes</p>
+                    <p className="text-gray-900 dark:text-white">{event.prizes}</p>
                   </div>
                 )}
                 {event.rules && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Rules & Regulations</p>
-                    <p className="text-gray-900">{event.rules}</p>
+                    <p className="text-sm text-gray-600 dark:text-white mb-1">Rules & Regulations</p>
+                    <p className="text-gray-900 dark:text-white">{event.rules}</p>
                   </div>
                 )}
               </div>
@@ -1602,7 +1602,7 @@ export function EventViewModal({
           )}
         </div>
 
-        <div className="bg-gray-50 border-t border-gray-200 p-6 flex gap-3 justify-end">
+        <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3 justify-end">
           <Button
             onClick={onClose}
             className="bg-purple-600 hover:bg-purple-700 text-white"

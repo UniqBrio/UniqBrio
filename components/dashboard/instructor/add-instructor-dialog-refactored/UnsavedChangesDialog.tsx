@@ -20,12 +20,12 @@ export default function UnsavedChangesDialog({
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="max-w-lg p-6 rounded-xl [&>button]:hidden">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-gray-800 mb-2">
+          <DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
             Unsaved Changes
           </DialogTitle>
         </DialogHeader>
         
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-white mb-6">
           You have unsaved changes in your course. What would you like to do?
         </p>
         

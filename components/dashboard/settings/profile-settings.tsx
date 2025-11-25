@@ -179,7 +179,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               <Camera className="h-4 w-4" />
               Change Photo
             </Button>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-white mt-2">
               JPG or PNG. Max size 2MB.
             </p>
           </div>
@@ -190,7 +190,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
             <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
               <Input
                 id="firstName"
                 placeholder="First name"
@@ -227,7 +227,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
               <Input
                 id="email"
                 type="email"
@@ -502,8 +502,8 @@ const CountryCodeSelector: React.FC<{
               >
                 <Check className={cn("mr-2 h-4 w-4", value === item.dial ? "opacity-100" : "opacity-0")} />
                 <span className="w-16 text-left">{item.dial}</span>
-                <span className="flex-1 truncate text-left text-gray-700">{item.label}</span>
-                <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
+                <span className="flex-1 truncate text-left text-gray-700 dark:text-white">{item.label}</span>
+                <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white border border-gray-200 dark:border-gray-600">
                   {item.codes.join('/')}
                 </span>
               </CommandItem>

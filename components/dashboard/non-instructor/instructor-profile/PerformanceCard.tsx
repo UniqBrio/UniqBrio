@@ -27,15 +27,15 @@ export default function PerformanceCard({ isEditing, onPrimaryAction }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">4.8</div>
-              <p className="text-sm text-gray-600">Overall Rating</p>
+              <p className="text-sm text-gray-600 dark:text-white">Overall Rating</p>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">95%</div>
-              <p className="text-sm text-gray-600">Student Satisfaction</p>
+              <p className="text-sm text-gray-600 dark:text-white">Student Satisfaction</p>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">A+</div>
-              <p className="text-sm text-gray-600">Performance Grade</p>
+              <p className="text-sm text-gray-600 dark:text-white">Performance Grade</p>
             </div>
           </div>
 

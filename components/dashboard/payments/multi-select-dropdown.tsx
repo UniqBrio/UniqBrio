@@ -78,7 +78,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         aria-expanded={open}
       >
         <span className={`truncate text-black`}>{summary}</span>
-        <span className="ml-auto text-gray-400">▾</span>
+        <span className="ml-auto text-gray-400 dark:text-white">▾</span>
       </button>
       {open && (
         <div
@@ -86,7 +86,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           role="listbox"
           aria-label={label}
         >
-          {options.length === 0 && <div className="text-gray-400 italic px-2 py-1">No options</div>}
+          {options.length === 0 && <div className="text-gray-400 dark:text-white italic px-2 py-1">No options</div>}
 
           {/* Show a small search bar when there are many options */}
           {hasManyOptions && (
@@ -129,7 +129,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               </div>
 
               {query && filteredOptions.length === 0 && (
-                <div className="text-gray-400 italic px-2 py-1">No matches</div>
+                <div className="text-gray-400 dark:text-white italic px-2 py-1">No matches</div>
               )}
             </div>
           )}

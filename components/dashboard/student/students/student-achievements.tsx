@@ -274,7 +274,7 @@ export function StudentAchievements({ achievements = [], onAchievementAction, di
         </div>
       )}
       {sortedAchievements.length === 0 && (
-        <div className="col-span-full text-center py-12 text-gray-500">
+        <div className="col-span-full text-center py-12 text-gray-500 dark:text-white">
           <h3 className="text-lg font-medium mb-2">No achievements found</h3>
           <p className="text-sm">Add achievements to showcase student accomplishments</p>
         </div>

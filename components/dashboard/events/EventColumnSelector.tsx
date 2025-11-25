@@ -257,12 +257,12 @@ export default function EventColumnSelector({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       <div className="bg-white rounded-lg shadow-xl p-8 min-w-[500px] max-w-[95vw]">
         <div className="font-bold text-lg mb-4">Select Columns to Display
-          <div className="text-sm text-gray-600 mb-3 p-3 bg-gray-50 rounded-lg border">
+          <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
             <div className="grid grid-cols-4 gap-1 text-xs">
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Shift+↑↓</kbd> Multi-select</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Tab</kbd> Switch list</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+A</kbd> Select all</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+D</kbd> Deselect all</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>
             </div>
           </div>
         </div>
@@ -301,7 +301,7 @@ export default function EventColumnSelector({
 
           <div className="flex flex-col justify-center gap-2">
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={addSelected}
               disabled={selectedAvailable.length === 0}
               title="Add Selected (→)"
@@ -309,7 +309,7 @@ export default function EventColumnSelector({
               <ArrowRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableOptions.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableOptions.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={() => { setDraftDisplayed(prev => [...prev, ...availableOptions]); setSelectedAvailable([]); }}
               disabled={availableOptions.length === 0}
               title="Add All"
@@ -317,7 +317,7 @@ export default function EventColumnSelector({
               <ChevronsRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={() => { setDraftDisplayed([]); setSelectedDisplayed([]); }}
               disabled={draftDisplayed.length === 0}
               title="Remove All"
@@ -325,7 +325,7 @@ export default function EventColumnSelector({
               <ChevronsLeft className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={removeSelected}
               disabled={selectedDisplayed.length === 0}
               title="Remove Selected (←)"
@@ -339,7 +339,7 @@ export default function EventColumnSelector({
               <div className="font-semibold">Displayed Columns</div>
               <div className="flex gap-1">
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                   onClick={() => moveDisplayed('up')}
                   disabled={selectedDisplayed.length === 0}
                   title="Move Up (Ctrl+PgUp)"
@@ -347,7 +347,7 @@ export default function EventColumnSelector({
                   <ChevronUp className="w-4 h-4" />
                 </button>
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                   onClick={() => moveDisplayed('down')}
                   disabled={selectedDisplayed.length === 0}
                   title="Move Down (Ctrl+PgDn)"
@@ -395,7 +395,7 @@ export default function EventColumnSelector({
             <Save className="w-4 h-4" />
           </button>
           <button
-            className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
             onClick={() => {
               setDraftDisplayed(['name', 'sport', 'startDate', 'venue', 'participants', 'status'])
               setSelectedAvailable([])
@@ -406,7 +406,7 @@ export default function EventColumnSelector({
             <RotateCcw className="w-4 h-4" />
           </button>
           <button
-            className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 flex items-center gap-2"
+            className="px-4 py-2 rounded bg-gray-200 text-gray-700 dark:text-white font-semibold hover:bg-gray-300 flex items-center gap-2"
             onClick={onClose}
             title="Close (Escape)"
           >

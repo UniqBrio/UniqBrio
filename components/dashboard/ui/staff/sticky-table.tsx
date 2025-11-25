@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import * as React from "react"
 import { cn } from "@/lib/dashboard/staff/utils"
@@ -47,12 +47,12 @@ export const StickyTable = React.forwardRef<HTMLTableElement, StickyTableProps>(
       <div className={cn("relative overflow-auto", typeof height === 'number' ? `h-[${height}px]` : '')} style={typeof height === 'string' ? { height } : undefined}>
         <table ref={ref} className={cn("w-full text-sm", className)} {...rest}>
           {columns && (
-            <thead className="sticky top-0 bg-white z-20 shadow-sm">
+            <thead className="sticky top-0 bg-background dark:bg-gray-900 z-20 shadow-sm">
               <tr className="border-b">
                 {resolvedCols.map(col => (
                   <th
                     key={col}
-                    className={cn("sticky top-0 bg-white z-20 px-6 py-3 text-sm font-semibold text-gray-600 text-left", col === 'Actions' && 'text-center w-28')}
+                    className={cn("sticky top-0 bg-background dark:bg-gray-900 z-20 px-6 py-3 text-sm font-semibold text-gray-600 dark:text-white text-left", col === 'Actions' && 'text-center w-28')}
                   >
                     {renderHeaderCell ? renderHeaderCell(col) : (col === 'Actions' ? '' : col)}
                   </th>

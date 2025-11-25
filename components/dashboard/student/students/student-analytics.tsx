@@ -137,9 +137,9 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-800">ID: {data.course}</p>
+          <p className="font-semibold text-gray-800 dark:text-white">ID: {data.course}</p>
           {data.courseName && data.courseName !== data.course && (
-            <p className="text-sm text-gray-600">Name: {data.courseName}</p>
+            <p className="text-sm text-gray-600 dark:text-white">Name: {data.courseName}</p>
           )}
           <p className="text-sm text-purple-600 font-medium">Students: {data.students}</p>
         </div>
@@ -154,9 +154,9 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-800">ID: {data.cohort}</p>
+          <p className="font-semibold text-gray-800 dark:text-white">ID: {data.cohort}</p>
           {data.cohortName && data.cohortName !== data.cohort && (
-            <p className="text-sm text-gray-600">Name: {data.cohortName}</p>
+            <p className="text-sm text-gray-600 dark:text-white">Name: {data.cohortName}</p>
           )}
           <p className="text-sm text-orange-600 font-medium">Students: {data.students}</p>
         </div>
@@ -355,7 +355,7 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
       <div className="flex items-center justify-center p-12">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-          <p className="text-gray-600">Loading analytics...</p>
+          <p className="text-gray-600 dark:text-white">Loading analytics...</p>
         </div>
       </div>
     );
@@ -364,7 +364,7 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
   // Early return if no valid student data
   if (!students || students.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-500">
+      <div className="p-8 text-center text-gray-500 dark:text-white">
         <p className="text-lg">No student data available for analytics</p>
       </div>
     );
@@ -398,13 +398,13 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
         <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto gap-2">
           <TabsTrigger 
             value="distribution"
-            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
+            className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none shadow-sm"
           >
             Courses, Cohorts & Levels
           </TabsTrigger>
           <TabsTrigger 
             value="trends"
-            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
+            className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none shadow-sm"
           >
             Enrollment & Demographics
           </TabsTrigger>

@@ -43,13 +43,13 @@ export function InlineRemarksEditor({
           <div className="max-w-32 truncate text-sm text-muted-foreground" title={initialValue}>
             {initialValue}
           </div>
-          <Edit3 className="h-3 w-3 text-gray-400 group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Edit3 className="h-3 w-3 text-gray-400 dark:text-white group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       ) : (
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-gray-400 hover:text-purple-600"
+          className="h-6 w-6 text-gray-400 dark:text-white hover:text-purple-600"
           onClick={handleClick}
           title="Add remarks"
         >

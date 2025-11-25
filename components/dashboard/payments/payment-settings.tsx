@@ -332,7 +332,7 @@ export default function PaymentSettings() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Payment System Configuration</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-white mt-1">
             Manage payment categories, reminders, invoices, and system-wide settings
           </p>
         </div>
@@ -397,7 +397,7 @@ export default function PaymentSettings() {
                       {partialPaymentEnabled && <CheckCircle2 className="h-5 w-5 text-green-600" />}
                       <Badge variant="secondary" className="text-xs">One-Time Category</Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-white mt-1">
                       Students can split the total amount into two payments only
                     </p>
                   </div>
@@ -417,7 +417,7 @@ export default function PaymentSettings() {
                       {oneTimeInstallmentsEnabled && <CheckCircle2 className="h-5 w-5 text-blue-600" />}
                       <Badge variant="secondary" className="text-xs">Regular Courses</Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-white mt-1">
                       Fixed {installmentsCount} installments spread across course duration
                     </p>
                     {oneTimeInstallmentsEnabled && (
@@ -464,24 +464,24 @@ export default function PaymentSettings() {
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
-                        <span className="text-sm text-gray-600">installments</span>
+                        <span className="text-sm text-gray-600 dark:text-white">installments</span>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-3 text-xs">
                       <div className="p-3 bg-white rounded border">
                         <Badge variant="outline" className="mb-2">1st EMI</Badge>
-                        <p className="text-gray-600">� No invoice</p>
-                        <p className="text-gray-600">� No toggles</p>
+                        <p className="text-gray-600 dark:text-white">� No invoice</p>
+                        <p className="text-gray-600 dark:text-white">� No toggles</p>
                       </div>
                       <div className="p-3 bg-white rounded border">
                         <Badge variant="outline" className="mb-2">Middle EMIs</Badge>
-                        <p className="text-gray-600">� Invoice on payment</p>
-                        <p className="text-gray-600">� Stop toggles enabled</p>
+                        <p className="text-gray-600 dark:text-white">� Invoice on payment</p>
+                        <p className="text-gray-600 dark:text-white">� Stop toggles enabled</p>
                       </div>
                       <div className="p-3 bg-white rounded border">
                         <Badge variant="outline" className="mb-2">Final EMI</Badge>
-                        <p className="text-gray-600">� Final invoice</p>
-                        <p className="text-gray-600">� Stop toggles enabled</p>
+                        <p className="text-gray-600 dark:text-white">� Final invoice</p>
+                        <p className="text-gray-600 dark:text-white">� Stop toggles enabled</p>
                       </div>
                     </div>
                   </div>
@@ -497,7 +497,7 @@ export default function PaymentSettings() {
                       {discountedSubscriptionEnabled && <CheckCircle2 className="h-5 w-5 text-pink-600" />}
                       <Badge variant="default" className="text-xs bg-purple-600">Ongoing Training Only</Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-white mt-1">
                       Discounted monthly plans with lock-in periods
                     </p>
                     {discountedSubscriptionEnabled && (
@@ -598,7 +598,7 @@ export default function PaymentSettings() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex-1">
                     <Label className="text-lg font-semibold">Auto Reminders</Label>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-white mt-1">
                       Automatically send payment reminders to students
                     </p>
                   </div>
@@ -631,7 +631,7 @@ export default function PaymentSettings() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex-1">
                     <Label className="text-lg font-semibold">Pre-Payment Reminders</Label>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-white mt-1">
                       Send reminders before payment due date
                     </p>
                   </div>
@@ -902,16 +902,16 @@ export default function PaymentSettings() {
                                 </Button>
                               </div>
                               <div className="space-y-2">
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-500 dark:text-white">
                                   {hasCustomTemplate ? "Using customized email template" : "Using system default template"}
                                 </p>
-                                <p className="text-xs text-gray-600 italic">
+                                <p className="text-xs text-gray-600 dark:text-white italic">
                                   {cat.description}
                                 </p>
                               </div>
                               <div className="mt-3 pt-2 border-t border-gray-100">
                                 <div className="flex items-center justify-between text-xs">
-                                  <span className="text-gray-600">
+                                  <span className="text-gray-600 dark:text-white">
                                     Frequency: <strong>{reminderFrequency}</strong> | 
                                     Pre-reminder: <strong>{preReminderDays} days</strong>
                                   </span>
@@ -946,7 +946,7 @@ export default function PaymentSettings() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex-1">
                     <Label className="text-lg font-semibold">Auto Invoice Generation</Label>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-white mt-1">
                       Automatically generate invoices on payment receipt
                     </p>
                   </div>
@@ -965,7 +965,7 @@ export default function PaymentSettings() {
                     onChange={(e) => setInvoicePrefix(e.target.value)}
                     placeholder="UB-INV"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Example: {invoicePrefix}-2024-0001</p>
+                  <p className="text-xs text-gray-500 dark:text-white mt-1">Example: {invoicePrefix}-2024-0001</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium mb-2 block">Starting Number</Label>
@@ -1212,13 +1212,13 @@ export default function PaymentSettings() {
                                     Edit
                                   </Button>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-3">
+                                <p className="text-xs text-gray-500 dark:text-white mb-3">
                                   {hasCustomTemplate ? "Using customized template" : "Using system default template"}
                                 </p>
                                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                   <div>
-                                    <Label className="text-xs font-medium text-gray-700">Auto-Generate Draft</Label>
-                                    <p className="text-xs text-gray-500">{cat.description}</p>
+                                    <Label className="text-xs font-medium text-gray-700 dark:text-white">Auto-Generate Draft</Label>
+                                    <p className="text-xs text-gray-500 dark:text-white">{cat.description}</p>
                                   </div>
                                   <Switch
                                     checked={cat.draftState}

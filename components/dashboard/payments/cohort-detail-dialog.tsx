@@ -274,7 +274,7 @@ export function CohortDetailDialog({
         data-no-close
         className="max-w-[980px] border-none bg-transparent p-0 shadow-none"
       >
-        <div className="flex max-h-[86vh] flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_24px_60px_-30px_rgba(124,58,237,0.45)]">
+        <div className="flex max-h-[86vh] flex-col overflow-hidden rounded-[24px] bg-background dark:bg-gray-900 shadow-[0_24px_60px_-30px_rgba(124,58,237,0.45)] dark:shadow-[0_24px_60px_-30px_rgba(124,58,237,0.65)]">
           <div className="relative bg-gradient-to-r from-[#6D28D9] via-[#8B5CF6] to-[#F97316] px-5 py-5 text-white">
             <DialogTitle className="sr-only">Cohort student details</DialogTitle>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">

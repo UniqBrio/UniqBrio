@@ -221,13 +221,13 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-lg shadow-xl p-8 min-w-[500px] max-w-[95vw]">
         <div className="font-bold text-lg mb-4">Select Columns to Display
-          <div className="text-sm text-gray-600 mb-3 p-3 bg-gray-50 rounded-lg border">
+          <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
             
             <div className="grid grid-cols-4 gap-1 text-xs">
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Shift+↑↓</kbd> Multi-select</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Tab</kbd> Switch list</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+A</kbd> Select all</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+D</kbd> Deselect all</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>
               
             </div>
           </div>
@@ -263,7 +263,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
           {/* Move buttons */}
           <div className="flex flex-col justify-center gap-2">
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={handleAdd}
               disabled={!selectedAvailable.length}
               title="Add Selected (→)"
@@ -271,7 +271,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ArrowRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={() => { setDraftDisplayed(prev => [...prev, ...availableColumns]); setSelectedAvailable([]); }}
               disabled={!availableColumns.length}
               title="Add All"
@@ -279,7 +279,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ChevronsRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={handleRemove}
               disabled={!selectedDisplayed.length}
               title="Remove Selected (←)"
@@ -287,7 +287,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
               onClick={() => { setDraftDisplayed([]); setSelectedDisplayed([]); }}
               disabled={!draftDisplayed.length}
               title="Remove All (except required)"
@@ -301,7 +301,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <div className="font-semibold">Displayed Columns</div>
               <div className="flex gap-1">
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                   onClick={() => moveDisplayed('up')}
                   disabled={!selectedDisplayed.length}
                   title="Move Up (Ctrl+PgUp)"
@@ -309,7 +309,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                   <ChevronUp className="w-4 h-4" />
                 </button>
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                   onClick={() => moveDisplayed('down')}
                   disabled={!selectedDisplayed.length}
                   title="Move Down (Ctrl+PgDn)"
@@ -339,7 +339,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                     disabled={true}
                     className="opacity-50"
                   />
-                  <span className="text-gray-600 font-medium">{col}*</span>
+                  <span className="text-gray-600 dark:text-white font-medium">{col}*</span>
                   
                 </label>
               ))}
@@ -377,7 +377,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <Save className="w-4 h-4" />
           </button>
           <button
-            className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
             onClick={() => {
               setDraftDisplayed(columns.filter(c => c !== ACTIONS_COL && !LOCKED_COLUMNS.includes(c)));
               setSelectedAvailable([]);
@@ -389,7 +389,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <RotateCcw className="w-4 h-4" />
           </button>
           <button
-            className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 flex items-center gap-2"
+            className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
             onClick={onClose}
             title="Close (Escape)"
           >

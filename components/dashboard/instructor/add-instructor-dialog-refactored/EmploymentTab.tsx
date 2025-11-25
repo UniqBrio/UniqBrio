@@ -23,7 +23,7 @@ const EmploymentTab: React.FC<EmploymentTabProps> = ({ form, setForm }) => {
                       id="loginUsername"
                       value={form.email}
                       disabled
-                      className="bg-gray-50 text-gray-500"
+                      className="bg-gray-50 text-gray-500 dark:text-white"
                       placeholder="Auto-generated from email"
                     />
                   </div>
@@ -34,7 +34,7 @@ const EmploymentTab: React.FC<EmploymentTabProps> = ({ form, setForm }) => {
                       id="temporaryPassword"
                       value={form.temporaryPassword || ""}
                       disabled
-                      className="bg-gray-50 text-gray-500"
+                      className="bg-gray-50 text-gray-500 dark:text-white"
                       placeholder="Auto-generated, will be emailed"
                     />
                   </div>

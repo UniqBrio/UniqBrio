@@ -170,8 +170,8 @@ export default function InvoiceTemplateManager() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Invoice Templates</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Invoice Templates</h1>
+          <p className="text-gray-600 dark:text-white mt-2">
             Create and manage invoice templates for different payment types
           </p>
         </div>
@@ -218,7 +218,7 @@ export default function InvoiceTemplateManager() {
                 onClick={() => setSelectedTemplate(template)}
               >
                 <div className="font-medium">{template.name}</div>
-                <div className="text-sm text-gray-500 capitalize">
+                <div className="text-sm text-gray-500 dark:text-white capitalize">
                   {template.category.replace('-', ' ')}
                 </div>
                 {template.isDefault && (
@@ -785,9 +785,9 @@ function InvoicePreview({ template }: { template: InvoiceTemplate }) {
         <h1 className="text-2xl font-bold mb-2" style={{ color: template.primaryColor }}>
           {template.companyName}
         </h1>
-        <p className="text-gray-600 mb-4">{template.companyAddress}</p>
+        <p className="text-gray-600 dark:text-white mb-4">{template.companyAddress}</p>
         <h2 className="text-xl font-semibold mb-2">{template.invoiceTitle}</h2>
-        <div className="flex justify-center gap-6 text-sm text-gray-600">
+        <div className="flex justify-center gap-6 text-sm text-gray-600 dark:text-white">
           {template.showInvoiceNumber && <span>Invoice #: {sampleData.invoiceNumber}</span>}
           {template.showInvoiceDate && <span>Date: {sampleData.invoiceDate}</span>}
           {template.showDueDate && <span>Due: {sampleData.dueDate}</span>}
@@ -881,7 +881,7 @@ function InvoicePreview({ template }: { template: InvoiceTemplate }) {
 
       {/* Footer */}
       <Separator className="mb-4" />
-      <div className="text-center text-sm text-gray-600">
+      <div className="text-center text-sm text-gray-600 dark:text-white">
         {template.showThankYouMessage && (
           <p className="mb-2">{template.footerText}</p>
         )}

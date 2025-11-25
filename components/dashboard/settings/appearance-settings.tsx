@@ -272,7 +272,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                 <Palette className="h-5 w-5 text-purple-600" />
                 Theme Preferences
               </h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-white mt-1">
                 Customize the appearance of your application
               </p>
             </div>
@@ -282,7 +282,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <Label className="font-medium">Custom Color Palette</Label>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-white mt-1">
                     Select up to 5 colors for your theme ({selectedColors.length}/5)
                   </p>
                 </div>
@@ -342,7 +342,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                         className={`p-2 ${index === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200'}`}
                         title={index === 0 ? 'Cannot move first item up' : 'Move Up'}
                       >
-                        <ArrowUp className="h-4 w-4 text-gray-500" />
+                        <ArrowUp className="h-4 w-4 text-gray-500 dark:text-white" />
                       </Button>
                       <Button
                         type="button"
@@ -353,7 +353,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                         className={`p-2 ${index === selectedColors.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200'}`}
                         title={index === selectedColors.length - 1 ? 'Cannot move last item down' : 'Move Down'}
                       >
-                        <ArrowDown className="h-4 w-4 text-gray-500" />
+                        <ArrowDown className="h-4 w-4 text-gray-500 dark:text-white" />
                       </Button>
                       <Button
                         type="button"

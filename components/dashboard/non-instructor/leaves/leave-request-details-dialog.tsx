@@ -176,8 +176,8 @@ export default function LeaveRequestDetailsDialog({ request, open, onOpenChange,
   }) => (
     <div className="grid grid-cols-[20px_160px_1fr] items-start gap-3 py-2 leading-6">
       <Icon className={`h-4 w-4 ${iconClass}`} />
-      <div className="text-gray-500">{label}</div>
-      <div className="font-medium text-gray-900 whitespace-pre-wrap break-words">{value}</div>
+      <div className="text-gray-500 dark:text-white">{label}</div>
+      <div className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap break-words">{value}</div>
     </div>
   )
 

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useMemo, useState, useEffect, useRef } from "react"
 import GridIcon from "@/components/dashboard/icons/grid-icon"
@@ -333,13 +333,13 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-lg shadow-xl p-8 min-w-[700px] max-w-[95vw]">
             <div className="font-bold text-lg mb-4 text-black">Select Displayed Columns
-              <div className="text-sm text-gray-600 mb-3 p-3 bg-gray-50 rounded-lg border">
-                <div className="text-xs font-semibold mb-2 text-gray-800">Keyboard Shortcuts:</div>
+              <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 rounded-lg border">
+                <div className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Keyboard Shortcuts:</div>
                 <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
-                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Shift+??</kbd> Multi-select</div>
-                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Tab</kbd> Switch list</div>
-                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+A</kbd> Select all</div>
-                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+D</kbd> Deselect all</div>
+                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Shift+??</kbd> Multi-select</div>
+                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
+                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
+                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>
                 </div>
               </div>
             </div>
@@ -373,7 +373,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
               </div>
               <div className="flex flex-col justify-center gap-2">
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
                   onClick={handleAdd}
                   disabled={selectedAvailable.length === 0}
                   title="Add Selected (?)"
@@ -381,7 +381,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${available.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${available.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
                   onClick={() => { 
                     const next = sanitizeOrder([...draft, ...available.filter(c => !draft.includes(c))]);
                     setDraft(next);
@@ -394,7 +394,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                   <ChevronsRight className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
                   onClick={handleRemove}
                   disabled={selectedDisplayed.length === 0}
                   title="Remove Selected (?)"
@@ -402,7 +402,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
                   onClick={() => { 
                     const next = sanitizeOrder([...NON_EDITABLE_COLS]);
                     setDraft(next);
@@ -420,7 +420,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                   <div className="font-semibold text-black">Displayed Columns</div>
                   <div className="flex gap-1">
                     <button
-                      className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                      className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                       onClick={() => moveDisplayed('up')}
                       disabled={selectedDisplayed.length === 0}
                       title="Move Up (Ctrl+PgUp)"
@@ -428,7 +428,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                       <ChevronUp className="w-4 h-4" />
                     </button>
                     <button
-                      className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                      className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                       onClick={() => moveDisplayed('down')}
                       disabled={selectedDisplayed.length === 0}
                       title="Move Down (Ctrl+PgDn)"
@@ -508,7 +508,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                 <Save className="w-4 h-4" />
               </button>
               <button
-                className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 dark:text-white hover:bg-gray-100 flex items-center gap-2"
                 onClick={reset}
                 title="Reset (Ctrl+R)"
                 aria-label="Reset"
@@ -516,7 +516,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
                 <RotateCcw className="w-4 h-4" />
               </button>
               <button
-                className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 flex items-center gap-2"
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 dark:text-white font-semibold hover:bg-gray-300 flex items-center gap-2"
                 onClick={() => setOpen(false)}
                 title="Close (Escape)"
                 aria-label="Close"

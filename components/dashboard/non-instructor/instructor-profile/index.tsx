@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react"
 import { ProfileData } from "./types"
@@ -489,7 +489,7 @@ export default function InstructorProfile({
     setEditModalOpen(true)
   }
 
-  // Handler for table Edit click – open standard Add dialog in edit mode with prefilled data
+  // Handler for table Edit click � open standard Add dialog in edit mode with prefilled data
   function handleEditClick(row: Instructor) {
     const id = row.instructorId
     setEditInstructorId(id)

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -207,7 +207,7 @@ export default function StaffManagementPage() {
               <Users className="h-8 w-8" />
               Staff Management
             </h1>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-white">
               Comprehensive staff management dashboard with real-time insights and advanced analytics
             </p>
           </div>
@@ -299,12 +299,12 @@ export default function StaffManagementPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Instructor Management */}
               <Card className="border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100">
-                <CardHeader className="pb-2 border-b border-orange-200 bg-white rounded-t-lg">
+                <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-orange-700">
                     <GraduationCap className="h-5 w-5 text-orange-600" />
                     Instructor Management
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     Manage teaching staff, schedules, and performance
                   </CardDescription>
                 </CardHeader>
@@ -316,7 +316,7 @@ export default function StaffManagementPage() {
                     </div>
                     <Progress 
                       value={(instructorStats.activeInstructors / instructorStats.totalInstructors) * 100} 
-                      className="h-2 bg-orange-100 [&>div]:bg-orange-500" 
+                      className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" 
                     />
                   </div>
 
@@ -325,7 +325,7 @@ export default function StaffManagementPage() {
                       <span className="text-orange-700">Attendance Rate</span>
                       <span className="text-orange-900">{instructorStats.attendanceRate}%</span>
                     </div>
-                    <Progress value={instructorStats.attendanceRate} className="h-2 bg-orange-100 [&>div]:bg-orange-500" />
+                    <Progress value={instructorStats.attendanceRate} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
@@ -351,12 +351,12 @@ export default function StaffManagementPage() {
 
               {/* Non-Instructor Management */}
               <Card className="border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100">
-                <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
+                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-purple-700">
                     <UserCog className="h-5 w-5 text-purple-600" />
                     Non-Instructor Management
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     Manage administrative and support staff
                   </CardDescription>
                 </CardHeader>
@@ -368,7 +368,7 @@ export default function StaffManagementPage() {
                     </div>
                     <Progress 
                       value={(nonInstructorStats.activeNonInstructors / nonInstructorStats.totalNonInstructors) * 100} 
-                      className="h-2 bg-purple-100 [&>div]:bg-purple-500" 
+                      className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" 
                     />
                   </div>
 
@@ -377,7 +377,7 @@ export default function StaffManagementPage() {
                       <span className="text-purple-700">Attendance Rate</span>
                       <span className="text-purple-900">{nonInstructorStats.attendanceRate}%</span>
                     </div>
-                    <Progress value={nonInstructorStats.attendanceRate} className="h-2 bg-purple-100 [&>div]:bg-purple-500" />
+                    <Progress value={nonInstructorStats.attendanceRate} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
@@ -559,20 +559,20 @@ export default function StaffManagementPage() {
                   
                   {/* Enhanced Legend with Real Data */}
                   <div className="mt-6 grid grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                    <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700">
                       <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full"></div>
                       <div>
                         <div className="font-medium text-orange-800">{instructorStats.totalInstructors} Instructors</div>
                         <div className="text-xs text-orange-600">{Math.round((instructorStats.totalInstructors / overallStats.totalStaff) * 100)}% of total staff</div>
-                        <div className="text-xs text-orange-500 mt-1">{instructorStats.activeInstructors} active • {instructorStats.onLeaveToday} on leave</div>
+                        <div className="text-xs text-orange-500 mt-1">{instructorStats.activeInstructors} active � {instructorStats.onLeaveToday} on leave</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
                       <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
                       <div>
                         <div className="font-medium text-purple-800">{nonInstructorStats.totalNonInstructors} Non-Instructors</div>
                         <div className="text-xs text-purple-600">{Math.round((nonInstructorStats.totalNonInstructors / overallStats.totalStaff) * 100)}% of total staff</div>
-                        <div className="text-xs text-purple-500 mt-1">{nonInstructorStats.activeNonInstructors} active • {nonInstructorStats.onLeaveToday} on leave</div>
+                        <div className="text-xs text-purple-500 mt-1">{nonInstructorStats.activeNonInstructors} active � {nonInstructorStats.onLeaveToday} on leave</div>
                       </div>
                     </div>
                   </div>
@@ -593,7 +593,7 @@ export default function StaffManagementPage() {
                     <div className="relative h-56 bg-gradient-to-t from-gray-50 to-transparent rounded-lg p-6">
                       <div className="absolute inset-6">
                         {/* Y-axis labels */}
-                        <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500">
+                        <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500 dark:text-white">
                           <span>100%</span>
                           <span>75%</span>
                           <span>50%</span>
@@ -634,7 +634,7 @@ export default function StaffManagementPage() {
                           {/* Average Line Indicator */}
                           <div className="absolute right-0 flex items-center" style={{ bottom: `${(overallStats.overallAttendanceRate / 100) * 160 + 30}px` }}>
                             <div className="w-full h-0.5 bg-gray-400 opacity-60"></div>
-                            <span className="text-xs text-gray-600 ml-2 bg-white px-1 rounded">Avg {overallStats.overallAttendanceRate}%</span>
+                            <span className="text-xs text-gray-600 dark:text-white ml-2 bg-white dark:bg-gray-800 px-1 rounded">Avg {overallStats.overallAttendanceRate}%</span>
                           </div>
                         </div>
                       </div>
@@ -714,7 +714,7 @@ export default function StaffManagementPage() {
                       {/* Center content */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <div className="text-2xl font-bold text-green-600">{Math.round((overallStats.activeStaff / overallStats.totalStaff) * 100)}%</div>
-                        <div className="text-xs text-gray-600">Active</div>
+                        <div className="text-xs text-gray-600 dark:text-white">Active</div>
                       </div>
                     </div>
                   </div>
@@ -730,7 +730,7 @@ export default function StaffManagementPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-green-600">{overallStats.activeStaff}</span>
-                          <span className="text-sm text-gray-500">({Math.round((overallStats.activeStaff / overallStats.totalStaff) * 100)}%)</span>
+                          <span className="text-sm text-gray-500 dark:text-white">({Math.round((overallStats.activeStaff / overallStats.totalStaff) * 100)}%)</span>
                         </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -750,7 +750,7 @@ export default function StaffManagementPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-red-500">{overallStats.totalOnLeave}</span>
-                          <span className="text-sm text-gray-500">({Math.round((overallStats.totalOnLeave / overallStats.totalStaff) * 100)}%)</span>
+                          <span className="text-sm text-gray-500 dark:text-white">({Math.round((overallStats.totalOnLeave / overallStats.totalStaff) * 100)}%)</span>
                         </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -762,14 +762,14 @@ export default function StaffManagementPage() {
                     </div>
                     
                     {/* Breakdown by Role */}
-                    <div className="pt-4 border-t border-gray-200">
-                      <div className="text-xs text-gray-600 mb-3 font-medium">Active Staff by Role:</div>
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="text-xs text-gray-600 dark:text-white mb-3 font-medium">Active Staff by Role:</div>
                       <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="flex justify-between items-center p-2 bg-orange-50 rounded border border-orange-200">
+                        <div className="flex justify-between items-center p-2 bg-orange-50 dark:bg-orange-900/30 rounded border border-orange-200 dark:border-orange-700">
                           <span className="text-orange-700">Instructors</span>
                           <span className="font-semibold text-orange-800">{instructorStats.activeInstructors}/{instructorStats.totalInstructors}</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 bg-purple-50 rounded border border-purple-200">
+                        <div className="flex justify-between items-center p-2 bg-purple-50 dark:bg-purple-900/30 rounded border border-purple-200 dark:border-purple-700">
                           <span className="text-purple-700">Non-Instructors</span>
                           <span className="font-semibold text-purple-800">{nonInstructorStats.activeNonInstructors}/{nonInstructorStats.totalNonInstructors}</span>
                         </div>
@@ -843,19 +843,19 @@ export default function StaffManagementPage() {
                         
                         {/* Enhanced Performance labels with values */}
                         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-center">
-                          <div className="text-xs font-medium text-gray-700">Attendance</div>
+                          <div className="text-xs font-medium text-gray-700 dark:text-white">Attendance</div>
                           <div className="text-xs font-bold text-orange-600">{instructorStats.attendanceRate}%</div>
                         </div>
                         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center">
-                          <div className="text-xs font-medium text-gray-700">Overall</div>
+                          <div className="text-xs font-medium text-gray-700 dark:text-white">Overall</div>
                           <div className="text-xs font-bold text-purple-600">{overallStats.overallAttendanceRate}%</div>
                         </div>
                         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -rotate-90 text-center">
-                          <div className="text-xs font-medium text-gray-700">Active Rate</div>
+                          <div className="text-xs font-medium text-gray-700 dark:text-white">Active Rate</div>
                           <div className="text-xs font-bold text-green-600">{Math.round((overallStats.activeStaff / overallStats.totalStaff) * 100)}%</div>
                         </div>
                         <div className="absolute right-0 top-1/2 transform -translate-y-1/2 rotate-90 text-center">
-                          <div className="text-xs font-medium text-gray-700">Coverage</div>
+                          <div className="text-xs font-medium text-gray-700 dark:text-white">Coverage</div>
                           <div className="text-xs font-bold text-blue-600">{Math.round(((overallStats.totalStaff - overallStats.totalOnLeave) / overallStats.totalStaff) * 100)}%</div>
                         </div>
                       </div>
@@ -878,12 +878,12 @@ export default function StaffManagementPage() {
                       
                       {/* Performance Gap Analysis */}
                       <div className="text-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border">
-                        <div className="text-sm font-medium text-gray-700">
-                          Performance Gap: <span className="text-lg font-bold text-gray-900">
+                        <div className="text-sm font-medium text-gray-700 dark:text-white">
+                          Performance Gap: <span className="text-lg font-bold text-gray-900 dark:text-white">
                             {Math.abs(instructorStats.attendanceRate - nonInstructorStats.attendanceRate)}%
                           </span>
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">
+                        <div className="text-xs text-gray-600 dark:text-white mt-1">
                           {instructorStats.attendanceRate > nonInstructorStats.attendanceRate 
                             ? 'Instructors outperforming by ' + (instructorStats.attendanceRate - nonInstructorStats.attendanceRate) + '%'
                             : 'Non-instructors outperforming by ' + (nonInstructorStats.attendanceRate - instructorStats.attendanceRate) + '%'

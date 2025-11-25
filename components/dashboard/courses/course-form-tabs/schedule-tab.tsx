@@ -122,7 +122,7 @@ export default function ScheduleTab({
                 required
               />
               {!startDateFocused && formData.schedulePeriod?.startDate && (
-                <div className="absolute inset-0 flex items-center px-2 text-sm pointer-events-none text-gray-900">
+                <div className="absolute inset-0 flex items-center px-2 text-sm pointer-events-none text-gray-900 dark:text-white">
                   {formatDateForDisplay(formData.schedulePeriod.startDate)}
                 </div>
               )}
@@ -150,7 +150,7 @@ export default function ScheduleTab({
                     required
                   />
                   {!endDateFocused && formData.schedulePeriod?.endDate && (
-                    <div className="absolute inset-0 flex items-center px-2 text-sm pointer-events-none text-gray-900">
+                    <div className="absolute inset-0 flex items-center px-2 text-sm pointer-events-none text-gray-900 dark:text-white">
                       {formatDateForDisplay(formData.schedulePeriod.endDate)}
                     </div>
                   )}
@@ -175,7 +175,7 @@ export default function ScheduleTab({
         </div>
         
         {formData.courseCategory === 'Ongoing Training' && formData.schedulePeriod?.startDate && (
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-gray-600 dark:text-white mt-2">
             This ongoing training program starts on {formatDateForDisplay(formData.schedulePeriod.startDate)} and continues with monthly billing.
           </p>
         )}

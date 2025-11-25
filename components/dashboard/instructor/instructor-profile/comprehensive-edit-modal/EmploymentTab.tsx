@@ -11,11 +11,11 @@ export function EmploymentTab({ editForm, setEditForm }: { editForm: EditFormDat
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="loginUsername">Login Username</Label>
-          <Input id="loginUsername" value={editForm.email} disabled className="bg-gray-50 text-gray-500" placeholder="Auto-generated from email" />
+          <Input id="loginUsername" value={editForm.email} disabled className="bg-gray-50 text-gray-500 dark:text-white" placeholder="Auto-generated from email" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="temporaryPassword">Temporary Password</Label>
-          <Input id="temporaryPassword" value={editForm.temporaryPassword || ""} disabled className="bg-gray-50 text-gray-500" placeholder="Auto-generated, will be emailed" />
+          <Input id="temporaryPassword" value={editForm.temporaryPassword || ""} disabled className="bg-gray-50 text-gray-500 dark:text-white" placeholder="Auto-generated, will be emailed" />
         </div>
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="permissionsLevel">Permissions / Access Level</Label>

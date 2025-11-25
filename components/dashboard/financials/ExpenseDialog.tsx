@@ -468,13 +468,13 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-amount" className="text-sm font-medium text-gray-700">Amount<span className="text-red-500">*</span></Label>
+                  <Label htmlFor="expense-amount" className="text-sm font-medium text-gray-700 dark:text-white">Amount<span className="text-red-500">*</span></Label>
                   <input
                     id="expense-amount"
                     type="number"
                     min="0.01"
                     step="any"
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
                     value={expenseForm.amount}
                     onChange={e => handleExpenseChange("amount", e.target.value)}
                     onKeyDown={e => { if (e.key === '-' || e.key === '+' || e.key === 'e') { e.preventDefault(); } }}
@@ -489,7 +489,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   {fieldErrors.amount && <div id="amount-error" role="alert" className="text-red-600 text-xs mt-1">{fieldErrors.amount}</div>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-category" className="text-sm font-medium text-gray-700">Category<span className="text-red-500">*</span></Label>
+                  <Label htmlFor="expense-category" className="text-sm font-medium text-gray-700 dark:text-white">Category<span className="text-red-500">*</span></Label>
                   <DropdownMenu open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button 
@@ -533,7 +533,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   </DropdownMenu>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-vendor-name" className="text-sm font-medium text-gray-700">Vendor Name</Label>
+                  <Label htmlFor="expense-vendor-name" className="text-sm font-medium text-gray-700 dark:text-white">Vendor Name</Label>
                   <DropdownMenu open={vendorNameDropdownOpen} onOpenChange={setVendorNameDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button 
@@ -576,7 +576,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   </DropdownMenu>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-vendor-type" className="text-sm font-medium text-gray-700">Vendor Type</Label>
+                  <Label htmlFor="expense-vendor-type" className="text-sm font-medium text-gray-700 dark:text-white">Vendor Type</Label>
                   <DropdownMenu open={vendorTypeDropdownOpen} onOpenChange={setVendorTypeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button 
@@ -619,7 +619,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   </DropdownMenu>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-payment-mode" className="text-sm font-medium text-gray-700">Payment Mode</Label>
+                  <Label htmlFor="expense-payment-mode" className="text-sm font-medium text-gray-700 dark:text-white">Payment Mode</Label>
                   <Select value={expenseForm.paymentMode} onValueChange={v => handleExpenseChange('paymentMode', v)}>
                     <SelectTrigger id="expense-payment-mode" className="w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" tabIndex={6} aria-label="Select payment mode">
                       <SelectValue placeholder="Select payment mode" />
@@ -638,7 +638,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="expense-from-account" className="text-sm font-medium text-gray-700">From Account{expenseForm.paymentMode?.toLowerCase() !== 'cash' && <span className="text-red-500">*</span>}</Label>
+                  <Label htmlFor="expense-from-account" className="text-sm font-medium text-gray-700 dark:text-white">From Account{expenseForm.paymentMode?.toLowerCase() !== 'cash' && <span className="text-red-500">*</span>}</Label>
                   <Select 
                     value={expenseForm.addFromAccount || ""} 
                     onValueChange={v => handleExpenseChange('addFromAccount', v)} 
@@ -656,11 +656,11 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-received-by" className="text-sm font-medium text-gray-700">Received By</Label>
+                  <Label htmlFor="expense-received-by" className="text-sm font-medium text-gray-700 dark:text-white">Received By</Label>
                   <input 
                     id="expense-received-by"
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={expenseForm.receivedBy} 
                     onChange={e => handleExpenseChange('receivedBy', e.target.value)} 
                     placeholder="Enter receiver's name" 
@@ -669,11 +669,11 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-received-from" className="text-sm font-medium text-gray-700">Received From</Label>
+                  <Label htmlFor="expense-received-from" className="text-sm font-medium text-gray-700 dark:text-white">Received From</Label>
                   <input 
                     id="expense-received-from"
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={expenseForm.receivedFrom} 
                     onChange={e => handleExpenseChange('receivedFrom', e.target.value)} 
                     placeholder="Enter sender's name" 
@@ -682,11 +682,11 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="expense-receipt-number" className="text-sm font-medium text-gray-700">Receipt / Transaction Number</Label>
+                  <Label htmlFor="expense-receipt-number" className="text-sm font-medium text-gray-700 dark:text-white">Receipt / Transaction Number</Label>
                   <input 
                     id="expense-receipt-number"
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={expenseForm.receiptNumber} 
                     onChange={e => handleExpenseChange('receiptNumber', e.target.value)} 
                     placeholder="Enter receipt or transaction number" 
@@ -697,10 +697,10 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                  
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expense-description" className="text-sm font-medium text-gray-700">Description</Label>
+                <Label htmlFor="expense-description" className="text-sm font-medium text-gray-700 dark:text-white">Description</Label>
                 <textarea
                   id="expense-description"
-                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y"
                   value={expenseForm.description}
                   onChange={e => handleExpenseChange("description", e.target.value)}
                   placeholder="Enter description or notes about this expense"
@@ -709,18 +709,18 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expense-attachment" className="text-sm font-medium text-gray-700">Attachment</Label>
+                <Label htmlFor="expense-attachment" className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
                 <input 
                   id="expense-attachment"
                   type="file" 
-                                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
+                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
 
                                     accept=".pdf,.png,.jpg,.jpeg" 
                   onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleExpenseChange('attachments', file); }} 
                   tabIndex={12}
                   aria-label="Attach file" 
                 />
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-white">
                   Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
                 </div>
               </div>
@@ -874,8 +874,8 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-0.5">
-      <div className="text-[11px] tracking-wide text-gray-500 font-semibold">{label}</div>
-      <div className="text-gray-800 font-medium break-words">{value || '-'}</div>
+      <div className="text-[11px] tracking-wide text-gray-500 dark:text-white font-semibold">{label}</div>
+      <div className="text-gray-800 dark:text-white font-medium break-words">{value || '-'}</div>
     </div>
   );
 }

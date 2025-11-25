@@ -195,10 +195,10 @@ export default function ServiceImportDialog({
               onDrop={handleDrop}
             >
               <div className="text-center">
-                <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                <FileText className="mx-auto h-12 w-12 text-gray-400 dark:text-white" />
                 <div className="mt-4">
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    <span className="mt-2 block text-sm font-medium text-gray-900">
+                    <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
                       Drop your CSV file here, or{" "}
                       <span className="text-blue-600 hover:text-blue-500">browse</span>
                     </span>
@@ -212,7 +212,7 @@ export default function ServiceImportDialog({
                     onChange={handleFileSelect}
                   />
                 </div>
-                <p className="mt-1 text-xs text-gray-500">CSV files only, up to 10MB</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-white">CSV files only, up to 10MB</p>
               </div>
             </div>
 
@@ -222,7 +222,7 @@ export default function ServiceImportDialog({
                   <FileText className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="text-sm font-medium">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-white">
                       {(selectedFile.size / 1024).toFixed(1)} KB
                     </p>
                   </div>

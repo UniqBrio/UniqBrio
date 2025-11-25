@@ -118,7 +118,7 @@ const InstructorListView = memo(function InstructorListView({
     return (
       <div className="px-6 pb-6">
         <div style={containerStyle} className={containerClass}>
-          <div className="w-full text-center py-8 text-gray-500">
+          <div className="w-full text-center py-8 text-gray-500 dark:text-white">
             No non-instructors found matching your criteria.
           </div>
         </div>
@@ -135,7 +135,7 @@ const InstructorListView = memo(function InstructorListView({
             <thead className="sticky top-0 z-10 bg-gray-50 shadow-[0_1px_0_0_rgba(229,231,235,1)]">
               <tr className="border-b border-gray-200">
                 {/* Selection column */}
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-10">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-10">
                   <input
                     type="checkbox"
                     aria-label="Select all"
@@ -144,12 +144,12 @@ const InstructorListView = memo(function InstructorListView({
                   />
                 </th>
                 {visibleColumns.map((colId) => (
-                  <th key={colId} className="px-4 py-4 text-left text-sm font-medium text-gray-700">
+                  <th key={colId} className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white">
                     {getInstructorColumnLabel(colId)}
                   </th>
                 ))}
-                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 w-12"></th>
-                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 w-12"></th>
+                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-white w-12"></th>
+                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-white w-12"></th>
               </tr>
             </thead>
             <tbody>
@@ -160,7 +160,7 @@ const InstructorListView = memo(function InstructorListView({
                   onClick={() => onViewDetails?.(instructor)}
                 >
                   {/* Row selection */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     <input
                       type="checkbox"
                       aria-label={`Select ${instructor.name}`}
@@ -173,31 +173,31 @@ const InstructorListView = memo(function InstructorListView({
                     switch (colId) {
                       case 'id':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{formatNonInstructorId(instructor.instructorId)}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{formatNonInstructorId(instructor.instructorId)}</td>
                         )
                       case 'name':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{instructor.name}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{instructor.name}</td>
                         )
                       case 'role':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{instructor.role}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{instructor.role}</td>
                         )
                       case 'contractType':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{instructor.contractType || '-'}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{instructor.contractType || '-'}</td>
                         )
                       case 'jobLevel':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{instructor.jobLevel || '-'}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{instructor.jobLevel || '-'}</td>
                         )
                       case 'gender':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{instructor.gender || '-'}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{instructor.gender || '-'}</td>
                         )
                       case 'experience':
                         return (
-                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900">{instructor.yearsOfExperience}</td>
+                          <td key={colId} className="px-4 py-4 whitespace-nowrap text-sm font-normal text-gray-900 dark:text-white">{instructor.yearsOfExperience}</td>
                         )
                       default:
                         return null
@@ -265,7 +265,7 @@ const InstructorListView = memo(function InstructorListView({
             onClick={() => onViewDetails?.(instructor)}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-lg text-gray-900">{instructor.name}</span>
+              <span className="font-bold text-lg text-gray-900 dark:text-white">{instructor.name}</span>
               <span className="absolute top-2 right-2 flex items-center gap-1">
                 <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-semibold">Active</span>
                 <button
@@ -290,23 +290,23 @@ const InstructorListView = memo(function InstructorListView({
             </div>
             
             <div className="mb-1">
-              <span className="text-xs text-gray-500 font-medium">Role:</span>
-              <span className="ml-1 text-gray-900">{instructor.role}</span>
+              <span className="text-xs text-gray-500 dark:text-white font-medium">Role:</span>
+              <span className="ml-1 text-gray-900 dark:text-white">{instructor.role}</span>
             </div>
 
             <div className="mb-1">
-              <span className="text-xs text-gray-500 font-medium">Contract Type:</span>
-              <span className="ml-1 text-gray-900">{instructor.contractType && instructor.contractType.trim() !== '' ? instructor.contractType : 'N/A'}</span>
+              <span className="text-xs text-gray-500 dark:text-white font-medium">Contract Type:</span>
+              <span className="ml-1 text-gray-900 dark:text-white">{instructor.contractType && instructor.contractType.trim() !== '' ? instructor.contractType : 'N/A'}</span>
             </div>
 
             <div className="mb-1">
-              <span className="text-xs text-gray-500 font-medium">Job Level:</span>
-              <span className="ml-1 text-gray-900">{instructor.jobLevel && instructor.jobLevel.trim() !== '' ? instructor.jobLevel : 'N/A'}</span>
+              <span className="text-xs text-gray-500 dark:text-white font-medium">Job Level:</span>
+              <span className="ml-1 text-gray-900 dark:text-white">{instructor.jobLevel && instructor.jobLevel.trim() !== '' ? instructor.jobLevel : 'N/A'}</span>
             </div>
 
             <div className="mb-1">
-              <span className="text-xs text-gray-500 font-medium">Experience:</span>
-              <span className="ml-1 text-gray-900">{(instructor.yearsOfExperience ?? null) === null ? 'N/A' : `${instructor.yearsOfExperience} yrs`}</span>
+              <span className="text-xs text-gray-500 dark:text-white font-medium">Experience:</span>
+              <span className="ml-1 text-gray-900 dark:text-white">{(instructor.yearsOfExperience ?? null) === null ? 'N/A' : `${instructor.yearsOfExperience} yrs`}</span>
             </div>
             
             <button
@@ -314,7 +314,7 @@ const InstructorListView = memo(function InstructorListView({
                 e.stopPropagation()
                 onDelete(instructor)
               }}
-              className="absolute bottom-2 right-2 text-gray-400 hover:text-red-600 p-1.5"
+              className="absolute bottom-2 right-2 text-gray-400 dark:text-white hover:text-red-600 p-1.5"
               title="Delete"
             >
               <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-red-500 hover:text-red-600">

@@ -133,7 +133,7 @@ const PaymentTab: React.FC<PaymentTabProps> = ({ form, setForm }) => {
                     />
                     <CommandList className="max-h-[200px] overflow-y-auto" onWheel={(e) => e.stopPropagation()}>
                       {loading ? (
-                        <div className="px-2 py-1 text-sm text-gray-500">Loading providers...</div>
+                        <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading providers...</div>
                       ) : (
                         <>
                           <CommandEmpty>No provider found.</CommandEmpty>

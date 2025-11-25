@@ -300,12 +300,12 @@ export default function PaymentsPage() {
     <div className="space-y-6">
       {/* Error Message */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30">
           <CardContent className="p-6">
             <div className="text-center">
               <p className="text-red-600 font-semibold mb-2">Error Loading Payment Data</p>
-              <div className="text-gray-600 text-sm mb-4 max-h-40 overflow-y-auto">
-                <pre className="whitespace-pre-wrap text-left bg-white p-3 rounded">{error}</pre>
+              <div className="text-gray-600 dark:text-white text-sm mb-4 max-h-40 overflow-y-auto">
+                <pre className="whitespace-pre-wrap text-left bg-white dark:bg-gray-800 p-3 rounded">{error}</pre>
               </div>
               <Button
                 onClick={fetchData}
@@ -322,7 +322,7 @@ export default function PaymentsPage() {
       <div className="responsive-dashboard-container mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">Payment Management</h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 dark:text-white text-sm">
             Track student payments, send reminders, and manage financial records
           </p>
         </div>
@@ -342,28 +342,28 @@ export default function PaymentsPage() {
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-transparent p-0 h-auto gap-1 sm:gap-2 lg:gap-3">
           <TabsTrigger
             value="analytics"
-            className="bg-white border-2 border-orange-400 text-orange-600 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 transition-all"
+            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
           >
             <LayoutDashboard className="h-5 w-5 mr-2" />
             Analytics
           </TabsTrigger>
           <TabsTrigger
             value="student-wise"
-            className="bg-white border-2 border-orange-400 text-orange-600 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 transition-all"
+            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
           >
             <CreditCard className="h-5 w-5 mr-2" />
             Student-wise
           </TabsTrigger>
           <TabsTrigger
             value="course-cohort"
-            className="bg-white border-2 border-orange-400 text-orange-600 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 transition-all"
+            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
           >
             <BookOpen className="h-5 w-5 mr-2" />
             Course & Cohort
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="bg-white border-2 border-orange-400 text-orange-600 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 transition-all"
+            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
           >
             <Settings className="h-5 w-5 mr-2" />
             Settings
@@ -388,7 +388,7 @@ export default function PaymentsPage() {
                         </p>
                         <p className="text-xs text-purple-600 mt-1">All time</p>
                       </div>
-                      <div className="text-purple-600 bg-purple-200 p-3 rounded-lg">
+                      <div className="text-purple-600 dark:text-purple-400 bg-purple-200 dark:bg-purple-800/50 p-3 rounded-lg">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -409,7 +409,7 @@ export default function PaymentsPage() {
                         </p>
                         <p className="text-xs text-green-600 mt-1">This month</p>
                       </div>
-                      <div className="text-green-600 bg-green-200 p-3 rounded-lg">
+                      <div className="text-green-600 dark:text-green-400 bg-green-200 dark:bg-green-800/50 p-3 rounded-lg">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -430,7 +430,7 @@ export default function PaymentsPage() {
                         </p>
                         <p className="text-xs text-blue-600 mt-1">This week</p>
                       </div>
-                      <div className="text-blue-600 bg-blue-200 p-3 rounded-lg">
+                      <div className="text-blue-600 dark:text-blue-400 bg-blue-200 dark:bg-blue-800/50 p-3 rounded-lg">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -451,7 +451,7 @@ export default function PaymentsPage() {
                         </p>
                         <p className="text-xs text-red-600 mt-1">Pending</p>
                       </div>
-                      <div className="text-red-600 bg-red-200 p-3 rounded-lg">
+                      <div className="text-red-600 dark:text-red-400 bg-red-200 dark:bg-red-800/50 p-3 rounded-lg">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>

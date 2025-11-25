@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/dashboard/staff/utils"
+import { cn } from "@/lib/dashboard/staff/utils"
 
 function Skeleton({
   className,

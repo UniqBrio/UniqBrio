@@ -73,7 +73,7 @@ export const PhoneCountryCodeSelect: React.FC<PhoneCountryCodeSelectProps> = ({
             {sel ? (
               <>
                 <span>{sel.code}</span>
-                {sel.iso2 && <span className="text-xs text-gray-500 font-medium uppercase">{sel.iso2}</span>}
+                {sel.iso2 && <span className="text-xs text-gray-500 dark:text-white font-medium uppercase">{sel.iso2}</span>}
               </>
             ) : placeholder}
           </span>
@@ -88,7 +88,7 @@ export const PhoneCountryCodeSelect: React.FC<PhoneCountryCodeSelectProps> = ({
             onChange={e=> setQuery(e.target.value)}
             placeholder={loading ? "Loading..." : "Search country or code"}
             disabled={loading}
-            className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2]"
+            className="flex h-9 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-1.5 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2]"
           />
           <div
             className="max-h-[200px] overflow-y-auto pr-1 text-sm touch-pan-y overscroll-contain"
@@ -97,7 +97,7 @@ export const PhoneCountryCodeSelect: React.FC<PhoneCountryCodeSelectProps> = ({
             onTouchMoveCapture={(e) => e.stopPropagation()}
           >
             {loading ? (
-              <div className="text-center text-xs text-gray-500 py-4">Loading phone codes...</div>
+              <div className="text-center text-xs text-gray-500 dark:text-white py-4">Loading phone codes...</div>
             ) : (
               <>
                 {filtered.map(item => {
@@ -113,13 +113,13 @@ export const PhoneCountryCodeSelect: React.FC<PhoneCountryCodeSelectProps> = ({
                       <span className="w-14 font-medium tabular-nums">{item.code}</span>
                       <span className="flex-1 truncate">{item.country}</span>
                       {item.iso2 && (
-                        <span className="text-xs text-gray-500 font-medium uppercase ml-auto">{item.iso2}</span>
+                        <span className="text-xs text-gray-500 dark:text-white font-medium uppercase ml-auto">{item.iso2}</span>
                       )}
                     </div>
                   );
                 })}
                 {filtered.length === 0 && (
-                  <div className="text-center text-xs text-gray-500 py-4">No matches</div>
+                  <div className="text-center text-xs text-gray-500 dark:text-white py-4">No matches</div>
                 )}
               </>
             )}

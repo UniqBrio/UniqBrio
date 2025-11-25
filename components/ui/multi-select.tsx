@@ -57,7 +57,7 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
           )}
         </div>
       </PopoverTrigger>
-  <PopoverContent className="p-0 bg-white" align="start">
+  <PopoverContent className="p-0 bg-popover" align="start">
         <Command>
           <div className="flex items-center px-3 pt-3 pb-1 gap-2">
             <CommandInput placeholder={placeholder} className="flex-1" />
@@ -88,7 +88,7 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
           </div>
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto bg-white">
+            <CommandGroup className="max-h-64 overflow-auto bg-popover">
               {options.map((option: MultiSelectOption) => (
                 <CommandItem
                   key={option.value}

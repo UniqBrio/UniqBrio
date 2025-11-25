@@ -56,7 +56,7 @@ export default function ServicesFilters({
           <div className="space-y-2">
             <Label htmlFor="search">Search</Label>
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400 dark:text-white" />
               <Input
                 id="search"
                 placeholder="Search by name, ID, or instructor..."

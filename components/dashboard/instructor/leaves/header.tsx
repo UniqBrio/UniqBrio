@@ -105,7 +105,7 @@ export default function Header({ currentLanguage, changeLanguage, userRole, chan
               </DialogClose>
             </DialogHeader>
             <div className="py-4">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-white">
                 Configure your application settings and preferences. Changes will be applied immediately.
               </p>
               {/* Settings content would go here */}

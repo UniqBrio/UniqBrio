@@ -158,7 +158,7 @@ const GridCourseCard = React.memo<{
         </div>
         <div className="space-y-2">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono text-gray-400">{course.courseId || course.id}</span>
+            <span className="text-xs font-mono text-gray-400 dark:text-white">{course.courseId || course.id}</span>
           </div>
           <h3 className="font-semibold text-lg line-clamp-2">{course.name}</h3>
           <p className="text-sm text-muted-foreground">{course.instructor}</p>
@@ -249,7 +249,7 @@ const ListCourseCard = React.memo<{
             )}
             <div className="space-y-2 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-mono text-gray-500">{course.courseId || course.id}</span>
+                <span className="text-sm font-mono text-gray-500 dark:text-white">{course.courseId || course.id}</span>
                 <h3 className="font-semibold text-lg">{course.name}</h3>
                 <Badge variant={course.status === "Active" ? "default" : "secondary"}>
                   {course.status}

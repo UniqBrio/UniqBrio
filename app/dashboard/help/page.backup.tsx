@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import MainLayout from "@/components/dashboard/main-layout"
@@ -164,7 +164,7 @@ export default function HelpPage() {
                 <HelpCircle className="h-8 w-8" />
                 Help Center
               </h1>
-              <p className="text-gray-500 mt-1">
+              <p className="text-gray-500 dark:text-white mt-1">
                 Find answers to your questions and learn how to use UniqBrio effectively
               </p>
             </div>
@@ -305,11 +305,11 @@ export default function HelpPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Creating and configuring courses</li>
-                    <li>• Managing course content and materials</li>
-                    <li>• Setting up enrollment and pricing</li>
-                    <li>• Tracking student progress and performance</li>
-                    <li>• Generating course reports</li>
+                    <li>� Creating and configuring courses</li>
+                    <li>� Managing course content and materials</li>
+                    <li>� Setting up enrollment and pricing</li>
+                    <li>� Tracking student progress and performance</li>
+                    <li>� Generating course reports</li>
                   </ul>
                   <Button className="mt-4 bg-orange-600 hover:bg-orange-700">View Full Guide</Button>
                 </CardContent>
@@ -322,11 +322,11 @@ export default function HelpPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Creating and managing class sessions</li>
-                    <li>• Handling conflicts and availability</li>
-                    <li>• Setting up recurring sessions</li>
-                    <li>• Managing instructor assignments</li>
-                    <li>• Rescheduling and cancellations</li>
+                    <li>� Creating and managing class sessions</li>
+                    <li>� Handling conflicts and availability</li>
+                    <li>� Setting up recurring sessions</li>
+                    <li>� Managing instructor assignments</li>
+                    <li>� Rescheduling and cancellations</li>
                   </ul>
                   <Button className="mt-4 bg-purple-600 hover:bg-purple-700">View Full Guide</Button>
                 </CardContent>
@@ -339,11 +339,11 @@ export default function HelpPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Using analytics and reporting tools</li>
-                    <li>• Automating workflows and notifications</li>
-                    <li>• Integrating with external systems</li>
-                    <li>• Customizing the platform settings</li>
-                    <li>• Managing bulk operations</li>
+                    <li>� Using analytics and reporting tools</li>
+                    <li>� Automating workflows and notifications</li>
+                    <li>� Integrating with external systems</li>
+                    <li>� Customizing the platform settings</li>
+                    <li>� Managing bulk operations</li>
                   </ul>
                   <Button className="mt-4 bg-orange-600 hover:bg-orange-700">View Full Guide</Button>
                 </CardContent>

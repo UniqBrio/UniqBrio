@@ -1043,7 +1043,7 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
                         <div className="flex items-center space-x-3">
                           <div>
                             <p className="font-medium">{sub.name}</p>
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-white">
                               <span>Availability: {sub.availability}</span>
                               <span>Skill Match: {sub.skillMatch}%</span>
                               <span>Workload: {sub.workload}</span>

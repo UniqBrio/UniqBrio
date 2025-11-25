@@ -803,7 +803,7 @@ export default function CourseFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="sticky top-0 bg-white z-10 border-b border-gray-200 pb-2">
+        <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-700 pb-2">
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full tabs-purple">
             <TabsList className="grid w-full grid-cols-7 gap-2 bg-transparent p-0 h-auto">
               <TabsTrigger 
@@ -832,19 +832,19 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="content" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 dark:text-white inline-flex items-center gap-1"
               >
                 Content <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 dark:text-white inline-flex items-center gap-1"
               >
                 Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
               <TabsTrigger 
                 value="marketing" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 dark:text-white inline-flex items-center gap-1"
               >
                 Marketing <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
@@ -939,7 +939,7 @@ export default function CourseFormDialog({
           </Tabs>
         </div>
 
-        <DialogFooter className="sticky bottom-0 bg-white border-t border-gray-200 pt-2 flex justify-between items-center mt-1">
+        <DialogFooter className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between items-center mt-1">
           <div className="flex gap-1">
             {!isEditMode && (
               <Button
@@ -1009,9 +1009,9 @@ export default function CourseFormDialog({
 
     {/* Unsaved Changes Confirmation Dialog */}
     <Dialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
-      <DialogContent className="max-w-lg w-full p-6 bg-white rounded-lg shadow-xl border">
+      <DialogContent className="max-w-lg w-full p-6 bg-background dark:bg-gray-900 rounded-lg shadow-xl border dark:border-gray-700">
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-lg font-semibold text-gray-900">
+          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
             {isEditMode ? 'Close Editor' : 'Unsaved Changes'}
           </DialogTitle>
           <DialogDescription>

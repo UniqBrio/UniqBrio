@@ -1,4 +1,4 @@
-﻿import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
 import ReminderTemplateManager from "@/components/dashboard/payments/reminder/template-manager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
@@ -8,8 +8,8 @@ export default function ReminderPage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Reminder Management</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Reminder Management</h1>
+        <p className="text-gray-600 dark:text-white mt-2">
           Manage email reminder templates, configure settings, and track communication
         </p>
       </div>
@@ -42,7 +42,7 @@ export default function ReminderPage() {
                 <Settings className="h-4 w-4 mr-2" />
                 Coming Soon
               </Button>
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-gray-500 dark:text-white mt-4">
                 Configure default reminder timing, email sending limits, payment reminder settings, subscription notifications, and communication channel preferences.
               </p>
             </CardContent>
@@ -65,7 +65,7 @@ export default function ReminderPage() {
                 <Clock className="h-4 w-4 mr-2" />
                 Coming Soon
               </Button>
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-gray-500 dark:text-white mt-4">
                 This feature will allow you to create automated reminder schedules based on payment due dates, course start dates, and custom triggers.
               </p>
             </CardContent>
@@ -88,7 +88,7 @@ export default function ReminderPage() {
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Coming Soon
               </Button>
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-gray-500 dark:text-white mt-4">
                 Monitor email open rates, click-through rates, payment completion rates after reminders, and overall reminder effectiveness.
               </p>
             </CardContent>

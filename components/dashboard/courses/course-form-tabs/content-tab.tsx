@@ -97,7 +97,7 @@ export default function ContentTab({ formData, onFormChange }: ContentTabProps) 
 
       <div className="space-y-2">
         <h4 className="font-medium text-sm">Microlearning Modules</h4>
-        <p className="text-xs text-gray-600">Break course into 5-10 minute modules</p>
+        <p className="text-xs text-gray-600 dark:text-white">Break course into 5-10 minute modules</p>
 
         <div className="flex items-center space-x-1 text-xs">
           <Switch id="enableMicrolearning" />

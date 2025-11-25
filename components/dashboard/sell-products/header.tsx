@@ -32,7 +32,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-gray-300 hover:bg-gray-100 text-gray-700 transition-smooth"
+                className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white transition-smooth"
               >
                 <Globe className="h-4 w-4 mr-2" />
                 {language}
@@ -46,7 +46,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
           </DropdownMenu>
 
           <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-smooth">
-            <Bell className="h-5 w-5 text-gray-700" />
+            <Bell className="h-5 w-5 text-gray-700 dark:text-white" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-purple-600 to-orange-500 glow text-white">
               3
             </Badge>
@@ -56,7 +56,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
             variant="ghost" 
             size="sm" 
             onClick={onSettingsClick}
-            className="hover:bg-gray-100 transition-smooth text-gray-700"
+            className="hover:bg-gray-100 transition-smooth text-gray-700 dark:text-white"
           >
             <Settings className="h-5 w-5" />
           </Button>
@@ -74,7 +74,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
                 </Avatar>
                 <div className="text-left">
                   <div className="text-xs text-green-600 font-semibold">{userRole}</div>
-                  <div className="text-sm text-gray-700">Profile</div>
+                  <div className="text-sm text-gray-700 dark:text-white">Profile</div>
                 </div>
               </Button>
             </DropdownMenuTrigger>

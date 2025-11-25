@@ -88,11 +88,11 @@ export default function EnhancedCampaignList({
       case 'Scheduled':
         return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'Completed':
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-gray-100 text-gray-800 dark:text-white border-gray-300';
       case 'Draft':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-white';
     }
   };
 
@@ -137,7 +137,7 @@ export default function EnhancedCampaignList({
     return (
       <Card className="border-2">
         <CardContent className="py-12 text-center text-muted-foreground">
-          <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <BarChart3 className="h-16 w-16 text-gray-300 dark:text-white mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">No campaigns found</h3>
           <p className="text-sm">Try adjusting your filters or create a new campaign</p>
         </CardContent>
@@ -211,7 +211,7 @@ export default function EnhancedCampaignList({
                 {/* Target Audience */}
                 {campaign.targetAudience && campaign.targetAudience.courses && campaign.targetAudience.courses.length > 0 && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-1 text-xs font-semibold text-gray-900">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-gray-900 dark:text-white">
                       <Target className="h-3.5 w-3.5" />
                       Target Audience
                     </div>
@@ -233,7 +233,7 @@ export default function EnhancedCampaignList({
                 {/* Distribution Channels */}
                 {campaign.channels && campaign.channels.length > 0 && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-1 text-xs font-semibold text-gray-900">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-gray-900 dark:text-white">
                       <Send className="h-3.5 w-3.5" />
                       Channels
                     </div>
@@ -334,16 +334,16 @@ export default function EnhancedCampaignList({
       <Table>
         <TableHeader>
           <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100">
-            <TableHead className="font-semibold text-gray-900">Campaign</TableHead>
-            <TableHead className="font-semibold text-gray-900">Type</TableHead>
-            <TableHead className="font-semibold text-gray-900">Status</TableHead>
-            <TableHead className="font-semibold text-gray-900">Budget</TableHead>
-            <TableHead className="font-semibold text-right text-gray-900">Reach</TableHead>
-            <TableHead className="font-semibold text-right text-gray-900">Engagement</TableHead>
-            <TableHead className="font-semibold text-right text-gray-900">CTR</TableHead>
-            <TableHead className="font-semibold text-right text-gray-900">Conv. %</TableHead>
-            <TableHead className="font-semibold text-right text-gray-900">ROI %</TableHead>
-            <TableHead className="font-semibold text-center text-gray-900">Actions</TableHead>
+            <TableHead className="font-semibold text-gray-900 dark:text-white">Campaign</TableHead>
+            <TableHead className="font-semibold text-gray-900 dark:text-white">Type</TableHead>
+            <TableHead className="font-semibold text-gray-900 dark:text-white">Status</TableHead>
+            <TableHead className="font-semibold text-gray-900 dark:text-white">Budget</TableHead>
+            <TableHead className="font-semibold text-right text-gray-900 dark:text-white">Reach</TableHead>
+            <TableHead className="font-semibold text-right text-gray-900 dark:text-white">Engagement</TableHead>
+            <TableHead className="font-semibold text-right text-gray-900 dark:text-white">CTR</TableHead>
+            <TableHead className="font-semibold text-right text-gray-900 dark:text-white">Conv. %</TableHead>
+            <TableHead className="font-semibold text-right text-gray-900 dark:text-white">ROI %</TableHead>
+            <TableHead className="font-semibold text-center text-gray-900 dark:text-white">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -358,7 +358,7 @@ export default function EnhancedCampaignList({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{campaign.title}</div>
-                      <div className="text-xs text-gray-500 truncate">{campaign.description}</div>
+                      <div className="text-xs text-gray-500 dark:text-white truncate">{campaign.description}</div>
                     </div>
                     {campaign.featured && (
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
@@ -388,7 +388,7 @@ export default function EnhancedCampaignList({
                       </Tooltip>
                     </TooltipProvider>
                   ) : (
-                    <span className="text-gray-500">-</span>
+                    <span className="text-gray-500 dark:text-white">-</span>
                   )}
                 </TableCell>
                 <TableCell className="text-right font-medium">{campaign.reach.toLocaleString()}</TableCell>

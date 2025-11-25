@@ -130,7 +130,7 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
                 <SelectItem value="custom">Custom Selection</SelectItem>
               </SelectContent>
             </Select>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-white">
               <Users className="h-4 w-4" />
               <span>{getRecipientCount()} recipients will receive this notification</span>
             </div>
@@ -180,7 +180,7 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-medium">{template.name}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{template.template}</p>
+                        <p className="text-sm text-gray-600 dark:text-white mt-1">{template.template}</p>
                       </div>
                       {!isEmergency && "channels" in template && (
                         <div className="flex gap-1">
@@ -211,7 +211,7 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
               className="min-h-[100px]"
             />
             {selectedTemplate && "variables" in selectedTemplate && selectedTemplate.variables && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-white">
                 <p>Available variables: {selectedTemplate.variables.map((v) => `{${v}}`).join(", ")}</p>
               </div>
             )}
@@ -221,7 +221,7 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
           {customMessage && (
             <div className="space-y-3">
               <Label className="text-base font-medium">Preview</Label>
-              <div className="p-3 bg-gray-50 rounded-lg border">
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
                 <p className="text-sm">{customMessage}</p>
               </div>
             </div>

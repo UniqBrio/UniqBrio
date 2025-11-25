@@ -37,17 +37,17 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
+        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 rounded-t-2xl">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Cookie Preferences</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Cookie Preferences</h2>
+              <p className="text-sm text-gray-600 dark:text-white">
                 Manage how we use cookies to improve your experience
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-4"
+              className="text-gray-400 hover:text-gray-600 dark:text-white dark:hover:text-gray-300 dark:text-white transition-colors flex-shrink-0 ml-4"
               aria-label="Close"
             >
               <X size={24} />
@@ -69,11 +69,11 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
                     disabled
                     className="w-5 h-5 rounded border-gray-300 cursor-not-allowed opacity-50"
                   />
-                  <label htmlFor="strictlyNecessary" className="font-semibold text-gray-900 cursor-not-allowed">
+                  <label htmlFor="strictlyNecessary" className="font-semibold text-gray-900 dark:text-white cursor-not-allowed">
                     Essential Cookies
                   </label>
                 </div>
-                <p className="text-sm text-gray-600 ml-8">
+                <p className="text-sm text-gray-600 dark:text-white ml-8">
                   Required for the site to work properly. These cookies enable core functionality like security, 
                   authentication, and session management. They cannot be disabled.
                 </p>
@@ -93,11 +93,11 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
                     onChange={(e) => setPreferences({ ...preferences, analytics: e.target.checked })}
                     className="w-5 h-5 rounded border-gray-300 text-purple-700 focus:ring-purple-500 cursor-pointer"
                   />
-                  <label htmlFor="analytics" className="font-semibold text-gray-900 cursor-pointer">
+                  <label htmlFor="analytics" className="font-semibold text-gray-900 dark:text-white cursor-pointer">
                     Analytics Cookies
                   </label>
                 </div>
-                <p className="text-sm text-gray-600 ml-8">
+                <p className="text-sm text-gray-600 dark:text-white ml-8">
                   Help us understand how you use UniqBrio so we can improve features and fix issues. 
                   All data is anonymized and aggregated.
                 </p>
@@ -117,11 +117,11 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
                     onChange={(e) => setPreferences({ ...preferences, personalization: e.target.checked })}
                     className="w-5 h-5 rounded border-gray-300 text-purple-700 focus:ring-purple-500 cursor-pointer"
                   />
-                  <label htmlFor="personalization" className="font-semibold text-gray-900 cursor-pointer">
+                  <label htmlFor="personalization" className="font-semibold text-gray-900 dark:text-white cursor-pointer">
                     Personalization Cookies
                   </label>
                 </div>
-                <p className="text-sm text-gray-600 ml-8">
+                <p className="text-sm text-gray-600 dark:text-white ml-8">
                   Remember your preferences and settings to provide a tailored experience. 
                   Currently not used by UniqBrio.
                 </p>
@@ -131,11 +131,11 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 rounded-b-2xl">
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 rounded-b-2xl">
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-white transition-colors font-medium"
+              className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors font-medium"
             >
               Cancel
             </button>
@@ -146,7 +146,7 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
               Save Preferences
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-4 text-center">
+          <p className="text-xs text-gray-500 dark:text-white mt-4 text-center">
             You can change your preferences anytime from the footer
           </p>
         </div>

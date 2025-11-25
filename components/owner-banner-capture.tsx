@@ -183,7 +183,7 @@ const OwnerBannerCapture: React.FC<OwnerBannerCaptureProps> = ({ captureType = "
             </button>
           </div>
           {error && <div className="text-red-600 mb-2">{error}</div>}
-          <div className="bg-white rounded-lg shadow p-3 mt-2 w-full max-w-md text-sm text-gray-700">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 mt-2 w-full max-w-md text-sm text-gray-700 dark:text-white">
             <ul className="list-disc pl-4">
               <li>Camera permissions required</li>
               {captureType === "ownerWithBanner" && <li>Location permissions required</li>}

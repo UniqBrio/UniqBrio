@@ -387,8 +387,8 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
               </div>
               {incomeForm.description && (
                 <div className="text-sm">
-                  <div className="text-[11px] tracking-wide text-gray-500 font-semibold mb-1">Description</div>
-                  <div className="rounded-md border bg-white px-3 py-2 leading-relaxed text-gray-700 whitespace-pre-wrap">
+                  <div className="text-[11px] tracking-wide text-gray-500 dark:text-white font-semibold mb-1">Description</div>
+                  <div className="rounded-md border dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 leading-relaxed text-foreground whitespace-pre-wrap">
                     {incomeForm.description}
                   </div>
                 </div>
@@ -420,12 +420,12 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Amount<span className="text-red-500">*</span></Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Amount<span className="text-red-500">*</span></Label>
                   <input 
                     type="number" 
                     min="0.01" 
                     step="any" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
                     value={incomeForm.amount} 
                     onChange={e => handleIncomeChange('amount', e.target.value)} 
                     onKeyDown={e => { if (e.key === '-' || e.key === '+' || e.key === 'e') { e.preventDefault(); } }} 
@@ -436,7 +436,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   {fieldErrors.amount && <div className="text-red-600 text-xs mt-1">{fieldErrors.amount}</div>}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Category<span className="text-red-500">*</span></Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Category<span className="text-red-500">*</span></Label>
                   <DropdownMenu open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button 
@@ -476,7 +476,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   </DropdownMenu>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Source</Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Source</Label>
                   <DropdownMenu open={sourceDropdownOpen} onOpenChange={setSourceDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button 
@@ -516,7 +516,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   </DropdownMenu>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Payment Mode</Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Payment Mode</Label>
                   <Select value={incomeForm.paymentMode} onValueChange={v => handleIncomeChange('paymentMode', v)}>
                     <SelectTrigger className="w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" tabIndex={5}>
                       <SelectValue placeholder="Select mode" />
@@ -529,7 +529,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">To Account{incomeForm.paymentMode?.toLowerCase() !== 'cash' && <span className="text-red-500">*</span>}</Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">To Account{incomeForm.paymentMode?.toLowerCase() !== 'cash' && <span className="text-red-500">*</span>}</Label>
                   <Select 
                     value={incomeForm.addToAccount || ""} 
                     onValueChange={v => handleIncomeChange('addToAccount', v)} 
@@ -552,10 +552,10 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Received By</Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Received By</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={incomeForm.receivedBy} 
                     onChange={e => handleIncomeChange('receivedBy', e.target.value)} 
                     placeholder="Enter receiver's name" 
@@ -563,10 +563,10 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Received From</Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Received From</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={incomeForm.receivedFrom} 
                     onChange={e => handleIncomeChange('receivedFrom', e.target.value)} 
                     placeholder="Enter sender's name" 
@@ -574,10 +574,10 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Receipt / Transaction Number</Label>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-white">Receipt / Transaction Number</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={incomeForm.receiptNumber} 
                     onChange={e => handleIncomeChange('receiptNumber', e.target.value)} 
                     placeholder="Enter receipt or transaction number" 
@@ -587,9 +587,9 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Description</Label>
+                <Label className="text-sm font-medium text-gray-700 dark:text-white">Description</Label>
                 <textarea 
-                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y" 
+                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y" 
                   value={incomeForm.description} 
                   onChange={e => handleIncomeChange('description', e.target.value)} 
                   placeholder="Enter description or notes about this income"
@@ -597,16 +597,16 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Attachment</Label>
+                <Label className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
                 <input 
                   type="file" 
-                                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
+                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
  
                   accept=".pdf,.png,.jpg,.jpeg" 
                   onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleIncomeChange('attachments', file); }} 
                   tabIndex={11} 
                 />
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-white">
                   Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
                 </div>
               </div>
@@ -769,8 +769,8 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-0.5">
-      <div className="text-[11px] tracking-wide text-gray-500 font-semibold">{label}</div>
-      <div className="text-gray-800 font-medium break-words">{value || '-'}</div>
+      <div className="text-[11px] tracking-wide text-gray-500 dark:text-white font-semibold">{label}</div>
+      <div className="text-gray-800 dark:text-white font-medium break-words">{value || '-'}</div>
     </div>
   );
 }

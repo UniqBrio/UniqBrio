@@ -34,12 +34,12 @@ export default async function InstructorDashboardPage() {
 
       <div className="bg-white p-4 rounded-lg shadow mb-4">
         <h2 className="text-lg font-semibold mb-2">Your Classes</h2>
-        <p className="text-gray-500">You are not teaching any classes yet.</p>
+        <p className="text-gray-500 dark:text-white">You are not teaching any classes yet.</p>
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow mb-4">
         <h2 className="text-lg font-semibold mb-2">Student Roster</h2>
-        <p className="text-gray-500">No students enrolled in your classes.</p>
+        <p className="text-gray-500 dark:text-white">No students enrolled in your classes.</p>
       </div>
 
       <form action="/api/auth/signout" method="post">

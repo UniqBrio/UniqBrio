@@ -11,11 +11,11 @@ export default function GlobalFooter() {
 
   return (
     <>
-      <footer className="bg-white border-t border-gray-200 py-6 px-4 mt-auto">
+      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-6 px-4 mt-auto">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-white">
               © {new Date().getFullYear()} UniqBrio. All rights reserved.
             </div>
 
@@ -23,32 +23,32 @@ export default function GlobalFooter() {
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
               <Link 
                 href="/legal/terms" 
-                className="text-gray-600 hover:text-purple-700 hover:underline transition-colors"
+                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
               >
                 Our Promise to You
               </Link>
               <Link 
                 href="/legal/privacy" 
-                className="text-gray-600 hover:text-purple-700 hover:underline transition-colors"
+                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
               >
                 How We Protect Your Academy
               </Link>
               <Link 
                 href="/legal/cookies" 
-                className="text-gray-600 hover:text-purple-700 hover:underline transition-colors"
+                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
               >
                 Cookie Policy
               </Link>
               <button
                 onClick={() => setShowCookieModal(true)}
-                className="text-gray-600 hover:text-purple-700 hover:underline transition-colors"
+                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
               >
                 Cookie Choices
               </button>
             </div>
 
             {/* Tagline */}
-            <div className="text-sm text-gray-600 italic">
+            <div className="text-sm text-gray-600 dark:text-white italic">
               Mentoring Businesses, Nurturing Learners
             </div>
           </div>

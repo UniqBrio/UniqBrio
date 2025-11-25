@@ -779,7 +779,7 @@ function LeaveTypeCombobox({ value, onChange }: { value: string; onChange: (v: s
           <ScrollArea type="always" className="max-h-[260px]">
             <CommandList className="max-h-[260px]" style={{ scrollBehavior: 'smooth' }}>
               {loading ? (
-                <div className="px-2 py-1 text-sm text-gray-500">Loading leave types...</div>
+                <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading leave types...</div>
               ) : (
                 <>
                   <CommandEmpty>No leave type found.</CommandEmpty>

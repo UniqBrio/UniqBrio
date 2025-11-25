@@ -184,8 +184,8 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
                     if (data.category === "No Payment Data") {
                       return [
                         <div key="tooltip" className="space-y-1">
-                          <div className="font-semibold text-gray-600">No Data Available</div>
-                          <div className="text-xs text-gray-500">
+                          <div className="font-semibold text-gray-600 dark:text-white">No Data Available</div>
+                          <div className="text-xs text-gray-500 dark:text-white">
                             <div>Students may not have</div>
                             <div>payment categories assigned yet</div>
                           </div>
@@ -241,7 +241,7 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
         </div>
         
         {displayData.length === 0 && (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-gray-500 dark:text-white py-8">
             <p className="text-sm">No payment category data available</p>
             <p className="text-xs mt-1">Students may not have payment categories assigned yet</p>
           </div>

@@ -45,7 +45,7 @@ export function TaskGridView({
   }
   if (tasks.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
+      <div className="text-center text-gray-500 dark:text-white py-8">
         No tasks found.
       </div>
     )
@@ -95,7 +95,7 @@ export function TaskGridView({
           <CardContent className="p-4 pt-2">
             {/* Task Header */}
             <div className="mb-4">
-              <h3 className="font-semibold text-lg text-gray-900 truncate">
+              <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate">
                 {task.name}
               </h3>
               {task.isCompleted && (
@@ -106,48 +106,48 @@ export function TaskGridView({
             {/* Task Details */}
             <div className="space-y-2 mb-4">
               <div className="flex text-xs">
-                <span className="text-gray-500">Task Name:</span>
+                <span className="text-gray-500 dark:text-white">Task Name:</span>
                 <span className="font-medium ml-2">
                   {task.name}
                 </span>
               </div>
               <div className="flex text-xs">
-                <span className="text-gray-500">Assigned To:</span>
+                <span className="text-gray-500 dark:text-white">Assigned To:</span>
                 <span className="font-medium ml-2">
                   {task.assignedTo || 'Self'}
                 </span>
               </div>
               
               <div className="flex text-xs">
-                <span className="text-gray-500">Description:</span>
+                <span className="text-gray-500 dark:text-white">Description:</span>
                 <span className="font-medium ml-2 truncate max-w-48" title={task.description || "-"}>
                   {task.description || "-"}
                 </span>
               </div>
 
               <div className="flex text-xs">
-                <span className="text-gray-500">Target Date:</span>
+                <span className="text-gray-500 dark:text-white">Target Date:</span>
                 <span className="font-medium ml-2">
                   {format(safeParse(task.targetDate), "dd-MMM-yyyy")}
                 </span>
               </div>
 
               <div className="flex text-xs">
-                <span className="text-gray-500">Priority:</span>
+                <span className="text-gray-500 dark:text-white">Priority:</span>
                 <span className="font-medium capitalize ml-2">
                   {task.priority}
                 </span>
               </div>
 
               <div className="flex text-xs">
-                <span className="text-gray-500">Created On:</span>
+                <span className="text-gray-500 dark:text-white">Created On:</span>
                 <span className="font-medium ml-2">
                   {format(safeParse(task.createdOn), "dd-MMM-yyyy")}
                 </span>
               </div>
 
               <div className="flex text-xs items-center">
-                <span className="text-gray-500">Remarks:</span>
+                <span className="text-gray-500 dark:text-white">Remarks:</span>
                 <div className="ml-2 flex-1">
                   <InlineRemarksEditor
                     initialValue={task.remarks || ""}

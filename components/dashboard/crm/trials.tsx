@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -199,11 +199,11 @@ export default function TrialsPage() {
       case "No Show":
         return "bg-red-100 text-red-800"
       case "Cancelled":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
       case "Rescheduled":
         return "bg-yellow-100 text-yellow-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -218,7 +218,7 @@ export default function TrialsPage() {
       case "Pending Decision":
         return "bg-blue-100 text-blue-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -239,7 +239,7 @@ export default function TrialsPage() {
     return (
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
-          <Star key={star} className={`w-4 h-4 ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"}`} />
+          <Star key={star} className={`w-4 h-4 ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-white"}`} />
         ))}
       </div>
     )
@@ -258,8 +258,8 @@ export default function TrialsPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Trial Sessions</h1>
-          <p className="text-gray-500">Schedule and manage trial classes</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Trial Sessions</h1>
+          <p className="text-gray-500 dark:text-white">Schedule and manage trial classes</p>
         </div>
         <Button className="w-full md:w-auto bg-purple-500 text-white"  onClick={() => setShowAddDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -333,14 +333,14 @@ export default function TrialsPage() {
                   <TableCell>
                     <div>
                       <div className="font-medium">{trial.studentName}</div>
-                      <div className="text-sm text-gray-500">{trial.contactNumber}</div>
+                      <div className="text-sm text-gray-500 dark:text-white">{trial.contactNumber}</div>
                     </div>
                   </TableCell>
                   <TableCell>{trial.course}</TableCell>
                   <TableCell>
                     <div>
                       <div>{trial.trialDate}</div>
-                      <div className="text-sm text-gray-500">{trial.trialTime}</div>
+                      <div className="text-sm text-gray-500 dark:text-white">{trial.trialTime}</div>
                     </div>
                   </TableCell>
                   <TableCell>{trial.instructor}</TableCell>

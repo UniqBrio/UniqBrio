@@ -266,7 +266,7 @@ export default function PaymentSearchFilters({
       <div className="flex flex-col lg:flex-row gap-2 mb-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
           <Input
             placeholder="Search by student name or course name"
             className="pl-10"
@@ -402,7 +402,7 @@ export default function PaymentSearchFilters({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
               <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{(() => {
+              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{(() => {
                 const label = [
                   { value: "studentId", label: "Student ID" },
                   { value: "studentName", label: "Student Name" },
@@ -412,7 +412,7 @@ export default function PaymentSearchFilters({
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
               })()}</span>
-              <span className="ml-2 text-xs text-gray-500 group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
+              <span className="ml-2 text-xs text-gray-500 dark:text-white group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

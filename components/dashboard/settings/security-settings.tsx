@@ -98,7 +98,7 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <div className="relative">
-              <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
               <Input
                 id="currentPassword"
                 type={showPassword ? "text" : "password"}
@@ -110,7 +110,7 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-3 text-gray-400 dark:text-white hover:text-gray-600 dark:text-white dark:hover:text-gray-300 dark:text-white"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -172,7 +172,7 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
               value={sessionTimeout}
               onChange={(e) => setSessionTimeout(parseInt(e.target.value))}
             />
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-white">
               You'll be logged out after this period of inactivity
             </p>
           </div>

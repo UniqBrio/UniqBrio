@@ -67,7 +67,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       <div className="mb-1 font-semibold text-sm select-none">{label}</div>
       <button
         type="button"
-        className="w-full text-left text-xs px-3 py-2 rounded-md border bg-white flex items-center justify-between gap-2"
+        className="w-full text-left text-xs px-3 py-2 rounded-md border dark:border-gray-600 bg-background dark:bg-gray-800 flex items-center justify-between gap-2"
         onClick={() => setOpen(o => !o)}
         onKeyDown={(e) => {
           if (e.altKey && e.key === 'ArrowDown') {
@@ -78,8 +78,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className={`truncate ${selected.length ? 'text-gray-700' : 'text-gray-400'}`}>{summary}</span>
-        <span className="ml-auto text-gray-400">▾</span>
+        <span className={`truncate ${selected.length ? 'text-gray-700' : 'text-gray-400 dark:text-white'}`}>{summary}</span>
+        <span className="ml-auto text-gray-400 dark:text-white">▾</span>
       </button>
       {open && (
         <div
@@ -87,7 +87,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           role="listbox"
           aria-label={label}
         >
-          {options.length === 0 && <div className="text-gray-400 italic px-2 py-1">No options</div>}
+          {options.length === 0 && <div className="text-gray-400 dark:text-white italic px-2 py-1">No options</div>}
 
           {/* Show a small search bar when there are many options */}
           {hasManyOptions && (
@@ -137,7 +137,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               </div>
 
               {query && filteredOptions.length === 0 && (
-                <div className="text-gray-400 italic px-2 py-1">No matches</div>
+                <div className="text-gray-400 dark:text-white italic px-2 py-1">No matches</div>
               )}
             </div>
           )}

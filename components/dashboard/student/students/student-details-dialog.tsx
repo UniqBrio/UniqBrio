@@ -25,8 +25,8 @@ function formatDate(date?: string | null) {
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <div className="text-sm font-medium text-gray-600">{label}:</div>
-      <div className="text-sm font-semibold text-gray-900">{value || '�'}</div>
+      <div className="text-sm font-medium text-gray-600 dark:text-white">{label}:</div>
+      <div className="text-sm font-semibold text-gray-900 dark:text-white">{value || '—'}</div>
     </div>
   );
 }
@@ -79,16 +79,16 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-white overflow-hidden flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-background dark:bg-gray-900 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="relative flex-shrink-0">
-          <DialogHeader className="px-6 py-4 bg-white border-b border-gray-100">
+          <DialogHeader className="px-6 py-4 bg-background dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <DialogTitle className="text-xl font-semibold text-gray-900">
+                <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white">
                   {student.name}
                 </DialogTitle>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-white mt-1">
                   ID: {student.studentId}
                 </p>
                 {/* Tags in header */}
@@ -118,7 +118,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
               <DialogClose asChild>
                 <button
                   type="button"
-                  className="ml-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                  className="ml-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-white hover:bg-gray-100 hover:text-gray-700 dark:text-white"
                   aria-label="Close"
                 >
                   <X className="h-4 w-4" />
@@ -132,7 +132,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
         <div className="px-6 py-4 space-y-6 overflow-y-auto flex-1">
           {/* Student Information Section */}
           <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
               Student Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -153,7 +153,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
 
           {/* Course & Enrollment Section */}
           <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
               Course & Enrollment
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,7 +174,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
                     <div className="space-y-1">
                       <div className="font-medium">{cohortInfo.id} � {cohortInfo.name || 'Unnamed'}</div>
                       {(cohortInfo.instructor || cohortInfo.timing) && (
-                        <div className="text-xs text-gray-500 space-y-0.5">
+                        <div className="text-xs text-gray-500 dark:text-white space-y-0.5">
                           {cohortInfo.instructor && <div>Instructor: {cohortInfo.instructor}</div>}
                           {cohortInfo.timing && <div>Timing: {cohortInfo.timing}</div>}
                         </div>

@@ -104,7 +104,7 @@ export default function KYCBlockedPage() {
               </div>
             </div>
             
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               KYC Documents Submitted Successfully!
             </h1>
             
@@ -129,15 +129,15 @@ export default function KYCBlockedPage() {
             </div>
             
             <div className="text-center">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-white mb-4">
                 Your documents have been successfully uploaded and are being processed.
               </p>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-white text-sm">
                 You'll be able to access your dashboard once the verification is approved.
               </p>
             </div>
             
-            <p className="text-gray-500 text-sm mt-4">
+            <p className="text-gray-500 dark:text-white text-sm mt-4">
               You will be redirected to the dashboard automatically in a few seconds...
             </p>
           </CardContent>
@@ -189,12 +189,12 @@ export default function KYCBlockedPage() {
         <CardContent className="p-8">
           <div className="text-center mb-6">
             {userInfo.name && (
-              <p className="text-lg text-gray-700 mb-2">
+              <p className="text-lg text-gray-700 dark:text-white mb-2">
                 Hello <strong>{userInfo.name}</strong>,
               </p>
             )}
             {userInfo.academyName && (
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-white mb-4">
                 Academy: <strong>{userInfo.academyName}</strong>
               </p>
             )}
@@ -249,7 +249,7 @@ export default function KYCBlockedPage() {
           </div>
 
           <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-white">
               Need help? Contact our support team at support@uniqbrio.com
             </p>
           </div>

@@ -9,7 +9,7 @@ export default function ResetSuccessPage() {
 
         <h1 className="text-2xl font-bold mb-4">Password Reset Successful</h1>
 
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 dark:text-white mb-8">
           Your password has been successfully reset. You can now log in with your new password.
         </p>
 

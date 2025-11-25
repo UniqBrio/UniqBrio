@@ -112,7 +112,7 @@ export default function NotificationsPage() {
       case "event":
         return <Calendar className="text-purple-500" size={20} />
       default:
-        return <Bell className="text-gray-500" size={20} />
+        return <Bell className="text-gray-500 dark:text-white" size={20} />
     }
   }
 
@@ -122,14 +122,14 @@ export default function NotificationsPage() {
         <h1 className="text-2xl font-bold">Notifications</h1>
 
         <div className="flex items-center gap-4">
-          <Link href="/settings" className="flex items-center text-gray-600 hover:text-gray-900">
+          <Link href="/settings" className="flex items-center text-gray-600 dark:text-white hover:text-gray-900 dark:text-white">
             <Settings size={18} className="mr-1" />
             <span className="text-sm">Settings</span>
           </Link>
 
           <button
             onClick={clearAllNotifications}
-            className="flex items-center text-gray-600 hover:text-gray-900"
+            className="flex items-center text-gray-600 dark:text-white hover:text-gray-900 dark:text-white"
             disabled={notifications.length === 0}
           >
             <Trash2 size={18} className="mr-1" />
@@ -142,19 +142,19 @@ export default function NotificationsPage() {
         <div className="flex justify-between items-center p-4 border-b">
           <div className="flex gap-4">
             <button
-              className={`text-sm ${filter === "all" ? "text-purple-700 font-medium" : "text-gray-600"}`}
+              className={`text-sm ${filter === "all" ? "text-purple-700 font-medium" : "text-gray-600 dark:text-white"}`}
               onClick={() => setFilter("all")}
             >
               All ({notifications.length})
             </button>
             <button
-              className={`text-sm ${filter === "unread" ? "text-purple-700 font-medium" : "text-gray-600"}`}
+              className={`text-sm ${filter === "unread" ? "text-purple-700 font-medium" : "text-gray-600 dark:text-white"}`}
               onClick={() => setFilter("unread")}
             >
               Unread ({notifications.filter((n) => !n.read).length})
             </button>
             <button
-              className={`text-sm ${filter === "read" ? "text-purple-700 font-medium" : "text-gray-600"}`}
+              className={`text-sm ${filter === "read" ? "text-purple-700 font-medium" : "text-gray-600 dark:text-white"}`}
               onClick={() => setFilter("read")}
             >
               Read ({notifications.filter((n) => n.read).length})
@@ -172,8 +172,8 @@ export default function NotificationsPage() {
 
         {filteredNotifications.length === 0 ? (
           <div className="p-8 text-center">
-            <Bell className="mx-auto text-gray-400 mb-2" size={32} />
-            <p className="text-gray-500">No notifications to display</p>
+            <Bell className="mx-auto text-gray-400 dark:text-white mb-2" size={32} />
+            <p className="text-gray-500 dark:text-white">No notifications to display</p>
           </div>
         ) : (
           <div className="divide-y">
@@ -184,21 +184,21 @@ export default function NotificationsPage() {
 
                   <div className="flex-grow">
                     <div className="flex justify-between items-start">
-                      <h3 className={`font-medium ${!notification.read ? "text-black" : "text-gray-700"}`}>
+                      <h3 className={`font-medium ${!notification.read ? "text-black" : "text-gray-700 dark:text-white"}`}>
                         {notification.title}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">{formatDate(notification.date)}</span>
+                        <span className="text-xs text-gray-500 dark:text-white">{formatDate(notification.date)}</span>
                         <button
                           onClick={() => deleteNotification(notification.id)}
-                          className="text-gray-400 hover:text-gray-600"
+                          className="text-gray-400 dark:text-white hover:text-gray-600 dark:text-white"
                         >
                           <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
 
-                    <p className={`text-sm mt-1 ${!notification.read ? "text-gray-800" : "text-gray-600"}`}>
+                    <p className={`text-sm mt-1 ${!notification.read ? "text-gray-800" : "text-gray-600 dark:text-white"}`}>
                       {notification.message}
                     </p>
 

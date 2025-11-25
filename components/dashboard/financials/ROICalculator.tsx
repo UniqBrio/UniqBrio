@@ -169,14 +169,14 @@ function ROICalculatorMultiStep() {
   ]
 
   return (
-    <div className="bg-white border-2 border-gray-200 rounded-lg p-6 mb-10 shadow-sm">
+    <div className="bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-10 shadow-sm">
       
       <h2 className="text-xl font-bold text-black mb-4 flex items-center gap-2">
         <span className="inline-flex items-center gap-2">ROI Calculator <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
       </h2>
       <Accordion type="single" collapsible className="mb-4">
         <AccordionItem value="step1">
-          <AccordionTrigger className="text-sm font-semibold text-gray-400 cursor-not-allowed select-none">1. ROI Type</AccordionTrigger>
+          <AccordionTrigger className="text-sm font-semibold text-gray-400 dark:text-white cursor-not-allowed select-none">1. ROI Type</AccordionTrigger>
           <AccordionContent>
             <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative group">
@@ -204,7 +204,7 @@ function ROICalculatorMultiStep() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="step2">
-          <AccordionTrigger className="text-lg font-semibold text-gray-400 cursor-not-allowed select-none">2. Investment Details</AccordionTrigger>
+          <AccordionTrigger className="text-lg font-semibold text-gray-400 dark:text-white cursor-not-allowed select-none">2. Investment Details</AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative group">
@@ -245,7 +245,7 @@ function ROICalculatorMultiStep() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="step3">
-          <AccordionTrigger className="text-lg font-semibold text-gray-400 cursor-not-allowed select-none">3. Revenue Details</AccordionTrigger>
+          <AccordionTrigger className="text-lg font-semibold text-gray-400 dark:text-white cursor-not-allowed select-none">3. Revenue Details</AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative group">
@@ -286,7 +286,7 @@ function ROICalculatorMultiStep() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-purple-700">{roi.toFixed(2)}%</div>
-                <div className="text-xs text-gray-500 mt-1">Annualized: {annualROI.toFixed(2)}%</div>
+                <div className="text-xs text-gray-500 dark:text-white mt-1">Annualized: {annualROI.toFixed(2)}%</div>
               </CardContent>
             </Card>
             <Card className="bg-white border border-orange-200">
@@ -319,7 +319,7 @@ function ROICalculatorMultiStep() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-purple-700">{showBreakevenEnrollments ? breakevenEnrollments!.toFixed(0) : "N/A"}</div>
-                <div className="text-xs text-gray-500 mt-1">Enrollments needed to break even</div>
+                <div className="text-xs text-gray-500 dark:text-white mt-1">Enrollments needed to break even</div>
               </CardContent>
             </Card>
           </div>
@@ -389,7 +389,7 @@ function ROICalculatorMultiStep() {
               {annualROI < 10 && <li>Low ROI: Review marketing spend, instructor efficiency, or pricing.</li>}
               {netProfit < 0 && <li>Warning: Net profit is negative. Consider reducing costs or increasing revenue.</li>}
             </ul>
-            <div className="text-xs text-gray-400 mt-2">(AI logic not implemented yet)</div>
+            <div className="text-xs text-gray-400 dark:text-white mt-2">(AI logic not implemented yet)</div>
           </div>
           {/* Export & Compare */}
           <div className="flex gap-2">

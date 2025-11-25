@@ -88,7 +88,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                     <div key="revenue-tooltip" className="space-y-1">
                       <div className="font-semibold text-purple-700">{courseName}</div>
                       <div className="text-lg font-bold">{currency} {value.toLocaleString()}</div>
-                      <div className="text-sm text-gray-600">Course ID: {props.payload?.course}</div>
+                      <div className="text-sm text-gray-600 dark:text-white">Course ID: {props.payload?.course}</div>
                     </div>,
                     ''
                   ];
@@ -122,7 +122,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
         
         {/* Course Details Section */}
         <div className="border-t pt-4">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-3 flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
             Course Details
           </h4>
@@ -133,18 +133,18 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                   <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded font-mono">
                     {item.course}
                   </span>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-white">
                     {item.courseName}
                   </span>
                 </div>
-                <div className="text-sm font-semibold text-gray-900">
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">
                   {currency} {item.amount.toLocaleString()}
                 </div>
               </div>
             ))}
           </div>
           {displayData.every(item => item.amount === 0) && (
-            <div className="text-center py-4 text-gray-500 text-sm">
+            <div className="text-center py-4 text-gray-500 dark:text-white text-sm">
               No revenue data available for courses
             </div>
           )}

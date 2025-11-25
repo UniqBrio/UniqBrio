@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -151,7 +151,7 @@ export default function EnquiriesPage() {
       case "Escalated":
         return "bg-red-100 text-red-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -164,7 +164,7 @@ export default function EnquiriesPage() {
       case "Low":
         return "bg-green-100 text-green-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -187,8 +187,8 @@ export default function EnquiriesPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Enquiry Management</h1>
-              <p className="text-gray-600">Manage and respond to student enquiries with AI assistance</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Enquiry Management</h1>
+              <p className="text-gray-600 dark:text-white">Manage and respond to student enquiries with AI assistance</p>
             </div>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
@@ -279,7 +279,7 @@ export default function EnquiriesPage() {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white w-4 h-4" />
                     <Input
                       placeholder="Search enquiries..."
                       value={searchTerm}
@@ -343,8 +343,8 @@ export default function EnquiriesPage() {
                         <TableCell>
                           <div>
                             <p className="font-medium">{enquiry.fullName}</p>
-                            <p className="text-sm text-gray-600">{enquiry.email}</p>
-                            <p className="text-sm text-gray-600">{enquiry.contactNumber}</p>
+                            <p className="text-sm text-gray-600 dark:text-white">{enquiry.email}</p>
+                            <p className="text-sm text-gray-600 dark:text-white">{enquiry.contactNumber}</p>
                           </div>
                         </TableCell>
                         <TableCell>{enquiry.preferredCourse}</TableCell>
@@ -363,7 +363,7 @@ export default function EnquiriesPage() {
                               </Badge>
                             )}
                             {enquiry.conversionProbability && (
-                              <p className="text-xs text-gray-600">{enquiry.conversionProbability}% conversion</p>
+                              <p className="text-xs text-gray-600 dark:text-white">{enquiry.conversionProbability}% conversion</p>
                             )}
                           </div>
                         </TableCell>

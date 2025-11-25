@@ -87,8 +87,8 @@ export default function InstructorDropdown({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
-              !selectedInstructor && "text-gray-400"
+              "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
+              !selectedInstructor && "text-gray-400 dark:text-white"
             )}
             disabled={disabled || loading}
           >
@@ -214,8 +214,8 @@ export function SimpleInstructorDropdown({
         <Button 
           variant="outline" 
           className={cn(
-            "w-full justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
-            !value && "text-gray-400",
+            "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
+            !value && "text-gray-400 dark:text-white",
             className
           )}
         >

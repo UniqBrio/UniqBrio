@@ -163,7 +163,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label>Non-Instructor ID</Label>
-          <div className="border-2 border-purple-400 rounded-lg px-3 py-2 text-gray-700 bg-white select-text cursor-default" title={currentId ? "Existing ID (unchanged)" : "Auto-generated on save"}>{displayId}</div>
+          <div className="border-2 border-purple-400 dark:border-purple-600 rounded-lg px-3 py-2 text-foreground bg-background dark:bg-gray-800 select-text cursor-default" title={currentId ? "Existing ID (unchanged)" : "Auto-generated on save"}>{displayId}</div>
         </div>
 
         {/* Name fields */}
@@ -229,7 +229,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               className={`px-3 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${dobFocused ? '' : 'text-transparent'}`}
             />
             {!dobFocused && (
-              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.dob ? 'text-gray-900' : 'text-gray-500'} z-0`}>
+              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.dob ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white'} z-0`}>
                 {form.dob ? formatDateToDisplay(form.dob) : 'dd-mmm-yy'}
               </div>
             )}
@@ -353,7 +353,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                   }}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-gray-500"></p>
+              <p className="mt-1 text-[11px] text-gray-500 dark:text-white"></p>
               {phoneError && (
                 <p className="mt-1 text-[12px] text-red-600">{phoneError}</p>
               )}
@@ -418,7 +418,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                     }}
                   >
                     {loading ? (
-                      <div className="px-2 py-1 text-sm text-gray-500">Loading contract types...</div>
+                      <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading contract types...</div>
                     ) : (
                       <>
                         <CommandEmpty>No contract type found.</CommandEmpty>
@@ -535,7 +535,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                     }}
                   >
                     {jobLevelLoading ? (
-                      <div className="px-2 py-1 text-sm text-gray-500">Loading job levels...</div>
+                      <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading job levels...</div>
                     ) : (
                       <>
                         <CommandEmpty>No job level found.</CommandEmpty>
@@ -654,7 +654,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                   }}
                 >
                   {roleLoading ? (
-                    <div className="px-2 py-1 text-sm text-gray-500">Loading roles...</div>
+                    <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading roles...</div>
                   ) : (
                     <>
                       <CommandEmpty>No role found.</CommandEmpty>
@@ -690,7 +690,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                         
                         return (
                           <CommandGroup key={category}>
-                            <div className="px-2 py-1 text-xs text-gray-500 font-semibold select-none pointer-events-none">
+                            <div className="px-2 py-1 text-xs text-gray-500 dark:text-white font-semibold select-none pointer-events-none">
                               {category}
                             </div>
                             {filteredRoles.map(role => (
@@ -789,7 +789,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               className={`px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${joiningDateFocused ? '' : 'text-transparent'}`}
             />
             {!joiningDateFocused && (
-              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.joiningDate ? 'text-gray-900' : 'text-gray-500'}`}>
+              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.joiningDate ? 'text-gray-900' : 'text-gray-500 dark:text-white'}`}>
                 {form.joiningDate ? formatDateToDisplay(form.joiningDate) : 'dd-mmm-yy'}
               </div>
             )}
@@ -907,8 +907,8 @@ const CountryCodeSelector: React.FC<{
                   >
                     <Check className={cn("mr-2 h-4 w-4", value === item.dial ? "opacity-100" : "opacity-0")} />
                     <span className="w-16 text-left">{item.dial}</span>
-                    <span className="flex-1 truncate text-left text-gray-700">{item.label}</span>
-                    <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
+                    <span className="flex-1 truncate text-left text-gray-700 dark:text-white">{item.label}</span>
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-700 dark:text-white border border-gray-200">
                       {item.codes.join('/')}
                     </span>
                   </CommandItem>

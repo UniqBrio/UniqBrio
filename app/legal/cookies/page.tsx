@@ -43,7 +43,7 @@ export default function CookiesPage() {
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-10 mb-8">
           {/* Welcome Message */}
           <div className="bg-gradient-to-r from-orange-50 to-pink-50 border-l-4 border-orange-600 rounded-xl p-6 mb-8">
-            <p className="text-base text-gray-800 font-semibold">
+            <p className="text-base text-gray-800 dark:text-white font-semibold">
               We use cookies and similar technologies to make UniqBrio secure and functional.
             </p>
           </div>
@@ -56,25 +56,25 @@ export default function CookiesPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <h2 className="text-xl font-bold text-gray-900">1. Strictly necessary cookies</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">1. Strictly necessary cookies</h2>
                   <span className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-bold">REQUIRED</span>
                 </div>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Keep you logged in</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Keep you logged in</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Remember your academy and role</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Remember your academy and role</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Prevent fraud</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Prevent fraud</span>
                   </li>
                 </ul>
                 <div className="mt-4 p-3 bg-white/80 rounded-lg">
-                  <p className="text-sm text-gray-700 font-medium">→ Cannot be turned off (otherwise the site breaks)</p>
+                  <p className="text-sm text-gray-700 dark:text-white font-medium">→ Cannot be turned off (otherwise the site breaks)</p>
                 </div>
               </div>
             </div>
@@ -88,21 +88,21 @@ export default function CookiesPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <h2 className="text-xl font-bold text-gray-900">2. Performance & analytics cookies</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">2. Performance & analytics cookies</h2>
                   <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-xs font-bold">OPTIONAL</span>
                 </div>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Help us understand which features are most used</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Help us understand which features are most used</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Completely anonymous analytics</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Completely anonymous analytics</span>
                   </li>
                 </ul>
                 <div className="mt-4 p-3 bg-white/80 rounded-lg">
-                  <p className="text-sm text-gray-700 font-medium">→ You can disable them in the cookie banner or browser settings</p>
+                  <p className="text-sm text-gray-700 dark:text-white font-medium">→ You can disable them in the cookie banner or browser settings</p>
                 </div>
               </div>
             </div>
@@ -112,14 +112,14 @@ export default function CookiesPage() {
           <div className="mb-6 p-6 bg-gray-50 rounded-2xl border-2 border-gray-200">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-gray-100 rounded-xl flex-shrink-0">
-                <XCircle className="w-6 h-6 text-gray-600" />
+                <XCircle className="w-6 h-6 text-gray-600 dark:text-white" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <h2 className="text-xl font-bold text-gray-900">3. Marketing cookies</h2>
-                  <span className="px-3 py-1 bg-gray-200 text-gray-800 rounded-full text-xs font-bold">NOT USED</span>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">3. Marketing cookies</h2>
+                  <span className="px-3 py-1 bg-gray-200 text-gray-800 dark:text-white rounded-full text-xs font-bold">NOT USED</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-gray-700 dark:text-white leading-relaxed">
                   We don't use any. We do not use marketing cookies or retargeting advertisements.✨
                 </p>
               </div>
@@ -128,22 +128,22 @@ export default function CookiesPage() {
 
           {/* Info Card - How to Manage */}
           <div className="mt-8 p-6 bg-gradient-to-r from-purple-50 to-orange-50 rounded-2xl border border-purple-200">
-            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <Settings className="w-5 h-5 text-purple-600" />
               How to manage your cookie preferences
             </h3>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold">1.</span>
-                <span className="text-sm text-gray-700">Click "Cookie Choices" in the footer</span>
+                <span className="text-sm text-gray-700 dark:text-white">Click "Cookie Choices" in the footer</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold">2.</span>
-                <span className="text-sm text-gray-700">Adjust your browser settings</span>
+                <span className="text-sm text-gray-700 dark:text-white">Adjust your browser settings</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold">3.</span>
-                <span className="text-sm text-gray-700">Use browser extensions for cookie management</span>
+                <span className="text-sm text-gray-700 dark:text-white">Use browser extensions for cookie management</span>
               </li>
             </ul>
           </div>
@@ -152,15 +152,15 @@ export default function CookiesPage() {
           <div className="mt-8 p-8 bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl border-2 border-orange-300 shadow-lg">
             <div className="flex items-center gap-3 mb-4">
               <Cookie className="w-6 h-6 text-orange-600" />
-              <h3 className="text-lg font-bold text-gray-900">Questions about cookies?</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Questions about cookies?</h3>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">
+            <p className="text-sm text-gray-700 dark:text-white leading-relaxed">
               For inquiries, please contact us at{" "}
               <a href="mailto:support@uniqbrio.com" className="text-orange-700 hover:text-orange-800 font-semibold underline">
                 support@uniqbrio.com
               </a>
             </p>
-            <p className="text-sm text-gray-800 mt-4 font-semibold">
+            <p className="text-sm text-gray-800 dark:text-white mt-4 font-semibold">
               <span className="text-orange-700">Team UniqBrio</span>
             </p>
           </div>

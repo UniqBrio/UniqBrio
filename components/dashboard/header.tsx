@@ -43,7 +43,7 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 h-20 flex items-center justify-between px-4 md:px-6">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 h-20 flex items-center justify-between px-4 md:px-6">
       {/* Center section - Academy Logo, Name, Tagline */}
       <div className="flex-1 flex items-center justify-center">
         <div className="flex items-center gap-6">
@@ -52,7 +52,7 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
           </div>
           <div className="flex flex-col justify-center">
             <span className="text-xl font-bold text-purple-700 leading-tight">XYZ Academy</span>
-            <span className="text-sm text-gray-500 font-medium">Empowering Minds, Shaping Futures</span>
+            <span className="text-sm text-gray-500 dark:text-white font-medium">Empowering Minds, Shaping Futures</span>
           </div>
         </div>
       </div>

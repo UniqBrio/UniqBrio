@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useMemo, useState, useRef } from "react"
 import { Button } from "@/components/dashboard/ui/staff/button"
@@ -286,45 +286,45 @@ export default function InstructorManagementPage() {
               <thead>
                 <tr>
                   {isVisible('id') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('id')}
                   </th>)}
                   {isVisible('name') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('name')}
                   </th>)}
                   {isVisible('role') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('role')}
                   </th>)}
                   {isVisible('courseAssigned') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('courseAssigned')}
                   </th>)}
                   {isVisible('cohortName') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('cohortName')}
                   </th>)}
                   {isVisible('courseIds') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('courseIds')}
                   </th>)}
                   {isVisible('cohortIds') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('cohortIds')}
                   </th>)}
                   {isVisible('gender') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('gender')}
                   </th>)}
                   {isVisible('experience') && (
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-white">
                     {getInstructorColumnLabel('experience')}
                   </th>)}
-                  <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-white">
                     Edit
                   </th>
-                  <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">
+                  <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-white">
                     Delete
                   </th>
                 </tr>
@@ -332,7 +332,7 @@ export default function InstructorManagementPage() {
               <tbody className="divide-y divide-gray-100">
                 {filteredInstructors.length === 0 ? (
                   <tr>
-                    <td colSpan={visibleColumns.length + 2} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={visibleColumns.length + 2} className="px-6 py-4 text-center text-gray-500 dark:text-white">
                       No instructors found matching the current filters.
                     </td>
                   </tr>
@@ -340,39 +340,39 @@ export default function InstructorManagementPage() {
                   filteredInstructors.map((instructor) => (
                     <tr key={instructor.id} className="hover:bg-gray-25">
                       {isVisible('id') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                         {instructor.id}
                       </td>)}
                       {isVisible('name') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.name}
                       </td>)}
                       {isVisible('role') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.role}
                       </td>)}
                       {isVisible('courseAssigned') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.courseAssigned || ''}
                       </td>)}
                       {isVisible('cohortName') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.cohortName || ''}
                       </td>)}
                       {isVisible('courseIds') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.courseIds || ''}
                       </td>)}
                       {isVisible('cohortIds') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.cohortIds || ''}
                       </td>)}
                       {isVisible('gender') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.gender}
                       </td>)}
                       {isVisible('experience') && (
-                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {instructor.experience}
                       </td>)}
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-center">
@@ -405,7 +405,7 @@ export default function InstructorManagementPage() {
 
           {/* Results Summary */}
           <div className="mt-2 flex items-center justify-between px-4 py-1">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-gray-600 dark:text-white">
               {filteredInstructors.length} instructors
             </span>
             <button
@@ -413,14 +413,14 @@ export default function InstructorManagementPage() {
               onClick={openColumnModal}
               title="Select columns"
             >
-              <GridIcon className="w-4 h-4 text-gray-500" />
+              <GridIcon className="w-4 h-4 text-gray-500 dark:text-white" />
             </button>
           </div>
 
           {/* Column Selector Modal */}
           {showColumnSelector && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-              <div className="bg-white rounded p-4 min-w-[650px] max-w-[96vw] shadow-lg">
+              <div className="bg-white dark:bg-gray-900 rounded p-4 min-w-[650px] max-w-[96vw] shadow-lg">
                 <h3 className="font-medium text-base mb-3">Select Columns</h3>
                 <div className="flex gap-4">
                   <div className="flex-1">
@@ -440,14 +440,14 @@ export default function InstructorManagementPage() {
                   </div>
                   <div className="flex flex-col justify-center gap-2">
                     <button
-                      className={`px-3 py-1 rounded ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                      className={`px-3 py-1 rounded ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
                       onClick={addSelected}
                       disabled={selectedAvailable.length === 0}
                     >
                       ?
                     </button>
                     <button
-                      className={`px-3 py-1 rounded ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                      className={`px-3 py-1 rounded ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
                       onClick={removeSelected}
                       disabled={selectedDisplayed.length === 0}
                     >
@@ -482,7 +482,7 @@ export default function InstructorManagementPage() {
                     Save
                   </button>
                   <button
-                    className="px-3 py-1 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    className="px-3 py-1 text-sm rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
                     onClick={() => setShowColumnSelector(false)}
                   >
                     Close
@@ -505,22 +505,22 @@ export default function InstructorManagementPage() {
         <div className="flex justify-between items-center">
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">4.8</div>
-            <div className="text-xs text-gray-600">Overall Rating</div>
+            <div className="text-xs text-gray-600 dark:text-white">Overall Rating</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">95%</div>
-            <div className="text-xs text-gray-600">Student Satisfaction</div>
+            <div className="text-xs text-gray-600 dark:text-white">Student Satisfaction</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">A+</div>
-            <div className="text-xs text-gray-600">Performance Grade</div>
+            <div className="text-xs text-gray-600 dark:text-white">Performance Grade</div>
           </div>
         </div>
       </div>
 
       <div className="py-3 opacity-50 pointer-events-none select-none" aria-disabled="true">
         <div className="text-sm font-medium mb-2">AI Analysis Summary</div>
-        <div className="text-xs text-gray-700 mb-3">
+        <div className="text-xs text-gray-700 dark:text-white mb-3">
           Based on student feedback and performance metrics, Dr. Johnson demonstrates exceptional teaching abilities with consistent high ratings. Students particularly appreciate her clear explanations and patient approach to complex mathematical concepts.
         </div>
 

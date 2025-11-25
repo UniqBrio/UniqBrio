@@ -315,7 +315,7 @@ export default function BasicInfoTab({
             <Label htmlFor="courseId" className="flex items-center justify-between">
               <span>Course ID</span>
               {courseIdHint && (
-                <span className="text-[11px] text-gray-500 font-normal">{courseIdHint}</span>
+                <span className="text-[11px] text-gray-500 dark:text-white font-normal">{courseIdHint}</span>
               )}
             </Label>
             <div className="flex gap-2">
@@ -342,9 +342,9 @@ export default function BasicInfoTab({
               )}
             </div>
             {allowManualCourseId ? (
-              <p className="text-[11px] text-gray-500">Update the code to match offline or ERP IDs.</p>
+              <p className="text-[11px] text-gray-500 dark:text-white">Update the code to match offline or ERP IDs.</p>
             ) : (
-              <p className="text-[11px] text-gray-500">Automatically generated based on your settings.</p>
+              <p className="text-[11px] text-gray-500 dark:text-white">Automatically generated based on your settings.</p>
             )}
           </div>
         )}
@@ -442,7 +442,7 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.location ? 'text-gray-400' : ''}`}
+                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.location ? 'text-gray-400 dark:text-white' : ''}`}
               >
                 {formData.location || 'Select location'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -470,7 +470,7 @@ export default function BasicInfoTab({
               </div>
               <div className="max-h-[200px] overflow-y-auto">
                 {locationsLoading ? (
-                  <div className="px-4 py-2 text-gray-500 text-[15px]">Loading locations...</div>
+                  <div className="px-4 py-2 text-gray-500 dark:text-white text-[15px]">Loading locations...</div>
                 ) : (
                   locationOptions
                     .filter(location => location.toLowerCase().includes(locationSearchTerm.toLowerCase()))
@@ -577,7 +577,7 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400' : ''}`}
+                className={`w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400 dark:text-white' : ''}`}
               >
                 {formData.level || 'Select level'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -641,7 +641,7 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.type ? 'text-gray-400' : ''}`}
+                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.type ? 'text-gray-400 dark:text-white' : ''}`}
               >
                 {formData.type || 'Select type'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -705,7 +705,7 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.courseCategory ? 'text-gray-400' : ''}`}
+                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.courseCategory ? 'text-gray-400 dark:text-white' : ''}`}
               >
                 {formData.courseCategory || 'Select category'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -789,7 +789,7 @@ export default function BasicInfoTab({
                 justifyContent: 'space-between'
               }}
             >
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} className={!formData.tags?.length ? 'text-gray-400' : ''}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} className={!formData.tags?.length ? 'text-gray-400 dark:text-white' : ''}>
                 {(formData.tags?.length || 0) > 0
                   ? formData.tags.join(', ')
                   : 'Select tags'}
@@ -889,7 +889,7 @@ export default function BasicInfoTab({
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
-  <div className="text-[13px] text-gray-500 mt-0.5">Select one or more tags.</div>
+  <div className="text-[13px] text-gray-500 dark:text-white mt-0.5">Select one or more tags.</div>
       </div>
 
   <Separator className="my-2" />
@@ -942,7 +942,7 @@ export default function BasicInfoTab({
                 justifyContent: 'space-between'
               }}
             >
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} className={!formData.freeGifts?.length ? 'text-gray-400' : ''}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} className={!formData.freeGifts?.length ? 'text-gray-400 dark:text-white' : ''}>
                 {(formData.freeGifts && formData.freeGifts.length > 0)
                   ? formData.freeGifts.join(', ')
                   : 'Select free gifts'}
@@ -1042,7 +1042,7 @@ export default function BasicInfoTab({
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
-  <div className="text-[13px] text-gray-500 mt-1">Select one or more free gifts.</div>
+  <div className="text-[13px] text-gray-500 dark:text-white mt-1">Select one or more free gifts.</div>
 
         {/* FAQ Section */}
         <div className="space-y-4">

@@ -53,8 +53,8 @@ export default function ScheduleSettings({ settings, onUpdateSetting, onResetSet
       {/* Header */}
       <div className="flex items-center justify-between border-b pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Schedule Management Settings</h2>
-          <p className="text-sm text-gray-500 mt-1">Configure session modification tracking and behavior</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Schedule Management Settings</h2>
+          <p className="text-sm text-gray-500 dark:text-white mt-1">Configure session modification tracking and behavior</p>
         </div>
         <Button
           variant="outline"
@@ -71,7 +71,7 @@ export default function ScheduleSettings({ settings, onUpdateSetting, onResetSet
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Grid3x3 className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Session Modification Tracking</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Session Modification Tracking</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
           <div className="flex items-center justify-between space-x-2">
@@ -123,7 +123,7 @@ export default function ScheduleSettings({ settings, onUpdateSetting, onResetSet
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Grid3x3 className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Modification Requirements</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Modification Requirements</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
           <div className="flex items-center justify-between space-x-2">
@@ -169,7 +169,7 @@ export default function ScheduleSettings({ settings, onUpdateSetting, onResetSet
               onChange={(e) => onUpdateSetting('modifications', 'minimumReasonLength', Number(e.target.value))}
               className="w-full"
             />
-            <p className="text-sm text-gray-500">Minimum characters required when providing a reason.</p>
+            <p className="text-sm text-gray-500 dark:text-white">Minimum characters required when providing a reason.</p>
           </div>
         </div>
       </div>

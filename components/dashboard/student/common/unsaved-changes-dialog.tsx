@@ -30,7 +30,7 @@ export default function UnsavedChangesDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="p-2">
-          <p className="text-sm text-gray-600 mb-4">{description}</p>
+          <p className="text-sm text-gray-600 dark:text-white mb-4">{description}</p>
           <div className="flex items-center justify-end gap-2">
             <Button variant="outline" onClick={onContinueEditing}>Continue Editing</Button>
             <Button variant="outline" className="border-purple-300/70 text-purple-700" onClick={onSaveAsDraft}>Save as Draft</Button>

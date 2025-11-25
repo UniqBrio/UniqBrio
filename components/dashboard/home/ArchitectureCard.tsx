@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import { Code2, Database, Zap, FileCode } from "lucide-react";
 

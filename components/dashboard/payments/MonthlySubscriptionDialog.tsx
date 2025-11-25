@@ -232,7 +232,7 @@ export default function MonthlySubscriptionDialog({
                         <Clock className="h-4 w-4 text-purple-600" />
                         <span className="font-medium">Regular Monthly</span>
                       </div>
-                      <p className="text-sm text-gray-600">Standard monthly subscription without commitment</p>
+                      <p className="text-sm text-gray-600 dark:text-white">Standard monthly subscription without commitment</p>
                     </CardContent>
                   </Card>
 
@@ -249,7 +249,7 @@ export default function MonthlySubscriptionDialog({
                         <Percent className="h-4 w-4 text-green-600" />
                         <span className="font-medium">Discounted Monthly</span>
                       </div>
-                      <p className="text-sm text-gray-600">Discounted rate with commitment period</p>
+                      <p className="text-sm text-gray-600 dark:text-white">Discounted rate with commitment period</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -262,7 +262,7 @@ export default function MonthlySubscriptionDialog({
               <div>
                 <Label htmlFor="courseFee" className="text-sm font-medium">
                   Course Fee
-                  {!isFirstPayment && <span className="text-gray-400 ml-1">(Already paid)</span>}
+                  {!isFirstPayment && <span className="text-gray-400 dark:text-white ml-1">(Already paid)</span>}
                 </Label>
                 <Input
                   id="courseFee"
@@ -279,7 +279,7 @@ export default function MonthlySubscriptionDialog({
               <div>
                 <Label htmlFor="registrationFee" className="text-sm font-medium">
                   Registration Fee
-                  {!isFirstPayment && <span className="text-gray-400 ml-1">(Already paid)</span>}
+                  {!isFirstPayment && <span className="text-gray-400 dark:text-white ml-1">(Already paid)</span>}
                 </Label>
                 <Input
                   id="registrationFee"
@@ -384,7 +384,7 @@ export default function MonthlySubscriptionDialog({
                           ${calculatedDiscountedAmount.toFixed(2)}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-gray-600 dark:text-white mt-1">
                         Original: ${formData.originalMonthlyAmount?.toFixed(2)} | 
                         Savings: ${(formData.originalMonthlyAmount - calculatedDiscountedAmount).toFixed(2)}
                       </div>
@@ -486,7 +486,7 @@ export default function MonthlySubscriptionDialog({
                 </div>
 
                 {!isFirstPayment && currentSubscription && (
-                  <div className="text-sm text-gray-600 mt-2">
+                  <div className="text-sm text-gray-600 dark:text-white mt-2">
                     <p>Next due date: {currentSubscription.nextDueDate.toLocaleDateString()}</p>
                     <p>Reminder date: {currentSubscription.reminderDate.toLocaleDateString()}</p>
                   </div>

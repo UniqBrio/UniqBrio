@@ -397,7 +397,7 @@ export function LeaveManagement() {
                 <div className="flex items-center justify-center py-12">
                   <div className="flex flex-col items-center gap-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                    <p className="text-gray-600">Loading leave data...</p>
+                    <p className="text-gray-600 dark:text-white">Loading leave data...</p>
                   </div>
                 </div>
               ) : (
@@ -414,7 +414,7 @@ export function LeaveManagement() {
                 <div className="flex items-center justify-center py-12">
                   <div className="flex flex-col items-center gap-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                    <p className="text-gray-600">Loading leave data...</p>
+                    <p className="text-gray-600 dark:text-white">Loading leave data...</p>
                   </div>
                 </div>
               ) : (
@@ -475,31 +475,31 @@ export function LeaveManagement() {
                               <div className="mb-3 flex items-start justify-between pr-6">
                                 <div className="min-w-0 flex-1">
                                   <h3
-                                    className="truncate text-lg font-semibold text-gray-900"
+                                    className="truncate text-lg font-semibold text-gray-900 dark:text-white"
                                     title={record.studentName}
                                   >
                                     {record.studentName}
-                                  </h3>
-                                  <p className="text-sm text-gray-500">{record.studentId}</p>
+                                  </p>
+                                  <p className="text-sm text-gray-500 dark:text-white">{record.studentId}</p>
                                 </div>
                                 <Badge className="bg-red-100 text-red-800">Absent</Badge>
                               </div>
 
-                              <div className="space-y-2 text-sm text-gray-600">
+                              <div className="space-y-2 text-sm text-gray-600 dark:text-white">
                                 <div className="flex items-center">
-                                  <Calendar className="mr-2 h-4 w-4 text-gray-400" />
+                                  <Calendar className="mr-2 h-4 w-4 text-gray-400 dark:text-white" />
                                   {record.date ? formatDateForDisplay(record.date) : "-"}
                                 </div>
 
                                 {record.courseName && (
                                   <div className="flex items-start">
-                                    <BookOpen className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                    <BookOpen className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
                                     <div className="min-w-0 flex-1">
                                       <p className="truncate font-medium" title={record.courseName}>
                                         {record.courseName}
                                       </p>
                                       {record.courseId && (
-                                        <p className="truncate text-xs text-gray-500" title={record.courseId}>
+                                        <p className="truncate text-xs text-gray-500 dark:text-white" title={record.courseId}>
                                           {record.courseId}
                                         </p>
                                       )}
@@ -509,19 +509,19 @@ export function LeaveManagement() {
 
                                 {record.cohortName && (
                                   <div className="flex items-start">
-                                    <User className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                    <User className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
                                     <div className="min-w-0 flex-1">
                                       <p className="truncate font-medium" title={record.cohortName}>
                                         {record.cohortName}
                                       </p>
                                       {record.cohortId && (
-                                        <p className="truncate text-xs text-gray-500" title={record.cohortId}>
+                                        <p className="truncate text-xs text-gray-500 dark:text-white" title={record.cohortId}>
                                           {record.cohortId}
                                         </p>
                                       )}
                                       {record.cohortInstructor && (
                                         <p
-                                          className="truncate text-xs text-gray-500"
+                                          className="truncate text-xs text-gray-500 dark:text-white"
                                           title={record.cohortInstructor}
                                         >
                                           {record.cohortInstructor}
@@ -533,8 +533,8 @@ export function LeaveManagement() {
 
                                 {record.notes && (
                                   <div className="flex items-start">
-                                    <NotepadText className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400" />
-                                    <p className="line-clamp-2 text-xs text-gray-600" title={record.notes}>
+                                    <NotepadText className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
+                                    <p className="line-clamp-2 text-xs text-gray-600 dark:text-white" title={record.notes}>
                                       {record.notes}
                                     </p>
                                   </div>
@@ -589,33 +589,33 @@ export function LeaveManagement() {
             <div className="space-y-6 p-2">
               <div>
                 <h3 className="text-lg font-semibold">{recordToView.studentName}</h3>
-                <p className="text-sm text-gray-500">{recordToView.studentId}</p>
+                <p className="text-sm text-gray-500 dark:text-white">{recordToView.studentId}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="text-sm">
-                    <span className="text-gray-500">Date:</span>
+                    <span className="text-gray-500 dark:text-white">Date:</span>
                       <span className="ml-2 font-medium">
                         {formatDateForDisplay(recordToView.date)}
                       </span>
                   </div>
                   <div className="text-sm">
-                    <span className="text-gray-500">Status:</span>
+                    <span className="text-gray-500 dark:text-white">Status:</span>
                     <span className="ml-2 font-medium capitalize text-red-600">Absent</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm">
-                    <span className="text-gray-500">Course Name:</span>
+                    <span className="text-gray-500 dark:text-white">Course Name:</span>
                     <span className="ml-2 font-medium">{recordToView.courseName || "-"}</span>
                   </div>
                   <div className="text-sm">
-                    <span className="text-gray-500">Course ID:</span>
+                    <span className="text-gray-500 dark:text-white">Course ID:</span>
                     <span className="ml-2 font-medium">{recordToView.courseId || "-"}</span>
                   </div>
                   <div className="text-sm">
-                    <span className="text-gray-500">Cohort:</span>
+                    <span className="text-gray-500 dark:text-white">Cohort:</span>
                     <span className="ml-2 font-medium">{recordToView.cohortName && recordToView.cohortId ? `${recordToView.cohortName} (${recordToView.cohortId})` : recordToView.cohortName || recordToView.cohortId || "-"}</span>
                   </div>
                 </div>
@@ -623,7 +623,7 @@ export function LeaveManagement() {
 
               {recordToView.notes && (
                 <div className="text-sm">
-                  <span className="text-gray-500">Remarks:</span>
+                  <span className="text-gray-500 dark:text-white">Remarks:</span>
                   <p className="mt-1 font-medium">{recordToView.notes}</p>
                 </div>
               )}
@@ -650,7 +650,7 @@ export function LeaveManagement() {
             </div>
           </DialogHeader>
           <div className="p-2">
-            <p className="mb-3 text-sm text-gray-600">
+            <p className="mb-3 text-sm text-gray-600 dark:text-white">
               Are you sure you want to delete this leave record? This action cannot be undone.
             </p>
             {recordToDelete && (

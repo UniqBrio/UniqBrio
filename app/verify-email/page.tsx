@@ -44,7 +44,7 @@ function VerifyEmailLogic() {
   }, [searchParams, router])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white p-4 text-center">
       {status === "loading" && (
         <>
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -52,12 +52,12 @@ function VerifyEmailLogic() {
         </>
       )}
       {status === "success" && (
-        <p className="text-lg font-semibold text-green-600">{message}</p>
+        <p className="text-lg font-semibold text-green-600 dark:text-green-400">{message}</p>
       )}
       {status === "error" && (
         <>
-          <p className="text-lg font-semibold text-red-600">{message}</p>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-lg font-semibold text-red-600 dark:text-red-400">{message}</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-white">
             If the problem persists, please contact support or try signing up again.
           </p>
         </>
@@ -72,10 +72,12 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white p-4 text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
           <p className="text-lg font-semibold">Loading verification...</p>
-        </div>      }    >
+        </div>
+      }
+    >
       <VerifyEmailLogic />
     </Suspense>
   )

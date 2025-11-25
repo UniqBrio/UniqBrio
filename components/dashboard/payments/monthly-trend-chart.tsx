@@ -26,10 +26,10 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Header row with labels */}
-        <div className="flex items-center gap-3 pb-2 border-b border-gray-200">
-          <div className="w-28 text-xs font-semibold text-gray-500 uppercase tracking-wide">Month</div>
-          <div className="flex-1 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Revenue Progress</div>
-          <div className="w-36 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Amount ({currency})</div>
+        <div className="flex items-center gap-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+          <div className="w-28 text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">Month</div>
+          <div className="flex-1 text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide text-center">Revenue Progress</div>
+          <div className="w-36 text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide text-right">Amount ({currency})</div>
         </div>
         
         <div className="space-y-4">
@@ -39,10 +39,10 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             const isCurrentMonth = index === 0;
             
             return (
-              <div key={item.month} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-28 text-sm font-semibold text-gray-700">{item.month}</div>
+              <div key={item.month} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="w-28 text-sm font-semibold text-gray-700 dark:text-white">{item.month}</div>
                 <div className="flex-1 flex items-center gap-3">
-                  <div className="flex-1 bg-gray-200 rounded-full h-6 overflow-hidden shadow-inner">
+                  <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 overflow-hidden shadow-inner">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ease-out shadow-sm ${
                         isCurrentMonth 
@@ -52,7 +52,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
                       style={{ width: `${Math.max(heightPercentage, 2)}%` }}
                     ></div>
                   </div>
-                  <div className="w-36 text-sm font-bold text-right text-gray-900">
+                  <div className="w-36 text-sm font-bold text-right text-gray-900 dark:text-white">
                     {currency} {item.revenue.toLocaleString()}
                   </div>
                 </div>
@@ -62,7 +62,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         </div>
         
         {data.length === 0 && (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-gray-500 dark:text-white py-8">
             No trend data available
           </div>
         )}

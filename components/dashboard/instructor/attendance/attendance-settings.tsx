@@ -20,7 +20,7 @@ export function AttendanceSettings() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Notification Settings </h2>
-        <p className="text-gray-500">Configure attendance notifications and alerts</p>
+        <p className="text-gray-500 dark:text-white">Configure attendance notifications and alerts</p>
       </div>
 
       <Tabs defaultValue="channels" className="space-y-4">
@@ -45,7 +45,7 @@ export function AttendanceSettings() {
                     </div>
                     <div>
                       <h4 className="font-medium">Email Notifications</h4>
-                      <p className="text-sm text-gray-500">Send attendance notifications via email</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Send attendance notifications via email</p>
                     </div>
                   </div>
                   <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
@@ -58,7 +58,7 @@ export function AttendanceSettings() {
                     </div>
                     <div>
                       <h4 className="font-medium">SMS Notifications</h4>
-                      <p className="text-sm text-gray-500">Send attendance notifications via SMS</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Send attendance notifications via SMS</p>
                     </div>
                   </div>
                   <Switch checked={smsEnabled} onCheckedChange={setSmsEnabled} />
@@ -71,7 +71,7 @@ export function AttendanceSettings() {
                     </div>
                     <div>
                       <h4 className="font-medium">WhatsApp Notifications</h4>
-                      <p className="text-sm text-gray-500">Send attendance notifications via WhatsApp</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Send attendance notifications via WhatsApp</p>
                     </div>
                   </div>
                   <Switch checked={whatsappEnabled} onCheckedChange={setWhatsappEnabled} />
@@ -84,7 +84,7 @@ export function AttendanceSettings() {
                     </div>
                     <div>
                       <h4 className="font-medium">Push Notifications</h4>
-                      <p className="text-sm text-gray-500">Send attendance notifications within the app</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Send attendance notifications within the app</p>
                     </div>
                   </div>
                   <Switch checked={inAppEnabled} onCheckedChange={setInAppEnabled} />
@@ -199,13 +199,13 @@ export function AttendanceSettings() {
                   <Label htmlFor="absence-template" className="text-base font-medium">
                     Absence Notification
                   </Label>
-                  <p className="text-sm text-gray-500 mb-2">Sent when a student is marked absent</p>
+                  <p className="text-sm text-gray-500 dark:text-white mb-2">Sent when a student is marked absent</p>
                   <Textarea
                     id="absence-template"
                     className="min-h-[100px]"
                     defaultValue="Dear {parent_name}, This is to inform you that {student_name} was absent from {class_name} on {date}. Please contact us if you have any questions. Regards, {academy_name}"
                   />
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-gray-500 dark:text-white">
                     Available variables: {"{student_name}"}, {"{parent_name}"}, {"{class_name}"}, {"{date}"},{" "}
                     {"{academy_name}"}
                   </div>
@@ -215,13 +215,13 @@ export function AttendanceSettings() {
                   <Label htmlFor="late-template" className="text-base font-medium">
                     Late Arrival Notification
                   </Label>
-                  <p className="text-sm text-gray-500 mb-2">Sent when a student arrives late</p>
+                  <p className="text-sm text-gray-500 dark:text-white mb-2">Sent when a student arrives late</p>
                   <Textarea
                     id="late-template"
                     className="min-h-[100px]"
                     defaultValue="Dear {parent_name}, This is to inform you that {student_name} arrived late to {class_name} on {date} at {time}. Regards, {academy_name}"
                   />
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-gray-500 dark:text-white">
                     Available variables: {"{student_name}"}, {"{parent_name}"}, {"{class_name}"}, {"{date}"}, {"{time}"}
                     , {"{academy_name}"}
                   </div>
@@ -231,13 +231,13 @@ export function AttendanceSettings() {
                   <Label htmlFor="summary-template" className="text-base font-medium">
                     Weekly Summary Notification
                   </Label>
-                  <p className="text-sm text-gray-500 mb-2">Sent as a weekly attendance summary</p>
+                  <p className="text-sm text-gray-500 dark:text-white mb-2">Sent as a weekly attendance summary</p>
                   <Textarea
                     id="summary-template"
                     className="min-h-[100px]"
                     defaultValue="Dear {parent_name}, Here is the weekly attendance summary for {student_name}: Present: {present_days} days, Absent: {absent_days} days, Late: {late_days} days. Overall attendance: {attendance_percentage}%. Regards, {academy_name}"
                   />
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-gray-500 dark:text-white">
                     Available variables: {"{student_name}"}, {"{parent_name}"}, {"{present_days}"}, {"{absent_days}"},{" "}
                     {"{late_days}"}, {"{attendance_percentage}"}, {"{academy_name}"}
                   </div>
@@ -267,7 +267,7 @@ export function AttendanceSettings() {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">Consecutive Absence Alert</h4>
-                      <p className="text-sm text-gray-500 mb-2">
+                      <p className="text-sm text-gray-500 dark:text-white mb-2">
                         Send escalated notifications when a student is absent for consecutive days
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -315,7 +315,7 @@ export function AttendanceSettings() {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">Perfect Attendance Celebration</h4>
-                      <p className="text-sm text-gray-500 mb-2">Send congratulatory message for perfect attendance</p>
+                      <p className="text-sm text-gray-500 dark:text-white mb-2">Send congratulatory message for perfect attendance</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div className="space-y-2">
                           <Label htmlFor="perfect-period">Time Period</Label>
@@ -361,7 +361,7 @@ export function AttendanceSettings() {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">Attendance Below Threshold</h4>
-                      <p className="text-sm text-gray-500 mb-2">
+                      <p className="text-sm text-gray-500 dark:text-white mb-2">
                         Alert when student's attendance falls below a threshold
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

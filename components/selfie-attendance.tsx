@@ -159,7 +159,7 @@ const SelfieAttendance: React.FC<SelfieAttendanceProps> = ({ onSubmit }) => {
     return (
       <div className="space-y-4">
         <img src={capturedPhoto} alt="Captured selfie" className="w-full h-48 object-cover rounded-lg mb-2" />
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600 dark:text-white">
           <div><b>Location:</b> {location.address || `${location.latitude}, ${location.longitude}`}</div>
           <div><b>Date & Time:</b> {timestamp}</div>
         </div>

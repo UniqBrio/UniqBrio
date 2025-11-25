@@ -187,10 +187,10 @@ export default function VerifyOtpPage() {
 
   if (!email) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-        <div className="w-full max-w-md bg-white rounded-lg p-8 text-center">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950 p-4">
+        <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg p-8 text-center">
           <h1 className="text-2xl font-bold mb-6">Invalid Request</h1>
-          <p className="text-gray-600 mb-6">No email address provided for verification.</p>
+          <p className="text-gray-600 dark:text-white mb-6">No email address provided for verification.</p>
           <Link
             href="/signup"
             className="py-2 px-6 bg-[#fd9c2d] text-white rounded-lg hover:bg-[#e08c28] transition-colors"
@@ -203,12 +203,12 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg p-8">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg p-8">
         <div className="text-center mb-6">
           <CheckCircle className="w-16 h-16 text-[#fd9c2d] mx-auto mb-4" />
           <h1 className="text-2xl font-bold">Verify Your Email</h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-white mt-2">
             We've sent a verification code to <span className="font-medium">{email}</span>
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function VerifyOtpPage() {
         )}
 
         <div className="mb-8">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Enter 6-digit OTP</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Enter 6-digit OTP</label>
           <div className="flex justify-between gap-2">
             {otp.map((digit, index) => (
               <input
@@ -232,7 +232,7 @@ export default function VerifyOtpPage() {
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-12 h-12 text-center text-xl bg-gray-200 border border-[#fd9c2d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d]"
+                className="w-12 h-12 text-center text-xl bg-gray-200 dark:bg-gray-800 dark:text-white border border-[#fd9c2d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d]"
                 maxLength={1}
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -245,7 +245,7 @@ export default function VerifyOtpPage() {
         <button
           onClick={() => handleVerify(otp.join(""))}
           disabled={otp.join("").length !== 6 || isVerifying}
-          className="w-full py-3 bg-[#fd9c2d] text-white rounded-lg hover:bg-[#e08c28] transition-colors flex items-center justify-center disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full py-3 bg-[#fd9c2d] text-white rounded-lg hover:bg-[#e08c28] transition-colors flex items-center justify-center disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed"
         >
           {isVerifying ? (
             <>
@@ -258,11 +258,11 @@ export default function VerifyOtpPage() {
         </button>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600 mb-2">Didn't receive the code?</p>
+          <p className="text-gray-600 dark:text-white mb-2">Didn't receive the code?</p>
           <button
             onClick={handleResendOtp}
             disabled={isResending || countdown > 0}
-            className="text-[#fd9c2d] hover:underline flex items-center justify-center mx-auto disabled:text-gray-400 disabled:no-underline"
+            className="text-[#fd9c2d] hover:underline flex items-center justify-center mx-auto disabled:text-gray-400 dark:text-white dark:disabled:text-gray-500 dark:text-white disabled:no-underline"
           >
             {isResending ? (
               <>

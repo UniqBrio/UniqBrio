@@ -97,7 +97,7 @@ export function FilterDropdown({
         {showSearch && (
           <div className="p-3 border-b">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white" />
               <Input
                 placeholder="Search options..."
                 value={searchTerm}
@@ -113,7 +113,7 @@ export function FilterDropdown({
         {/* Options */}
         <div className="max-h-48 overflow-y-auto">
           {filteredOptions.length === 0 ? (
-            <div className="px-3 py-4 text-sm text-gray-500 text-center">
+            <div className="px-3 py-4 text-sm text-gray-500 dark:text-white text-center">
               No options found
             </div>
           ) : (

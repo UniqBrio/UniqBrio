@@ -259,7 +259,7 @@ export default function InstructorDashboard() {
                   <AlertTriangle className="h-4 w-4 text-orange-500" />
                   <div>
                     <p className="font-medium">Low Attendance Alert</p>
-                    <p className="text-sm text-gray-600">Class 10-A Math has 65% attendance this week</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Class 10-A Math has 65% attendance this week</p>
                   </div>
                 </div>
                 <Button size="sm" variant="outline">
@@ -272,7 +272,7 @@ export default function InstructorDashboard() {
                   <BookOpen className="h-4 w-4 text-red-500" />
                   <div>
                     <p className="font-medium">Syllabus Delay</p>
-                    <p className="text-sm text-gray-600">Physics Chapter 5 is 3 days behind schedule</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Physics Chapter 5 is 3 days behind schedule</p>
                   </div>
                 </div>
                 <Button size="sm" variant="outline">
@@ -285,7 +285,7 @@ export default function InstructorDashboard() {
                   <Trophy className="h-4 w-4 text-green-500" />
                   <div>
                     <p className="font-medium">Achievement Unlocked</p>
-                    <p className="text-sm text-gray-600">You've maintained 95%+ attendance for 30 days!</p>
+                    <p className="text-sm text-gray-600 dark:text-white">You've maintained 95%+ attendance for 30 days!</p>
                   </div>
                 </div>
                 <Badge variant="secondary">New Badge</Badge>
@@ -321,7 +321,7 @@ export default function InstructorDashboard() {
                   <Badge className="bg-blue-100 text-blue-800">#2</Badge>
                 </div>
                 <Progress value={85} className="w-full" />
-                <p className="text-sm text-gray-600">85% to next milestone</p>
+                    <p className="text-sm text-gray-600 dark:text-white">85% to next milestone</p>
               </div>
             </div>
           </CardContent>
@@ -371,9 +371,9 @@ export default function InstructorDashboard() {
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Trophy className="h-6 w-6 text-gray-400" />
+                    <Trophy className="h-6 w-6 text-gray-400 dark:text-white" />
                   </div>
-                  <p className="text-xs font-medium text-gray-400">Locked</p>
+                  <p className="text-xs font-medium text-gray-400 dark:text-white">Locked</p>
                 </div>
               </div>
             </div>
