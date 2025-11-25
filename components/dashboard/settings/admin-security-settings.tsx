@@ -83,7 +83,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
               <Key className="h-5 w-5 text-red-600" />
               <div>
                 <Label htmlFor="requireMfa" className="font-medium">Require Multi-Factor Authentication</Label>
-                <p className="text-sm text-gray-500">Force all users to enable MFA</p>
+                <p className="text-sm text-gray-500 dark:text-white">Force all users to enable MFA</p>
               </div>
             </div>
             <Switch
@@ -98,7 +98,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
               <Lock className="h-5 w-5 text-purple-600" />
               <div>
                 <Label htmlFor="enforcePasswordPolicy" className="font-medium">Enforce Password Policy</Label>
-                <p className="text-sm text-gray-500">Require strong passwords for all users</p>
+                <p className="text-sm text-gray-500 dark:text-white">Require strong passwords for all users</p>
               </div>
             </div>
             <Switch
@@ -131,7 +131,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
                 value={settings.passwordExpiration}
                 onChange={(e) => handleInputChange("passwordExpiration", parseInt(e.target.value))}
               />
-              <p className="text-xs text-gray-500">0 = never expires</p>
+              <p className="text-xs text-gray-500 dark:text-white">0 = never expires</p>
             </div>
           </div>
 
@@ -140,7 +140,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
               <Globe className="h-5 w-5 text-blue-600" />
               <div>
                 <Label htmlFor="requireEmailVerification" className="font-medium">Require Email Verification</Label>
-                <p className="text-sm text-gray-500">Users must verify email before access</p>
+                <p className="text-sm text-gray-500 dark:text-white">Users must verify email before access</p>
               </div>
             </div>
             <Switch
@@ -175,7 +175,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
                 value={settings.maxLoginAttempts}
                 onChange={(e) => handleInputChange("maxLoginAttempts", parseInt(e.target.value))}
               />
-              <p className="text-xs text-gray-500">Account locked after this many failed attempts</p>
+              <p className="text-xs text-gray-500 dark:text-white">Account locked after this many failed attempts</p>
             </div>
 
             <div className="space-y-2">
@@ -196,7 +196,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
               <Key className="h-5 w-5 text-green-600" />
               <div>
                 <Label htmlFor="allowApiAccess" className="font-medium">Allow API Access</Label>
-                <p className="text-sm text-gray-500">Enable REST API access for integrations</p>
+                <p className="text-sm text-gray-500 dark:text-white">Enable REST API access for integrations</p>
               </div>
             </div>
             <Switch
@@ -214,7 +214,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
               value={settings.ipWhitelist}
               onChange={(e) => handleInputChange("ipWhitelist", e.target.value)}
             />
-            <p className="text-xs text-gray-500">Leave empty to allow all IPs</p>
+            <p className="text-xs text-gray-500 dark:text-white">Leave empty to allow all IPs</p>
           </div>
 
           <div className="flex items-center justify-between p-4 rounded-lg border bg-gradient-to-r from-orange-50 to-white">
@@ -222,7 +222,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
               <Shield className="h-5 w-5 text-orange-600" />
               <div>
                 <Label htmlFor="ssoEnabled" className="font-medium">Single Sign-On (SSO)</Label>
-                <p className="text-sm text-gray-500">Enable SAML/OAuth SSO integration</p>
+                <p className="text-sm text-gray-500 dark:text-white">Enable SAML/OAuth SSO integration</p>
               </div>
             </div>
             <Switch

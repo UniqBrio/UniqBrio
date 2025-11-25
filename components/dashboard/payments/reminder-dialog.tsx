@@ -228,13 +228,13 @@ QR auto-generated for Email & WhatsApp previews.`;
                   className="min-h-[400px] font-mono text-sm"
                   placeholder="Edit your reminder message here..."
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-white">
                   ?? Tip: You can customize the message above. Click "Reset to Default" to restore the original template.
                 </p>
               </div>
             ) : (
               <div className="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto">
-                <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700">
+                <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 dark:text-white">
                   {messageContent}
                 </pre>
               </div>

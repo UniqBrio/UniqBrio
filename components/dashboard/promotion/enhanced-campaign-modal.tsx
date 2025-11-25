@@ -492,7 +492,7 @@ export default function EnhancedCampaignModal({
                     placeholder="0"
                     disabled
                   />
-                  <p className="text-xs text-gray-500">Auto-updated during campaign</p>
+                  <p className="text-xs text-gray-500 dark:text-white">Auto-updated during campaign</p>
                 </div>
               </div>
             </div>

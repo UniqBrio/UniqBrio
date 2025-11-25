@@ -259,19 +259,19 @@ export default function ProductsServicesPage() {
             <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1 bg-transparent">
               <TabsTrigger
                 value="analytics"
-                className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
               >
                 Analytics & Reports
               </TabsTrigger>
               <TabsTrigger
                 value="sales"
-                className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
               >
                 Sales & Invoices
               </TabsTrigger>
               <TabsTrigger
                 value="products"
-                className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
               >
                 Products & Services
               </TabsTrigger>
@@ -293,7 +293,7 @@ export default function ProductsServicesPage() {
 
               {/* Shopping Cart */}
               {cart.length > 0 && (
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold gradient-text">Shopping Cart</h2>
                     <Button
@@ -305,7 +305,7 @@ export default function ProductsServicesPage() {
                   </div>
                   <div className="space-y-4">
                     {cart.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                         <div className="flex items-center space-x-4">
                           <img
                             src={item.product.image || "/placeholder.svg"}
@@ -313,25 +313,25 @@ export default function ProductsServicesPage() {
                             className="w-16 h-16 object-cover rounded-lg"
                           />
                           <div>
-                            <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
-                            <p className="text-sm text-gray-600">{currency} {item.product.price} each</p>
+                            <h3 className="font-semibold text-gray-900 dark:text-white">{item.product.name}</h3>
+                            <p className="text-sm text-gray-600 dark:text-white">{currency} {item.product.price} each</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
-                          <span className="text-gray-700">Qty: {item.quantity}</span>
+                          <span className="text-gray-700 dark:text-white">Qty: {item.quantity}</span>
                           <span className="font-semibold gradient-text text-lg">{currency} {item.product.price * item.quantity}</span>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setCart((prev) => prev.filter((_, i) => i !== index))}
-                            className="hover:bg-red-100 transition-smooth"
+                            className="hover:bg-red-100 dark:hover:bg-red-900/30 transition-smooth"
                           >
-                            <X className="h-4 w-4 text-red-600" />
+                            <X className="h-4 w-4 text-red-600 dark:text-red-400" />
                           </Button>
                         </div>
                       </div>
                     ))}
-                    <div className="text-right pt-4 border-t border-gray-200">
+                    <div className="text-right pt-4 border-t border-gray-200 dark:border-gray-700">
                       <div className="text-xl font-bold gradient-text">
                         Total: {currency} {cartTotal}
                       </div>

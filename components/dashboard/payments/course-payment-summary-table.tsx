@@ -117,7 +117,7 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
 
   if (courseSummaries.length === 0) {
     return (
-      <div className="bg-white border rounded-lg p-8 text-center text-gray-500">
+      <div className="bg-white border rounded-lg p-8 text-center text-gray-500 dark:text-white">
         <p>No payment data available</p>
       </div>
     );
@@ -130,7 +130,7 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
         <div className="overflow-x-auto">
           <div className="flex gap-6 pb-4" style={{ minWidth: 'max-content' }}>
           {courseSummaries.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
+            <div className="col-span-full text-center py-8 text-gray-500 dark:text-white">
               No course data available
             </div>
           ) : (
@@ -147,7 +147,7 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <BookOpen className="h-5 w-5 text-orange-600" />
-                          <h3 className="font-bold text-lg text-gray-900">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                             {course.courseName}
                           </h3>
                         </div>
@@ -162,43 +162,43 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                     <div className="flex items-center gap-2 text-orange-600 border-t pt-3">
                       <Users className="h-5 w-5" />
                       <span className="font-semibold">{course.totalStudents}</span>
-                      <span className="text-sm text-gray-600">students</span>
+                      <span className="text-sm text-gray-600 dark:text-white">students</span>
                     </div>
 
                     {/* Payment Info */}
                     <div className="space-y-2 border-t pt-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Course Reg Fee:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Course Reg Fee:</span>
                         <span className="font-semibold text-blue-600">
                           {currency}{(course.totalCourseRegistrationFees || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Student Reg Fee:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Student Reg Fee:</span>
                         <span className="font-semibold text-purple-600">
                           {currency}{(course.totalStudentRegistrationFees || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total To Be Paid:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Total To Be Paid:</span>
                         <span className="font-bold text-indigo-600">
                           {currency} {(course.totalToBePaid || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total Amount:</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-sm text-gray-600 dark:text-white">Total Amount:</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           {currency} {(course.totalAmount || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Received:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Received:</span>
                         <span className="font-bold text-green-600">
                           {currency} {(course.receivedAmount || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Outstanding:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Outstanding:</span>
                         <span className="font-bold text-red-600">
                           {currency} {(course.outstandingAmount || 0).toLocaleString()}
                         </span>
@@ -220,14 +220,14 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                             return estimatedCourseFeesOnlyReceived > (course.totalCourseFees || 0);
                           })() ? (
                           <>
-                            <span className="text-sm text-gray-600">Payment Status:</span>
+                            <span className="text-sm text-gray-600 dark:text-white">Payment Status:</span>
                             <span className="font-bold text-green-600 text-lg">
                               Active
                             </span>
                           </>
                         ) : (
                           <>
-                            <span className="text-sm text-gray-600">Collection Rate:</span>
+                            <span className="text-sm text-gray-600 dark:text-white">Collection Rate:</span>
                             <span className="font-bold text-purple-600 text-lg">
                               {(course.collectionRate || 0).toFixed(1)}%
                             </span>
@@ -268,17 +268,17 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
           <Table>
             <TableHeader className="bg-white">
               <TableRow>
-                {shouldShowColumn('CourseID') && <TableHead className="font-semibold text-gray-600 sticky-table-header">CourseID</TableHead>}
-                {shouldShowColumn('Course Name') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Name</TableHead>}
-                {shouldShowColumn('Students') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Students</TableHead>}
-                {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee ({currency})</TableHead>}
-                {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee ({currency})</TableHead>}
+                {shouldShowColumn('CourseID') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">CourseID</TableHead>}
+                {shouldShowColumn('Course Name') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Name</TableHead>}
+                {shouldShowColumn('Students') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Students</TableHead>}
+                {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Reg Fee ({currency})</TableHead>}
+                {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student Reg Fee ({currency})</TableHead>}
                 {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold sticky-table-header bg-purple-50 text-purple-700">Total To Be Paid ({currency})</TableHead>}
-                {shouldShowColumn(`Total Amount (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Amount ({currency})</TableHead>}
-                {shouldShowColumn(`Received (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Received ({currency})</TableHead>}
-                {shouldShowColumn(`Outstanding (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Outstanding ({currency})</TableHead>}
-                {shouldShowColumn('Collection Rate') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Collection Rate / Status</TableHead>}
-                {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Status</TableHead>}
+                {shouldShowColumn(`Total Amount (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Total Amount ({currency})</TableHead>}
+                {shouldShowColumn(`Received (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Received ({currency})</TableHead>}
+                {shouldShowColumn(`Outstanding (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Outstanding ({currency})</TableHead>}
+                {shouldShowColumn('Collection Rate') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Collection Rate / Status</TableHead>}
+                {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Status</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -295,12 +295,12 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                         <div className="flex items-center gap-2">
                           {course.cohorts && course.cohorts.length > 0 && (
                             expandedCourses.has(course.courseId) ? (
-                              <ChevronDown className="h-4 w-4 text-gray-600" />
+                              <ChevronDown className="h-4 w-4 text-gray-600 dark:text-white" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-gray-600" />
+                              <ChevronRight className="h-4 w-4 text-gray-600 dark:text-white" />
                             )
                           )}
-                          <BookOpen className="h-4 w-4 text-gray-600" />
+                          <BookOpen className="h-4 w-4 text-gray-600 dark:text-white" />
                           <span className="font-bold">{course.courseId}</span>
                         </div>
                       </TableCell>
@@ -310,7 +310,7 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                     )}
                     {shouldShowColumn('Students') && (
                       <TableCell>
-                        <span className="flex items-center gap-1 text-gray-700">
+                        <span className="flex items-center gap-1 text-gray-700 dark:text-white">
                           <Users className="h-4 w-4" />
                           {course.totalStudents}
                         </span>
@@ -353,7 +353,7 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                             const estimatedCourseFeesOnlyReceived = (course.receivedAmount || 0) - estimatedRegistrationFeesReceived;
                             return estimatedCourseFeesOnlyReceived > (course.totalCourseFees || 0);
                           })() ? (
-                          <span className="text-gray-400 text-sm">N/A</span>
+                          <span className="text-gray-400 dark:text-white text-sm">N/A</span>
                         ) : (
                           (course.outstandingAmount || 0).toLocaleString()
                         )}

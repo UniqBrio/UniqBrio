@@ -138,7 +138,7 @@ export default function MultiTabSessionHandler() {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
         <h3 className="text-xl font-semibold mb-4">Already Logged In</h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-white mb-6">
           You're already logged in as <span className="font-medium">{existingEmail}</span> in another tab. Would you
           like to continue with this account?
         </p>

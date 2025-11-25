@@ -333,7 +333,7 @@ function AttendanceManagementInner() {
         <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
   <h1 className="text-3xl md:text-3xl font-bold text-purple-700">Non-Instructor Attendance Management </h1>
         </div>
-  <p className="text-lg mb-0 text-gray-700">
+  <p className="text-lg mb-0 text-gray-700 dark:text-white">
     Track, manage, and analyze attendance for all non-instructors</p>
         </div>
         
@@ -394,7 +394,7 @@ function AttendanceManagementInner() {
               `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
               data-[state=active]:bg-gray-400 data-[state=active]:text-white
               data-[state=active]:border-gray-600
-              bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700`
+              bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700`
             }
           >
             <Trophy className="w-4 h-4 mr-2 inline-block" />
@@ -407,7 +407,7 @@ function AttendanceManagementInner() {
               `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
               data-[state=active]:bg-gray-400 data-[state=active]:text-white
               data-[state=active]:border-gray-600
-              bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700`
+              bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700`
             }
           >
             <Bell className="w-4 h-4 mr-2 inline-block" />
@@ -462,7 +462,7 @@ function AttendanceManagementInner() {
                       <span className="text-purple-700 font-medium">{selectedIds.length} selected</span>
                       {/* Bulk status actions removed per requirements */}
                       <button
-                        className="ml-auto px-2 py-1 rounded bg-white border text-gray-600 hover:bg-gray-50"
+                        className="ml-auto px-2 py-1 rounded bg-white border text-gray-600 dark:text-white hover:bg-gray-50"
                         onClick={() => setSelectedIds([])}
                       >Clear Selection</button>
                     </div>
@@ -570,8 +570,8 @@ function AttendanceManagementInner() {
                   const DetailRow = ({ icon: Icon, iconClass, label, value }: { icon: React.ComponentType<{ className?: string }>; iconClass: string; label: string; value: React.ReactNode }) => (
                     <div className="grid grid-cols-[20px_160px_1fr] items-start gap-3 py-2 leading-6">
                       <Icon className={`h-4 w-4 ${iconClass}`} />
-                      <div className="text-gray-500">{label}</div>
-                      <div className="font-medium text-gray-900 whitespace-pre-wrap break-words">{value}</div>
+                      <div className="text-gray-500 dark:text-white">{label}</div>
+                      <div className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap break-words">{value}</div>
                     </div>
                   )
 
@@ -626,11 +626,11 @@ function AttendanceManagementInner() {
             <DialogTitle>Delete Attendance</DialogTitle>
           </DialogHeader>
           <div className="p-2">
-            <p className="text-sm text-gray-600 mb-3">Are you sure you want to delete this attendance record? This action can't be undone.</p>
+            <p className="text-sm text-gray-600 dark:text-white mb-3">Are you sure you want to delete this attendance record? This action can't be undone.</p>
             {recordToDelete && (
-              <div className="text-sm bg-gray-50 border rounded p-3">
-                <div><span className="text-gray-500">Non-Instructor:</span> <span className="font-medium">{recordToDelete.studentName} ({recordToDelete.studentId})</span></div>
-                <div><span className="text-gray-500">Date:</span> <span className="font-medium">{new Date(recordToDelete.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</span></div>
+              <div className="text-sm bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded p-3">
+                <div><span className="text-gray-500 dark:text-white">Non-Instructor:</span> <span className="font-medium">{recordToDelete.studentName} ({recordToDelete.studentId})</span></div>
+                <div><span className="text-gray-500 dark:text-white">Date:</span> <span className="font-medium">{new Date(recordToDelete.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</span></div>
                 {/* Removed Course and Cohort details from delete confirmation */}
               </div>
             )}

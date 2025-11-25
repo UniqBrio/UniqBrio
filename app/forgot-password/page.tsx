@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md bg-white rounded-lg p-8">
         <h1 className="text-2xl font-bold text-center mb-6">Forgot password</h1>
 
-        <p className="text-gray-600 text-center mb-6">Please enter the registered email address</p>
+        <p className="text-gray-600 dark:text-white text-center mb-6">Please enter the registered email address</p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
@@ -131,14 +131,14 @@ export default function ForgotPasswordPage() {
           <Link href="/login" className="text-[#fd9c2d] hover:underline">
             Login
           </Link>
-          <span className="text-gray-400 mx-1">/</span>
+          <span className="text-gray-400 dark:text-white mx-1">/</span>
           <Link href="/signup" className="text-[#fd9c2d] hover:underline">
             Signup
           </Link>
         </div>
 
         <div className="mt-2 text-center">
-          <span className="text-gray-600">Still facing issue? </span>
+          <span className="text-gray-600 dark:text-white">Still facing issue? </span>
           <Link href="/support" className="text-purple-700 hover:underline">
             Raise a support ticket
           </Link>

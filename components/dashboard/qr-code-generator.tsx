@@ -97,10 +97,10 @@ export default function QRCodeGenerator({ eventId, eventTitle, eventDate, eventT
           </div>
           <div className="text-center space-y-2">
             <h3 className="font-medium">{eventTitle}</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-white">
               {eventDate} at {eventTime}
             </p>
-            <p className="text-sm text-gray-600">{location}</p>
+            <p className="text-sm text-gray-600 dark:text-white">{location}</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={handleDownload} className="flex-1">
@@ -112,7 +112,7 @@ export default function QRCodeGenerator({ eventId, eventTitle, eventDate, eventT
               Share
             </Button>
           </div>
-          <p className="text-xs text-gray-500 text-center">Students can scan this QR code to check in to the class</p>
+          <p className="text-xs text-gray-500 dark:text-white text-center">Students can scan this QR code to check in to the class</p>
         </div>
       </DialogContent>
     </Dialog>

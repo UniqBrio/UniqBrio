@@ -11,13 +11,13 @@ export default function VerificationPendingPage() {
 
         <h1 className="text-2xl font-bold mb-4">Verify your email address</h1>
 
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-white mb-6">
           We've sent a verification link to your email address. Please check your inbox and click the link to verify
           your account.
         </p>
 
         <div className="bg-gray-100 p-4 rounded-lg mb-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-white">
             If you don't see the email in your inbox, please check your spam folder or click the button below to resend
             the verification email.
           </p>
@@ -30,7 +30,7 @@ export default function VerificationPendingPage() {
           </button>
           <Link
             href="/login"
-            className="py-2 px-6 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+            className="py-2 px-6 bg-gray-200 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 transition-colors"
           >
             Back to login
           </Link>

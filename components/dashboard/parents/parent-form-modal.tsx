@@ -243,13 +243,13 @@ export function ParentFormModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[95vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">{isEditing ? 'Edit Parent' : 'Add New Parent'}</h2>
+        <div className="sticky top-0 bg-background dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{isEditing ? 'Edit Parent' : 'Add New Parent'}</h2>
           <button
             onClick={handleClose}
             className="p-1 hover:bg-gray-100 rounded transition-colors"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-5 w-5 text-gray-600 dark:text-white" />
           </button>
         </div>
 
@@ -257,11 +257,11 @@ export function ParentFormModal({
         <div className="p-6 space-y-6">
           {/* Personal Information */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Personal Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {/* First Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   First Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -287,7 +287,7 @@ export function ParentFormModal({
 
               {/* Middle Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Middle Name
                 </label>
                 <input
@@ -304,7 +304,7 @@ export function ParentFormModal({
 
               {/* Last Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Last Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -332,7 +332,7 @@ export function ParentFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -357,7 +357,7 @@ export function ParentFormModal({
 
               {/* Date of Birth */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Date of Birth
                 </label>
                 <input
@@ -383,11 +383,11 @@ export function ParentFormModal({
 
           {/* Contact Information */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Country Code */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Country Code <span className="text-red-500">*</span>
                 </label>
                 <PhoneCountryCodeSelect
@@ -405,7 +405,7 @@ export function ParentFormModal({
 
               {/* Mobile Number */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -433,11 +433,11 @@ export function ParentFormModal({
 
           {/* Categories & Status */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories & Status</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Categories & Status</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {/* Categories */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
                   Categories <span className="text-red-500">*</span>
                 </label>
                 <div className="space-y-2 p-3 border border-gray-300 rounded-lg">
@@ -449,7 +449,7 @@ export function ParentFormModal({
                         onChange={() => handleCategoryToggle(category)}
                         className="w-4 h-4 rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">{category}</span>
+                      <span className="text-sm text-gray-700 dark:text-white">{category}</span>
                     </label>
                   ))}
                 </div>
@@ -464,7 +464,7 @@ export function ParentFormModal({
               {/* Student ID & Status */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Linked Student ID <span className="text-red-500">*</span>
                   </label>
                   <select
@@ -493,7 +493,7 @@ export function ParentFormModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Status
                   </label>
                   <select
@@ -511,11 +511,11 @@ export function ParentFormModal({
 
           {/* Payment Information */}
           <div className="border-b pb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Payment Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Payment Status
                 </label>
                 <select
@@ -531,7 +531,7 @@ export function ParentFormModal({
 
               {/* Currency */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Currency
                 </label>
                 <select
@@ -548,7 +548,7 @@ export function ParentFormModal({
 
               {/* Total Fees */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Total Fees <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -576,11 +576,11 @@ export function ParentFormModal({
 
           {/* Address Information */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Address Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Address Information</h3>
             <div className="grid grid-cols-1 gap-4">
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                   Address
                 </label>
                 <input
@@ -595,7 +595,7 @@ export function ParentFormModal({
               {/* City, State, Pincode */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     City
                   </label>
                   <input
@@ -608,7 +608,7 @@ export function ParentFormModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     State
                   </label>
                   <input
@@ -621,7 +621,7 @@ export function ParentFormModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Pincode
                   </label>
                   <input
@@ -638,7 +638,7 @@ export function ParentFormModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex gap-3 justify-end">
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3 justify-end">
           <Button
             variant="outline"
             onClick={handleClose}

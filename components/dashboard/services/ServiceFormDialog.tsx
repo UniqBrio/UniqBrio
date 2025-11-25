@@ -510,13 +510,13 @@ export default function ServiceFormDialog({
                           <p className="font-medium">
                             {session.timeFrom} - {session.timeTo}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-white">
                             {session.days.join(", ")}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-white">
                             Instructor: {session.instructor}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-white">
                             Location: {session.location}
                           </p>
                         </div>
@@ -531,7 +531,7 @@ export default function ServiceFormDialog({
                     </div>
                   ))}
                   {(!formData.sessions || formData.sessions.length === 0) && (
-                    <p className="text-gray-500 text-center py-4">No sessions added yet</p>
+                    <p className="text-gray-500 dark:text-white text-center py-4">No sessions added yet</p>
                   )}
                 </div>
               </div>

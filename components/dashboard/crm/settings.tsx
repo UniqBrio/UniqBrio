@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -102,7 +102,7 @@ export default function SettingsPage() {
           name: "Follow-up WhatsApp",
           type: "WhatsApp",
           content:
-            "Hello {{studentName}}! 👋\n\nI hope you enjoyed your trial session for {{courseName}}. Do you have any questions about the program?\n\nI'm here to help! 😊",
+            "Hello {{studentName}}! ??\n\nI hope you enjoyed your trial session for {{courseName}}. Do you have any questions about the program?\n\nI'm here to help! ??",
           variables: ["studentName", "courseName"],
           isActive: true,
           createdBy: "John Doe",
@@ -221,7 +221,7 @@ export default function SettingsPage() {
       case "WhatsApp":
         return "bg-purple-100 text-purple-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   
   }
@@ -238,8 +238,8 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">CRM Settings</h1>
-        <p className="text-sm sm:text-base text-gray-500">Configure communication templates and automation rules</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">CRM Settings</h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-white">Configure communication templates and automation rules</p>
       </div>
 
       {/* Tabs */}
@@ -248,25 +248,25 @@ export default function SettingsPage() {
           <TabsList className="inline-flex w-full sm:w-auto gap-2 bg-gray-100 p-1 rounded-lg min-w-max">
             <TabsTrigger 
               value="templates" 
-              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:text-white data-[state=active]:shadow-sm whitespace-nowrap"
             >
               Communication Templates
             </TabsTrigger>
             <TabsTrigger 
               value="tagging" 
-              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:text-white data-[state=active]:shadow-sm whitespace-nowrap"
             >
               Auto-Tagging Rules
             </TabsTrigger>
             <TabsTrigger 
               value="notifications" 
-              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:text-white data-[state=active]:shadow-sm whitespace-nowrap"
             >
               Notifications
             </TabsTrigger>
             <TabsTrigger 
               value="roles" 
-              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm whitespace-nowrap"
+              className="px-4 py-2 rounded-md text-sm font-medium transition-colors data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:text-white data-[state=active]:shadow-sm whitespace-nowrap"
             >
               User Roles
             </TabsTrigger>
@@ -293,18 +293,18 @@ export default function SettingsPage() {
               <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50 border-y">
-                      <TableHead className="font-semibold text-gray-600">Template Name</TableHead>
-                      <TableHead className="font-semibold text-gray-600">Type</TableHead>
-                      <TableHead className="font-semibold text-gray-600">Status</TableHead>
-                      <TableHead className="font-semibold text-gray-600">Last Used</TableHead>
-                      <TableHead className="font-semibold text-gray-600 text-right">Actions</TableHead>
+                    <TableRow className="bg-gray-50 dark:bg-gray-800 border-y dark:border-gray-700">
+                      <TableHead className="font-semibold text-gray-600 dark:text-white">Template Name</TableHead>
+                      <TableHead className="font-semibold text-gray-600 dark:text-white">Type</TableHead>
+                      <TableHead className="font-semibold text-gray-600 dark:text-white">Status</TableHead>
+                      <TableHead className="font-semibold text-gray-600 dark:text-white">Last Used</TableHead>
+                      <TableHead className="font-semibold text-gray-600 dark:text-white text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {templates.map((template) => (
-                      <TableRow key={template.id} className="hover:bg-gray-50">
-                        <TableCell className="font-medium text-gray-900">{template.name}</TableCell>
+                      <TableRow key={template.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <TableCell className="font-medium text-gray-900 dark:text-white">{template.name}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {getTemplateIcon(template.type)}
@@ -322,7 +322,7 @@ export default function SettingsPage() {
                             className="data-[state=checked]:bg-purple-600"
                           />
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">
+                        <TableCell className="text-sm text-gray-600 dark:text-white">
                           {template.lastUsed ? format(new Date(template.lastUsed), "yyyy-MM-dd'T'HH:mm:ss'Z'") : "Never"}
                         </TableCell>
                         <TableCell>
@@ -332,7 +332,7 @@ export default function SettingsPage() {
                               size="sm"
                               className="h-8 w-8 p-0 hover:bg-gray-100"
                             >
-                              <Edit className="w-4 h-4 text-gray-600" />
+                              <Edit className="w-4 h-4 text-gray-600 dark:text-white" />
                             </Button>
                             <Button 
                               variant="ghost" 
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                   <div key={template.id} className="p-4 hover:bg-gray-50">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900 mb-2">{template.name}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">{template.name}</h4>
                         <div className="flex items-center gap-2 mb-2">
                           {getTemplateIcon(template.type)}
                           <Badge 
@@ -372,7 +372,7 @@ export default function SettingsPage() {
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-white">
                         Last used: {template.lastUsed ? format(new Date(template.lastUsed), "yyyy-MM-dd'T'HH:mm:ss'Z'") : "Never"}
                       </span>
                       <div className="flex gap-1">
@@ -381,7 +381,7 @@ export default function SettingsPage() {
                           size="sm"
                           className="h-8 w-8 p-0 hover:bg-gray-100"
                         >
-                          <Edit className="w-4 h-4 text-gray-600" />
+                          <Edit className="w-4 h-4 text-gray-600 dark:text-white" />
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -417,15 +417,15 @@ export default function SettingsPage() {
             <CardContent>
               <div className="space-y-3">
                 {tagRules.map((rule) => (
-                  <div key={rule.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3">
+                  <div key={rule.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{rule.name}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-white">{rule.name}</h4>
                         <Badge variant="outline" className="text-xs border-purple-200 text-purple-700 bg-purple-50">
                           {rule.tag}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 break-words">{rule.condition} → {rule.action}</p>
+                      <p className="text-sm text-gray-600 dark:text-white break-words">{rule.condition} ? {rule.action}</p>
                     </div>
                     <div className="flex items-center gap-3 self-end sm:self-center flex-shrink-0">
                       <Switch 
@@ -437,7 +437,7 @@ export default function SettingsPage() {
                         size="sm"
                         className="h-8 w-8 p-0 hover:bg-gray-100"
                       >
-                        <Edit className="w-4 h-4 text-gray-600" />
+                        <Edit className="w-4 h-4 text-gray-600 dark:text-white" />
                       </Button>
                     </div>
                   </div>
@@ -458,8 +458,8 @@ export default function SettingsPage() {
                 {notifications.map((notification) => (
                   <div key={notification.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 first:pt-0 last:pb-0 gap-3">
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{notification.type}</h4>
-                      <p className="text-sm text-gray-600 mt-1">Frequency: {notification.frequency}</p>
+                      <h4 className="font-medium text-gray-900 dark:text-white">{notification.type}</h4>
+                      <p className="text-sm text-gray-600 dark:text-white mt-1">Frequency: {notification.frequency}</p>
                     </div>
                     <Switch 
                       checked={notification.enabled}
@@ -481,16 +481,16 @@ export default function SettingsPage() {
             <CardContent>
               <div className="space-y-3">
                 {userRoles.map((role) => (
-                  <div key={role.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3">
+                  <div key={role.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors gap-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Users className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                        <h4 className="font-medium text-gray-900">{role.name}</h4>
-                        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
+                        <Users className="w-4 h-4 text-gray-500 dark:text-white flex-shrink-0" />
+                        <h4 className="font-medium text-gray-900 dark:text-white">{role.name}</h4>
+                        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 dark:text-white">
                           {role.userCount} users
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 ml-6">{role.permissions.length} permissions</p>
+                      <p className="text-sm text-gray-600 dark:text-white ml-6">{role.permissions.length} permissions</p>
                     </div>
                     <Button 
                       variant="outline" 

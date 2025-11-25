@@ -158,7 +158,7 @@ export default function ReassignInstructorDialog({
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
                             <UserX className="h-3 w-3 text-red-500" />
-                            <span className="text-gray-400">{instructorStatus.instructorName}</span>
+                            <span className="text-gray-400 dark:text-white">{instructorStatus.instructorName}</span>
                           </div>
                           <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
                             {instructorStatus.conflictReason}
@@ -172,7 +172,7 @@ export default function ReassignInstructorDialog({
             </Select>
             
             {/* Compact status summary */}
-            <div className="text-xs text-gray-500 text-center">
+            <div className="text-xs text-gray-500 dark:text-white text-center">
               {instructorAvailabilityList.filter(i => i.isAvailable).length} of {instructorAvailabilityList.length} available � {format(sessionDate, 'dd-MMM-yy')} {startTime}-{endTime}
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function ReassignInstructorDialog({
                       )}
                       <div>
                         <div className="font-medium text-sm">{selectedInstructor.name}</div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-white">
                           {selectedInstructor.specializations?.[0] || 'General'} � ? {selectedInstructor.rating?.toFixed(1) || 'N/A'}
                         </div>
                       </div>

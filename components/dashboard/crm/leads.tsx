@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -151,7 +151,7 @@ export default function LeadsPage() {
       case "Lost":
         return "bg-red-100 text-red-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -164,7 +164,7 @@ export default function LeadsPage() {
       case "Cold":
         return "bg-blue-100 text-blue-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -200,8 +200,8 @@ export default function LeadsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Lead Management</h1>
-            <p className="text-gray-600">Track and manage potential students through the conversion funnel</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Lead Management</h1>
+            <p className="text-gray-600 dark:text-white">Track and manage potential students through the conversion funnel</p>
           </div>
           <div className="flex space-x-2 mt-4 md:mt-0">
             <Button variant="outline" className="w-full md:w-auto bg-transparent">
@@ -316,7 +316,7 @@ export default function LeadsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Total Leads</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Total Leads</p>
                     <p className="text-2xl font-bold">{leads.length}</p>
                   </div>
                   <Users className="w-8 h-8 text-blue-500" />
@@ -327,7 +327,7 @@ export default function LeadsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Hot Leads</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Hot Leads</p>
                     <p className="text-2xl font-bold text-red-600">
                       {leads.filter((l) => l.priority === "Hot").length}
                     </p>
@@ -340,7 +340,7 @@ export default function LeadsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Qualified</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Qualified</p>
                     <p className="text-2xl font-bold text-purple-600">
                       {leads.filter((l) => l.status === "Qualified").length}
                     </p>
@@ -353,7 +353,7 @@ export default function LeadsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Converted</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Converted</p>
                     <p className="text-2xl font-bold text-green-600">
                       {leads.filter((l) => l.status === "Converted").length}
                     </p>
@@ -370,7 +370,7 @@ export default function LeadsPage() {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white w-4 h-4" />
                     <Input
                       placeholder="Search leads..."
                       value={searchTerm}
@@ -450,9 +450,9 @@ export default function LeadsPage() {
                         <TableCell>
                           <div>
                             <p className="font-medium">{lead.leadName}</p>
-                            <p className="text-sm text-gray-600">{lead.email}</p>
-                            <p className="text-sm text-gray-600">{lead.contactNumber}</p>
-                            {lead.age && <p className="text-sm text-gray-600">Age: {lead.age}</p>}
+                            <p className="text-sm text-gray-600 dark:text-white">{lead.email}</p>
+                            <p className="text-sm text-gray-600 dark:text-white">{lead.contactNumber}</p>
+                            {lead.age && <p className="text-sm text-gray-600 dark:text-white">Age: {lead.age}</p>}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -478,14 +478,14 @@ export default function LeadsPage() {
                           {lead.assignedCounselor ? (
                             <span className="text-sm">{lead.assignedCounselor}</span>
                           ) : (
-                            <span className="text-sm text-gray-400">Unassigned</span>
+                            <span className="text-sm text-gray-400 dark:text-white">Unassigned</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {lead.nextFollowUp ? (
                             <span className="text-sm">{new Date(lead.nextFollowUp).toLocaleDateString()}</span>
                           ) : (
-                            <span className="text-sm text-gray-400">Not scheduled</span>
+                            <span className="text-sm text-gray-400 dark:text-white">Not scheduled</span>
                           )}
                         </TableCell>
                         <TableCell>

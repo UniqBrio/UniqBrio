@@ -288,8 +288,8 @@ export function Dialogs({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Upload className="h-8 w-8 mx-auto text-gray-400" />
-                      <div className="text-sm text-gray-600">Click to upload or drag and drop</div>
+                      <Upload className="h-8 w-8 mx-auto text-gray-400 dark:text-white" />
+                      <div className="text-sm text-gray-600 dark:text-white">Click to upload or drag and drop</div>
                       <input
                         type="file"
                         accept="image/*"
@@ -332,8 +332,8 @@ export function Dialogs({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Upload className="h-8 w-8 mx-auto text-gray-400" />
-                      <div className="text-sm text-gray-600">Click to upload or drag and drop</div>
+                      <Upload className="h-8 w-8 mx-auto text-gray-400 dark:text-white" />
+                      <div className="text-sm text-gray-600 dark:text-white">Click to upload or drag and drop</div>
                       <input
                         type="file"
                         accept="image/*"

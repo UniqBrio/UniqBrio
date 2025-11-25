@@ -573,7 +573,7 @@ export default function TaskManagement() {
                     />
                   )
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-gray-500 dark:text-white">
                     <p className="text-lg mb-2">No active tasks found</p>
                     <p className="text-sm">Create a new task or adjust your filters</p>
                   </div>
@@ -650,7 +650,7 @@ export default function TaskManagement() {
                     />
                   )
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-gray-500 dark:text-white">
                     <p className="text-lg mb-2">No completed tasks found</p>
                     <p className="text-sm">Try adjusting your filters to see completed tasks</p>
                   </div>

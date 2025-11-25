@@ -429,29 +429,29 @@ export default function LeaveGrid({ searchQuery, filters, sortBy = "startDate", 
                 {/* Details: compact one-line rows */}
                 <div className="mt-4 space-y-1.5 text-sm">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">Job Level:</span>
+                    <span className="text-gray-500 dark:text-white">Job Level:</span>
                     <span className="font-medium">{req.jobLevel || instructor?.jobLevel || "N/A"}</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">Contract Type:</span>
+                    <span className="text-gray-500 dark:text-white">Contract Type:</span>
                     <span className="font-medium">{req.contractType || req.employmentType || instructor?.contractType || instructor?.employmentType || 'N/A'}</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">Leave Type:</span>
+                    <span className="text-gray-500 dark:text-white">Leave Type:</span>
                     <span className="font-medium">{req.leaveType}</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">Dates:</span>
+                    <span className="text-gray-500 dark:text-white">Dates:</span>
                     <span className="font-medium">{req.startDate === req.endDate ? (req.startDate ? formatDisplayDate(req.startDate) : '?') : `${req.startDate ? formatDisplayDate(req.startDate) : '?'} - ${req.endDate ? formatDisplayDate(req.endDate) : '?'}`}</span>
                   </div>
                   {req.registeredDate && (
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">Approved Date:</span>
+                    <span className="text-gray-500 dark:text-white">Approved Date:</span>
                     <span className="font-medium">{formatDisplayDate(req.registeredDate)}</span>
                   </div>
                   )}
                   <div className="flex items-baseline gap-1">
-                    <span className="text-gray-500">No. of days:</span>
+                    <span className="text-gray-500 dark:text-white">No. of days:</span>
                     <span className="font-medium">{computeWorkingDays(req.startDate, req.endDate)} days</span>
                   </div>
                   {(() => {
@@ -466,7 +466,7 @@ export default function LeaveGrid({ searchQuery, filters, sortBy = "startDate", 
                       : (req.balance !== undefined ? req.balance : (computedLimit !== undefined ? Math.max(0, computedLimit - computedUsed) : undefined))
                     return (
                       <div className="flex items-baseline gap-2">
-                        <span className="text-gray-500">Assigned leaves:</span>
+                        <span className="text-gray-500 dark:text-white">Assigned leaves:</span>
                         {limit !== undefined && used !== undefined ? (
                           <div className="leading-tight text-sm font-medium">{used}/{limit}</div>
                         ) : (

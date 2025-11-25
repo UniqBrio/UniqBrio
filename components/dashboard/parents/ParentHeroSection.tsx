@@ -20,7 +20,7 @@ export default function ParentHeroSection({
         <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
           <h1 className="text-3xl md:text-4xl font-bold text-purple-700">Parent Management</h1>
         </div>
-        <p className="text-lg mb-0 text-gray-700">
+        <p className="text-lg mb-0 text-gray-700 dark:text-white">
           Manage parent profiles, track engagement, payment status, and communication preferences.
         </p>
       </div>

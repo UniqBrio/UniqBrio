@@ -348,7 +348,7 @@ export default function ServiceExportDialog({
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-xs text-gray-500 dark:text-white mt-3">
                 * Required columns cannot be deselected
               </p>
             </CardContent>

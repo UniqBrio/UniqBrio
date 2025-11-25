@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/staff/tabs"
@@ -173,7 +173,7 @@ export default function NonInstructorPage() {
           <div className="flex items-start justify-between w-full">
             <div>
               <h1 className="text-3xl font-bold text-purple-700 mb-2">Non-Instructor Management Hub</h1>
-              <p className="text-gray-600">Comprehensive non-instructor management and tools</p>
+              <p className="text-gray-600 dark:text-white">Comprehensive non-instructor management and tools</p>
             </div>
           </div>
         </CardHeader>
@@ -183,35 +183,35 @@ export default function NonInstructorPage() {
               <TabsList className="grid w-full grid-cols-5 gap-1 h-auto p-1">
                 <TabsTrigger
                   value="dashboard"
-                  className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
-                  className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
                 >
                   <GraduationCap className="h-4 w-4 mr-2" />
                   Non-Instructors
                 </TabsTrigger>
                 <TabsTrigger
                   value="leave"
-                  className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
                 >
                   <CalendarDays className="h-4 w-4 mr-2" />
                   Leave Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="attendance"
-                  className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
                 >
                   <ClipboardCheck className="h-4 w-4 mr-2" />
                   Attendance Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="settings"
-                  className="text-xs border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
                 >
                   <SettingsIcon className="h-4 w-4 mr-2" />
                   Settings
@@ -297,7 +297,7 @@ export default function NonInstructorPage() {
               My Performance
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Smart scheduling</p>
+            <p className="text-xs text-gray-500 dark:text-white">Smart scheduling</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -307,7 +307,7 @@ export default function NonInstructorPage() {
               Payroll
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Badges & rewards</p>
+            <p className="text-xs text-gray-500 dark:text-white">Badges & rewards</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -317,7 +317,7 @@ export default function NonInstructorPage() {
               AI Tools
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Auto grading</p>
+            <p className="text-xs text-gray-500 dark:text-white">Auto grading</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -327,7 +327,7 @@ export default function NonInstructorPage() {
               Development
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Study duration</p>
+            <p className="text-xs text-gray-500 dark:text-white">Study duration</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -337,7 +337,7 @@ export default function NonInstructorPage() {
               Hiring
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Mentorship & recruitment</p>
+            <p className="text-xs text-gray-500 dark:text-white">Mentorship & recruitment</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -347,7 +347,7 @@ export default function NonInstructorPage() {
               Communication
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Messaging & feedback</p>
+            <p className="text-xs text-gray-500 dark:text-white">Messaging & feedback</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -357,7 +357,7 @@ export default function NonInstructorPage() {
               Security
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Compliance & safety</p>
+            <p className="text-xs text-gray-500 dark:text-white">Compliance & safety</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -367,7 +367,7 @@ export default function NonInstructorPage() {
               Mobile
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
             </h3>
-            <p className="text-xs text-gray-500">Mobile features</p>
+            <p className="text-xs text-gray-500 dark:text-white">Mobile features</p>
           </CardContent>
         </Card>
       </div>

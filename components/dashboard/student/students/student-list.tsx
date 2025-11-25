@@ -224,7 +224,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
               {same ? cd.id : (
                 <>
                   <span className="text-purple-700">{cd.id}</span>
-                  <span className="mx-1 text-gray-400">�</span>
+                  <span className="mx-1 text-gray-400 dark:text-white">�</span>
                   <span>{cd.name}</span>
                 </>
               )}
@@ -235,19 +235,19 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
           <div>
             {renderHeader(cohortDetails)}
             {cohortDetails.timing && (
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-gray-500 dark:text-white mt-1">
                 <span className="font-semibold">Time:</span> {cohortDetails.timing}
               </div>
             )}
             {cohortDetails.instructor && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-white">
                 <span className="font-semibold">Instructor:</span> {cohortDetails.instructor}
               </div>
             )}
           </div>
         ) : student.cohortId ? (
           <div>
-            <div className="font-medium text-gray-700">{student.cohortId}</div>
+            <div className="font-medium text-gray-700 dark:text-white">{student.cohortId}</div>
             <div className="text-xs text-amber-600 mt-1">?? Cohort details not found</div>
           </div>
         ) : '-';
@@ -262,18 +262,18 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                 {same ? cohortDetails.id : (
                   <>
                     <span className="text-purple-700">{cohortDetails.id}</span>
-                    <span className="mx-1 text-gray-400">�</span>
+                    <span className="mx-1 text-gray-400 dark:text-white">�</span>
                     <span>{cohortDetails.name}</span>
                   </>
                 )}
               </div>
               {cohortDetails.timing && (
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-gray-500 dark:text-white mt-1">
                   <span className="font-semibold">Time:</span> {cohortDetails.timing}
                 </div>
               )}
               {cohortDetails.instructor && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-white">
                   <span className="font-semibold">Instructor:</span> {cohortDetails.instructor}
                 </div>
               )}
@@ -320,7 +320,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-          <p className="text-gray-600">Loading students...</p>
+          <p className="text-gray-600 dark:text-white">Loading students...</p>
         </div>
       </div>
     );
@@ -328,8 +328,8 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
 
   if (students.length === 0) {
     return (
-      <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
-        <Users className="h-16 w-16 text-gray-300 mb-4" />
+      <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500 dark:text-white">
+        <Users className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
         <h3 className="text-lg font-medium mb-2">No students found</h3>
         <p className="text-sm">Try adjusting your filters or search criteria</p>
       </div>
@@ -363,10 +363,10 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
               <div className="flex flex-col space-y-4">
                 {/* Student Name */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-lg truncate" title={student.name}>
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-lg truncate" title={student.name}>
                     {student.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">{student.studentId}</p>
+                  <p className="text-sm text-gray-500 dark:text-white mt-1">{student.studentId}</p>
                 </div>
 
                 {/* Student Details */}
@@ -381,7 +381,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                   
                   <div className="text-left space-y-2">
                     {/* Course Information */}
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {(() => {
                         // Show enrolled course if available, otherwise fall back to course of interest
                         const enrolledCourse = resolveEnrolledCourse(student);
@@ -406,28 +406,28 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                         return same ? cohortDetails.id : (
                           <>
                             <span className="text-purple-700">{cohortDetails.id}</span>
-                            <span className="mx-1 text-gray-400">�</span>
+                            <span className="mx-1 text-gray-400 dark:text-white">�</span>
                             <span>{cohortDetails.name}</span>
                           </>
                         );
                       })() : student.cohortId;
                       return (
                         <div className="space-y-1">
-                          <div className="text-xs text-gray-500 font-medium">Cohort</div>
-                          <div className="text-sm text-gray-700 space-y-1">
+                          <div className="text-xs text-gray-500 dark:text-white font-medium">Cohort</div>
+                          <div className="text-sm text-gray-700 dark:text-white space-y-1">
                             <div className="font-medium">{header}</div>
                             {cohortDetails?.timing && (
-                              <div className="text-xs text-gray-600">
+                              <div className="text-xs text-gray-600 dark:text-white">
                                 <span className="font-semibold">?? Time:</span> {cohortDetails.timing}
                               </div>
                             )}
                             {cohortDetails?.instructor && (
-                              <div className="text-xs text-gray-600">
+                              <div className="text-xs text-gray-600 dark:text-white">
                                 <span className="font-semibold">????? Instructor:</span> {cohortDetails.instructor}
                               </div>
                             )}
                             {cohortDetails?.capacity && (
-                              <div className="text-xs text-gray-600">
+                              <div className="text-xs text-gray-600 dark:text-white">
                                 <span className="font-semibold">?? Enrolled:</span> {cohortDetails.capacity}
                               </div>
                             )}
@@ -485,7 +485,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
               {displayedColumns.map(column => (
                 <TableHead 
                   key={column} 
-                  className={cn("sticky top-0 bg-white z-20 border-b px-6 py-3 text-sm font-semibold text-gray-600 text-left", column === 'Actions' && 'text-center')}
+                  className={cn("sticky top-0 bg-white dark:bg-gray-900 z-20 border-b px-6 py-3 text-sm font-semibold text-gray-600 dark:text-white text-left", column === 'Actions' && 'text-center')}
                 >
                   {column === 'Actions' ? '' : column}
                 </TableHead>

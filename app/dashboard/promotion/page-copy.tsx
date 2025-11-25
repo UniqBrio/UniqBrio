@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import MainLayout from "@/components/dashboard/main-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Badge } from "@/components/dashboard/ui/badge";
@@ -216,7 +216,7 @@ export default function PromotionPage() {
               </h1>
               <Zap className="h-12 w-12 text-orange-500" />
             </div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-white max-w-3xl mx-auto leading-relaxed">
               Revolutionary marketing and promotional tools designed specifically for your academy. 
               
             </p>
@@ -290,16 +290,16 @@ export default function PromotionPage() {
                             Coming Soon
                           </Badge>
                         </div>
-                        <CardTitle className="text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
+                        <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white group-hover:text-gray-900 dark:text-white transition-colors">
                           {feature.title}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <CardDescription className="text-gray-600 leading-relaxed">
+                        <CardDescription className="text-gray-600 dark:text-white leading-relaxed">
                           {feature.description}
                         </CardDescription>
                         <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Key Features:</p>
+                          <p className="text-sm font-medium text-gray-700 dark:text-white">Key Features:</p>
                           <div className="flex flex-wrap gap-1">
                             {feature.highlights.map((highlight, highlightIndex) => (
                               <Badge 

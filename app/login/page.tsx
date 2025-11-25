@@ -264,7 +264,7 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-white"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
@@ -276,7 +276,7 @@ export default function LoginPage() {
 
         {/* Forgot Password Link */}
         <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-m text-gray-600 hover:underline">
+          <Link href="/forgot-password" className="text-m text-gray-600 dark:text-white hover:underline">
             Forgot password?
           </Link>
         </div>

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import type React from "react"
 
@@ -245,7 +245,7 @@ export default function FavouritesPage() {
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold text-purple-700 mb-6">Favourites Selection</h1>
-      <p className="text-gray-500 mb-6">
+      <p className="text-gray-500 dark:text-white mb-6">
         Select the menu items you want to appear in your favourites section. These items will be easily accessible from
         the sidebar when you toggle the favourites view.
       </p>
@@ -275,7 +275,7 @@ export default function FavouritesPage() {
                     htmlFor={item.id}
                     className="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <span className="mr-2 text-gray-500">{item.icon}</span>
+                    <span className="mr-2 text-gray-500 dark:text-white">{item.icon}</span>
                     {item.name}
                   </label>
                 </div>
@@ -295,7 +295,7 @@ export default function FavouritesPage() {
                           htmlFor={child.id}
                           className="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          <span className="mr-2 text-gray-500">{child.icon}</span>
+                          <span className="mr-2 text-gray-500 dark:text-white">{child.icon}</span>
                           {child.name}
                         </label>
                       </div>

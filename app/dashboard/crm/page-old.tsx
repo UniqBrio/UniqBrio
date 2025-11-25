@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import MainLayout from '@/components/dashboard/main-layout';
@@ -420,7 +420,7 @@ export default function CRMPage() {
                 <Users className="h-6 w-6 text-purple-600" />
                 Customer Relations
               </CardTitle>
-              <CardDescription className="mt-1 text-gray-600">View and manage all customer enquiries and leads</CardDescription>
+              <CardDescription className="mt-1 text-gray-600 dark:text-white">View and manage all customer enquiries and leads</CardDescription>
             </div>
           </div>
         </CardHeader>

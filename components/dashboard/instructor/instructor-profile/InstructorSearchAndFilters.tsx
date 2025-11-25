@@ -130,9 +130,9 @@ export default function InstructorSearchAndFilters({
   return (
     <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-semibold text-gray-900">List of Instructors</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">List of Instructors</h1>
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-400" />
+            <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-400 dark:text-white" />
             <Input
               placeholder="Search instructors..."
               className="pl-8 h-8 text-sm w-64"
@@ -410,7 +410,7 @@ export default function InstructorSearchAndFilters({
                   });
                 }}
               />
-              <span className="text-xs text-gray-500 self-center">to</span>
+              <span className="text-xs text-gray-500 dark:text-white self-center">to</span>
               <input
                 type="number"
                 className="w-20 px-2 py-1 text-xs border rounded"

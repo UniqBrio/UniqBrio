@@ -4,33 +4,33 @@ export function Footer() {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Quick Links</h3>
             <div className="space-y-2">
               <a
                 href="/legal/privacy"
-                className="block text-gray-600 hover:text-orange-500 transition-smooth"
+                className="block text-gray-600 dark:text-white hover:text-orange-500 transition-smooth"
               >
                 How We Protect Your Academy
               </a>
               <a
                 href="/legal/terms"
-                className="block text-gray-600 hover:text-orange-500 transition-smooth"
+                className="block text-gray-600 dark:text-white hover:text-orange-500 transition-smooth"
               >
                 Our Promise to You
               </a>
               <a
                 href="/legal/cookies"
-                className="block text-gray-600 hover:text-orange-500 transition-smooth"
+                className="block text-gray-600 dark:text-white hover:text-orange-500 transition-smooth"
               >
                 Cookie Policy
               </a>
             </div>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Social Media</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Social Media</h3>
             <div className="flex space-x-4">
               {["LinkedIn", "Instagram"].map((social) => (
-                <a key={social} href="#" className="text-gray-600 hover:text-orange-500 transition-smooth">
+                <a key={social} href="#" className="text-gray-600 dark:text-white hover:text-orange-500 transition-smooth">
                   {social}
                 </a>
               ))}
@@ -38,7 +38,7 @@ export function Footer() {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-gray-600">Powered by</span>
+              <span className="text-gray-600 dark:text-white">Powered by</span>
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-gradient-to-r from-purple-600 to-orange-500 rounded flex items-center justify-center glow">
                   <span className="text-white font-bold text-xs">XYZ</span>

@@ -323,10 +323,10 @@ export function InvoiceDialog({
                   </div>
                   <div>
                     <h1 className="text-3xl font-bold text-purple-700">XYZ Academy</h1>
-                    <p className="text-gray-600 font-medium">Empowering Minds, Shaping Futures</p>
+                    <p className="text-gray-600 dark:text-white font-medium">Empowering Minds, Shaping Futures</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 mt-4">
+                <div className="text-sm text-gray-600 dark:text-white mt-4">
                   <p>Email: support@uniqbrio.com</p>
                   <p>Phone: +91-XXXXX-XXXXX</p>
                   <p>Website: www.uniqbrio.com</p>
@@ -336,7 +336,7 @@ export function InvoiceDialog({
                 <h2 className="text-2xl font-bold text-purple-600 mb-2">INVOICE</h2>
                 <div className="text-sm">
                   <p className="font-semibold">Invoice #: {invoiceId || 'Generating...'}</p>
-                  <p className="text-gray-600">Date: {invoiceDate}</p>
+                  <p className="text-gray-600 dark:text-white">Date: {invoiceDate}</p>
                 </div>
               </div>
             </div>
@@ -344,33 +344,33 @@ export function InvoiceDialog({
 
           {/* Student Details */}
           <div className="mb-8">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Student Information</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Student Information</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Student ID</p>
+                <p className="text-sm text-gray-600 dark:text-white">Student ID</p>
                 <p className="font-semibold">{payment.studentId}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Student Name</p>
+                <p className="text-sm text-gray-600 dark:text-white">Student Name</p>
                 <p className="font-semibold">{payment.studentName}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Course</p>
+                <p className="text-sm text-gray-600 dark:text-white">Course</p>
                 <p className="font-semibold">{payment.enrolledCourseName}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Course ID</p>
+                <p className="text-sm text-gray-600 dark:text-white">Course ID</p>
                 <p className="font-semibold">{payment.enrolledCourse || payment.enrolledCourseId}</p>
               </div>
               {payment.cohortName && (
                 <div>
-                  <p className="text-sm text-gray-600">Cohort</p>
+                  <p className="text-sm text-gray-600 dark:text-white">Cohort</p>
                   <p className="font-semibold">{payment.cohortName}</p>
                 </div>
               )}
               {payment.cohortId && (
                 <div>
-                  <p className="text-sm text-gray-600">Cohort ID</p>
+                  <p className="text-sm text-gray-600 dark:text-white">Cohort ID</p>
                   <p className="font-semibold">{payment.cohortId}</p>
                 </div>
               )}
@@ -379,7 +379,7 @@ export function InvoiceDialog({
 
           {/* Payment Details */}
           <div className="mb-8">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Payment Details</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Payment Details</h3>
             <table className="w-full border-collapse">
               <thead className="bg-gray-100">
                 <tr>
@@ -427,14 +427,14 @@ export function InvoiceDialog({
           {/* Payment History */}
           {(payment.lastPaymentDate || (isPartialOrEMI && (paymentRecords.length > 0 || payment.emiSchedule))) && (
             <div className="mb-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2 flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
                 Payment History
               </h3>
               
               {loadingRecords ? (
                 <div className="bg-gray-50 p-4 rounded-lg text-center">
-                  <p className="text-sm text-gray-600">Loading payment history...</p>
+                  <p className="text-sm text-gray-600 dark:text-white">Loading payment history...</p>
                 </div>
               ) : paymentRecords.length > 0 ? (
                 <div className="overflow-x-auto">
@@ -469,10 +469,10 @@ export function InvoiceDialog({
                               {record.paymentMode}
                             </Badge>
                           </td>
-                          <td className="border border-gray-300 p-3 text-sm text-gray-600">
+                          <td className="border border-gray-300 p-3 text-sm text-gray-600 dark:text-white">
                             {record.transactionId || '-'}
                           </td>
-                          <td className="border border-gray-300 p-3 text-sm text-gray-600">
+                          <td className="border border-gray-300 p-3 text-sm text-gray-600 dark:text-white">
                             {record.receiptNumber || '-'}
                           </td>
                         </tr>
@@ -533,7 +533,7 @@ export function InvoiceDialog({
                               {emi.status}
                             </Badge>
                           </td>
-                          <td className="border border-gray-300 p-3 text-sm text-gray-600">
+                          <td className="border border-gray-300 p-3 text-sm text-gray-600 dark:text-white">
                             {emi.transactionId || '-'}
                           </td>
                         </tr>
@@ -556,7 +556,7 @@ export function InvoiceDialog({
                 </>
               ) : (
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Last Payment Date</p>
+                  <p className="text-sm text-gray-600 dark:text-white">Last Payment Date</p>
                   <p className="font-semibold">
                     {payment.lastPaymentDate ? new Date(payment.lastPaymentDate).toLocaleDateString('en-GB', {
                       day: '2-digit',
@@ -570,7 +570,7 @@ export function InvoiceDialog({
           )}
 
           {/* Footer */}
-          <div className="mt-12 pt-6 border-t text-center text-sm text-gray-600">
+          <div className="mt-12 pt-6 border-t text-center text-sm text-gray-600 dark:text-white">
             <p className="mb-2 font-semibold">Thank you for choosing XYZ Academy!</p>
             <p>For any queries, please contact us at support@uniqbrio.com</p>
             <p className="mt-4 text-xs italic">This is a computer-generated invoice and does not require a signature.</p>

@@ -69,9 +69,9 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
       <div
         className={`fixed ${position === "left" ? "left-0" : position === "right" ? "right-0" : position === "top" ? "top-0 w-full h-auto" : "bottom-0 w-full h-auto"} ${
           position === "left" || position === "right" ? "top-0 h-full" : ""
-        } ${collapsed ? "w-16" : "w-64"} bg-white/90 border-r border-gray-200 z-40 transition-all duration-300 shadow-lg`}
+        } ${collapsed ? "w-16" : "w-64"} bg-white/90 dark:bg-gray-900/90 border-r border-gray-200 dark:border-gray-700 z-40 transition-all duration-300 shadow-lg`}>
       >
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             {!collapsed && (
               <div className="flex items-center space-x-2">
@@ -80,7 +80,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                 </div>
                 <div>
                   <h1 className="text-lg font-bold gradient-text">UniqBrio</h1>
-                  <p className="text-xs text-gray-600">Mentoring Businesses</p>
+                  <p className="text-xs text-gray-600 dark:text-white">Mentoring Businesses</p>
                 </div>
               </div>
             )}
@@ -98,12 +98,12 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
         {!collapsed && (
           <div className="p-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white h-4 w-4" />
               <Input
                 placeholder="Search menu..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-50 text-gray-900 placeholder:text-gray-500 border-gray-200"
+                className="pl-10 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:text-white dark:placeholder:text-white border-gray-200 dark:border-gray-700"
               />
             </div>
           </div>
@@ -118,7 +118,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                   key={item}
                   className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-100 cursor-pointer transition-smooth"
                 >
-                  <span className="text-sm text-gray-700">{item}</span>
+                  <span className="text-sm text-gray-700 dark:text-white">{item}</span>
                 </div>
               ))}
             </div>
@@ -144,7 +144,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                     <item.icon className="h-5 w-5 text-purple-600" />
                     {!collapsed && (
                       <span
-                        className={`text-sm ${item.name === "Sell Products and Services" ? "font-semibold gradient-text" : "text-gray-700"}`}
+                        className={`text-sm ${item.name === "Sell Products and Services" ? "font-semibold gradient-text" : "text-gray-700 dark:text-white"}`}
                       >
                         {item.name}
                       </span>
@@ -158,7 +158,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                       className="opacity-0 group-hover:opacity-100 p-1 hover:bg-orange-50 transition-smooth"
                     >
                       <Star
-                        className={`h-4 w-4 ${favoriteItems.includes(item.name) ? "fill-orange-500 text-orange-500" : "text-gray-400"}`}
+                        className={`h-4 w-4 ${favoriteItems.includes(item.name) ? "fill-orange-500 text-orange-500" : "text-gray-400 dark:text-white"}`}
                       />
                     </Button>
                   )}
@@ -170,7 +170,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                         key={subItem}
                         className="flex items-center justify-between py-1 px-3 rounded-lg hover:bg-gray-100 cursor-pointer group transition-smooth"
                       >
-                        <span className="text-sm text-gray-600">{subItem}</span>
+                        <span className="text-sm text-gray-600 dark:text-white">{subItem}</span>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -178,7 +178,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                           className="opacity-0 group-hover:opacity-100 p-1 hover:bg-orange-50 transition-smooth"
                         >
                           <Star
-                            className={`h-3 w-3 ${favoriteItems.includes(subItem) ? "fill-orange-500 text-orange-500" : "text-gray-400"}`}
+                            className={`h-3 w-3 ${favoriteItems.includes(subItem) ? "fill-orange-500 text-orange-500" : "text-gray-400 dark:text-white"}`}
                           />
                         </Button>
                       </div>
@@ -190,7 +190,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
           </nav>
         </div>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <Button
             variant="ghost"
             size="sm"
@@ -204,9 +204,9 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
       </div>
 
       <Dialog open={showPositionDialog} onOpenChange={setShowPositionDialog}>
-        <DialogContent className="bg-white/95 border-gray-200">
+        <DialogContent className="bg-white/95 dark:bg-gray-900/95 border-gray-200 dark:border-gray-700">
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Sidebar Position</DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-white">Sidebar Position</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
             {["Top", "Bottom", "Left", "Right"].map((pos) => (
@@ -220,7 +220,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                 className={
                   position === pos.toLowerCase()
                     ? "bg-gradient-to-r from-purple-600 to-orange-500 text-white"
-                    : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                    : "border-gray-300 hover:bg-gray-50 text-gray-700 dark:text-white"
                 }
               >
                 {pos}

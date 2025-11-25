@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -153,8 +153,8 @@ export default function CRMDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">CRM Dashboard</h1>
-              <p className="text-gray-600">Welcome back! Here's what's happening with your leads today.</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">CRM Dashboard</h1>
+              <p className="text-gray-600 dark:text-white">Welcome back! Here's what's happening with your leads today.</p>
             </div>
             <div className="mt-4 md:mt-0">
               <Button className="w-full md:w-auto bg-purple-500 text-white">
@@ -171,8 +171,8 @@ export default function CRMDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-white mb-1">{stat.title}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                       <p className={`text-sm ${stat.changeType === "positive" ? "text-green-600" : "text-red-600"}`}>
                         {stat.change} from last month
                       </p>
@@ -219,7 +219,7 @@ export default function CRMDashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-gray-900 truncate">{activity.title}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{activity.title}</p>
                             <Badge
                               variant={
                                 activity.priority === "high"
@@ -232,10 +232,10 @@ export default function CRMDashboard() {
                               {activity.priority}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-600 truncate">{activity.description}</p>
+                          <p className="text-sm text-gray-600 dark:text-white truncate">{activity.description}</p>
                           <div className="flex items-center justify-between mt-1">
-                            <p className="text-xs text-gray-500">{activity.time}</p>
-                            {activity.counselor && <p className="text-xs text-gray-500">by {activity.counselor}</p>}
+                            <p className="text-xs text-gray-500 dark:text-white">{activity.time}</p>
+                            {activity.counselor && <p className="text-xs text-gray-500 dark:text-white">by {activity.counselor}</p>}
                           </div>
                         </div>
                       </div>
@@ -312,7 +312,7 @@ export default function CRMDashboard() {
                       </div>
                       <Progress value={stats.conversionRate} className="h-2" />
                     </div>
-                    <p className="text-xs text-gray-600">Great progress! You're ahead of last month's performance.</p>
+                    <p className="text-xs text-gray-600 dark:text-white">Great progress! You're ahead of last month's performance.</p>
                   </div>
                 </CardContent>
               </Card>

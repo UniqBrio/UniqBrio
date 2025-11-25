@@ -189,7 +189,7 @@ export default function ScheduleListView({
         <CardContent className="pb-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-2 text-gray-500" />
+              <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.startTime} - {event.endTime}
               {event.rescheduleInfo && event.originalSessionData && (
                 <span className="ml-2 text-xs text-purple-600 line-through">
@@ -198,15 +198,15 @@ export default function ScheduleListView({
               )}
             </div>
             <div className="flex items-center">
-              <User className="h-4 w-4 mr-2 text-gray-500" />
+              <User className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.instructor}
             </div>
             <div className="flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+              <MapPin className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.location}
             </div>
             <div className="flex items-center">
-              <Users className="h-4 w-4 mr-2 text-gray-500" />
+              <Users className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.students}/{event.maxCapacity} students
               {event.waitlist && event.waitlist.length > 0 && (
                 <span className="ml-1 text-orange-600">(+{event.waitlist.length} waitlist)</span>
@@ -279,7 +279,7 @@ export default function ScheduleListView({
           <div className="mt-2 pt-2 border-t border-gray-100">
             <div className="flex items-center gap-2">
               {loading ? (
-                <div className="flex items-center text-sm text-gray-500">
+                <div className="flex items-center text-sm text-gray-500 dark:text-white">
                   <User className="h-4 w-4 mr-2 animate-pulse" />
                   Loading availability...
                 </div>
@@ -307,10 +307,10 @@ export default function ScheduleListView({
             
             {/* Leave details if instructor is on leave */}
             {!loading && !instructorAvailability.isAvailable && instructorAvailability.leaveDetails && (
-              <div className="mt-1 text-xs text-gray-600">
+              <div className="mt-1 text-xs text-gray-600 dark:text-white">
                 Leave: {format(new Date(instructorAvailability.leaveDetails.startDate), "dd-MMM-yy")} - {format(new Date(instructorAvailability.leaveDetails.endDate), "dd-MMM-yy")}
                 {instructorAvailability.leaveDetails.reason && (
-                  <div className="mt-1 text-gray-500">
+                  <div className="mt-1 text-gray-500 dark:text-white">
                     Reason: {instructorAvailability.leaveDetails.reason}
                   </div>
                 )}
@@ -453,7 +453,7 @@ export default function ScheduleListView({
           ))
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No events match your filters.</p>
+            <p className="text-gray-500 dark:text-white">No events match your filters.</p>
             {onClearFilters && (
               <Button
                 variant="outline"

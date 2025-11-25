@@ -43,7 +43,7 @@ export function CRMNavigation() {
               <TabsTrigger
                 key={item.name}
                 value={item.section}
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-background transition-colors duration-150 font-semibold rounded-lg data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
               >
                 <item.icon className="w-4 h-4" />
                 <span className="hidden lg:inline">{item.name}</span>
@@ -54,7 +54,7 @@ export function CRMNavigation() {
       </div>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden bg-white border-b border-gray-200">
+      <nav className="md:hidden bg-background dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <Link href="/dashboard/crm" className="flex items-center space-x-2">
@@ -71,7 +71,7 @@ export function CRMNavigation() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="border-t border-gray-200 bg-white">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-background dark:bg-gray-900">
             <div className="px-4 py-2 space-y-1">
               {navigation.map((item) => {
                 const isActive = activeSection === item.section
@@ -85,7 +85,7 @@ export function CRMNavigation() {
                     className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
                       isActive 
                         ? "bg-[#8B5CF6] text-white border-[#8B5CF6]" 
-                        : "bg-white text-[#DE7D14] border-[#DE7D14] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6]"
+                        : "bg-white dark:bg-gray-900 text-[#DE7D14] border-[#DE7D14] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6]"
                     }`}
                   >
                     <item.icon className="w-4 h-4" />

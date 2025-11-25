@@ -221,7 +221,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
               <CardDescription className="text-sm text-orange-600">Loading course data...</CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="h-[300px] flex items-center justify-center text-gray-400">
+              <div className="h-[300px] flex items-center justify-center text-gray-400 dark:text-white">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
                   <p>Loading...</p>
@@ -239,7 +239,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
               <CardDescription className="text-sm text-purple-600">Loading cohort data...</CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="h-[300px] flex items-center justify-center text-gray-400">
+              <div className="h-[300px] flex items-center justify-center text-gray-400 dark:text-white">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
                   <p>Loading...</p>
@@ -253,7 +253,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
   }
 
   if (!processedData) {
-    return <div className="p-4 text-center text-gray-500">-</div>;
+    return <div className="p-4 text-center text-gray-500 dark:text-white">-</div>;
   }
 
   // Helper to export analytics section as PNG

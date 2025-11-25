@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import * as React from "react"
 import { useState } from "react"
@@ -61,7 +61,7 @@ export function FormattedDateInput({
   return (
     <div className="space-y-1">
       {label ? (
-        <label htmlFor={id} className="text-sm font-medium text-gray-700">
+        <label htmlFor={id} className="text-sm font-medium text-gray-700 dark:text-white">
           {label} {required ? <span className="text-red-500">*</span> : null}
         </label>
       ) : null}
@@ -82,7 +82,7 @@ export function FormattedDateInput({
           >
             <svg
               aria-hidden="true"
-              className="h-4 w-4 text-gray-600"
+              className="h-4 w-4 text-gray-600 dark:text-white"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -108,12 +108,12 @@ export function FormattedDateInput({
           max={max}
           // Hide only the native right-side indicator; leave space only when our icon is present
           className={cn(
-            "no-native-date-indicator w-full rounded-md border bg-white py-2 pl-3 text-sm",
+            "no-native-date-indicator w-full rounded-md border bg-background py-2 pl-3 text-sm",
             hidePickerIcon ? "pr-3" : "pr-9",
             "outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent",
             error ? "border-red-300 bg-red-50" : "border-gray-300",
             // When not focused and a value exists, hide the native text so the overlay shows
-            !focused && value ? "text-transparent caret-transparent" : "text-gray-900",
+            !focused && value ? "text-transparent caret-transparent" : "text-foreground",
             disabled ? "opacity-60 cursor-not-allowed" : "",
             className,
           )}
@@ -125,7 +125,7 @@ export function FormattedDateInput({
         {/* Formatted overlay (shows only when not focused and value exists) */}
         {!focused && value ? (
           <div className={cn(
-            "absolute inset-y-0 left-3 flex items-center text-sm text-gray-900 pointer-events-none",
+            "absolute inset-y-0 left-3 flex items-center text-sm text-foreground pointer-events-none",
             hidePickerIcon ? "right-3" : "right-9",
           )}>
             {formatForDisplay(value)}

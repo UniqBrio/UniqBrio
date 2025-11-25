@@ -66,7 +66,7 @@ export default function CoursesTab({
   // Compute course type options
   const courseTypeOptions = useMemo(() => {
     const defaultTypes = ["Online", "Offline", "Hybrid"];
-    const courseTypes = courses.map(course => course.type).filter(Boolean);
+    const courseTypes = courses?.map(course => course.type).filter(Boolean) || [];
     const allTypes = new Set([...defaultTypes, ...courseTypes]);
     return Array.from(allTypes).sort();
   }, [courses])
@@ -96,15 +96,15 @@ export default function CoursesTab({
       {/* Status Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All Courses ({courses.length})</TabsTrigger>
+          <TabsTrigger value="all">All Courses ({courses?.length || 0})</TabsTrigger>
           <TabsTrigger value="active">
-            Active ({courses.filter(c => c.status === "Active").length})
+            Active ({courses?.filter(c => c.status === "Active").length || 0})
           </TabsTrigger>
           <TabsTrigger value="draft">
-            Draft ({courses.filter(c => c.status === "Draft").length})
+            Draft ({courses?.filter(c => c.status === "Draft").length || 0})
           </TabsTrigger>
           <TabsTrigger value="inactive">
-            Inactive ({courses.filter(c => c.status === "Inactive").length})
+            Inactive ({courses?.filter(c => c.status === "Inactive").length || 0})
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -121,25 +121,21 @@ export default function CoursesTab({
         setSortBy={setSortBy}
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
-        currency={currency}
         viewMode={viewMode}
         setViewMode={setViewMode}
         courses={courses}
         setCourses={setCourses}
         filteredCourses={filteredAndSortedCourses}
         courseTypeOptions={courseTypeOptions}
-        totalResults={filteredAndSortedCourses.length}
       />
 
       {/* Course List */}
       <CourseList
         courses={filteredAndSortedCourses}
         viewMode={viewMode}
-        currency={currency}
         onCourseClick={onCourseClick}
         onEditCourse={onEditCourse}
         onDeleteCourse={onDeleteCourse}
-        onBulkAction={onBulkAction}
       />
     </div>
   )

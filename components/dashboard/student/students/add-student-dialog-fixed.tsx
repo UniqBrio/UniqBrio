@@ -59,7 +59,7 @@ function GenderCombobox({ value, onChange, error }: GenderComboboxProps){
             value={query}
             onChange={e=> setQuery(e.target.value)}
             placeholder="Search or type new gender..."
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-52 overflow-y-auto text-sm pr-1">
             {filtered.map((opt, index)=> {
@@ -122,7 +122,7 @@ function GenderCombobox({ value, onChange, error }: GenderComboboxProps){
               </div>
             )}
             {!filtered.length && !canAdd && (
-              <div className="text-center text-xs text-gray-500 py-2">No results</div>
+              <div className="text-center text-xs text-gray-500 dark:text-white py-2">No results</div>
             )}
           </div>
         </div>
@@ -229,7 +229,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               onChange={e=> setQuery(e.target.value)}
               placeholder={loading? 'Loading courses...' : 'Search courses...'}
               disabled={loading}
-              className="flex h-10 flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+              className="flex h-10 flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
             />
             {onRefresh && (
               <Button
@@ -250,7 +250,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
             )}
           </div>
           <div className="max-h-[180px] overflow-y-auto text-sm pr-1">
-            {loading && <div className="text-xs text-gray-500 py-2 px-2">Loading courses...</div>}
+            {loading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading courses...</div>}
             {!loading && error && <div className="text-xs text-red-500 py-2 px-2">{error}</div>}
             {!loading && !error && filtered.map(c=> {
               const label=(c.courseId? `${c.courseId} - ${c.name}${c.level?` - ${c.level}`:''}`: `${c.name}${c.level?` - ${c.level}`:''}`);
@@ -259,15 +259,15 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               return (
                 <div key={c.id} onClick={()=> { onChange(c.id); setOpen(false); }} className={cn('cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100 flex flex-col gap-0.5', isSel && 'bg-gray-100')}>
                   <span className="font-medium text-[13px] leading-snug">{label}</span>
-                  {sub && <span className="text-xs text-gray-500">{sub}</span>}
+                  {sub && <span className="text-xs text-gray-500 dark:text-white">{sub}</span>}
                 </div>
               );
             })}
             {!loading && !error && !filtered.length && normalized && (
-              <div className="p-3 border-t border-gray-200">
+              <div className="p-3 border-t border-gray-200 dark:border-gray-700">
                 {!showCreateForm ? (
                   <div className="space-y-2">
-                    <div className="text-xs text-gray-500 text-center">No courses found for "{query}"</div>
+                    <div className="text-xs text-gray-500 dark:text-white text-center">No courses found for "{query}"</div>
                     <Button
                       type="button"
                       variant="outline"
@@ -280,9 +280,9 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="text-xs text-gray-700 font-medium">Create course draft: "{query}"</div>
+                    <div className="text-xs text-gray-700 dark:text-white font-medium">Create course draft: "{query}"</div>
                     <div>
-                      <label className="text-xs text-gray-600 block mb-1">Select Level:</label>
+                      <label className="text-xs text-gray-600 dark:text-white block mb-1">Select Level:</label>
                       <select
                         value={selectedLevel}
                         onChange={(e) => setSelectedLevel(e.target.value)}
@@ -322,7 +322,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               </div>
             )}
             {!loading && !error && !filtered.length && !normalized && (
-              <div className="text-center text-xs text-gray-500 py-3">Type to search courses</div>
+              <div className="text-center text-xs text-gray-500 dark:text-white py-3">Type to search courses</div>
             )}
           </div>
         </div>
@@ -354,9 +354,9 @@ function CountrySelect({ country, onChange, hasError }: { country?: string; onCh
         <div className="flex flex-col gap-2">
           <input autoFocus value={query} onChange={e=> setQuery(e.target.value)} placeholder={loading? 'Loading...' : 'Search countries...'} className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm" />
           <div className="max-h-60 overflow-y-auto text-sm pr-1">
-            {loading && <div className="text-xs text-gray-500 py-2">Loading...</div>}
+            {loading && <div className="text-xs text-gray-500 dark:text-white py-2">Loading...</div>}
             {!loading && filtered.map((c:any)=> <div key={c.cca2} onClick={()=>{ onChange(c.cca2, c.name?.common); setOpen(false); }} className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-gray-100">{c.cca2} - {c.name?.common}</div>)}
-            {!loading && !filtered.length && <div className="text-xs text-gray-500 py-2">No countries found</div>}
+            {!loading && !filtered.length && <div className="text-xs text-gray-500 dark:text-white py-2">No countries found</div>}
           </div>
         </div>
       </PopoverContent>
@@ -406,12 +406,12 @@ function StateSelect({ countryName, state, onChange, hasError }: { countryName?:
         <div className="flex flex-col gap-2">
           <input autoFocus value={query} onChange={e=> setQuery(e.target.value)} placeholder={loading? 'Loading...' : 'Search states...'} disabled={!countryName || loading} className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm" />
           <div className="max-h-60 overflow-y-auto text-sm pr-1">
-            {loading && <div className="text-xs text-gray-500 py-2">Loading...</div>}
+            {loading && <div className="text-xs text-gray-500 dark:text-white py-2">Loading...</div>}
             {!loading && noStates && (
-              <div className="text-xs text-gray-500 py-2">Not applicable</div>
+              <div className="text-xs text-gray-500 dark:text-white py-2">Not applicable</div>
             )}
             {!loading && !noStates && filtered.map((s:any)=> <div key={s.name} onClick={()=>{ onChange(s.name); setOpen(false); }} className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-gray-100">{s.name}</div>)}
-            {!loading && !noStates && !filtered.length && <div className="text-xs text-gray-500 py-2">No states found</div>}
+            {!loading && !noStates && !filtered.length && <div className="text-xs text-gray-500 dark:text-white py-2">No states found</div>}
           </div>
         </div>
       </PopoverContent>
@@ -472,10 +472,10 @@ function CohortSearchCombobox({ value, onChange, cohorts, loading, disabled }: C
             onChange={e=> setQuery(e.target.value)}
             placeholder={loading? 'Loading cohorts...' : 'Search cohorts...'}
             disabled={loading}
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-[180px] overflow-y-auto text-sm pr-1">
-            {loading && <div className="text-xs text-gray-500 py-2 px-2">Loading cohorts...</div>}
+            {loading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading cohorts...</div>}
             {!loading && filtered.map(co=> {
               const enrolledCount = co.enrolledStudents?.length || 0;
               const capacity = typeof co.capacity === 'number' && co.capacity > 0 ? co.capacity : 0;
@@ -488,7 +488,7 @@ function CohortSearchCombobox({ value, onChange, cohorts, loading, disabled }: C
               return (
                 <div key={co.id} onClick={()=> { onChange(co.id); setOpen(false); }} className={cn('cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100 flex flex-col gap-0.5', isSel && 'bg-gray-100')}>
                   <span className="font-medium text-[13px] leading-snug">{label}</span>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-white">
                     {infoParts.map((text, idx) => (
                       <span key={`${text}-${idx}`} className="flex items-center gap-1">
                         {idx > 0 && <span>�</span>}
@@ -500,7 +500,7 @@ function CohortSearchCombobox({ value, onChange, cohorts, loading, disabled }: C
               );
             })}
             {!loading && !filtered.length && (
-              <div className="text-center text-xs text-gray-500 py-3">No cohorts found</div>
+              <div className="text-center text-xs text-gray-500 dark:text-white py-3">No cohorts found</div>
             )}
           </div>
         </div>
@@ -528,7 +528,7 @@ function MultiSelectTimings({ values, onChange, options = ['5pm - 6pm','6pm - 7p
         >
           <div className="flex flex-wrap gap-1 flex-1 pr-4">
             {selected.length === 0 && (
-              <span className="text-gray-500 text-sm">Select timing(s)</span>
+              <span className="text-gray-500 dark:text-white text-sm">Select timing(s)</span>
             )}
             {selected.map(t => (
               <span
@@ -608,7 +608,7 @@ function ReferredByCombobox({ value, onChange }: ReferredByComboboxProps){
             value={query}
             onChange={e=> setQuery(e.target.value)}
             placeholder="Search or type new source..."
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-52 overflow-y-auto text-sm pr-1">
               {filtered.map((opt, index)=> {
@@ -670,7 +670,7 @@ function ReferredByCombobox({ value, onChange }: ReferredByComboboxProps){
                 Add "{query}" as new source
               </div>
             )}
-            {!filtered.length && !canAdd && (<div className="text-center text-xs text-gray-500 py-2">No results</div>)}
+            {!filtered.length && !canAdd && (<div className="text-center text-xs text-gray-500 dark:text-white py-2">No results</div>)}
           </div>
         </div>
       </PopoverContent>
@@ -711,7 +711,7 @@ function RelationshipCombobox({ value, onChange }: RelationshipComboboxProps){
             value={query}
             onChange={e=> setQuery(e.target.value)}
             placeholder="Search or type new relationship..."
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-52 overflow-y-auto text-sm pr-1">
               {filtered.map((opt, index)=> {
@@ -773,7 +773,7 @@ function RelationshipCombobox({ value, onChange }: RelationshipComboboxProps){
                 Add "{query}" as new relationship
               </div>
             )}
-            {!filtered.length && !canAdd && (<div className="text-center text-xs text-gray-500 py-2">No results</div>)}
+            {!filtered.length && !canAdd && (<div className="text-center text-xs text-gray-500 dark:text-white py-2">No results</div>)}
           </div>
         </div>
       </PopoverContent>
@@ -1726,7 +1726,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     if(error) return <SelectItem value="__placeholder__error_courses" disabled className="text-red-500">{error}</SelectItem>; 
     if(!courseList.length) return <SelectItem value="__placeholder__no_courses" disabled>No courses found</SelectItem>; 
     
-    return courseList.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500">{[c.category,c.duration].filter(Boolean).join(' � ')}</span></div></SelectItem>); 
+    return courseList.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500 dark:text-white">{[c.category,c.duration].filter(Boolean).join(' � ')}</span></div></SelectItem>); 
   };
   
   // Render options for enrolled course (only Active or Upcoming courses)
@@ -1742,9 +1742,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     
     if(enrollableCourses.length === 0) return <SelectItem value="__placeholder__no_active_courses" disabled>No active or upcoming courses available</SelectItem>;
     
-    return enrollableCourses.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500">{[c.category,c.type,c.duration].filter(Boolean).join(' � ')}</span></div></SelectItem>); 
+    return enrollableCourses.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500 dark:text-white">{[c.category,c.type,c.duration].filter(Boolean).join(' � ')}</span></div></SelectItem>); 
   };
-  const renderCohortOptions=()=>{ if(!newStudent.courseOfInterestId) return <SelectItem value="__placeholder__select_course_first" disabled>Select a course first</SelectItem>; if(cohortsLoading) return <SelectItem value="__placeholder__loading_cohorts" disabled>Loading cohorts...</SelectItem>; if(!cohortList.length) return <SelectItem value="__placeholder__no_cohorts" disabled>No cohorts found</SelectItem>; return cohortList.map(co=> { const seatsInfo=`${(co.enrolledStudents?.length||0)}/${co.capacity||0}`; const cohortLabel = [co.id, co.name, co.instructor || 'TBA', co.timing || '--'].filter(Boolean).join(' - '); return <SelectItem key={co.id} value={co.id} className="flex flex-col items-start py-2"><div className="w-full flex flex-col"><div className="font-medium flex items-center justify-between w-full"><span>{cohortLabel}</span><span className="text-xs text-gray-500">{seatsInfo}</span></div></div></SelectItem>; }); };
+  const renderCohortOptions=()=>{ if(!newStudent.courseOfInterestId) return <SelectItem value="__placeholder__select_course_first" disabled>Select a course first</SelectItem>; if(cohortsLoading) return <SelectItem value="__placeholder__loading_cohorts" disabled>Loading cohorts...</SelectItem>; if(!cohortList.length) return <SelectItem value="__placeholder__no_cohorts" disabled>No cohorts found</SelectItem>; return cohortList.map(co=> { const seatsInfo=`${(co.enrolledStudents?.length||0)}/${co.capacity||0}`; const cohortLabel = [co.id, co.name, co.instructor || 'TBA', co.timing || '--'].filter(Boolean).join(' - '); return <SelectItem key={co.id} value={co.id} className="flex flex-col items-start py-2"><div className="w-full flex flex-col"><div className="font-medium flex items-center justify-between w-full"><span>{cohortLabel}</span><span className="text-xs text-gray-500 dark:text-white">{seatsInfo}</span></div></div></SelectItem>; }); };
   
   // Dynamic width for Course of Interest select
   const courseMeasureRef = useRef<HTMLSpanElement | null>(null);
@@ -1962,7 +1962,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                     {draftId ? 'Create Student from Draft' : (initialStudent ? 'Edit Student' : 'Add New Student')}
                   </DialogTitle>
                 </div>
-                <DialogDescription className="text-[13px] md:text-sm text-gray-600 leading-snug">
+                <DialogDescription className="text-[13px] md:text-sm text-gray-600 dark:text-white leading-snug">
                   {draftId ? 'Complete and create a new student from this saved draft.' : (initialStudent ? 'Edit and update the existing student profile.' : 'Create a comprehensive student profile.')}
                 </DialogDescription>
               </div>
@@ -2033,28 +2033,28 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         <Input 
                           value={displayStudentId} 
                           disabled 
-                          className="mt-1 border bg-gray-50  cursor-not-allowed" 
+                          className="mt-1 border bg-gray-50 dark:bg-gray-800 cursor-not-allowed" 
                           
                               
                         />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">First Name <span className="text-red-500">*</span></Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">First Name <span className="text-red-500">*</span></Label>
                         <Input name="firstName" value={newStudent.firstName||''} onChange={e=> setNamePart('firstName', e.target.value)} required className={cn('mt-1', showFieldError('firstName') && 'border-red-500 focus-visible:ring-red-500')} placeholder="e.g. John" />
                         {showFieldError('firstName') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.firstName}</p>}
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">Middle Name</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Middle Name</Label>
                         <Input name="middleName" value={newStudent.middleName||''} onChange={e=> setNamePart('middleName', e.target.value)} className="mt-1" placeholder="e.g. Michael" />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">Last Name <span className="text-red-500">*</span></Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Last Name <span className="text-red-500">*</span></Label>
                         <Input name="lastName" value={newStudent.lastName||''} onChange={e=> setNamePart('lastName', e.target.value)} required className={cn('mt-1', showFieldError('lastName') && 'border-red-500 focus-visible:ring-red-500')} placeholder="e.g. Doe" />
                         {showFieldError('lastName') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.lastName}</p>}
                       </div>
                       {/* Gender (searchable & creatable) */}
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">
                           Gender <span className="text-red-500">*</span>
                         </Label>
                         <GenderCombobox
@@ -2094,7 +2094,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             {showFieldError('registrationDate') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.registrationDate}</p>}
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-700">Email Address <span className="text-red-500">*</span></Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-white">Email Address <span className="text-red-500">*</span></Label>
                             <Input name="email" type="email" value={newStudent.email||''} onChange={e=> setNewStudent(p=>({...p,email:e.target.value}))} required className={cn('mt-1', showFieldError('email') && 'border-red-500 focus-visible:ring-red-500')} placeholder="e.g. john@example.com" />
                             {showFieldError('email') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.email}</p>}
                           </div>
@@ -2104,7 +2104,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           <div className="">
                             <div className="relative">
-                              <Label className="text-sm font-medium text-gray-700">Course of Interest <span className="text-red-500">*</span></Label>
+                              <Label className="text-sm font-medium text-gray-700 dark:text-white">Course of Interest <span className="text-red-500">*</span></Label>
                               <span ref={courseMeasureRef} className="invisible absolute -z-10 whitespace-nowrap px-3 py-2 text-sm" />
                               <CourseSearchCombobox
                                 value={newStudent.courseOfInterestId || ''}
@@ -2121,7 +2121,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             </div>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-700">Country <span className="text-red-500">*</span></Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-white">Country <span className="text-red-500">*</span></Label>
                             <CountrySelect
                               country={(newStudent as any).country || ''}
                               onChange={(code, name) => handleCountryChange(code, name)}
@@ -2131,7 +2131,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                           </div>
 
                           <div>
-                            <Label className="text-sm font-medium text-gray-700">Mobile Number <span className="text-red-500">*</span></Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-white">Mobile Number <span className="text-red-500">*</span></Label>
                             <div className="flex gap-2 mt-1">
                               <PhoneCountryCodeSelect value={countryCode} onChange={handlePhoneCodeChange} />
                               <Input 
@@ -2148,7 +2148,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             {showFieldError('mobile') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.mobile}</p>}
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-700">State/Province <span className="text-red-500">*</span></Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-white">State/Province <span className="text-red-500">*</span></Label>
                             <StateSelect
                               countryName={selectedCountryName}
                               state={(newStudent as any).stateProvince || ''}
@@ -2160,7 +2160,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         </div>
                       </div>
                       <div className="md:col-span-2 lg:col-span-3">
-                        <Label className="text-sm font-medium text-gray-700">Address</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Address</Label>
                         <Textarea name="address" value={newStudent.address||''} onChange={e=> setNewStudent(p=>({...p,address:e.target.value}))} className={cn('mt-1 w-full', showFieldError('address') && 'border-red-500 focus-visible:ring-red-500')} rows={3} placeholder="e.g. 123 Main St, City" />
                         {showFieldError('address') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.address}</p>}
                       </div>
@@ -2173,7 +2173,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                       
                       <div className="space-y-2">
                         <div>
-                          <Label className="text-sm font-medium text-gray-700">Course (Enrolled)</Label>
+                          <Label className="text-sm font-medium text-gray-700 dark:text-white">Course (Enrolled)</Label>
                           <CourseSearchCombobox
                             value={(newStudent as any).enrolledCourse || ''}
                             onChange={(courseId)=> {
@@ -2217,7 +2217,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             onRefresh={reloadCourses}
                           />
                         </div>
-                        <div><Label className="text-sm font-medium text-gray-700">Cohorts</Label>
+                        <div><Label className="text-sm font-medium text-gray-700 dark:text-white">Cohorts</Label>
                           <CohortSearchCombobox
                             value={newStudent.cohortId || ''}
                             onChange={(cohortId)=> {
@@ -2263,14 +2263,14 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                   <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
                     
                     <div className="space-y-2">
-                      <div><Label className="text-sm font-medium text-gray-700">Referred By</Label>
+                      <div><Label className="text-sm font-medium text-gray-700 dark:text-white">Referred By</Label>
                         <ReferredByCombobox
                           value={newStudent.referredBy || ''}
                           onChange={(v)=> setNewStudent(p=>({...p,referredBy:v, ...(v!=='Student'? { referringStudentId:undefined, referringStudentName:undefined }: {}) }))}
                         />
                       </div>
-                      {newStudent.referredBy==='Student' && <div><Label className="text-sm font-medium text-gray-700">Select Referring Student</Label><Select value={newStudent.referringStudentId||''} onValueChange={v=> { const rs=students.find(s=>s.studentId===v || s.id===v); if(rs) setNewStudent(p=>({...p,referringStudentId:rs.studentId || rs.id, referringStudentName: rs.name })); }}><SelectTrigger className="mt-1"><SelectValue placeholder={studentsLoading ? "Loading students..." : "Select student"} /></SelectTrigger><SelectContent>{studentsLoading ? <SelectItem value="__placeholder__loading" disabled>Loading students...</SelectItem> : students.length === 0 ? <SelectItem value="__placeholder__no_students" disabled>No students found</SelectItem> : students.map(s=> <SelectItem key={s.studentId || s.id} value={s.studentId || s.id || ''}>{(s.studentId || s.id)} - {s.name}</SelectItem>)}</SelectContent></Select></div>}
-                      <div><Label className="text-sm font-medium text-gray-700 mb-2 block">Communication Channels</Label><div className="grid grid-cols-3 gap-2">{['Email','SMS','WhatsApp'].map(ch=> { const checked=newStudent.communicationPreferences?.channels?.includes(ch)||false; return <div key={ch} className="flex items-center space-x-2"><Checkbox id={`comm-${ch}`} checked={checked} onCheckedChange={ck=> setNewStudent(p=> { const cur=p.communicationPreferences?.channels||[]; const channels=ck? [...cur,ch]: cur.filter(c=>c!==ch); return { ...p, communicationPreferences:{ enabled:true, channels } }; })} /><Label htmlFor={`comm-${ch}`} className="text-sm">{ch}</Label></div>; })}</div></div>
+                      {newStudent.referredBy==='Student' && <div><Label className="text-sm font-medium text-gray-700 dark:text-white">Select Referring Student</Label><Select value={newStudent.referringStudentId||''} onValueChange={v=> { const rs=students.find(s=>s.studentId===v || s.id===v); if(rs) setNewStudent(p=>({...p,referringStudentId:rs.studentId || rs.id, referringStudentName: rs.name })); }}><SelectTrigger className="mt-1"><SelectValue placeholder={studentsLoading ? "Loading students..." : "Select student"} /></SelectTrigger><SelectContent>{studentsLoading ? <SelectItem value="__placeholder__loading" disabled>Loading students...</SelectItem> : students.length === 0 ? <SelectItem value="__placeholder__no_students" disabled>No students found</SelectItem> : students.map(s=> <SelectItem key={s.studentId || s.id} value={s.studentId || s.id || ''}>{(s.studentId || s.id)} - {s.name}</SelectItem>)}</SelectContent></Select></div>}
+                      <div><Label className="text-sm font-medium text-gray-700 dark:text-white mb-2 block">Communication Channels</Label><div className="grid grid-cols-3 gap-2">{['Email','SMS','WhatsApp'].map(ch=> { const checked=newStudent.communicationPreferences?.channels?.includes(ch)||false; return <div key={ch} className="flex items-center space-x-2"><Checkbox id={`comm-${ch}`} checked={checked} onCheckedChange={ck=> setNewStudent(p=> { const cur=p.communicationPreferences?.channels||[]; const channels=ck? [...cur,ch]: cur.filter(c=>c!==ch); return { ...p, communicationPreferences:{ enabled:true, channels } }; })} /><Label htmlFor={`comm-${ch}`} className="text-sm">{ch}</Label></div>; })}</div></div>
                     </div>
                   </div>
                 </TabsContent>
@@ -2279,20 +2279,20 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                    
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">First Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">First Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
                         <Input name="guardianFirstName" value={newStudent.guardianFirstName||''} onChange={e=> updateGuardianName('guardianFirstName', e.target.value)} className={cn('mt-1', showFieldError('guardianFirstName') && 'border-red-500 focus-visible:ring-red-500')} />
                         {showFieldError('guardianFirstName') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.guardianFirstName}</p>}
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">Middle Name</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Middle Name</Label>
                         <Input name="guardianMiddleName" value={newStudent.guardianMiddleName||''} onChange={e=> updateGuardianName('guardianMiddleName', e.target.value)} className="mt-1" />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">Last Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Last Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
                         <Input name="guardianLastName" value={newStudent.guardianLastName||''} onChange={e=> updateGuardianName('guardianLastName', e.target.value)} className="mt-1" />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">Relationship{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Relationship{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
                         <RelationshipCombobox
                           value={newStudent.guardian.relationship || ''}
                           onChange={(v)=> updateGuardian({ relationship: v })}
@@ -2300,7 +2300,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         {showFieldError('guardianRelationship') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.guardianRelationship}</p>}
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-700">Contact Number{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Contact Number{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
                         <div className="flex gap-2 mt-1">
                           <PhoneCountryCodeSelect value={guardianCountryCode} onChange={handleGuardianPhoneCodeChange} />
                           <Input 
@@ -2324,7 +2324,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                       type="button" 
                       variant="outline" 
                       onClick={() => handleDialogClose(false)}
-                      className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                      className="border-gray-300 text-gray-600 dark:text-white hover:bg-gray-50"
                     >
                       Cancel
                     </Button>
@@ -2368,7 +2368,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         <DialogContent className="max-w-md" data-no-close>
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">Unsaved Changes</DialogTitle>
-            <DialogDescription className="text-gray-600 mt-2">
+            <DialogDescription className="text-gray-600 dark:text-white mt-2">
               You have unsaved changes in your student form. What would you like to do?
             </DialogDescription>
           </DialogHeader>
@@ -2404,7 +2404,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-[#8A2BE2]">Course Draft Created!</DialogTitle>
-            <DialogDescription className="text-gray-600 mt-2">
+            <DialogDescription className="text-gray-600 dark:text-white mt-2">
               A course draft has been successfully created with the name "<strong className="text-[#8A2BE2]">{createdCourseName}</strong>" and level "<strong className="text-[#DE7D14]">{createdCourseLevel}</strong>".
             </DialogDescription>
           </DialogHeader>

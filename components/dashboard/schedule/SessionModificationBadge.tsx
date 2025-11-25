@@ -48,7 +48,7 @@ const SessionModificationBadge: React.FC<SessionModificationBadgeProps> = ({
         return {
           icon: AlertTriangle,
           text: "Modified",
-          colorClasses: "border-gray-400 text-gray-700 bg-gray-50 hover:bg-gray-100",
+          colorClasses: "border-gray-400 text-gray-700 dark:text-white bg-gray-50 hover:bg-gray-100",
           dotColor: "bg-gray-500"
         }
     }

@@ -192,8 +192,8 @@ const Dashboard = () => {
       <div className="flex flex-col space-y-6">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-white">Loading...</p>
           </div>
         </div>
       </div>
@@ -204,7 +204,7 @@ const Dashboard = () => {
     <div className="flex flex-col space-y-6 responsive-dashboard-container">
       {/* KYC Success Notification - Temporary toast-style popup */}
       {showKycSuccessNotification && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg max-w-md">
+        <div className="fixed top-4 right-4 z-50 bg-green-500 dark:bg-green-600 text-white p-4 rounded-lg shadow-lg max-w-md">
           <div className="flex items-start">
             <div className="flex-shrink-0">
               <svg className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,7 +235,7 @@ const Dashboard = () => {
         <>
           {/* Pending KYC - Show warning with days left (only if NOT rejected) */}
           {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
-            <div className="w-full bg-orange-100 border-b-2 border-orange-400 text-orange-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+            <div className="w-full bg-orange-100 dark:bg-orange-900/30 border-b-2 border-orange-400 dark:border-orange-600 text-orange-800 dark:text-orange-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
               Please complete verification to continue using the amazing features of UniqBrio —
               <span className="ml-2 font-bold">{kycDaysLeft} days</span> of verification pending.
             </div>
@@ -243,14 +243,14 @@ const Dashboard = () => {
           
           {/* Submitted KYC - Show under review message */}
           {kycStatus === 'submitted' && (
-            <div className="w-full bg-blue-100 border-b-2 border-blue-400 text-blue-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+            <div className="w-full bg-blue-100 dark:bg-blue-900/30 border-b-2 border-blue-400 dark:border-blue-600 text-blue-800 dark:text-blue-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
               ✅ KYC Submitted Successfully! Your documents are under review. You'll receive confirmation within 24 hours.
             </div>
           )}
           
           {/* Verified KYC - Show success message (only once) */}
           {showKycVerifiedBanner && (
-            <div className="w-full bg-green-100 border-b-2 border-green-400 text-green-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+            <div className="w-full bg-green-100 dark:bg-green-900/30 border-b-2 border-green-400 dark:border-green-600 text-green-800 dark:text-green-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
               <div className="flex items-center justify-center relative">
                 <span>🎉 Congratulations! Your KYC is verified.</span>
                 <button
@@ -268,7 +268,7 @@ const Dashboard = () => {
           
           {/* Rejected KYC - Show rejection message with action button */}
           {kycStatus === 'rejected' && (
-            <div className="w-full bg-red-100 border-b-2 border-red-400 text-red-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+            <div className="w-full bg-red-100 dark:bg-red-900/30 border-b-2 border-red-400 dark:border-red-600 text-red-800 dark:text-red-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
               <div className="flex items-center justify-center gap-4">
                 <span>❌ KYC Rejected. Please re-upload your documents to proceed.</span>
                 <button
@@ -283,7 +283,7 @@ const Dashboard = () => {
           
           {/* Expired KYC - Show expiration message */}
           {kycStatus === 'expired' && (
-            <div className="w-full bg-yellow-100 border-b-2 border-yellow-400 text-yellow-800 py-3 px-4 text-center font-semibold sticky top-0 z-40">
+            <div className="w-full bg-yellow-100 dark:bg-yellow-900/30 border-b-2 border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
               ⌛ Your KYC window has expired. Please submit your KYC to regain access.
             </div>
           )}
@@ -293,11 +293,11 @@ const Dashboard = () => {
       {/* KYC Popup - only show if KYC status is pending */}
       {showKycPopup && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-orange-400 relative">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-orange-400 dark:border-orange-600 relative">
             {/* Close Button */}
             <button
               onClick={() => setShowKycPopup(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+              className="absolute top-4 right-4 text-gray-500 dark:text-white hover:text-gray-700 dark:text-white dark:hover:text-white transition-colors"
               aria-label="Close"
             >
               <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
@@ -306,8 +306,8 @@ const Dashboard = () => {
             </button>
 
             <h2 className="text-2xl font-extrabold mb-3 text-purple-700">Continue using UniqBrio uninterrupted!</h2>
-            <p className="mb-6 text-gray-700">
-              <span className="inline-block px-2 py-1 rounded bg-orange-100 text-orange-700 font-bold mr-1">{kycDaysLeft} days</span>
+            <p className="mb-6 text-gray-700 dark:text-white">
+              <span className="inline-block px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold mr-1">{kycDaysLeft} days</span>
               left to upload your KYC and avoid service interruption.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -331,21 +331,21 @@ const Dashboard = () => {
       {/* KYC Rejected Popup */}
       {showKycRejectedPopup && kycStatus === "rejected" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-red-500">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-red-500 dark:border-red-600">
             <div className="mb-4">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/40">
                 <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.232 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
             </div>
             <h2 className="text-2xl font-extrabold mb-3 text-red-700">KYC Rejected</h2>
-            <p className="mb-6 text-gray-700">
+            <p className="mb-6 text-gray-700 dark:text-white">
               Your KYC documents have been rejected. Please review the feedback and upload corrected documents to continue using UniqBrio.
             </p>
             <div className="flex gap-3 justify-center">
               <button
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                className="bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
                 onClick={() => setShowKycRejectedPopup(false)}
               >
                 Close
@@ -380,9 +380,9 @@ const Dashboard = () => {
       {/* KYC Form Modal */}
       {showKycForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-40 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl p-4 max-w-lg w-full border-2 border-purple-600 h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-4 max-w-lg w-full border-2 border-purple-600 dark:border-purple-500 h-[90vh] overflow-y-auto">
             <button 
-              className="float-right text-purple-600 hover:text-orange-500 text-2xl font-bold" 
+              className="float-right text-purple-600 dark:text-purple-400 hover:text-orange-500 dark:hover:text-orange-400 text-2xl font-bold" 
               onClick={() => {
                 console.log("[Dashboard] Closing KYC form");
                 setShowKycForm(false);
@@ -390,7 +390,7 @@ const Dashboard = () => {
             >
               &times;
             </button>
-            <h2 className="text-xl font-extrabold mb-4 text-orange-500">KYC Upload</h2>
+            <h2 className="text-xl font-extrabold mb-4 text-orange-500 dark:text-orange-400">KYC Upload</h2>
             <KYCForm 
               onSubmit={handleKycSuccess} 
               key={`kyc-form-${showKycForm}-${Date.now()}`} 
@@ -408,7 +408,7 @@ const Dashboard = () => {
             </h1>
             {academyName && academyName !== "Academy" && academyName !== "Academy Setup Required" && (
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="w-2 h-2 bg-white dark:bg-gray-300 rounded-full"></div>
                 <p className="text-sm sm:text-base lg:text-lg font-medium responsive-text-base">
                   {academyName} Dashboard
                 </p>

@@ -1463,60 +1463,60 @@ export function ManualPaymentDialog({
             <div className="bg-gray-50 p-3 rounded-lg space-y-1.5">
               <h3 className="font-semibold text-medium mb-2">Student Information</h3>
               <div>
-                <span className="text-gray-600 text-sm">Student: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Student: </span>
                 <span className="font-medium text-sm">
                   {payment.studentName} ({payment.studentId})
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">Course: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Course: </span>
                 <span className="font-medium text-sm">
                   {payment.enrolledCourseName} ({payment.enrolledCourseId || payment.enrolledCourse})
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">Course Type: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Course Type: </span>
                 <span className="font-medium text-sm">
                   {courseInfo.courseType || payment.courseType || "N/A"}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">Course Category: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Course Category: </span>
                 <span className="font-medium text-sm">
                   {courseInfo.courseCategory || "N/A"}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">Start Date: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Start Date: </span>
                 <span className="font-medium text-sm">
                   {formatDateForDisplay(cohortDates.startDate)}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">End Date: </span>
+                <span className="text-gray-600 dark:text-white text-sm">End Date: </span>
                 <span className="font-medium text-sm">
                   {formatDateForDisplay(cohortDates.endDate)}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">Duration: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Duration: </span>
                 <span className="font-medium text-sm">
                   {numberOfMonths > 0 ? `${numberOfMonths} months` : "N/A"}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600 text-sm">Course Fee: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Course Fee: </span>
                 <span className="font-medium text-sm">{currency} {((fetchedFees?.courseFee || payment.courseFee) || 0).toLocaleString()}</span>
               </div>
               {/* Outstanding Amount - Only show for non-monthly subscription payment categories */}
               {courseInfo.paymentCategory !== 'Monthly subscription' && (
                 <div>
-                  <span className="text-gray-600 text-sm">Outstanding Amount (Total): </span>
+                  <span className="text-gray-600 dark:text-white text-sm">Outstanding Amount (Total): </span>
                   <span className="font-medium text-orange-600 text-sm">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</span>
                 </div>
               )}
               <div>
-                <span className="text-gray-600 text-sm">Status: </span>
+                <span className="text-gray-600 dark:text-white text-sm">Status: </span>
                 <span className="font-medium text-sm">{payment.status}</span>
               </div>
             </div>
@@ -1592,12 +1592,12 @@ export function ManualPaymentDialog({
                 </SelectContent>
               </Select>
               {courseInfo.courseCategory === "Ongoing Training" && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-white mt-1">
                   Monthly Subscription options are available for Ongoing Training courses
                 </p>
               )}
               {courseInfo.courseCategory && courseInfo.courseCategory !== "Ongoing Training" && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-white mt-1">
                   Monthly Subscription is only available for Ongoing Training courses
                 </p>
               )}
@@ -1634,7 +1634,7 @@ export function ManualPaymentDialog({
                     <SelectItem value="Last EMI">Last EMI</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-white">
                   Installment-based payment schedule
                 </p>
               </div>
@@ -1695,21 +1695,21 @@ export function ManualPaymentDialog({
                   
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <p className="text-gray-600">Total Amount:</p>
+                      <p className="text-gray-600 dark:text-white">Total Amount:</p>
                       <p className="font-bold text-lg">{currency} {installmentsConfig.totalAmount.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Remaining Balance:</p>
+                      <p className="text-gray-600 dark:text-white">Remaining Balance:</p>
                       <p className="font-bold text-lg text-orange-600">
                         {currency} {calculateRemainingBalance(installmentsConfig).toLocaleString()}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Course Duration:</p>
+                      <p className="text-gray-600 dark:text-white">Course Duration:</p>
                       <p className="font-medium">{installmentsConfig.courseDuration.durationInDays} days</p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Per Installment:</p>
+                      <p className="text-gray-600 dark:text-white">Per Installment:</p>
                       <p className="font-medium">~{currency} {Math.round(installmentsConfig.totalAmount / paymentSettings.installmentsCount).toLocaleString()}</p>
                     </div>
                   </div>
@@ -1777,26 +1777,26 @@ export function ManualPaymentDialog({
                           
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
-                              <p className="text-gray-600">Amount:</p>
+                              <p className="text-gray-600 dark:text-white">Amount:</p>
                               <p className="font-bold">{currency} {inst.amount.toLocaleString()}</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Due Date:</p>
+                              <p className="text-gray-600 dark:text-white">Due Date:</p>
                               <p className="font-medium">{formatDateForDisplay(inst.dueDate)}</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Reminder Date:</p>
+                              <p className="text-gray-600 dark:text-white">Reminder Date:</p>
                               <p className="font-medium">{formatDateForDisplay(inst.reminderDate)}</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Reminder Days:</p>
+                              <p className="text-gray-600 dark:text-white">Reminder Days:</p>
                               <p className="font-medium">{inst.reminderDaysBefore} days before</p>
                             </div>
                           </div>
 
                           {/* Stage-specific features */}
                           <div className="mt-3 pt-3 border-t border-gray-200">
-                            <p className="text-xs font-semibold text-gray-700 mb-2">Features:</p>
+                            <p className="text-xs font-semibold text-gray-700 dark:text-white mb-2">Features:</p>
                             <div className="flex flex-wrap gap-2">
                               <Badge variant="outline" className="text-xs">
                                 {inst.invoiceOnPayment ? '? Invoice on payment' : '? No invoice'}
@@ -1868,10 +1868,10 @@ export function ManualPaymentDialog({
                     {/* Base Monthly Fee (Read-only) */}
                     <div className="bg-white rounded-lg p-4 space-y-3 border border-blue-200">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 font-medium">Base Monthly Fee:</span>
+                        <span className="text-sm text-gray-600 dark:text-white font-medium">Base Monthly Fee:</span>
                         <span className="text-2xl font-bold text-blue-900">{currency} {baseMonthlyAmount.toLocaleString()}</span>
                       </div>
-                      <p className="text-xs text-gray-500">Calculated from course fee and duration</p>
+                      <p className="text-xs text-gray-500 dark:text-white">Calculated from course fee and duration</p>
                     </div>
 
                     {/* Billing Due Date */}
@@ -1894,7 +1894,7 @@ export function ManualPaymentDialog({
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-gray-500">Payment will be due on this day each month</p>
+                      <p className="text-xs text-gray-500 dark:text-white">Payment will be due on this day each month</p>
                     </div>
 
                     {/* Auto-Renew Toggle */}
@@ -1904,7 +1904,7 @@ export function ManualPaymentDialog({
                           <Label className="text-sm font-semibold flex items-center gap-2">
                             <RefreshCw className="h-4 w-4" /> Auto-Renew Subscription
                           </Label>
-                          <p className="text-xs text-gray-500">Automatically renew subscription each month</p>
+                          <p className="text-xs text-gray-500 dark:text-white">Automatically renew subscription each month</p>
                         </div>
                         <Switch
                           checked={autoRenew}
@@ -1924,7 +1924,7 @@ export function ManualPaymentDialog({
                         onChange={(e) => setLateFeeRule(e.target.value)}
                         placeholder="e.g., 100 per day after grace period"
                       />
-                      <p className="text-xs text-gray-500">Penalty for late payments</p>
+                      <p className="text-xs text-gray-500 dark:text-white">Penalty for late payments</p>
                     </div>
 
                     {/* Grace Period */}
@@ -1942,9 +1942,9 @@ export function ManualPaymentDialog({
                           max="30"
                           className="w-24"
                         />
-                        <span className="text-sm text-gray-600">days after due date</span>
+                        <span className="text-sm text-gray-600 dark:text-white">days after due date</span>
                       </div>
-                      <p className="text-xs text-gray-500">Buffer time before late fees apply</p>
+                      <p className="text-xs text-gray-500 dark:text-white">Buffer time before late fees apply</p>
                     </div>
 
                     {/* Information Text */}
@@ -1958,14 +1958,14 @@ export function ManualPaymentDialog({
                     {/* Monthly Subscription Summary */}
                     <div className="bg-white rounded-lg p-3 border-2 border-blue-300 mb-4">
                       <h4 className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Monthly Subscription Status</h4>
-                      <p className="text-sm text-gray-700 whitespace-pre-line">
+                      <p className="text-sm text-gray-700 dark:text-white whitespace-pre-line">
                         {formatMonthlySubscriptionSummary(monthlySubscriptionState, false)}
                       </p>
                     </div>
 
                     {/* Summary Card */}
                     <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-4 border-2 border-blue-400">
-                      <p className="text-sm text-gray-800 leading-relaxed">
+                      <p className="text-sm text-gray-800 dark:text-white leading-relaxed">
                         <ClipboardList className="h-4 w-4 inline mr-1" /> <strong>Summary:</strong> Pay{' '}
                         <span className="font-bold text-blue-900 text-lg">{currency} {baseMonthlyAmount.toLocaleString()}</span>{' '}
                         on the <span className="font-bold">{billingDueDate}{billingDueDate === 1 ? 'st' : billingDueDate === 2 ? 'nd' : billingDueDate === 3 ? 'rd' : 'th'}</span> of every month.
@@ -1995,8 +1995,8 @@ export function ManualPaymentDialog({
                     {/* Base Monthly Fee (Read-only) */}
                     <div className="bg-white rounded-lg p-3 border border-purple-100">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Base Monthly Fee:</span>
-                        <span className="font-bold text-lg line-through text-gray-400">{currency} {baseMonthlyAmount.toLocaleString()}</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Base Monthly Fee:</span>
+                        <span className="font-bold text-lg line-through text-gray-400 dark:text-white">{currency} {baseMonthlyAmount.toLocaleString()}</span>
                       </div>
                     </div>
 
@@ -2026,7 +2026,7 @@ export function ManualPaymentDialog({
                       
                       {/* Monthly Subscription Summary */}
                       <div className="bg-white rounded-lg p-3 border border-purple-200">
-                        <p className="text-xs text-gray-600 mb-1">Current Payment Details:</p>
+                        <p className="text-xs text-gray-600 dark:text-white mb-1">Current Payment Details:</p>
                         <p className="text-sm font-bold text-purple-900">
                           {formatMonthlySubscriptionSummary(monthlySubscriptionState, true)}
                         </p>
@@ -2067,7 +2067,7 @@ export function ManualPaymentDialog({
                           min="0"
                           step={discountType === 'percentage' ? '1' : '100'}
                         />
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-white">
                           {discountType === 'percentage' ? 'Percentage discount (0-100)' : 'Fixed amount in {currency}'}
                         </p>
                       </div>
@@ -2149,12 +2149,12 @@ export function ManualPaymentDialog({
                           
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">Base Fee:</span>
-                              <span className="font-medium line-through text-gray-400">{currency} {baseMonthlyAmount.toLocaleString()}</span>
+                              <span className="text-sm text-gray-600 dark:text-white">Base Fee:</span>
+                              <span className="font-medium line-through text-gray-400 dark:text-white">{currency} {baseMonthlyAmount.toLocaleString()}</span>
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">Discount:</span>
+                              <span className="text-sm text-gray-600 dark:text-white">Discount:</span>
                               <span className="font-semibold text-green-600">
                                 {discountType === 'percentage' 
                                   ? `${discountValue}% OFF` 
@@ -2168,7 +2168,7 @@ export function ManualPaymentDialog({
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">Commitment Months:</span>
+                              <span className="text-sm text-gray-600 dark:text-white">Commitment Months:</span>
                               <span className="font-bold text-purple-700">{lockInMonths} months</span>
                             </div>
                             
@@ -2186,7 +2186,7 @@ export function ManualPaymentDialog({
 
                         {/* Summary Text */}
                         <Alert className="bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 border-2 border-purple-400">
-                          <AlertDescription className="text-sm font-medium text-gray-900 leading-relaxed">
+                          <AlertDescription className="text-sm font-medium text-gray-900 dark:text-white leading-relaxed">
                             <PartyPopper className="h-4 w-4 inline mr-1" /> <strong>Your Plan:</strong> Pay{' '}
                             <span className="font-bold text-purple-900 text-lg">{currency} {discountedMonthlyAmount.toLocaleString()}/month</span>{' '}
                             for <span className="font-bold text-purple-900">{lockInMonths} months</span>.{' '}
@@ -2320,7 +2320,7 @@ export function ManualPaymentDialog({
                               className={`cursor-pointer ${
                                 receivedBy === instructor.displayName
                                   ? "bg-purple-600 text-white hover:bg-purple-700 hover:text-white data-[selected=true]:bg-purple-600 data-[selected=true]:text-white"
-                                  : "hover:bg-purple-50 data-[selected=true]:bg-purple-50 data-[selected=true]:text-gray-900"
+                                  : "hover:bg-purple-50 data-[selected=true]:bg-purple-50 data-[selected=true]:text-gray-900 dark:text-white"
                               }`}
                             >
                               <Check
@@ -2349,7 +2349,7 @@ export function ManualPaymentDialog({
                               className={`cursor-pointer ${
                                 receivedBy === person.displayName
                                   ? "bg-purple-600 text-white hover:bg-purple-700 hover:text-white data-[selected=true]:bg-purple-600 data-[selected=true]:text-white"
-                                  : "hover:bg-purple-50 data-[selected=true]:bg-purple-50 data-[selected=true]:text-gray-900"
+                                  : "hover:bg-purple-50 data-[selected=true]:bg-purple-50 data-[selected=true]:text-gray-900 dark:text-white"
                               }`}
                             >
                               <Check
@@ -2386,7 +2386,7 @@ export function ManualPaymentDialog({
                   />
                   <label className="flex-1 cursor-pointer text-sm">
                     <span className="font-medium">Course Payment </span>
-                    <span className="text-gray-600">{currency} {courseFee.toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-white">{currency} {courseFee.toLocaleString()}</span>
                   </label>
                 </div>
 
@@ -2398,7 +2398,7 @@ export function ManualPaymentDialog({
                   />
                   <label className={`flex-1 text-sm ${payment.studentRegistrationFeePaid ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                     <span className="font-medium">Student Registration Fee </span>
-                    <span className="text-gray-600">{currency} {studentRegistrationFee.toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-white">{currency} {studentRegistrationFee.toLocaleString()}</span>
                     {payment.studentRegistrationFeePaid && (
                       <span className="ml-2 text-xs text-green-600 font-semibold">? PAID</span>
                     )}
@@ -2413,7 +2413,7 @@ export function ManualPaymentDialog({
                   />
                   <label className={`flex-1 text-sm ${payment.courseRegistrationFeePaid ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                     <span className="font-medium">Course Registration Fee </span>
-                    <span className="text-gray-600">{currency} {courseRegistrationFee.toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-white">{currency} {courseRegistrationFee.toLocaleString()}</span>
                     {payment.courseRegistrationFeePaid && (
                       <span className="ml-2 text-xs text-green-600 font-semibold">? PAID</span>
                     )}
@@ -2447,7 +2447,7 @@ export function ManualPaymentDialog({
                   {paymentAmountError}
                 </div>
               )}
-              <div className="text-sm text-gray-600 space-y-1">
+              <div className="text-sm text-gray-600 dark:text-white space-y-1">
                 {/* Ongoing Training - Monthly Subscription */}
                 {courseInfo.courseCategory === "Ongoing Training" && paymentOption === "Monthly" && baseMonthlyAmount > 0 && (
                   <>
@@ -2467,7 +2467,7 @@ export function ManualPaymentDialog({
                       </>
                     ) : (
                       // Recurring payment - no registration fees
-                      <p className="text-xs text-gray-500">Recurring monthly payment (no registration fees)</p>
+                      <p className="text-xs text-gray-500 dark:text-white">Recurring monthly payment (no registration fees)</p>
                     )}
                   </>
                 )}
@@ -2477,7 +2477,7 @@ export function ManualPaymentDialog({
                   <>
                     <p className="font-medium text-purple-700">
                       Discounted Monthly: {currency}{discountedMonthlyAmount.toLocaleString()} 
-                      <span className="text-gray-500 line-through ml-2">{currency}{baseMonthlyAmount.toLocaleString()}</span>
+                      <span className="text-gray-500 dark:text-white line-through ml-2">{currency}{baseMonthlyAmount.toLocaleString()}</span>
                     </p>
                     {(!payment.receivedAmount || payment.receivedAmount === 0) ? (
                       // First payment - show registration fees if applicable
@@ -2493,7 +2493,7 @@ export function ManualPaymentDialog({
                       </>
                     ) : (
                       // Recurring payment - no registration fees
-                      <p className="text-xs text-gray-500">Recurring monthly payment (no registration fees)</p>
+                      <p className="text-xs text-gray-500 dark:text-white">Recurring monthly payment (no registration fees)</p>
                     )}
                     <p className="text-xs text-green-600 font-medium flex items-center gap-1">
                       <Wallet className="h-3 w-3" /> Saving {currency} {(baseMonthlyAmount - discountedMonthlyAmount).toLocaleString()}/month
@@ -2535,7 +2535,7 @@ export function ManualPaymentDialog({
                 </h3>
                 
                 {loadingHistory ? (
-                  <div className="text-sm text-gray-600 animate-pulse">Loading payment history...</div>
+                  <div className="text-sm text-gray-600 dark:text-white animate-pulse">Loading payment history...</div>
                 ) : paymentHistory.length > 0 ? (
                   <div className="space-y-1.5">
                     <div className="bg-white rounded-lg border border-indigo-200 overflow-hidden">
@@ -2597,15 +2597,15 @@ export function ManualPaymentDialog({
                     {/* Summary */}
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="bg-white p-2 rounded border border-indigo-200">
-                        <p className="text-gray-600">Course Fee</p>
+                        <p className="text-gray-600 dark:text-white">Course Fee</p>
                         <p className="font-bold text-indigo-900">{currency} {(payment.courseFee || 0).toLocaleString()}</p>
                       </div>
                       <div className="bg-green-50 p-2 rounded border border-green-200">
-                        <p className="text-gray-600">Total Paid</p>
+                        <p className="text-gray-600 dark:text-white">Total Paid</p>
                         <p className="font-bold text-green-700">{currency} {(payment.receivedAmount || 0).toLocaleString()}</p>
                       </div>
                       <div className="bg-orange-50 p-2 rounded border border-orange-200">
-                        <p className="text-gray-600">Balance Due {courseInfo.paymentCategory === 'Monthly subscription' ? '(Monthly)' : '(Total)'}</p>
+                        <p className="text-gray-600 dark:text-white">Balance Due {courseInfo.paymentCategory === 'Monthly subscription' ? '(Monthly)' : '(Total)'}</p>
                         <p className="font-bold text-orange-700">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</p>
                       </div>
                     </div>
@@ -2617,7 +2617,7 @@ export function ManualPaymentDialog({
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-600">No previous payments recorded yet.</p>
+                  <p className="text-sm text-gray-600 dark:text-white">No previous payments recorded yet.</p>
                 )}
               </div>
             )}
@@ -2764,20 +2764,20 @@ export function ManualPaymentDialog({
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">Total Fees:</span>
-                      <span className="text-base font-bold text-gray-900">{currency} {totalFees.toLocaleString()}</span>
+                      <span className="text-sm font-semibold text-gray-700 dark:text-white">Total Fees:</span>
+                      <span className="text-base font-bold text-gray-900 dark:text-white">{currency} {totalFees.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">Already Paid:</span>
-                      <span className="text-base font-bold text-gray-900">{currency} {currentlyPaid.toLocaleString()}</span>
+                      <span className="text-sm font-semibold text-gray-700 dark:text-white">Already Paid:</span>
+                      <span className="text-base font-bold text-gray-900 dark:text-white">{currency} {currentlyPaid.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">Current Payment:</span>
+                      <span className="text-sm font-semibold text-gray-700 dark:text-white">Current Payment:</span>
                       <span className="text-base font-bold text-blue-700">{currency} {enteredAmount.toLocaleString()}</span>
                     </div>
                     <div className="border-t border-gray-300 my-2"></div>
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-bold text-gray-900 flex items-center gap-1">
+                      <span className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-1">
                         {isFullyPaid ? <><CheckCircle2 className="h-4 w-4" /> Remaining Balance:</> : <><AlertTriangle className="h-4 w-4" /> Remaining Balance:</>}
                       </span>
                       <span 
@@ -2786,7 +2786,7 @@ export function ManualPaymentDialog({
                             ? 'text-green-700' 
                             : isPartial 
                             ? 'text-amber-700' 
-                            : 'text-gray-700'
+                            : 'text-gray-700 dark:text-white'
                         }`}
                       >
                         {currency} {Math.max(0, remainingBalance).toLocaleString()}
@@ -2821,7 +2821,7 @@ export function ManualPaymentDialog({
                 <AccordionTrigger className="px-4 py-3 hover:no-underline">
                   <div className="flex items-center gap-3">
                     <Bell className="h-5 w-5 text-blue-600" />
-                    <Label className="text-lg font-bold text-gray-800 cursor-pointer">Payment Reminder Settings</Label>
+                    <Label className="text-lg font-bold text-gray-800 dark:text-white cursor-pointer">Payment Reminder Settings</Label>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 space-y-4">
@@ -2898,7 +2898,7 @@ export function ManualPaymentDialog({
                     <CheckCircle2 className="h-6 w-6 text-green-600" />
                     <div className="space-y-2 flex-1">
                       <p className="font-bold text-green-900">Automatic Reminder Schedule Active</p>
-                      <ul className="text-sm text-gray-700 space-y-1.5">
+                      <ul className="text-sm text-gray-700 dark:text-white space-y-1.5">
                         <li className="flex items-start gap-2">
                           <span className="text-green-600 font-bold mt-0.5">�</span>
                           <span>

@@ -132,7 +132,7 @@ export function PaymentCategoryAndTypeSelector({
               </>
             )}
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-white">
             {selectedCategory === PaymentCategory.ONE_TIME_PAYMENT && 
               "One-time payment for the entire amount"}
             {selectedCategory === PaymentCategory.MONTHLY_SUBSCRIPTION && 

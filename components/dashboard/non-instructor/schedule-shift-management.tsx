@@ -79,7 +79,7 @@ export default function ScheduleShiftManagement() {
       case "meeting":
         return "bg-green-100 text-green-800 border-green-200"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white border-gray-200 dark:border-gray-700"
     }
   }
 
@@ -340,7 +340,7 @@ export default function ScheduleShiftManagement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Request Substitute</h4>
-                <p className="text-sm text-gray-600 mb-3">Need someone to cover your class?</p>
+                <p className="text-sm text-gray-600 dark:text-white mb-3">Need someone to cover your class?</p>
                 <Button size="sm" className="w-full">
                   Find Substitute
                 </Button>
@@ -348,7 +348,7 @@ export default function ScheduleShiftManagement() {
 
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Available to Substitute</h4>
-                <p className="text-sm text-gray-600 mb-3">Help colleagues by covering their classes</p>
+                <p className="text-sm text-gray-600 dark:text-white mb-3">Help colleagues by covering their classes</p>
                 <Button size="sm" variant="outline" className="w-full bg-transparent">
                   Mark Available
                 </Button>
@@ -356,7 +356,7 @@ export default function ScheduleShiftManagement() {
 
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Temporary Transfer</h4>
-                <p className="text-sm text-gray-600 mb-3">Request transfer to another branch</p>
+                <p className="text-sm text-gray-600 dark:text-white mb-3">Request transfer to another branch</p>
                 <Button size="sm" variant="outline" className="w-full bg-transparent">
                   Request Transfer
                 </Button>

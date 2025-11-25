@@ -378,7 +378,7 @@ export default function IncomeSearchFilters({
   return (
     <div className="flex flex-col lg:flex-row gap-2 mb-4">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
         <Input
           placeholder="Search income sources..."
           className="pl-10"
@@ -572,9 +572,9 @@ export default function IncomeSearchFilters({
                   { value: "sourceType", label: "Source" },
                   { value: "paymentMode", label: "Payment Mode" },
                 ].find(o => o.value === sortBy)?.label;
-                return label ? <span className="ml-1 text-xs text-gray-600">{label}</span> : null;
+                return label ? <span className="ml-1 text-xs text-gray-600 dark:text-white">{label}</span> : null;
               })()}
-              <span className="ml-2 text-xs text-gray-500">{sortOrder === "asc" ? "?" : "?"}</span>
+              <span className="ml-2 text-xs text-gray-500 dark:text-white">{sortOrder === "asc" ? "?" : "?"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -626,7 +626,7 @@ export default function IncomeSearchFilters({
           className={`h-9 px-3 flex items-center gap-2 ${
             draftsCount >= 1 
               ? "bg-purple-600 text-white hover:bg-purple-600 hover:text-white" 
-              : "border border-gray-200 bg-white"
+              : "border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
           }`}
           title="Income Drafts"
         >

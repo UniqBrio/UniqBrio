@@ -31,7 +31,7 @@ export default function TroubleshootPage() {
             <AccordionTrigger className="text-lg font-semibold text-purple-700 hover:text-orange-400">
               I forgot my password
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-gray-700 dark:text-white">
               <p className="mb-4">
                 You can reset your password by clicking the "Forgot password?" link on the login page. We'll send a
                 password reset link to your registered email address.
@@ -50,7 +50,7 @@ export default function TroubleshootPage() {
             <AccordionTrigger className="text-lg font-semibold text-purple-700 hover:text-purple-900">
               I didn&apos;t receive the password reset email
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-gray-700 dark:text-white">
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 <li>Check your spam or junk folder</li>
                 <li>Make sure you entered the correct email address</li>
@@ -71,7 +71,7 @@ export default function TroubleshootPage() {
             <AccordionTrigger className="text-lg font-semibold text-purple-700 hover:text-purple-900">
               My account is locked
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-gray-700 dark:text-white">
               <p className="mb-4">
                 Your account may be locked after multiple failed login attempts. You can unlock your account by
                 resetting your password.
@@ -90,7 +90,7 @@ export default function TroubleshootPage() {
             <AccordionTrigger className="text-lg font-semibold text-purple-700 hover:text-purple-900">
               I keep getting &quot;Invalid Email or Password&quot; error
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-gray-700 dark:text-white">
               <ul className="list-disc pl-5 space-y-2">
                 <li>Make sure you're using the correct email address</li>
                 <li>Check if Caps Lock is turned on</li>
@@ -105,7 +105,7 @@ export default function TroubleshootPage() {
             <AccordionTrigger className="text-lg font-semibold text-purple-700 hover:text-purple-900">
               I&apos;m having issues logging in with Google
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-gray-700 dark:text-white">
               <ul className="list-disc pl-5 space-y-2">
                 <li>Make sure you're using a Google account that's registered with UniqBrio</li>
                 <li>Try clearing your browser cookies and cache</li>
@@ -120,7 +120,7 @@ export default function TroubleshootPage() {
             <AccordionTrigger className="text-lg font-semibold text-purple-700 hover:text-purple-900">
               I have another login issue
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-gray-700 dark:text-white">
               <p className="mb-4">
                 If you're experiencing a different login issue, please raise a support ticket and our team will assist
                 you as soon as possible.
@@ -137,7 +137,7 @@ export default function TroubleshootPage() {
 
         {/* Footer Actions */}
         <div className="pt-8 text-center space-y-4">
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 dark:text-white text-sm">
             Still having trouble? Our support team is here to help.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">

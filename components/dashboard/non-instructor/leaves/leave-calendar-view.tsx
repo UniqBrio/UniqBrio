@@ -356,7 +356,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
           </Button>
         </div>
         
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-gray-700 dark:text-white">
           {viewMode === "day" && format(currentDate, "EEEE, MMMM dd, yyyy")}
           {viewMode === "week" && `${format(getCurrentWeekRange(currentDate).start, "MMM dd")} - ${format(getCurrentWeekRange(currentDate).end, "MMM dd, yyyy")}`}
           {viewMode === "month" && format(currentDate, "MMMM yyyy")}
@@ -372,7 +372,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
           <CardContent>
             <div className="grid grid-cols-7 bg-gray-50 border-b">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 border-r last:border-r-0">
+                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 dark:text-white border-r last:border-r-0">
                   {d}
                 </div>
               ))}
@@ -388,7 +388,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                     className={cn(
                       "min-h-[72px] p-0.5 border-r border-b last:border-r-0 cursor-pointer transition-colors",
                       "hover:bg-gray-50",
-                      !isCurrentMonth && "bg-gray-50/50 text-gray-400",
+                      !isCurrentMonth && "bg-gray-50/50 text-gray-400 dark:text-white",
                       today && "bg-blue-100 border-2 border-blue-400 shadow-md relative",
                       isSelected && "bg-purple-50 border-purple-200",
                     )}
@@ -402,7 +402,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                       <span className={cn(
                         "text-xs font-medium", 
                         today && "text-blue-700 font-bold bg-blue-200 px-1.5 py-0.5 rounded-full", 
-                        !isCurrentMonth && "text-gray-400"
+                        !isCurrentMonth && "text-gray-400 dark:text-white"
                       )}>
                         {date.getDate()}
                       </span>
@@ -429,7 +429,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                           {ev.instructorName}
                         </div>
                       ))}
-                      {events.length > 2 && <div className="text-[11px] text-gray-500 px-1">+{events.length - 2} more</div>}
+                      {events.length > 2 && <div className="text-[11px] text-gray-500 dark:text-white px-1">+{events.length - 2} more</div>}
                     </div>
                   </div>
                 )
@@ -450,7 +450,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
           <CardContent>
             <div className="grid grid-cols-7 bg-gray-50 border-b">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 border-r last:border-r-0">
+                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 dark:text-white border-r last:border-r-0">
                   {d}
                 </div>
               ))}
@@ -507,7 +507,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                         </div>
                       ))}
                       {events.length > 4 && (
-                        <div className="text-xs text-gray-500 px-2">+{events.length - 4} more</div>
+                        <div className="text-xs text-gray-500 dark:text-white px-2">+{events.length - 4} more</div>
                       )}
                     </div>
                   </div>
@@ -538,8 +538,8 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                         <Badge className={getStatusColor(ev.status)}>Approved</Badge>
                         <div>
                           <p className="font-medium">{ev.instructorName}</p>
-                          <p className="text-sm text-gray-600">{ev.leaveType}</p>
-                          <p className="text-xs text-gray-500 mt-1">{ev.reason || 'No reason provided'}</p>
+                          <p className="text-sm text-gray-600 dark:text-white">{ev.leaveType}</p>
+                          <p className="text-xs text-gray-500 dark:text-white mt-1">{ev.reason || 'No reason provided'}</p>
                         </div>
                       </div>
                     </div>
@@ -552,7 +552,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                           : 'Date not available'
                         }
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-white">
                         {ev.startDate && ev.endDate ? `${computeWorkingDays(ev.startDate, ev.endDate)} day${computeWorkingDays(ev.startDate, ev.endDate) !== 1 ? 's' : ''}` : ''}
                       </p>
                     </div>
@@ -560,7 +560,7 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-8">No leave requests for this date</p>
+              <p className="text-center text-gray-500 dark:text-white py-8">No leave requests for this date</p>
             )}
           </CardContent>
         </Card>
@@ -588,18 +588,18 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
                         <Badge className={getStatusColor(ev.status)}>Approved</Badge>
                         <div>
                           <p className="font-medium">{ev.instructorName}</p>
-                          <p className="text-sm text-gray-600">{ev.leaveType}</p>
+                          <p className="text-sm text-gray-600 dark:text-white">{ev.leaveType}</p>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">{ev.startDate === ev.endDate ? ev.startDate : `${ev.startDate} - ${ev.endDate}`}</p>
+                      <p className="text-xs text-gray-500 dark:text-white">{ev.startDate === ev.endDate ? ev.startDate : `${ev.startDate} - ${ev.endDate}`}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-8">No leave requests for this date</p>
+              <p className="text-center text-gray-500 dark:text-white py-8">No leave requests for this date</p>
             )}
           </CardContent>
         </Card>

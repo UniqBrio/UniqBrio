@@ -338,7 +338,7 @@ export default function ServicesOverviewPage() {
               <Activity className="h-8 w-8" />
               Services Overview
             </h1>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-white">
               Comprehensive service management dashboard with real-time insights and advanced analytics
             </p>
           </div>
@@ -451,13 +451,13 @@ export default function ServicesOverviewPage() {
           <TabsContent value="service-areas" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Schedule Overview */}
-              <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
-                <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-purple-700">
-                    <Calendar className="h-5 w-5 text-purple-600" />
+              <Card className="border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30">
+                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                    <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-500" />
                     Schedule Management
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     Manage events, sessions, and scheduling
                   </CardDescription>
                 </CardHeader>
@@ -467,7 +467,7 @@ export default function ServicesOverviewPage() {
                       <span className="text-purple-700">This Week's Sessions</span>
                       <span className="text-purple-900">{scheduleStats.thisWeekSessions}</span>
                     </div>
-                    <Progress value={(scheduleStats.thisWeekSessions / 20) * 100} className="h-2 bg-purple-100" />
+                    <Progress value={(scheduleStats.thisWeekSessions / 20) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
                   </div>
 
                   <div className="space-y-2">
@@ -475,7 +475,7 @@ export default function ServicesOverviewPage() {
                       <span className="text-purple-700">Today's Sessions</span>
                       <span className="text-purple-900">{scheduleStats.todaySessions} sessions</span>
                     </div>
-                    <Progress value={(scheduleStats.todaySessions / 8) * 100} className="h-2 bg-purple-100" />
+                    <Progress value={(scheduleStats.todaySessions / 8) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
                   </div>
 
                   <Button
@@ -489,13 +489,13 @@ export default function ServicesOverviewPage() {
               </Card>
 
               {/* Courses Overview */}
-              <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100">
-                <CardHeader className="pb-2 border-b border-orange-200 bg-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-orange-700">
-                    <BookOpen className="h-5 w-5 text-orange-600" />
+              <Card className="border-orange-200 dark:border-orange-900 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30">
+                <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-800 bg-white dark:bg-gray-900 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                    <BookOpen className="h-5 w-5 text-orange-600 dark:text-orange-500" />
                     Course Management
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     Manage courses, enrollments, and cohorts
                   </CardDescription>
                 </CardHeader>
@@ -505,7 +505,7 @@ export default function ServicesOverviewPage() {
                       <span className="text-orange-700">Active Courses</span>
                       <span className="text-orange-900">{courseStats.activeCourses}/{courseStats.totalCourses}</span>
                     </div>
-                    <Progress value={(courseStats.activeCourses / courseStats.totalCourses) * 100} className="h-2 bg-orange-100" />
+                    <Progress value={(courseStats.activeCourses / courseStats.totalCourses) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
                   </div>
 
                   <div className="space-y-2">
@@ -513,7 +513,7 @@ export default function ServicesOverviewPage() {
                       <span className="text-orange-700">Enrollment Capacity</span>
                       <span className="text-orange-900">{Math.round((courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100)}%</span>
                     </div>
-                    <Progress value={(courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100} className="h-2 bg-orange-100" />
+                    <Progress value={(courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
                   </div>
 
                   <Button
@@ -527,13 +527,13 @@ export default function ServicesOverviewPage() {
               </Card>
 
               {/* Cohort Overview */}
-              <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
-                <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-purple-700">
-                    <Users2 className="h-5 w-5 text-purple-600" />
+              <Card className="border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30">
+                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                    <Users2 className="h-5 w-5 text-purple-600 dark:text-purple-500" />
                     Cohort Management
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     Organize students into groups and track progress
                   </CardDescription>
                 </CardHeader>
@@ -543,7 +543,7 @@ export default function ServicesOverviewPage() {
                       <span className="text-purple-700">Active Cohorts</span>
                       <span className="text-purple-900">{cohortStats.activeCohorts}/{cohortStats.totalCohorts}</span>
                     </div>
-                    <Progress value={(cohortStats.activeCohorts / cohortStats.totalCohorts) * 100} className="h-2 bg-purple-100" />
+                    <Progress value={(cohortStats.activeCohorts / cohortStats.totalCohorts) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
                   </div>
 
                   <div className="space-y-2">
@@ -551,7 +551,7 @@ export default function ServicesOverviewPage() {
                       <span className="text-purple-700">Student Enrollment</span>
                       <span className="text-purple-900">{cohortStats.totalStudents} students</span>
                     </div>
-                    <Progress value={(cohortStats.totalStudents / (cohortStats.activeCohorts * cohortStats.averageCohortSize)) * 100} className="h-2 bg-purple-100" />
+                    <Progress value={(cohortStats.totalStudents / (cohortStats.activeCohorts * cohortStats.averageCohortSize)) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
                   </div>
 
                   <Button

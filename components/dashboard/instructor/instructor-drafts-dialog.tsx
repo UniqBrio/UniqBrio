@@ -121,7 +121,7 @@ export default function InstructorDraftsDialog({
       case 'advanced':
         return 'bg-purple-100 text-purple-800 border-purple-200'
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+        return 'bg-gray-100 text-gray-800 dark:text-white border-gray-200'
     }
   }
 
@@ -131,7 +131,7 @@ export default function InstructorDraftsDialog({
         <DialogHeader>
           <div className="pr-12">
             <DialogTitle className="text-xl font-semibold">Instructor Drafts</DialogTitle>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-white mt-1">
               Manage your saved drafts. Click to edit instructor from draft or delete.
             </p>
           </div>
@@ -152,7 +152,7 @@ export default function InstructorDraftsDialog({
 
         <div className="space-y-3 mt-4">
           {drafts.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-white">
               <p>No drafts found</p>
               <p className="text-sm">Start creating an instructor to save drafts</p>
             </div>
@@ -197,18 +197,18 @@ export default function InstructorDraftsDialog({
                         </Button>
                       </div>
                     ) : (
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 truncate">
                         {draft.name}
                       </h3>
                     )}
                     
-                    <p className="text-sm text-gray-600 mb-2">
+                    <p className="text-sm text-gray-600 dark:text-white mb-2">
                       {draft.instructorName}
                     </p>
                     
                     {/* Hidden irrelevant metadata: internal id and level badge */}
                     
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-white">
                       Last updated: {formatToDDMMMYYYY(draft.lastUpdated)}
                     </p>
                   </div>
@@ -221,7 +221,7 @@ export default function InstructorDraftsDialog({
                         e.stopPropagation()
                         handleLoadDraft(draft)
                       }}
-                      className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50"
+                      className="p-2 text-gray-500 dark:text-white hover:text-purple-600 hover:bg-purple-50"
                     >
                       <Edit2 className="h-4 w-4 text-purple-600" />
                     </Button>

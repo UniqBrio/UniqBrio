@@ -296,7 +296,7 @@ export default function CohortSearchAndFilters({
   return (
     <div className="flex flex-col lg:flex-row gap-2 mb-4">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
         <Input
           placeholder="Search cohorts, courses, instructors..."
           className="pl-10"
@@ -340,7 +340,7 @@ export default function CohortSearchAndFilters({
             </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-80 p-4 bg-white border border-gray-200 shadow-lg z-50" 
+            className="w-80 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg z-50" 
             onCloseAutoFocus={(event) => {
               event.preventDefault();
             }}
@@ -439,7 +439,7 @@ export default function CohortSearchAndFilters({
                       }));
                     }}
                   />
-                  <span className="text-sm text-gray-500">to</span>
+                  <span className="text-sm text-gray-500 dark:text-white">to</span>
                   <input
                     type="number"
                     className="flex-1 px-3 py-2 text-sm border rounded-md"
@@ -502,7 +502,7 @@ export default function CohortSearchAndFilters({
                   { value: "capacity", label: "Capacity" },
                   { value: "members", label: "Members Count" },
                 ].find(o => o.value === sortBy)?.label;
-                return label ? <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{label}</span> : null;
+                return label ? <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{label}</span> : null;
               })()}
               {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
             </Button>
@@ -605,7 +605,7 @@ export default function CohortSearchAndFilters({
           >
             <Download className="mr-2 h-4 w-4" />
             Export
-            <span className="text-xs text-gray-600 ml-1">({selectedCount})</span>
+            <span className="text-xs text-gray-600 dark:text-white ml-1">({selectedCount})</span>
           </Button>
 
           {/* Add Cohorts Button */}

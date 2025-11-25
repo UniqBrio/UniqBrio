@@ -614,21 +614,21 @@ export default function PromotionPage() {
             <TabsList className="grid w-full grid-cols-3 bg-transparent gap-2 p-0">
               <TabsTrigger 
                 value="analytics" 
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 bg-white text-gray-700 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 dark:border-orange-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 data-[state=active]:hover:bg-purple-700"
               >
                 <BarChart4 className="h-4 w-4" />
                 <span>Analytics</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="campaigns" 
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 bg-white text-gray-700 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 dark:border-orange-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 data-[state=active]:hover:bg-purple-700"
               >
                 <TrendingUp className="h-4 w-4" />
                 <span>Campaigns</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="tools" 
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 bg-white text-gray-700 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 dark:border-orange-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 data-[state=active]:hover:bg-purple-700"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Tools</span>

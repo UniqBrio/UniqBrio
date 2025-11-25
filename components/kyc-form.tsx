@@ -269,7 +269,7 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                 className="block w-full border border-gray-300 rounded px-3 py-2"
                 onChange={e => setOwnerImage(e.target.files?.[0] || null)}
               />
-              <span className="text-xs text-gray-500">Accepted formats: jpeg, png, jpg</span>
+              <span className="text-xs text-gray-500 dark:text-white">Accepted formats: jpeg, png, jpg</span>
               {ownerImage && (
                 <div className="mt-2">
                   {typeof ownerImage === 'string' ? (
@@ -312,7 +312,7 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                 className="block w-full border border-gray-300 rounded px-3 py-2"
                 onChange={e => setBannerImage(e.target.files?.[0] || null)}
               />
-              <span className="text-xs text-gray-500">Accepted formats: jpeg, png, jpg</span>
+              <span className="text-xs text-gray-500 dark:text-white">Accepted formats: jpeg, png, jpg</span>
               {bannerImage && (
                 <div className="mt-2">
                   {typeof bannerImage === 'string' ? (
@@ -453,8 +453,8 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-green-600 mb-4">Verification Successful!</h3>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mb-4">Verification Successful!</h3>
+              <p className="text-gray-700 dark:text-white mb-6 leading-relaxed">
                 Thank you for completing your KYC. Our team will reach out to you once the background check is done.
                 <br /><br />
                 <strong>You will receive confirmation within 24 business hours.</strong>

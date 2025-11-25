@@ -597,7 +597,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
               `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
               data-[state=active]:bg-gray-400 data-[state=active]:text-white
               data-[state=active]:border-gray-600
-              bg-white text-gray-600 border-gray-300 hover:border-gray-400 hover:bg-gray-50`
+              bg-white text-gray-600 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50`
             }
           >
             <Bell className="w-4 h-4 mr-2 inline-block" />
@@ -609,7 +609,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
               `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
               data-[state=active]:bg-gray-400 data-[state=active]:text-white
               data-[state=active]:border-gray-600
-              bg-white text-gray-600 border-gray-300 hover:border-gray-400 hover:bg-gray-50`
+              bg-white text-gray-600 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50`
             }
           >
             <Trophy className="w-4 h-4 mr-2 inline-block" />
@@ -624,7 +624,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                 <div className="flex items-center justify-center py-12">
                   <div className="flex flex-col items-center gap-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                    <p className="text-gray-600">Loading attendance data...</p>
+                    <p className="text-gray-600 dark:text-white">Loading attendance data...</p>
                   </div>
                 </div>
               ) : (
@@ -745,23 +745,23 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
             <div className="p-2 space-y-6">
               <div>
                 <h3 className="text-lg font-semibold">{recordToView.studentName}</h3>
-                <p className="text-sm text-gray-500">{recordToView.studentId}</p>
+                <p className="text-sm text-gray-500 dark:text-white">{recordToView.studentId}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-              <div className="text-sm"><span className="text-gray-500">Date:</span> <span className="font-medium">{formatDateForDisplay(recordToView.date)}</span></div>
-                  <div className="text-sm"><span className="text-gray-500">Start Time:</span> <span className="font-medium">{recordToView.startTime ? formatTimeTo12Hour(recordToView.startTime) : '-'}</span></div>
-                  <div className="text-sm"><span className="text-gray-500">End Time:</span> <span className="font-medium">{recordToView.endTime ? formatTimeTo12Hour(recordToView.endTime) : '-'}</span></div>
-                  <div className="text-sm"><span className="text-gray-500">Status:</span> <span className="font-medium capitalize">{recordToView.status}</span></div>
-                <div className="text-sm"><span className="text-gray-500">Remarks:</span> <span className="font-medium">{recordToView.notes || '-'}</span></div>
+              <div className="text-sm"><span className="text-gray-500 dark:text-white">Date:</span> <span className="font-medium">{formatDateForDisplay(recordToView.date)}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">Start Time:</span> <span className="font-medium">{recordToView.startTime ? formatTimeTo12Hour(recordToView.startTime) : '-'}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">End Time:</span> <span className="font-medium">{recordToView.endTime ? formatTimeTo12Hour(recordToView.endTime) : '-'}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">Status:</span> <span className="font-medium capitalize">{recordToView.status}</span></div>
+                <div className="text-sm"><span className="text-gray-500 dark:text-white">Remarks:</span> <span className="font-medium">{recordToView.notes || '-'}</span></div>
               
                 </div>
                 <div className="space-y-2">
-                  <div className="text-sm"><span className="text-gray-500">Course Name:</span> <span className="font-medium">{recordToView.courseName || '-'}</span></div>
-                  <div className="text-sm"><span className="text-gray-500">Course ID:</span> <span className="font-medium">{recordToView.courseId || '-'}</span></div>
-                  <div className="text-sm"><span className="text-gray-500">Cohort:</span> <span className="font-medium">{recordToView.cohortName && recordToView.cohortId ? `${recordToView.cohortName} (${recordToView.cohortId})` : recordToView.cohortName || recordToView.cohortId || '-'}</span></div>
-                  <div className="text-sm"><span className="text-gray-500">Scheduled Time:</span> <span className="font-medium">{recordToView.cohortTiming ? formatTimesInTextTo12Hour(recordToView.cohortTiming) : '-'}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">Course Name:</span> <span className="font-medium">{recordToView.courseName || '-'}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">Course ID:</span> <span className="font-medium">{recordToView.courseId || '-'}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">Cohort:</span> <span className="font-medium">{recordToView.cohortName && recordToView.cohortId ? `${recordToView.cohortName} (${recordToView.cohortId})` : recordToView.cohortName || recordToView.cohortId || '-'}</span></div>
+                  <div className="text-sm"><span className="text-gray-500 dark:text-white">Scheduled Time:</span> <span className="font-medium">{recordToView.cohortTiming ? formatTimesInTextTo12Hour(recordToView.cohortTiming) : '-'}</span></div>
                   
                 </div>
               </div>
@@ -789,16 +789,16 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
             </div>
           </DialogHeader>
           <div className="p-2">
-            <p className="text-sm text-gray-600 mb-3">Are you sure you want to delete this attendance record? This will remove it and cannot be undone.</p>
+            <p className="text-sm text-gray-600 dark:text-white mb-3">Are you sure you want to delete this attendance record? This will remove it and cannot be undone.</p>
             {recordToDelete && (
               <div className="text-sm bg-gray-50 border rounded p-3">
-                <div><span className="text-gray-500">Student:</span> <span className="font-medium">{recordToDelete.studentName} ({recordToDelete.studentId})</span></div>
-                <div><span className="text-gray-500">Date:</span> <span className="font-medium">{formatDateForDisplay(recordToDelete.date)}</span></div>
+                <div><span className="text-gray-500 dark:text-white">Student:</span> <span className="font-medium">{recordToDelete.studentName} ({recordToDelete.studentId})</span></div>
+                <div><span className="text-gray-500 dark:text-white">Date:</span> <span className="font-medium">{formatDateForDisplay(recordToDelete.date)}</span></div>
                 {recordToDelete.courseName && (
-                  <div><span className="text-gray-500">Course:</span> <span className="font-medium">{recordToDelete.courseName} ({recordToDelete.courseId})</span></div>
+                  <div><span className="text-gray-500 dark:text-white">Course:</span> <span className="font-medium">{recordToDelete.courseName} ({recordToDelete.courseId})</span></div>
                 )}
                 {(recordToDelete.cohortName || recordToDelete.cohortId) && (
-                  <div><span className="text-gray-500">Cohort:</span> <span className="font-medium">{recordToDelete.cohortName && recordToDelete.cohortId ? `${recordToDelete.cohortName} (${recordToDelete.cohortId})` : recordToDelete.cohortName || recordToDelete.cohortId}</span></div>
+                  <div><span className="text-gray-500 dark:text-white">Cohort:</span> <span className="font-medium">{recordToDelete.cohortName && recordToDelete.cohortId ? `${recordToDelete.cohortName} (${recordToDelete.cohortId})` : recordToDelete.cohortName || recordToDelete.cohortId}</span></div>
                 )}
               </div>
             )}

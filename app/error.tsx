@@ -23,7 +23,7 @@ export default function Error({
       </div>
 
       <h1 className="text-3xl font-bold mb-2">Something went wrong</h1>
-      <p className="text-gray-600 mb-8 text-center max-w-md">
+      <p className="text-gray-600 dark:text-white mb-8 text-center max-w-md">
         We apologize for the inconvenience. An error has occurred while processing your request.
       </p>
 
@@ -43,7 +43,7 @@ export default function Error({
         </Link>
       </div>
 
-      {error.digest && <p className="mt-8 text-xs text-gray-500">Error ID: {error.digest}</p>}
+      {error.digest && <p className="mt-8 text-xs text-gray-500 dark:text-white">Error ID: {error.digest}</p>}
     </div>
   )
 }

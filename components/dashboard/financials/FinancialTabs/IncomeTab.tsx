@@ -132,7 +132,7 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
         
         {/* Debug info */}
         {!loading && !error && (
-          <div className="text-[10px] sm:text-xs text-gray-500 p-2 sm:p-3 bg-gray-50 rounded overflow-hidden">
+          <div className="text-[10px] sm:text-xs text-gray-500 dark:text-white p-2 sm:p-3 bg-gray-50 rounded overflow-hidden">
             <div className="break-all">
               Debug: Chart data: {data.length} | Categories: {categoryData.length} | Sources: {sourceData.length} | Top cats: {topPerformers.topCategories.length} | Top sources: {topPerformers.topSources.length}
             </div>
@@ -143,7 +143,7 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
           <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 break-words">Income Trend Analysis</h3>
           {data.length === 0 ? (
             <div className="h-60 sm:h-80 flex items-center justify-center bg-gray-50 rounded">
-              <p className="text-gray-500 text-sm sm:text-base text-center px-4">No income data available for {selectedYear}</p>
+              <p className="text-gray-500 dark:text-white text-sm sm:text-base text-center px-4">No income data available for {selectedYear}</p>
             </div>
           ) : (
             <div className="h-60 sm:h-80 w-full">
@@ -205,7 +205,7 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
             <Card className="p-3 sm:p-4 lg:p-6 w-full overflow-hidden">
               <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 text-purple-700 break-words">Top Income Categories</h3>
               {topPerformers.topCategories.length === 0 ? (
-                <div className="text-xs sm:text-sm text-gray-500 p-3 sm:p-4 text-center">No category data available</div>
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-white p-3 sm:p-4 text-center">No category data available</div>
               ) : (
                 <div className="space-y-2 sm:space-y-3">
                   {topPerformers.topCategories.map(cat => (
@@ -244,8 +244,8 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
         {/* Show message when no data */}
         {!loading && !error && topPerformers.topCategories.length === 0 && (
           <div className="text-center p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg">
-            <p className="text-sm sm:text-base text-gray-600">No income data available for {selectedYear}</p>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Income data will appear here once transactions are recorded</p>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-white">No income data available for {selectedYear}</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-white mt-1 sm:mt-2">Income data will appear here once transactions are recorded</p>
           </div>
         )}
       </CardContent>

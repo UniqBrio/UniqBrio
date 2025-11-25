@@ -35,7 +35,7 @@ export function AttendanceGamification() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold">Attendance Gamification </h2>
-          <p className="text-gray-500">Motivate students with rewards and recognition</p>
+          <p className="text-gray-500 dark:text-white">Motivate students with rewards and recognition</p>
         </div>
         <div className="flex items-center space-x-2">
           <TooltipProvider>
@@ -168,7 +168,7 @@ export function AttendanceGamification() {
                     <span className="text-sm font-medium">4/5 days</span>
                   </div>
                   <Progress value={80} className="h-2" />
-                  <p className="text-xs text-gray-500">1 more day to earn this badge</p>
+                  <p className="text-xs text-gray-500 dark:text-white">1 more day to earn this badge</p>
                 </div>
 
                 <div className="space-y-2">
@@ -180,7 +180,7 @@ export function AttendanceGamification() {
                     <span className="text-sm font-medium">18/20 days</span>
                   </div>
                   <Progress value={90} className="h-2" />
-                  <p className="text-xs text-gray-500">2 more days to earn this badge</p>
+                  <p className="text-xs text-gray-500 dark:text-white">2 more days to earn this badge</p>
                 </div>
 
                 <div className="space-y-2">
@@ -192,7 +192,7 @@ export function AttendanceGamification() {
                     <span className="text-sm font-medium">3/5 days</span>
                   </div>
                   <Progress value={60} className="h-2" />
-                  <p className="text-xs text-gray-500">2 more early arrivals to earn this badge</p>
+                  <p className="text-xs text-gray-500 dark:text-white">2 more early arrivals to earn this badge</p>
                 </div>
               </div>
             </CardContent>
@@ -234,7 +234,7 @@ export function AttendanceGamification() {
                       </div>
                       <div className="text-center">
                         <div className="font-bold">Emily Davis</div>
-                        <div className="text-sm text-gray-500">100%</div>
+                        <div className="text-sm text-gray-500 dark:text-white">100%</div>
                         <Badge className="mt-1 bg-amber-100 text-amber-800">1st Place</Badge>
                       </div>
                     </div>
@@ -245,8 +245,8 @@ export function AttendanceGamification() {
                       </div>
                       <div className="text-center">
                         <div className="font-bold">John Smith</div>
-                        <div className="text-sm text-gray-500">98%</div>
-                        <Badge className="mt-1 bg-gray-100 text-gray-800">2nd Place</Badge>
+                        <div className="text-sm text-gray-500 dark:text-white">98%</div>
+                        <Badge className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white">2nd Place</Badge>
                       </div>
                     </div>
 
@@ -256,7 +256,7 @@ export function AttendanceGamification() {
                       </div>
                       <div className="text-center">
                         <div className="font-bold">Michael Brown</div>
-                        <div className="text-sm text-gray-500">95%</div>
+                        <div className="text-sm text-gray-500 dark:text-white">95%</div>
                         <Badge className="mt-1 bg-amber-100 text-amber-800">3rd Place</Badge>
                       </div>
                     </div>
@@ -265,22 +265,22 @@ export function AttendanceGamification() {
                   <div className="space-y-2">
                     <div className="flex items-center p-3 bg-gray-50 rounded-md">
                       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                        <span className="font-bold text-gray-700">4</span>
+                        <span className="font-bold text-gray-700 dark:text-white">4</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium">Jessica Wilson</div>
-                        <div className="text-xs text-gray-500">93% attendance</div>
+                        <div className="text-xs text-gray-500 dark:text-white">93% attendance</div>
                       </div>
                       <Star className="h-5 w-5 text-amber-400" />
                     </div>
 
                     <div className="flex items-center p-3 bg-gray-50 rounded-md">
                       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                        <span className="font-bold text-gray-700">5</span>
+                        <span className="font-bold text-gray-700 dark:text-white">5</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium">Daniel Lee</div>
-                        <div className="text-xs text-gray-500">92% attendance</div>
+                        <div className="text-xs text-gray-500 dark:text-white">92% attendance</div>
                       </div>
                       <Star className="h-5 w-5 text-amber-400" />
                     </div>
@@ -291,7 +291,7 @@ export function AttendanceGamification() {
                       </div>
                       <div className="flex-1">
                         <div className="font-medium">You</div>
-                        <div className="text-xs text-gray-500">85% attendance</div>
+                        <div className="text-xs text-gray-500 dark:text-white">85% attendance</div>
                       </div>
                       <div className="flex items-center">
                         <span className="text-xs text-green-600 mr-1">? 3</span>
@@ -302,9 +302,9 @@ export function AttendanceGamification() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <Users className="h-16 w-16 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-700">Leaderboard Disabled</h3>
-                  <p className="text-sm text-gray-500 text-center mt-1 max-w-md">
+                  <Users className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">Leaderboard Disabled</h3>
+                  <p className="text-sm text-gray-500 dark:text-white text-center mt-1 max-w-md">
                     Enable the leaderboard to show students with the best attendance records and encourage healthy
                     competition.
                   </p>
@@ -372,7 +372,7 @@ export function AttendanceGamification() {
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-500">Issued to students with 100% monthly attendance</div>
+                          <div className="text-sm text-gray-500 dark:text-white">Issued to students with 100% monthly attendance</div>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -401,7 +401,7 @@ export function AttendanceGamification() {
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-500">Issued to students with 95%+ quarterly attendance</div>
+                          <div className="text-sm text-gray-500 dark:text-white">Issued to students with 95%+ quarterly attendance</div>
                           v<TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -437,9 +437,9 @@ export function AttendanceGamification() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <Award className="h-16 w-16 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-700">Certificates Disabled</h3>
-                  <p className="text-sm text-gray-500 text-center mt-1 max-w-md">
+                  <Award className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">Certificates Disabled</h3>
+                  <p className="text-sm text-gray-500 dark:text-white text-center mt-1 max-w-md">
                     Enable certificates to recognize and reward students for their attendance achievements.
                   </p>
                   <TooltipProvider>
@@ -476,7 +476,7 @@ export function AttendanceGamification() {
                     </div>
                     <div>
                       <h4 className="font-medium">Attendance Points</h4>
-                      <p className="text-sm text-gray-500">Award points for consistent attendance</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Award points for consistent attendance</p>
                     </div>
                   </div>
                   <Switch defaultChecked />
@@ -489,7 +489,7 @@ export function AttendanceGamification() {
                     </div>
                     <div>
                       <h4 className="font-medium">Achievement Showcase</h4>
-                      <p className="text-sm text-gray-500">Display achievements on student profiles</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Display achievements on student profiles</p>
                     </div>
                   </div>
                   <Switch defaultChecked />
@@ -502,7 +502,7 @@ export function AttendanceGamification() {
                     </div>
                     <div>
                       <h4 className="font-medium">Physical Rewards</h4>
-                      <p className="text-sm text-gray-500">Enable physical rewards for top performers</p>
+                      <p className="text-sm text-gray-500 dark:text-white">Enable physical rewards for top performers</p>
                     </div>
                   </div>
                   <Switch />

@@ -1010,7 +1010,7 @@ export default function EnhancedCourseManagementPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading courses...</p>
+              <p className="text-gray-600 dark:text-white">Loading courses...</p>
             </div>
           </div>
         ) : (
@@ -1026,28 +1026,28 @@ export default function EnhancedCourseManagementPage() {
               <TabsList className="grid w-full grid-cols-4 mb-6 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger 
                   value="courses" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
                 >
                   <BookOpen className="h-4 w-4" />
                   Courses
                 </TabsTrigger>
                 <TabsTrigger 
                   value="cohorts" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
                 >
                   <Users className="h-4 w-4" />
                   Cohorts
                 </TabsTrigger>
                 <TabsTrigger 
                   value="settings" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
                 >
                   <Settings className="h-4 w-4" />
                   Settings
@@ -1112,25 +1112,25 @@ export default function EnhancedCourseManagementPage() {
                     <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
                       Coming Soon Features
                     </h3>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-gray-600 dark:text-white max-w-2xl mx-auto">
                       Powerful tools to revolutionize your course management experience
                     </p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-yellow-100 to-orange-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-yellow-100 to-orange-200 dark:from-yellow-950/30 dark:via-yellow-900/30 dark:to-orange-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <Bot className="h-7 w-7 text-yellow-600" />
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <Bot className="h-7 w-7 text-yellow-600 dark:text-yellow-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 mb-2">
+                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
                           AI Assistant 
-                          <span className="block mt-1 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-xs rounded-full font-medium">
                             🤖 Smart
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 leading-relaxed">
+                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
                           Intelligent course recommendations
                         </p>
                         <div className="mt-3 flex justify-center">
@@ -1139,19 +1139,19 @@ export default function EnhancedCourseManagementPage() {
                       </CardContent>
                     </Card>
 
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-emerald-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-emerald-200 dark:from-green-950/30 dark:via-green-900/30 dark:to-emerald-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <Target className="h-7 w-7 text-green-600" />
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <Target className="h-7 w-7 text-green-600 dark:text-green-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 mb-2">
+                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
                           Gamification 
-                          <span className="block mt-1 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs rounded-full font-medium">
                             🎯 Rewards
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 leading-relaxed">
+                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
                           Badges, points & achievements
                         </p>
                         <div className="mt-3 flex justify-center">
@@ -1160,19 +1160,19 @@ export default function EnhancedCourseManagementPage() {
                       </CardContent>
                     </Card>
 
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-pink-100 to-rose-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-pink-100 to-rose-200 dark:from-pink-950/30 dark:via-pink-900/30 dark:to-rose-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-rose-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <ClipboardCheck className="h-7 w-7 text-pink-600" />
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <ClipboardCheck className="h-7 w-7 text-pink-600 dark:text-pink-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 mb-2">
+                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
                           Assignments 
-                          <span className="block mt-1 px-2 py-1 bg-pink-100 text-pink-700 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-2 py-1 bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-400 text-xs rounded-full font-medium">
                             � Auto
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 leading-relaxed">
+                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
                           Automated grading system
                         </p>
                         <div className="mt-3 flex justify-center">
@@ -1181,19 +1181,19 @@ export default function EnhancedCourseManagementPage() {
                       </CardContent>
                     </Card>
 
-                    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
+                    <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-200 dark:from-blue-950/30 dark:via-blue-900/30 dark:to-cyan-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <Timer className="h-7 w-7 text-blue-600" />
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <Timer className="h-7 w-7 text-blue-600 dark:text-blue-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 mb-2">
+                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
                           Time Tracker 
-                          <span className="block mt-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs rounded-full font-medium">
                             ⏱️ Track
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 leading-relaxed">
+                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
                           Study duration analytics
                         </p>
                         <div className="mt-3 flex justify-center">
@@ -1257,7 +1257,7 @@ export default function EnhancedCourseManagementPage() {
                     {/* Results Counter */}
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-purple-500 dark:bg-purple-400 rounded-full"></div>
                         <span className="text-sm font-medium text-purple-700">
                           {filteredAndSortedCourses.length} course{filteredAndSortedCourses.length !== 1 ? 's' : ''} found
                         </span>
@@ -1269,7 +1269,7 @@ export default function EnhancedCourseManagementPage() {
                             variant="outline"
                             size="icon"
                             onClick={columnManagement.openColumnSelector}
-                            className="h-8 w-8 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                            className="h-8 w-8 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-800/30"
                             title="Column Selection"
                           >
                             <GridIcon className="h-4 w-4" />
@@ -1418,21 +1418,21 @@ export default function EnhancedCourseManagementPage() {
               <div className="space-y-4">
                 <div className="border-b pb-3">
                   <h3 className="font-semibold text-lg">{selectedCourse.name}</h3>
-                  <p className="text-gray-600">{selectedCourse.instructor}</p>
-                  <p className="text-sm text-gray-500 mt-1">{selectedCourse.description}</p>
+                  <p className="text-gray-600 dark:text-white">{selectedCourse.instructor}</p>
+                  <p className="text-sm text-gray-500 dark:text-white mt-1">{selectedCourse.description}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-6 gap-y-1">
                   <div>
                     <h4 className="font-semibold mb-2">Course Settings</h4>
                     <dl className="grid grid-cols-[100px_1fr] gap-y-1 text-sm">
-                      <dt className="text-gray-500">Level:</dt>
+                      <dt className="text-gray-500 dark:text-white">Level:</dt>
                       <dd>{selectedCourse.level}</dd>
-                      <dt className="text-gray-500">Type:</dt>
+                      <dt className="text-gray-500 dark:text-white">Type:</dt>
                       <dd className="capitalize">{selectedCourse.type?.toLowerCase()}</dd>
-                      <dt className="text-gray-500">Duration:</dt>
+                      <dt className="text-gray-500 dark:text-white">Duration:</dt>
                       <dd>{selectedCourse.duration}</dd>
-                      <dt className="text-gray-500">Location:</dt>
+                      <dt className="text-gray-500 dark:text-white">Location:</dt>
                       <dd>{selectedCourse.location}</dd>
                     </dl>
                   </div>
@@ -1440,9 +1440,9 @@ export default function EnhancedCourseManagementPage() {
                   <div>
                     <h4 className="font-semibold mb-2">Capacity & Pricing</h4>
                     <dl className="grid grid-cols-[120px_1fr] gap-y-1 text-sm">
-                      <dt className="text-gray-500">Price:</dt>
+                      <dt className="text-gray-500 dark:text-white">Price:</dt>
                       <dd className="text-green-600 font-semibold">${currency} {selectedCourse.priceINR?.toLocaleString()}</dd>
-                      <dt className="text-gray-500">Max Students:</dt>
+                      <dt className="text-gray-500 dark:text-white">Max Students:</dt>
                       <dd>{selectedCourse.maxStudents}</dd>
                     </dl>
                   </div>
@@ -1452,7 +1452,7 @@ export default function EnhancedCourseManagementPage() {
                   <h4 className="font-semibold mb-2">Schedule</h4>
                   <div className="grid grid-cols-2 gap-x-6 text-sm">
                     <div>
-                      <span className="text-gray-500">Period:</span>
+                      <span className="text-gray-500 dark:text-white">Period:</span>
                       <div className="mt-1">
                         {selectedCourse.schedulePeriod?.startDate && selectedCourse.schedulePeriod?.endDate ? (
                           <div className="space-y-0.5">
@@ -1460,14 +1460,14 @@ export default function EnhancedCourseManagementPage() {
                             <div>End: {selectedCourse.schedulePeriod.endDate}</div>
                           </div>
                         ) : (
-                          <span className="text-gray-400">Not set</span>
+                          <span className="text-gray-400 dark:text-white">Not set</span>
                         )}
                       </div>
                     </div>
                     <div>
-                      <span className="text-gray-500">Total Weeks:</span>
+                      <span className="text-gray-500 dark:text-white">Total Weeks:</span>
                       <div className="mt-1">
-                        {selectedCourse.schedulePeriod?.totalWeeks || <span className="text-gray-400">Not set</span>}
+                        {selectedCourse.schedulePeriod?.totalWeeks || <span className="text-gray-400 dark:text-white">Not set</span>}
                       </div>
                     </div>
                   </div>
@@ -1478,7 +1478,7 @@ export default function EnhancedCourseManagementPage() {
                     <h4 className="font-semibold mb-2">Tags</h4>
                     <div className="flex flex-wrap gap-1.5">
                       {selectedCourse.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
+                        <span key={index} className="px-2 py-0.5 bg-gray-100 text-gray-700 dark:text-white text-xs rounded">
                           {tag}
                         </span>
                       ))}
@@ -1495,8 +1495,8 @@ export default function EnhancedCourseManagementPage() {
             <DialogHeader>
               <DialogTitle className="inline-flex items-center gap-2">Marketing Tools <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" /></DialogTitle>
             </DialogHeader>
-            <div className="p-8 text-center text-gray-500">
-              <Megaphone className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+            <div className="p-8 text-center text-gray-500 dark:text-white">
+              <Megaphone className="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-white" />
               <p>Marketing tools and promotional features coming soon!</p>
             </div>
           </DialogContent>
@@ -1507,8 +1507,8 @@ export default function EnhancedCourseManagementPage() {
             <DialogHeader>
               <DialogTitle>Analytics Dashboard</DialogTitle>
             </DialogHeader>
-            <div className="p-8 text-center text-gray-500">
-              <BarChart3 className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+            <div className="p-8 text-center text-gray-500 dark:text-white">
+              <BarChart3 className="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-white" />
               <p>Advanced analytics and reporting features would be implemented here.</p>
             </div>
           </DialogContent>
@@ -1519,8 +1519,8 @@ export default function EnhancedCourseManagementPage() {
             <DialogHeader>
               <DialogTitle>Financial Management</DialogTitle>
             </DialogHeader>
-            <div className="p-8 text-center text-gray-500">
-              <DollarSign className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+            <div className="p-8 text-center text-gray-500 dark:text-white">
+              <DollarSign className="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-white" />
               <p>Financial tracking and revenue management features would be implemented here.</p>
             </div>
           </DialogContent>

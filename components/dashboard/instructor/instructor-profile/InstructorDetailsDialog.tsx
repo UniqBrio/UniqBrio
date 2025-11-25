@@ -90,23 +90,23 @@ export default function InstructorDetailsDialog({
               <div className="p-4 space-y-3 text-sm">
                 <div className="flex items-center gap-3">
                   <Hash className="h-4 w-4 text-indigo-500" />
-                  <div className="min-w-[120px] text-gray-500">Instructor ID</div>
-                  <div className="font-medium text-gray-900">{safeValue(instructor.instructorId)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Instructor ID</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{safeValue(instructor.instructorId)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <User className="h-4 w-4 text-indigo-500" />
-                  <div className="min-w-[120px] text-gray-500">First Name</div>
-                  <div className="font-medium text-gray-900">{safeValue(storeForm?.firstName)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">First Name</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{safeValue(storeForm?.firstName)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <User className="h-4 w-4 text-indigo-500" />
-                  <div className="min-w-[120px] text-gray-500">Last Name</div>
-                  <div className="font-medium text-gray-900">{safeValue(storeForm?.lastName)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Last Name</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{safeValue(storeForm?.lastName)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Briefcase className="h-4 w-4 text-indigo-500" />
-                  <div className="min-w-[120px] text-gray-500">Role</div>
-                  <div className="font-medium text-gray-900">{safeValue(storeForm?.role || instructor.role)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Role</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{safeValue(storeForm?.role || instructor.role)}</div>
                 </div>
               </div>
             </section>
@@ -117,13 +117,13 @@ export default function InstructorDetailsDialog({
               <div className="p-4 space-y-3 text-sm">
                 <div className="flex items-center gap-3">
                   <ListChecks className="h-4 w-4 text-fuchsia-500" />
-                  <div className="min-w-[120px] text-gray-500">Course(s)</div>
-                  <div className="font-medium text-gray-900 break-words">{safeValue(instructor.courseAssigned)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Course(s)</div>
+                  <div className="font-medium text-gray-900 dark:text-white break-words">{safeValue(instructor.courseAssigned)}</div>
                 </div>
                 <div className="flex items-start gap-3">
                   <ListChecks className="h-4 w-4 text-fuchsia-500" />
-                  <div className="min-w-[120px] text-gray-500">Cohort(s)</div>
-                  <div className="font-medium text-gray-900 flex flex-wrap gap-1">
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Cohort(s)</div>
+                  <div className="font-medium text-gray-900 dark:text-white flex flex-wrap gap-1">
                     {allCohorts.length === 0 ? (
                       <span>N/A</span>
                     ) : (
@@ -141,13 +141,13 @@ export default function InstructorDetailsDialog({
               <div className="p-4 space-y-3 text-sm">
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-purple-500" />
-                  <div className="min-w-[90px] text-gray-500">Email</div>
-                  <div className="font-medium text-gray-900 truncate">{safeValue(storeForm?.email || instructor.email)}</div>
+                  <div className="min-w-[90px] text-gray-500 dark:text-white">Email</div>
+                  <div className="font-medium text-gray-900 dark:text-white truncate">{safeValue(storeForm?.email || instructor.email)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-purple-500" />
-                  <div className="min-w-[90px] text-gray-500">Phone</div>
-                  <div className="font-medium text-gray-900">
+                  <div className="min-w-[90px] text-gray-500 dark:text-white">Phone</div>
+                  <div className="font-medium text-gray-900 dark:text-white">
                     {storeForm?.phoneCountryCode && storeForm?.phone ? `${storeForm.phoneCountryCode} ${storeForm.phone}` : safeValue(instructor.phone)}
                   </div>
                 </div>
@@ -160,23 +160,23 @@ export default function InstructorDetailsDialog({
               <div className="p-4 space-y-3 text-sm">
                 <div className="flex items-center gap-3">
                   <Calendar className="h-4 w-4 text-orange-500" />
-                  <div className="min-w-[120px] text-gray-500">Joining Date</div>
-                  <div className="font-medium text-gray-900">{formatDate(storeForm?.joiningDate)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Joining Date</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{formatDate(storeForm?.joiningDate)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Briefcase className="h-4 w-4 text-orange-500" />
-                  <div className="min-w-[120px] text-gray-500">Experience</div>
-                  <div className="font-medium text-gray-900">{safeValue(storeForm?.yearsOfExperience)} years</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Experience</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{safeValue(storeForm?.yearsOfExperience)} years</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Briefcase className="h-4 w-4 text-orange-500" />
-                  <div className="min-w-[120px] text-gray-500">Contract Type</div>
-                  <div className="font-medium text-gray-900">{normalizeContractType(storeForm?.contractType)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Contract Type</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{normalizeContractType(storeForm?.contractType)}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Layers className="h-4 w-4 text-orange-500" />
-                  <div className="min-w-[120px] text-gray-500">Job Level</div>
-                  <div className="font-medium text-gray-900">{safeValue(storeForm?.jobLevel)}</div>
+                  <div className="min-w-[120px] text-gray-500 dark:text-white">Job Level</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{safeValue(storeForm?.jobLevel)}</div>
                 </div>
               </div>
             </section>
@@ -187,15 +187,15 @@ export default function InstructorDetailsDialog({
               <div className="p-4 space-y-3 text-sm">
                 <div className="flex items-center gap-3">
                   <User className="h-4 w-4 text-teal-500" />
-                  <div className="min-w-[90px] text-gray-500">Gender</div>
-                  <div className="font-medium text-gray-900">
+                  <div className="min-w-[90px] text-gray-500 dark:text-white">Gender</div>
+                  <div className="font-medium text-gray-900 dark:text-white">
                     {storeForm?.gender === "Other" && storeForm?.genderOther ? storeForm.genderOther : safeValue(storeForm?.gender || instructor.gender)}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Calendar className="h-4 w-4 text-teal-500" />
-                  <div className="min-w-[90px] text-gray-500">Date of Birth</div>
-                  <div className="font-medium text-gray-900">{formatDate(storeForm?.dob)}</div>
+                  <div className="min-w-[90px] text-gray-500 dark:text-white">Date of Birth</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{formatDate(storeForm?.dob)}</div>
                 </div>
               </div>
             </section>

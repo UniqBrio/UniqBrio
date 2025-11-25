@@ -333,7 +333,7 @@ export default function DashboardCharts() {
         </CardHeader>
         <CardContent>
           {monthlyToRender.every(d => d.days === 0) ? (
-            <div className="flex items-center justify-center h-64 text-gray-500">
+            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-white">
               <div className="text-center">
                 <p className="text-lg font-medium">No Leave Data</p>
                 <p className="text-sm">No approved leave requests found for the selected period</p>
@@ -372,7 +372,7 @@ export default function DashboardCharts() {
         </CardHeader>
         <CardContent>
           {pieData.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-gray-500">
+            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-white">
               <div className="text-center">
                 <p className="text-lg font-medium">No Leave Type Data</p>
                 <p className="text-sm">No leave requests found for the selected period</p>

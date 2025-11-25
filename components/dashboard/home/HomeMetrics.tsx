@@ -352,10 +352,10 @@ export function HomeMetrics() {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-800">ID: {data.course}</p>
+        <div className="bg-white dark:bg-gray-900 p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800 dark:text-white">ID: {data.course}</p>
           {data.courseName && data.courseName !== data.course && (
-            <p className="text-sm text-gray-600">Name: {data.courseName}</p>
+            <p className="text-sm text-gray-600 dark:text-white">Name: {data.courseName}</p>
           )}
           <p className="text-sm text-purple-600 font-medium">Students: {data.students}</p>
         </div>
@@ -369,10 +369,10 @@ export function HomeMetrics() {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-800">ID: {data.cohort}</p>
+        <div className="bg-white dark:bg-gray-900 p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800 dark:text-white">ID: {data.cohort}</p>
           {data.cohortName && data.cohortName !== data.cohort && (
-            <p className="text-sm text-gray-600">Name: {data.cohortName}</p>
+            <p className="text-sm text-gray-600 dark:text-white">Name: {data.cohortName}</p>
           )}
           <p className="text-sm text-orange-600 font-medium">Students: {data.students}</p>
         </div>

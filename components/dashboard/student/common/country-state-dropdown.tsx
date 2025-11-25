@@ -64,10 +64,10 @@ function SearchableList<T>(props: SearchableListProps<T>){
             onChange={e=> setQuery(e.target.value)}
             placeholder={loading? 'Loading...' : 'Search...'}
             disabled={loading}
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-60 overflow-y-auto text-sm pr-1">
-            {loading && <div className="text-xs text-gray-500 py-2 px-2">Loading...</div>}
+            {loading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
             {!loading && error && <div className="text-xs text-red-500 py-2 px-2">{error}</div>}
             {!loading && !error && filtered.map(item => (
               <div key={getKey(item)} onClick={()=> { onSelect(item); setOpen(false); }} className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-gray-100">
@@ -75,7 +75,7 @@ function SearchableList<T>(props: SearchableListProps<T>){
               </div>
             ))}
             {!loading && !error && filtered.length===0 && (
-              <div className="text-center text-xs text-gray-500 py-2">{emptyText}</div>
+              <div className="text-center text-xs text-gray-500 dark:text-white py-2">{emptyText}</div>
             )}
           </div>
         </div>
@@ -159,7 +159,7 @@ export const CountryStateDropdown: React.FC<CountryStateDropdownProps> = ({
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 gap-2', className)}>
       <div>
-        {showLabels && <Label className="text-sm font-medium text-gray-700">{countryLabel} {required && <span className="text-red-500">*</span>}</Label>}
+        {showLabels && <Label className="text-sm font-medium text-gray-700 dark:text-white">{countryLabel} {required && <span className="text-red-500">*</span>}</Label>}
         <SearchableList
           open={openCountry}
           setOpen={setOpenCountry}
@@ -177,7 +177,7 @@ export const CountryStateDropdown: React.FC<CountryStateDropdownProps> = ({
         />
       </div>
       <div>
-        {showLabels && <Label className="text-sm font-medium text-gray-700">{stateLabel} {required && <span className="text-red-500">*</span>}</Label>}
+        {showLabels && <Label className="text-sm font-medium text-gray-700 dark:text-white">{stateLabel} {required && <span className="text-red-500">*</span>}</Label>}
         <SearchableList
           open={openState}
           setOpen={setOpenState}

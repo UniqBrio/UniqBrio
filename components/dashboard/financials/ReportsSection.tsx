@@ -265,7 +265,7 @@ export function ReportsSection({
                 <CardTitle className="text-base">Profit & Loss</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500 mb-4">Income, expenses, and net profit</p>
+                <p className="text-sm text-gray-500 dark:text-white mb-4">Income, expenses, and net profit</p>
                 {recordCountError && (
                   <div className="text-red-500 text-xs mb-3 p-2 bg-red-50 rounded border">
                     {recordCountError}
@@ -288,7 +288,7 @@ export function ReportsSection({
                 <CardTitle className="text-base inline-flex items-center gap-2">Balance Sheet <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500 mb-4">View assets, liabilities, and equity</p>
+                <p className="text-sm text-gray-500 dark:text-white mb-4">View assets, liabilities, and equity</p>
                 <Button variant="outline" className="w-full" disabled>
                   Download Report
                 </Button>
@@ -299,7 +299,7 @@ export function ReportsSection({
                 <CardTitle className="text-base inline-flex items-center gap-2">Cash Flow <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500 mb-4">Track money movement in your business</p>
+                <p className="text-sm text-gray-500 dark:text-white mb-4">Track money movement in your business</p>
                 <Button variant="outline" className="w-full" disabled>
                   Download Report
                 </Button>
@@ -310,7 +310,7 @@ export function ReportsSection({
                 <CardTitle className="text-base inline-flex items-center gap-2">Tax Summary <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500 mb-4">GST, TDS, and other tax reports</p>
+                <p className="text-sm text-gray-500 dark:text-white mb-4">GST, TDS, and other tax reports</p>
                 <Button variant="outline" className="w-full" disabled>
                   Download Report
                 </Button>
@@ -321,7 +321,7 @@ export function ReportsSection({
                 <CardTitle className="text-base inline-flex items-center gap-2">Salary Reports <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500 mb-4">Staff salary and payout reports</p>
+                <p className="text-sm text-gray-500 dark:text-white mb-4">Staff salary and payout reports</p>
                 <Button variant="outline" className="w-full" disabled>
                   Download Report
                 </Button>
@@ -332,7 +332,7 @@ export function ReportsSection({
                 <CardTitle className="text-base inline-flex items-center gap-2">Custom Reports <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500 mb-4">Generate custom financial reports</p>
+                <p className="text-sm text-gray-500 dark:text-white mb-4">Generate custom financial reports</p>
                 <Button variant="outline" className="w-full" disabled>
                   Create Report
                 </Button>

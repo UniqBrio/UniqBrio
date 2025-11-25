@@ -89,7 +89,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label>Instructor ID</Label>
-          <div className="border-2 border-purple-400 rounded-lg px-3 py-2 text-gray-500 bg-white select-text cursor-default">
+          <div className="border-2 border-purple-400 rounded-lg px-3 py-2 text-gray-500 dark:text-white bg-white select-text cursor-default">
             {profileData.instructorId}
           </div>
         </div>
@@ -159,7 +159,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
               } ${dobFocused ? '' : 'text-transparent'}`}
             />
             {!dobFocused && (
-              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${editForm.dob ? 'text-gray-900' : 'text-gray-500'} z-0`}>
+              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${editForm.dob ? 'text-gray-900' : 'text-gray-500 dark:text-white'} z-0`}>
                 {editForm.dob ? formatDateToDisplay(editForm.dob) : 'dd-mmm-yy'}
               </div>
             )}
@@ -211,7 +211,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
             onBlur={e => runEmailValidation(e.target.value)}
             className={cn(emailError ? "border-red-500 focus:ring-red-400" : "")}
           />
-          <p id="edit-email-help" className="mt-1 text-[11px] text-gray-500">This will be used for account login and notifications.</p>
+          <p id="edit-email-help" className="mt-1 text-[11px] text-gray-500 dark:text-white">This will be used for account login and notifications.</p>
           {emailError && <p id="edit-email-error" className="mt-1 text-[12px] text-red-600">{emailError}</p>}
         </div>
 
@@ -231,7 +231,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
               onChange={e => setEditForm(f => ({ ...f, phone: e.target.value.replace(/[^0-9\s-]/g,'') }))}
             />
           </div>
-          <p className="mt-1 text-[11px] text-gray-500">Stored as combined international format.</p>
+          <p className="mt-1 text-[11px] text-gray-500 dark:text-white">Stored as combined international format.</p>
         </div>
 
         {/* Country / State and Address */}
@@ -295,7 +295,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                     }}
                   >
                     {loading ? (
-                      <div className="px-2 py-1 text-sm text-gray-500">Loading contract types...</div>
+                      <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading contract types...</div>
                     ) : (
                       <>
                         <CommandEmpty>No contract type found.</CommandEmpty>
@@ -391,7 +391,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                     }
                   }}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-white mt-1">
                   Press Enter or click outside to save this custom contract type
                 </p>
               </div>
@@ -430,7 +430,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                     }}
                   >
                     {jobLevelLoading ? (
-                      <div className="px-2 py-1 text-sm text-gray-500">Loading job levels...</div>
+                      <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading job levels...</div>
                     ) : (
                       <>
                         <CommandEmpty>No job level found.</CommandEmpty>
@@ -519,7 +519,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                     }
                   }}
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-white mt-1">
                   Press Enter or click outside to save this custom job level
                 </p>
               </div>
@@ -561,7 +561,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                   }}
                 >
                   {roleLoading ? (
-                    <div className="px-2 py-1 text-sm text-gray-500">Loading roles...</div>
+                    <div className="px-2 py-1 text-sm text-gray-500 dark:text-white">Loading roles...</div>
                   ) : (
                     <>
                       <CommandEmpty>No role found.</CommandEmpty>
@@ -597,7 +597,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                         
                         return (
                           <CommandGroup key={category}>
-                            <div className="px-2 py-1 text-xs text-gray-500 font-semibold select-none pointer-events-none">
+                            <div className="px-2 py-1 text-xs text-gray-500 dark:text-white font-semibold select-none pointer-events-none">
                               {category}
                             </div>
                             {filteredRoles.map(role => (
@@ -657,7 +657,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
                   }
                 }}
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-white mt-1">
                 Press Enter or click outside to save this custom role
               </p>
             </div>
@@ -721,7 +721,7 @@ export function BasicTab({ profileData, editForm, setEditForm }: { profileData: 
               className={`px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${joiningDateFocused ? '' : 'text-transparent'}`}
             />
             {!joiningDateFocused && (
-              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${editForm.joiningDate ? 'text-gray-900' : 'text-gray-500'}`}>
+              <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${editForm.joiningDate ? 'text-gray-900' : 'text-gray-500 dark:text-white'}`}>
                 {editForm.joiningDate ? formatDateToDisplay(editForm.joiningDate) : 'dd-mmm-yy'}
               </div>
             )}
@@ -838,8 +838,8 @@ const CountryCodeSelector: React.FC<{
                   >
                     <Check className={cn("mr-2 h-4 w-4", value === item.dial ? "opacity-100" : "opacity-0")} />
                     <span className="w-16 text-left">{item.dial}</span>
-                    <span className="flex-1 truncate text-left text-gray-700">{item.label}</span>
-                    <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
+                    <span className="flex-1 truncate text-left text-gray-700 dark:text-white">{item.label}</span>
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-700 dark:text-white border border-gray-200">
                       {item.codes.join('/')}
                     </span>
                   </CommandItem>

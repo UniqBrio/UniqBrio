@@ -177,7 +177,7 @@ export default function AlumniPage() {
               </h1>
               <Users className="h-12 w-12 text-orange-600" />
             </div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-white max-w-3xl mx-auto leading-relaxed">
               Comprehensive alumni management tools designed to maintain connections, track achievements, and foster a thriving alumni community.
             </p>
             <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-orange-100 text-purple-800 px-6 py-2 text-lg">
@@ -252,16 +252,16 @@ export default function AlumniPage() {
                             Coming Soon
                           </Badge>
                         </div>
-                        <CardTitle className="text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
+                        <CardTitle className="text-xl font-semibold text-gray-800 dark:text-white group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                           {feature.title}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <CardDescription className="text-gray-600 leading-relaxed">
+                        <CardDescription className="text-gray-600 dark:text-white leading-relaxed">
                           {feature.description}
                         </CardDescription>
                         <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">Key Features:</p>
+                          <p className="text-sm font-medium text-gray-700 dark:text-white">Key Features:</p>
                           <div className="flex flex-wrap gap-1">
                             {feature.highlights.map((highlight, highlightIndex) => (
                               <Badge 
@@ -299,10 +299,10 @@ export default function AlumniPage() {
             </div>
             
             <div className="relative space-y-4">
-              <h3 className="text-3xl font-bold text-gray-800">
+              <h3 className="text-3xl font-bold text-gray-800 dark:text-white">
                 Build a Thriving Alumni Community
               </h3>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 dark:text-white max-w-2xl mx-auto">
                 Connect with past champions, celebrate achievements, facilitate mentorship, and strengthen your academy's legacy through alumni engagement.
               </p>
             </div>

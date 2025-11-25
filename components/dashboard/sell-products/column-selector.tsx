@@ -279,12 +279,12 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => onOpenChange(false)}>
       <div className="bg-white rounded-lg shadow-xl p-8 min-w-[700px] max-w-[95vw] relative z-[10000]" onClick={(e) => e.stopPropagation()}>
         <div className="font-bold text-lg mb-4">Select Columns to Display
-          <div className="text-sm text-gray-600 mb-3 p-3 bg-gray-50 rounded-lg border mt-2">
+          <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 rounded-lg border mt-2">
             <div className="grid grid-cols-4 gap-1 text-xs">
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Shift+↑↓</kbd> Multi-select</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Tab</kbd> Switch list</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+A</kbd> Select all</div>
-              <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700">Ctrl+D</kbd> Deselect all</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>
             </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               onFocus={() => setFocusedList('available')}
             >
               {availableOptions.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+                <div className="flex items-center justify-center h-full text-gray-500 dark:text-white text-sm">
                   All columns are displayed
                 </div>
               ) : (
@@ -345,7 +345,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <button
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 selectedAvailable.length === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
                   : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
               }`}
               onClick={moveToDisplayed}
@@ -357,7 +357,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <button
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 availableOptions.length === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
                   : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
               }`}
               onClick={moveAllToDisplayed}
@@ -369,7 +369,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <button
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 selectedDisplayed.length === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
                   : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
               }`}
               onClick={moveToAvailable}
@@ -381,7 +381,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <button
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 draftDisplayed.length === MANDATORY_COLUMNS.length
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
                   : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
               }`}
               onClick={moveAllToAvailable}
@@ -397,13 +397,13 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <div className="font-semibold">Displayed Columns</div>
-                <span className="text-xs text-gray-500">({draftDisplayed.length})</span>
+                <span className="text-xs text-gray-500 dark:text-white">({draftDisplayed.length})</span>
               </div>
               <div className="flex gap-1">
                 <button
                   className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
                     selectedDisplayed.length === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
                       : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   }`}
                   onClick={() => moveDisplayed('up')}
@@ -415,7 +415,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                 <button
                   className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
                     selectedDisplayed.length === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
                       : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   }`}
                   onClick={() => moveDisplayed('down')}
@@ -471,7 +471,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                     <span className={`text-sm ${isRequired ? 'font-medium' : ''}`}>
                       {getColumnLabel(col)}
                     </span>
-                    {isRequired && <span className="ml-auto text-xs text-gray-500 italic">(Required)</span>}
+                    {isRequired && <span className="ml-auto text-xs text-gray-500 dark:text-white italic">(Required)</span>}
                   </label>
                 )
               })}
@@ -481,7 +481,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
 
         <div className="flex justify-between items-center gap-2 mt-6">
           <button
-            className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
             onClick={handleReset}
             title="Reset to Default (Ctrl+R)"
           >
@@ -490,7 +490,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
           </button>
           <div className="flex gap-2">
             <button
-              className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 flex items-center gap-2"
+              className="px-4 py-2 rounded bg-gray-200 text-gray-700 dark:text-white font-semibold hover:bg-gray-300 flex items-center gap-2"
               onClick={() => onOpenChange(false)}
               title="Cancel (Escape)"
             >

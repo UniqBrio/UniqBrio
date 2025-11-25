@@ -278,7 +278,7 @@ export default function ScheduleCalendarView({
         <CardContent className="pb-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-2 text-gray-500" />
+              <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.startTime} - {event.endTime}
               {event.rescheduleInfo && event.originalSessionData && (
                 <span className="ml-2 text-xs text-purple-600 line-through">
@@ -287,18 +287,18 @@ export default function ScheduleCalendarView({
               )}
             </div>
             <div className="flex items-center">
-              <Users className="h-4 w-4 mr-2 text-gray-500" />
+              <Users className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.students}/{event.maxCapacity} students
               {event.waitlist && event.waitlist.length > 0 && (
                 <span className="ml-1 text-orange-600">(+{event.waitlist.length} waitlist)</span>
               )}
             </div>
             <div className="flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+              <MapPin className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.location}
             </div>
             <div className="flex items-center">
-              <Video className="h-4 w-4 mr-2 text-gray-500" />
+              <Video className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               <span className="capitalize">{event.type}</span>
             </div>
           </div>
@@ -367,23 +367,23 @@ export default function ScheduleCalendarView({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                 {event.courseName && (
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-xs">Course</span>
+                    <span className="text-gray-500 dark:text-white text-xs">Course</span>
                     <span className="font-medium text-purple-700">{event.courseName}</span>
                   </div>
                 )}
                 {event.cohortName && (
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-xs">Cohort</span>
+                    <span className="text-gray-500 dark:text-white text-xs">Cohort</span>
                     <span className="font-medium text-blue-700">{event.cohortName}</span>
                   </div>
                 )}
               </div>
               {event.instructor && (
                 <div className="mt-2">
-                  <span className="text-gray-500 text-xs">Instructor</span>
-                  <div className="font-medium text-gray-800">{event.instructor}</div>
+                  <span className="text-gray-500 dark:text-white text-xs">Instructor</span>
+                  <div className="font-medium text-gray-800 dark:text-white">{event.instructor}</div>
                   {event.reassignmentInfo && (
-                    <div className="text-xs text-gray-600 mt-1">
+                    <div className="text-xs text-gray-600 dark:text-white mt-1">
                       {event.reassignmentInfo.type === 'reassigned_from' 
                         ? `Originally assigned, now reassigned to ${event.reassignmentInfo.newInstructor}`
                         : `Reassigned from ${event.reassignmentInfo.originalInstructor}`
@@ -538,7 +538,7 @@ export default function ScheduleCalendarView({
             {event.isRecurring && <Repeat className="h-4 w-4 text-purple-500" />}
             {/* Video icon removed from compact view - type shown in details */}
           </div>
-          <div className="text-sm text-gray-600 mt-1">
+          <div className="text-sm text-gray-600 dark:text-white mt-1">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
@@ -578,8 +578,8 @@ export default function ScheduleCalendarView({
       return (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No events scheduled for this day</p>
+            <Calendar className="h-12 w-12 text-gray-400 dark:text-white mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-white">No events scheduled for this day</p>
           </div>
         </div>
       )
@@ -612,7 +612,7 @@ export default function ScheduleCalendarView({
             const isToday = isSameDay(day, new Date())
             return (
               <div key={`header-${day.toString()}`} className={`text-center p-2 rounded-md ${isToday ? "bg-purple-100 ring-2 ring-purple-500" : ""}`}>
-                <div className={`text-sm font-medium ${isToday ? "text-purple-700" : "text-gray-600"}`}>{format(day, "EEE")}</div>
+                <div className={`text-sm font-medium ${isToday ? "text-purple-700" : "text-gray-600 dark:text-white"}`}>{format(day, "EEE")}</div>
                 <div className={`text-lg font-bold ${isToday ? "text-purple-900" : ""}`}>{format(day, "d")}</div>
               </div>
             )
@@ -643,11 +643,11 @@ export default function ScheduleCalendarView({
                           {getEventShortName(event)}
                           {event.isRecurring && <Repeat className="h-3 w-3" />}
                         </div>
-                        <div className="flex items-center text-gray-500">
+                        <div className="flex items-center text-gray-500 dark:text-white">
                           <Clock className="h-3 w-3 mr-1" />
                           {event.startTime} - {event.endTime}
                         </div>
-                        <div className="flex items-center text-gray-500">
+                        <div className="flex items-center text-gray-500 dark:text-white">
                           <Users className="h-3 w-3 mr-1" />
                           {event.students}/{event.maxCapacity}
                         </div>
@@ -655,11 +655,11 @@ export default function ScheduleCalendarView({
                     ))
                   ) : (
                     <div className="h-12 border border-dashed border-gray-200 rounded-md flex items-center justify-center">
-                      <p className="text-xs text-gray-400">No events</p>
+                      <p className="text-xs text-gray-400 dark:text-white">No events</p>
                     </div>
                   )}
                   {dayEvents.length > 3 && (
-                    <div className="text-xs text-gray-500 font-medium">+{dayEvents.length - 3} more</div>
+                    <div className="text-xs text-gray-500 dark:text-white font-medium">+{dayEvents.length - 3} more</div>
                   )}
                 </div>
               </div>
@@ -689,7 +689,7 @@ export default function ScheduleCalendarView({
       <div className="space-y-4">
         <div className="grid grid-cols-7 gap-1 mb-2">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
+            <div key={day} className="p-2 text-center text-sm font-medium text-gray-500 dark:text-white">
               {day}
             </div>
           ))}
@@ -711,7 +711,7 @@ export default function ScheduleCalendarView({
               >
                 <div
                   className={`text-sm font-medium mb-1 ${
-                    isCurrentMonth ? "text-gray-900" : "text-gray-400"
+                    isCurrentMonth ? "text-gray-900" : "text-gray-400 dark:text-white"
                   } ${isToday ? "text-purple-600" : ""}`}
                 >
                   {day.getDate()}
@@ -738,7 +738,7 @@ export default function ScheduleCalendarView({
                     </div>
                   ))}
                   {dayEvents.length > 3 && (
-                    <div className="text-xs text-gray-500 font-medium">+{dayEvents.length - 3} more</div>
+                    <div className="text-xs text-gray-500 dark:text-white font-medium">+{dayEvents.length - 3} more</div>
                   )}
                 </div>
               </div>

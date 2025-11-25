@@ -178,7 +178,7 @@ export function ExpenseDraftsDialog({
                 <DialogTitle className="text-xl font-semibold">
                   Expense Drafts
                 </DialogTitle>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-gray-600 dark:text-white mt-1">
                   Manage your saved expense drafts. Click to edit draft or delete. ({drafts.length} draft{drafts.length !== 1 ? 's' : ''} found)
                 </p>
               </div>
@@ -199,7 +199,7 @@ export function ExpenseDraftsDialog({
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
-                <p className="text-gray-500">Loading drafts...</p>
+                <p className="text-gray-500 dark:text-white">Loading drafts...</p>
               </div>
             ) : error ? (
               <div className="text-center py-8 text-red-500">
@@ -214,7 +214,7 @@ export function ExpenseDraftsDialog({
                 </Button>
               </div>
             ) : drafts.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-500 dark:text-white">
                 <p>No expense drafts found</p>
                 <p className="text-sm">Start adding an expense and save as draft to see them here</p>
               </div>
@@ -227,10 +227,10 @@ export function ExpenseDraftsDialog({
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 mb-1">
+                        <h3 className="font-medium text-gray-900 dark:text-white mb-1">
                           {draft.name}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-gray-600 dark:text-white mb-2">
                                                 <div className="text-sm text-muted-foreground">
                           {draft.category} {draft.amount && draft.amount !== '0' && `${currency} ${draft.amount}`}
                         </div>
@@ -243,7 +243,7 @@ export function ExpenseDraftsDialog({
                             Expense
                           </Badge>
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-white">
                           Last updated: {formatDate(draft.lastUpdated)}
                         </p>
                       </div>

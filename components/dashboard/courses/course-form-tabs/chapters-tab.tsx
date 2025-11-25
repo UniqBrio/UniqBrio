@@ -94,7 +94,7 @@ export default function ChaptersTab({
           />
           <button
             type="button"
-            className="ml-1 text-gray-600 hover:text-purple-600 p-1 rounded-full flex items-center gap-1 text-xs"
+            className="ml-1 text-gray-600 dark:text-white hover:text-purple-600 p-1 rounded-full flex items-center gap-1 text-xs"
             onClick={() => document.getElementById('commonRefInput')?.click()}
             title="Overall reference PDF"
           >
@@ -137,7 +137,7 @@ export default function ChaptersTab({
           )}
           <button
             type="button"
-            className="ml-1 text-gray-600 hover:text-blue-600 p-1 rounded-full flex items-center gap-1 text-xs"
+            className="ml-1 text-gray-600 dark:text-white hover:text-blue-600 p-1 rounded-full flex items-center gap-1 text-xs"
             onClick={() => document.getElementById('commonAssignInput')?.click()}
             title="Overall Assignment PDF"
           >
@@ -188,7 +188,7 @@ export default function ChaptersTab({
               : undefined
           }
         >
-          <table className="min-w-full border border-gray-200 rounded-md bg-white text-xs">
+          <table className="min-w-full border border-gray-200 dark:border-gray-700 rounded-md bg-background dark:bg-gray-900 text-xs">
             <thead>
               <tr className="bg-gray-100">
                 <th className="px-1 py-0.5 border-b text-left w-8">S.No.</th>
@@ -266,7 +266,7 @@ export default function ChaptersTab({
                   <td className="px-1 py-0.5 align-top">
                     <button
                       type="button"
-                      className="text-gray-600 hover:text-purple-600 p-1 rounded-full"
+                      className="text-gray-600 dark:text-white hover:text-purple-600 p-1 rounded-full"
                       onClick={() => document.getElementById(`chapterRefInput${idx}`)?.click()}
                       title="Attach Reference PDF"
                     >
@@ -317,7 +317,7 @@ export default function ChaptersTab({
                   <td className="px-1 py-0.5 align-top">
                     <button
                       type="button"
-                      className="text-gray-600 hover:text-blue-600 p-1 rounded-full"
+                      className="text-gray-600 dark:text-white hover:text-blue-600 p-1 rounded-full"
                       onClick={() => document.getElementById(`chapterAssignInput${idx}`)?.click()}
                       title="Attach Assignment PDF"
                     >
@@ -381,7 +381,7 @@ export default function ChaptersTab({
                           updateChapters(updated);
                         }}
                       >
-                        <ArrowUp className="h-3 w-3 text-gray-500" />
+                        <ArrowUp className="h-3 w-3 text-gray-500 dark:text-white" />
                       </button>
                       <button
                         type="button"
@@ -397,7 +397,7 @@ export default function ChaptersTab({
                           updateChapters(updated);
                         }}
                       >
-                        <ArrowDown className="h-3 w-3 text-gray-500" />
+                        <ArrowDown className="h-3 w-3 text-gray-500 dark:text-white" />
                       </button>
                       <TooltipProvider>
                         <Tooltip>

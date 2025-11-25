@@ -86,7 +86,7 @@ const getActionIcon = (action: string) => {
     case "Logout":
       return <XCircle className="h-4 w-4 text-orange-500" />
     default:
-      return <AlertCircle className="h-4 w-4 text-gray-500" />
+      return <AlertCircle className="h-4 w-4 text-gray-500 dark:text-white" />
   }
 }
 
@@ -271,7 +271,7 @@ export default function AuditLogsPage() {
         <div className="space-y-1 text-xs">
           {changes.slice(0, 2).map((change: any, index: number) => (
             <div key={`${change.field}-${index}`} className="flex flex-col">
-              <span className="font-medium text-gray-700">{change.field}</span>
+              <span className="font-medium text-gray-700 dark:text-white">{change.field}</span>
               <span className="text-muted-foreground">{change.oldValue} → {change.newValue}</span>
             </div>
           ))}
@@ -742,7 +742,7 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                 <Activity className="h-6 w-6 sm:h-8 sm:w-8" />
                 <span>Audit Logs & Activity Tracking</span>
               </h1>
-              <p className="text-sm sm:text-base text-gray-500 mt-1">
+              <p className="text-sm sm:text-base text-gray-500 dark:text-white mt-1">
                 Monitor every action across the platform with detailed logs, analytics, and export options
               </p>
             </div>
@@ -1015,14 +1015,14 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
 
             {/* Audit Logs Tab Content */}
             <TabsContent value="audit-logs" className="mt-6">
-              <Card className="border-purple-200">
-                <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
+              <Card className="border-purple-200 dark:border-purple-700">
+                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
               <div className="flex flex-col gap-4">
                 {/* Toolbar with Search, Filters and Export in one row */}
                 <div className="flex flex-col lg:flex-row gap-2 items-start lg:items-center">
                   {/* Search Bar */}
                   <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
                     <Input
                       placeholder="Search by user, module, action..."
                       className="pl-10"
@@ -1212,7 +1212,7 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="ml-auto h-9 w-9 rounded-2xl bg-white text-purple-600 shadow-[0_4px_12px_rgba(134,65,244,0.25)] border border-purple-100 hover:bg-purple-600 hover:text-white"
+                    className="ml-auto h-9 w-9 rounded-2xl bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-[0_4px_12px_rgba(134,65,244,0.25)] dark:shadow-[0_4px_12px_rgba(134,65,244,0.15)] border border-purple-100 dark:border-purple-700 hover:bg-purple-600 hover:text-white dark:hover:bg-purple-700"
                     onClick={() => setColumnSelectorOpen(true)}
                     aria-label="Choose visible columns"
                   >

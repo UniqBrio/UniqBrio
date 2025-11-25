@@ -177,9 +177,9 @@ export function StudentDetailDialog({
       value: payment.cohortId ? (
         <div className="space-y-1">
           <div className="font-bold text-purple-700">{payment.cohortId}</div>
-          <div className="text-xs text-gray-600">
+          <div className="text-xs text-gray-600 dark:text-white">
             {cohortsLoading ? (
-              <span className="animate-pulse text-gray-400">Loading name...</span>
+              <span className="animate-pulse text-gray-400 dark:text-white">Loading name...</span>
             ) : (
               getCohortDisplayName(payment.cohortId, cohortMap)
             )}
@@ -286,7 +286,7 @@ export function StudentDetailDialog({
         <Badge className={`px-2 py-1 text-xs ${
           payment.reminderEnabled 
             ? 'bg-emerald-100 text-emerald-700' 
-            : 'bg-gray-100 text-gray-700'
+            : 'bg-gray-100 text-gray-700 dark:text-white'
         }`}>
           {payment.reminderEnabled ? "On" : "Off"}
         </Badge>
@@ -315,7 +315,7 @@ export function StudentDetailDialog({
           Available
         </Badge>
       ) : (
-        <Badge className="bg-gray-100 text-gray-700 px-2 py-1 text-xs">
+        <Badge className="bg-gray-100 text-gray-700 dark:text-white px-2 py-1 text-xs">
           Not Generated
         </Badge>
       ),

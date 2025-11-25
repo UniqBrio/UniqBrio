@@ -85,9 +85,9 @@ export default function CohortsTab({
     switch (status.toLowerCase()) {
       case 'active': return 'bg-green-100 text-green-800'
       case 'upcoming': return 'bg-blue-100 text-blue-800'
-      case 'completed': return 'bg-gray-100 text-gray-800'
+      case 'completed': return 'bg-gray-100 text-gray-800 dark:text-white'
       case 'cancelled': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      default: return 'bg-gray-100 text-gray-800 dark:text-white'
     }
   }
 
@@ -168,7 +168,7 @@ export default function CohortsTab({
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white h-4 w-4" />
           <Input
             placeholder="Search cohorts..."
             value={searchTerm}
@@ -317,7 +317,7 @@ export default function CohortsTab({
                 <TableBody className="divide-y divide-gray-200">
                   {filteredCohorts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={columnManagement.displayedColumns.length + 1} className="text-center text-gray-500">
+                      <TableCell colSpan={columnManagement.displayedColumns.length + 1} className="text-center text-gray-500 dark:text-white">
                         No cohorts found.
                       </TableCell>
                     </TableRow>
@@ -375,7 +375,7 @@ export default function CohortsTab({
               </Table>
             </div>
           ) : (
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -390,7 +390,7 @@ export default function CohortsTab({
               <TableBody className="divide-y divide-gray-200">
                 {filteredCohorts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={columnManagement.displayedColumns.length + 1} className="text-center text-gray-500">
+                    <TableCell colSpan={columnManagement.displayedColumns.length + 1} className="text-center text-gray-500 dark:text-white">
                       No cohorts found.
                     </TableCell>
                   </TableRow>
@@ -454,9 +454,9 @@ export default function CohortsTab({
       {/* Empty State */}
       {filteredCohorts.length === 0 && (
         <div className="text-center py-12">
-          <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No cohorts found</h3>
-          <p className="mt-2 text-gray-500">
+          <Users className="mx-auto h-12 w-12 text-gray-400 dark:text-white" />
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No cohorts found</h3>
+          <p className="mt-2 text-gray-500 dark:text-white">
             {searchTerm ? "Try adjusting your search terms." : "Get started by creating your first cohort."}
           </p>
           {!searchTerm && (

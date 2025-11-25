@@ -59,7 +59,7 @@ export function TaskFilters({
     <div className="mb-6 flex flex-wrap gap-4 items-center">
       {/* search */}
       <div className="relative flex-1 min-w-[200px] max-w-sm">
-        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white" />
         <Input
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -151,7 +151,7 @@ export function TaskFilters({
 
       {/* sort */}
       <div className="flex items-center gap-2 ml-auto">
-        <SortAsc className="h-4 w-4 text-gray-500" />
+        <SortAsc className="h-4 w-4 text-gray-500 dark:text-white" />
         <span className="text-sm font-medium">Sort by:</span>
       </div>
       <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortBy)}>

@@ -41,9 +41,9 @@ export function PaymentMethodChart({ distribution }: PaymentMethodChartProps) {
           {sortedData.map(({ method, count, percentage }) => (
             <div key={method} className="space-y-3 p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-gray-700">{method}</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-white">{method}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-600 font-medium">{count} students</span>
+                  <span className="text-sm text-gray-600 dark:text-white font-medium">{count} students</span>
                   <Badge variant="secondary" className="font-semibold">{percentage}%</Badge>
                 </div>
               </div>
@@ -53,7 +53,7 @@ export function PaymentMethodChart({ distribution }: PaymentMethodChartProps) {
                   style={{ width: `${percentage}%` }}
                 ></div>
               </div>
-              <div className="text-xs text-gray-500 text-right">
+              <div className="text-xs text-gray-500 dark:text-white text-right">
                 {method === "Not Set" ? "Payment method not configured" : 
                  `${count} of ${total} students (${percentage}%)`}
               </div>
@@ -62,7 +62,7 @@ export function PaymentMethodChart({ distribution }: PaymentMethodChartProps) {
         </div>
         
         {sortedData.length === 0 && (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-gray-500 dark:text-white py-8">
             No payment method data available
           </div>
         )}

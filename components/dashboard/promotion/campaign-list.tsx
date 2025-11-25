@@ -71,11 +71,11 @@ export default function CampaignList({
       case 'Scheduled':
         return 'bg-blue-100 text-blue-800';
       case 'Completed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-white';
       case 'Draft':
         return 'bg-yellow-100 text-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-white';
     }
   };
 
@@ -102,7 +102,7 @@ export default function CampaignList({
     return (
       <Card className="border-2">
         <CardContent className="py-12 text-center text-muted-foreground">
-          <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <BarChart3 className="h-16 w-16 text-gray-300 dark:text-white mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">No campaigns found</h3>
           <p className="text-sm">Try adjusting your filters or create a new campaign</p>
         </CardContent>
@@ -261,7 +261,7 @@ export default function CampaignList({
         </TableHeader>
         <TableBody>
           {campaigns.map((campaign) => (
-            <TableRow key={campaign.id} className="hover:bg-gray-50 transition-colors">
+            <TableRow key={campaign.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
               <TableCell className="w-10" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-center">
                   <Checkbox
@@ -285,7 +285,7 @@ export default function CampaignList({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{campaign.title}</div>
-                      <div className="text-xs text-gray-500 truncate">{campaign.description}</div>
+                      <div className="text-xs text-gray-500 dark:text-white truncate">{campaign.description}</div>
                     </div>
                     {campaign.featured && (
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
@@ -320,7 +320,7 @@ export default function CampaignList({
                 <TableCell className="text-right font-medium">{campaign.roi}%</TableCell>
               )}
               {displayedColumns.includes('Duration') && (
-                <TableCell className="text-sm text-gray-600">
+                <TableCell className="text-sm text-gray-600 dark:text-white">
                   {new Date(campaign.startDate).toLocaleDateString()} -{' '}
                   {new Date(campaign.endDate).toLocaleDateString()}
                 </TableCell>

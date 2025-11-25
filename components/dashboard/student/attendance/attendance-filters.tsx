@@ -123,10 +123,10 @@ export function AttendanceFilters({
 
   return (
     <TooltipProvider>
-      <div className="p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 sticky top-0 z-10">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-white" />
             <Input
               type="search"
               placeholder="Search by student ID, name, or cohort..."

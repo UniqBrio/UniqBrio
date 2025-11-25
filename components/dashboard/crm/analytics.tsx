@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { useCurrency } from "@/contexts/currency-context"
@@ -273,8 +273,8 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Analytics & Insights</h1>
-              <p className="text-gray-600">AI-powered analytics and performance metrics</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Analytics & Insights</h1>
+              <p className="text-gray-600 dark:text-white">AI-powered analytics and performance metrics</p>
             </div>
             <div className="flex space-x-2 mt-4 md:mt-0">
               <Select value={timeFilter} onValueChange={setTimeFilter}>
@@ -304,7 +304,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Total Leads</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Total Leads</p>
                     <p className="text-2xl font-bold">{analyticsData.conversionMetrics.totalLeads}</p>
                     <div className="flex items-center space-x-1 mt-1">
                       {analyticsData.conversionMetrics.trend === "up" ? (
@@ -330,11 +330,11 @@ export default function AnalyticsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Conversion Rate</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Conversion Rate</p>
                     <p className="text-2xl font-bold text-green-600">
                       {analyticsData.conversionMetrics.conversionRate}%
                     </p>
-                    <p className="text-sm text-gray-500">{analyticsData.conversionMetrics.enrollments} enrollments</p>
+                    <p className="text-sm text-gray-500 dark:text-white">{analyticsData.conversionMetrics.enrollments} enrollments</p>
                   </div>
                   <Target className="w-8 h-8 text-green-500" />
                 </div>
@@ -345,7 +345,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Trial Attendance</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Trial Attendance</p>
                     <p className="text-2xl font-bold text-purple-600">
                       {Math.round(
                         (analyticsData.conversionMetrics.trialsAttended /
@@ -354,7 +354,7 @@ export default function AnalyticsPage() {
                       )}
                       %
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-white">
                       {analyticsData.conversionMetrics.trialsAttended}/{analyticsData.conversionMetrics.trialsScheduled}{" "}
                       attended
                     </p>
@@ -368,9 +368,9 @@ export default function AnalyticsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Avg Response Time</p>
+                    <p className="text-sm text-gray-600 dark:text-white">Avg Response Time</p>
                     <p className="text-2xl font-bold text-orange-600">2.4h</p>
-                    <p className="text-sm text-gray-500">Across all counselors</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Across all counselors</p>
                   </div>
                   <Clock className="w-8 h-8 text-orange-500" />
                 </div>
@@ -523,15 +523,15 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-600">Leads Assigned</p>
+                          <p className="text-gray-600 dark:text-white">Leads Assigned</p>
                           <p className="font-semibold">{counselor.leadsAssigned}</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Conversions</p>
+                          <p className="text-gray-600 dark:text-white">Conversions</p>
                           <p className="font-semibold">{counselor.conversions}</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Avg Response</p>
+                          <p className="text-gray-600 dark:text-white">Avg Response</p>
                           <p className="font-semibold">{counselor.avgResponseTime}h</p>
                         </div>
                       </div>
@@ -566,7 +566,7 @@ export default function AnalyticsPage() {
                               {insight.impact} impact
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-700 mb-2">{insight.description}</p>
+                          <p className="text-sm text-gray-700 dark:text-white mb-2">{insight.description}</p>
                           {insight.actionable && (
                             <Button size="sm" variant="outline" className="text-xs bg-transparent">
                               Take Action

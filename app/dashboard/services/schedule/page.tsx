@@ -132,7 +132,7 @@ interface InstructorAvailabilityCellProps {
 const InstructorAvailabilityCell: React.FC<InstructorAvailabilityCellProps> = ({ event, leaveRequests, loading }) => {
   if (loading) {
     return (
-      <div className="flex items-center text-sm text-gray-500">
+      <div className="flex items-center text-sm text-gray-500 dark:text-white">
         <User className="h-4 w-4 mr-2 animate-pulse" />
         Loading...
       </div>
@@ -149,12 +149,12 @@ const InstructorAvailabilityCell: React.FC<InstructorAvailabilityCellProps> = ({
   return (
     <div className="flex items-center gap-2">
       {availability.isAvailable ? (
-        <div className="flex items-center text-sm text-green-600">
+        <div className="flex items-center text-sm text-green-600 dark:text-green-400">
           <UserCheck className="h-4 w-4 mr-2" />
           <span className="font-medium">Available</span>
         </div>
       ) : (
-        <div className="flex items-center text-sm text-red-600">
+        <div className="flex items-center text-sm text-red-600 dark:text-red-400">
           <UserX className="h-4 w-4 mr-2" />
           <div className="flex flex-col">
             <span className="font-medium">On Leave</span>
@@ -488,7 +488,7 @@ const convertSchedulesToEvents = (schedulesData: any[]): ScheduleEvent[] => {
 }
 
 // Convert course and cohort data to ScheduleEvent format with proper schedule inheritance
-const convertToScheduleEvents = (coursesData: any, cohortsData: any): ScheduleEvent[] => {
+const convertToScheduleEvents = (coursesData: any, cohortsData: any, currency: string = ''): ScheduleEvent[] => {
   const events: ScheduleEvent[] = []
   
   // Extract actual arrays from API responses
@@ -693,7 +693,7 @@ const convertToScheduleEvents = (coursesData: any, cohortsData: any): ScheduleEv
 }
 
 // Sync generated sessions to MongoDB
-const syncSessionsToDatabase = async (events: ScheduleEvent[]) => {
+const syncSessionsToDatabase = async (events: ScheduleEvent[], currency: string = '') => {
   try {
     if (events.length === 0) {
       console.log('No events to sync')
@@ -1046,8 +1046,8 @@ export default function EnhancedSchedulePage() {
         
         return (
           <div className="flex flex-col">
-            <span className="font-medium text-purple-600">{relativeText}</span>
-            <span className="text-xs text-gray-500">{format(eventDate, "dd-MMM-yy")}</span>
+            <span className="font-medium text-purple-600 dark:text-purple-400">{relativeText}</span>
+            <span className="text-xs text-gray-500 dark:text-white">{format(eventDate, "dd-MMM-yy")}</span>
           </div>
         )
       }
@@ -1061,11 +1061,11 @@ export default function EnhancedSchedulePage() {
         
         return (
           <div className="flex flex-col">
-            <span className="font-medium text-purple-700">{courseName}</span>
+            <span className="font-medium text-purple-700 dark:text-purple-300">{courseName}</span>
             {cohortName && (
-              <span className="text-sm text-blue-600">{cohortName}</span>
+              <span className="text-sm text-blue-600 dark:text-blue-400">{cohortName}</span>
             )}
-            <span className="text-xs text-gray-500">{event.courseId || 'N/A'}</span>
+            <span className="text-xs text-gray-500 dark:text-white">{event.courseId || 'N/A'}</span>
           </div>
         )
       }
@@ -1077,7 +1077,7 @@ export default function EnhancedSchedulePage() {
           return (
             <div className="flex flex-col">
               <span className="font-medium">{event.instructor}</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-white">
                 {event.reassignmentInfo.type === 'reassigned_from' 
                   ? `Originally assigned, now reassigned to ${event.reassignmentInfo.newInstructor}`
                   : `Reassigned from ${event.reassignmentInfo.originalInstructor}`
@@ -1100,7 +1100,7 @@ export default function EnhancedSchedulePage() {
       render: (event: ScheduleEvent) => (
         <div className="flex flex-col">
           <span className="font-medium">{event.cohortName}</span>
-          <span className="text-xs text-blue-600">{event.students}/{event.maxCapacity} students</span>
+          <span className="text-xs text-blue-600 dark:text-blue-400">{event.students}/{event.maxCapacity} students</span>
         </div>
       )
     },
@@ -1134,13 +1134,13 @@ export default function EnhancedSchedulePage() {
         
         return (
           <div className="flex flex-col">
-            <span className="font-medium text-blue-600">{startTime} - {endTime}</span>
+            <span className="font-medium text-blue-600 dark:text-blue-400">{startTime} - {endTime}</span>
             {event.rescheduleInfo && event.originalSessionData && (
-              <span className="text-xs text-purple-600 line-through">
+              <span className="text-xs text-purple-600 dark:text-purple-400 line-through">
                 was {format(new Date(`2000-01-01T${event.originalSessionData.startTime}`), "h:mm a")} - {format(new Date(`2000-01-01T${event.originalSessionData.endTime}`), "h:mm a")}
               </span>
             )}
-            <span className="text-xs text-gray-500">{scheduleDays}</span>
+            <span className="text-xs text-gray-500 dark:text-white">{scheduleDays}</span>
           </div>
         )
       }
@@ -1156,10 +1156,10 @@ export default function EnhancedSchedulePage() {
           if (event.reassignmentInfo.type === 'reassigned_from') {
             return (
               <div className="flex flex-col gap-1">
-                <Badge className="bg-orange-100 text-orange-800">
+                <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300">
                   Reassigned From
                 </Badge>
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-gray-600 dark:text-white">
                   To: {event.reassignmentInfo.newInstructor}
                 </span>
               </div>
@@ -1167,10 +1167,10 @@ export default function EnhancedSchedulePage() {
           } else if (event.reassignmentInfo.type === 'reassigned_to') {
             return (
               <div className="flex flex-col gap-1">
-                <Badge className="bg-purple-100 text-purple-800">
+                <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
                   Reassigned To
                 </Badge>
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-gray-600 dark:text-white">
                   From: {event.reassignmentInfo.originalInstructor}
                 </span>
               </div>
@@ -1179,11 +1179,11 @@ export default function EnhancedSchedulePage() {
         }
         
         // Standard status colors
-        const statusColor = event.status === "Upcoming" ? "bg-purple-100 text-purple-800" :
-                           event.status === "Ongoing" ? "bg-orange-100 text-orange-800" :
-                           event.status === "Completed" ? "bg-green-100 text-green-800" :
-                           event.status === "Cancelled" ? "bg-red-100 text-red-800" :
-                           "bg-yellow-100 text-yellow-800"
+        const statusColor = event.status === "Upcoming" ? "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300" :
+                           event.status === "Ongoing" ? "bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300" :
+                           event.status === "Completed" ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" :
+                           event.status === "Cancelled" ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300" :
+                           "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"
         return (
           <Badge className={statusColor}>
             {event.status}
@@ -1231,7 +1231,7 @@ export default function EnhancedSchedulePage() {
         
         // Generate sessions from courses/cohorts (this is the primary source)
         console.log('� Generating sessions from courses and cohorts...')
-        let scheduleEvents = convertToScheduleEvents(coursesResponse, cohortsResponse)
+        let scheduleEvents = convertToScheduleEvents(coursesResponse, cohortsResponse, currency)
         console.log('✅ Generated', scheduleEvents.length, 'sessions from cohorts')
         
         // Apply modifications from database to the generated sessions
@@ -1303,7 +1303,7 @@ export default function EnhancedSchedulePage() {
       
       // Generate sessions from courses/cohorts
       console.log('🔄 Refresh: Generating sessions from courses and cohorts...')
-      let scheduleEvents = convertToScheduleEvents(coursesResponse, cohortsResponse)
+      let scheduleEvents = convertToScheduleEvents(coursesResponse, cohortsResponse, currency)
       console.log('✅ Refresh: Generated', scheduleEvents.length, 'sessions from cohorts')
       
       // Apply modifications from database
@@ -2184,7 +2184,7 @@ export default function EnhancedSchedulePage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading courses and schedules...</p>
+              <p className="text-gray-600 dark:text-white">Loading courses and schedules...</p>
             </div>
           </div>
         ) : (
@@ -2198,9 +2198,9 @@ export default function EnhancedSchedulePage() {
 
           {/* Error Indicator */}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span className="text-red-800">{error}</span>
+            <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 dark:bg-red-400 rounded-full"></div>
+              <span className="text-red-800 dark:text-red-200">{error}</span>
               <button 
                 onClick={() => {
                   setError(null);
@@ -2208,7 +2208,7 @@ export default function EnhancedSchedulePage() {
                   // Retry loading
                   window.location.reload();
                 }}
-                className="ml-auto text-red-600 hover:text-red-800 underline"
+                className="ml-auto text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 underline"
               >
                 Retry
               </button>
@@ -2217,9 +2217,9 @@ export default function EnhancedSchedulePage() {
 
           {/* Offline Indicator */}
           {isOffline && (
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
-              <WifiOff className="h-5 w-5 text-yellow-600" />
-              <span className="text-yellow-800">You're offline. Some features may be limited.</span>
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-center gap-2">
+              <WifiOff className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-yellow-800 dark:text-yellow-200">You're offline. Some features may be limited.</span>
             </div>
           )}
 
@@ -2230,14 +2230,14 @@ export default function EnhancedSchedulePage() {
                 Schedule Management
                 {isOffline ? <WifiOff className="h-6 w-6 text-yellow-600" /> : null}
               </h1>
-              <p className="text-gray-500">Comprehensive schedule management with AI-powered insights, and advanced analytics.</p>
+              <p className="text-gray-500 dark:text-white">Comprehensive schedule management with AI-powered insights, and advanced analytics.</p>
             </div>
 
           </div>
 
           {/* Bulk Actions */}
           {selectedCohorts.length > 0 && (
-            <Card className="border-purple-200 bg-purple-50">
+            <Card className="border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/30">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-purple-700">{selectedCohorts.length} cohort session(s) selected</span>
@@ -2290,7 +2290,7 @@ export default function EnhancedSchedulePage() {
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
                     Coming Soon Features
                   </h3>
-                  <p className="text-gray-600 max-w-2xl mx-auto">
+                  <p className="text-gray-700 dark:text-white max-w-2xl mx-auto">
                     Exciting new features to enhance your scheduling experience
                   </p>
                 </div>
@@ -2298,7 +2298,7 @@ export default function EnhancedSchedulePage() {
                   
                   {/* Calendar Sync Card */}
                   <Card 
-                    className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
+                    className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 dark:from-gray-800 dark:to-orange-900 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
                     onClick={() => {
                       setComingSoonFeature("Calendar Sync")
                       setIsComingSoonDialogOpen(true)
@@ -2306,17 +2306,17 @@ export default function EnhancedSchedulePage() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-orange-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <CardContent className="p-6 text-center relative z-10">
-                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                      <div className="bg-white dark:bg-gray-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
                         <CalendarIntegration className="h-8 w-8 text-orange-600" />
                       </div>
-                      <h3 className="font-bold text-lg text-gray-800 mb-2 inline-flex items-center justify-center gap-2">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 inline-flex items-center justify-center gap-2">
                         Sync
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-medium">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white text-xs rounded-full font-medium">
                           <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
                           Soon
                         </span>
                       </h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm text-gray-800 dark:text-white leading-relaxed">
                         Calendar integration with Google, Outlook & more
                       </p>
                       <div className="mt-4 flex justify-center">
@@ -2327,7 +2327,7 @@ export default function EnhancedSchedulePage() {
 
                   {/* AI Assistant Card */}
                   <Card 
-                    className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-purple-100 to-indigo-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
+                    className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-purple-100 to-indigo-200 dark:from-gray-800 dark:to-purple-900 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
                     onClick={() => {
                       setComingSoonFeature("AI Assistant")
                       setIsComingSoonDialogOpen(true)
@@ -2335,17 +2335,17 @@ export default function EnhancedSchedulePage() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <CardContent className="p-6 text-center relative z-10">
-                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                      <div className="bg-white dark:bg-gray-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
                         <Zap className="h-8 w-8 text-purple-600" />
                       </div>
-                      <h3 className="font-bold text-lg text-gray-800 mb-2 inline-flex items-center justify-center gap-2">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 inline-flex items-center justify-center gap-2">
                         AI Assistant
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-medium">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white text-xs rounded-full font-medium">
                           <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
                           Soon
                         </span>
                       </h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm text-gray-800 dark:text-white leading-relaxed">
                         Smart scheduling with intelligent recommendations
                       </p>
                       <div className="mt-4 flex justify-center">
@@ -2356,7 +2356,7 @@ export default function EnhancedSchedulePage() {
 
                   {/* Time Tracker Card */}
                   <Card 
-                    className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-200 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
+                    className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-200 dark:from-gray-800 dark:to-blue-900 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
                     onClick={() => {
                       setComingSoonFeature("Time Tracker")
                       setIsComingSoonDialogOpen(true)
@@ -2364,17 +2364,17 @@ export default function EnhancedSchedulePage() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <CardContent className="p-6 text-center relative z-10">
-                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                      <div className="bg-white dark:bg-gray-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
                         <Clock className="h-8 w-8 text-blue-600" />
                       </div>
-                      <h3 className="font-bold text-lg text-gray-800 mb-2 inline-flex items-center justify-center gap-2">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 inline-flex items-center justify-center gap-2">
                         Time Tracker
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-medium">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white text-xs rounded-full font-medium">
                           <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
                           Soon
                         </span>
                       </h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm text-gray-800 dark:text-white leading-relaxed">
                         Monitor study duration and productivity metrics
                       </p>
                       <div className="mt-4 flex justify-center">
@@ -2389,7 +2389,7 @@ export default function EnhancedSchedulePage() {
 
             {/* Settings Tab Content */}
             <TabsContent value="settings" className="mt-6">
-              <Card className="border-gray-200 bg-white">
+              <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardContent className="p-6">
                   <ScheduleSettings 
                     settings={scheduleSettings}
@@ -2402,13 +2402,13 @@ export default function EnhancedSchedulePage() {
 
             {/* Schedule Tab Content */}
             <TabsContent value="schedule" className="mt-6">
-              <Card className="border-gray-200 bg-white">
+              <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardContent className="p-6">
 
                   {/* Toolbar matching course management style */}
                   <div className="flex flex-col lg:flex-row gap-2 mb-4">
                     <div className="relative flex-1">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
                       <Input
                         placeholder="Search by instructor, cohort, course..."
                         className="pl-10"
@@ -2448,7 +2448,7 @@ export default function EnhancedSchedulePage() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent 
-                          className="w-80 p-4 bg-white border border-gray-200 shadow-lg z-50"
+                          className="w-80 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg z-50"
                           onCloseAutoFocus={(event) => {
                             event.preventDefault();
                           }}
@@ -2598,7 +2598,7 @@ export default function EnhancedSchedulePage() {
                        <DropdownMenuTrigger asChild>
                           <Button variant="outline" size="sm" className="h-9 flex items-center gap-1 group">
                             <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-                            <span className="ml-1 text-xs text-gray-600 group-hover:text-white">
+                            <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">
                               {sortBy === "date" ? "Date" : 
                                sortBy === "title" ? "Course" : 
                                sortBy === "cohortName" ? "Cohort" :
@@ -2669,7 +2669,7 @@ export default function EnhancedSchedulePage() {
                   </div>
 
                   {/* Results Counter with Modification Summary */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -2692,7 +2692,7 @@ export default function EnhancedSchedulePage() {
                         
                         if (modifiedCount > 0) {
                           return (
-                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-white">
                               <div className="w-1 h-4 bg-gray-300 rounded"></div>
                               <span>{modifiedCount} modified:</span>
                               {rescheduledCount > 0 && (
@@ -2726,7 +2726,7 @@ export default function EnhancedSchedulePage() {
                         variant="outline"
                         size="icon"
                         onClick={columnManagement.openColumnSelector}
-                        className="h-8 w-8 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                        className="h-8 w-8 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-800/30"
                         title="Column Selection"
                       >
                         <GridIcon className="h-4 w-4" />
@@ -2883,16 +2883,16 @@ export default function EnhancedSchedulePage() {
                                 {/* Course and Cohort Info */}
                                 {event.cohortName && (
                                   <div className="mb-2">
-                                    <span className="text-xs text-gray-500">Course: </span>
+                                    <span className="text-xs text-gray-500 dark:text-white">Course: </span>
                                     <span className="text-sm font-medium text-purple-600">{event.courseName}</span>
                                     <br />
-                                    <span className="text-xs text-gray-500">Cohort: </span>
+                                    <span className="text-xs text-gray-500 dark:text-white">Cohort: </span>
                                     <span className="text-sm font-medium text-blue-600">{event.cohortName}</span>
                                   </div>
                                 )}
                                 
                                 {/* Session Date */}
-                                <div className="mb-2 text-sm text-gray-600">
+                                <div className="mb-2 text-sm text-gray-600 dark:text-white">
                                   <div className="flex items-center gap-1">
                                     <CalendarLucide className="h-3 w-3 text-purple-500" />
                                     <span className="font-medium">
@@ -2916,7 +2916,7 @@ export default function EnhancedSchedulePage() {
                                   </div>
                                 </div>
                                 
-                                <div className="space-y-2 text-sm text-gray-600">
+                                <div className="space-y-2 text-sm text-gray-600 dark:text-white">
                                   <div className="flex items-center gap-2">
                                     <User className="h-4 w-4 text-blue-500" />
                                     <span>{event.instructor}</span>
@@ -2930,7 +2930,7 @@ export default function EnhancedSchedulePage() {
                                         <span className="font-medium">Cohorts:</span>
                                       </div>
                                       {event.cohorts.map((cohort) => (
-                                        <div key={cohort.id} className="ml-6 p-2 bg-gray-50 rounded text-xs">
+                                        <div key={cohort.id} className="ml-6 p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs">
                                           <div className="font-medium text-purple-600">{cohort.name}</div>
                                           <div className="flex items-center gap-2 mt-1">
                                             <Clock className="h-3 w-3 text-green-500" />
@@ -2944,7 +2944,7 @@ export default function EnhancedSchedulePage() {
                                             <Users className="h-3 w-3 text-purple-500" />
                                             <span>{cohort.students}/{cohort.maxCapacity} students</span>
                                           </div>
-                                          <div className="text-gray-500">
+                                          <div className="text-gray-500 dark:text-white">
                                             Days: {cohort.daysOfWeek.map(day => 
                                               ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]
                                             ).join(', ')}
@@ -2970,7 +2970,7 @@ export default function EnhancedSchedulePage() {
 
                                 {/* Enhanced Modified Session Details */}
                                 {(event.isModified || event.rescheduleInfo || event.cancellationInfo || event.reassignmentInfo) && (
-                                  <div className="mt-3 pt-3 border-t border-blue-200 bg-blue-50 -mx-4 px-4 py-2">
+                                  <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30 -mx-4 px-4 py-2">
                                     <div className="text-xs font-medium text-blue-700 mb-2 flex items-center gap-2">
                                       {event.modificationType === "rescheduled" && <Clock className="h-3 w-3" />}
                                       {event.modificationType === "instructor_changed" && <RefreshCw className="h-3 w-3" />}
@@ -2982,11 +2982,11 @@ export default function EnhancedSchedulePage() {
                                         <>
                                           {event.modificationType === "rescheduled" && (
                                             <div className="flex items-center gap-2">
-                                              <span className="text-gray-500">Original:</span> 
+                                              <span className="text-gray-500 dark:text-white">Original:</span> 
                                               <span className="line-through text-red-600">
                                                 {format(event.originalSessionData.date, 'dd-MMM-yy')} {event.originalSessionData.startTime}-{event.originalSessionData.endTime}
                                               </span>
-                                              <span className="text-gray-400">→</span>
+                                              <span className="text-gray-400 dark:text-white">→</span>
                                               <span className="text-green-600 font-medium">
                                                 {format(event.date, 'dd-MMM-yy')} {event.startTime}-{event.endTime}
                                               </span>
@@ -2994,11 +2994,11 @@ export default function EnhancedSchedulePage() {
                                           )}
                                           {event.modificationType === "instructor_changed" && (
                                             <div className="flex items-center gap-2">
-                                              <span className="text-gray-500">Instructor:</span>
+                                              <span className="text-gray-500 dark:text-white">Instructor:</span>
                                               <span className="line-through text-red-600">
                                                 {event.originalSessionData.instructor}
                                               </span>
-                                              <span className="text-gray-400">→</span>
+                                              <span className="text-gray-400 dark:text-white">→</span>
                                               <span className="text-green-600 font-medium">
                                                 {event.instructor}
                                               </span>
@@ -3006,7 +3006,7 @@ export default function EnhancedSchedulePage() {
                                           )}
                                           {event.modificationType === "cancelled" && (
                                             <div>
-                                              <span className="text-gray-500">Originally scheduled:</span> 
+                                              <span className="text-gray-500 dark:text-white">Originally scheduled:</span> 
                                               <span className="ml-1">{format(event.originalSessionData.date, 'dd-MMM-yy')} {event.originalSessionData.startTime}-{event.originalSessionData.endTime}</span>
                                             </div>
                                           )}
@@ -3015,17 +3015,17 @@ export default function EnhancedSchedulePage() {
                                       
                                       {/* Backend tracking info */}
                                       {event.rescheduleInfo && (
-                                        <div className="text-xs text-blue-500 mt-1">
+                                        <div className="text-xs text-blue-500 dark:text-blue-400 mt-1">
                                           Rescheduled by {event.rescheduleInfo.rescheduledBy} at {event.rescheduleInfo.rescheduledAt.toLocaleString()}
                                         </div>
                                       )}
                                       {event.cancellationInfo && (
-                                        <div className="text-xs text-red-500 mt-1">
+                                        <div className="text-xs text-red-500 dark:text-red-400 mt-1">
                                           Cancelled by {event.cancellationInfo.cancelledBy}: {event.cancellationInfo.reason}
                                         </div>
                                       )}
                                       {event.reassignmentInfo && (
-                                        <div className="text-xs text-purple-500 mt-1">
+                                        <div className="text-xs text-purple-500 dark:text-purple-400 mt-1">
                                           Instructor {event.reassignmentInfo.type === 'reassigned_to' ? 'assigned' : 'removed'} at {event.reassignmentInfo.reassignedAt.toLocaleString()}
                                         </div>
                                       )}
@@ -3041,12 +3041,12 @@ export default function EnhancedSchedulePage() {
                       )}
 
                       {listViewMode === "table" && (
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                           <div className="max-h-[600px] overflow-y-auto">
                             <table className="w-full">
-                              <thead className="sticky top-0 bg-white z-10 border-b-2 border-gray-300 shadow-sm">
+                              <thead className="sticky top-0 bg-white dark:bg-gray-900 z-10 border-b-2 border-gray-300 dark:border-gray-700 shadow-sm">
                                 <tr>
-                                  <th className="px-4 py-3 text-left bg-white">
+                                  <th className="px-4 py-3 text-left bg-white dark:bg-gray-900">
                                     <Checkbox
                                       checked={selectedCohorts.length === getEventsForDisplay().length && getEventsForDisplay().length > 0}
                                       onCheckedChange={(checked) => {
@@ -3059,18 +3059,18 @@ export default function EnhancedSchedulePage() {
                                     />
                                   </th>
                                   {columnManagement.displayedColumns.map(columnId => (
-                                    <th key={columnId} className="px-4 py-3 text-left text-sm font-medium text-gray-500 tracking-wider bg-white">
+                                    <th key={columnId} className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-white tracking-wider bg-white dark:bg-gray-900">
                                       {scheduleColumnConfig[columnId as keyof typeof scheduleColumnConfig]?.label || columnId}
                                     </th>
                                   ))}
-                                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 tracking-wider bg-white"></th>
+                                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-white tracking-wider bg-white dark:bg-gray-900"></th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-gray-200">
+                              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {getEventsForDisplay().map((event) => (
                                   <tr 
                                     key={event.id} 
-                                    className="hover:bg-gray-50 cursor-pointer"
+                                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                                     onClick={() => {
                                       setSelectedCohort(event)
                                       setIsCohortViewDialogOpen(true)
@@ -3257,7 +3257,7 @@ export default function EnhancedSchedulePage() {
           <div className="py-4">
             <div className="text-center">
               <div className="text-6xl mb-4">🚀</div>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-white mb-4">
                 {comingSoonFeature === "Calendar Sync" 
                   ? "Sync your schedules with Google Calendar, Outlook, and more platforms seamlessly."
                   : "Get intelligent scheduling suggestions, conflict resolution, and automated optimizations powered by AI."
@@ -3267,7 +3267,7 @@ export default function EnhancedSchedulePage() {
                 <p className="text-sm text-purple-700 font-medium">
                   🔔 Want to be notified when this feature is ready?
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-white mt-1">
                   Contact your administrator or check for app updates.
                 </p>
               </div>
@@ -3287,7 +3287,7 @@ export default function EnhancedSchedulePage() {
       {/* Add Session Dialog */}
       <Dialog open={isAddSessionDialogOpen} onOpenChange={setIsAddSessionDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader className="sticky top-0 bg-white z-10 pb-4 border-b">
+          <DialogHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-4 border-b dark:border-gray-700">
             <DialogTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5 text-purple-500" />
               Add New Session
@@ -3303,7 +3303,7 @@ export default function EnhancedSchedulePage() {
             <div className="space-y-4">
               {/* Basic Information */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">Basic Information</h3>
+                <h3 className="font-semibold text-sm text-gray-700 dark:text-white border-b pb-2">Basic Information</h3>
                 
                 <div>
                   <Label htmlFor="session-title" className="text-sm font-medium">
@@ -3442,7 +3442,7 @@ export default function EnhancedSchedulePage() {
 
               {/* Session Details */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">Session Details</h3>
+                <h3 className="font-semibold text-sm text-gray-700 dark:text-white border-b pb-2">Session Details</h3>
                 
                 <div>
                   <Label htmlFor="session-category" className="text-sm font-medium">
@@ -3511,7 +3511,7 @@ export default function EnhancedSchedulePage() {
                     }}
                     className="mt-1"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
+                  <p className="text-xs text-gray-500 dark:text-white mt-1">Separate multiple tags with commas</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -3528,7 +3528,7 @@ export default function EnhancedSchedulePage() {
                       onChange={(e) => setNewSession(prev => ({ ...prev, students: parseInt(e.target.value) || 0 }))}
                       className="mt-1"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Students currently enrolled</p>
+                    <p className="text-xs text-gray-500 dark:text-white mt-1">Students currently enrolled</p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium">
@@ -3538,7 +3538,7 @@ export default function EnhancedSchedulePage() {
                       <Badge className="bg-blue-100 text-blue-800">
                         Upcoming
                       </Badge>
-                      <p className="text-xs text-gray-500 mt-1">New sessions start as "Upcoming"</p>
+                      <p className="text-xs text-gray-500 dark:text-white mt-1">New sessions start as "Upcoming"</p>
                     </div>
                   </div>
                 </div>
@@ -3563,7 +3563,7 @@ export default function EnhancedSchedulePage() {
             <div className="space-y-4">
               {/* Date & Time */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">Date & Time</h3>
+                <h3 className="font-semibold text-sm text-gray-700 dark:text-white border-b pb-2">Date & Time</h3>
                 
                 <div>
                   <Label htmlFor="session-date" className="text-sm font-medium">
@@ -3663,7 +3663,7 @@ export default function EnhancedSchedulePage() {
 
               {/* Location & Mode */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">Location & Mode</h3>
+                <h3 className="font-semibold text-sm text-gray-700 dark:text-white border-b pb-2">Location & Mode</h3>
                 
                 <div>
                   <Label htmlFor="session-type" className="text-sm font-medium">
@@ -3740,7 +3740,7 @@ export default function EnhancedSchedulePage() {
 
               {/* Payment & Settings */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">Payment & Settings</h3>
+                <h3 className="font-semibold text-sm text-gray-700 dark:text-white border-b pb-2">Payment & Settings</h3>
                 
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -3807,7 +3807,7 @@ export default function EnhancedSchedulePage() {
           </div>
           </div>
 
-          <DialogFooter className="sticky bottom-0 bg-white z-10 pt-4 border-t">
+          <DialogFooter className="sticky bottom-0 bg-white dark:bg-gray-900 z-10 pt-4 border-t dark:border-gray-700">
             <Button 
               variant="outline" 
               onClick={() => setIsAddSessionDialogOpen(false)}
@@ -3847,10 +3847,10 @@ export default function EnhancedSchedulePage() {
                     <Badge 
                       variant="outline" 
                       className={`text-xs ml-2 ${
-                        selectedCohort.modificationType === "rescheduled" ? "border-blue-400 text-blue-700 bg-blue-50" :
-                        selectedCohort.modificationType === "instructor_changed" ? "border-purple-400 text-purple-700 bg-purple-50" :
-                        selectedCohort.modificationType === "cancelled" ? "border-red-400 text-red-700 bg-red-50" :
-                        "border-gray-400 text-gray-700 bg-gray-50"
+                        selectedCohort.modificationType === "rescheduled" ? "border-blue-400 text-blue-700 bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:bg-blue-900/30" :
+                        selectedCohort.modificationType === "instructor_changed" ? "border-purple-400 text-purple-700 bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:bg-purple-900/30" :
+                        selectedCohort.modificationType === "cancelled" ? "border-red-400 text-red-700 bg-red-50 dark:border-red-600 dark:text-red-300 dark:bg-red-900/30" :
+                        "border-gray-400 text-gray-700 bg-gray-50 dark:border-gray-600 dark:text-white dark:bg-gray-800"
                       }`}
                     >
                       {selectedCohort.modificationType === "rescheduled" && <Clock className="h-3 w-3 mr-1" />}
@@ -3881,7 +3881,7 @@ export default function EnhancedSchedulePage() {
                   
                   {/* Cancelled Tag */}
                   {selectedCohort.modificationType === "cancelled" && (
-                    <Badge variant="outline" className="border-red-400 text-red-700 bg-red-50">
+                    <Badge variant="outline" className="border-red-400 dark:border-red-600 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30">
                       <XCircle className="h-3 w-3 mr-1" />
                       Cancelled
                     </Badge>
@@ -3889,7 +3889,7 @@ export default function EnhancedSchedulePage() {
                   
                   {/* Reassigned Tag */}
                   {selectedCohort.modificationType === "instructor_changed" && (
-                    <Badge variant="outline" className="border-purple-400 text-purple-700 bg-purple-50">
+                    <Badge variant="outline" className="border-purple-400 dark:border-purple-600 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30">
                       <UserCheck className="h-3 w-3 mr-1" />
                       Reassigned
                     </Badge>
@@ -3904,7 +3904,7 @@ export default function EnhancedSchedulePage() {
                         <BookOpen className="h-5 w-5 text-indigo-500" />
                         <div>
                           <p className="font-medium">Cohort</p>
-                          <p className="text-sm text-gray-600">{selectedCohort.cohortName}</p>
+                          <p className="text-sm text-gray-600 dark:text-white">{selectedCohort.cohortName}</p>
                         </div>
                       </div>
                     )}
@@ -3913,7 +3913,7 @@ export default function EnhancedSchedulePage() {
                       <User className="h-5 w-5 text-blue-500" />
                       <div>
                         <p className="font-medium">Instructor</p>
-                        <p className="text-sm text-gray-600">{selectedCohort.instructor}</p>
+                        <p className="text-sm text-gray-600 dark:text-white">{selectedCohort.instructor}</p>
                       </div>
                     </div>
                     
@@ -3921,7 +3921,7 @@ export default function EnhancedSchedulePage() {
                       <Users className="h-5 w-5 text-purple-500" />
                       <div>
                         <p className="font-medium">Enrollment</p>
-                        <p className="text-sm text-gray-600">{selectedCohort.students}/{selectedCohort.maxCapacity} students</p>
+                        <p className="text-sm text-gray-600 dark:text-white">{selectedCohort.students}/{selectedCohort.maxCapacity} students</p>
                       </div>
                     </div>
                     
@@ -3929,7 +3929,7 @@ export default function EnhancedSchedulePage() {
                       <Clock className="h-5 w-5 text-green-500" />
                       <div>
                         <p className="font-medium">Time Slot</p>
-                        <p className="text-sm text-gray-600">{selectedCohort.startTime} - {selectedCohort.endTime}</p>
+                        <p className="text-sm text-gray-600 dark:text-white">{selectedCohort.startTime} - {selectedCohort.endTime}</p>
                       </div>
                     </div>
                   </div>
@@ -3939,7 +3939,7 @@ export default function EnhancedSchedulePage() {
                       <MapPin className="h-5 w-5 text-orange-500" />
                       <div>
                         <p className="font-medium">Location</p>
-                        <p className="text-sm text-gray-600">{selectedCohort.location}</p>
+                        <p className="text-sm text-gray-600 dark:text-white">{selectedCohort.location}</p>
                       </div>
                     </div>
                     
@@ -3948,7 +3948,7 @@ export default function EnhancedSchedulePage() {
                         <Users className="h-5 w-5 text-yellow-500" />
                         <div>
                           <p className="font-medium">Waitlist</p>
-                          <p className="text-sm text-gray-600">{selectedCohort.waitlist.length} students waiting</p>
+                          <p className="text-sm text-gray-600 dark:text-white">{selectedCohort.waitlist.length} students waiting</p>
                         </div>
                       </div>
                     )}
@@ -3963,11 +3963,11 @@ export default function EnhancedSchedulePage() {
                   selectedCohort.modificationType === "instructor_changed" ||
                   selectedCohort.modificationType === "rescheduled") && (
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Additional Information</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Additional Information</h4>
                     
                     {/* Reschedule Details */}
                     {selectedCohort.modificationType === "rescheduled" && selectedCohort.rescheduleInfo && selectedCohort.originalSessionData && (
-                      <div className="border-l-4 border-blue-400 bg-blue-50 p-3 rounded-r">
+                      <div className="border-l-4 border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-r">
                         <p className="font-medium text-sm text-blue-800 mb-1">Reschedule Information</p>
                         <p className="text-sm text-blue-700">
                           <span className="font-medium">Original Session:</span>
@@ -4012,7 +4012,7 @@ export default function EnhancedSchedulePage() {
                     
                     {/* Cancellation Details */}
                     {selectedCohort.modificationType === "cancelled" && selectedCohort.cancellationInfo && (
-                      <div className="border-l-4 border-red-400 bg-red-50 p-3 rounded-r">
+                      <div className="border-l-4 border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-900/30 p-3 rounded-r">
                         <p className="font-medium text-sm text-red-800 mb-1">Cancellation Information</p>
                         {selectedCohort.originalSessionData && (
                           <>
@@ -4050,7 +4050,7 @@ export default function EnhancedSchedulePage() {
                     
                     {/* Reassignment Details */}
                     {selectedCohort.modificationType === "instructor_changed" && selectedCohort.reassignmentInfo && (
-                      <div className="border-l-4 border-purple-400 bg-purple-50 p-3 rounded-r">
+                      <div className="border-l-4 border-purple-400 dark:border-purple-600 bg-purple-50 dark:bg-purple-900/30 p-3 rounded-r">
                         <p className="font-medium text-sm text-purple-800 mb-1">Reassignment Information</p>
                         {selectedCohort.originalSessionData && (
                           <>
@@ -4084,15 +4084,15 @@ export default function EnhancedSchedulePage() {
                     
                     {selectedCohort.sessionNotes && (
                       <div>
-                        <p className="font-medium text-sm text-gray-700">Session Notes</p>
-                        <p className="text-sm text-gray-600 mt-1">{selectedCohort.sessionNotes}</p>
+                        <p className="font-medium text-sm text-gray-700 dark:text-white">Session Notes</p>
+                        <p className="text-sm text-gray-600 dark:text-white mt-1">{selectedCohort.sessionNotes}</p>
                       </div>
                     )}
                     
                     {selectedCohort.materials && selectedCohort.materials.length > 0 && (
                       <div>
-                        <p className="font-medium text-sm text-gray-700">Required Materials</p>
-                        <ul className="text-sm text-gray-600 mt-1 list-disc list-inside">
+                        <p className="font-medium text-sm text-gray-700 dark:text-white">Required Materials</p>
+                        <ul className="text-sm text-gray-600 dark:text-white mt-1 list-disc list-inside">
                           {selectedCohort.materials.map((material, index) => (
                             <li key={index}>{material}</li>
                           ))}
@@ -4102,8 +4102,8 @@ export default function EnhancedSchedulePage() {
                     
                     {selectedCohort.equipment && selectedCohort.equipment.length > 0 && (
                       <div>
-                        <p className="font-medium text-sm text-gray-700">Equipment Available</p>
-                        <ul className="text-sm text-gray-600 mt-1 list-disc list-inside">
+                        <p className="font-medium text-sm text-gray-700 dark:text-white">Equipment Available</p>
+                        <ul className="text-sm text-gray-600 dark:text-white mt-1 list-disc list-inside">
                           {selectedCohort.equipment.map((item, index) => (
                             <li key={index}>{item}</li>
                           ))}
@@ -4148,11 +4148,11 @@ export default function EnhancedSchedulePage() {
                   
                   return (
                     <div>
-                      <div className="sticky top-12 bg-white z-10 py-2 border-b border-gray-100">
-                        <h4 className="font-semibold text-gray-900">Registered Students ({uniqueStudents.length})</h4>
+                      <div className="sticky top-12 bg-white dark:bg-gray-900 z-10 py-2 border-b border-gray-100 dark:border-gray-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Registered Students ({uniqueStudents.length})</h4>
                       </div>
                       <div className="max-h-32 overflow-y-auto mt-2">
-                        <ul className="text-sm text-gray-600 space-y-1">
+                        <ul className="text-sm text-gray-600 dark:text-white space-y-1">
                           {uniqueStudents.map((student, index) => (
                             <li key={index} className="flex items-center gap-2">
                               <User className="h-3 w-3" />

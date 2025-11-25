@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useState, useEffect } from "react"
 import { format } from "date-fns"
@@ -1098,7 +1098,7 @@ export default function CohortManagement({
           </div>
         );
       case 'courseId':
-        return <span className="font-mono text-sm text-gray-600">{cohort.courseId}</span>;
+        return <span className="font-mono text-sm text-gray-600 dark:text-white">{cohort.courseId}</span>;
       case 'courseName':
         return course?.name || cohort.courseId;
       case 'status': {
@@ -1111,7 +1111,7 @@ export default function CohortManagement({
               cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
               cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
               cohort.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
-              'bg-gray-100 text-gray-800'
+              'bg-gray-100 text-gray-800 dark:text-white'
             }`}>
               {cohort.status || 'Active'}
             </span>
@@ -1155,7 +1155,7 @@ export default function CohortManagement({
         );
       case 'notes':
         return cohort.notes ? (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             {cohort.notes.length > 30 ? `${cohort.notes.substring(0, 30)}...` : cohort.notes}
           </div>
         ) : '-';
@@ -1286,7 +1286,7 @@ export default function CohortManagement({
         <div className="flex items-center mb-2 flex-wrap gap-2">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-700">Cohort Management</h1>
         </div>
-        <p className="text-sm sm:text-base md:text-lg text-gray-600">
+        <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-white">
           Organize students into cohorts for better learning experiences and streamlined management.
         </p>
       </div>
@@ -1439,7 +1439,7 @@ export default function CohortManagement({
                         onClick={() => { setAddMembersCohortId(cohort.id ?? ''); setSelectedMembers([]); }}
                         title="Add Members"
                       >
-                        <span className="text-lg">👤+</span>
+                        <span className="text-lg">??+</span>
                       </Button>
                       <Button
                         variant="ghost"
@@ -1630,7 +1630,7 @@ export default function CohortManagement({
                                 </button>
                               </div>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">ID: {cohort.id}</p>
+                            <p className="text-xs text-gray-500 dark:text-white mt-1">ID: {cohort.id}</p>
                             {cohortCourse && (
                               <p className="text-xs text-blue-600 mt-1 font-medium">
                                 Course: {cohortCourse.name}
@@ -1642,7 +1642,7 @@ export default function CohortManagement({
                                 cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
                                 cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
                                 cohort.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
-                                'bg-gray-100 text-gray-800'
+                                'bg-gray-100 text-gray-800 dark:text-white'
                               }`}>
                                 {cohort.status || 'Active'}
                               </span>
@@ -1657,11 +1657,11 @@ export default function CohortManagement({
                               })()}
                             </div>
                             {(cohort.startDate || cohort.endDate) && (
-                              <div className="mt-2 text-xs text-gray-600">
+                              <div className="mt-2 text-xs text-gray-600 dark:text-white">
                                 {cohort.startDate && (
                                   <span>Start: {format(new Date(cohort.startDate), 'dd-MMM-yy')}</span>
                                 )}
-                                {cohort.startDate && cohort.endDate && <span> � </span>}
+                                {cohort.startDate && cohort.endDate && <span> ? </span>}
                                 {cohort.endDate && (
                                   <span>End: {format(new Date(cohort.endDate), 'dd-MMM-yy')}</span>
                                 )}
@@ -1673,18 +1673,18 @@ export default function CohortManagement({
                         <div className="space-y-2">
                           {cohort.location && (
                             <div className="flex items-center text-sm">
-                              <span className="text-gray-600 w-16 text-xs">Location:</span>
+                              <span className="text-gray-600 dark:text-white w-16 text-xs">Location:</span>
                               <span className="text-purple-600 font-medium">{cohort.location}</span>
                             </div>
                           )}
                           {cohort.instructorName && (
                             <div className="flex items-center text-sm">
-                              <span className="text-gray-600 w-16 text-xs">Instructor:</span>
+                              <span className="text-gray-600 dark:text-white w-16 text-xs">Instructor:</span>
                               <span className="text-purple-700">{cohort.instructorName}</span>
                             </div>
                           )}
                           <div className="flex items-center text-sm">
-                            <span className="text-gray-600 w-16 text-xs">Capacity:</span>
+                            <span className="text-gray-600 dark:text-white w-16 text-xs">Capacity:</span>
                             <span className="text-purple-600 font-medium">
                               {cohort.members.length} / {cohort.capacity}
                               {cohort.members.length === cohort.capacity && 
@@ -1694,8 +1694,8 @@ export default function CohortManagement({
                           </div>
                           {cohort.startTime && cohort.endTime && (
                             <div className="flex items-center text-sm">
-                              <span className="text-gray-600 w-16 text-xs">Schedule:</span>
-                              <span className="text-gray-800">
+                              <span className="text-gray-600 dark:text-white w-16 text-xs">Schedule:</span>
+                              <span className="text-gray-800 dark:text-white">
                                 {new Date(`2000-01-01T${cohort.startTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
                                 {new Date(`2000-01-01T${cohort.endTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
@@ -1704,7 +1704,7 @@ export default function CohortManagement({
                         </div>
                         
                         {cohort.notes && (
-                          <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600 border-l-2 border-gray-300">
+                          <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600 dark:text-white border-l-2 border-gray-300">
                             <span className="font-medium">Notes: </span>{cohort.notes}
                           </div>
                         )}
@@ -1712,7 +1712,7 @@ export default function CohortManagement({
                         {cohort.members.length > 0 && (
                           <div className="mt-3">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-medium text-gray-700">Members</span>
+                              <span className="text-xs font-medium text-gray-700 dark:text-white">Members</span>
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -1761,7 +1761,7 @@ export default function CohortManagement({
                   })}
               </div>
             ) : (
-              <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-500">
+              <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-500 dark:text-white">
                 No cohorts found matching your criteria
               </div>
             )}
@@ -1905,9 +1905,9 @@ export default function CohortManagement({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
             </div>
-            <Label className="text-xs">Cohort ID <span className="text-gray-500 text-[10px] ml-1">(auto-generated)</span></Label>
+            <Label className="text-xs">Cohort ID <span className="text-gray-500 dark:text-white text-[10px] ml-1">(auto-generated)</span></Label>
             <div className="flex items-center gap-2">
               <Input 
                 value={newCohort.id} 
@@ -1940,9 +1940,9 @@ export default function CohortManagement({
               </Button>
             </div>
             {identitySettings.allowManualIds ? (
-              <p className="text-[11px] text-gray-500 mt-1">Override the auto-generated ID to match classroom signage or CRM IDs.</p>
+              <p className="text-[11px] text-gray-500 dark:text-white mt-1">Override the auto-generated ID to match classroom signage or CRM IDs.</p>
             ) : (
-              <p className="text-[11px] text-gray-500 mt-1">ID follows the prefix rule set in Cohort Settings.</p>
+              <p className="text-[11px] text-gray-500 dark:text-white mt-1">ID follows the prefix rule set in Cohort Settings.</p>
             )}
 
             <Label className="text-xs">
@@ -1975,7 +1975,7 @@ export default function CohortManagement({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
             </div>
 
             <Label className="text-xs">
@@ -2028,7 +2028,7 @@ export default function CohortManagement({
                 <option value="Cancelled">Cancelled</option>
                 <option value="On Hold">On Hold</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
               {newCohort.courseId && (() => {
                 const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
                 if (selectedCourse?.status === 'Inactive') {
@@ -2063,7 +2063,7 @@ export default function CohortManagement({
                         }
                       }}
                     />
-                    <Label className="text-xs text-gray-700">Use custom schedule (different from course)</Label>
+                    <Label className="text-xs text-gray-700 dark:text-white">Use custom schedule (different from course)</Label>
                   </div>
                 </div>
               ) : null;
@@ -2116,7 +2116,7 @@ export default function CohortManagement({
                     }
                   />
                   {!startDateFocused && newCohort.startDate && (
-                    <div className="absolute inset-0 flex items-center px-1 text-xs pointer-events-none text-gray-900">
+                    <div className="absolute inset-0 flex items-center px-1 text-xs pointer-events-none text-gray-900 dark:text-white">
                       {formatDateForDisplay(newCohort.startDate)}
                     </div>
                   )}
@@ -2168,7 +2168,7 @@ export default function CohortManagement({
                     }
                   />
                   {!endDateFocused && newCohort.endDate && (
-                    <div className="absolute inset-0 flex items-center px-1 text-xs pointer-events-none text-gray-900">
+                    <div className="absolute inset-0 flex items-center px-1 text-xs pointer-events-none text-gray-900 dark:text-white">
                       {formatDateForDisplay(newCohort.endDate)}
                     </div>
                   )}
@@ -2183,7 +2183,7 @@ export default function CohortManagement({
                 size="sm"
                 onClick={refreshLocations}
                 disabled={locationsLoading}
-                className="h-5 w-5 p-0 text-gray-500 hover:text-gray-700"
+                className="h-5 w-5 p-0 text-gray-500 dark:text-white hover:text-gray-700 dark:text-white"
                 title="Refresh location list"
               >
                 <RotateCcw className={`h-3 w-3 ${locationsLoading ? 'animate-spin' : ''}`} />
@@ -2227,7 +2227,7 @@ export default function CohortManagement({
                 </div>
                 <div className="max-h-[200px] overflow-y-auto">
                   {locationsLoading ? (
-                    <div className="px-2 py-1 text-gray-500 text-xs">Loading locations...</div>
+                    <div className="px-2 py-1 text-gray-500 dark:text-white text-xs">Loading locations...</div>
                   ) : (
                     locationOptions
                       .filter(location => location.toLowerCase().includes(locationSearchTerm.toLowerCase()))
@@ -2408,14 +2408,14 @@ export default function CohortManagement({
                     <span className={`px-2 py-1 rounded text-xs ${
                       selectedDays.includes(day.value) 
                         ? 'bg-purple-100 text-purple-700 font-medium' 
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-gray-100 text-gray-600 dark:text-white'
                     }`}>
                       {day.label}
                     </span>
                   </label>
                 ))}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-white">
                 Select the days when this cohort will have sessions
               </div>
             </div>
@@ -2768,7 +2768,7 @@ export default function CohortManagement({
                     </div>
                     <div className="max-h-40 overflow-y-auto space-y-2">
                       {studentsLoading ? (
-                        <div className="text-gray-500 text-sm">Loading students...</div>
+                        <div className="text-gray-500 dark:text-white text-sm">Loading students...</div>
                       ) : (
                         <>
                           <div className="text-sm text-blue-600 mb-2">
@@ -2868,7 +2868,7 @@ export default function CohortManagement({
                     </div>
                     {/* Display current members with names */}
                     {memberNames.length > 0 && (
-                      <div className="mt-2 text-xs text-gray-700">Current Members: {memberNames.join(', ')}</div>
+                      <div className="mt-2 text-xs text-gray-700 dark:text-white">Current Members: {memberNames.join(', ')}</div>
                     )}
                     {/* Display capacity information */}
                     <div className="mt-2 text-xs text-blue-600">
@@ -2889,7 +2889,7 @@ export default function CohortManagement({
           <div className="flex items-center justify-between mb-2">
             <DialogTitle className="font-bold text-sm sm:text-base">
               Members - {selectedCohortForMembers?.name}
-              <span className="text-sm font-normal text-gray-500 ml-2">
+              <span className="text-sm font-normal text-gray-500 dark:text-white ml-2">
                 ({selectedCohortForMembers?.members.length} / {selectedCohortForMembers?.capacity})
               </span>
             </DialogTitle>
@@ -2916,7 +2916,7 @@ export default function CohortManagement({
           </div>
           <div className="space-y-4">
             {selectedCohortForMembers?.members.length === 0 ? (
-              <div className="text-gray-500 text-sm">No members in this cohort.</div>
+              <div className="text-gray-500 dark:text-white text-sm">No members in this cohort.</div>
             ) : (
               <div className="table-container-with-sticky-header" style={{ maxHeight: '60vh' }}>
                 <Table>
@@ -2961,7 +2961,7 @@ export default function CohortManagement({
                       return (
                         <TableRow key={member.id}>
                           <TableCell>{displayName}</TableCell>
-                          <TableCell className="text-gray-500">{member.id}</TableCell>
+                          <TableCell className="text-gray-500 dark:text-white">{member.id}</TableCell>
                           <TableCell className="text-right">
                             <Button
                               variant="ghost"
@@ -3028,7 +3028,7 @@ export default function CohortManagement({
           <div className="flex items-center justify-between mb-4">
             <DialogTitle className="font-bold">
               All Cohorts - {viewAllCohortsForCourse?.name}
-              <span className="text-sm font-normal text-gray-500 ml-2">
+              <span className="text-sm font-normal text-gray-500 dark:text-white ml-2">
                 ({cohorts.filter(c => c.courseId === viewAllCohortsForCourse?.courseId).length} cohorts)
               </span>
             </DialogTitle>
@@ -3051,14 +3051,14 @@ export default function CohortManagement({
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
                         <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
-                        <p className="text-xs text-gray-500 mt-1">ID: {cohort.id}</p>
+                        <p className="text-xs text-gray-500 dark:text-white mt-1">ID: {cohort.id}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             cohort.status === 'Active' ? 'bg-green-100 text-green-800' :
                             cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
                             cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
                             cohort.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
-                            'bg-gray-100 text-gray-800'
+                            'bg-gray-100 text-gray-800 dark:text-white'
                           }`}>
                             {cohort.status || 'Active'}
                           </span>
@@ -3073,11 +3073,11 @@ export default function CohortManagement({
                           })()}
                         </div>
                         {(cohort.startDate || cohort.endDate) && (
-                          <div className="mt-2 text-xs text-gray-600">
+                          <div className="mt-2 text-xs text-gray-600 dark:text-white">
                             {cohort.startDate && (
                               <span>Start: {format(new Date(cohort.startDate), 'dd-MMM-yy')}</span>
                             )}
-                            {cohort.startDate && cohort.endDate && <span> � </span>}
+                            {cohort.startDate && cohort.endDate && <span> ? </span>}
                             {cohort.endDate && (
                               <span>End: {format(new Date(cohort.endDate), 'dd-MMM-yy')}</span>
                             )}
@@ -3181,18 +3181,18 @@ export default function CohortManagement({
                     <div className="space-y-2">
                       {cohort.location && (
                         <div className="flex items-center text-sm">
-                          <span className="text-gray-600 w-16 text-xs">Location:</span>
+                          <span className="text-gray-600 dark:text-white w-16 text-xs">Location:</span>
                           <span className="text-purple-600 font-medium">{cohort.location}</span>
                         </div>
                       )}
                       {cohort.instructorName && (
                         <div className="flex items-center text-sm">
-                          <span className="text-gray-600 w-16 text-xs">Instructor:</span>
+                          <span className="text-gray-600 dark:text-white w-16 text-xs">Instructor:</span>
                           <span className="text-purple-700">{cohort.instructorName}</span>
                         </div>
                       )}
                       <div className="flex items-center text-sm">
-                        <span className="text-gray-600 w-16 text-xs">Capacity:</span>
+                        <span className="text-gray-600 dark:text-white w-16 text-xs">Capacity:</span>
                         <span className="text-purple-600 font-medium">
                           {cohort.members.length} / {cohort.capacity}
                           {cohort.members.length === cohort.capacity && 
@@ -3202,8 +3202,8 @@ export default function CohortManagement({
                       </div>
                       {cohort.startTime && cohort.endTime && (
                         <div className="flex items-center text-sm">
-                          <span className="text-gray-600 w-16 text-xs">Schedule:</span>
-                          <span className="text-gray-800">
+                          <span className="text-gray-600 dark:text-white w-16 text-xs">Schedule:</span>
+                          <span className="text-gray-800 dark:text-white">
                             {new Date(`2000-01-01T${cohort.startTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
                             {new Date(`2000-01-01T${cohort.endTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -3212,7 +3212,7 @@ export default function CohortManagement({
                     </div>
                     
                     {cohort.notes && (
-                      <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600 border-l-2 border-gray-300">
+                      <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600 dark:text-white border-l-2 border-gray-300">
                         <span className="font-medium">Notes: </span>{cohort.notes}
                       </div>
                     )}
@@ -3220,7 +3220,7 @@ export default function CohortManagement({
                     {cohort.members.length > 0 && (
                       <div className="mt-3">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium text-gray-700">Members</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-white">Members</span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -3309,7 +3309,7 @@ export default function CohortManagement({
           <div className="flex items-center justify-between mb-4">
             <DialogTitle className="font-bold">
               All Cohorts
-              <span className="text-sm font-normal text-gray-500 ml-2">
+              <span className="text-sm font-normal text-gray-500 dark:text-white ml-2">
                 ({filteredAndSortedCohorts.length} cohorts)
               </span>
             </DialogTitle>
@@ -3336,7 +3336,7 @@ export default function CohortManagement({
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
                         <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
-                        <p className="text-xs text-gray-500 mt-1">ID: {cohort.id}</p>
+                        <p className="text-xs text-gray-500 dark:text-white mt-1">ID: {cohort.id}</p>
                         {cohortCourse && (
                           <p className="text-xs text-blue-600 mt-1 font-medium">
                             Course: {cohortCourse.name}
@@ -3347,17 +3347,17 @@ export default function CohortManagement({
                             cohort.status === 'Active' ? 'bg-green-100 text-green-800' :
                             cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
                             cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
+                            'bg-gray-100 text-gray-800 dark:text-white'
                           }`}>
                             {cohort.status || 'Active'}
                           </span>
                         </div>
                         {(cohort.startDate || cohort.endDate) && (
-                          <div className="mt-2 text-xs text-gray-600">
+                          <div className="mt-2 text-xs text-gray-600 dark:text-white">
                             {cohort.startDate && (
                               <span>Start: {format(new Date(cohort.startDate), 'dd-MMM-yy')}</span>
                             )}
-                            {cohort.startDate && cohort.endDate && <span> � </span>}
+                            {cohort.startDate && cohort.endDate && <span> ? </span>}
                             {cohort.endDate && (
                               <span>End: {format(new Date(cohort.endDate), 'dd-MMM-yy')}</span>
                             )}
@@ -3461,18 +3461,18 @@ export default function CohortManagement({
                     <div className="space-y-2">
                       {cohort.location && (
                         <div className="flex items-center text-sm">
-                          <span className="text-gray-600 w-16 text-xs">Location:</span>
+                          <span className="text-gray-600 dark:text-white w-16 text-xs">Location:</span>
                           <span className="text-purple-600 font-medium">{cohort.location}</span>
                         </div>
                       )}
                       {cohort.instructorName && (
                         <div className="flex items-center text-sm">
-                          <span className="text-gray-600 w-16 text-xs">Instructor:</span>
+                          <span className="text-gray-600 dark:text-white w-16 text-xs">Instructor:</span>
                           <span className="text-purple-700">{cohort.instructorName}</span>
                         </div>
                       )}
                       <div className="flex items-center text-sm">
-                        <span className="text-gray-600 w-16 text-xs">Capacity:</span>
+                        <span className="text-gray-600 dark:text-white w-16 text-xs">Capacity:</span>
                         <span className="text-purple-600 font-medium">
                           {cohort.members.length} / {cohort.capacity}
                           {cohort.members.length === cohort.capacity && 
@@ -3482,8 +3482,8 @@ export default function CohortManagement({
                       </div>
                       {cohort.startTime && cohort.endTime && (
                         <div className="flex items-center text-sm">
-                          <span className="text-gray-600 w-16 text-xs">Schedule:</span>
-                          <span className="text-gray-800">
+                          <span className="text-gray-600 dark:text-white w-16 text-xs">Schedule:</span>
+                          <span className="text-gray-800 dark:text-white">
                             {new Date(`2000-01-01T${cohort.startTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
                             {new Date(`2000-01-01T${cohort.endTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -3492,7 +3492,7 @@ export default function CohortManagement({
                     </div>
                     
                     {cohort.notes && (
-                      <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600 border-l-2 border-gray-300">
+                      <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600 dark:text-white border-l-2 border-gray-300">
                         <span className="font-medium">Notes: </span>{cohort.notes}
                       </div>
                     )}
@@ -3500,7 +3500,7 @@ export default function CohortManagement({
                     {cohort.members.length > 0 && (
                       <div className="mt-3">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium text-gray-700">Members</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-white">Members</span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -3544,9 +3544,9 @@ export default function CohortManagement({
 
       {/* Unsaved Cohort Changes Confirmation Dialog */}
       <Dialog open={showCohortUnsavedDialog} onOpenChange={setShowCohortUnsavedDialog}>
-        <DialogContent className="max-w-lg w-full p-6 bg-white rounded-lg shadow-xl border">
+        <DialogContent className="max-w-lg w-full p-6 bg-background dark:bg-gray-900 rounded-lg shadow-xl border dark:border-gray-700">
           <DialogHeader className="mb-4">
-            <DialogTitle className="text-lg font-semibold text-gray-900">
+            <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
               {newCohortEditId ? 'Close Cohort Editor' : 'Unsaved Changes'}
             </DialogTitle>
             <DialogDescription>
@@ -3609,8 +3609,8 @@ export default function CohortManagement({
             <div className="space-y-4">
               <div className="border-b pb-3">
                 <h3 className="font-semibold text-lg">{selectedCohortForView.name}</h3>
-                <p className="text-gray-600">ID: {selectedCohortForView.id}</p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-gray-600 dark:text-white">ID: {selectedCohortForView.id}</p>
+                <p className="text-sm text-gray-500 dark:text-white mt-1">
                   Course: {courses.find(c => c.courseId === selectedCohortForView.courseId || c.id === selectedCohortForView.courseId)?.name || 'Unknown Course'}
                 </p>
               </div>
@@ -3619,20 +3619,20 @@ export default function CohortManagement({
                 <div>
                   <h4 className="font-semibold mb-2">Basic Information</h4>
                   <dl className="grid grid-cols-[100px_1fr] gap-y-1 text-sm">
-                    <dt className="text-gray-500">Status:</dt>
+                    <dt className="text-gray-500 dark:text-white">Status:</dt>
                     <dd>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         selectedCohortForView.status === 'Active' ? 'bg-green-100 text-green-800' :
                         selectedCohortForView.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
                         selectedCohortForView.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-white'
                       }`}>
                         {selectedCohortForView.status || 'Active'}
                       </span>
                     </dd>
-                    <dt className="text-gray-500">Instructor:</dt>
+                    <dt className="text-gray-500 dark:text-white">Instructor:</dt>
                     <dd>{selectedCohortForView.instructorName || 'Not assigned'}</dd>
-                    <dt className="text-gray-500">Location:</dt>
+                    <dt className="text-gray-500 dark:text-white">Location:</dt>
                     <dd>{selectedCohortForView.location || 'Not specified'}</dd>
                   </dl>
                 </div>
@@ -3640,11 +3640,11 @@ export default function CohortManagement({
                 <div>
                   <h4 className="font-semibold mb-2">Capacity & Enrollment</h4>
                   <dl className="grid grid-cols-[120px_1fr] gap-y-1 text-sm">
-                    <dt className="text-gray-500">Capacity:</dt>
+                    <dt className="text-gray-500 dark:text-white">Capacity:</dt>
                     <dd>{selectedCohortForView.capacity || 'Not set'}</dd>
-                    <dt className="text-gray-500">Enrolled:</dt>
+                    <dt className="text-gray-500 dark:text-white">Enrolled:</dt>
                     <dd className="text-green-600 font-semibold">{selectedCohortForView.members.length} students</dd>
-                    <dt className="text-gray-500">Available:</dt>
+                    <dt className="text-gray-500 dark:text-white">Available:</dt>
                     <dd>{selectedCohortForView.capacity ? selectedCohortForView.capacity - selectedCohortForView.members.length : 'N/A'} spots</dd>
                   </dl>
                 </div>
@@ -3654,7 +3654,7 @@ export default function CohortManagement({
                 <h4 className="font-semibold mb-2">Schedule</h4>
                 <div className="grid grid-cols-2 gap-x-6 text-sm">
                   <div>
-                    <span className="text-gray-500">Period:</span>
+                    <span className="text-gray-500 dark:text-white">Period:</span>
                     <div className="mt-1">
                       {selectedCohortForView.startDate && selectedCohortForView.endDate ? (
                         <div className="space-y-0.5">
@@ -3662,17 +3662,17 @@ export default function CohortManagement({
                           <div>End: {format(new Date(selectedCohortForView.endDate), 'dd-MMM-yy')}</div>
                         </div>
                       ) : (
-                        <span className="text-gray-400">Not set</span>
+                        <span className="text-gray-400 dark:text-white">Not set</span>
                       )}
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-500">Time:</span>
+                    <span className="text-gray-500 dark:text-white">Time:</span>
                     <div className="mt-1">
                       {selectedCohortForView.startTime && selectedCohortForView.endTime ? (
                         <div>{selectedCohortForView.startTime} - {selectedCohortForView.endTime}</div>
                       ) : (
-                        <span className="text-gray-400">Not set</span>
+                        <span className="text-gray-400 dark:text-white">Not set</span>
                       )}
                     </div>
                   </div>
@@ -3682,7 +3682,7 @@ export default function CohortManagement({
               {selectedCohortForView.notes && (
                 <div className="border-t pt-3">
                   <h4 className="font-semibold mb-2">Notes</h4>
-                  <p className="text-sm text-gray-600">{selectedCohortForView.notes}</p>
+                  <p className="text-sm text-gray-600 dark:text-white">{selectedCohortForView.notes}</p>
                 </div>
               )}
 
@@ -3692,13 +3692,13 @@ export default function CohortManagement({
                   {selectedCohortForView.members.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {selectedCohortForView.members.map((member) => (
-                        <span key={member.id} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
+                        <span key={member.id} className="px-2 py-0.5 bg-gray-100 text-gray-700 dark:text-white text-xs rounded">
                           {member.name}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-400">No students enrolled</p>
+                    <p className="text-sm text-gray-400 dark:text-white">No students enrolled</p>
                   )}
                 </div>
               </div>

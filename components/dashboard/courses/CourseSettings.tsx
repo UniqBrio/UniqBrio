@@ -64,8 +64,8 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
       {/* Header */}
       <div className="flex items-center justify-between border-b pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Course Management Settings</h2>
-          <p className="text-sm text-gray-500 mt-1">Customize your course management experience</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Course Management Settings</h2>
+          <p className="text-sm text-gray-500 dark:text-white mt-1">Customize your course management experience</p>
         </div>
         <Button
           variant="outline"
@@ -82,7 +82,7 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <LayoutDashboard className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Course Identity & Codes</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Course Identity & Codes</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
           <div className="space-y-2">
@@ -93,7 +93,7 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
               onChange={(event) => handleLocalChange('identity', 'customIdPrefix', event.target.value)}
               placeholder="e.g. COURSE or CLS-"
             />
-            <p className="text-xs text-gray-500">Shown at the start of every new course ID.</p>
+            <p className="text-xs text-gray-500 dark:text-white">Shown at the start of every new course ID.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="courseIdStrategy">Numbering Strategy</Label>
@@ -179,7 +179,7 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
         <Button
           onClick={handleSave}
           disabled={!hasChanges}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-300 disabled:text-gray-500"
+          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-300 disabled:text-gray-500 dark:text-white"
         >
           <Save className="h-4 w-4" />
           Save Settings

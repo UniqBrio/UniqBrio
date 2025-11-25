@@ -107,7 +107,7 @@ export default function KYCRejectionModal({
 
           <div>
             <Label className="text-base font-semibold">Reasons for Rejection</Label>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-gray-600 dark:text-white mb-3">
               Select all reasons that apply to this KYC rejection:
             </p>
             <div className="grid grid-cols-1 gap-3 max-h-60 overflow-y-auto border rounded-md p-3 bg-gray-50">
@@ -133,7 +133,7 @@ export default function KYCRejectionModal({
             <Label htmlFor="customMessage" className="text-base font-semibold">
               Additional Message (Optional)
             </Label>
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-gray-600 dark:text-white mb-2">
               Add any specific instructions or additional context for the user:
             </p>
             <Textarea

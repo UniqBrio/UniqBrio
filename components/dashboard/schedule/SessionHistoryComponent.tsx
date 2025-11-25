@@ -62,7 +62,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
       case 'active':
         return <CheckCircle className="h-4 w-4 text-green-500" />
       default:
-        return <AlertTriangle className="h-4 w-4 text-gray-500" />
+        return <AlertTriangle className="h-4 w-4 text-gray-500 dark:text-white" />
     }
   }
 
@@ -146,10 +146,10 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
   if (!originalData && sessionHistory.length === 0) {
     return (
       <Card className={`${className}`}>
-        <CardContent className="p-4 text-center text-gray-500">
-          <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+        <CardContent className="p-4 text-center text-gray-500 dark:text-white">
+          <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-gray-400 dark:text-white" />
           <p className="text-sm">No modification history available</p>
-          <p className="text-xs text-gray-400 mt-1">This session has not been modified</p>
+          <p className="text-xs text-gray-400 dark:text-white mt-1">This session has not been modified</p>
         </CardContent>
       </Card>
     )
@@ -162,7 +162,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
           <Clock className="h-5 w-5 text-blue-500" />
           Session Modification History
         </CardTitle>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-white">
           Track all changes made to this specific session
         </p>
       </CardHeader>
@@ -180,22 +180,22 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="h-3 w-3 text-green-600" />
-                <span className="text-gray-700">Date:</span>
+                <span className="text-gray-700 dark:text-white">Date:</span>
                 <span className="font-medium">{format(originalData.date, 'dd-MMM-yy')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-3 w-3 text-green-600" />
-                <span className="text-gray-700">Time:</span>
+                <span className="text-gray-700 dark:text-white">Time:</span>
                 <span className="font-medium">{originalData.startTime} - {originalData.endTime}</span>
               </div>
               <div className="flex items-center gap-2">
                 <User className="h-3 w-3 text-green-600" />
-                <span className="text-gray-700">Instructor:</span>
+                <span className="text-gray-700 dark:text-white">Instructor:</span>
                 <span className="font-medium">{originalData.instructor}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-3 w-3 text-green-600" />
-                <span className="text-gray-700">Location:</span>
+                <span className="text-gray-700 dark:text-white">Location:</span>
                 <span className="font-medium">{originalData.location}</span>
               </div>
             </div>
@@ -205,7 +205,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
         {/* Modification History */}
         {sessionHistory.length > 0 && (
           <div className="space-y-3">
-            <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+            <h4 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
               <RefreshCw className="h-4 w-4" />
               Change Timeline
             </h4>
@@ -218,7 +218,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {getModificationIcon(modification.type)}
-                      <span className="font-semibold capitalize text-gray-800">
+                      <span className="font-semibold capitalize text-gray-800 dark:text-white">
                         {modification.type.replace('_', ' ')}
                       </span>
                       <Badge 
@@ -228,7 +228,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
                         #{sessionHistory.length - index}
                       </Badge>
                     </div>
-                    <div className="text-right text-xs text-gray-500">
+                    <div className="text-right text-xs text-gray-500 dark:text-white">
                       <div>{formatDateTime(modification.timestamp)}</div>
                       <div>by {modification.modifiedBy}</div>
                     </div>
@@ -236,7 +236,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
 
                   {modification.reason && (
                     <div className="mb-3">
-                      <p className="text-sm text-gray-700 italic">"{modification.reason}"</p>
+                      <p className="text-sm text-gray-700 dark:text-white italic">"{modification.reason}"</p>
                     </div>
                   )}
 
@@ -245,9 +245,9 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
                     {renderChangeDetails(modification).map((change, changeIndex) => (
                       <div key={changeIndex} className="flex items-center gap-2 text-sm">
                         {change.icon}
-                        <span className="text-gray-600">{change.field}:</span>
+                        <span className="text-gray-600 dark:text-white">{change.field}:</span>
                         <span className="line-through text-red-600">{change.from}</span>
-                        <span className="text-gray-400">?</span>
+                        <span className="text-gray-400 dark:text-white">?</span>
                         <span className="font-medium text-green-600">{change.to}</span>
                       </div>
                     ))}
@@ -255,7 +255,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
 
                   {/* Impact Information */}
                   <Separator className="my-3" />
-                  <div className="flex items-center justify-between text-xs text-gray-600">
+                  <div className="flex items-center justify-between text-xs text-gray-600 dark:text-white">
                     <div className="flex items-center gap-2">
                       <User className="h-3 w-3" />
                       <span>{modification.affectedStudents || 0} students affected</span>
@@ -282,10 +282,10 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
 
         {/* Backend Tracking Information */}
         {(rescheduleInfo || cancellationInfo || reassignmentInfo) && (
-          <div className="border border-gray-200 bg-gray-50 p-4 rounded-lg">
+          <div className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-3">
-              <Info className="h-4 w-4 text-gray-600" />
-              <h4 className="font-semibold text-gray-800">Backend Tracking</h4>
+              <Info className="h-4 w-4 text-gray-600 dark:text-white" />
+              <h4 className="font-semibold text-gray-800 dark:text-white">Backend Tracking</h4>
             </div>
             <div className="space-y-2 text-sm">
               {rescheduleInfo && (
@@ -361,22 +361,22 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2">
               <Calendar className="h-3 w-3 text-blue-600" />
-              <span className="text-gray-700">Date:</span>
+              <span className="text-gray-700 dark:text-white">Date:</span>
               <span className="font-medium">{format(currentSessionData.date, 'dd-MMM-yy')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-3 w-3 text-blue-600" />
-              <span className="text-gray-700">Time:</span>
+              <span className="text-gray-700 dark:text-white">Time:</span>
               <span className="font-medium">{currentSessionData.startTime} - {currentSessionData.endTime}</span>
             </div>
             <div className="flex items-center gap-2">
               <User className="h-3 w-3 text-blue-600" />
-              <span className="text-gray-700">Instructor:</span>
+              <span className="text-gray-700 dark:text-white">Instructor:</span>
               <span className="font-medium">{currentSessionData.instructor}</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="h-3 w-3 text-blue-600" />
-              <span className="text-gray-700">Location:</span>
+              <span className="text-gray-700 dark:text-white">Location:</span>
               <span className="font-medium">{currentSessionData.location}</span>
             </div>
           </div>

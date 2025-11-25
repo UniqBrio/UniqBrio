@@ -43,7 +43,7 @@ export default function PrivacyPage() {
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-10 mb-8">
           {/* Welcome Message */}
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 rounded-xl p-6 mb-8">
-            <p className="text-base text-gray-800 font-semibold">
+            <p className="text-base text-gray-800 dark:text-white font-semibold">
               We care deeply about your privacy and the privacy of every child and family who uses UniqBrio.
             </p>
           </div>
@@ -55,23 +55,23 @@ export default function PrivacyPage() {
                 <Database className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">1. What we collect</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">1. What we collect</h2>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Academy info (name, address, logo)</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Academy info (name, address, logo)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Personal info (name, email, phone, payment details)</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Personal info (name, email, phone, payment details)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Student & parent info you choose to add (name, age, photo, medical notes, attendance)</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Student & parent info you choose to add (name, age, photo, medical notes, attendance)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Usage data (which pages you visit, device info, IP address)</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Usage data (which pages you visit, device info, IP address)</span>
                   </li>
                 </ul>
               </div>
@@ -85,19 +85,19 @@ export default function PrivacyPage() {
                 <Eye className="w-6 h-6 text-green-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">2. Why we collect it</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">2. Why we collect it</h2>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">To run the platform and send payment reminders, class updates, etc.</span>
+                    <span className="text-sm text-gray-700 dark:text-white">To run the platform and send payment reminders, class updates, etc.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">To improve UniqBrio (anonymous analytics)</span>
+                    <span className="text-sm text-gray-700 dark:text-white">To improve UniqBrio (anonymous analytics)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">To comply with Indian and Canadian law</span>
+                    <span className="text-sm text-gray-700 dark:text-white">To comply with Indian and Canadian law</span>
                   </li>
                 </ul>
               </div>
@@ -111,19 +111,19 @@ export default function PrivacyPage() {
                 <Users className="w-6 h-6 text-indigo-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">3. Who sees your data</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">3. Who sees your data</h2>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Only people you invite (staff, parents, students) see the data you share with them.</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Only people you invite (staff, parents, students) see the data you share with them.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Our team can access it only to provide support or fix bugs.</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Our team can access it only to provide support or fix bugs.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700">Trusted partners: Auth0 (authentication), MongoDB Atlas, Cloudflare R2, Razorpay/Stripe (payments) – all under strict contracts.</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Trusted partners: Auth0 (authentication), MongoDB Atlas, Cloudflare R2, Razorpay/Stripe (payments) – all under strict contracts.</span>
                   </li>
                 </ul>
               </div>
@@ -137,8 +137,8 @@ export default function PrivacyPage() {
                 <Shield className="w-6 h-6 text-yellow-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">4. Children's data</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">4. Children's data</h2>
+                <p className="text-sm text-gray-700 dark:text-white leading-relaxed">
                   We never collect data from children under 13 without explicit parental consent (via the parent account). Parents can view and delete their child's data anytime.
                 </p>
               </div>
@@ -152,23 +152,23 @@ export default function PrivacyPage() {
                 <Download className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">5. Your rights (India + Canada + GDPR-ready)</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">5. Your rights (India + Canada + GDPR-ready)</h2>
                 <ul className="space-y-3 mb-4">
                   <li className="flex items-start gap-3">
                     <span className="text-blue-600 font-bold mt-0.5">✓</span>
-                    <span className="text-sm text-gray-700">Access, correct, or delete your data</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Access, correct, or delete your data</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-blue-600 font-bold mt-0.5">✓</span>
-                    <span className="text-sm text-gray-700">Export everything in one click (Settings → Export Data)</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Export everything in one click (Settings → Export Data)</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-blue-600 font-bold mt-0.5">✓</span>
-                    <span className="text-sm text-gray-700">Withdraw consent or object to processing</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Withdraw consent or object to processing</span>
                   </li>
                 </ul>
                 <div className="p-4 bg-white/80 rounded-lg">
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-white">
                     Just email{" "}
                     <a href="mailto:support@uniqbrio.com" className="text-purple-700 hover:text-purple-800 font-semibold underline">
                       support@uniqbrio.com
@@ -187,8 +187,8 @@ export default function PrivacyPage() {
                 <Lock className="w-6 h-6 text-green-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">6. Security</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">6. Security</h2>
+                <p className="text-sm text-gray-700 dark:text-white leading-relaxed">
                   Industry-standard encryption, regular audits, and zero sharing with advertisers. 🔐
                 </p>
               </div>
@@ -202,8 +202,8 @@ export default function PrivacyPage() {
                 <Globe className="w-6 h-6 text-purple-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">7. Data location</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">7. Data location</h2>
+                <p className="text-sm text-gray-700 dark:text-white leading-relaxed">
                   Stored securely in India and backed up in Canada-region servers. 🌏
                 </p>
               </div>
@@ -217,8 +217,8 @@ export default function PrivacyPage() {
                 <Server className="w-6 h-6 text-orange-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">8. Changes</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">8. Changes</h2>
+                <p className="text-sm text-gray-700 dark:text-white leading-relaxed">
                   Significant changes will be communicated via email and in-app notifications. 📢
                 </p>
               </div>
@@ -232,13 +232,13 @@ export default function PrivacyPage() {
                 <Mail className="w-6 h-6 text-purple-600" />
               </div>
               <div className="flex-1">
-                <p className="text-gray-800 leading-relaxed text-sm">
+                <p className="text-gray-800 dark:text-white leading-relaxed text-sm">
                   Still have questions? We're real humans – write to{" "}
                   <a href="mailto:support@uniqbrio.com" className="text-purple-700 hover:text-purple-800 font-semibold underline">
                     support@uniqbrio.com
                   </a>
                 </p>
-                <p className="text-gray-800 leading-relaxed mt-4 font-semibold text-lg">
+                <p className="text-gray-800 dark:text-white leading-relaxed mt-4 font-semibold text-lg">
                   Sincerely,<br />
                   <span className="text-purple-700">Team UniqBrio</span> 💜
                 </p>

@@ -138,7 +138,7 @@ export default function PricingTab({
             />
           </div>
           {formData.courseCategory === 'Ongoing Training' && (
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 dark:text-white mt-1">
               This price will be charged monthly
             </p>
           )}

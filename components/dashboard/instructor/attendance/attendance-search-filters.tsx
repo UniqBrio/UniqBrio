@@ -527,7 +527,7 @@ export default function AttendanceSearchFilters({
       <div className="flex flex-col lg:flex-row gap-2 mb-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
           <Input
             placeholder="Search instructors or remarks..."
             className="pl-10"
@@ -695,7 +695,7 @@ export default function AttendanceSearchFilters({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
               <ArrowUpDown className="mr-2 h-4 w-4" />
-              <span className="ml-1 text-xs text-gray-600">
+              <span className="ml-1 text-xs text-gray-600 dark:text-white">
                 {(() => {
                   const label = [
                     { value: 'date', label: 'Date' },
@@ -707,9 +707,9 @@ export default function AttendanceSearchFilters({
                 })()}
               </span>
               {sortOrder === 'asc' ? (
-                <ArrowUp className="ml-1 h-3 w-3 text-gray-500" />
+                <ArrowUp className="ml-1 h-3 w-3 text-gray-500 dark:text-white" />
               ) : (
-                <ArrowDown className="ml-1 h-3 w-3 text-gray-500" />
+                <ArrowDown className="ml-1 h-3 w-3 text-gray-500 dark:text-white" />
               )}
             </Button>
           </DropdownMenuTrigger>
@@ -819,7 +819,7 @@ export default function AttendanceSearchFilters({
           <div className="flex-1 bg-gray-200 rounded-full h-2">
             <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${(importStats.processed / importStats.total) * 100}%` }}></div>
           </div>
-          <span className="text-sm text-gray-600">{importStats.processed}/{importStats.total}</span>
+          <span className="text-sm text-gray-600 dark:text-white">{importStats.processed}/{importStats.total}</span>
         </div>
       )}
 

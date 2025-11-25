@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -248,7 +248,7 @@ export default function FunnelPage() {
       case "Cold":
         return "bg-blue-100 text-blue-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   
   }
@@ -265,8 +265,8 @@ export default function FunnelPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Conversion Funnel</h1>
-          <p className="text-gray-500">Track lead progression and conversion rates</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Funnel</h1>
+          <p className="text-gray-500 dark:text-white">Track lead progression and conversion rates</p>
         </div>
         <div className="flex gap-2">
           <Select value={timeFilter} onValueChange={setTimeFilter}>
@@ -290,7 +290,7 @@ export default function FunnelPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">Total Leads</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-white">Total Leads</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{metrics.totalLeads}</div>
@@ -298,7 +298,7 @@ export default function FunnelPage() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">Conversion Rate</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-white">Conversion Rate</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-green-600">{metrics.overallConversionRate}%</div>
@@ -306,7 +306,7 @@ export default function FunnelPage() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">Avg Time to Convert</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-white">Avg Time to Convert</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{metrics.averageTimeToConvert} days</div>
@@ -314,7 +314,7 @@ export default function FunnelPage() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">Drop-off Rate</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-white">Drop-off Rate</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-red-600">{metrics.dropoffRate}%</div>
@@ -338,7 +338,7 @@ export default function FunnelPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-2xl font-bold">{stage.count}</span>
-                  <span className="text-sm text-gray-500">{stage.percentage}%</span>
+                  <span className="text-sm text-gray-500 dark:text-white">{stage.percentage}%</span>
                   {stage.conversionRate && (
                     <Badge variant="outline" className="text-xs">
                       {stage.conversionRate}% conversion
@@ -349,7 +349,7 @@ export default function FunnelPage() {
               <Progress value={stage.percentage} className="h-2" />
               {index < funnelData.length - 1 && (
                 <div className="flex items-center justify-center">
-                  <ArrowDown className="w-5 h-5 text-gray-400" />
+                  <ArrowDown className="w-5 h-5 text-gray-400 dark:text-white" />
                 </div>
               )}
             </div>

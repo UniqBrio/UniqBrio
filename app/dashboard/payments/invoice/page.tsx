@@ -1,4 +1,4 @@
-﻿import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
 import InvoiceTemplateManager from "@/components/dashboard/payments/invoice/template-manager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
@@ -8,8 +8,8 @@ export default function InvoicePage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Invoice Management</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Invoice Management</h1>
+        <p className="text-gray-600 dark:text-white mt-2">
           Manage invoice templates, generate invoices, and track payment receipts
         </p>
       </div>
@@ -41,7 +41,7 @@ export default function InvoicePage() {
                 <Download className="h-4 w-4 mr-2" />
                 Coming Soon
               </Button>
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-gray-500 dark:text-white mt-4">
                 This feature will allow you to generate invoices for individual students or batch generate invoices for multiple payments.
               </p>
             </CardContent>
@@ -64,7 +64,7 @@ export default function InvoicePage() {
                 <Eye className="h-4 w-4 mr-2" />
                 Coming Soon
               </Button>
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-sm text-gray-500 dark:text-white mt-4">
                 Access all previously generated invoices, search by student or date, and download copies for your records.
               </p>
             </CardContent>

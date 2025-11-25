@@ -79,27 +79,27 @@ export default function ServiceViewDialog({ isOpen, onOpenChange, service }: Ser
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Category</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Category</p>
                   <p className="text-base">{service.category}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Level</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Level</p>
                   <p className="text-base">{service.level}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Mode</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Mode</p>
                   <p className="text-base">{service.mode}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Branch</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Branch</p>
                   <p className="text-base">{service.branch}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Location</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Location</p>
                   <p className="text-base">{service.location}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Price</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Price</p>
                   <p className="text-base font-semibold">${service.price}</p>
                 </div>
               </div>
@@ -114,15 +114,15 @@ export default function ServiceViewDialog({ isOpen, onOpenChange, service }: Ser
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Capacity</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Capacity</p>
                   <p className="text-2xl font-bold">{service.capacity}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Enrolled</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Enrolled</p>
                   <p className="text-2xl font-bold text-blue-600">{service.enrolled}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Available Spots</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Available Spots</p>
                   <p className="text-2xl font-bold text-green-600">{service.capacity - service.enrolled}</p>
                 </div>
               </div>
@@ -131,8 +131,8 @@ export default function ServiceViewDialog({ isOpen, onOpenChange, service }: Ser
               
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-sm font-medium text-gray-500">Enrollment Progress</p>
-                  <p className="text-sm text-gray-500">{enrollmentPercentage.toFixed(1)}%</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Enrollment Progress</p>
+                  <p className="text-sm text-gray-500 dark:text-white">{enrollmentPercentage.toFixed(1)}%</p>
                 </div>
                 <div className="w-full h-3 bg-gray-200 rounded-full">
                   <div
@@ -154,22 +154,22 @@ export default function ServiceViewDialog({ isOpen, onOpenChange, service }: Ser
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Instructor</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Instructor</p>
                   <p className="text-base">{service.instructor}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Start Date</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Start Date</p>
                   <p className="text-base">{format(service.startDate, 'dd-MMM-yy')}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">End Date</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">End Date</p>
                   <p className="text-base">{format(service.endDate, 'dd-MMM-yy')}</p>
                 </div>
               </div>
               
               {service.timeSlot && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-500">Time Slot</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-white">Time Slot</p>
                   <p className="text-base">{service.timeSlot}</p>
                 </div>
               )}
@@ -194,19 +194,19 @@ export default function ServiceViewDialog({ isOpen, onOpenChange, service }: Ser
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm font-medium text-gray-500">Time</p>
+                          <p className="text-sm font-medium text-gray-500 dark:text-white">Time</p>
                           <p className="text-base">{session.timeFrom} - {session.timeTo}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-500">Days</p>
+                          <p className="text-sm font-medium text-gray-500 dark:text-white">Days</p>
                           <p className="text-base">{session.days.join(", ")}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-500">Instructor</p>
+                          <p className="text-sm font-medium text-gray-500 dark:text-white">Instructor</p>
                           <p className="text-base">{session.instructor}</p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-500">Location</p>
+                          <p className="text-sm font-medium text-gray-500 dark:text-white">Location</p>
                           <p className="text-base">{session.location}</p>
                         </div>
                       </div>

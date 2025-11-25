@@ -188,7 +188,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
               <Mail className="h-5 w-5 text-purple-600" />
               <div>
                 <Label htmlFor="emailNotifications" className="font-medium">Email Notifications</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-white">
                   Receive notifications via email
                 </p>
               </div>
@@ -201,12 +201,12 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
+          <div className="flex items-center justify-between p-4 rounded-lg border dark:border-gray-700 bg-background dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <div className="flex items-center gap-3">
               <Bell className="h-5 w-5 text-purple-600" />
               <div>
                 <Label htmlFor="pushNotifications" className="font-medium">In App Notifications</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-white">
                   Receive push notifications on your device
                 </p>
               </div>
@@ -221,10 +221,10 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
 
           <div className="flex items-center justify-between p-4 rounded-lg border bg-gray-50 opacity-60">
             <div className="flex items-center gap-3">
-              <MessageSquare className="h-5 w-5 text-gray-400" />
+              <MessageSquare className="h-5 w-5 text-gray-400 dark:text-white" />
               <div>
-                <Label htmlFor="smsNotifications" className="font-medium text-gray-500">SMS Notifications</Label>
-                <p className="text-sm text-gray-400">
+                <Label htmlFor="smsNotifications" className="font-medium text-gray-500 dark:text-white">SMS Notifications</Label>
+                <p className="text-sm text-gray-400 dark:text-white">
                   Receive important alerts via SMS
                 </p>
               </div>
@@ -291,7 +291,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
                           <Label htmlFor="courseCreatedBody">Message Body</Label>
                           <Textarea
                             id="courseCreatedBody"
-                            className="min-h-[200px] bg-white font-mono text-xs"
+                            className="min-h-[200px] bg-background dark:bg-gray-800 font-mono text-xs"
                             defaultValue={`Hi {{recipientName}},
 
 A new course has been created:
@@ -380,10 +380,10 @@ Note: Associated cohorts and sessions may be affected.`}
                             </div>
                             <div className="flex-1 text-sm">
                               <p className="font-semibold">New Course Created</p>
-                              <p className="text-gray-600 mt-1">
+                              <p className="text-gray-600 dark:text-white mt-1">
                                 {"{{courseName}}"} ({"{{courseCode}}"}) has been added to the system.
                               </p>
-                              <p className="text-xs text-gray-500 mt-2">{"{{timeAgo}}"}</p>
+                              <p className="text-xs text-gray-500 dark:text-white mt-2">{"{{timeAgo}}"}</p>
                             </div>
                           </div>
                         </div>
@@ -400,10 +400,10 @@ Note: Associated cohorts and sessions may be affected.`}
                             </div>
                             <div className="flex-1 text-sm">
                               <p className="font-semibold">Course Updated</p>
-                              <p className="text-gray-600 mt-1">
+                              <p className="text-gray-600 dark:text-white mt-1">
                                 {"{{courseName}}"} was updated by {"{{updatedBy}}"}
                               </p>
-                              <p className="text-xs text-gray-500 mt-2">{"{{timeAgo}}"}</p>
+                              <p className="text-xs text-gray-500 dark:text-white mt-2">{"{{timeAgo}}"}</p>
                             </div>
                           </div>
                         </div>
@@ -420,10 +420,10 @@ Note: Associated cohorts and sessions may be affected.`}
                             </div>
                             <div className="flex-1 text-sm">
                               <p className="font-semibold">Course Deleted</p>
-                              <p className="text-gray-600 mt-1">
+                              <p className="text-gray-600 dark:text-white mt-1">
                                 {"{{courseName}}"} has been removed from the system.
                               </p>
-                              <p className="text-xs text-gray-500 mt-2">{"{{timeAgo}}"}</p>
+                              <p className="text-xs text-gray-500 dark:text-white mt-2">{"{{timeAgo}}"}</p>
                             </div>
                           </div>
                         </div>

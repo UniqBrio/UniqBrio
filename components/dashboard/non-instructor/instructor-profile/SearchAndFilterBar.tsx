@@ -363,7 +363,7 @@ export default function SearchAndFilterBar({
       <div className="flex flex-col lg:flex-row gap-2 mb-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
           <Input
             placeholder="Search non-instructors, roles..."
             className="pl-10"
@@ -462,7 +462,7 @@ export default function SearchAndFilterBar({
                       })
                     }}
                   />
-                  <span className="text-xs text-gray-500 self-center">to</span>
+                  <span className="text-xs text-gray-500 dark:text-white self-center">to</span>
                   <input
                     type="number"
                     className="w-20 px-2 py-1 text-xs border rounded"

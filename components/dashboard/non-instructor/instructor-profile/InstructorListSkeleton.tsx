@@ -22,26 +22,26 @@ const InstructorListSkeleton: React.FC<InstructorListSkeletonProps> = ({
           <table className="w-full min-w-max text-sm border-collapse">
             <thead className="sticky top-0 z-10 bg-gray-50 shadow-[0_1px_0_0_rgba(229,231,235,1)]">
               <tr className="border-b border-gray-200">
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-10">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-10">
                   <Skeleton className="h-4 w-4 rounded" />
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-20">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-20">
                   <Skeleton className="h-4 w-12" />
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-40">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-40">
                   <Skeleton className="h-4 w-16" />
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-44">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-44">
                   <Skeleton className="h-4 w-12" />
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-20">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-20">
                   <Skeleton className="h-4 w-16" />
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 w-12">
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-white w-12">
                   <Skeleton className="h-4 w-20" />
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 w-12"></th>
-                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 w-12"></th>
+                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-white w-12"></th>
+                <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-white w-12"></th>
               </tr>
             </thead>
             <tbody>

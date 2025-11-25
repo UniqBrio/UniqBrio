@@ -74,7 +74,7 @@ export default function DraftsDialog({
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
             {drafts.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">No drafts found.</div>
+              <div className="text-center text-gray-500 dark:text-white py-8">No drafts found.</div>
             ) : (
               (Array.isArray(drafts) ? drafts : [])
                 .sort((a: DraftType, b: DraftType) => b.updatedAt - a.updatedAt)
@@ -82,20 +82,20 @@ export default function DraftsDialog({
                   <Card key={draft.id || `draft-${index}-${draft.name}`} className="hover:shadow-md transition-shadow cursor-pointer flex flex-col md:flex-row md:items-center md:justify-between p-4">
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-lg mb-1">{draft.name}</div>
-                      <div className="text-sm text-gray-700 mb-1">{draft.instructor}</div>
-                      <div className="text-xs text-gray-500 mb-2">{draft.description}</div>
+                      <div className="text-sm text-gray-700 dark:text-white mb-1">{draft.instructor}</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-2">{draft.description}</div>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {draft.tags && draft.tags.map((tag: string, i: number) => (
-                          <span key={`${draft.id}-tag-${i}-${tag}`} className="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
+                          <span key={`${draft.id}-tag-${i}-${tag}`} className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs font-medium border border-gray-200 dark:border-gray-700">{tag}</span>
                         ))}
                       </div>
-                      <div className="text-xs text-gray-400">Last updated: {format(new Date(draft.updatedAt), 'dd-MMM-yy')}</div>
+                      <div className="text-xs text-gray-400 dark:text-white">Last updated: {format(new Date(draft.updatedAt), 'dd-MMM-yy')}</div>
                     </div>
                     <div className="flex flex-col md:flex-row items-center gap-2 mt-2 md:mt-0 md:ml-4">
                       {/* Create Course button */}
                       <button
                         type="button"
-                        className="p-2 rounded hover:bg-purple-100 text-purple-600 border border-gray-200 flex items-center"
+                        className="p-2 rounded hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-gray-200 dark:border-gray-700 flex items-center"
                         title="Create Course from Draft"
                         onClick={() => onEditDraft(draft)}
                       >

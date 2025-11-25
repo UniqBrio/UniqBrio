@@ -162,7 +162,7 @@ export function StudentPaymentTable({
 
   const getReminderBadge = (isOn: boolean) => {
     return (
-      <Badge className={`${isOn ? "bg-purple-600 text-white hover:bg-purple-600" : "bg-gray-200 text-gray-600 hover:bg-gray-200"} rounded-full px-3 py-1`}>
+      <Badge className={`${isOn ? "bg-purple-600 text-white hover:bg-purple-600" : "bg-gray-200 text-gray-600 dark:text-white hover:bg-gray-200"} rounded-full px-3 py-1`}>
         {isOn ? "On" : "Off"}
       </Badge>
     );
@@ -223,7 +223,7 @@ export function StudentPaymentTable({
         <div className="overflow-x-auto">
           <div className="flex gap-6 pb-4" style={{ minWidth: 'max-content' }}>
           {filteredPayments.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
+            <div className="col-span-full text-center py-8 text-gray-500 dark:text-white">
               No payments found
             </div>
           ) : (
@@ -239,7 +239,7 @@ export function StudentPaymentTable({
                     {/* Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-gray-900 mb-1">
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
                           {payment.studentName}
                         </h3>
                         <p className="text-sm text-purple-600 font-medium">
@@ -247,7 +247,7 @@ export function StudentPaymentTable({
                         </p>
                       </div>
                       {payment.status === "N/A" ? (
-                        <span className="text-gray-400 text-sm">{payment.status}</span>
+                        <span className="text-gray-400 dark:text-white text-sm">{payment.status}</span>
                       ) : (
                         getStatusBadge(payment.status, payment)
                       )}
@@ -256,8 +256,8 @@ export function StudentPaymentTable({
                     {/* Course Info */}
                     <div className="space-y-2 border-t pt-3">
                       <div>
-                        <p className="text-xs text-gray-500">Enrolled Course</p>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-xs text-gray-500 dark:text-white">Enrolled Course</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {payment.enrolledCourseName || "-"}
                         </p>
                         <p className="text-xs text-purple-600">
@@ -265,31 +265,31 @@ export function StudentPaymentTable({
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Cohort</p>
+                        <p className="text-xs text-gray-500 dark:text-white">Cohort</p>
                         {payment.cohortId ? (
                           <div className="space-y-0.5">
                             <p className="text-sm font-medium text-purple-700">
                               {payment.cohortId}
                             </p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-600 dark:text-white">
                               {cohortsLoading ? 'Loading...' : getCohortDisplayName(payment.cohortId, cohortMap)}
                             </p>
                           </div>
                         ) : (
-                          <p className="text-sm font-medium text-gray-500">
+                          <p className="text-sm font-medium text-gray-500 dark:text-white">
                             Unassigned
                           </p>
                         )}
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Payment Category</p>
+                        <p className="text-xs text-gray-500 dark:text-white">Payment Category</p>
                         <Badge 
                           variant="outline" 
                           className={`text-xs
                             ${payment.studentCategory === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
                             ${payment.studentCategory === 'Regular' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
                             ${payment.studentCategory === 'Basic' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                            ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                            ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 dark:text-white border-gray-200' : ''}
                           `}
                         >
                           {payment.studentCategory || 'Not Set'}
@@ -300,19 +300,19 @@ export function StudentPaymentTable({
                     {/* Payment Info */}
                     <div className="space-y-2 border-t pt-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Course Fee:</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-sm text-gray-600 dark:text-white">Course Fee:</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           {currency} {(payment.courseFee || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Total Paid:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Total Paid:</span>
                         <span className="font-semibold text-green-600">
                           {currency} {(payment.receivedAmount || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Balance:</span>
+                        <span className="text-sm text-gray-600 dark:text-white">Balance:</span>
                         <span className="font-semibold text-red-600">
                           {currency} {(payment.outstandingAmount || 0).toLocaleString()}
                         </span>
@@ -322,7 +322,7 @@ export function StudentPaymentTable({
                     {/* Dates */}
                     <div className="space-y-1 border-t pt-2">
                       {payment.lastPaymentDate && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-white">
                           Last Payment: {new Date(payment.lastPaymentDate).toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
@@ -331,7 +331,7 @@ export function StudentPaymentTable({
                         </div>
                       )}
                       {payment.startDate && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-white">
                           Start Date: {new Date(payment.startDate).toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
@@ -340,7 +340,7 @@ export function StudentPaymentTable({
                         </div>
                       )}
                       {payment.endDate && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-white">
                           End Date: {new Date(payment.endDate).toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
@@ -349,7 +349,7 @@ export function StudentPaymentTable({
                         </div>
                       )}
                       {payment.nextReminderDate && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-white">
                           Next Reminder: {new Date(payment.nextReminderDate).toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
@@ -358,7 +358,7 @@ export function StudentPaymentTable({
                         </div>
                       )}
                       {payment.nextDueDate && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-white">
                           Next Due: {new Date(payment.nextDueDate).toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
@@ -403,7 +403,7 @@ export function StudentPaymentTable({
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1 text-gray-400 border-gray-300 cursor-not-allowed"
+                              className="flex-1 text-gray-400 dark:text-white border-gray-300 cursor-not-allowed"
                               disabled
                             >
                               <FileText className="h-4 w-4 mr-1" />
@@ -414,7 +414,7 @@ export function StudentPaymentTable({
                             size="sm"
                             variant="outline"
                             className={payment.collectionRate >= 100 
-                              ? "flex-1 text-gray-400 border-gray-300 cursor-not-allowed" 
+                              ? "flex-1 text-gray-400 dark:text-white border-gray-300 cursor-not-allowed" 
                               : "flex-1 text-blue-600 border-blue-600 hover:bg-blue-50"}
                             disabled={payment.collectionRate >= 100}
                             onClick={(e) => {
@@ -451,33 +451,33 @@ export function StudentPaymentTable({
                       onCheckedChange={(checked) => toggleSelectAll?.(!!checked)}
                     />
                   </TableHead>
-                  {shouldShowColumn('Student ID') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student ID</TableHead>}
-                  {shouldShowColumn('Student Name') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Name</TableHead>}
-                  {shouldShowColumn('Enrolled Course') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Enrolled Course</TableHead>}
-                  {shouldShowColumn('Payment Category') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Payment Category</TableHead>}
-                  {shouldShowColumn('Cohort') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Cohort</TableHead>}
-                  {shouldShowColumn('Course Type') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Type</TableHead>}
-                  {shouldShowColumn(`Course Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Fee ({currency})</TableHead>}
-                  {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Course Reg Fee ({currency})</TableHead>}
-                  {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Student Reg Fee ({currency})</TableHead>}
-                  {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total To Be Paid ({currency})</TableHead>}
-                  {shouldShowColumn(`Total Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Total Paid ({currency})</TableHead>}
-                  {shouldShowColumn(`Balance (${currency})`) && <TableHead className="font-semibold text-gray-600 sticky-table-header">Balance ({currency})</TableHead>}
-                  {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Status</TableHead>}
-                  {shouldShowColumn('Paid Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Paid Date</TableHead>}
-                  {shouldShowColumn('Start Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Start Date</TableHead>}
-                  {shouldShowColumn('End Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">End Date</TableHead>}
-                  {shouldShowColumn('Next Reminder Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Next Reminder Date</TableHead>}
-                  {shouldShowColumn('Next Due Date') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Next Due Date</TableHead>}
-                  {shouldShowColumn('Invoice') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Invoice</TableHead>}
-                  {shouldShowColumn('Send Reminder') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Send Reminder</TableHead>}
-                  {shouldShowColumn('Actions') && <TableHead className="font-semibold text-gray-600 sticky-table-header">Actions</TableHead>}
+                  {shouldShowColumn('Student ID') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student ID</TableHead>}
+                  {shouldShowColumn('Student Name') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student Name</TableHead>}
+                  {shouldShowColumn('Enrolled Course') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Enrolled Course</TableHead>}
+                  {shouldShowColumn('Payment Category') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Payment Category</TableHead>}
+                  {shouldShowColumn('Cohort') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Cohort</TableHead>}
+                  {shouldShowColumn('Course Type') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Type</TableHead>}
+                  {shouldShowColumn(`Course Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Fee ({currency})</TableHead>}
+                  {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Reg Fee ({currency})</TableHead>}
+                  {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student Reg Fee ({currency})</TableHead>}
+                  {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Total To Be Paid ({currency})</TableHead>}
+                  {shouldShowColumn(`Total Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Total Paid ({currency})</TableHead>}
+                  {shouldShowColumn(`Balance (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Balance ({currency})</TableHead>}
+                  {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Status</TableHead>}
+                  {shouldShowColumn('Paid Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Paid Date</TableHead>}
+                  {shouldShowColumn('Start Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Start Date</TableHead>}
+                  {shouldShowColumn('End Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">End Date</TableHead>}
+                  {shouldShowColumn('Next Reminder Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Next Reminder Date</TableHead>}
+                  {shouldShowColumn('Next Due Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Next Due Date</TableHead>}
+                  {shouldShowColumn('Invoice') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Invoice</TableHead>}
+                  {shouldShowColumn('Send Reminder') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Send Reminder</TableHead>}
+                  {shouldShowColumn('Actions') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Actions</TableHead>}
                 </tr>
               </thead>
               <tbody className="[&_tr:last-child]:border-0">
                 {filteredPayments.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={18} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={18} className="text-center py-8 text-gray-500 dark:text-white">
                       No payments found
                     </TableCell>
                   </TableRow>
@@ -508,7 +508,7 @@ export function StudentPaymentTable({
                             <div className="text-purple-600 text-sm font-medium">
                               {payment.enrolledCourse || "N/A"}
                             </div>
-                            <div className="text-gray-700 font-medium">
+                            <div className="text-gray-700 dark:text-white font-medium">
                               {payment.enrolledCourseName || "-"}
                             </div>
                           </div>
@@ -522,7 +522,7 @@ export function StudentPaymentTable({
                               ${payment.studentCategory === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
                               ${payment.studentCategory === 'Regular' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
                               ${payment.studentCategory === 'Basic' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                              ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                              ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 dark:text-white border-gray-200' : ''}
                             `}
                           >
                             {payment.studentCategory || 'Not Set'}
@@ -536,9 +536,9 @@ export function StudentPaymentTable({
                               <div className="text-purple-700 text-sm font-bold">
                                 {payment.cohortId}
                               </div>
-                              <div className="text-gray-600 text-xs">
+                              <div className="text-gray-600 dark:text-white text-xs">
                                 {cohortsLoading ? (
-                                  <span className="text-gray-400 animate-pulse">Loading name...</span>
+                                  <span className="text-gray-400 dark:text-white animate-pulse">Loading name...</span>
                                 ) : (
                                   <span title={`Cohort: ${getCohortDisplayName(payment.cohortId, cohortMap)}`}>
                                     {getCohortDisplayName(payment.cohortId, cohortMap)}
@@ -547,7 +547,7 @@ export function StudentPaymentTable({
                               </div>
                             </div>
                           ) : (
-                            <div className="text-gray-400 text-sm">
+                            <div className="text-gray-400 dark:text-white text-sm">
                               Unassigned
                             </div>
                           )}
@@ -561,7 +561,7 @@ export function StudentPaymentTable({
                               ${payment.courseType === 'Online' ? 'bg-green-100 text-green-700 border-0' : ''}
                               ${payment.courseType === 'Offline' ? 'bg-blue-100 text-blue-700 border-0' : ''}
                               ${payment.courseType === 'Hybrid' ? 'bg-orange-100 text-orange-700 border-0' : ''}
-                              ${payment.courseType === 'Individual' || payment.courseType === 'Not Set' || !payment.courseType ? 'bg-gray-100 text-gray-700 border-0' : ''}
+                              ${payment.courseType === 'Individual' || payment.courseType === 'Not Set' || !payment.courseType ? 'bg-gray-100 text-gray-700 dark:text-white border-0' : ''}
                             `}
                           >
                             {payment.courseType || "Not Set"}
@@ -601,7 +601,7 @@ export function StudentPaymentTable({
                       {shouldShowColumn('Status') && (
                         <TableCell>
                           {payment.status === "N/A" ? (
-                            <span className="text-gray-400">{payment.status}</span>
+                            <span className="text-gray-400 dark:text-white">{payment.status}</span>
                           ) : (
                             getStatusBadge(payment.status, payment)
                           )}
@@ -679,7 +679,7 @@ export function StudentPaymentTable({
                       {shouldShowColumn('Invoice') && (
                         <TableCell className="text-center">
                           {payment.status === "N/A" || !payment.receivedAmount || payment.receivedAmount === 0 ? (
-                            <span className="text-gray-400">N/A</span>
+                            <span className="text-gray-400 dark:text-white">N/A</span>
                           ) : (
                             <Button
                               size="sm"
@@ -698,12 +698,12 @@ export function StudentPaymentTable({
                       {shouldShowColumn('Send Reminder') && (
                         <TableCell className="text-center">
                           {payment.status === "N/A" ? (
-                            <span className="text-gray-400">N/A</span>
+                            <span className="text-gray-400 dark:text-white">N/A</span>
                           ) : payment.collectionRate >= 100 ? (
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-gray-400 border-gray-300 cursor-not-allowed"
+                              className="text-gray-400 dark:text-white border-gray-300 cursor-not-allowed"
                               disabled
                             >
                               <Send className="h-4 w-4" />
@@ -726,7 +726,7 @@ export function StudentPaymentTable({
                       {shouldShowColumn('Actions') && (
                         <TableCell>
                           {payment.status === "N/A" ? (
-                            <span className="text-gray-400">N/A</span>
+                            <span className="text-gray-400 dark:text-white">N/A</span>
                           ) : (
                             <Button 
                               size="sm" 

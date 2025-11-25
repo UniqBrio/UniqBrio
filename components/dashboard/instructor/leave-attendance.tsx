@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 // Embed the full Leave Management Hub inside the Instructor > Attendance tab.
 // We keep the LeaveProvider so state matches the standalone Leave page.

@@ -52,13 +52,13 @@ export default function GoogleAuthButton({
 
   const bgColor = color === "purple" ? "bg-[#e9e9e9]" : "bg-[#d9d9d9]";
   const hoverColor = color === "purple" ? "hover:bg-[#d9d9d9]" : "hover:bg-gray-300";
-  const textColor = "text-gray-800";
+  const textColor = "text-gray-800 dark:text-white";
 
   return (
     <button
       onClick={handleGoogleAuth}
       disabled={isLoading}
-      className={`flex items-center justify-center w-full h-11 gap-3 text-sm font-semibold bg-white border-2 border-gray-200 hover:border-gray-300 hover:shadow-md ${textColor} rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed`}
+      className={`flex items-center justify-center w-full h-11 gap-3 text-sm font-semibold bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md ${textColor} rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed`}
     >
       {isLoading ? (
         <Loader2 className="animate-spin" size={18} />

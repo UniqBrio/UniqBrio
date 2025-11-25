@@ -171,16 +171,16 @@ export default function FileUploadComponent({
       >
         <input {...getInputProps()} />
         
-        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+        <Upload className="mx-auto h-12 w-12 text-gray-400 dark:text-white mb-4" />
         
         {isDragActive ? (
           <p className="text-blue-600">Drop the files here...</p>
         ) : (
           <div>
-            <p className="text-gray-600 mb-2">
+            <p className="text-gray-600 dark:text-white mb-2">
               Drag & drop files here, or click to select files
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-white">
               Max size: {formatFileSize(maxSize)} | {multiple ? 'Multiple files allowed' : 'Single file only'}
             </p>
           </div>
@@ -189,7 +189,7 @@ export default function FileUploadComponent({
         {isUploading && (
           <div className="mt-4">
             <Progress value={progress} className="w-full" />
-            <p className="text-sm text-gray-500 mt-2">Uploading... {progress}%</p>
+            <p className="text-sm text-gray-500 dark:text-white mt-2">Uploading... {progress}%</p>
           </div>
         )}
       </div>
@@ -197,18 +197,18 @@ export default function FileUploadComponent({
       {/* File Preview */}
       {showPreview && uploadedFiles.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Uploaded Files:</h4>
+          <h4 className="text-sm font-medium text-gray-700 dark:text-white">Uploaded Files:</h4>
           <div className="grid gap-2">
             {uploadedFiles.map((file) => (
               <div
                 key={file.key}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
               >
                 <div className="flex items-center space-x-3">
                   {getFileIcon(file.type)}
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{file.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-white">{formatFileSize(file.size)}</p>
                   </div>
                 </div>
                 

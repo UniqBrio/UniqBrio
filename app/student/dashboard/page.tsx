@@ -48,8 +48,8 @@ export default async function StudentDashboardPage() {
   // If session exists and role is student, render the dashboard content.
   return (
     <div className="p-6 bg-gray-50 min-h-screen"> {/* Added some basic styling */}
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Student Dashboard</h1>
-      <p className="mb-6 text-lg text-gray-600">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Student Dashboard</h1>
+      <p className="mb-6 text-lg text-gray-600 dark:text-white">
         Welcome back, <span className="font-semibold">{session.name || session.email}</span>!
       </p>
 
@@ -58,7 +58,7 @@ export default async function StudentDashboardPage() {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-3 text-purple-700">Your Courses</h2>
           {/* TODO: Replace with actual course data fetching and rendering */}
-          <p className="text-gray-500">You are not enrolled in any courses yet.</p>
+          <p className="text-gray-500 dark:text-white">You are not enrolled in any courses yet.</p>
           {/* Example link */}
           {/* <a href="/courses" className="text-purple-600 hover:underline mt-2 inline-block">Browse Courses</a> */}
         </div>
@@ -66,7 +66,7 @@ export default async function StudentDashboardPage() {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-3 text-orange-500">Upcoming Classes</h2>
           {/* TODO: Replace with actual class schedule data */}
-          <p className="text-gray-500">No upcoming classes scheduled.</p>
+          <p className="text-gray-500 dark:text-white">No upcoming classes scheduled.</p>
           {/* Example link */}
           {/* <a href="/schedule" className="text-orange-600 hover:underline mt-2 inline-block">View Full Schedule</a> */}
         </div>
@@ -76,7 +76,7 @@ export default async function StudentDashboardPage() {
       {/*
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-semibold mb-3 text-blue-600">Recent Activity</h2>
-        <p className="text-gray-500">No recent activity.</p>
+        <p className="text-gray-500 dark:text-white">No recent activity.</p>
       </div>
       */}
 

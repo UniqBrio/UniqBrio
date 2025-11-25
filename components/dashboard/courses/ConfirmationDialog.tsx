@@ -30,7 +30,7 @@ export default function ConfirmationDialog({
           <DialogDescription>
             {message}
             {itemName && (
-              <span className="block mt-2 font-medium text-gray-900">
+              <span className="block mt-2 font-medium text-gray-900 dark:text-white">
                 "{itemName}"
               </span>
             )}

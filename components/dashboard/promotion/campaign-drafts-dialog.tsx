@@ -112,7 +112,7 @@ export function CampaignDraftsDialog({
               {drafts.map((draft) => (
                 <div
                   key={draft.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate">{draft.name}</h4>

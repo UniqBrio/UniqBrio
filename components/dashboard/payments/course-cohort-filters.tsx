@@ -256,7 +256,7 @@ export default function CourseCohortFilters({
       <div className="flex flex-col lg:flex-row gap-2 mb-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
           <Input
             placeholder="Search students, courses, cohorts..."
             className="pl-10"
@@ -297,7 +297,7 @@ export default function CourseCohortFilters({
           
           </PopoverTrigger>
           <PopoverContent
-            className="w-96 p-0 bg-white border border-gray-200 shadow-lg z-50"
+            className="w-96 p-0 bg-popover dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg z-50"
             onCloseAutoFocus={e => e.preventDefault()}
             onEscapeKeyDown={() => setFilterDropdownOpen(false)}
             onInteractOutside={() => setFilterDropdownOpen(false)}
@@ -450,7 +450,7 @@ export default function CourseCohortFilters({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
                          <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{(() => {
+              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{(() => {
                 const label = [
                   { value: "courseId", label: "Course ID" },
                   { value: "courseName", label: "Course Name" },
@@ -463,7 +463,7 @@ export default function CourseCohortFilters({
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
               })()}</span>
-              <span className="ml-2 text-xs text-gray-500 group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
+              <span className="ml-2 text-xs text-gray-500 dark:text-white group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

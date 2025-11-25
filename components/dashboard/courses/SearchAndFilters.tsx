@@ -122,7 +122,7 @@ export default function SearchAndFilters({
   return (
     <div className="flex flex-col lg:flex-row gap-2 mb-4">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
         <Input
           placeholder="Search courses, instructors, tags..."
           className="pl-10"
@@ -239,7 +239,7 @@ export default function SearchAndFilters({
                       }));
                     }}
                   />
-                  <span className="text-sm text-gray-500">to</span>
+                  <span className="text-sm text-gray-500 dark:text-white">to</span>
                   <input
                     type="number"
                     min="0"
@@ -299,7 +299,7 @@ export default function SearchAndFilters({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
               <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600 group-hover:text-white">
+              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">
               {(() => {
                 const label = [
                   { value: "courseId", label: "Course ID" },
@@ -307,9 +307,9 @@ export default function SearchAndFilters({
                   { value: "priceINR", label: `Price (${currency})` },
                   { value: "duration", label: "Duration" },
                 ].find(o => o.value === sortBy)?.label;
-                return label ? <span className="ml-1 text-xs text-gray-600 group-hover:text-white">{label}</span> : null;
+                return label ? <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{label}</span> : null;
               })()}</span>
-             <span className="ml-2 text-xs text-gray-500 group-hover:text-white">{sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+             <span className="ml-2 text-xs text-gray-500 dark:text-white group-hover:text-white">{sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
             </span></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -547,7 +547,7 @@ export default function SearchAndFilters({
         }}>
           <Download className="mr-2 h-4 w-4" />
           Export
-          <span className="text-xs text-gray-600 ml-1">({selectedCount})</span>
+          <span className="text-xs text-gray-600 dark:text-white ml-1">({selectedCount})</span>
         </Button>
         <Button
           size="sm"

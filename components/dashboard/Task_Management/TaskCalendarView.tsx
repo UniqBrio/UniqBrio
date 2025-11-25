@@ -113,11 +113,11 @@ export default function TaskCalendarView({
       case "onhold":
         return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
       case "new":
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200"
+        return "bg-gray-100 text-gray-800 dark:text-white hover:bg-gray-200"
       case "open":
         return "bg-purple-100 text-purple-800 hover:bg-purple-200"
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200"
+        return "bg-gray-100 text-gray-800 dark:text-white hover:bg-gray-200"
     }
   }
 
@@ -302,7 +302,7 @@ export default function TaskCalendarView({
           </Button>
         </div>
         
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-gray-700 dark:text-white">
           {viewMode === "day" && format(currentDate, "EEEE, MMMM dd, yyyy")}
           {viewMode === "week" && `${format(getCurrentWeekRange(currentDate).start, "MMM dd")} - ${format(getCurrentWeekRange(currentDate).end, "MMM dd, yyyy")}`}
           {viewMode === "month" && format(currentDate, "MMMM yyyy")}
@@ -318,7 +318,7 @@ export default function TaskCalendarView({
           <CardContent>
             <div className="grid grid-cols-7 bg-gray-50 border-b">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 border-r last:border-r-0">
+                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 dark:text-white border-r last:border-r-0">
                   {d}
                 </div>
               ))}
@@ -335,7 +335,7 @@ export default function TaskCalendarView({
                     className={cn(
                       "min-h-[72px] p-0.5 border-r border-b last:border-r-0 cursor-pointer transition-colors",
                       "hover:bg-gray-50",
-                      !isCurrentMonth && "bg-gray-50/50 text-gray-400",
+                      !isCurrentMonth && "bg-gray-50/50 text-gray-400 dark:text-white",
                       today && "bg-blue-100 border-2 border-blue-400 shadow-md relative",
                       isSelected && "bg-purple-50 border-purple-200",
                     )}
@@ -349,7 +349,7 @@ export default function TaskCalendarView({
                       <span className={cn(
                         "text-xs font-medium", 
                         today && "text-blue-700 font-bold bg-blue-200 px-1.5 py-0.5 rounded-full", 
-                        !isCurrentMonth && "text-gray-400"
+                        !isCurrentMonth && "text-gray-400 dark:text-white"
                       )}>
                         {date.getDate()}
                       </span>
@@ -380,7 +380,7 @@ export default function TaskCalendarView({
                         </div>
                       ))}
                       {dayTasks.length > 2 && (
-                        <div className="text-[11px] text-gray-500 px-1">+{dayTasks.length - 2} more</div>
+                        <div className="text-[11px] text-gray-500 dark:text-white px-1">+{dayTasks.length - 2} more</div>
                       )}
                     </div>
                   </div>
@@ -402,7 +402,7 @@ export default function TaskCalendarView({
           <CardContent>
             <div className="grid grid-cols-7 bg-gray-50 border-b">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 border-r last:border-r-0">
+                <div key={d} className="p-1 text-center text-xs font-medium text-gray-700 dark:text-white border-r last:border-r-0">
                   {d}
                 </div>
               ))}
@@ -462,7 +462,7 @@ export default function TaskCalendarView({
                         </div>
                       ))}
                       {dayTasks.length > 3 && (
-                        <div className="text-xs text-gray-500 px-2">+{dayTasks.length - 3} more</div>
+                        <div className="text-xs text-gray-500 dark:text-white px-2">+{dayTasks.length - 3} more</div>
                       )}
                     </div>
                   </div>
@@ -487,7 +487,7 @@ export default function TaskCalendarView({
                 getTasksForDate(currentDate).map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                     onClick={() => openView(task)}
                   >
                     <div className="flex-1">
@@ -500,22 +500,22 @@ export default function TaskCalendarView({
                         </div>
                         <div>
                           <p className="font-medium text-lg">{task.name}</p>
-                          <p className="text-sm text-gray-600" title={task.description || "No description"}>
+                          <p className="text-sm text-gray-600 dark:text-white" title={task.description || "No description"}>
                             {task.description || "No description"}
                           </p>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-white">
                         {formatDisplayDate(task.targetDate)}
                       </p>
-                      <p className="text-xs text-gray-400 capitalize">{task.priority} priority</p>
+                      <p className="text-xs text-gray-400 dark:text-white capitalize">{task.priority} priority</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-white">
                   <p className="text-lg mb-2">No tasks for {format(currentDate, "EEEE, MMMM dd, yyyy")}</p>
                   <p className="text-sm">Try a different date or add a new task</p>
                 </div>
@@ -544,7 +544,7 @@ export default function TaskCalendarView({
                 {getTasksForDate(selectedDate).map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                    className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                     onClick={() => openView(task)}
                   >
                     <div className="flex-1">
@@ -557,21 +557,21 @@ export default function TaskCalendarView({
                         </div>
                         <div>
                           <p className="font-medium">{task.name}</p>
-                          <p className="text-sm text-gray-600 truncate" title={task.description || "No description"}>{task.description}</p>
+                          <p className="text-sm text-gray-600 dark:text-white truncate" title={task.description || "No description"}>{task.description}</p>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-white">
                         {formatDisplayDate(task.targetDate)}
                       </p>
-                      <p className="text-xs text-gray-400 capitalize">{task.priority} priority</p>
+                      <p className="text-xs text-gray-400 dark:text-white capitalize">{task.priority} priority</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-8">No tasks for this date</p>
+              <p className="text-center text-gray-500 dark:text-white py-8">No tasks for this date</p>
             )}
           </CardContent>
         </Card>
@@ -598,7 +598,7 @@ export default function TaskCalendarView({
               <span className="text-sm">Open</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-gray-100 border border-gray-200 rounded"></div>
+              <div className="w-4 h-4 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded"></div>
               <span className="text-sm">New</span>
             </div>
             <div className="w-px h-4 bg-gray-300"></div>
@@ -635,19 +635,19 @@ export default function TaskCalendarView({
               <div className="text-base font-semibold">{selectedTask.name}</div>
 
               <div className="flex gap-2">
-                <span className="text-gray-600 min-w-[120px]">Description:</span>
+                <span className="text-gray-600 dark:text-white min-w-[120px]">Description:</span>
                 <span className="font-medium">{selectedTask.description || "�"}</span>
               </div>
 
               <div className="flex gap-2">
-                <span className="text-gray-600 min-w-[120px]">Status:</span>
+                <span className="text-gray-600 dark:text-white min-w-[120px]">Status:</span>
                 <Badge className={getStatusColor(selectedTask.status)}>
                   {selectedTask.status === "inprogress" ? "In Progress" : selectedTask.status === "onhold" ? "On hold" : selectedTask.status.charAt(0).toUpperCase() + selectedTask.status.slice(1)}
                 </Badge>
               </div>
 
               <div className="flex gap-2">
-                <span className="text-gray-600 min-w-[120px]">Priority:</span>
+                <span className="text-gray-600 dark:text-white min-w-[120px]">Priority:</span>
                 <div className="flex items-center gap-2">
                   <div className={cn("w-2 h-2 rounded-full", getPriorityColor(selectedTask.priority))}></div>
                   <span className="font-medium capitalize">{selectedTask.priority}</span>
@@ -655,17 +655,17 @@ export default function TaskCalendarView({
               </div>
 
               <div className="flex gap-2">
-                <span className="text-gray-600 min-w-[120px]">Target Date:</span>
+                <span className="text-gray-600 dark:text-white min-w-[120px]">Target Date:</span>
                 <span className="font-medium">{formatDisplayDate(selectedTask.targetDate)}</span>
               </div>
 
               <div className="flex gap-2">
-                <span className="text-gray-600 min-w-[120px]">Created On:</span>
+                <span className="text-gray-600 dark:text-white min-w-[120px]">Created On:</span>
                 <span className="font-medium">{formatDisplayDate(selectedTask.createdOn)}</span>
               </div>
 
               <div className="flex gap-2 items-start">
-                <span className="text-gray-600 min-w-[120px]">Remarks:</span>
+                <span className="text-gray-600 dark:text-white min-w-[120px]">Remarks:</span>
                 <div className="flex-1">
                   <InlineRemarksEditor
                     initialValue={selectedTask.remarks || ""}
@@ -684,7 +684,7 @@ export default function TaskCalendarView({
 
               {selectedTask.completedAt && (
                 <div className="flex gap-2">
-                  <span className="text-gray-600 min-w-[120px]">Completed At:</span>
+                  <span className="text-gray-600 dark:text-white min-w-[120px]">Completed At:</span>
                   <span className="font-medium">{format(new Date(selectedTask.completedAt), "dd-MMM-yy HH:mm")}</span>
                 </div>
               )}

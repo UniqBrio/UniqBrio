@@ -652,7 +652,7 @@ export default function StudentsPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading students...</p>
+            <p className="text-gray-600 dark:text-white">Loading students...</p>
           </div>
         </div>
       ) : (
@@ -944,7 +944,7 @@ export default function StudentsPage() {
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-lg font-semibold text-gray-900">Delete Student</DialogTitle>
+              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">Delete Student</DialogTitle>
               <DialogDescription>
                 Are you sure you want to delete this student? This action cannot be undone.
                 {pendingDelete ? ` "${pendingDelete.name}"` : ''}

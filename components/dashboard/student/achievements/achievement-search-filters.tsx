@@ -208,7 +208,7 @@ export default function AchievementSearchFilters({
   return (
     <div className={"flex flex-col lg:flex-row gap-2 mb-4 " + (disabled ? "pointer-events-none opacity-50 grayscale" : "")}>
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
         <Input placeholder="Search achievements..." className="pl-10" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} disabled={disabled} />
       </div>
       <div className="flex gap-2 items-center">
@@ -294,7 +294,7 @@ export default function AchievementSearchFilters({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-9 flex items-center gap-1" title="Sort" disabled={disabled}>
               <ArrowUpDown className="h-4 w-4" />
-              <span className="ml-1 text-xs text-gray-600">{sortBy==='title'?'Title':sortBy==='type'?'Type':sortBy==='likes'?'Likes':sortBy==='shares'?'Shares':'Date'}</span>
+              <span className="ml-1 text-xs text-gray-600 dark:text-white">{sortBy==='title'?'Title':sortBy==='type'?'Type':sortBy==='likes'?'Likes':sortBy==='shares'?'Shares':'Date'}</span>
               {sortOrder==='asc' ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
             </Button>
           </DropdownMenuTrigger>

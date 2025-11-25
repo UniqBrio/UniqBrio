@@ -131,10 +131,10 @@ export default function SupportPage() {
                 as soon as possible.
               </p>
             </div>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-white mb-4">
               Ticket reference: <span className="font-bold">{ticketNumber}</span>
             </p>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-white mb-4">
               A confirmation email has been sent to your email address with your ticket details.
             </p>
             <Link href="/login" className="text-[#fd9c2d] hover:underline">
@@ -194,7 +194,7 @@ export default function SupportPage() {
               {file ? (
                 <div className="flex items-center justify-between p-3 bg-gray-200 rounded-lg">
                   <div className="flex items-center">
-                    <Upload size={18} className="mr-2 text-gray-600" />
+                    <Upload size={18} className="mr-2 text-gray-600 dark:text-white" />
                     <span className="text-sm truncate max-w-[200px]">{file.name}</span>
                   </div>
                   <button type="button" onClick={removeFile} className="text-red-500 hover:text-red-700">
@@ -207,7 +207,7 @@ export default function SupportPage() {
                     className="w-full p-3 bg-gray-200 rounded-lg flex items-center justify-between cursor-pointer"
                     onClick={() => document.getElementById("fileInput")?.click()}
                   >
-                    <span className="text-gray-500">Choose</span>
+                    <span className="text-gray-500 dark:text-white">Choose</span>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M4 6L8 10L12 6"
@@ -227,7 +227,7 @@ export default function SupportPage() {
                   />
                 </div>
               )}
-              <p className="text-xs text-gray-500">Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 5MB)</p>
+              <p className="text-xs text-gray-500 dark:text-white">Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 5MB)</p>
             </div>
 
             <button
@@ -251,7 +251,7 @@ export default function SupportPage() {
           <Link href="/login" className="text-[#fd9c2d] hover:underline">
             Login
           </Link>
-          <span className="text-gray-400 mx-1">/</span>
+          <span className="text-gray-400 dark:text-white mx-1">/</span>
           <Link href="/signup" className="text-purple-700 hover:underline">
             Signup
           </Link>

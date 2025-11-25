@@ -192,7 +192,7 @@ export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDe
     <Card>
       <CardContent className="pt-6">
         {tasks.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">No tasks found.</p>
+          <p className="text-center text-gray-500 dark:text-white py-8">No tasks found.</p>
         ) : (
           <div className="rounded-md border overflow-hidden">
             {/* Single Table with Horizontal and Vertical Scrolling */}
@@ -206,7 +206,7 @@ export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDe
             >
               <table className="w-full caption-bottom text-sm min-w-max">
                 {/* Sticky Frozen Header */}
-                <thead className="sticky top-0 z-20 bg-white border-b shadow-md backdrop-blur-sm">
+                <thead className="sticky top-0 z-20 bg-background dark:bg-gray-900 border-b dark:border-gray-700 shadow-md backdrop-blur-sm">
                   <tr className="border-b">
                     <th className="h-12 px-3 text-left align-middle font-medium text-muted-foreground w-16 min-w-[64px] bg-white">
                       <Checkbox

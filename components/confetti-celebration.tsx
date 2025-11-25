@@ -58,12 +58,12 @@ export default function ConfettiCelebration({
 
   return (
     <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform animate-in fade-in zoom-in duration-500">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform animate-in fade-in zoom-in duration-500 border border-gray-200 dark:border-gray-700">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Welcome to UniqBrio!
         </h2>
-        <p className="text-lg text-purple-700 font-medium">
+        <p className="text-lg text-purple-700 dark:text-purple-400 font-medium">
           {message}
         </p>
       </div>

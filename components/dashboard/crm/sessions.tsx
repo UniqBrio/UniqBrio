@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -166,9 +166,9 @@ export default function SessionsPage() {
       case "Cancelled":
         return "bg-red-100 text-red-800"
       case "No Show":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -181,7 +181,7 @@ export default function SessionsPage() {
       case "Neutral":
         return "bg-yellow-100 text-yellow-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }
 
@@ -225,8 +225,8 @@ export default function SessionsPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Counseling Sessions</h1>
-          <p className="text-gray-500">Manage and track counseling sessions</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Counseling Sessions</h1>
+          <p className="text-gray-500 dark:text-white">Manage and track counseling sessions</p>
         </div>
         <Button className="w-full md:w-auto bg-purple-500 text-white" onClick={() => setShowAddDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />

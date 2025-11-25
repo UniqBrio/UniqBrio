@@ -115,11 +115,11 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
       render: (course: Course) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
           course.status === 'Active' ? 'bg-green-100 text-green-800' :
-          course.status === 'Completed' ? 'bg-gray-100 text-gray-800' :
+          course.status === 'Completed' ? 'bg-gray-100 text-gray-800 dark:text-white' :
           course.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
           course.status === 'Inactive' ? 'bg-yellow-100 text-yellow-800' :
           course.status === 'Draft' ? 'bg-blue-100 text-blue-800' :
-          'bg-gray-100 text-gray-800'
+          'bg-gray-100 text-gray-800 dark:text-white'
         }`}>
           {course.status}
         </span>
@@ -134,7 +134,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
           <div className="space-y-1">
             <span>{course.maxStudents || '-'}</span>
             {snapshot && (
-              <div className="text-[11px] text-gray-500">
+              <div className="text-[11px] text-gray-500 dark:text-white">
                 {snapshot.enrolled} enrolled
                 {renderCapacityIndicator(course)}
               </div>
@@ -219,7 +219,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
               <tbody className="[&_tr:last-child]:border-0">
                 {courses.length === 0 ? (
                   <TableRow>
-                  <TableCell colSpan={displayedColumns.length + 2} className="text-center text-gray-500">
+                  <TableCell colSpan={displayedColumns.length + 2} className="text-center text-gray-500 dark:text-white">
                       No courses found.
                     </TableCell>
                   </TableRow>
@@ -280,7 +280,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
         ) : (
           <Card>
           <CardContent className="p-0">
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <table className="w-full caption-bottom text-sm">
               <thead className="[&_tr]:border-b">
                 <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
@@ -304,7 +304,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
             <tbody className="[&_tr:last-child]:border-0">
               {courses.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={displayedColumns.length + 2} className="text-center text-gray-500">
+                  <TableCell colSpan={displayedColumns.length + 2} className="text-center text-gray-500 dark:text-white">
                     No courses found.
                   </TableCell>
                 </TableRow>
@@ -337,7 +337,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       
                       <div className="flex justify-end items-center gap-2">
                         <button
-                          className="text-gray-500 text-center hover:text-blue-600 p-1 rounded-full focus:outline-none"
+                          className="text-gray-500 dark:text-white text-center hover:text-blue-600 p-1 rounded-full focus:outline-none"
                           title="Edit"
                           onClick={e => { e.stopPropagation(); onEditCourse(course); }}
                         >
@@ -371,14 +371,14 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
       {deleteDialog}
       <div>
         {courses.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">No courses found.</div>
+          <div className="text-center text-gray-500 dark:text-white py-8">No courses found.</div>
         ) : (
           <div className="overflow-x-auto pb-4">
             <div className="flex gap-4 w-max">
               {courses.map((course, index) => (
                 <Card 
                   key={course.id || (course as any)._id || `course-${index}`} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 border-orange-400 hover:border-orange-500 bg-white rounded-xl p-0 w-80 flex-shrink-0"
+                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 border-orange-400 dark:border-orange-600 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-gray-900 rounded-xl p-0 w-80 flex-shrink-0"
                   onClick={() => onCourseClick(course)}
                 >
                   <CardContent className="p-5 pb-2 relative">
@@ -392,7 +392,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex flex-col">
-                        <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2">{course.name}</h3>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight line-clamp-2">{course.name}</h3>
                         {course.sessionDetails?.sessionDuration && (
                           <span className="text-sm text-orange-600 mt-1">Session Duration: {course.sessionDetails.sessionDuration} hrs</span>
                         )}
@@ -402,7 +402,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                           </span>
                         )}
                         {enrollmentSettings?.showCohortCounts && (
-                          <span className="text-xs text-gray-500 mt-1">
+                          <span className="text-xs text-gray-500 dark:text-white mt-1">
                             {(() => {
                               const count = cohortCountForCourse(course)
                               if (count === null) return null
@@ -415,9 +415,9 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                         course.status === 'Active' ? 'bg-purple-100 text-purple-700' :
                         course.status === 'Completed' ? 'bg-orange-100 text-orange-700' :
                         course.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                        course.status === 'Inactive' ? 'bg-gray-200 text-gray-700' :
+                        course.status === 'Inactive' ? 'bg-gray-200 text-gray-700 dark:text-white' :
                         course.status === 'Draft' ? 'bg-orange-100 text-orange-700' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-white'
                       }`}>
                         {course.status}
                       </span>
@@ -426,12 +426,12 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       <span className="inline-block bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs font-medium border border-purple-100">{course.type}</span>
                       <span className="inline-block bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs font-medium border border-orange-100">{course.level}</span>
                       {course.tags && course.tags.length > 0 && course.tags.slice(0,2).map((tag, i) => (
-                        <span key={i} className="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
+                        <span key={i} className="inline-block bg-gray-100 text-gray-600 dark:text-white px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
                       ))}
                     </div>
-                    <p className="text-sm text-gray-700 mb-1"> <span className="font-medium text-gray-900">{course.instructor}</span></p>
-                    {course.location && <p className="text-xs text-gray-600 mb-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {course.location}</p>}
-                    {course.description && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{course.description}</p>}
+                    <p className="text-sm text-gray-700 dark:text-white mb-1"> <span className="font-medium text-gray-900 dark:text-white">{course.instructor}</span></p>
+                    {course.location && <p className="text-xs text-gray-600 dark:text-white mb-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {course.location}</p>}
+                    {course.description && <p className="text-xs text-gray-500 dark:text-white line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
                         <span className="text-xl font-bold text-purple-700">{currency} {course.priceINR?.toLocaleString()}</span>
@@ -472,7 +472,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
           <div className="flex items-center justify-between mb-4">
             <DialogTitle className="font-bold">
               All Courses
-              <span className="text-sm font-normal text-gray-500 ml-2">
+              <span className="text-sm font-normal text-gray-500 dark:text-white ml-2">
                 ({courses.length} courses)
               </span>
             </DialogTitle>
@@ -491,7 +491,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
               {courses.map((course, index) => (
                 <Card 
                   key={course.id || (course as any)._id || `course-${index}`} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 border-orange-400 hover:border-orange-500 bg-white rounded-xl p-0"
+                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 border-orange-400 dark:border-orange-600 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-gray-900 rounded-xl p-0"
                   onClick={() => {
                     onCourseClick(course);
                     setViewAllCourses(false);
@@ -508,7 +508,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex flex-col">
-                        <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2">{course.name}</h3>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight line-clamp-2">{course.name}</h3>
                         {course.sessionDetails?.sessionDuration && (
                           <span className="text-sm text-orange-600 mt-1">Session Duration: {course.sessionDetails.sessionDuration} hrs</span>
                         )}
@@ -517,9 +517,9 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                         course.status === 'Active' ? 'bg-purple-100 text-purple-700' :
                         course.status === 'Completed' ? 'bg-orange-100 text-orange-700' :
                         course.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                        course.status === 'Inactive' ? 'bg-gray-200 text-gray-700' :
+                        course.status === 'Inactive' ? 'bg-gray-200 text-gray-700 dark:text-white' :
                         course.status === 'Draft' ? 'bg-orange-100 text-orange-700' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-white'
                       }`}>
                         {course.status}
                       </span>
@@ -528,12 +528,12 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       <span className="inline-block bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs font-medium border border-purple-100">{course.type}</span>
                       <span className="inline-block bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs font-medium border border-orange-100">{course.level}</span>
                       {course.tags && course.tags.length > 0 && course.tags.slice(0,2).map((tag, i) => (
-                        <span key={i} className="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
+                        <span key={i} className="inline-block bg-gray-100 text-gray-600 dark:text-white px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
                       ))}
                     </div>
-                    <p className="text-sm text-gray-700 mb-1"> <span className="font-medium text-gray-900">{course.instructor}</span></p>
-                    {course.location && <p className="text-xs text-gray-600 mb-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {course.location}</p>}
-                    {course.description && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{course.description}</p>}
+                    <p className="text-sm text-gray-700 dark:text-white mb-1"> <span className="font-medium text-gray-900 dark:text-white">{course.instructor}</span></p>
+                    {course.location && <p className="text-xs text-gray-600 dark:text-white mb-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {course.location}</p>}
+                    {course.description && <p className="text-xs text-gray-500 dark:text-white line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
                         <span className="text-xl font-bold text-purple-700">{currency} {course.priceINR?.toLocaleString()}</span>

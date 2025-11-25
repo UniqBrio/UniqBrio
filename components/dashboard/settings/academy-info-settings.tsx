@@ -650,7 +650,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
           <CardContent className="py-10">
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-              <span className="ml-3 text-gray-600">Loading academy information...</span>
+              <span className="ml-3 text-gray-600 dark:text-white">Loading academy information...</span>
             </div>
           </CardContent>
         </Card>
@@ -798,14 +798,14 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                         </SelectItem>
                       ))
                     ) : (
-                      <div className="p-4 text-center text-sm text-gray-500">
+                      <div className="p-4 text-center text-sm text-gray-500 dark:text-white">
                         No currencies found
                       </div>
                     )}
                   </div>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">Auto-set based on country selection</p>
+              <p className="text-xs text-gray-500 dark:text-white">Auto-set based on country selection</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="industryType">Industry Type</Label>
@@ -834,7 +834,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   handleInputChange("servicesOffered", services)
                 }}
               />
-              <p className="text-xs text-gray-500">Enter services separated by commas</p>
+              <p className="text-xs text-gray-500 dark:text-white">Enter services separated by commas</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="studentSize">Student/Client Size</Label>
@@ -905,8 +905,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                     className="w-24 h-24 border-2 border-dashed border-purple-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
                   >
                     <Upload className="h-6 w-6 text-purple-400 mb-1" />
-                    <p className="text-xs text-gray-600 text-center px-2">Upload logo</p>
-                    <p className="text-xs text-gray-400">Max 5MB</p>
+                    <p className="text-xs text-gray-600 dark:text-white text-center px-2">Upload logo</p>
+                    <p className="text-xs text-gray-400 dark:text-white">Max 5MB</p>
                   </div>
                 )}
                 <input
@@ -983,7 +983,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
               <div className="relative">
-                <Phone className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Phone className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
                 <Input
                   id="phone"
                   type="tel"
@@ -1006,7 +1006,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <div className="relative">
-                <Mail className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Mail className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
                 <Input
                   id="email"
                   type="email"
@@ -1020,7 +1020,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               <div className="relative">
-                <Globe className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Globe className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
                 <Input
                   id="website"
                   type="url"
@@ -1261,7 +1261,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 <Label htmlFor="display" className="flex-1 cursor-pointer">
                   <div className="space-y-1">
                     <p className="font-semibold text-base">Option 1: Replace Currency Code</p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-600 dark:text-white">
                       <strong>{formData.currency}</strong> will be replaced with <strong>{pendingCurrency}</strong> - keeps the same numbers
                     </p>
                     <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
@@ -1290,7 +1290,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 <Label htmlFor="convert" className="flex-1 cursor-pointer">
                   <div className="space-y-1">
                     <p className="font-semibold text-base">Option 2: Convert Currency Values</p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-600 dark:text-white">
                       <strong>{formData.currency}</strong> will be converted to <strong>{pendingCurrency}</strong> using exchange rates
                     </p>
                     <div className="mt-2 p-2 bg-green-50 rounded border border-green-200">

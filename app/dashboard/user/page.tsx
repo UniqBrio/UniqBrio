@@ -286,7 +286,7 @@ export default function UserManagementPage() {
                 <Users className="h-8 w-8" />
                 User Management
               </h1>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-white">
                 Comprehensive user management dashboard with real-time insights and advanced analytics
               </p>
             </div>
@@ -391,25 +391,25 @@ export default function UserManagementPage() {
             <TabsContent value="user-areas" className="space-y-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {/* Students Management */}
-                <Card className="border-purple-300 bg-gradient-to-br from-purple-50 to-purple-150">
-                  <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-purple-700">
-                      <GraduationCap className="h-5 w-5 text-purple-600" />
+                <Card className="border-purple-300 bg-gradient-to-br from-purple-50 to-purple-150 dark:from-purple-950/20 dark:to-purple-900/20 dark:border-purple-700">
+                  <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                      <GraduationCap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                       Student Management
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardDescription className="text-gray-600 dark:text-white">
                       Manage student profiles, enrollments, and performance
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-purple-200">
-                        <div className="text-purple-600">Total Students</div>
-                        <div className="font-semibold text-purple-800">{userStats.students.total}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
+                        <div className="text-purple-600 dark:text-purple-400">Total Students</div>
+                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.students.total}</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-purple-200">
-                        <div className="text-purple-600">On Leave Today</div>
-                        <div className="font-semibold text-purple-800">{userStats.students.onLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
+                        <div className="text-purple-600 dark:text-purple-400">On Leave Today</div>
+                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.students.onLeave}</div>
                       </div>
                     </div>
 
@@ -424,44 +424,48 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Staff Management */}
-                <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100">
-                  <CardHeader className="pb-2 border-b border-orange-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-orange-700">
-                      <UserCog className="h-5 w-5 text-orange-600" />
+                <Card className="border-orange-200 dark:border-orange-700 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
+                  <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                      <UserCog className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                       Staff Management
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardDescription className="text-gray-600 dark:text-white">
                       Manage instructors and non-instructor staff
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700">Instructors</span>
-                        <span className="text-orange-900">{userStats.staff.instructors}</span>
+                        <span className="text-orange-700 dark:text-orange-400">Instructors</span>
+                        <span className="text-orange-900 dark:text-orange-300">{userStats.staff.instructors}</span>
                       </div>
                       <Progress 
                         value={(userStats.staff.instructors / userStats.staff.total) * 100} 
-                        className="h-2 bg-orange-100 [&>div]:bg-orange-500" 
+                        className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" 
                       />
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700">Non-Instructors</span>
-                        <span className="text-orange-900">{userStats.staff.nonInstructors}</span>
+                        <span className="text-orange-700 dark:text-orange-400">Non-Instructors</span>
+                        <span className="text-orange-900 dark:text-orange-300">{userStats.staff.nonInstructors}</span>
                       </div>
-                      <Progress value={(userStats.staff.nonInstructors / userStats.staff.total) * 100} className="h-2 bg-orange-100 [&>div]:bg-orange-500" />
+                      <Progress value={(userStats.staff.nonInstructors / userStats.staff.total) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-orange-200">
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        <div className="text-orange-600 dark:text-orange-400">Total Staff</div>
+                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.total}</div>
+                      </div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
                         <div className="text-orange-600">Total Staff</div>
                         <div className="font-semibold text-orange-800">{userStats.staff.total}</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-orange-200">
-                        <div className="text-orange-600">On Leave Today</div>
-                        <div className="font-semibold text-orange-800">{userStats.staff.onLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        <div className="text-orange-600 dark:text-orange-400">On Leave Today</div>
+                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.onLeave}</div>
                       </div>
                     </div>
 
@@ -476,36 +480,36 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Instructors Quick Access */}
-                <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
-                  <CardHeader className="pb-2 border-b border-purple-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-purple-700">
-                      <GraduationCap className="h-5 w-5 text-purple-600" />
+                <Card className="border-purple-200 dark:border-purple-700 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20">
+                  <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                      <GraduationCap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                       Instructors
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardDescription className="text-gray-600 dark:text-white">
                       Teaching staff and faculty management
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-purple-700">Active Instructors</span>
-                        <span className="text-purple-900">{userStats.staff.instructors - userStats.staff.instructorsOnLeave}/{userStats.staff.instructors}</span>
+                        <span className="text-purple-700 dark:text-purple-400">Active Instructors</span>
+                        <span className="text-purple-900 dark:text-purple-300">{userStats.staff.instructors - userStats.staff.instructorsOnLeave}/{userStats.staff.instructors}</span>
                       </div>
                       <Progress 
                         value={userStats.staff.instructors > 0 ? ((userStats.staff.instructors - userStats.staff.instructorsOnLeave) / userStats.staff.instructors) * 100 : 0} 
-                        className="h-2 bg-purple-100 [&>div]:bg-purple-500" 
+                        className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" 
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-purple-200">
-                        <div className="text-purple-600">Total Instructors</div>
-                        <div className="font-semibold text-purple-800">{userStats.staff.instructors}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
+                        <div className="text-purple-600 dark:text-purple-400">Total Instructors</div>
+                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.staff.instructors}</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-purple-200">
-                        <div className="text-purple-600">On Leave Today</div>
-                        <div className="font-semibold text-purple-800">{userStats.staff.instructorsOnLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
+                        <div className="text-purple-600 dark:text-purple-400">On Leave Today</div>
+                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.staff.instructorsOnLeave}</div>
                       </div>
                     </div>
 
@@ -520,36 +524,36 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Non-Instructors Quick Access */}
-                <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100">
-                  <CardHeader className="pb-2 border-b border-orange-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-orange-700">
-                      <UserCog className="h-5 w-5 text-orange-600" />
+                <Card className="border-orange-200 dark:border-orange-700 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
+                  <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                      <UserCog className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                       Non-Instructors
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardDescription className="text-gray-600 dark:text-white">
                       Administrative and support staff
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700">Active Non-Instructors</span>
-                        <span className="text-orange-900">{userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave}/{userStats.staff.nonInstructors}</span>
+                        <span className="text-orange-700 dark:text-orange-400">Active Non-Instructors</span>
+                        <span className="text-orange-900 dark:text-orange-300">{userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave}/{userStats.staff.nonInstructors}</span>
                       </div>
                       <Progress 
                         value={userStats.staff.nonInstructors > 0 ? ((userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave) / userStats.staff.nonInstructors) * 100 : 0} 
-                        className="h-2 bg-orange-100 [&>div]:bg-orange-500" 
+                        className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" 
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-orange-200">
-                        <div className="text-orange-600">Total Non-Instructors</div>
-                        <div className="font-semibold text-orange-800">{userStats.staff.nonInstructors}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        <div className="text-orange-600 dark:text-orange-400">Total Non-Instructors</div>
+                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.nonInstructors}</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-orange-200">
-                        <div className="text-orange-600">On Leave Today</div>
-                        <div className="font-semibold text-orange-800">{userStats.staff.nonInstructorsOnLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        <div className="text-orange-600 dark:text-orange-400">On Leave Today</div>
+                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.nonInstructorsOnLeave}</div>
                       </div>
                     </div>
 
@@ -564,44 +568,25 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Parents Management */}
-                <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 opacity-75">
-                  <CardHeader className="pb-2 border-b border-blue-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-blue-700">
-                      <Users2 className="h-5 w-5 text-blue-600" />
-                      Parent Management <span title="Coming Soon"> 🔜</span>
+                <Card className="border-blue-200 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 opacity-75">
+                  <CardHeader className="pb-2 border-b border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-900 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      Parent Management
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
-                      Manage parent accounts and communications
+                    <CardDescription className="text-gray-600 dark:text-white">
+                      Guardian and family account management
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-blue-700">Active Parents</span>
-                        <span className="text-blue-900">-</span>
-                      </div>
-                      <Progress 
-                        value={0} 
-                        className="h-2 bg-blue-100 [&>div]:bg-blue-500" 
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-blue-700">Verification Rate</span>
-                        <span className="text-blue-900">-</span>
-                      </div>
-                      <Progress value={0} className="h-2 bg-blue-100 [&>div]:bg-blue-500" />
-                    </div>
-
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-blue-200">
-                        <div className="text-blue-600">Verified</div>
-                        <div className="font-semibold text-blue-800">-</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-blue-200 dark:border-blue-700">
+                        <div className="text-blue-600 dark:text-blue-400">Total Parents</div>
+                        <div className="font-semibold text-blue-800 dark:text-blue-300">{userStats.parents.total}</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-blue-200">
-                        <div className="text-blue-600">Pending</div>
-                        <div className="font-semibold text-blue-800">-</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-blue-200 dark:border-blue-700">
+                        <div className="text-blue-600 dark:text-blue-400">Active</div>
+                        <div className="font-semibold text-blue-800 dark:text-blue-300">-</div>
                       </div>
                     </div>
 
@@ -616,45 +601,45 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Alumni Management */}
-                <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 opacity-75">
-                  <CardHeader className="pb-2 border-b border-green-200 bg-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-green-700">
-                      <PartyPopper className="h-5 w-5 text-green-600" />
+                <Card className="border-green-200 dark:border-green-700 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 opacity-75">
+                  <CardHeader className="pb-2 border-b border-green-200 dark:border-green-700 bg-white dark:bg-gray-900 rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                      <PartyPopper className="h-5 w-5 text-green-600 dark:text-green-400" />
                       Alumni Management
                      <span title="Coming Soon"> 🔜</span>
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardDescription className="text-gray-600 dark:text-white">
                       Track and engage with program graduates
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-green-700">Active Alumni</span>
-                        <span className="text-green-900">-</span>
+                        <span className="text-green-700 dark:text-green-400">Active Alumni</span>
+                        <span className="text-green-900 dark:text-green-300">-</span>
                       </div>
                       <Progress 
                         value={0} 
-                        className="h-2 bg-green-100 [&>div]:bg-green-500" 
+                        className="h-2 bg-green-100 dark:bg-green-900/30 [&>div]:bg-green-500 dark:[&>div]:bg-green-600" 
                       />
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-green-700">Engagement Rate</span>
-                        <span className="text-green-900">-</span>
+                        <span className="text-green-700 dark:text-green-400">Engagement Rate</span>
+                        <span className="text-green-900 dark:text-green-300">-</span>
                       </div>
-                      <Progress value={0} className="h-2 bg-green-100 [&>div]:bg-green-500" />
+                      <Progress value={0} className="h-2 bg-green-100 dark:bg-green-900/30 [&>div]:bg-green-500 dark:[&>div]:bg-green-600" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 p-2 rounded border border-green-200">
-                        <div className="text-green-600">Engaged</div>
-                        <div className="font-semibold text-green-800">-</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-green-200 dark:border-green-700">
+                        <div className="text-green-600 dark:text-green-400">Engaged</div>
+                        <div className="font-semibold text-green-800 dark:text-green-300">-</div>
                       </div>
-                      <div className="bg-white/50 p-2 rounded border border-green-200">
-                        <div className="text-green-600">Inactive</div>
-                        <div className="font-semibold text-green-800">-</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-green-200 dark:border-green-700">
+                        <div className="text-green-600 dark:text-green-400">Inactive</div>
+                        <div className="font-semibold text-green-800 dark:text-green-300">-</div>
                       </div>
                     </div>
 
@@ -781,32 +766,32 @@ export default function UserManagementPage() {
                     </div>
                     
                     <div className="mt-6 grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
                         <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
                         <div>
-                          <div className="font-medium text-purple-800 text-sm">{userStats.students.total} Total Students</div>
-                          <div className="text-xs text-purple-600">{Math.round((userStats.students.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-purple-800 dark:text-purple-400 text-sm">{userStats.students.total} Total Students</div>
+                          <div className="text-xs text-purple-600 dark:text-purple-400">{Math.round((userStats.students.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700">
                         <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full"></div>
                         <div>
-                          <div className="font-medium text-orange-800 text-sm">{userStats.staff.total} Staff</div>
-                          <div className="text-xs text-orange-600">{Math.round((userStats.staff.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-orange-800 dark:text-orange-400 text-sm">{userStats.staff.total} Staff</div>
+                          <div className="text-xs text-orange-600 dark:text-orange-400">{Math.round((userStats.staff.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
                         <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
                         <div>
-                          <div className="font-medium text-purple-800 text-sm">{userStats.parents.total} Parents</div>
-                          <div className="text-xs text-purple-600">{Math.round((userStats.parents.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-purple-800 dark:text-purple-400 text-sm">{userStats.parents.total} Parents</div>
+                          <div className="text-xs text-purple-600 dark:text-purple-400">{Math.round((userStats.parents.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700">
                         <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full"></div>
                         <div>
-                          <div className="font-medium text-orange-800 text-sm">{userStats.alumni.total} Alumni</div>
-                          <div className="text-xs text-orange-600">{Math.round((userStats.alumni.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-orange-800 dark:text-orange-400 text-sm">{userStats.alumni.total} Alumni</div>
+                          <div className="text-xs text-orange-600 dark:text-orange-400">{Math.round((userStats.alumni.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
                     </div>
@@ -841,8 +826,8 @@ export default function UserManagementPage() {
                                 {activity.type}
                               </Badge>
                             </div>
-                            <p className="text-sm text-gray-600">{activity.description}</p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-sm text-gray-600 dark:text-white">{activity.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-white mt-1">
                               {new Date(activity.timestamp).toLocaleString()}
                             </p>
                           </div>

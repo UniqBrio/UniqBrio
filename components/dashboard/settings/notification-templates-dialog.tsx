@@ -878,7 +878,7 @@ Please complete this task as soon as possible.`
                     <Label htmlFor={`${type}-${index}-body`}>Message Body</Label>
                     <Textarea
                       id={`${type}-${index}-body`}
-                      className="min-h-[200px] bg-white font-mono text-xs"
+                      className="min-h-[200px] bg-background dark:bg-gray-800 font-mono text-xs"
                       defaultValue={template.body}
                     />
                   </div>
@@ -905,10 +905,10 @@ Please complete this task as soon as possible.`
                         </div>
                         <div className="flex-1 text-sm">
                           <p className="font-semibold">{template.title}</p>
-                          <p className="text-gray-600 mt-1">
+                          <p className="text-gray-600 dark:text-white mt-1">
                             {template.message}
                           </p>
-                          <p className="text-xs text-gray-500 mt-2">{"{{timeAgo}}"}</p>
+                          <p className="text-xs text-gray-500 dark:text-white mt-2">{"{{timeAgo}}"}</p>
                         </div>
                       </div>
                     </div>

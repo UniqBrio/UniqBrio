@@ -251,7 +251,7 @@ export default function ServicesTable({
             <TableBody>
               {services.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center text-gray-500">
+                  <TableCell colSpan={12} className="text-center text-gray-500 dark:text-white">
                     No services found
                   </TableCell>
                 </TableRow>

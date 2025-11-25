@@ -251,12 +251,12 @@ export default function ParentsPage() {
       case "Overdue":
         return "bg-red-100 text-red-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800 dark:text-white"
     }
   }, [])
 
   const getStatusColor = useCallback((status: string) => {
-    return status === "Active" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
+    return status === "Active" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800 dark:text-white"
   }, [])
 
   // CSV Export helpers
@@ -353,7 +353,7 @@ export default function ParentsPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading parents...</p>
+            <p className="text-gray-600 dark:text-white">Loading parents...</p>
           </div>
         </div>
       ) : (
@@ -395,12 +395,12 @@ export default function ParentsPage() {
               <div className="bg-card rounded-3xl shadow-xl p-6 animate-fade-in border">
                 <div className="flex flex-col gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">All Parents</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">All Parents</h2>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative flex-1 min-w-[250px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white" />
                     <Input
                       type="text"
                       placeholder="Search parents, students, email..."
@@ -424,7 +424,7 @@ export default function ParentsPage() {
                     <PopoverContent className="w-96 p-0">
                       <div className="p-4 flex flex-col gap-4 max-h-96">
                         <div className="flex flex-col gap-2">
-                          <h3 className="text-sm font-semibold text-gray-900">Categories</h3>
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Categories</h3>
                           <div className={`space-y-2 ${categoriesOptions.length > 5 ? 'max-h-40 overflow-y-auto pr-2' : ''}`}>
                             {categoriesOptions.map((option) => (
                               <label key={option} className="flex items-center gap-2 cursor-pointer">
@@ -441,7 +441,7 @@ export default function ParentsPage() {
                                   }}
                                   className="w-4 h-4 rounded border-gray-300"
                                 />
-                                <span className="text-sm text-gray-700">{option}</span>
+                                <span className="text-sm text-gray-700 dark:text-white">{option}</span>
                                 {pendingFilters.categories.includes(option) && (
                                   <Check className="h-4 w-4 text-purple-500 ml-auto" />
                                 )}
@@ -451,7 +451,7 @@ export default function ParentsPage() {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <h3 className="text-sm font-semibold text-gray-900">Payment Status</h3>
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Payment Status</h3>
                           <div className={`space-y-2 ${paymentStatusOptions.length > 5 ? 'max-h-40 overflow-y-auto pr-2' : ''}`}>
                             {paymentStatusOptions.map((option) => (
                               <label key={option} className="flex items-center gap-2 cursor-pointer">
@@ -468,7 +468,7 @@ export default function ParentsPage() {
                                   }}
                                   className="w-4 h-4 rounded border-gray-300"
                                 />
-                                <span className="text-sm text-gray-700">{option}</span>
+                                <span className="text-sm text-gray-700 dark:text-white">{option}</span>
                                 {pendingFilters.paymentStatuses.includes(option) && (
                                   <Check className="h-4 w-4 text-purple-500 ml-auto" />
                                 )}
@@ -540,7 +540,7 @@ export default function ParentsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuLabel className="text-xs uppercase text-gray-500 font-semibold">Sort By</DropdownMenuLabel>
+                        <DropdownMenuLabel className="text-xs uppercase text-gray-500 dark:text-white font-semibold">Sort By</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         
                         <DropdownMenuItem onClick={() => { setSortBy('name'); setSortOrder('asc') }} className="cursor-pointer">
@@ -654,12 +654,12 @@ export default function ParentsPage() {
 
               {/* Table View */}
               {viewMode === "list" ? (
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                      <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 w-10">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white w-10">
                             <div className="flex items-center justify-center">
                               <Checkbox
                                 checked={filteredParents.length > 0 && filteredParents.every(p => selectedIds.includes(p.parentId))}
@@ -669,31 +669,31 @@ export default function ParentsPage() {
                             </div>
                           </th>
                           {displayedColumns.includes("Name") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Name</th>
                           )}
                           {displayedColumns.includes("Student ID") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Student ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Student ID</th>
                           )}
                           {displayedColumns.includes("Contact") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Contact</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Contact</th>
                           )}
                           {displayedColumns.includes("Categories") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Categories</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Categories</th>
                           )}
                           {displayedColumns.includes("Payment") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Payment</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Payment</th>
                           )}
                           {displayedColumns.includes("Status") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Status</th>
                           )}
                           {displayedColumns.includes("Actions") && (
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-white uppercase">Actions</th>
                           )}
                         </tr>
                       </thead>
                       <tbody>
                         {filteredParents.map((parent) => (
-                          <tr key={parent.parentId} className="border-b border-gray-200 hover:bg-gray-50">
+                          <tr key={parent.parentId} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                             <td onClick={(e) => e.stopPropagation()} className="px-4 py-4">
                               <Checkbox
                                 checked={selectedIds.includes(parent.parentId)}
@@ -702,18 +702,18 @@ export default function ParentsPage() {
                               />
                             </td>
                             {displayedColumns.includes("Name") && (
-                              <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
                                 {parent.firstName} {parent.middleName ? parent.middleName + " " : ""}{parent.lastName}
                               </td>
                             )}
                             {displayedColumns.includes("Student ID") && (
-                              <td className="px-6 py-4 text-sm text-gray-700">{parent.linkedStudentId}</td>
+                              <td className="px-6 py-4 text-sm text-gray-700 dark:text-white">{parent.linkedStudentId}</td>
                             )}
                             {displayedColumns.includes("Contact") && (
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-6 py-4 text-sm text-gray-700 dark:text-white">
                                 <div className="flex flex-col gap-1">
                                   <div>{parent.countryCode} {parent.mobile}</div>
-                                  <div className="text-xs text-gray-600">{parent.email}</div>
+                                  <div className="text-xs text-gray-600 dark:text-white">{parent.email}</div>
                                 </div>
                               </td>
                             )}
@@ -734,7 +734,7 @@ export default function ParentsPage() {
                                   <Badge className={getPaymentStatusColor(parent.paymentStatus)}>
                                     {parent.paymentStatus}
                                   </Badge>
-                                  <span className="text-xs text-gray-600">
+                                  <span className="text-xs text-gray-600 dark:text-white">
                                     {currency || parent.currency} {parent.dueAmount} due
                                   </span>
                                 </div>
@@ -791,14 +791,14 @@ export default function ParentsPage() {
                   {filteredParents.map((parent) => (
                     <div
                       key={parent.parentId}
-                      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+                      className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="text-lg font-bold text-gray-900">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                             {parent.firstName} {parent.middleName ? parent.middleName + " " : ""}{parent.lastName}
                           </h3>
-                          <p className="text-sm text-gray-600">{parent.linkedStudentId}</p>
+                          <p className="text-sm text-gray-600 dark:text-white">{parent.linkedStudentId}</p>
                         </div>
                         <Badge className={getStatusColor(parent.status)}>{parent.status}</Badge>
                       </div>
@@ -811,8 +811,8 @@ export default function ParentsPage() {
                             </Badge>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-600">📧 {parent.email}</p>
-                        <p className="text-xs text-gray-600">📱 {parent.countryCode} {parent.mobile}</p>
+                        <p className="text-xs text-gray-600 dark:text-white">📧 {parent.email}</p>
+                        <p className="text-xs text-gray-600 dark:text-white">📱 {parent.countryCode} {parent.mobile}</p>
                         <p className="text-sm font-medium">
                           {currency || parent.currency} {parent.totalFees} | {" "}
                           <Badge className={getPaymentStatusColor(parent.paymentStatus)} variant="outline">
@@ -914,7 +914,7 @@ export default function ParentsPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 max-h-[400px] overflow-y-auto">
-              <div className="text-sm text-gray-600 text-center py-8">
+              <div className="text-sm text-gray-600 dark:text-white text-center py-8">
                 Draft functionality coming soon. Continue editing a parent to save as draft.
               </div>
             </div>

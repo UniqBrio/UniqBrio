@@ -34,7 +34,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           priority
           className="mb-1 drop-shadow-lg" // Add some space below the logo
         />
-        <p className="text-gray-700 text-base -mt-12 italic font-medium">Mentoring Businesses, Nurturing Learners</p>
+        <p className="text-gray-700 dark:text-white text-base -mt-12 italic font-medium">Mentoring Businesses, Nurturing Learners</p>
       </div>
 
       {/* Wrapper for Left and Right Panels - This will be a flex row */}
@@ -45,14 +45,14 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
               Streamline Your Academy Management
             </h2>
-            <p className="text-gray-700 text-base max-w-md mx-auto leading-relaxed">
+            <p className="text-gray-700 dark:text-white text-base max-w-md mx-auto leading-relaxed">
               The complete solution for managing classes,<br /> courses, payments, and staff-<br />
               <span className="font-semibold">All in one place.</span>
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-6 max-w-lg mx-auto"> {/* Added max-w-lg and mx-auto */}
-            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-purple-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-purple-300 group">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-purple-100 dark:border-purple-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-purple-300 dark:hover:border-purple-500 group">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -68,11 +68,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                 </svg>
               </div>
-              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-purple-600 transition-colors">Course Management</h3>
-              <p className="text-xs text-gray-600">Organize all your courses</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Course Management</h3>
+              <p className="text-xs text-gray-600 dark:text-white">Organize all your courses</p>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-orange-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-orange-300 group">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-orange-100 dark:border-orange-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-orange-300 dark:hover:border-orange-500 group">
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -91,11 +91,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <line x1="3" x2="21" y1="10" y2="10" />
                 </svg>
               </div>
-              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-orange-600 transition-colors">Class Scheduling</h3>
-              <p className="text-xs text-gray-600">Effortless scheduling</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Class Scheduling</h3>
+              <p className="text-xs text-gray-600 dark:text-white">Effortless scheduling</p>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-pink-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-pink-300 group">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-pink-100 dark:border-pink-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-pink-300 dark:hover:border-pink-500 group">
               <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -112,11 +112,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <line x1="2" x2="22" y1="10" y2="10" />
                 </svg>
               </div>
-              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-pink-600 transition-colors">Payment Tracking</h3>
-              <p className="text-xs text-gray-600">Manage all transactions</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">Payment Tracking</h3>
+              <p className="text-xs text-gray-600 dark:text-white">Manage all transactions</p>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-indigo-100 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-indigo-300 group">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-indigo-100 dark:border-indigo-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-indigo-300 dark:hover:border-indigo-500 group">
               <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -135,8 +135,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </div>
-              <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-indigo-600 transition-colors">Staff Management</h3>
-              <p className="text-xs text-gray-600">Coordinate your team</p>
+              <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Staff Management</h3>
+              <p className="text-xs text-gray-600 dark:text-white">Coordinate your team</p>
             </div>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         {/* Right side - Auth forms */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-3 md:p-6 bg-transparent animate-slideInRight">
           {/* Card container for AuthTabs and form */}
-          <div className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-6 hover:shadow-3xl transition-all duration-500"> {/* Added card styling back */}
+          <div className="w-full max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 dark:border-gray-700/60 p-6 hover:shadow-3xl transition-all duration-500"> {/* Added card styling back */}
             <AuthTabs /> {/* AuthTabs handles its own internal spacing and negative margins */}
             {/* Padding for the form content area below AuthTabs */}
             <div className="px-4 py-4 sm:px-6">

@@ -198,7 +198,7 @@ function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", is
         <button
           type="button"
           onClick={() => setShowTimePicker(!showTimePicker)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white hover:text-gray-600 dark:text-white"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" />
@@ -224,7 +224,7 @@ function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", is
                         key={hour}
                         type="button"
                         className={`w-full px-1 py-2 text-sm transition-colors hover:bg-blue-50 ${
-                          isSelected ? 'bg-blue-500 text-white' : 'text-gray-700'
+                          isSelected ? 'bg-blue-500 text-white' : 'text-gray-700 dark:text-white'
                         }`}
                         onClick={() => {
                           const currentMinute = timeInput ? timeInput.split(':')[1] : '00';
@@ -252,7 +252,7 @@ function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", is
                         key={minute}
                         type="button"
                         className={`w-full px-1 py-2 text-sm transition-colors hover:bg-blue-50 ${
-                          isSelected ? 'bg-blue-500 text-white' : 'text-gray-700'
+                          isSelected ? 'bg-blue-500 text-white' : 'text-gray-700 dark:text-white'
                         }`}
                         onClick={() => {
                           const currentHour = timeInput ? timeInput.split(':')[0] : '1';
@@ -1023,10 +1023,10 @@ export function AddAttendanceDialog({
                           onChange={(e) => setStudentQuery(e.target.value)}
                           placeholder={studentsLoading ? 'Loading students...' : 'Search students...'}
                           disabled={studentsLoading}
-                          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
+                          className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
                         />
                         <div className="max-h-[200px] overflow-y-auto text-sm pr-1" onWheelCapture={(e)=>{ e.stopPropagation(); }}>
-                          {studentsLoading && <div className="text-xs text-gray-500 py-2 px-2">Loading...</div>}
+                          {studentsLoading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
                           {!studentsLoading && filteredStudents.map((s, index) => {
                             const active = s.id === newStudentId;
                             const handleStudentSelect = async () => {
@@ -1116,12 +1116,12 @@ export function AddAttendanceDialog({
                                 )}
                               >
                                 <span className="font-medium text-[13px] leading-snug">{s.id} - {s.name}</span>
-                                {s.cohortId && <span className="text-xs text-gray-500">{s.cohortId}</span>}
+                                {s.cohortId && <span className="text-xs text-gray-500 dark:text-white">{s.cohortId}</span>}
                               </div>
                             );
                           })}
                           {!studentsLoading && filteredStudents.length === 0 && (
-                            <div className="text-center text-xs text-gray-500 py-3">No students found</div>
+                            <div className="text-center text-xs text-gray-500 dark:text-white py-3">No students found</div>
                           )}
                         </div>
                       </div>
@@ -1249,7 +1249,7 @@ export function AddAttendanceDialog({
                     </select>
                   </div>
                   {startAutoFilled && (
-                    <p className="mt-1 text-xs text-gray-500">Auto-filled from schedule</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
                   )}
                 </div>
                 <div>
@@ -1322,7 +1322,7 @@ export function AddAttendanceDialog({
                     </select>
                   </div>
                   {endAutoFilled && (
-                    <p className="mt-1 text-xs text-gray-500">Auto-filled from schedule</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
                   )}
                 </div>
                 <div>

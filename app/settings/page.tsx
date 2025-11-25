@@ -208,7 +208,7 @@ export default function SettingsPage() {
               ) : profileData ? (
                 <ProfileSettings user={profileData} onUpdate={handleProfileUpdate} />
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-white">
                   Failed to load profile data
                 </div>
               )}
@@ -220,7 +220,7 @@ export default function SettingsPage() {
               <h2 className="text-xl font-semibold mb-4">Change Password</h2>
               <form onSubmit={handleSubmitPassword(onSubmitPassword)} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 dark:text-white">
                     Current Password
                   </label>
                   <input
@@ -235,7 +235,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-white">
                     New Password
                   </label>
                   <input
@@ -250,7 +250,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-white">
                     Confirm New Password
                   </label>
                   <input
@@ -294,7 +294,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Email Notifications</h3>
-                    <p className="text-sm text-gray-500">Receive email notifications for account activity</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Receive email notifications for account activity</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" defaultChecked />
@@ -305,7 +305,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">SMS Notifications</h3>
-                    <p className="text-sm text-gray-500">Receive text messages for important updates</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Receive text messages for important updates</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" />
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Marketing Communications</h3>
-                    <p className="text-sm text-gray-500">Receive promotional emails and offers</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Receive promotional emails and offers</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" defaultChecked />
@@ -344,7 +344,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Two-Factor Authentication</h3>
-                    <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Add an extra layer of security to your account</p>
                   </div>
                   <button className="py-1 px-3 bg-[#fd9c2d] text-white text-sm rounded-lg hover:bg-[#e08c28] transition-colors">
                     Enable
@@ -354,7 +354,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Data Sharing</h3>
-                    <p className="text-sm text-gray-500">Allow us to share your data with trusted partners</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Allow us to share your data with trusted partners</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" />
@@ -365,7 +365,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Activity Tracking</h3>
-                    <p className="text-sm text-gray-500">Allow us to track your activity for a better experience</p>
+                    <p className="text-sm text-gray-500 dark:text-white">Allow us to track your activity for a better experience</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" defaultChecked />

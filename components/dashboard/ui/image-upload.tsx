@@ -58,14 +58,14 @@ export function ImageUpload({
         >
           <input {...getInputProps()} />
           <div className="flex flex-col items-center space-y-2">
-            <Upload className="h-8 w-8 text-gray-400" />
-            <div className="text-sm text-gray-600">
+            <Upload className="h-8 w-8 text-gray-400 dark:text-white" />
+            <div className="text-sm text-gray-600 dark:text-white">
               {isDragActive ? (
                 <p>Drop the image here...</p>
               ) : (
                 <div>
                   <p>Drag & drop an image here, or click to select</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-white mt-1">
                     PNG, JPG, GIF up to 10MB
                   </p>
                 </div>
@@ -85,8 +85,8 @@ export function ImageUpload({
           </div>
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <ImageIcon className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">Image selected</span>
+              <ImageIcon className="h-4 w-4 text-gray-500 dark:text-white" />
+              <span className="text-sm text-gray-600 dark:text-white">Image selected</span>
             </div>
             <Button
               variant="outline"

@@ -28,9 +28,9 @@ function ConfirmDeleteDialog({ open, title, description, onCancel, onConfirm }: 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-lg shadow-xl p-8 min-w-[340px] max-w-[90vw]">
         <div className="font-bold text-lg mb-2">{title}</div>
-        <div className="text-gray-700 mb-6">{description}</div>
+        <div className="text-gray-700 dark:text-white mb-6">{description}</div>
         <div className="flex justify-end gap-2">
-          <button className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100" onClick={onCancel}>Cancel</button>
+          <button className="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 dark:text-white hover:bg-gray-100" onClick={onCancel}>Cancel</button>
           <button className="px-4 py-2 rounded bg-red-600 text-white font-semibold hover:bg-red-700" onClick={onConfirm}>Delete</button>
         </div>
       </div>
@@ -495,7 +495,7 @@ export function IncomeExpensesSection({
               <div className="max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#a78bfa]/60 scrollbar-track-[#f4f2ff]">
                 <table className="min-w-full text-[15px] bg-white border-separate border-spacing-0">
                   <thead className="sticky top-0 z-20 bg-[#f8f8fc]">
-                    <tr className="bg-[#f8f8fc] text-gray-700">
+                    <tr className="bg-[#f8f8fc] text-gray-700 dark:text-white">
                       {/* Selection column header for Income */}
                       <th className="sticky top-0 z-20 px-4 py-3 text-left font-semibold w-10 bg-[#f8f8fc]">
                         {(() => {
@@ -533,11 +533,11 @@ export function IncomeExpensesSection({
                   <tbody>
                     {filteredIncomes.length === 0 ? (
                       <tr>
-                        <td colSpan={incomeDisplayedColumns.length + 1} className="text-center text-gray-500 py-8">No incomes found.</td>
+                        <td colSpan={incomeDisplayedColumns.length + 1} className="text-center text-gray-500 dark:text-white py-8">No incomes found.</td>
                       </tr>
                     ) : (
                       filteredIncomes.map((income) => (
-                        <tr key={income.id} className="border-b border-gray-200 group hover:bg-[#f3f0ff] cursor-pointer transition-colors" onClick={() => handleViewIncome(income)}>
+                        <tr key={income.id} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-[#f3f0ff] dark:hover:bg-purple-900/20 cursor-pointer transition-colors" onClick={() => handleViewIncome(income)}>
                           {/* Selection checkbox cell */}
                           <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
                             <input
@@ -587,8 +587,8 @@ export function IncomeExpensesSection({
                                     <button
                                       className={`p-1 rounded-full focus:outline-none ${
                                         isFromPaymentTransaction(income)
-                                          ? 'text-gray-300 cursor-not-allowed'
-                                          : 'text-gray-500 hover:text-blue-600'
+                                          ? 'text-gray-300 dark:text-white cursor-not-allowed'
+                                          : 'text-gray-500 dark:text-white hover:text-blue-600'
                                       }`}
                                       title={isFromPaymentTransaction(income) ? 'Cannot edit payment-generated income' : 'Edit'}
                                       onClick={e => { e.stopPropagation(); handleEditIncome(income); }}
@@ -599,7 +599,7 @@ export function IncomeExpensesSection({
                                     <button
                                       className={`p-2 rounded ${
                                         isFromPaymentTransaction(income)
-                                          ? 'text-gray-300 cursor-not-allowed'
+                                          ? 'text-gray-300 dark:text-white cursor-not-allowed'
                                           : 'text-red-500 hover:text-red-700'
                                       }`}
                                       onClick={e => { e.stopPropagation(); handleDeleteIncome(income); }}
@@ -633,8 +633,8 @@ export function IncomeExpensesSection({
                     <button
                       className={`absolute top-1 right-1 p-1 rounded-full focus:outline-none z-10 opacity-80 group-hover:opacity-100 ${
                         isFromPaymentTransaction(income)
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : 'text-gray-500 hover:text-orange-500'
+                          ? 'text-gray-300 dark:text-white cursor-not-allowed'
+                          : 'text-gray-500 dark:text-white hover:text-orange-500'
                       }`}
                       title={isFromPaymentTransaction(income) ? 'Cannot edit payment-generated income' : 'Edit'}
                       onClick={e => { e.stopPropagation(); handleEditIncome(income); }}
@@ -644,16 +644,16 @@ export function IncomeExpensesSection({
                     </button>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex flex-col">
-                        <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2">{income.incomeCategory}</h3>
-                        <p className="text-sm text-gray-500">{formatDate(new Date(income.date), 'dd-MMM-yyyy')}</p>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight line-clamp-2">{income.incomeCategory}</h3>
+                        <p className="text-sm text-gray-500 dark:text-white">{formatDate(new Date(income.date), 'dd-MMM-yyyy')}</p>
                       </div>
                     </div>
                     <div className="mb-2 flex flex-wrap gap-2 items-center">
                       <Badge className="bg-blue-100 text-blue-700">{income.paymentMode || 'N/A'}</Badge>
                       {income.sourceType && <Badge className="bg-purple-100 text-purple-700">{income.sourceType}</Badge>}
                     </div>
-                    <p className="text-sm text-gray-700 mb-1">{income.description || 'No description'}</p>
-                    <div className="text-xs text-gray-500 mb-2">
+                    <p className="text-sm text-gray-700 dark:text-white mb-1">{income.description || 'No description'}</p>
+                    <div className="text-xs text-gray-500 dark:text-white mb-2">
                       <p>To: {income.addToAccount}</p>
                       {income.receivedFrom && <p>From: {income.receivedFrom}</p>}
                     </div>
@@ -665,7 +665,7 @@ export function IncomeExpensesSection({
                   <button
                     className={`absolute -bottom-0 right-0 focus:outline-none z-10 p-1 opacity-80 group-hover:opacity-100 ${
                       isFromPaymentTransaction(income)
-                        ? 'text-gray-300 cursor-not-allowed'
+                        ? 'text-gray-300 dark:text-white cursor-not-allowed'
                         : 'text-red-500 hover:text-red-700'
                     }`}
                     title={isFromPaymentTransaction(income) ? 'Cannot delete payment-generated income' : 'Delete'}
@@ -760,7 +760,7 @@ export function IncomeExpensesSection({
               <div className="max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#a78bfa]/60 scrollbar-track-[#f4f2ff]">
                 <table className="min-w-full text-[15px] bg-white border-separate border-spacing-0">
                   <thead className="sticky top-0 z-20 bg-[#f8f8fc]">
-                    <tr className="bg-[#f8f8fc] text-gray-700">
+                    <tr className="bg-[#f8f8fc] text-gray-700 dark:text-white">
                       {/* Selection column header */}
                       <th className="sticky top-0 z-20 px-4 py-3 text-left font-semibold w-10 bg-[#f8f8fc]">
                         {(() => {
@@ -798,11 +798,11 @@ export function IncomeExpensesSection({
                   <tbody>
                     {filteredExpenses.length === 0 ? (
                       <tr>
-                        <td colSpan={expenseDisplayedColumns.length + 1} className="text-center text-gray-500 py-8">No expenses found.</td>
+                        <td colSpan={expenseDisplayedColumns.length + 1} className="text-center text-gray-500 dark:text-white py-8">No expenses found.</td>
                       </tr>
                     ) : (
                       filteredExpenses.map((expense) => (
-                        <tr key={expense.id} className="border-b border-gray-200 group hover:bg-[#f3f0ff] cursor-pointer transition-colors" onClick={() => handleViewExpense(expense)}>
+                        <tr key={expense.id} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-[#f3f0ff] dark:hover:bg-purple-900/20 cursor-pointer transition-colors" onClick={() => handleViewExpense(expense)}>
                           {/* Selection checkbox cell */}
                           <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
                             <input
@@ -829,7 +829,7 @@ export function IncomeExpensesSection({
                                   </span>
                                 </td>;
                               case "Vendor Name":
-                                return <td key="vendorName" className="px-6 py-3 text-gray-700">{expense.vendorName || '-'}</td>;
+                                return <td key="vendorName" className="px-6 py-3 text-gray-700 dark:text-white">{expense.vendorName || '-'}</td>;
                               case "Vendor Type":
                                 return <td key="vendorType" className="px-6 py-3">
                                   <span className="inline-block rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs font-medium">
@@ -843,20 +843,20 @@ export function IncomeExpensesSection({
                                   </span>
                                 </td>;
                               case "From Account":
-                                return <td key="fromAccount" className="px-6 py-3 text-gray-700">{expense.addFromAccount}</td>;
+                                return <td key="fromAccount" className="px-6 py-3 text-gray-700 dark:text-white">{expense.addFromAccount}</td>;
                               case "Received By":
-                                return <td key="receivedBy" className="px-6 py-3 text-gray-700">{expense.receivedBy || '-'}</td>;
+                                return <td key="receivedBy" className="px-6 py-3 text-gray-700 dark:text-white">{expense.receivedBy || '-'}</td>;
                               case "Received From":
-                                return <td key="receivedFrom" className="px-6 py-3 text-gray-700">{expense.receivedFrom || '-'}</td>;
+                                return <td key="receivedFrom" className="px-6 py-3 text-gray-700 dark:text-white">{expense.receivedFrom || '-'}</td>;
                               case "Receipt Number":
-                                return <td key="receiptNumber" className="px-6 py-3 text-gray-700">{expense.receiptNumber || '-'}</td>;
+                                return <td key="receiptNumber" className="px-6 py-3 text-gray-700 dark:text-white">{expense.receiptNumber || '-'}</td>;
                               case "Description":
-                                return <td key="desc" className="px-6 py-3 text-gray-600">{expense.description || '-'}</td>;
+                                return <td key="desc" className="px-6 py-3 text-gray-600 dark:text-white">{expense.description || '-'}</td>;
                               case "Actions":
                                 return <td key="actions" className="px-6 py-3 text-center align-middle">
                                   <div className="flex justify-center items-center gap-2 h-full min-h-[40px]">
                                     <button
-                                      className="text-gray-500 hover:text-blue-600 p-1 rounded-full focus:outline-none"
+                                      className="text-gray-500 dark:text-white hover:text-blue-600 p-1 rounded-full focus:outline-none"
                                       title="Edit"
                                       onClick={e => { e.stopPropagation(); handleEditExpense(expense); }}
                                     >
@@ -894,8 +894,8 @@ export function IncomeExpensesSection({
                     <button
                       className={`absolute top-1 right-1 p-1 rounded-full focus:outline-none z-10 opacity-80 group-hover:opacity-100 ${
                         isFromPaymentTransaction(income)
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : 'text-gray-500 hover:text-orange-500'
+                          ? 'text-gray-300 dark:text-white cursor-not-allowed'
+                          : 'text-gray-500 dark:text-white hover:text-orange-500'
                       }`}
                       title={isFromPaymentTransaction(income) ? 'Cannot edit payment-generated income' : 'Edit'}
                       onClick={e => { e.stopPropagation(); handleEditIncome(income); }}
@@ -905,16 +905,16 @@ export function IncomeExpensesSection({
                     </button>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex flex-col">
-                        <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2">{income.incomeCategory}</h3>
-                        <p className="text-sm text-gray-500">{formatDate(new Date(income.date), 'dd-MMM-yyyy')}</p>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight line-clamp-2">{income.incomeCategory}</h3>
+                        <p className="text-sm text-gray-500 dark:text-white">{formatDate(new Date(income.date), 'dd-MMM-yyyy')}</p>
                       </div>
                     </div>
                     <div className="mb-2 flex flex-wrap gap-2 items-center">
                       <Badge className="bg-blue-100 text-blue-700">{income.paymentMode || 'N/A'}</Badge>
                       {income.sourceType && <Badge className="bg-purple-100 text-purple-700">{income.sourceType}</Badge>}
                     </div>
-                    <p className="text-sm text-gray-700 mb-1">{income.description || 'No description'}</p>
-                    <div className="text-xs text-gray-500 mb-2">
+                    <p className="text-sm text-gray-700 dark:text-white mb-1">{income.description || 'No description'}</p>
+                    <div className="text-xs text-gray-500 dark:text-white mb-2">
                       <p>To: {income.addToAccount}</p>
                       {income.receivedFrom && <p>From: {income.receivedFrom}</p>}
                     </div>
@@ -926,7 +926,7 @@ export function IncomeExpensesSection({
                   <button
                     className={`absolute -bottom-0 right-0 focus:outline-none z-10 p-1 opacity-80 group-hover:opacity-100 ${
                       isFromPaymentTransaction(income)
-                        ? 'text-gray-300 cursor-not-allowed'
+                        ? 'text-gray-300 dark:text-white cursor-not-allowed'
                         : 'text-red-500 hover:text-red-700'
                     }`}
                     title={isFromPaymentTransaction(income) ? 'Cannot delete payment-generated income' : 'Delete'}

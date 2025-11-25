@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from 'react';
 import { Button } from '@/components/dashboard/ui/button';
@@ -47,10 +47,10 @@ export default function MigratePaymentStatusPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <h3 className="font-semibold">What this migration does:</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
-              <li>"Partial" → "Paid"</li>
-              <li>"Completed" → "Paid"</li>
-              <li>"In Progress" → "Paid"</li>
+            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-white">
+              <li>"Partial" ? "Paid"</li>
+              <li>"Completed" ? "Paid"</li>
+              <li>"In Progress" ? "Paid"</li>
               <li>"Pending" remains "Pending"</li>
             </ul>
           </div>
@@ -72,7 +72,7 @@ export default function MigratePaymentStatusPage() {
           )}
 
           {result && (
-            <Alert className="border-green-200 bg-green-50">
+            <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
                 <div className="space-y-2">
@@ -80,9 +80,9 @@ export default function MigratePaymentStatusPage() {
                   <div className="text-sm">
                     <p>Records updated:</p>
                     <ul className="list-disc list-inside ml-4">
-                      <li>"Partial" → "Paid": {result.results.partial}</li>
-                      <li>"Completed" → "Paid": {result.results.completed}</li>
-                      <li>"In Progress" → "Paid": {result.results.inProgress}</li>
+                      <li>"Partial" ? "Paid": {result.results.partial}</li>
+                      <li>"Completed" ? "Paid": {result.results.completed}</li>
+                      <li>"In Progress" ? "Paid": {result.results.inProgress}</li>
                     </ul>
                   </div>
                   {result.currentStatusDistribution && (

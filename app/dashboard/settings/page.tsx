@@ -211,7 +211,7 @@ export default function SettingsPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-purple-700 flex items-center gap-2">
               <SettingsIcon className="h-6 w-6 sm:h-8 sm:w-8" />Settings
             </h1>
-            <p className="text-sm sm:text-base text-gray-500 mt-1">Manage your account settings and preferences</p>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-white mt-1">Manage your account settings and preferences</p>
           </div>
 
 
@@ -224,14 +224,14 @@ export default function SettingsPage() {
 
                 <TabsTrigger
                   value="academy-info"
-                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                  className="text-xs sm:text-sm border-2 border-orange-500 dark:border-orange-600 text-orange-600 dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <GraduationCap className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Academy Info</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
-                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                  className="text-xs sm:text-sm border-2 border-orange-500 dark:border-orange-600 text-orange-600 dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <User className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Profile</span>
@@ -239,7 +239,7 @@ export default function SettingsPage() {
 
                 <TabsTrigger
                   value="appearance"
-                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                  className="text-xs sm:text-sm border-2 border-orange-500 dark:border-orange-600 text-orange-600 dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <Palette className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Localization</span>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
 
                 <TabsTrigger
                   value="system-config"
-                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                  className="text-xs sm:text-sm border-2 border-orange-500 dark:border-orange-600 text-orange-600 dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <Server className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline-flex items-center gap-1">System Config <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
@@ -255,7 +255,7 @@ export default function SettingsPage() {
 
                 <TabsTrigger
                   value="notifications"
-                  className="text-xs sm:text-sm border-2 border-orange-500 text-orange-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 focus:outline-none whitespace-nowrap flex-shrink-0"
+                  className="text-xs sm:text-sm border-2 border-orange-500 dark:border-orange-600 text-orange-600 dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 focus:outline-none whitespace-nowrap flex-shrink-0"
                 >
                   <Bell className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
               ) : profileData ? (
                 <ProfileSettings user={profileData} onUpdate={handleProfileUpdate} />
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-white">
                   Failed to load profile data. Please refresh the page.
                 </div>
               )}

@@ -236,7 +236,7 @@ export default function SignupPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -248,7 +248,7 @@ export default function SignupPage() {
           {password && (
             <div className="mt-1">
               <div className="flex justify-between items-center mb-0.5">
-                <span className="text-xs text-gray-500">Password strength:</span>
+                <span className="text-xs text-gray-500 dark:text-white">Password strength:</span>
                 <span className={`text-xs font-medium text-${getPasswordStrengthText().color}-500`}>
                   {getPasswordStrengthText().text}
                 </span>
@@ -261,7 +261,7 @@ export default function SignupPage() {
               </div>
 
               {/* Password Criteria List */}
-              <ul className="text-xs text-gray-500 mt-1 space-y-0.5">
+              <ul className="text-xs text-gray-500 dark:text-white mt-1 space-y-0.5">
                 <li className="flex items-center">
                   {/^.{8,12}$/.test(password) ? (
                     <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
@@ -322,7 +322,7 @@ export default function SignupPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -341,7 +341,7 @@ export default function SignupPage() {
               {...register("termsAccepted")}
             />
           </div>
-          <label htmlFor="terms" className="ml-2 text-sm text-gray-700 leading-relaxed">
+          <label htmlFor="terms" className="ml-2 text-sm text-gray-700 dark:text-white leading-relaxed">
             I agree to the{" "}
             <a 
               href="/legal/terms" 

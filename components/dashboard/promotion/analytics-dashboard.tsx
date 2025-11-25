@@ -136,7 +136,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">{label}</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-white">{label}</p>
             <p className={`text-2xl font-bold mt-2 ${color}`}>{value}</p>
             {change && (
               <div className="flex items-center gap-1 mt-1">
@@ -319,10 +319,10 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
           </CardHeader>
           <CardContent className="space-y-3">
             {statusBreakdown.map((item) => {
-              let badgeColor = 'bg-gray-100 text-gray-800';
+              let badgeColor = 'bg-gray-100 text-gray-800 dark:text-white';
               if (item.status === 'Active') badgeColor = 'bg-green-100 text-green-800';
               if (item.status === 'Scheduled') badgeColor = 'bg-blue-100 text-blue-800';
-              if (item.status === 'Completed') badgeColor = 'bg-gray-100 text-gray-800';
+              if (item.status === 'Completed') badgeColor = 'bg-gray-100 text-gray-800 dark:text-white';
               if (item.status === 'Draft') badgeColor = 'bg-yellow-100 text-yellow-800';
 
               return (
@@ -344,8 +344,8 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
           <CardContent className="space-y-4">
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Budget Spent</span>
-                <span className="text-sm font-bold text-gray-900">
+                <span className="text-sm font-medium text-gray-700 dark:text-white">Budget Spent</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">
                   ${(totalBudgetSpent / 1000).toFixed(1)}k
                 </span>
               </div>
@@ -390,7 +390,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{campaign.title}</p>
-                    <p className="text-xs text-gray-500">ROI: {campaign.roi}%</p>
+                    <p className="text-xs text-gray-500 dark:text-white">ROI: {campaign.roi}%</p>
                   </div>
                 </div>
               ))}

@@ -198,7 +198,7 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
               <Archive className="h-5 w-5 text-purple-600" />
               <div>
                 <Label htmlFor="autoBackup" className="font-medium">Automatic Backups</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-white">
                   Automatically backup your data daily
                 </p>
               </div>

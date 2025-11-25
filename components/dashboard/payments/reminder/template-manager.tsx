@@ -288,8 +288,8 @@ export default function ReminderTemplateManager() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Email Reminder Templates</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Email Reminder Templates</h1>
+          <p className="text-gray-600 dark:text-white mt-2">
             Create and manage email reminder templates for payments and communications
           </p>
         </div>
@@ -340,10 +340,10 @@ export default function ReminderTemplateManager() {
                   onClick={() => setSelectedTemplate(template)}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <IconComponent className="h-4 w-4 text-gray-500" />
+                    <IconComponent className="h-4 w-4 text-gray-500 dark:text-white" />
                     <div className="font-medium">{template.name}</div>
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-white">
                     {category?.label || template.category}
                   </div>
                   {template.isDefault && (
@@ -483,7 +483,7 @@ function BasicInfoEditor({
           onChange={(e) => onChange({ ...template, subject: e.target.value })}
           placeholder="e.g., Payment Reminder - {courseName}"
         />
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-white">
           You can use {'{studentName}'}, {'{courseName}'}, {'{amountDue}'} as placeholders
         </p>
       </div>
@@ -543,7 +543,7 @@ function MessageEditor({
             <Label>Show Name</Label>
           </div>
         </div>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-white">
           Preview: "{template.greeting} {template.showStudentName ? '{Student Name}' : 'Student'},"
         </p>
       </div>
@@ -844,10 +844,10 @@ function EmailPreview({ template }: { template: ReminderTemplate }) {
     <div className="bg-white border rounded-lg p-6 font-sans">
       {/* Email Header */}
       <div className="border-b pb-4 mb-6">
-        <div className="text-sm text-gray-500 mb-2">
+        <div className="text-sm text-gray-500 dark:text-white mb-2">
           <strong>From:</strong> {template.senderName} &lt;{template.senderEmail}&gt;
         </div>
-        <div className="text-sm text-gray-500 mb-2">
+        <div className="text-sm text-gray-500 dark:text-white mb-2">
           <strong>Subject:</strong> {urgencyPrefix}{template.subject.replace('{courseName}', sampleData.courseName)}
         </div>
       </div>

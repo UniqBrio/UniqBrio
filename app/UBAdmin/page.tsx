@@ -165,14 +165,14 @@ export default function UBAdminPage() {
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">
               Admin Portal
             </CardTitle>
-            <CardDescription className="text-gray-600 text-base">
+            <CardDescription className="text-gray-600 dark:text-white text-base">
               Secure access to academy management platform
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-medium">Admin Email</Label>
+                <Label htmlFor="email" className="text-gray-700 dark:text-white font-medium">Admin Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -184,7 +184,7 @@ export default function UBAdminPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                <Label htmlFor="password" className="text-gray-700 dark:text-white font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -369,7 +369,7 @@ function AdminDashboard({ stats }: { stats: any }) {
             </div>
             <div>
               <CardTitle className="text-2xl bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">Platform Overview</CardTitle>
-              <CardDescription className="text-gray-600">Key metrics and system health insights</CardDescription>
+              <CardDescription className="text-gray-600 dark:text-white">Key metrics and system health insights</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -484,7 +484,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
               <CardTitle className="text-2xl bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">
                 KYC Verification Queue
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-gray-600 dark:text-white">
                 Review and approve academy KYC submissions ({kycQueue.length} pending)
               </CardDescription>
             </div>
@@ -497,8 +497,8 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                 <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <FileCheck className="w-12 h-12 text-purple-400" />
                 </div>
-                <p className="text-gray-500 text-lg">No pending KYC submissions</p>
-                <p className="text-gray-400 text-sm mt-2">All KYC requests have been processed</p>
+                <p className="text-gray-500 dark:text-white text-lg">No pending KYC submissions</p>
+                <p className="text-gray-400 dark:text-white text-sm mt-2">All KYC requests have been processed</p>
               </div>
             ) : (
               <>
@@ -511,7 +511,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                     <div className="relative z-10 flex items-center justify-between p-6">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
-                          <h4 className="font-semibold text-lg text-gray-800">{item.academyName}</h4>
+                          <h4 className="font-semibold text-lg text-gray-800 dark:text-white">{item.academyName}</h4>
                           {item.isResubmission && (
                             <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-sm">
                               Resubmitted
@@ -519,11 +519,11 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                           )}
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-gray-600 flex items-center gap-2">
+                          <p className="text-sm text-gray-600 dark:text-white flex items-center gap-2">
                             <Users className="w-4 h-4" />
                             Owner: {item.ownerName} ({item.ownerEmail})
                           </p>
-                          <p className="text-sm text-gray-600 flex items-center gap-2">
+                          <p className="text-sm text-gray-600 dark:text-white flex items-center gap-2">
                             <Building className="w-4 h-4" />
                             Location: {item.location} • Submitted: {new Date(item.submittedAt).toLocaleDateString()}
                             {item.totalSubmissions > 1 && (
@@ -596,7 +596,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                     <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">
                       KYC Documents
                     </h3>
-                    <p className="text-gray-600">{selectedKYC.academyName}</p>
+                    <p className="text-gray-600 dark:text-white">{selectedKYC.academyName}</p>
                   </div>
                 </div>
                 <Button 
@@ -627,7 +627,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                       }
                     }}
                   />
-                  <p className="text-xs text-gray-500 mt-1 break-all">{selectedKYC.ownerImageUrl}</p>
+                  <p className="text-xs text-gray-500 dark:text-white mt-1 break-all">{selectedKYC.ownerImageUrl}</p>
                 </div>
                 
                 <div>
@@ -648,7 +648,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                       }
                     }}
                   />
-                  <p className="text-xs text-gray-500 mt-1 break-all">{selectedKYC.bannerImageUrl}</p>
+                  <p className="text-xs text-gray-500 dark:text-white mt-1 break-all">{selectedKYC.bannerImageUrl}</p>
                 </div>
                 
                 <div className="md:col-span-2">
@@ -669,7 +669,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
                       }
                     }}
                   />
-                  <p className="text-xs text-gray-500 mt-1 break-all">{selectedKYC.ownerWithBannerImageUrl}</p>
+                  <p className="text-xs text-gray-500 dark:text-white mt-1 break-all">{selectedKYC.ownerWithBannerImageUrl}</p>
                   
                   {/* Location and Time Details for Owner with Banner */}
                   <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
@@ -776,7 +776,7 @@ function AcademyManagement({ academies }: { academies: any[] }) {
               <CardTitle className="text-2xl bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">
                 Registered Academies
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-gray-600 dark:text-white">
                 Comprehensive view of all academies in the UniqBrio platform ({academies.length} total)
               </CardDescription>
             </div>
@@ -789,8 +789,8 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                 <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Building className="w-12 h-12 text-purple-400" />
                 </div>
-                <p className="text-gray-500 text-lg">No academies registered yet</p>
-                <p className="text-gray-400 text-sm mt-2">Academy registrations will appear here</p>
+                <p className="text-gray-500 dark:text-white text-lg">No academies registered yet</p>
+                <p className="text-gray-400 dark:text-white text-sm mt-2">Academy registrations will appear here</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -808,10 +808,10 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                             {getIndustryIcon(academy.businessInfo?.industryType)}
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
+                            <h3 className="text-xl font-bold text-gray-800 dark:text-white group-hover:text-purple-700 transition-colors">
                               {academy.academyName}
                             </h3>
-                            <p className="text-sm text-gray-600">{academy.businessInfo?.legalEntityName}</p>
+                            <p className="text-sm text-gray-600 dark:text-white">{academy.businessInfo?.legalEntityName}</p>
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -830,14 +830,14 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center gap-2 text-sm">
                           <Users className="w-4 h-4 text-purple-600" />
-                          <span className="text-gray-600">Owner:</span>
-                          <span className="font-medium text-gray-800">{academy.ownerName}</span>
+                          <span className="text-gray-600 dark:text-white">Owner:</span>
+                          <span className="font-medium text-gray-800 dark:text-white">{academy.ownerName}</span>
                         </div>
                         
                         <div className="flex items-center gap-2 text-sm">
                           <Building className="w-4 h-4 text-orange-600" />
-                          <span className="text-gray-600">Industry:</span>
-                          <span className="font-medium text-gray-800 capitalize">
+                          <span className="text-gray-600 dark:text-white">Industry:</span>
+                          <span className="font-medium text-gray-800 dark:text-white capitalize">
                             {academy.businessInfo?.industryType || 'Not specified'}
                           </span>
                         </div>
@@ -845,8 +845,8 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                         <div className="flex items-start gap-2 text-sm">
                           <FileCheck className="w-4 h-4 text-blue-600 mt-0.5" />
                           <div>
-                            <span className="text-gray-600">Services:</span>
-                            <p className="font-medium text-gray-800 mt-1">
+                            <span className="text-gray-600 dark:text-white">Services:</span>
+                            <p className="font-medium text-gray-800 dark:text-white mt-1">
                               {formatServices(academy.businessInfo?.servicesOffered)}
                             </p>
                           </div>
@@ -854,8 +854,8 @@ function AcademyManagement({ academies }: { academies: any[] }) {
 
                         <div className="flex items-center gap-2 text-sm">
                           <Users className="w-4 h-4 text-green-600" />
-                          <span className="text-gray-600">Size:</span>
-                          <span className="font-medium text-gray-800 capitalize">
+                          <span className="text-gray-600 dark:text-white">Size:</span>
+                          <span className="font-medium text-gray-800 dark:text-white capitalize">
                             {academy.businessInfo?.studentSize || 'Not specified'} academy
                           </span>
                         </div>
@@ -863,8 +863,8 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                         <div className="flex items-start gap-2 text-sm">
                           <Building className="w-4 h-4 text-purple-600 mt-0.5" />
                           <div>
-                            <span className="text-gray-600">Location:</span>
-                            <p className="font-medium text-gray-800">
+                            <span className="text-gray-600 dark:text-white">Location:</span>
+                            <p className="font-medium text-gray-800 dark:text-white">
                               {academy.businessInfo?.city && academy.businessInfo?.state 
                                 ? `${academy.businessInfo.city}, ${academy.businessInfo.state}`
                                 : 'Location not specified'}
@@ -875,7 +875,7 @@ function AcademyManagement({ academies }: { academies: any[] }) {
 
                       {/* Footer */}
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-white">
                           Registered: {new Date(academy.registeredAt).toLocaleDateString()}
                         </div>
                         <Button 
@@ -910,7 +910,7 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                     <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">
                       {selectedAcademy.academyName}
                     </h2>
-                    <p className="text-gray-600 text-lg">{selectedAcademy.businessInfo?.legalEntityName}</p>
+                    <p className="text-gray-600 dark:text-white text-lg">{selectedAcademy.businessInfo?.legalEntityName}</p>
                     <div className="flex gap-2 mt-2">
                       <Badge className={`${getStatusBadgeColor(selectedAcademy.status)} text-white border-0`}>
                         {selectedAcademy.status === 'kyc_submitted' ? 'KYC Submitted' : 'Registered'}
@@ -943,19 +943,19 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                   </CardHeader>
                   <CardContent className="p-6 space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Business Name</label>
-                      <p className="text-gray-800 font-medium">{selectedAcademy.businessInfo?.businessName || 'Not provided'}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Business Name</label>
+                      <p className="text-gray-800 dark:text-white font-medium">{selectedAcademy.businessInfo?.businessName || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Legal Entity</label>
-                      <p className="text-gray-800">{selectedAcademy.businessInfo?.legalEntityName || 'Not provided'}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Legal Entity</label>
+                      <p className="text-gray-800 dark:text-white">{selectedAcademy.businessInfo?.legalEntityName || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Industry</label>
-                      <p className="text-gray-800 capitalize">{selectedAcademy.businessInfo?.industryType || 'Not specified'}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Industry</label>
+                      <p className="text-gray-800 dark:text-white capitalize">{selectedAcademy.businessInfo?.industryType || 'Not specified'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Services Offered</label>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Services Offered</label>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {selectedAcademy.businessInfo?.servicesOffered?.length > 0 ? 
                           selectedAcademy.businessInfo.servicesOffered.map((service: string, idx: number) => (
@@ -963,23 +963,23 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                               {service}
                             </Badge>
                           )) : 
-                          <span className="text-gray-500 italic">No services listed</span>
+                          <span className="text-gray-500 dark:text-white italic">No services listed</span>
                         }
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Student Size</label>
-                        <p className="text-gray-800 capitalize">{selectedAcademy.businessInfo?.studentSize || 'Not specified'}</p>
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Student Size</label>
+                        <p className="text-gray-800 dark:text-white capitalize">{selectedAcademy.businessInfo?.studentSize || 'Not specified'}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Staff Count</label>
-                        <p className="text-gray-800 capitalize">{selectedAcademy.businessInfo?.staffCount || 'Not specified'}</p>
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Staff Count</label>
+                        <p className="text-gray-800 dark:text-white capitalize">{selectedAcademy.businessInfo?.staffCount || 'Not specified'}</p>
                       </div>
                     </div>
                     {selectedAcademy.businessInfo?.website && (
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Website</label>
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Website</label>
                         <p className="text-blue-600 hover:text-blue-700">
                           <a href={selectedAcademy.businessInfo.website} target="_blank" rel="noopener noreferrer">
                             {selectedAcademy.businessInfo.website}
@@ -1000,20 +1000,20 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                   </CardHeader>
                   <CardContent className="p-6 space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Owner</label>
-                      <p className="text-gray-800 font-medium">{selectedAcademy.adminInfo?.fullName || selectedAcademy.ownerName}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Owner</label>
+                      <p className="text-gray-800 dark:text-white font-medium">{selectedAcademy.adminInfo?.fullName || selectedAcademy.ownerName}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Email</label>
-                      <p className="text-gray-800">{selectedAcademy.businessInfo?.businessEmail || selectedAcademy.ownerEmail}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Email</label>
+                      <p className="text-gray-800 dark:text-white">{selectedAcademy.businessInfo?.businessEmail || selectedAcademy.ownerEmail}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Phone</label>
-                      <p className="text-gray-800">{selectedAcademy.businessInfo?.phoneNumber || 'Not provided'}</p>
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Phone</label>
+                      <p className="text-gray-800 dark:text-white">{selectedAcademy.businessInfo?.phoneNumber || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Address</label>
-                      <p className="text-gray-800">
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Address</label>
+                      <p className="text-gray-800 dark:text-white">
                         {selectedAcademy.businessInfo?.address && (
                           <>
                             {selectedAcademy.businessInfo.address}<br />
@@ -1025,13 +1025,13 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                     </div>
                     {selectedAcademy.businessInfo?.taxId && (
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Tax ID</label>
-                        <p className="text-gray-800">{selectedAcademy.businessInfo.taxId}</p>
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Tax ID</label>
+                        <p className="text-gray-800 dark:text-white">{selectedAcademy.businessInfo.taxId}</p>
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Language Preference</label>
-                      <p className="text-gray-800 capitalize">
+                      <label className="text-sm font-medium text-gray-500 dark:text-white">Language Preference</label>
+                      <p className="text-gray-800 dark:text-white capitalize">
                         {selectedAcademy.businessInfo?.preferredLanguage === 'eng' ? 'English' : 
                          selectedAcademy.businessInfo?.preferredLanguage || 'Not specified'}
                       </p>
@@ -1050,26 +1050,26 @@ function AcademyManagement({ academies }: { academies: any[] }) {
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Academy ID</label>
-                        <p className="text-gray-800 font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Academy ID</label>
+                        <p className="text-gray-800 dark:text-white font-mono text-sm bg-gray-100 px-2 py-1 rounded">
                           {selectedAcademy.academyId}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-500">User ID</label>
-                        <p className="text-gray-800 font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">User ID</label>
+                        <p className="text-gray-800 dark:text-white font-mono text-sm bg-gray-100 px-2 py-1 rounded">
                           {selectedAcademy.userId}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Registration Date</label>
-                        <p className="text-gray-800">{new Date(selectedAcademy.registeredAt).toLocaleString()}</p>
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Registration Date</label>
+                        <p className="text-gray-800 dark:text-white">{new Date(selectedAcademy.registeredAt).toLocaleString()}</p>
                       </div>
                     </div>
                     {selectedAcademy.preferences?.referralSource && (
                       <div className="mt-4">
-                        <label className="text-sm font-medium text-gray-500">Referral Source</label>
-                        <p className="text-gray-800 capitalize">{selectedAcademy.preferences.referralSource}</p>
+                        <label className="text-sm font-medium text-gray-500 dark:text-white">Referral Source</label>
+                        <p className="text-gray-800 dark:text-white capitalize">{selectedAcademy.preferences.referralSource}</p>
                       </div>
                     )}
                   </CardContent>
@@ -1149,15 +1149,15 @@ function AdminAnalytics({ stats }: { stats: any }) {
                   ? Math.round((stats.totalKYCSubmissions / stats.totalAcademies) * 100)
                   : 0}%
               </div>
-              <div className="text-sm text-gray-600">KYC Completion Rate</div>
+              <div className="text-sm text-gray-600 dark:text-white">KYC Completion Rate</div>
             </div>
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">{stats?.verifiedAcademies || 0}</div>
-              <div className="text-sm text-gray-600">Verified Academies</div>
+              <div className="text-sm text-gray-600 dark:text-white">Verified Academies</div>
             </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">+{stats?.monthlyGrowth || 0}%</div>
-              <div className="text-sm text-gray-600">Monthly Growth</div>
+              <div className="text-sm text-gray-600 dark:text-white">Monthly Growth</div>
             </div>
           </div>
         </CardContent>
