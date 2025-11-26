@@ -225,6 +225,10 @@ export async function login(formData: FormData) {
 
     // Create session
     console.log("[AuthAction] login: Creating session token for user:", user.email);
+    console.log("[AuthAction] login: User academyId:", user.academyId);
+    console.log("[AuthAction] login: User tenantId:", user.tenantId);
+    console.log("[AuthAction] login: User object keys:", Object.keys(user.toObject ? user.toObject() : user));
+    
     const sessionData: SessionData = {
       id: user.id,
       email: user.email,
@@ -234,6 +238,9 @@ export async function login(formData: FormData) {
       lastActivity: Date.now(),
       tenantId: user.academyId || user.tenantId || 'default', // Add tenantId from academyId for multi-tenant isolation
     };
+    
+    console.log("[AuthAction] login: SessionData created:", { ...sessionData, tenantId: sessionData.tenantId });
+    
     const token = await createToken(sessionData)
     console.log("[AuthAction] login: Session token created.");
 

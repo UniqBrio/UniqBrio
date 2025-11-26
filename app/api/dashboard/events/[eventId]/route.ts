@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Event from '@/models/dashboard/events/Event';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * GET /api/events/[eventId]
@@ -11,8 +13,20 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
 ) {
-  try {
-    await dbConnect('uniqbrio');
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect('uniqbrio');
 
     const { eventId } = await params;
 
@@ -43,20 +57,22 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: event,
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Error fetching event:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch event' },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json(
+          {
+            success: true,
+            data: event,
+          },
+          { status: 200 }
+        );
+      } catch (error: any) {
+        console.error('Error fetching event:', error);
+        return NextResponse.json(
+          { success: false, error: error.message || 'Failed to fetch event' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 /**
@@ -67,8 +83,20 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
 ) {
-  try {
-    await dbConnect('uniqbrio');
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect('uniqbrio');
 
     const { eventId } = await params;
     const body = await request.json();
@@ -119,21 +147,23 @@ export async function PATCH(
 
     console.log('Returning updated event:', JSON.stringify(updatedEvent, null, 2))
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Event updated successfully',
-        data: updatedEvent,
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Error updating event:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Failed to update event' },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json(
+          {
+            success: true,
+            message: 'Event updated successfully',
+            data: updatedEvent,
+          },
+          { status: 200 }
+        );
+      } catch (error: any) {
+        console.error('Error updating event:', error);
+        return NextResponse.json(
+          { success: false, error: error.message || 'Failed to update event' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 /**
@@ -144,8 +174,20 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }> }
 ) {
-  try {
-    await dbConnect('uniqbrio');
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect('uniqbrio');
 
     const { eventId } = await params;
 
@@ -186,13 +228,15 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Event not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, message: 'Event soft-deleted', data: softDeleted }, { status: 200 })
-  } catch (error: any) {
-    console.error('Error deleting event:', error);
-    console.error('Error details:', error.message);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Failed to delete event' },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({ success: true, message: 'Event soft-deleted', data: softDeleted }, { status: 200 })
+      } catch (error: any) {
+        console.error('Error deleting event:', error);
+        console.error('Error details:', error.message);
+        return NextResponse.json(
+          { success: false, error: error.message || 'Failed to delete event' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

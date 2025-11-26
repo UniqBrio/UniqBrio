@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import { dbConnect } from '@/lib/mongodb';
 import StudentAttendance from '@/models/dashboard/student/StudentAttendance';
 import Student from '@/models/dashboard/student/Student';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define the Course schema for lookup
 const courseSchema = new mongoose.Schema({
@@ -28,12 +30,24 @@ interface RouteParams {
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
     // Use aggregation to populate course details from student profile and courses collection
     const records = await StudentAttendance.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(params.id) } },
+      { $match: { _id: new mongoose.Types.ObjectId(params.id), tenantId: session.tenantId } },
       // Left join with students collection to get course details
       {
         $lookup: {
@@ -195,26 +209,40 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: records[0]
-    });
-  } catch (error: any) {
-    console.error('Error fetching attendance record:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch attendance record',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({
+          success: true,
+          data: records[0]
+        });
+      } catch (error: any) {
+        console.error('Error fetching attendance record:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to fetch attendance record',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
     const body = await request.json();
     const {
@@ -246,6 +274,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if ((studentId && studentId !== existingRecord.studentId) || 
         (date && date !== existingRecord.date)) {
       const conflictRecord = await StudentAttendance.findOne({
+        tenantId: session.tenantId,
         _id: { $ne: params.id },
         studentId: studentId || existingRecord.studentId,
         date: date || existingRecord.date
@@ -268,7 +297,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     let finalCourseName = courseName;
     
     if ((!finalStudentName || !finalCourseId || !finalCourseName) && studentId) {
-      const student = await Student.findOne({ studentId });
+      const student = await Student.findOne({ tenantId: session.tenantId, studentId });
       if (student) {
         if (!finalStudentName) {
           finalStudentName = student.name;
@@ -286,8 +315,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           const isObjectId = mongoose.isValidObjectId(finalCourseId);
           const course = await Course.findOne(
             isObjectId
-              ? { $or: [{ courseId: finalCourseId }, { _id: finalCourseId }] }
-              : { courseId: finalCourseId }
+              ? { tenantId: session.tenantId, $or: [{ courseId: finalCourseId }, { _id: finalCourseId }] }
+              : { tenantId: session.tenantId, courseId: finalCourseId }
           );
           if (course) {
             finalCourseName = course.name;
@@ -322,29 +351,43 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { new: true, runValidators: true }
     );
 
-    return NextResponse.json({
-      success: true,
-      data: updatedRecord
-    });
+        return NextResponse.json({
+          success: true,
+          data: updatedRecord
+        });
 
-  } catch (error: any) {
-    console.error('Error updating attendance record:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update attendance record',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+      } catch (error: any) {
+        console.error('Error updating attendance record:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to update attendance record',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
-    const deletedRecord = await StudentAttendance.findByIdAndDelete(params.id);
+        const deletedRecord = await StudentAttendance.findByIdAndDelete(params.id);
     
     if (!deletedRecord) {
       return NextResponse.json(
@@ -353,20 +396,22 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Attendance record deleted successfully',
-      data: deletedRecord
-    });
-  } catch (error: any) {
-    console.error('Error deleting attendance record:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to delete attendance record',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({
+          success: true,
+          message: 'Attendance record deleted successfully',
+          data: deletedRecord
+        });
+      } catch (error: any) {
+        console.error('Error deleting attendance record:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to delete attendance record',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

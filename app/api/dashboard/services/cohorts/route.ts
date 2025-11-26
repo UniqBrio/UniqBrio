@@ -10,17 +10,25 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 export async function GET(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
-  try {
-    await dbConnect("uniqbrio");
-    
-    const { searchParams } = new URL(request.url);
-    const courseId = searchParams.get('courseId');
+      try {
+        await dbConnect("uniqbrio");
+        
+        const { searchParams } = new URL(request.url);
+        const courseId = searchParams.get('courseId');
     
     // Build query based on courseId parameter
-    const query: any = { isDeleted: { $ne: true } };
+    // CRITICAL: Explicitly set tenantId to ensure tenant isolation
+    const query: any = { isDeleted: { $ne: true }, tenantId: session.tenantId };
     if (courseId) {
       query.courseId = courseId;
     }
@@ -34,7 +42,7 @@ export async function GET(request: Request) {
       throw new Error('Database connection not established');
     }
     const allStudents = await db.collection('students').find(
-      { isDeleted: { $ne: true } },
+      { isDeleted: { $ne: true }, tenantId: session.tenantId },
       { projection: { studentId: 1, name: 1, firstName: 1, lastName: 1 } }
     ).toArray();
     
@@ -48,11 +56,13 @@ export async function GET(request: Request) {
     // Populate each cohort with course schedule information and actual student names
     const cohortsWithSchedule = await Promise.all(
       cohorts.map(async (cohort) => {
-        const queryConditions: Array<{ courseId?: string; _id?: string }> = [{ courseId: cohort.courseId }];
+        const queryConditions: Array<{ courseId?: string; _id?: string; tenantId: string }> = [
+          { courseId: cohort.courseId, tenantId: session.tenantId }
+        ];
         
         // Only add _id query if cohort.courseId is a valid ObjectId
         if (mongoose.Types.ObjectId.isValid(cohort.courseId)) {
-          queryConditions.push({ _id: cohort.courseId });
+          queryConditions.push({ _id: cohort.courseId, tenantId: session.tenantId });
         }
         
         const course = await Course.findOne({
@@ -131,8 +141,15 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -323,8 +340,15 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -417,8 +441,15 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");

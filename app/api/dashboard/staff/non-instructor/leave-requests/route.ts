@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { NonInstructorLeaveRequest, NonInstructor as NonInstructorModel, NonInstructorLeavePolicy } from "@/lib/dashboard/staff/models"
 import NonInstructorAttendanceModel from "@/models/dashboard/staff/NonInstructorAttendance"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -17,14 +19,23 @@ function formatNiceDate(d: Date) {
 }
 
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio")
-    const list = await NonInstructorLeaveRequest.find({}).sort({ createdAt: 1 }).lean()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const list = await NonInstructorLeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: 1 }).lean()
 
-    const policy = await loadPolicy()
+    const policy = await loadPolicy(session.tenantId)
     const allocs = policy?.allocations || { junior: 12, senior: 16, managers: 24 }
     const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
-    const people = await NonInstructorModel.find({}).lean()
+    const people = await NonInstructorModel.find({ tenantId: session.tenantId }).lean()
     const personMap: Record<string, any> = {}
     people.forEach(i => { personMap[i.id] = i; if (i.externalId) personMap[i.externalId] = i })
 
@@ -54,7 +65,7 @@ export async function GET() {
     }
 
     const updates: Promise<any>[] = []
-    function derivePeriodKey(dateStr?: string) {
+    const derivePeriodKey = (dateStr?: string) => {
       if (!dateStr) return 'unknown'
       const [y,m] = dateStr.split('-').map(Number)
       if (!y || !m) return 'unknown'
@@ -104,11 +115,13 @@ export async function GET() {
     console.error("/api/non-instructor-leave-requests GET error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to fetch" }, { status: 500 })
   }
+  });
 }
 
-async function loadPolicy() {
+async function loadPolicy(tenantId?: string) {
   try {
-    return await NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
+    const query = tenantId ? { key: 'default', tenantId } : { key: 'default' }
+    return await NonInstructorLeavePolicy.findOne(query).lean()
   } catch { return null }
 }
 
@@ -135,9 +148,18 @@ function countWorkingDaysInclusive(start: string, end: string, workingDays = [1,
 }
 
 export async function POST(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
     if (!body.id) body.id = `l${Date.now()}`
     if (!body.status) body.status = 'DRAFT'
     else body.status = String(body.status).toUpperCase()
@@ -151,10 +173,10 @@ export async function POST(req: Request) {
       }
       try {
         const { startDate: start, endDate: end, instructorId } = body
-        const person = await NonInstructorModel.findOne({ id: instructorId }).lean()
+        const person = await NonInstructorModel.findOne({ id: instructorId, tenantId: session.tenantId }).lean()
         const jobLevelRaw: string | undefined = (person as any)?.jobLevel || body.jobLevel || body.selectedJobLevel
         if (!body.jobLevel && jobLevelRaw) body.jobLevel = jobLevelRaw
-        const policy = await loadPolicy()
+        const policy = await loadPolicy(session.tenantId)
         const allocation = allocationFromPolicy(jobLevelRaw, policy)
         const policyDoc = await loadPolicy()
         const workingDaysArr = Array.isArray(policyDoc?.workingDays) && policyDoc!.workingDays.length ? policyDoc!.workingDays : [1,2,3,4,5,6]
@@ -174,7 +196,7 @@ export async function POST(req: Request) {
           } else { // Monthly
             regex = `^${y}-${m}`
           }
-          const existing = await NonInstructorLeaveRequest.find({ instructorId, startDate: { $regex: regex }, status: 'APPROVED' }).lean()
+          const existing = await NonInstructorLeaveRequest.find({ instructorId, startDate: { $regex: regex }, status: 'APPROVED', tenantId: session.tenantId }).lean()
           const priorUsed = existing.reduce((sum, r:any) => sum + (r.days || countWorkingDaysInclusive(r.startDate, r.endDate, workingDaysArr)), 0)
           const thisDays = body.days || countWorkingDaysInclusive(start, end, workingDaysArr)
           const usedAfter = priorUsed + thisDays
@@ -197,22 +219,33 @@ export async function POST(req: Request) {
       }
     }
 
+    body.tenantId = session.tenantId
     const created = await NonInstructorLeaveRequest.create(body)
     return NextResponse.json({ ok: true, data: created })
   } catch (err: any) {
     console.error("/api/non-instructor-leave-requests POST error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to create" }, { status: 500 })
   }
+  });
 }
 
 export async function PUT(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
     const { id, updates } = body || {}
     if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
 
-    const existing = await NonInstructorLeaveRequest.findOne({ id }).lean()
+    const existing = await NonInstructorLeaveRequest.findOne({ id, tenantId: session.tenantId }).lean()
     if (!existing) return NextResponse.json({ ok: false, error: 'Leave request not found' }, { status: 404 })
 
   const nextStatus = updates?.status || existing.status
@@ -230,10 +263,10 @@ export async function PUT(req: Request) {
         }
       }
       try {
-        const person = await NonInstructorModel.findOne({ id: merged.instructorId }).lean()
+        const person = await NonInstructorModel.findOne({ id: merged.instructorId, tenantId: session.tenantId }).lean()
         const jobLevelRaw: string | undefined = (person as any)?.jobLevel || merged.jobLevel || updates?.selectedJobLevel
         if (!updates.jobLevel && jobLevelRaw) updates.jobLevel = jobLevelRaw
-        const policy = await loadPolicy()
+        const policy = await loadPolicy(session.tenantId)
         const allocation = allocationFromPolicy(jobLevelRaw, policy)
         const policyDoc = await loadPolicy()
         const workingDaysArr = Array.isArray(policyDoc?.workingDays) && policyDoc!.workingDays.length ? policyDoc!.workingDays : [1,2,3,4,5,6]
@@ -253,7 +286,7 @@ export async function PUT(req: Request) {
           } else { // Monthly
             regex = `^${y}-${m}`
           }
-          const already = await NonInstructorLeaveRequest.find({ instructorId: merged.instructorId, startDate: { $regex: regex }, status: 'APPROVED', id: { $ne: existing.id } }).lean()
+          const already = await NonInstructorLeaveRequest.find({ instructorId: merged.instructorId, startDate: { $regex: regex }, status: 'APPROVED', id: { $ne: existing.id }, tenantId: session.tenantId }).lean()
           const priorUsed = already.reduce((sum, r:any) => sum + (r.days || countWorkingDaysInclusive(r.startDate, r.endDate, workingDaysArr)), 0)
           const thisDays = merged.days || countWorkingDaysInclusive(merged.startDate, merged.endDate, workingDaysArr)
           const usedAfter = priorUsed + thisDays
@@ -278,38 +311,51 @@ export async function PUT(req: Request) {
       }
     }
 
-    const updated = await NonInstructorLeaveRequest.findOneAndUpdate({ id }, { $set: updates }, { new: true })
+    const updated = await NonInstructorLeaveRequest.findOneAndUpdate({ id, tenantId: session.tenantId }, { $set: updates }, { new: true })
     return NextResponse.json({ ok: true, data: updated })
   } catch (err: any) {
     console.error("/api/non-instructor-leave-requests PUT error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to update" }, { status: 500 })
   }
+  });
 }
 
 export async function DELETE(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const { searchParams } = new URL(req.url)
-    const id = searchParams.get("id")
-    if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
-    // Find the leave first to cascade delete planned attendance in the same date range
-    const leave = await NonInstructorLeaveRequest.findOne({ id }).lean()
-    if (leave) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
       try {
-        await NonInstructorAttendanceModel.deleteMany({
-          instructorId: leave.instructorId,
-          date: { $gte: leave.startDate, $lte: leave.endDate },
-          status: 'planned',
-        })
-      } catch (e) {
-        console.warn('Failed to cascade delete non-instructor planned attendance for leave', id, e)
+        await dbConnect("uniqbrio")
+        const { searchParams } = new URL(req.url)
+        const id = searchParams.get("id")
+        if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
+        // Find the leave first to cascade delete planned attendance in the same date range
+        const leave = await NonInstructorLeaveRequest.findOne({ id, tenantId: session.tenantId }).lean()
+        if (leave) {
+          try {
+            await NonInstructorAttendanceModel.deleteMany({
+              instructorId: leave.instructorId,
+              date: { $gte: leave.startDate, $lte: leave.endDate },
+              status: 'planned',
+              tenantId: session.tenantId
+            })
+          } catch (e) {
+            console.warn('Failed to cascade delete non-instructor planned attendance for leave', id, e)
+          }
+        }
+        await NonInstructorLeaveRequest.deleteOne({ id, tenantId: session.tenantId })
+        return NextResponse.json({ ok: true })
+      } catch (err: any) {
+        console.error("/api/non-instructor-leave-requests DELETE error", err)
+        return NextResponse.json({ ok: false, error: err?.message || "Failed to delete" }, { status: 500 })
       }
     }
-    await NonInstructorLeaveRequest.deleteOne({ id })
-    return NextResponse.json({ ok: true })
-  } catch (err: any) {
-    console.error("/api/non-instructor-leave-requests DELETE error", err)
-    return NextResponse.json({ ok: false, error: err?.message || "Failed to delete" }, { status: 500 })
-  }
+  );
 }
 

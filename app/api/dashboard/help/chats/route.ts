@@ -2,11 +2,25 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { HelpChat } from "@/models/dashboard";
 import type { IHelpChat, IChatMessage } from "@/models/dashboard";
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET - Fetch all chats or a specific chat by ID
 export async function GET(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
     
     const { searchParams } = new URL(request.url);
     const chatId = searchParams.get('chatId');
@@ -43,27 +57,41 @@ export async function GET(request: Request) {
     
     const chats = await chatQuery.lean();
     
-    console.log(`Fetched ${chats.length} help chats`);
-    return NextResponse.json({
-      success: true,
-      chats
-    });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error fetching help chats:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
-  }
+        console.log(`Fetched ${chats.length} help chats`);
+        return NextResponse.json({
+          success: true,
+          chats
+        });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error fetching help chats:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }
 
 // POST - Create a new chat or add a message to existing chat
 export async function POST(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
-    const body = await request.json();
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const body = await request.json();
     
     // If chatId is provided, add message to existing chat
     if (body.chatId) {
@@ -149,28 +177,42 @@ export async function POST(request: Request) {
     
     await newChat.save();
     
-    console.log(`Created new help chat: ${chatId}`);
-    return NextResponse.json({
-      success: true,
-      chat: newChat.toObject(),
-      created: true
-    }, { status: 201 });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error creating/updating help chat:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
-  }
+        console.log(`Created new help chat: ${chatId}`);
+        return NextResponse.json({
+          success: true,
+          chat: newChat.toObject(),
+          created: true
+        }, { status: 201 });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error creating/updating help chat:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }
 
 // PUT - Update chat name or other properties
 export async function PUT(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
-    const body = await request.json();
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const body = await request.json();
     
     if (!body.chatId) {
       return NextResponse.json({
@@ -197,57 +239,73 @@ export async function PUT(request: Request) {
       }, { status: 404 });
     }
     
-    console.log(`Updated help chat: ${body.chatId}`);
-    return NextResponse.json({
-      success: true,
-      chat: updatedChat.toObject(),
-      updated: true
-    });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error updating help chat:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
-  }
+        console.log(`Updated help chat: ${body.chatId}`);
+        return NextResponse.json({
+          success: true,
+          chat: updatedChat.toObject(),
+          updated: true
+        });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error updating help chat:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }
 
 // DELETE - Delete a chat
 export async function DELETE(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
-    const body = await request.json();
-    
-    if (!body.chatId) {
-      return NextResponse.json({
-        success: false,
-        error: "Chat ID is required"
-      }, { status: 400 });
-    }
-    
-    const result = await HelpChat.deleteOne({ chatId: body.chatId });
-    
-    if (result.deletedCount === 0) {
-      return NextResponse.json({
-        success: false,
-        error: "Chat not found"
-      }, { status: 404 });
-    }
-    
-    console.log(`Deleted help chat: ${body.chatId}`);
-    return NextResponse.json({
-      success: true,
-      deleted: true
-    });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error deleting help chat:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const body = await request.json();
+        
+        if (!body.chatId) {
+          return NextResponse.json({
+            success: false,
+            error: "Chat ID is required"
+          }, { status: 400 });
+        }
+        
+        const result = await HelpChat.deleteOne({ chatId: body.chatId });
+        
+        if (result.deletedCount === 0) {
+          return NextResponse.json({
+            success: false,
+            error: "Chat not found"
+          }, { status: 404 });
+        }
+        
+        console.log(`Deleted help chat: ${body.chatId}`);
+        return NextResponse.json({
+          success: true,
+          deleted: true
+        });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error deleting help chat:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }

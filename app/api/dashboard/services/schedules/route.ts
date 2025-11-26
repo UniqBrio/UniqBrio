@@ -8,8 +8,15 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 export async function POST(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio")
@@ -146,8 +153,15 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio")
@@ -292,8 +306,15 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio")
@@ -373,8 +394,15 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio")

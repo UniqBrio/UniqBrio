@@ -437,6 +437,34 @@ export default function StaffManagementPage() {
                           const total = overallStats.totalStaff;
                           const instructorCount = instructorStats.totalInstructors;
                           const nonInstructorCount = nonInstructorStats.totalNonInstructors;
+                          
+                          // If no staff, show empty state
+                          if (total === 0) {
+                            return (
+                              <g>
+                                <circle
+                                  cx="150"
+                                  cy="100"
+                                  r="70"
+                                  fill="#f3f4f6"
+                                  stroke="#e5e7eb"
+                                  strokeWidth="2"
+                                />
+                                <text
+                                  x="150"
+                                  y="100"
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                  fill="#9ca3af"
+                                  fontSize="14"
+                                  fontWeight="500"
+                                >
+                                  No staff data
+                                </text>
+                              </g>
+                            );
+                          }
+                          
                           const instructorPercent = (instructorCount / total) * 100;
                           const nonInstructorPercent = (nonInstructorCount / total) * 100;
                           

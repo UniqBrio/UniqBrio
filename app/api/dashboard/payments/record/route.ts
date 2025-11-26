@@ -12,12 +12,26 @@ import {
   calculateNextDueDate,
 } from '@/lib/dashboard/payments/payment-date-helpers';
 import { validateCollections, createPaymentTransaction } from '@/lib/dashboard/payments/payment-storage-helper';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * Record a manual payment
  * POST /api/payments/record
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   console.log('=== PAYMENT RECORD API CALLED ===');
   
   try {
@@ -442,4 +456,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }

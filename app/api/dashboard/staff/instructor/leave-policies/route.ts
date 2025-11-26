@@ -1,15 +1,26 @@
 import { NextResponse } from 'next/server'
 import { dbConnect } from '@/lib/mongodb'
 import { LeavePolicy } from '@/lib/dashboard/staff/models'
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 // GET returns the single (default) leave policy. If none exists, create one with defaults.
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio")
-    let policy = await LeavePolicy.findOne({ key: 'default' }).lean()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        let policy = await LeavePolicy.findOne({ key: 'default' }).lean()
     if (!policy) {
       const newPolicy = await LeavePolicy.create({
         key: 'default',
@@ -19,20 +30,30 @@ export async function GET() {
         carryForward: true,
         workingDays: [1,2,3,4,5,6],
       })
-      policy = await LeavePolicy.findOne({ key: 'default' }).lean()
+        policy = await LeavePolicy.findOne({ key: 'default' }).lean()
+      }
+      return NextResponse.json({ ok: true, data: policy })
+    } catch (err: any) {
+      console.error('/api/leave-policies GET error', err)
+      return NextResponse.json({ ok: false, error: err?.message || 'Failed to fetch policy' }, { status: 500 })
     }
-    return NextResponse.json({ ok: true, data: policy })
-  } catch (err: any) {
-    console.error('/api/leave-policies GET error', err)
-    return NextResponse.json({ ok: false, error: err?.message || 'Failed to fetch policy' }, { status: 500 })
-  }
+  });
 }
 
 // PUT updates (upserts) the default policy
 export async function PUT(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-  const body = await req.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
   const { quotaType, autoReject, allocations, carryForward, workingDays } = body || {}
     // Basic validation
     const quotaValues = ['Monthly Quota','Quarterly Quota','Yearly Quota']
@@ -69,4 +90,5 @@ export async function PUT(req: Request) {
     console.error('/api/leave-policies PUT error', err)
     return NextResponse.json({ ok: false, error: err?.message || 'Failed to update policy' }, { status: 500 })
   }
+  });
 }

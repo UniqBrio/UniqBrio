@@ -2,13 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import StudentDraft, { type IStudentDraft } from '@/models/dashboard/student/StudentDraft';
 import { formatDateForDisplay } from '@/lib/dashboard/student/utils';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET - Fetch all student drafts
 export async function GET(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
-    const drafts = await StudentDraft.find({}).sort({ lastUpdated: -1 }).lean();
+    const drafts = await StudentDraft.find({ tenantId: session.tenantId }).sort({ lastUpdated: -1 }).lean();
     
     // Transform to frontend format
     const transformedDrafts = drafts.map((draft: any) => {
@@ -23,20 +37,34 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json(transformedDrafts);
-  } catch (error) {
-    console.error('Error fetching student drafts:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch student drafts' },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json(transformedDrafts);
+      } catch (error) {
+        console.error('Error fetching student drafts:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch student drafts' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 // POST - Create a new student draft
 export async function POST(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
     const body = await request.json();
     const { name, instructor, level, data } = body;
@@ -65,13 +93,15 @@ export async function POST(request: NextRequest) {
       lastUpdated: formatDateForDisplay(new Date(savedDraft.lastUpdated).toISOString().slice(0,10)),
       data: savedDraft.data
     }, { status: 201 });
-  } catch (error) {
-    console.error('Error creating student draft:', error);
-    return NextResponse.json(
-      { error: 'Failed to create student draft' },
-      { status: 500 }
-    );
-  }
+      } catch (error) {
+        console.error('Error creating student draft:', error);
+        return NextResponse.json(
+          { error: 'Failed to create student draft' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 // PUT - Update an existing student draft

@@ -32,8 +32,25 @@ function getCollection(model: string) {
 export async function GET(req: NextRequest) {
   const session = await getUserSession();
   
+  console.log('[Financial GET] Session data:', {
+    email: session?.email,
+    userId: session?.userId,
+    academyId: session?.academyId,
+    tenantId: session?.tenantId
+  });
+  
+  if (!session?.tenantId) {
+    console.error('[Financial GET] BLOCKED: No tenantId in session');
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  console.log(`[Financial GET] Running query with tenantId: ${session.tenantId}`);
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -52,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Optional filters: date range, search, limit
-    const q: any = {};
+    const q: any = { tenantId: session.tenantId };
     const start = searchParams.get("start");
     const end = searchParams.get("end");
     if (start || end) {
@@ -74,6 +91,13 @@ export async function GET(req: NextRequest) {
 
     const limit = Number(searchParams.get("limit") || 100);
     const docs = await Model.find(q).sort({ date: -1, createdAt: -1 }).limit(limit);
+    
+    console.log(`[Financial GET] Query returned ${docs.length} documents`);
+    if (docs.length > 0) {
+      console.log('[Financial GET] First doc tenantId:', docs[0].tenantId);
+      console.log('[Financial GET] Session tenantId:', session?.tenantId);
+    }
+    
     return NextResponse.json(docs);
   } catch (err: any) {
     console.error("GET /api error", err);
@@ -87,8 +111,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -175,8 +206,15 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -246,8 +284,15 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");

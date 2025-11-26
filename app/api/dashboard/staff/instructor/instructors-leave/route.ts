@@ -1,18 +1,32 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { Instructor, LeaveRequest, InstructorLeaveDraft, LeavePolicy } from "@/lib/dashboard/staff/models"
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 // Fixed collection name mapping for leave management
 export async function GET() {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     
     // Fetch all leave-related data in parallel
     const [instructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
-      Instructor.find({}, {
+      Instructor.find({ tenantId: session.tenantId }, {
         id: 1,
         name: 1,
         firstName: 1,
@@ -26,9 +40,9 @@ export async function GET() {
         roleType: 1,
         contractType: 1,
       }).lean(),
-      LeaveRequest.find({}).sort({ createdAt: -1 }).lean(),
-      InstructorLeaveDraft.find({}).sort({ createdAt: -1 }).lean(),
-      LeavePolicy.findOne({ key: 'default' }).lean()
+      LeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
+      InstructorLeaveDraft.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
+      LeavePolicy.findOne({ tenantId: session.tenantId, key: 'default' }).lean()
     ])
 
     // Process instructors data
@@ -141,4 +155,6 @@ export async function GET() {
     console.error("/api/dashboard/staff/instructor/instructors(leave) GET error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to fetch leave data" }, { status: 500 })
   }
+    }
+  );
 }

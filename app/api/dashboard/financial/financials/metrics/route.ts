@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { IncomeModel, ExpenseModel } from '@/lib/dashboard/models';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Helper to compute date range based on timeframe
 function getDateRange(timeframe: string, start?: string, end?: string) {
@@ -57,6 +59,18 @@ function deriveHealth(totalRevenue: number, totalExpenses: number): string {
 }
 
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -66,7 +80,8 @@ export async function GET(req: NextRequest) {
 
     const { start, end } = getDateRange(timeframe, customStart || undefined, customEnd || undefined);
 
-    // Build date filter
+    // Build date filter with explicit tenantId
+    const matchStage: any = { tenantId: session.tenantId };
     const dateFilter: any = {};
     if (start) {
       dateFilter.$gte = start;
@@ -81,7 +96,9 @@ export async function GET(req: NextRequest) {
       dateFilter.$lt = exclusiveEnd;
     }
 
-    const matchStage = Object.keys(dateFilter).length ? { date: dateFilter } : {};
+    if (Object.keys(dateFilter).length) {
+      matchStage.date = dateFilter;
+    }
 
     const [incomeAgg] = await IncomeModel.aggregate([
       { $match: matchStage },
@@ -112,6 +129,8 @@ export async function GET(req: NextRequest) {
     console.error('Metrics API error', err);
     return NextResponse.json({ error: 'Failed to compute metrics' }, { status: 500 });
   }
+    }
+  );
 }
 
 export const revalidate = 0; // always fetch fresh metrics

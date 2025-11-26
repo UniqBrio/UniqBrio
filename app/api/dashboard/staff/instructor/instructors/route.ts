@@ -3,12 +3,26 @@ import { dbConnect } from "@/lib/mongodb"
 import InstructorModel from "@/models/dashboard/staff/Instructor"
 import CourseModel from "@/models/dashboard/staff/Course"
 import CohortModel from "@/models/dashboard/staff/Cohort"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 // Route segment config for optimal performance
 export const dynamic = 'force-dynamic' // Always fetch fresh data for staff changes
 export const revalidate = 0 // No caching for staff data
 
 export async function GET() {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   await dbConnect("uniqbrio")
   // Only return non-inactive records. Also exclude legacy soft-deleted where deleted_data === false if present.
   let items: any[] = await InstructorModel.find({
@@ -21,8 +35,8 @@ export async function GET() {
   // 1) Load courses and cohorts to compute denormalized names
   // We match by instructor full name (first+middle+last), case-insensitive trim
   const [courses, cohorts] = await Promise.all([
-    CourseModel.find({}).lean().catch(() => [] as any[]),
-    CohortModel.find({}).lean().catch(() => [] as any[]),
+    CourseModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
+    CohortModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
   ])
   const toKey = (name?: string) => (name || "").trim().toLowerCase()
   const byInstructorCourses = new Map<string, Set<string>>()
@@ -208,9 +222,23 @@ export async function GET() {
   }
 
   return NextResponse.json({ ok: true, data: items })
+    }
+  );
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     try { await InstructorModel.syncIndexes() } catch {}
@@ -226,8 +254,8 @@ export async function POST(req: NextRequest) {
       const fullName = [created?.firstName, created?.middleName, created?.lastName].filter(Boolean).join(' ').trim()
       const key = toKey(fullName)
       const [courses, cohorts] = await Promise.all([
-        CourseModel.find({}).lean().catch(() => [] as any[]),
-        CohortModel.find({}).lean().catch(() => [] as any[]),
+        CourseModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
+        CohortModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
       ])
       const coursesFor = (courses as any[]).filter(c => toKey(c?.instructor) === key)
       const cohortsFor = (cohorts as any[]).filter(c => {
@@ -260,5 +288,7 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ message: e.message }, { status: 400 })
   }
+    }
+  );
 }
 

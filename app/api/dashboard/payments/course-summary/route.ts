@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 interface PaymentDocument {
   enrolledCourse?: string;
@@ -43,11 +45,23 @@ interface CourseData {
 }
 
 export async function GET(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
-    // Fetch payments with only required fields for better performance
-    const payments = await Payment.find({}).select('enrolledCourse enrolledCourseName cohortId cohortName courseFee courseRegistrationFee studentRegistrationFee receivedAmount outstandingAmount').lean().exec();
+        // Fetch payments with only required fields for better performance
+        const payments = await Payment.find({}).select('enrolledCourse enrolledCourseName cohortId cohortName courseFee courseRegistrationFee studentRegistrationFee receivedAmount outstandingAmount').lean().exec();
 
     // Group by course
     const courseMap = new Map<string, CourseData>();
@@ -259,4 +273,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

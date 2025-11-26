@@ -3,6 +3,8 @@ import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
 import Student from '@/models/dashboard/student/Student';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define the Course schema to access course fees
 const courseSchema = new mongoose.Schema({
@@ -28,6 +30,18 @@ const Course = mongoose.models.CourseForPaymentCreate ||
  * to initialize their payment record.
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -140,4 +154,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }

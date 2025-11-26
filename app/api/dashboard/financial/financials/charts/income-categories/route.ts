@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { IncomeModel } from '@/lib/dashboard/models';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET /api/financials/charts/income-categories
 // Returns income analysis by categories
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     // Test MongoDB connection first
     try {
@@ -42,7 +56,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build filters
-    let match: any = { ...dateFilter };
+    let match: any = { ...dateFilter, tenantId: session.tenantId };
     
     if (category && category !== 'all') {
       match.incomeCategory = category;
@@ -90,15 +104,16 @@ export async function GET(req: NextRequest) {
         avgTransactionAmount: totalIncome > 0 ? Math.round(totalIncome / categoryAgg.reduce((sum, item) => sum + item.count, 0)) : 0
       }
     });
-  } catch (e: any) {
-    console.error('Income categories API error:', e);
-    console.error('Error stack:', e.stack);
-    return NextResponse.json({ 
-      error: 'Failed to load income category data',
-      details: e.message,
-      stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
-    }, { status: 500 });
-  }
+    } catch (e: any) {
+      console.error('Income categories API error:', e);
+      console.error('Error stack:', e.stack);
+      return NextResponse.json({ 
+        error: 'Failed to load income category data',
+        details: e.message,
+        stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
+      }, { status: 500 });
+    }
+  });
 }
 
 export const revalidate = 0;

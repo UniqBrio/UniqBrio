@@ -2,10 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import StudentAttendance from '@/models/dashboard/student/StudentAttendance';
 import Student from '@/models/dashboard/student/Student';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function POST(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
     // Find all attendance records where studentName looks like a student ID pattern (STUxxxx)
     const attendanceRecords = await StudentAttendance.find({
@@ -44,23 +58,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: `Fixed ${updated} attendance records. ${errors} errors encountered.`,
-      updated,
-      errors,
-      totalProcessed: attendanceRecords.length
-    });
+        return NextResponse.json({
+          success: true,
+          message: `Fixed ${updated} attendance records. ${errors} errors encountered.`,
+          updated,
+          errors,
+          totalProcessed: attendanceRecords.length
+        });
 
-  } catch (error: any) {
-    console.error('Error fixing attendance record names:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fix attendance record names',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+      } catch (error: any) {
+        console.error('Error fixing attendance record names:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to fix attendance record names',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

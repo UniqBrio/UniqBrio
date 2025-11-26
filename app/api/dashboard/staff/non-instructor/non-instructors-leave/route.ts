@@ -1,16 +1,33 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { NonInstructor, NonInstructorLeaveRequest, NonInstructorLeaveDraft, NonInstructorLeavePolicy } from "@/lib/dashboard/staff/models"
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 // Fixed collection name mapping for non-instructor leave management
 export async function GET() {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio")
+    
+    console.log('[Non-Instructor Leave] Fetching data for tenantId:', session.tenantId);
+    
     const [nonInstructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
-      NonInstructor.find({}, {
+      NonInstructor.find({ tenantId: session.tenantId }, {
         id: 1,
         name: 1,
         firstName: 1,
@@ -24,10 +41,17 @@ export async function GET() {
         roleType: 1,
         contractType: 1,
       }).lean(),
-      NonInstructorLeaveRequest.find({}).sort({ createdAt: -1 }).lean(),
-      NonInstructorLeaveDraft.find({}).sort({ createdAt: -1 }).lean(),
-      NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
+      NonInstructorLeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
+      NonInstructorLeaveDraft.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
+      NonInstructorLeavePolicy.findOne({ tenantId: session.tenantId, key: 'default' }).lean()
     ])
+    
+    console.log('[Non-Instructor Leave] Query results:', {
+      nonInstructorCount: nonInstructorList.length,
+      leaveRequestsCount: leaveRequests.length,
+      leaveDraftsCount: leaveDrafts.length,
+      tenantId: session.tenantId
+    });
 
     const nonInstructors = nonInstructorList.map((raw: any) => {
       const doc: any = { ...raw }
@@ -132,4 +156,6 @@ export async function GET() {
     console.error("/api/dashboard/staff/non-instructor/non-instructors-leave GET error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to fetch non-instructor leave data" }, { status: 500 })
   }
+    }
+  );
 }

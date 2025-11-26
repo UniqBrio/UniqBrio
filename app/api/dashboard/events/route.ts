@@ -5,11 +5,11 @@ import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Helper: generate next event ID like EVT0001
-async function generateNextEventId(): Promise<string> {
+async function generateNextEventId(tenantId: string): Promise<string> {
   let attempts = 0
   const maxAttempts = 5
   while (attempts < maxAttempts) {
-    const existing = await Event.find({ eventId: { $regex: /^EVT\d{4}$/ } }, { eventId: 1, _id: 0 }).lean()
+    const existing = await Event.find({ tenantId, eventId: { $regex: /^EVT\d{4}$/ } }, { eventId: 1, _id: 0 }).lean()
     const numbers: number[] = []
     for (const e of existing) {
       const n = parseInt(String((e as any).eventId).substring(3), 10)
@@ -22,7 +22,7 @@ async function generateNextEventId(): Promise<string> {
       else if (n > candidateNum) break
     }
     const candidateId = `EVT${String(candidateNum).padStart(4, '0')}`
-    const collision = await Event.findOne({ eventId: candidateId })
+    const collision = await Event.findOne({ tenantId, eventId: candidateId })
     if (!collision) return candidateId
     attempts++
     console.warn(`generateNextEventId collision on ${candidateId}, retrying (attempt ${attempts})`)
@@ -44,8 +44,15 @@ async function generateNextEventId(): Promise<string> {
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -59,7 +66,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10', 10);
 
     // Build query
-    const query: any = {};
+    const query: any = { tenantId: session.tenantId };
 
     // Exclude soft-deleted events by default
     const includeDeleted = searchParams.get('includeDeleted') === 'true'
@@ -129,8 +136,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -145,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     // Generate sequential event ID if not provided or if it's a temp ID
     if (!body.eventId || String(body.eventId).startsWith('TEMP_') || String(body.eventId).startsWith('temp_')) {
-      body.eventId = await generateNextEventId()
+      body.eventId = await generateNextEventId(session.tenantId)
       console.log('POST /api/events - Generated sequential event ID:', body.eventId)
     }
 
@@ -188,10 +202,10 @@ export async function POST(request: NextRequest) {
     }))(body)
 
     // Ensure uniqueness of eventId (handle duplicates like students API)
-    const existingEvent = await Event.findOne({ eventId: allowed.eventId })
+    const existingEvent = await Event.findOne({ tenantId: session.tenantId, eventId: allowed.eventId })
     if (existingEvent && !existingEvent.isDeleted) {
       // Try generating a new sequential ID and retry
-      const newId = await generateNextEventId()
+      const newId = await generateNextEventId(session.tenantId)
       console.warn(`Event ID conflict for ${allowed.eventId}, generated new ID ${newId}`)
       allowed.eventId = newId
     }
@@ -206,7 +220,7 @@ export async function POST(request: NextRequest) {
 
     allowed.status = computeStatus(allowed.startDate as Date, allowed.endDate as Date)
 
-    const newEvent = await Event.create(allowed)
+    const newEvent = await Event.create({ ...allowed, tenantId: session.tenantId })
 
     const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d)
     const s = (newEvent as any).toObject()

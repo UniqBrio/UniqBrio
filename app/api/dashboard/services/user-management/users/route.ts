@@ -2,11 +2,22 @@ import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { User } from "@/models/dashboard"
 import type { IUser } from "@/models/dashboard"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export async function POST(request: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await request.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await request.json()
 
     // Handle bulk creation
     if (Array.isArray(body)) {
@@ -72,12 +83,22 @@ export async function POST(request: Request) {
       error: message 
     }, { status })
   }
+  });
 }
 
 export async function GET(request: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const { searchParams } = new URL(request.url)
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const { searchParams } = new URL(request.url)
     
     // Build query based on search parameters
     const query: any = {}
@@ -146,34 +167,45 @@ export async function GET(request: Request) {
     // Get total count for pagination
     const total = await User.countDocuments(query)
     
-    return NextResponse.json({
-      success: true,
-      users,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
+        return NextResponse.json({
+          success: true,
+          users,
+          pagination: {
+            page,
+            limit,
+            total,
+            pages: Math.ceil(total / limit)
+          }
+        })
+        
+      } catch (error) {
+        console.error('User fetch error:', error)
+        let message = 'Failed to fetch users'
+        if (error instanceof Error) message = error.message
+        
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 })
       }
-    })
-    
-  } catch (error) {
-    console.error('User fetch error:', error)
-    let message = "Failed to fetch users"
-    if (error instanceof Error) message = error.message
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 })
-  }
+    }
+  );
 }
 
 export async function PUT(request: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await request.json()
-    const { _id, ...updateData } = body
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await request.json()
+        const { _id, ...updateData } = body
     
     if (!_id) {
       return NextResponse.json({ 
@@ -226,28 +258,38 @@ export async function PUT(request: Request) {
     
     if (error instanceof Error) {
       message = error.message
-      if (error.name === 'ValidationError') {
-        status = 400
+        if (error.name === 'ValidationError') {
+          status = 400
+        }
+        if (error.name === 'MongoServerError' && error.message.includes('duplicate key')) {
+          message = "Email already exists"
+          status = 409
+        }
       }
-      if (error.name === 'MongoServerError' && error.message.includes('duplicate key')) {
-        message = "Email already exists"
-        status = 409
-      }
+      
+      return NextResponse.json({ 
+        success: false, 
+        error: message 
+      }, { status })
     }
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status })
-  }
+  });
 }
 
 export async function DELETE(request: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await request.json()
-    const { _id, id } = body
-    const userId = _id || id
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await request.json()
+        const { _id, id } = body
+        const userId = _id || id
     
     if (!userId) {
       return NextResponse.json({ 
@@ -270,20 +312,22 @@ export async function DELETE(request: Request) {
       }, { status: 404 })
     }
     
-    return NextResponse.json({ 
-      success: true, 
-      message: "User deactivated successfully",
-      user: user
-    })
-    
-  } catch (error) {
-    console.error('User deletion error:', error)
-    let message = "Failed to delete user"
-    if (error instanceof Error) message = error.message
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 })
-  }
+        return NextResponse.json({ 
+          success: true, 
+          message: "User deactivated successfully",
+          user: user
+        })
+        
+      } catch (error) {
+        console.error('User deletion error:', error)
+        let message = "Failed to delete user"
+        if (error instanceof Error) message = error.message
+        
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 })
+      }
+    }
+  );
 }

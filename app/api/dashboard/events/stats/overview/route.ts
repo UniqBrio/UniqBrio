@@ -1,16 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Event from '@/models/dashboard/events/Event';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * GET /api/events/stats/overview
  * Get event statistics and analytics
  */
 export async function GET(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
-    const query = { isDeleted: { $ne: true } };
+    const query = { tenantId: session.tenantId, isDeleted: { $ne: true } };
 
     // Fetch various statistics
     const [
@@ -70,34 +84,36 @@ export async function GET(request: NextRequest) {
       ]),
     ]);
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          totalEvents,
-          publishedEvents,
-          draftEvents,
-          upcomingEvents,
-          ongoingEvents,
-          completedEvents,
-          totalParticipants: totalParticipants[0]?.total || 0,
-          totalRevenue: totalRevenue[0]?.total || 0,
-          sportDistribution: sportDistribution.reduce(
-            (acc: any, item: any) => {
-              acc[item._id] = item.count;
-              return acc;
+        return NextResponse.json(
+          {
+            success: true,
+            data: {
+              totalEvents,
+              publishedEvents,
+              draftEvents,
+              upcomingEvents,
+              ongoingEvents,
+              completedEvents,
+              totalParticipants: totalParticipants[0]?.total || 0,
+              totalRevenue: totalRevenue[0]?.total || 0,
+              sportDistribution: sportDistribution.reduce(
+                (acc: any, item: any) => {
+                  acc[item._id] = item.count;
+                  return acc;
+                },
+                {}
+              ),
             },
-            {}
-          ),
-        },
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Error fetching event statistics:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch statistics' },
-      { status: 500 }
-    );
-  }
+          },
+          { status: 200 }
+        );
+      } catch (error: any) {
+        console.error('Error fetching event statistics:', error);
+        return NextResponse.json(
+          { success: false, error: error.message || 'Failed to fetch statistics' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

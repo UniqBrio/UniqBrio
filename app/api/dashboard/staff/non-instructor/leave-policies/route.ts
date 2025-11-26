@@ -1,15 +1,26 @@
 import { NextResponse } from 'next/server'
 import { dbConnect } from '@/lib/mongodb'
 import { NonInstructorLeavePolicy } from '@/lib/dashboard/staff/models'
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 // GET returns the single (default) leave policy for non-instructors. If none exists, create one with defaults.
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio")
-    let policy: any = await NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        let policy: any = await NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
     if (!policy) {
       policy = (await NonInstructorLeavePolicy.create({
         key: 'default',
@@ -25,13 +36,23 @@ export async function GET() {
     console.error('/api/non-instructor-leave-policies GET error', err)
     return NextResponse.json({ ok: false, error: err?.message || 'Failed to fetch policy' }, { status: 500 })
   }
+  });
 }
 
 // PUT updates (upserts) the default policy for non-instructors
 export async function PUT(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
     const { quotaType, autoReject, allocations, carryForward, workingDays } = body || {}
     const quotaValues = ['Monthly Quota','Quarterly Quota','Yearly Quota']
     if (quotaType && !quotaValues.includes(quotaType)) {
@@ -65,4 +86,5 @@ export async function PUT(req: Request) {
     console.error('/api/non-instructor-leave-policies PUT error', err)
     return NextResponse.json({ ok: false, error: err?.message || 'Failed to update policy' }, { status: 500 })
   }
+  });
 }

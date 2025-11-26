@@ -278,7 +278,7 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
 }
 
 // Dashboard component - Cards and Analytics only
-function EventDashboard({ events }: { events: Event[] }) {
+function EventDashboard({ events, currency }: { events: Event[]; currency: string }) {
   const stats = {
     published: events.filter(e => e.isPublished).length,
     drafts: events.filter(e => !e.isPublished).length,
@@ -806,7 +806,7 @@ export default function EventsPage() {
                   </div>
                 </div>
               ) : (
-                <EventDashboard events={events} />
+                <EventDashboard events={events} currency={currency} />
               )}
             </div>
           </TabsContent>

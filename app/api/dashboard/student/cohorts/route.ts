@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import mongoose from 'mongoose';
 import Student from '@/models/dashboard/student/Student';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -69,8 +71,20 @@ const cohortSchema = new mongoose.Schema({
 const Cohort = mongoose.models.Cohort || mongoose.model('Cohort', cohortSchema);
 
 export async function GET(req: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
     // Accept both ?courseId= and legacy ?activity= for backwards compatibility
     const courseId = searchParams.get('courseId');
@@ -137,17 +151,31 @@ export async function GET(req: NextRequest) {
         console.warn('[api/cohorts] Skipping malformed cohort document', e);
       }
     }
-    return NextResponse.json(mapped);
-  } catch (error: any) {
-    console.error('Error fetching cohorts:', error?.message || error);
-    return NextResponse.json({ error: 'Failed to fetch cohorts' }, { status: 500 });
-  }
+        return NextResponse.json(mapped);
+      } catch (error: any) {
+        console.error('Error fetching cohorts:', error?.message || error);
+        return NextResponse.json({ error: 'Failed to fetch cohorts' }, { status: 500 });
+      }
+    }
+  );
 }
 
 // PUT - Update cohort enrollment (add/remove students)
 // Supports bidirectional sync: updates both cohort.enrolledStudents AND student.batch
 export async function PUT(req: NextRequest) {
-  try {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
     await dbConnect("uniqbrio");
     const data = await req.json();
     
@@ -295,10 +323,12 @@ export async function PUT(req: NextRequest) {
       }, { status: 200 });
     }
     
-  } catch (error: any) {
-    console.error('PUT /api/cohorts - Error:', error);
-    return NextResponse.json({ error: 'Failed to update cohort enrollment' }, { status: 500 });
-  }
+      } catch (error: any) {
+        console.error('PUT /api/cohorts - Error:', error);
+        return NextResponse.json({ error: 'Failed to update cohort enrollment' }, { status: 500 });
+      }
+    }
+  );
 }
 
 // PATCH - Sync existing cohort enrollments to student records

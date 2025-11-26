@@ -4,6 +4,8 @@ import { LeaveRequest, Instructor, LeavePolicy } from "@/lib/dashboard/staff/mod
 import InstructorAttendanceModel from "@/models/dashboard/staff/InstructorAttendance"
 import CourseModel from "@/models/dashboard/staff/Course"
 import CohortModel from "@/models/dashboard/staff/Cohort"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -19,9 +21,18 @@ function formatNiceDate(d: Date) {
 }
 
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio")
-    const list = await LeaveRequest.find({}).sort({ createdAt: 1 }).lean()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const list = await LeaveRequest.find({}).sort({ createdAt: 1 }).lean()
 
     // Recompute ALL allocation metadata so every row for an instructor shares the SAME aggregate usage + total.
     // Simpler interpretation: used = total approved leave days (all time) for that instructor; total = current job level allocation.
@@ -215,6 +226,7 @@ export async function GET() {
     console.error("/api/leave-requests GET error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to fetch" }, { status: 500 })
   }
+  });
 }
 
 // Fetch policy fresh each call (small collection, inexpensive). Avoid stale quotaType after edits.
@@ -251,9 +263,18 @@ function countWorkingDaysInclusive(start: string, end: string, workingDays = [1,
 }
 
 export async function POST(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
     if (!body.id) body.id = `l${Date.now()}`
   if (!body.status) body.status = 'DRAFT'
   else body.status = String(body.status).toUpperCase()
@@ -402,12 +423,22 @@ export async function POST(req: Request) {
     console.error("/api/leave-requests POST error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to create" }, { status: 500 })
   }
+  });
 }
 
 export async function PUT(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
     const { id, updates } = body || {}
     if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
 
@@ -562,32 +593,44 @@ export async function PUT(req: Request) {
     console.error("/api/leave-requests PUT error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to update" }, { status: 500 })
   }
+  });
 }
 
 export async function DELETE(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const { searchParams } = new URL(req.url)
-    const id = searchParams.get("id")
-    if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
-    // Find the leave first to cascade delete planned attendance in the same date range
-    const leave = await LeaveRequest.findOne({ id }).lean()
-    if (leave) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
       try {
-        await InstructorAttendanceModel.deleteMany({
-          instructorId: leave.instructorId,
-          date: { $gte: leave.startDate, $lte: leave.endDate },
-          status: 'planned',
-        })
-      } catch (e) {
-        console.warn('Failed to cascade delete instructor planned attendance for leave', id, e)
+        await dbConnect("uniqbrio")
+        const { searchParams } = new URL(req.url)
+        const id = searchParams.get("id")
+        if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
+        // Find the leave first to cascade delete planned attendance in the same date range
+        const leave = await LeaveRequest.findOne({ id }).lean()
+        if (leave) {
+          try {
+            await InstructorAttendanceModel.deleteMany({
+              instructorId: leave.instructorId,
+              date: { $gte: leave.startDate, $lte: leave.endDate },
+              status: 'planned',
+            })
+          } catch (e) {
+            console.warn('Failed to cascade delete instructor planned attendance for leave', id, e)
+          }
+        }
+        await LeaveRequest.deleteOne({ id })
+        return NextResponse.json({ ok: true })
+      } catch (err: any) {
+        console.error("/api/leave-requests DELETE error", err)
+        return NextResponse.json({ ok: false, error: err?.message || "Failed to delete" }, { status: 500 })
       }
     }
-    await LeaveRequest.deleteOne({ id })
-    return NextResponse.json({ ok: true })
-  } catch (err: any) {
-    console.error("/api/leave-requests DELETE error", err)
-    return NextResponse.json({ ok: false, error: err?.message || "Failed to delete" }, { status: 500 })
-  }
+  );
 }
 

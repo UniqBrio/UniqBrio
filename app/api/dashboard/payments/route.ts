@@ -10,26 +10,40 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
   
+  console.log('[Payments GET] Session data:', {
+    email: session?.email,
+    userId: session?.userId,
+    academyId: session?.academyId,
+    tenantId: session?.tenantId
+  });
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
-  try {
-    await dbConnect("uniqbrio");
+      try {
+        await dbConnect("uniqbrio");
 
-    const searchParams = request.nextUrl.searchParams;
-    const studentId = searchParams.get('studentId');
-    const courseId = searchParams.get('courseId');
-    const cohortId = searchParams.get('cohortId');
-    const status = searchParams.get('status');
+        const searchParams = request.nextUrl.searchParams;
+        const studentId = searchParams.get('studentId');
+        const courseId = searchParams.get('courseId');
+        const cohortId = searchParams.get('cohortId');
+        const status = searchParams.get('status');
 
-    // Build query
-    const query: any = {};
-    if (studentId) query.studentId = studentId;
-    if (courseId) query.enrolledCourse = courseId;
-    if (cohortId) query.cohortId = cohortId;
-    if (status) query.status = status;
+        // Build query
+        const query: any = {};
+        if (studentId) query.studentId = studentId;
+        if (courseId) query.enrolledCourse = courseId;
+        if (cohortId) query.cohortId = cohortId;
+        if (status) query.status = status;
 
-    const payments = await Payment.find(query).sort({ createdAt: -1 }).lean();
+        const payments = await Payment.find(query).sort({ createdAt: -1 }).lean();
 
     // Extract unique course IDs from payments to fetch course details
     const uniqueCourseIds = [...new Set(
@@ -89,8 +103,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -170,8 +191,15 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");

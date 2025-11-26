@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
+import { getUserSession } from '@/lib/tenant/api-helpers';
 
 /**
  * Admin endpoint to trigger cohort-student sync
  * This proxies to the PATCH /api/cohorts endpoint
  */
 export async function POST() {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     

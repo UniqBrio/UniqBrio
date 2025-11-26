@@ -3,6 +3,8 @@ import { dbConnect } from '@/lib/mongodb'
 import Draft from '@/models/dashboard/Draft';
 import mongoose from 'mongoose'
 import { CourseIdManager } from '@/lib/dashboard/courseIdManager'
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 const ensureDraftModel = async () => {
   await dbConnect("uniqbrio")
@@ -14,6 +16,15 @@ const ensureDraftModel = async () => {
 
 // GET /api/drafts - Fetch all drafts
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     const DraftModel = await ensureDraftModel()
     
@@ -24,8 +35,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const skip = (page - 1) * limit
 
-    // Build filter object
-    const filter: any = {}
+    // Build filter object with explicit tenantId
+    const filter: any = { tenantId: session.tenantId }
     
     if (instructor) filter.instructor = instructor
     
@@ -77,6 +88,8 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
+    }
+  );
 }
 
 // POST /api/drafts - Create a new draft

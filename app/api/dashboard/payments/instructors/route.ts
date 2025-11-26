@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define Instructor schema
 const instructorSchema = new mongoose.Schema({
@@ -14,10 +16,23 @@ const instructorSchema = new mongoose.Schema({
 const Instructor = mongoose.models.Instructor || mongoose.model('Instructor', instructorSchema);
 
 export async function GET() {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
-    const instructors = await Instructor.find({})
+    // CRITICAL: Explicitly filter by tenantId to ensure tenant isolation
+    const instructors = await Instructor.find({ tenantId: session.tenantId })
       .select('instructorId firstName middleName lastName')
       .lean()
       .sort({ firstName: 1 });
@@ -48,4 +63,5 @@ export async function GET() {
       { status: 500 }
     );
   }
+  });
 }

@@ -3,18 +3,32 @@ import { dbConnect } from "@/lib/mongodb";
 import { HelpTicket } from "@/models/dashboard";
 import type { IHelpTicket } from "@/models/dashboard";
 import { sendTicketCreationEmail } from "@/lib/dashboard/email-service";
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET - Fetch all help tickets or filter by status/email
 export async function GET(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
     
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const email = searchParams.get('email');
     const ticketId = searchParams.get('ticketId');
     
-    let query: any = {};
+    let query: any = { tenantId: session.tenantId };
     
     // Filter by specific ticketId
     if (ticketId) {
@@ -46,27 +60,41 @@ export async function GET(request: Request) {
       .sort({ priority: -1, createdAt: -1 })
       .lean();
     
-    console.log(`Fetched ${tickets.length} help tickets`);
-    return NextResponse.json({
-      success: true,
-      tickets
-    });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error fetching help tickets:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
-  }
+        console.log(`Fetched ${tickets.length} help tickets`);
+        return NextResponse.json({
+          success: true,
+          tickets
+        });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error fetching help tickets:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }
 
 // POST - Create a new help ticket
 export async function POST(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
-    const body = await request.json();
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const body = await request.json();
     
     // Validate required fields
     if (!body.customerEmail || !body.title || !body.description) {
@@ -88,6 +116,7 @@ export async function POST(request: Request) {
     
     // Create new ticket
     const newTicket = new HelpTicket({
+      tenantId: session.tenantId,
       ticketId,
       customerEmail: body.customerEmail,
       contactType: body.contactType || 'Email',
@@ -131,27 +160,41 @@ export async function POST(request: Request) {
       console.error('Email sending error:', emailError);
     }
     
-    return NextResponse.json({
-      success: true,
-      ticket: newTicket.toObject(),
-      created: true
-    }, { status: 201 });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error creating help ticket:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
-  }
+        return NextResponse.json({
+          success: true,
+          ticket: newTicket.toObject(),
+          created: true
+        }, { status: 201 });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error creating help ticket:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }
 
 // PUT - Update an existing help ticket
 export async function PUT(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
-    const body = await request.json();
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const body = await request.json();
     
     if (!body.ticketId) {
       return NextResponse.json({
@@ -174,7 +217,7 @@ export async function PUT(request: Request) {
     
     // Recalculate priority if impact or urgency changed
     if (body.impact !== undefined || body.urgency !== undefined) {
-      const ticket = await HelpTicket.findOne({ ticketId: body.ticketId });
+      const ticket = await HelpTicket.findOne({ tenantId: session.tenantId, ticketId: body.ticketId });
       if (ticket) {
         const newImpact = body.impact !== undefined ? body.impact : ticket.impact;
         const newUrgency = body.urgency !== undefined ? body.urgency : ticket.urgency;
@@ -188,7 +231,7 @@ export async function PUT(request: Request) {
     }
     
     const updatedTicket = await HelpTicket.findOneAndUpdate(
-      { ticketId: body.ticketId },
+      { tenantId: session.tenantId, ticketId: body.ticketId },
       { $set: updateData },
       { new: true, runValidators: true }
     );
@@ -200,57 +243,73 @@ export async function PUT(request: Request) {
       }, { status: 404 });
     }
     
-    console.log(`Updated help ticket: ${body.ticketId}`);
-    return NextResponse.json({
-      success: true,
-      ticket: updatedTicket.toObject(),
-      updated: true
-    });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error updating help ticket:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
-  }
+        console.log(`Updated help ticket: ${body.ticketId}`);
+        return NextResponse.json({
+          success: true,
+          ticket: updatedTicket.toObject(),
+          updated: true
+        });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error updating help ticket:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }
 
 // DELETE - Delete a help ticket
 export async function DELETE(request: Request) {
-  try {
-    await dbConnect("uniqbrio");
-    const body = await request.json();
-    
-    if (!body.ticketId) {
-      return NextResponse.json({
-        success: false,
-        error: "Ticket ID is required"
-      }, { status: 400 });
-    }
-    
-    const result = await HelpTicket.deleteOne({ ticketId: body.ticketId });
-    
-    if (result.deletedCount === 0) {
-      return NextResponse.json({
-        success: false,
-        error: "Ticket not found"
-      }, { status: 404 });
-    }
-    
-    console.log(`Deleted help ticket: ${body.ticketId}`);
-    return NextResponse.json({
-      success: true,
-      deleted: true
-    });
-  } catch (error) {
-    let message = "Unknown error";
-    if (error instanceof Error) message = error.message;
-    console.error("Error deleting help ticket:", message);
-    return NextResponse.json({ 
-      success: false, 
-      error: message 
-    }, { status: 500 });
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const body = await request.json();
+        
+        if (!body.ticketId) {
+          return NextResponse.json({
+            success: false,
+            error: "Ticket ID is required"
+          }, { status: 400 });
+        }
+        
+        const result = await HelpTicket.deleteOne({ ticketId: body.ticketId });
+        
+        if (result.deletedCount === 0) {
+          return NextResponse.json({
+            success: false,
+            error: "Ticket not found"
+          }, { status: 404 });
+        }
+        
+        console.log(`Deleted help ticket: ${body.ticketId}`);
+        return NextResponse.json({
+          success: true,
+          deleted: true
+        });
+      } catch (error) {
+        let message = "Unknown error";
+        if (error instanceof Error) message = error.message;
+        console.error("Error deleting help ticket:", message);
+        return NextResponse.json({ 
+          success: false, 
+          error: message 
+        }, { status: 500 });
+      }
+    }
+  );
 }

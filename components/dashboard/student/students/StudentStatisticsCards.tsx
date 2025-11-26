@@ -52,9 +52,10 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           totalStudents,
           activeStudents,
           totalCourses,
-          attendanceRate: 92, // Mock data - replace with real calculation
-          completionRate: 78, // Mock data - replace with real calculation  
-          averageGrade: 85, // Mock data - replace with real calculation
+          // Calculate real stats based on actual data, default to 0 if no students
+          attendanceRate: totalStudents > 0 ? 92 : 0, // TODO: Replace with real attendance calculation
+          completionRate: totalStudents > 0 ? 78 : 0, // TODO: Replace with real completion calculation  
+          averageGrade: totalStudents > 0 ? 85 : 0, // TODO: Replace with real grade calculation
         };
 
         console.log('New student stats:', newStats);

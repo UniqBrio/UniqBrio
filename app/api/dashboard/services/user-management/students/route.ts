@@ -1,26 +1,35 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { addStudentToCohort, removeStudentFromCohort, getStudentWithCohorts } from '@/lib/dashboard/studentCohortSync';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
+import Student from '@/models/dashboard/student/Student';
  
 export async function GET() {
-  try {
-    console.log('🔍 [Students API] Connecting to MongoDB...');
-    const mongoose = await dbConnect("uniqbrio");
-    const db = mongoose.connection.db;
-    console.log('✅ [Students API] Connected to database:', mongoose.connection.name);
-   
-    if (!db) {
-      console.error('❌ [Students API] Database connection object is null');
-      throw new Error('Database connection failed');
-    }
-   
-    // Use the actual students collection instead of users collection
-    console.log('� [Students API] Fetching from students collection...');
-   
-    // Get students from the correct collection
-    const students = await db.collection('students').find({
-      isDeleted: { $ne: true } // Only active students
-    }).toArray();
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        console.log('🔍 [Students API] Connecting to MongoDB...');
+        await dbConnect("uniqbrio");
+        console.log('✅ [Students API] Connected to database');
+       
+        // Use Mongoose model instead of direct MongoDB collection access
+        // This ensures the tenant plugin is applied
+        console.log('📊 [Students API] Fetching from students collection with tenant filter...');
+       
+        // Get students using Mongoose model with explicit tenantId
+        // CRITICAL: Explicitly set tenantId to ensure tenant isolation
+        const students = await Student.find({
+          isDeleted: { $ne: true }, // Only active students
+          tenantId: session.tenantId // Explicit tenant filter
+        }).lean();
    
     const count = students.length;
     console.log('✅ [Students API] Students found in students collection:', { count });
@@ -61,23 +70,24 @@ export async function GET() {
    
     console.log('📝 [Students API] First 3 student records:', result.slice(0, 3));
    
-    console.log('🚀 [Students API] Returning response:', { count, studentsLength: result.length });
-    return NextResponse.json({
-      success: true,
-      count,
-      students: result
-    });
-  } catch (e) {
-    console.error('❌ [Students API] Error fetching students:', e);
-    return NextResponse.json({
-      success: false,
-      count: 0,
-      students: [],
-      error: 'Failed to fetch students',
-      details: e instanceof Error ? e.message : 'Unknown error'
-    }, { status: 500 });
-  }
-  // Note: No need to close the connection as we're using a shared connection pool
+        console.log('🚀 [Students API] Returning response:', { count, studentsLength: result.length });
+        return NextResponse.json({
+          success: true,
+          count,
+          students: result
+        });
+      } catch (e) {
+        console.error('❌ [Students API] Error fetching students:', e);
+        return NextResponse.json({
+          success: false,
+          count: 0,
+          students: [],
+          error: 'Failed to fetch students',
+          details: e instanceof Error ? e.message : 'Unknown error'
+        }, { status: 500 });
+      }
+    }
+  );
 }
  
 export async function POST(request: Request) {

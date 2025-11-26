@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import NonInstructorModel from "@/models/dashboard/staff/NonInstructor"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 // Route segment config for optimal performance
 export const dynamic = 'force-dynamic' // Always fetch fresh data for staff changes
 export const revalidate = 0 // No caching for staff data
 
 export async function GET() {
-  await dbConnect("uniqbrio")
-  // Only return non-inactive records. Also exclude legacy soft-deleted where deleted_data === false if present.
-  let items: any[] = await NonInstructorModel.find({
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      await dbConnect("uniqbrio")
+      // Only return non-inactive records. Also exclude legacy soft-deleted where deleted_data === false if present.
+      let items: any[] = await NonInstructorModel.find({
     $and: [
       { $or: [ { status: { $exists: false } }, { status: { $ne: "Inactive" } } ] },
       { $or: [ { deleted_data: { $exists: false } }, { deleted_data: { $ne: false } } ] }
@@ -54,20 +68,36 @@ export async function GET() {
   }
 
   return NextResponse.json({ ok: true, data: items })
+    }
+  )
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
-    try { await NonInstructorModel.syncIndexes() } catch {}
-    const body = await req.json()
-    if (typeof body.email === 'string' && body.email.trim() === '') {
-      delete body.email
-    }
-    const created = await NonInstructorModel.create(body)
-    return NextResponse.json(created, { status: 201 })
-  } catch (e: any) {
-    return NextResponse.json({ message: e.message }, { status: 400 })
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        try { await NonInstructorModel.syncIndexes() } catch {}
+        const body = await req.json()
+        if (typeof body.email === 'string' && body.email.trim() === '') {
+          delete body.email
+        }
+        const created = await NonInstructorModel.create(body)
+        return NextResponse.json(created, { status: 201 })
+      } catch (e: any) {
+        return NextResponse.json({ message: e.message }, { status: 400 })
+      }
+    }
+  )
 }
 

@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { ExpenseModel } from '@/lib/dashboard/models';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET /api/financials/charts/expense-payments
 // Returns expense analysis by payment modes
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     // Test MongoDB connection first
     try {
@@ -42,7 +56,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build filters
-    let match: any = { ...dateFilter };
+    let match: any = { ...dateFilter, tenantId: session.tenantId };
     
     if (category && category !== 'all') {
       match.expenseCategory = category;
@@ -95,10 +109,11 @@ export async function GET(req: NextRequest) {
         avgTransactionAmount: totalExpense > 0 ? Math.round(totalExpense / paymentAgg.reduce((sum, item) => sum + item.count, 0)) : 0
       }
     });
-  } catch (e: any) {
-    console.error('Expense payments API error', e);
-    return NextResponse.json({ error: 'Failed to load expense payment data' }, { status: 500 });
-  }
+    } catch (e: any) {
+      console.error('Expense payments API error', e);
+      return NextResponse.json({ error: 'Failed to load expense payment data' }, { status: 500 });
+    }
+  });
 }
 
 export const revalidate = 0;

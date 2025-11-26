@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import InstructorAttendanceModel from "@/models/dashboard/staff/InstructorAttendance"
 import { LeaveRequest } from "@/lib/dashboard/staff/models"
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 // Normalize a document for the current UI shape
 function toUi(doc: any) {
@@ -13,9 +15,15 @@ function toUi(doc: any) {
 }
 
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio")
-    // Sync planned attendance from approved instructor leave requests for today and future
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      await dbConnect("uniqbrio")
+      // Sync planned attendance from approved instructor leave requests for today and future
     try {
       const toYmd = (d: Date) => {
         const y = d.getFullYear()
@@ -24,7 +32,7 @@ export async function GET() {
         return `${y}-${m}-${day}`
       }
       const today = toYmd(new Date())
-      const leaves = await LeaveRequest.find({ status: 'APPROVED', endDate: { $gte: today } }).lean()
+      const leaves = await LeaveRequest.find({ tenantId: session.tenantId, status: 'APPROVED', endDate: { $gte: today } }).lean()
       if (leaves && leaves.length) {
         const ops: any[] = []
         for (const r of leaves) {
@@ -39,9 +47,10 @@ export async function GET() {
             const ymd = toYmd(cur)
             ops.push({
               updateOne: {
-                filter: { instructorId: r.instructorId, date: ymd },
+                filter: { tenantId: session.tenantId, instructorId: r.instructorId, date: ymd },
                 update: {
                   $setOnInsert: {
+                    tenantId: session.tenantId,
                     instructorId: r.instructorId,
                     instructorName: r.instructorName,
                     date: ymd,
@@ -70,48 +79,57 @@ export async function GET() {
     } catch (e) {
       console.warn('Instructor attendance planned sync failed', e)
     }
-    const items = await InstructorAttendanceModel.find({}).sort({ date: -1 }).lean()
-    return NextResponse.json({ success: true, data: items.map(toUi) })
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message || 'Failed to fetch attendance' }, { status: 500 })
-  }
+      const items = await InstructorAttendanceModel.find({ tenantId: session.tenantId }).sort({ date: -1 }).lean()
+      return NextResponse.json({ success: true, data: items.map(toUi) })
+    } catch (e: any) {
+      return NextResponse.json({ success: false, error: e.message || 'Failed to fetch attendance' }, { status: 500 })
+    }
+  })
 }
 
 export async function POST(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
-
-  // UI compatibility: accept either instructor* or student* fields, but store only instructor*
-  const instructorId = String(body.instructorId ?? body.studentId ?? '')
-  const instructorName = String(body.instructorName ?? body.studentName ?? '')
-    const date = String(body.date ?? '')
-
-    if (!instructorId || !instructorName || !date) {
-      return NextResponse.json({ success: false, error: 'Instructor and date are required' }, { status: 400 })
-    }
-
-    const rawStatus = String(body.status || '').toLowerCase()
-    const normalizedStatus = rawStatus === 'absent' ? 'absent' : rawStatus === 'planned' ? 'planned' : 'present'
-
-    const toSave = {
-      instructorId,
-      instructorName,
-      date,
-      startTime: body.startTime ?? null,
-      endTime: body.endTime ?? null,
-      status: normalizedStatus,
-      cohortTiming: body.cohortTiming ?? null,
-      notes: body.notes ?? null,
-    }
-
-    const created = await InstructorAttendanceModel.create(toSave as any)
-    return NextResponse.json({ success: true, data: toUi(created.toObject()) }, { status: 201 })
-  } catch (e: any) {
-    if (e?.code === 11000) {
-      return NextResponse.json({ success: false, error: 'Attendance already exists for this instructor and date' }, { status: 409 })
-    }
-    return NextResponse.json({ success: false, error: e.message || 'Failed to create attendance' }, { status: 500 })
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      await dbConnect("uniqbrio")
+      const body = await req.json()
+
+      // UI compatibility: accept either instructor* or student* fields, but store only instructor*
+      const instructorId = String(body.instructorId ?? body.studentId ?? '')
+      const instructorName = String(body.instructorName ?? body.studentName ?? '')
+      const date = String(body.date ?? '')
+
+      if (!instructorId || !instructorName || !date) {
+        return NextResponse.json({ success: false, error: 'Instructor and date are required' }, { status: 400 })
+      }
+
+      const rawStatus = String(body.status || '').toLowerCase()
+      const normalizedStatus = rawStatus === 'absent' ? 'absent' : rawStatus === 'planned' ? 'planned' : 'present'
+
+      const toSave = {
+        tenantId: session.tenantId,
+        instructorId,
+        instructorName,
+        date,
+        startTime: body.startTime ?? null,
+        endTime: body.endTime ?? null,
+        status: normalizedStatus,
+        cohortTiming: body.cohortTiming ?? null,
+        notes: body.notes ?? null,
+      }
+
+      const created = await InstructorAttendanceModel.create(toSave as any)
+      return NextResponse.json({ success: true, data: toUi(created.toObject()) }, { status: 201 })
+    } catch (e: any) {
+      if (e?.code === 11000) {
+        return NextResponse.json({ success: false, error: 'Attendance already exists for this instructor and date' }, { status: 409 })
+      }
+      return NextResponse.json({ success: false, error: e.message || 'Failed to create attendance' }, { status: 500 })
+    }
+  })
 }
 

@@ -13,12 +13,12 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 // 2. Build a boolean presence map.
 // 3. Return the lowest missing number >= 1; if no gaps, return max+1.
 // 4. Race condition protection: re-check chosen ID before returning; if taken, loop a few times.
-async function generateNextStudentId(): Promise<string> {
-  let attempts = 0;
-  const maxAttempts = 5;
-  while (attempts < maxAttempts) {
+async function generateNextStudentId(tenantId: string): Promise<string> {
+      let attempts = 0;
+      const maxAttempts = 5;
+      while (attempts < maxAttempts) {
     const existing = await Student.find(
-      { studentId: { $regex: /^STU\d{4}$/ } },
+      { studentId: { $regex: /^STU\d{4}$/ }, tenantId },
       { studentId: 1, _id: 0 }
     ).lean();
 
@@ -40,47 +40,57 @@ async function generateNextStudentId(): Promise<string> {
       }
     }
     const candidateId = `STU${String(candidateNum).padStart(4, '0')}`;
-    const collision = await Student.findOne({ studentId: candidateId });
+    const collision = await Student.findOne({ studentId: candidateId, tenantId });
     if (!collision) {
       return candidateId;
     }
     attempts++;
     console.warn(`generateNextStudentId collision on ${candidateId}, retrying (attempt ${attempts})`);
-  }
-  // Fallback if persistent collisions (should be rare)
-  return `STU${String(Date.now() % 10000).padStart(4, '0')}`;
+      }
+      // Fallback if persistent collisions (should be rare)
+      return `STU${String(Date.now() % 10000).padStart(4, '0')}`;
 }
 
 // GET all students with achievements populated
 export async function GET(req: NextRequest) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+            return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
-  const url = new URL(req.url);
-  const debug = url.searchParams.has('debug');
-  const force = url.searchParams.has('reconcile');
-  const includeDeleted = url.searchParams.has('includeDeleted'); // Add query param for deleted students
-  
-  try {
-    // Filter out soft-deleted students by default
-    const filter = includeDeleted ? {} : { isDeleted: { $ne: true } };
-    const students = await Student.find(filter);
+      await dbConnect("uniqbrio");
+      const url = new URL(req.url);
+      const debug = url.searchParams.has('debug');
+      const force = url.searchParams.has('reconcile');
+      const includeDeleted = url.searchParams.has('includeDeleted'); // Add query param for deleted students
+      
+      try {
+        // Filter out soft-deleted students by default
+        // CRITICAL: Explicitly set tenantId to ensure tenant isolation
+        const filter = includeDeleted 
+          ? { tenantId: session.tenantId } 
+          : { isDeleted: { $ne: true }, tenantId: session.tenantId };
+        const students = await Student.find(filter);
 
-    // Index students by both studentId and _id for flexible matching
-    const studentByStudentId = new Map<string, any>();
-    const studentByMongoId = new Map<string, any>();
-    students.forEach(s => {
+            // Index students by both studentId and _id for flexible matching
+            const studentByStudentId = new Map<string, any>();
+            const studentByMongoId = new Map<string, any>();
+            students.forEach(s => {
       studentByStudentId.set(s.studentId, s);
       if (s._id) studentByMongoId.set(String(s._id), s);
     });
 
-  const cohorts = await Cohort.find({}, { id: 1, cohortId: 1, enrolledStudents: 1, members: 1, currentStudents: 1 }).lean();
-    const cohortMembershipMap = new Map<string, string>(); // studentId -> cohortId
+              const cohorts = await Cohort.find({ tenantId: session.tenantId }, { id: 1, cohortId: 1, enrolledStudents: 1, members: 1, currentStudents: 1 }).lean();
+            const cohortMembershipMap = new Map<string, string>(); // studentId -> cohortId
 
-    const normalizeEntry = (entry: any): string | null => {
+            const normalizeEntry = (entry: any): string | null => {
       if (!entry) return null;
       if (typeof entry === 'string') return entry.trim();
       if (typeof entry === 'object') {
@@ -89,7 +99,7 @@ export async function GET(req: NextRequest) {
       return null;
     };
 
-    for (const c of cohorts) {
+            for (const c of cohorts) {
       const cid = (c as any).id || (c as any).cohortId;
       if (!cid) continue;
       const raw = Array.isArray((c as any).enrolledStudents)
@@ -119,7 +129,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    if (debug) {
+            if (debug) {
       console.log('[GET /api/students] Cohort reconciliation snapshot:', {
         cohorts: cohorts.length,
         membershipsDiscovered: cohortMembershipMap.size,
@@ -127,10 +137,10 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const reconcilePromises: Promise<any>[] = [];
-    const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
+            const reconcilePromises: Promise<any>[] = [];
+            const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
 
-    const result = students.map((doc: any) => {
+            const result = students.map((doc: any) => {
       const s = doc.toObject();
       
       // Migration: Handle legacy field names
@@ -203,39 +213,46 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    Promise.allSettled(reconcilePromises).then(r => {
+            Promise.allSettled(reconcilePromises).then(r => {
       const failures = r.filter(x => x.status === 'rejected').length;
       if (failures) console.warn(`[GET /api/students] ${failures} reconciliation updates failed.`);
     });
-    return NextResponse.json(result);
-  } catch (error) {
+            return NextResponse.json(result);
+      } catch (error) {
     console.error('Error fetching students:', error);
-    return NextResponse.json({ error: 'Failed to fetch students' }, { status: 500 });
-  }
+            return NextResponse.json({ error: 'Failed to fetch students' }, { status: 500 });
+      }
     }
-  );
+      );
 }
 
 // POST a new student (optionally with achievements)
 export async function POST(req: NextRequest) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+            return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
-  try {
+      await dbConnect("uniqbrio");
+      try {
     const data = await req.json();
     console.log('POST /api/students - Received data:', JSON.stringify(data, null, 2));
 
-  // Normalize some known field name differences (legacy support)
-  if (!data.mobile && data.phone) data.mobile = data.phone;
-  if (!data.cohortId && data.cohort) data.cohortId = data.cohort;
-  if (!data.cohortId && data.batch) data.cohortId = data.batch;
-  if (!data.courseOfInterestId && data.activity) data.courseOfInterestId = data.activity;
-  if (!data.registrationDate && data.memberSince) data.registrationDate = data.memberSince;
-  if (!data.enrolledCourseName && data.enrolledCourse) data.enrolledCourseName = data.enrolledCourse;
-  if (!data.enrolledCourseName && data.program) data.enrolledCourseName = data.program;
+      // Normalize some known field name differences (legacy support)
+      if (!data.mobile && data.phone) data.mobile = data.phone;
+      if (!data.cohortId && data.cohort) data.cohortId = data.cohort;
+      if (!data.cohortId && data.batch) data.cohortId = data.batch;
+      if (!data.courseOfInterestId && data.activity) data.courseOfInterestId = data.activity;
+      if (!data.registrationDate && data.memberSince) data.registrationDate = data.memberSince;
+      if (!data.enrolledCourseName && data.enrolledCourse) data.enrolledCourseName = data.enrolledCourse;
+      if (!data.enrolledCourseName && data.program) data.enrolledCourseName = data.program;
 
     // Generate sequential student ID if not provided or if it's a temp ID
     if (!data.studentId || !data.id || data.studentId.startsWith('TEMP_') || data.id.startsWith('TEMP_')) {
@@ -292,10 +309,10 @@ export async function POST(req: NextRequest) {
     
     // Ensure studentId uniqueness - if it already exists, regenerate it sequentially
     let finalStudentId = data.studentId;
-    const existingById = await Student.findOne({ studentId: finalStudentId });
+    const existingById = await Student.findOne({ studentId: finalStudentId, tenantId: session.tenantId });
     if (existingById) {
       // If studentId conflicts, generate the next sequential ID
-      finalStudentId = await generateNextStudentId();
+      finalStudentId = await generateNextStudentId(session.tenantId);
       data.studentId = finalStudentId;
       console.log('POST /api/students - Generated new sequential student ID due to conflict:', finalStudentId);
     }
@@ -318,7 +335,7 @@ export async function POST(req: NextRequest) {
       console.log(`ℹ️ No cohort assignment for student ${student.studentId}`);
     }
 
-    const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
+            const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
     const s = student.toObject();
     const pick = {
       id: s.studentId,
@@ -354,8 +371,8 @@ export async function POST(req: NextRequest) {
       cohortId: s.cohortId,
     } as any;
     console.log('POST /api/students - Successfully created student:', pick.name);
-    return NextResponse.json(pick, { status: 201 });
-  } catch (error: any) {
+            return NextResponse.json(pick, { status: 201 });
+      } catch (error: any) {
     console.error('POST /api/students - Error creating student:', error);
     
     // Handle MongoDB duplicate key errors
@@ -373,22 +390,29 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    return NextResponse.json({ error: 'Failed to create student' }, { status: 500 });
-  }
+            return NextResponse.json({ error: 'Failed to create student' }, { status: 500 });
+      }
     }
-  );
+      );
 }
 
 // PUT update an existing student by studentId
 export async function PUT(req: NextRequest) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+            return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
-  try {
-  const data = await req.json();
+      await dbConnect("uniqbrio");
+      try {
+      const data = await req.json();
     console.log('PUT /api/students - Received data:', JSON.stringify(data, null, 2));
     
     // Normalize legacy field names
@@ -450,11 +474,11 @@ export async function PUT(req: NextRequest) {
     console.log('PUT /api/students - Updating with allowed fields:', JSON.stringify(allowed, null, 2));
     
     // Get the old student record to check for cohort changes
-    const oldStudent = await Student.findOne({ studentId });
+    const oldStudent = await Student.findOne({ studentId, tenantId: session.tenantId });
     const oldCohortId = oldStudent?.cohortId;
     
     const updated = await Student.findOneAndUpdate(
-      { studentId },
+      { studentId, tenantId: session.tenantId },
       { $set: { ...allowed, studentId }, $unset: { batch: '', cohort: '', activity: '', memberSince: '', program: '' } },
       { new: true }
     );
@@ -488,7 +512,7 @@ export async function PUT(req: NextRequest) {
       console.error('PUT /api/students - Student not found with ID:', studentId);
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
-    const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
+            const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
     const s = updated.toObject();
     const pick = {
       id: s.studentId,
@@ -525,24 +549,31 @@ export async function PUT(req: NextRequest) {
       cohortId: s.cohortId,
     } as any;
     console.log('PUT /api/students - Successfully updated student:', pick.name);
-    return NextResponse.json(pick, { status: 200 });
-  } catch (error) {
+            return NextResponse.json(pick, { status: 200 });
+      } catch (error) {
     console.error('PUT /api/students - Error updating student:', error);
-    return NextResponse.json({ error: 'Failed to update student' }, { status: 500 });
-  }
+            return NextResponse.json({ error: 'Failed to update student' }, { status: 500 });
+      }
     }
-  );
+      );
 }
 
 // DELETE a student by studentId
 export async function DELETE(req: NextRequest) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+            return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
-  try {
+      await dbConnect("uniqbrio");
+      try {
     const { id, studentId, hardDelete } = await req.json();
     const key = id || studentId;
     if (!key) {
@@ -551,17 +582,20 @@ export async function DELETE(req: NextRequest) {
     
     // Support hard delete with explicit flag (use with caution)
     if (hardDelete === true) {
-      const student = await Student.findOneAndDelete({ studentId: key });
+      const student = await Student.findOneAndDelete({ studentId: key, tenantId: session.tenantId });
       if (!student) {
         return NextResponse.json({ error: 'Student not found' }, { status: 404 });
       }
       // Optionally, delete related achievements
-      await Achievement.deleteMany({ $or: [{ student: student._id }, { studentId: student.studentId }] });
+      await Achievement.deleteMany({ 
+        $or: [{ student: student._id }, { studentId: student.studentId }],
+        tenantId: session.tenantId 
+      });
       return NextResponse.json({ success: true, message: 'Student permanently deleted' });
     }
     
     // Default: Soft delete
-    const student = await Student.findOne({ studentId: key });
+    const student = await Student.findOne({ studentId: key, tenantId: session.tenantId });
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
@@ -571,15 +605,15 @@ export async function DELETE(req: NextRequest) {
     student.deletedAt = new Date();
     await student.save();
     
-    return NextResponse.json({ 
+            return NextResponse.json({ 
       success: true, 
       message: 'Student marked as deleted',
       studentId: student.studentId 
     });
-  } catch (error) {
+      } catch (error) {
     console.error('Delete student error:', error);
-    return NextResponse.json({ error: 'Failed to delete student' }, { status: 500 });
-  }
+            return NextResponse.json({ error: 'Failed to delete student' }, { status: 500 });
+      }
     }
-  );
+      );
 }

@@ -3,6 +3,8 @@ import { dbConnect } from '@/lib/mongodb'
 import Draft from '@/models/dashboard/Draft';
 import mongoose from 'mongoose'
 import { CourseIdManager } from '@/lib/dashboard/courseIdManager'
+import { getUserSession } from '@/lib/tenant/api-helpers'
+import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 const ensureDraftModel = async () => {
   await dbConnect("uniqbrio")
@@ -14,37 +16,43 @@ const ensureDraftModel = async () => {
 
 // GET /api/drafts - Fetch all drafts
 export async function GET(request: NextRequest) {
-  try {
-    const DraftModel = await ensureDraftModel()
-    
-    const { searchParams } = new URL(request.url)
-    const instructor = searchParams.get('instructor')
-    const search = searchParams.get('search')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const page = parseInt(searchParams.get('page') || '1')
-    const skip = (page - 1) * limit
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-    // Build filter object
-    const filter: any = {}
-    
-    if (instructor) filter.instructor = instructor
-    
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } }
-      ]
-    }
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      const DraftModel = await ensureDraftModel()
+      
+      const { searchParams } = new URL(request.url)
+      const instructor = searchParams.get('instructor')
+      const search = searchParams.get('search')
+      const limit = parseInt(searchParams.get('limit') || '50')
+      const page = parseInt(searchParams.get('page') || '1')
+      const skip = (page - 1) * limit
 
-    // Fetch drafts with pagination
-    const drafts = await DraftModel.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean()
+      // Build filter object
+      const filter: any = { tenantId: session.tenantId }
+      
+      if (instructor) filter.instructor = instructor
+      
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { tags: { $regex: search, $options: 'i' } }
+        ]
+      }
 
-    const total = await DraftModel.countDocuments(filter)
+      // Fetch drafts with pagination
+      const drafts = await DraftModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+
+      const total = await DraftModel.countDocuments(filter)
 
     console.log('📋 GET /api/drafts - Found drafts:', drafts.length);
     console.log('📋 Draft IDs:', drafts.map(d => d._id));
@@ -66,79 +74,87 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit)
       }
     })
-  } catch (error) {
-    console.error('Error fetching drafts:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch drafts',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
-  }
+    
+    } catch (error) {
+      console.error('Error fetching drafts:', error)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to fetch drafts',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      )
+    }
+  })
 }
 
 // POST /api/drafts - Create a new draft
 export async function POST(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
-    
-    const body = await request.json()
-    const {
-      name,
-      instructor,
-      description,
-      level,
-      type,
-      duration,
-      priceINR,
-      schedule,
-      maxStudents,
-      tags,
-      category,
-      subcategory,
-      thumbnail,
-      courseCategory,
-      status
-    } = body
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-    // For drafts, we only require minimal fields - just a name to identify the draft
-    if (!name && !body.title) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Missing required fields: At least a name or title is required for drafts',
-          required: ['name or title']
-        },
-        { status: 400 }
-      )
-    }
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      await dbConnect("uniqbrio")
+      
+      const body = await request.json()
+      const {
+        name,
+        instructor,
+        description,
+        level,
+        type,
+        duration,
+        priceINR,
+        schedule,
+        maxStudents,
+        tags,
+        category,
+        subcategory,
+        thumbnail,
+        courseCategory,
+        status
+      } = body
 
-    // Create draft object with only provided data (no auto-population)
-    const draftData: any = {}
-    
-    // Only add fields that have actual values
-    if (name) draftData.name = name
-    if (body.title) draftData.title = body.title
-    if (instructor) draftData.instructor = instructor
-    if (body.instructorId) draftData.instructorId = body.instructorId
-    if (description) draftData.description = description
-    if (level) draftData.level = level
-    if (type) draftData.type = type
-    if (duration) draftData.duration = duration
-    if (priceINR) draftData.priceINR = priceINR
-    if (body.price) draftData.price = body.price
-    if (schedule) draftData.schedule = schedule
-    if (maxStudents) draftData.maxStudents = maxStudents
+      // For drafts, we only require minimal fields - just a name to identify the draft
+      if (!name && !body.title) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Missing required fields: At least a name or title is required for drafts',
+            required: ['name or title']
+          },
+          { status: 400 }
+        )
+      }
 
-    // Only add optional fields if they are provided and not empty
-    if (tags && Array.isArray(tags) && tags.length > 0) {
-      draftData.tags = tags
-    }
-    if (category && category.trim()) {
-      draftData.category = category.trim()
-    }
+      // Create draft object with only provided data (no auto-population)
+      const draftData: any = { tenantId: session.tenantId }
+      
+      // Only add fields that have actual values
+      if (name) draftData.name = name
+      if (body.title) draftData.title = body.title
+      if (instructor) draftData.instructor = instructor
+      if (body.instructorId) draftData.instructorId = body.instructorId
+      if (description) draftData.description = description
+      if (level) draftData.level = level
+      if (type) draftData.type = type
+      if (duration) draftData.duration = duration
+      if (priceINR) draftData.priceINR = priceINR
+      if (body.price) draftData.price = body.price
+      if (schedule) draftData.schedule = schedule
+      if (maxStudents) draftData.maxStudents = maxStudents
+
+      // Only add optional fields if they are provided and not empty
+      if (tags && Array.isArray(tags) && tags.length > 0) {
+        draftData.tags = tags
+      }
+      if (category && category.trim()) {
+        draftData.category = category.trim()
+      }
     if (subcategory && subcategory.trim()) {
       draftData.subcategory = subcategory.trim()
     }
@@ -172,23 +188,30 @@ export async function POST(request: NextRequest) {
       message: 'Draft saved successfully'
     }, { status: 201 })
 
-  } catch (error) {
-    console.error('Error creating draft:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to create draft',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
-  }
+    } catch (error) {
+      console.error('Error creating draft:', error)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to create draft',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      )
+    }
+  })
 }
 
 // PUT /api/drafts - Update a draft
 export async function PUT(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      await dbConnect("uniqbrio")
     
     const body = await request.json()
     const {
@@ -239,8 +262,8 @@ export async function PUT(request: NextRequest) {
 
     const DraftModel = await ensureDraftModel()
 
-    // Check if draft exists
-    const existingDraft = await DraftModel.findById(id)
+    // Check if draft exists and belongs to tenant
+    const existingDraft = await DraftModel.findOne({ _id: id, tenantId: session.tenantId })
     if (!existingDraft) {
       return NextResponse.json(
         { success: false, error: 'Draft not found' },
@@ -323,23 +346,30 @@ export async function PUT(request: NextRequest) {
       message: 'Draft updated successfully'
     })
 
-  } catch (error) {
-    console.error('Error updating draft:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update draft',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
-  }
+    } catch (error) {
+      console.error('Error updating draft:', error)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to update draft',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      )
+    }
+  })
 }
 
 // DELETE /api/drafts - Delete a draft
 export async function DELETE(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      await dbConnect("uniqbrio")
     
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -353,7 +383,7 @@ export async function DELETE(request: NextRequest) {
 
     const DraftModel = await ensureDraftModel()
 
-    const draft = await DraftModel.findById(id)
+    const draft = await DraftModel.findOne({ _id: id, tenantId: session.tenantId })
     if (!draft) {
       return NextResponse.json(
         { success: false, error: 'Draft not found' },
@@ -361,22 +391,23 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    await Draft.findByIdAndDelete(id)
+    await DraftModel.findByIdAndDelete(id)
 
     return NextResponse.json({
       success: true,
       message: 'Draft deleted successfully'
     })
 
-  } catch (error) {
-    console.error('Error deleting draft:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to delete draft',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
-  }
+    } catch (error) {
+      console.error('Error deleting draft:', error)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to delete draft',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      )
+    }
+  })
 }

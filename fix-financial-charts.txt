@@ -1,0 +1,13 @@
+CHART ROUTES NEEDING TENANT ISOLATION FIX:
+
+1. /financials/charts/route.ts - Add tenantId to match filters for both Income and Expense aggregations
+2. /financials/charts/expense-vendors/route.ts - Add tenantId to match object
+3. /financials/charts/expense-payments/route.ts - Add tenantId to match object  
+4. /financials/charts/income-categories/route.ts - Add tenantId to match object
+5. /financials/charts/income-sources/route.ts - Add tenantId to match object
+6. /financials/charts/categories/route.ts - Add tenantId to match object
+
+PATTERN FOR ALL:
+- Add imports: getUserSession, runWithTenantContext
+- Wrap GET function with session check and runWithTenantContext
+- Add tenantId: session.tenantId to all match/filter objects before aggregation

@@ -67,17 +67,28 @@ export function tenantPlugin(schema: Schema) {
     schema.pre(method as any, function (this: any, next: (error?: Error) => void) {
       const query = this.getQuery();
       
-      // Don't override if tenantId is explicitly set in query
-      if (!query.tenantId && !query.$or?.some((q: any) => 'tenantId' in q)) {
-        try {
-          const tenantId = requireTenantId();
-          this.setQuery({ ...query, tenantId });
-        } catch (error) {
-          // If no tenant context, allow query to proceed (for system operations)
-          console.warn(`[TenantPlugin] Query without tenant context: ${method}`);
+      // If tenantId is already explicitly set in query, allow it
+      if (query.tenantId || query.$or?.some((q: any) => 'tenantId' in q)) {
+        // Query already has tenantId, proceed
+        return next();
+      }
+      
+      // Try to get tenantId from AsyncLocalStorage context
+      try {
+        const tenantId = requireTenantId();
+        this.setQuery({ ...query, tenantId });
+        next();
+      } catch (error) {
+        // SECURITY: Block query if no tenant context AND no explicit tenantId
+        // Only allow for system operations with explicit 'SYSTEM' marker
+        if (query.__allowSystemQuery === true) {
+          delete query.__allowSystemQuery;
+          next();
+        } else {
+          console.error(`[TenantPlugin] BLOCKED: Query without tenant context: ${method}`);
+          return next(new Error('Tenant context is required for data access. Please ensure you are logged in.'));
         }
       }
-      next();
     });
   });
 

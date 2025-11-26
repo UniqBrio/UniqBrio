@@ -133,45 +133,31 @@ const fetchLanguages = async (): Promise<Option[]> => {
   }
 };
 
-// Countries will be fetched from an external API
+// Countries will be fetched from our API route
 const fetchCountries = async (): Promise<Option[]> => {
   try {
-    const res = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2", { cache: "force-cache" });
-    if (!res.ok) throw new Error("Failed to fetch countries");
-    const data = await res.json();
-    return data
-      .map((country: any) => ({
-        value: country.cca2,
-        label: country.name.common,
-      }))
-      .sort((a: Option, b: Option) => a.label.localeCompare(b.label));
+    const response = await fetch('/api/countries');
+    if (!response.ok) throw new Error('Failed to fetch countries');
+    const data = await response.json();
+    return data.success ? data.data : [];
   } catch (error) {
+    console.error('[fetchCountries] Error:', error);
     return [];
   }
 };
 
-// Fetch states/provinces for a given country code from an external API
+// Fetch states/provinces for a given country code from our API route
 const fetchStates = async (countryCode: string): Promise<Option[]> => {
   if (!countryCode) return [];
   try {
-    // Use https://countriesnow.space/api/v0.1/countries/states for demo (POST with country name)
-    // First, get country name from code
-    const countryRes = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
-    if (!countryRes.ok) throw new Error("Failed to fetch country");
-    const countryData = await countryRes.json();
-    const countryName = countryData[0]?.name?.common;
-    if (!countryName) return [];
-    // Now fetch states
-    const res = await fetch("https://countriesnow.space/api/v0.1/countries/states", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ country: countryName })
-    });
-    if (!res.ok) throw new Error("Failed to fetch states");
-    const data = await res.json();
-    if (!data.data || !Array.isArray(data.data.states)) return [];
-    return data.data.states.map((s: any) => ({ value: s.name, label: s.name }));
+    console.log('[fetchStates] Fetching for country code:', countryCode);
+    const response = await fetch(`/api/countries/states?country=${countryCode}`);
+    if (!response.ok) throw new Error('Failed to fetch states');
+    const data = await response.json();
+    console.log('[fetchStates] States fetched:', data.success ? data.data.length : 0);
+    return data.success ? data.data : [];
   } catch (error) {
+    console.error('[fetchStates] Error:', error);
     return [];
   }
 };
@@ -228,44 +214,34 @@ export default function BusinessInfoStep({ formState, updateFormState }: Busines
     if (formState.businessInfo.country) {
       setStatesLoading(true);
       setStatesError("");
+      setStates([]); // Clear previous states
+      console.log('[BusinessInfo] Fetching states for country:', formState.businessInfo.country);
       fetchStates(formState.businessInfo.country)
         .then((data) => {
+          console.log('[BusinessInfo] States fetched:', data.length, 'states');
           setStates(data);
           setStatesLoading(false);
+          if (data.length === 0) {
+            setStatesError("No states found for this country");
+          }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('[BusinessInfo] Failed to fetch states:', error);
           setStatesError("Failed to load states");
           setStatesLoading(false);
         });
     } else {
       setStates([]);
+      setStatesError("");
     }
   }, [formState.businessInfo.country]);
 
 
-// Fetch cities for a given country and state from an external API
+// Fetch cities for a given country and state - For now, allow manual entry
+// You can add a cities API later if needed
 const fetchCities = async (countryCode: string, stateName: string): Promise<Option[]> => {
-  if (!countryCode || !stateName) return [];
-  try {
-    // Get country name from code
-    const countryRes = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
-    if (!countryRes.ok) throw new Error("Failed to fetch country");
-    const countryData = await countryRes.json();
-    const countryName = countryData[0]?.name?.common;
-    if (!countryName) return [];
-    // Now fetch cities
-    const res = await fetch("https://countriesnow.space/api/v0.1/countries/state/cities", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ country: countryName, state: stateName })
-    });
-    if (!res.ok) throw new Error("Failed to fetch cities");
-    const data = await res.json();
-    if (!data.data || !Array.isArray(data.data)) return [];
-    return data.data.map((c: string) => ({ value: c, label: c }));
-  } catch (error) {
-    return [];
-  }
+  // Return empty array - user will manually enter city
+  return [];
 };
 
 const [citiesLoading, setCitiesLoading] = useState<boolean>(false);

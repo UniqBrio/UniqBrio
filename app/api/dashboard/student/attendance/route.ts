@@ -71,8 +71,15 @@ const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -88,7 +95,7 @@ export async function GET(request: NextRequest) {
     const offset = searchParams.get('offset');
 
     // Build query filters
-    let query: any = {};
+    let query: any = { tenantId: session.tenantId };
     
     if (studentId) {
       query.studentId = studentId;
@@ -291,6 +298,7 @@ export async function GET(request: NextRequest) {
 
     if (cohortIds.length) {
       const cohorts = await Cohort.find({
+        tenantId: session.tenantId,
         $or: [
           { cohortId: { $in: cohortIds } },
           { id: { $in: cohortIds } }
@@ -371,8 +379,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await getUserSession();
   
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
   return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+    { tenantId: session.tenantId },
     async () => {
   try {
     await dbConnect("uniqbrio");
@@ -411,6 +426,7 @@ export async function POST(request: NextRequest) {
 
     // Check if attendance record already exists for this student on this date
     const existingRecord = await StudentAttendance.findOne({
+      tenantId: session.tenantId,
       studentId,
       date
     });
@@ -432,7 +448,7 @@ export async function POST(request: NextRequest) {
   let finalCourseName = courseName;
     
     if (studentId) {
-      const student = await Student.findOne({ studentId });
+      const student = await Student.findOne({ tenantId: session.tenantId, studentId });
       if (student) {
         // Always use the current name from the Student record if available
         if (student.name) {
@@ -452,7 +468,7 @@ export async function POST(request: NextRequest) {
 
         // If we still don't have an ID, but have an enrolledCourseName, resolve by name
         if (!finalCourseId && (student as any).enrolledCourseName) {
-          const byName = await Course.findOne({ name: (student as any).enrolledCourseName });
+          const byName = await Course.findOne({ tenantId: session.tenantId, name: (student as any).enrolledCourseName });
           if (byName?.courseId) {
             finalCourseId = byName.courseId as any;
           }
@@ -462,6 +478,7 @@ export async function POST(request: NextRequest) {
         if (!finalCourseName) {
           if (finalCourseId) {
             const course = await Course.findOne({
+              tenantId: session.tenantId,
               $or: [
                 { courseId: finalCourseId },
                 // Attempt ObjectId lookup only if it looks like one

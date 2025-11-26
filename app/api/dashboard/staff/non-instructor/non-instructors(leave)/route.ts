@@ -1,15 +1,29 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { NonInstructor, NonInstructorLeaveRequest, NonInstructorLeaveDraft, NonInstructorLeavePolicy } from "@/lib/dashboard/staff/models"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio")
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
 
-    const [nonInstructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
+        const [nonInstructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
       NonInstructor.find({}, {
         id: 1,
         name: 1,
@@ -132,4 +146,6 @@ export async function GET() {
     console.error("/api/dashboard/staff/non-instructor/non-instructors(leave) GET error", err)
     return NextResponse.json({ ok: false, error: err?.message || "Failed to fetch non-instructor leave data" }, { status: 500 })
   }
+    }
+  )
 }

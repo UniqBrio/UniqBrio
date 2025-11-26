@@ -4,6 +4,8 @@ import Payment from '@/models/dashboard/payments/Payment';
 import Student from '@/models/dashboard/student/Student';
 import mongoose from 'mongoose';
 import { fetchMultipleCoursePaymentDetails } from '@/lib/dashboard/payments/course-payment-server';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define the Course schema to access course fees
 const courseSchema = new mongoose.Schema({
@@ -26,14 +28,26 @@ const Course = mongoose.models.CourseForAllStudents ||
  * GET /api/payments/all-students
  */
 export async function GET(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
-    // Get all active students
-    const students = await Student.find({ isDeleted: { $ne: true } }).lean().exec();
-    
-    // Get all existing payment records with optimized query
-    const payments = await Payment.find({}).lean().exec();
+        // Get all active students with explicit tenantId filter
+        const students = await Student.find({ isDeleted: { $ne: true }, tenantId: session.tenantId }).lean().exec();
+        
+        // Get all existing payment records with explicit tenantId filter
+        const payments = await Payment.find({ tenantId: session.tenantId }).lean().exec();
     
     // Get all cohorts to fetch course IDs and cohort names
     const allCohortIds = [...new Set([
@@ -48,7 +62,8 @@ export async function GET(request: NextRequest) {
         { cohortId: { $in: allCohortIds } },
         { id: { $in: allCohortIds } },
         { _id: { $in: allCohortIds } }
-      ]
+      ],
+      tenantId: session.tenantId
     }).toArray();
     
     const cohortToCourseMap = new Map();
@@ -88,7 +103,7 @@ export async function GET(request: NextRequest) {
       ...students.map((s: any) => s.enrolledCourse || s.courseOfInterestId).filter(Boolean),
       ...Array.from(cohortToCourseMap.values())
     ])];
-    const courses = await Course.find({ courseId: { $in: courseIds } }).lean();
+    const courses = await Course.find({ courseId: { $in: courseIds }, tenantId: session.tenantId }).lean();
     const courseFeeMap = new Map(
       courses.map((c: any) => [c.courseId, { 
         fee: c.priceINR || 0,
@@ -177,7 +192,8 @@ export async function GET(request: NextRequest) {
       try {
         // Direct course fetch from database
         const directCourses = await Course.find({ 
-          courseId: { $in: uniquePaymentCourseIds } 
+          courseId: { $in: uniquePaymentCourseIds },
+          tenantId: session.tenantId
         })
         .select('courseId name paymentCategory type')
         .lean()
@@ -356,4 +372,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

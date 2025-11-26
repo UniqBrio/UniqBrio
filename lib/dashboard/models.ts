@@ -1,4 +1,5 @@
 import mongoose, { Schema, model, models } from "mongoose";
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin";
 
 // Shared/minimal user reference
 const ObjectId = Schema.Types.ObjectId;
@@ -22,6 +23,9 @@ const IncomeSchema = new Schema(
   { timestamps: true }
 );
 
+// Apply tenant plugin for multi-tenancy
+IncomeSchema.plugin(tenantPlugin);
+
 // Expense - Simplified to match frontend form fields only
 const ExpenseSchema = new Schema(
   {
@@ -42,6 +46,9 @@ const ExpenseSchema = new Schema(
   { timestamps: true }
 );
 
+// Apply tenant plugin for multi-tenancy
+ExpenseSchema.plugin(tenantPlugin);
+
 // Bank Account
 const BankAccountSchema = new Schema(
   {
@@ -55,6 +62,9 @@ const BankAccountSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Apply tenant plugin for multi-tenancy
+BankAccountSchema.plugin(tenantPlugin);
 
 export const IncomeModel = models.incomes || model("incomes", IncomeSchema);
 export const ExpenseModel = models.expenses || model("expenses", ExpenseSchema);
@@ -72,6 +82,9 @@ const IncomeDraftSchema = new Schema(
   { timestamps: true }
 );
 
+// Apply tenant plugin for multi-tenancy
+IncomeDraftSchema.plugin(tenantPlugin);
+
 const ExpenseDraftSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -82,6 +95,9 @@ const ExpenseDraftSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Apply tenant plugin for multi-tenancy
+ExpenseDraftSchema.plugin(tenantPlugin);
 
 export const IncomeDraftModel = models.incomedrafts || model("incomedrafts", IncomeDraftSchema);
 export const ExpenseDraftModel = models.expensedrafts || model("expensedrafts", ExpenseDraftSchema);
@@ -115,5 +131,8 @@ const PaymentTransactionSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Apply tenant plugin for multi-tenancy
+PaymentTransactionSchema.plugin(tenantPlugin);
 
 export const PaymentTransactionModel = models.paymenttransactions || model("paymenttransactions", PaymentTransactionSchema);

@@ -30,12 +30,16 @@ export function requireTenantId(): string {
 
 /**
  * Run a function with tenant context
+ * For async functions, this properly waits for the Promise to resolve
+ * before clearing the AsyncLocalStorage context
  */
-export function runWithTenantContext<T>(
+export async function runWithTenantContext<T>(
   context: TenantContext,
-  fn: () => T
-): T {
-  return tenantStorage.run(context, fn);
+  fn: () => T | Promise<T>
+): Promise<T> {
+  return await tenantStorage.run(context, async () => {
+    return await fn();
+  });
 }
 
 /**

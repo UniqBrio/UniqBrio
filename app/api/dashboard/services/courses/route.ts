@@ -8,109 +8,116 @@ import { getUserSession } from "@/lib/tenant/api-helpers"
 import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export async function POST(request: Request) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  try {
-    console.log('🚀 POST /api/courses - Starting course creation/update')
-    await dbConnect("uniqbrio")
-    console.log('✅ MongoDB connected successfully')
+      try {
+        console.log('🚀 POST /api/courses - Starting course creation/update')
+        await dbConnect("uniqbrio")
+        console.log('✅ MongoDB connected successfully')
     
     const body = await request.json()
-    console.log('📝 Request body received:', { 
-      type: Array.isArray(body) ? 'array' : 'object',
-      hasId: body._id || body.id ? true : false,
-      title: Array.isArray(body) ? 'bulk' : body.title 
-    })
+          console.log('📝 Request body received:', { 
+            type: Array.isArray(body) ? 'array' : 'object',
+            hasId: body._id || body.id ? true : false,
+            title: Array.isArray(body) ? 'bulk' : body.title 
+          })
 
-    // Handle dropdown-options requests
-    if (body.action === 'add-dropdown-option') {
-      const { type, value } = body
+          // Handle dropdown-options requests
+          if (body.action === 'add-dropdown-option') {
+            const { type, value } = body
       
-      const DROPDOWN_TYPES = {
-        levels: {
+            const DROPDOWN_TYPES = {
+            levels: {
           defaults: ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Pro'],
           field: 'availableLevels'
-        },
-        types: {
+            },
+            types: {
           defaults: ['Online', 'Offline', 'Hybrid'],
           field: 'availableTypes'
-        },
-        categories: {
+            },
+            categories: {
           defaults: ['Regular', 'Special', 'Ongoing Training'],
           field: 'availableCategories'
-        },
-        tags: {
+            },
+            tags: {
           defaults: ['Art', 'Painting', 'Music', 'Dance', 'Sports', 'Technology', 'Science'],
           field: 'availableTags'
-        },
-        freeGifts: {
+            },
+            freeGifts: {
           defaults: ['Badge', 'Keychain', 'Certificate', 'T-Shirt', 'Stickers'],
           field: 'availableFreeGifts'
-        }
-      }
+            }
+            }
       
-      if (!type || !value || typeof value !== 'string' || value.trim().length === 0) {
-        return NextResponse.json(
+            if (!type || !value || typeof value !== 'string' || value.trim().length === 0) {
+            return NextResponse.json(
           { success: false, error: 'Type and value are required' },
           { status: 400 }
-        )
-      }
+            )
+            }
       
-      if (!DROPDOWN_TYPES[type as keyof typeof DROPDOWN_TYPES]) {
-        return NextResponse.json(
+            if (!DROPDOWN_TYPES[type as keyof typeof DROPDOWN_TYPES]) {
+            return NextResponse.json(
           { success: false, error: 'Invalid dropdown type' },
           { status: 400 }
-        )
-      }
+            )
+            }
       
-      const config = DROPDOWN_TYPES[type as keyof typeof DROPDOWN_TYPES]
-      const trimmedValue = value.trim()
+            const config = DROPDOWN_TYPES[type as keyof typeof DROPDOWN_TYPES]
+            const trimmedValue = value.trim()
       
-      // Get current options to check for duplicates
-      const currentOptionsUrl = new URL(request.url)
-      currentOptionsUrl.searchParams.set('dropdown-options', 'true')
-      currentOptionsUrl.searchParams.set('type', type)
-      const currentOptionsResponse = await GET(new Request(currentOptionsUrl.toString()))
-      const currentOptionsData = await currentOptionsResponse.json()
+            // Get current options to check for duplicates
+            const currentOptionsUrl = new URL(request.url)
+            currentOptionsUrl.searchParams.set('dropdown-options', 'true')
+            currentOptionsUrl.searchParams.set('type', type)
+            const currentOptionsResponse = await GET(new Request(currentOptionsUrl.toString()))
+            const currentOptionsData = await currentOptionsResponse.json()
       
-      if (currentOptionsData.success && currentOptionsData.options.includes(trimmedValue)) {
-        return NextResponse.json({ 
+            if (currentOptionsData.success && currentOptionsData.options.includes(trimmedValue)) {
+            return NextResponse.json({ 
           success: true, 
           message: 'Option already exists',
           value: trimmedValue,
           type
-        })
-      }
+            })
+            }
       
-      // Find any course to store the dropdown options, or create a system course for options
-      let courseWithOptions = await Course.findOne({ [config.field]: { $exists: true } })
+            // Find any course to store the dropdown options, or create a system course for options
+            let courseWithOptions = await Course.findOne({ [config.field]: { $exists: true }, tenantId: session.tenantId })
       
-      if (!courseWithOptions) {
-        // Find any course to add the options field to
-        courseWithOptions = await Course.findOne({ isDeleted: { $ne: true } })
-      }
+            if (!courseWithOptions) {
+            // Find any course to add the options field to
+            courseWithOptions = await Course.findOne({ isDeleted: { $ne: true }, tenantId: session.tenantId })
+            }
       
-      if (courseWithOptions) {
-        // Add the new option to the existing options array
-        const currentOptions = (courseWithOptions as any)[config.field] || [...config.defaults]
-        const updatedOptions = [...new Set([...currentOptions, trimmedValue])].sort()
+            if (courseWithOptions) {
+            // Add the new option to the existing options array
+            const currentOptions = (courseWithOptions as any)[config.field] || [...config.defaults]
+            const updatedOptions = [...new Set([...currentOptions, trimmedValue])].sort()
         
-        await Course.updateOne(
+            await Course.updateOne(
           { _id: courseWithOptions._id },
           { $set: { [config.field]: updatedOptions } }
-        )
+            )
         
-        // Update all other courses to have the same dropdown options
-        await Course.updateMany(
+            // Update all other courses to have the same dropdown options
+            await Course.updateMany(
           { _id: { $ne: courseWithOptions._id } },
           { $set: { [config.field]: updatedOptions } }
-        )
-      } else {
-        // If no courses exist, create a system course just for storing dropdown options
-        const systemCourse = new Course({
+            )
+            } else {
+            // If no courses exist, create a system course just for storing dropdown options
+            const systemCourse = new Course({
           name: 'System Options Storage',
           status: 'Draft',
           instructor: 'System',
@@ -120,92 +127,92 @@ export async function POST(request: Request) {
           priceINR: 0,
           isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
           [config.field]: [...config.defaults, trimmedValue].sort()
-        })
+            })
         
-        await systemCourse.save()
-      }
+            await systemCourse.save()
+            }
       
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Option added successfully',
-        value: trimmedValue,
-        type
-      })
-    }
+            return NextResponse.json({ 
+            success: true, 
+            message: 'Option added successfully',
+            value: trimmedValue,
+            type
+            })
+          }
 
-    // Handle locations requests
-    if (body.action === 'add-location') {
-      const { name } = body
+          // Handle locations requests
+          if (body.action === 'add-location') {
+            const { name } = body
       
-      if (!name || typeof name !== 'string' || name.trim().length === 0) {
-        return NextResponse.json(
+            if (!name || typeof name !== 'string' || name.trim().length === 0) {
+            return NextResponse.json(
           { success: false, error: 'Location name is required' },
           { status: 400 }
-        )
-      }
+            )
+            }
       
-      const locationName = name.trim()
+            const locationName = name.trim()
       
-      // Get current locations to check for duplicates
-      const currentLocationsUrl = new URL(request.url)
-      currentLocationsUrl.searchParams.set('locations', 'true')
-      const currentLocationsResponse = await GET(new Request(currentLocationsUrl.toString()))
-      const currentLocationsData = await currentLocationsResponse.json()
+            // Get current locations to check for duplicates
+            const currentLocationsUrl = new URL(request.url)
+            currentLocationsUrl.searchParams.set('locations', 'true')
+            const currentLocationsResponse = await GET(new Request(currentLocationsUrl.toString()))
+            const currentLocationsData = await currentLocationsResponse.json()
       
-      if (currentLocationsData.success) {
-        const existingLocation = currentLocationsData.locations.find(
+            if (currentLocationsData.success) {
+            const existingLocation = currentLocationsData.locations.find(
           (loc: string) => loc.toLowerCase() === locationName.toLowerCase()
-        )
+            )
         
-        if (existingLocation) {
+            if (existingLocation) {
           return NextResponse.json({ 
             success: true, 
             location: existingLocation,
             message: 'Location already exists'
           })
-        }
-      }
+            }
+            }
       
-      const DEFAULT_LOCATIONS = [
-        'Studio A',
-        'Pool Area', 
-        'Music Room',
-        'Classroom 101',
-        'Basketball Court',
-        'Dance Studio',
-        'Virtual - Zoom',
-        'Virtual - Microsoft Teams',
-        'Virtual - Google Meet',
-        'Virtual - WebEx',
-        'Virtual - Other'
-      ]
+            const DEFAULT_LOCATIONS = [
+            'Studio A',
+            'Pool Area', 
+            'Music Room',
+            'Classroom 101',
+            'Basketball Court',
+            'Dance Studio',
+            'Virtual - Zoom',
+            'Virtual - Microsoft Teams',
+            'Virtual - Google Meet',
+            'Virtual - WebEx',
+            'Virtual - Other'
+            ]
       
-      // Find any course to store the locations, or create a system course
-      let courseWithLocations = await Course.findOne({ availableLocations: { $exists: true } })
+            // Find any course to store the locations, or create a system course
+            let courseWithLocations = await Course.findOne({ availableLocations: { $exists: true }, tenantId: session.tenantId })
       
-      if (!courseWithLocations) {
-        // Find any course to add the locations field to
-        courseWithLocations = await Course.findOne({ isDeleted: { $ne: true } })
-      }
+            if (!courseWithLocations) {
+            // Find any course to add the locations field to
+            courseWithLocations = await Course.findOne({ isDeleted: { $ne: true }, tenantId: session.tenantId })
+            }
       
-      if (courseWithLocations) {
-        // Add the new location to the existing locations array
-        const currentLocations = (courseWithLocations as any).availableLocations || [...DEFAULT_LOCATIONS]
-        const updatedLocations = [...new Set([...currentLocations, locationName])].sort()
+            if (courseWithLocations) {
+            // Add the new location to the existing locations array
+            const currentLocations = (courseWithLocations as any).availableLocations || [...DEFAULT_LOCATIONS]
+            const updatedLocations = [...new Set([...currentLocations, locationName])].sort()
         
-        await Course.updateOne(
+            await Course.updateOne(
           { _id: courseWithLocations._id },
           { $set: { availableLocations: updatedLocations } }
-        )
+            )
         
-        // Update all other courses to have the same location options
-        await Course.updateMany(
+            // Update all other courses to have the same location options
+            await Course.updateMany(
           { _id: { $ne: courseWithLocations._id } },
           { $set: { availableLocations: updatedLocations } }
-        )
-      } else {
-        // If no courses exist, create a system course just for storing locations
-        const systemCourse = new Course({
+            )
+            } else {
+            // If no courses exist, create a system course just for storing locations
+            const systemCourse = new Course({
           name: 'System Options Storage - Locations',
           status: 'Draft',
           instructor: 'System',
@@ -215,29 +222,29 @@ export async function POST(request: Request) {
           priceINR: 0,
           isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
           availableLocations: [...DEFAULT_LOCATIONS, locationName].sort()
-        })
+            })
         
-        await systemCourse.save()
-      }
+            await systemCourse.save()
+            }
       
-      return NextResponse.json({ 
-        success: true, 
-        location: locationName,
-        message: 'Location added successfully'
-      })
-    }
+            return NextResponse.json({ 
+            success: true, 
+            location: locationName,
+            message: 'Location added successfully'
+            })
+          }
 
-    // Handle bulk creation
-    if (Array.isArray(body)) {
-      console.log(`📊 Bulk creation requested for ${body.length} courses`)
+          // Handle bulk creation
+          if (Array.isArray(body)) {
+            console.log(`📊 Bulk creation requested for ${body.length} courses`)
       
-      // Generate sequential courseIds for ALL courses in bulk
-      const bulkBody = await Promise.all(body.map(async (course: any, idx: number) => {
-        try {
+            // Generate sequential courseIds for ALL courses in bulk
+            const bulkBody = await Promise.all(body.map(async (course: any, idx: number) => {
+            try {
           // Always generate a new sequential courseId for consistency
           course.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
           console.log(`🆔 Generated sequential courseId: ${course.courseId} for course: ${course.name || `Course ${idx + 1}`}`);
-        } catch (error) {
+            } catch (error) {
           console.error(`❌ Error generating courseId for course ${idx}:`, error);
           // Even in fallback, try to maintain sequence
           try {
@@ -247,20 +254,20 @@ export async function POST(request: Request) {
             // Last resort: timestamp with sequence
             course.courseId = `COURSE${String(Date.now() + idx).slice(-4)}`;
           }
-        }
-        return course;
-      }));
+            }
+            return course;
+            }));
       
-      const courses = await Course.insertMany(bulkBody);
-      console.log(`✅ Bulk creation successful: ${courses.length} courses created`)
+            const courses = await Course.insertMany(bulkBody);
+            console.log(`✅ Bulk creation successful: ${courses.length} courses created`)
       
-      // Update draft previews after creating new courses
-      await CourseIdManager.updateDraftPreviews();
+            // Update draft previews after creating new courses
+            await CourseIdManager.updateDraftPreviews();
       
-      // Transform the response to match frontend expectations
-      const transformedCourses = courses.map((course: any) => {
-        const courseObj = course.toObject()
-        return {
+            // Transform the response to match frontend expectations
+            const transformedCourses = courses.map((course: any) => {
+            const courseObj = course.toObject()
+            return {
           ...courseObj,
           id: courseObj.courseId || courseObj._id?.toString?.() || String(courseObj._id),
           name: courseObj.name,
@@ -268,128 +275,128 @@ export async function POST(request: Request) {
           priceINR: courseObj.priceINR,
           type: courseObj.type,
           status: courseObj.status || 'Active'
-        }
-      })
+            }
+            })
       
-      return NextResponse.json({ 
-        success: true, 
-        insertedCount: courses.length,
-        courses: transformedCourses
-      })
-    }
+            return NextResponse.json({ 
+            success: true, 
+            insertedCount: courses.length,
+            courses: transformedCourses
+            })
+          }
 
-    // Handle instructor field - support both name and ID
-    async function processInstructor(instructorData: any) {
-      if (!instructorData) return 'Unknown Instructor';
+          // Handle instructor field - support both name and ID
+          async function processInstructor(instructorData: any) {
+            if (!instructorData) return 'Unknown Instructor';
       
-      // If instructorId is provided, fetch the instructor name
-      if (body.instructorId) {
-        try {
+            // If instructorId is provided, fetch the instructor name
+            if (body.instructorId) {
+            try {
           const { User } = await import('@/models/dashboard')
           const instructor = await User.findById(body.instructorId).select('name')
           if (instructor) {
             return instructor.name
           }
-        } catch (error) {
+            } catch (error) {
           console.error('Error fetching instructor:', error)
-        }
-      }
+            }
+            }
       
-      // Fallback to instructor string processing
-      if (typeof instructorData === 'string') return instructorData;
-      if (typeof instructorData === 'object') {
-        if (instructorData.name) return instructorData.name;
-        if (instructorData.email) return instructorData.email;
-        if (instructorData.id) return instructorData.id;
-      }
-      return String(instructorData);
-    }
+            // Fallback to instructor string processing
+            if (typeof instructorData === 'string') return instructorData;
+            if (typeof instructorData === 'object') {
+            if (instructorData.name) return instructorData.name;
+            if (instructorData.email) return instructorData.email;
+            if (instructorData.id) return instructorData.id;
+            }
+            return String(instructorData);
+          }
 
-    if (body.instructor || body.instructorId) {
-      body.instructor = await processInstructor(body.instructor);
-    }
+          if (body.instructor || body.instructorId) {
+            body.instructor = await processInstructor(body.instructor);
+          }
 
-    if (body._id || body.id) {
-      const courseId = body._id || body.id
-      // For updates, do NOT change the courseId - preserve existing courseId
-      // Remove courseId from update data to prevent overwriting
-      const { courseId: _, ...updateData } = body;
+          if (body._id || body.id) {
+            const courseId = body._id || body.id
+            // For updates, do NOT change the courseId - preserve existing courseId
+            // Remove courseId from update data to prevent overwriting
+            const { courseId: _, ...updateData } = body;
       
-      const updatedCourse = await Course.findByIdAndUpdate(
-        courseId, 
-        updateData, 
-        { new: true, upsert: true, runValidators: true }
-      )
-      const transformedCourse = updatedCourse ? {
-        ...updatedCourse.toObject(),
-        id: updatedCourse.courseId || updatedCourse._id?.toString?.() || String(updatedCourse._id),
-        name: updatedCourse.name,
-        instructor: updatedCourse.instructor || 'Unknown Instructor',
-        priceINR: updatedCourse.priceINR,
-        type: updatedCourse.type,
-        status: updatedCourse.status || 'Active'
-      } : null
-      return NextResponse.json({ 
-        success: true, 
-        updated: true, 
-        course: transformedCourse 
-      })
-    }
+            const updatedCourse = await Course.findOneAndUpdate(
+            { _id: courseId, tenantId: session.tenantId },
+            updateData, 
+            { new: true, upsert: true, runValidators: true }
+            )
+            const transformedCourse = updatedCourse ? {
+            ...updatedCourse.toObject(),
+            id: updatedCourse.courseId || updatedCourse._id?.toString?.() || String(updatedCourse._id),
+            name: updatedCourse.name,
+            instructor: updatedCourse.instructor || 'Unknown Instructor',
+            priceINR: updatedCourse.priceINR,
+            type: updatedCourse.type,
+            status: updatedCourse.status || 'Active'
+            } : null
+            return NextResponse.json({ 
+            success: true, 
+            updated: true, 
+            course: transformedCourse 
+            })
+          }
 
-    // For single course creation, always generate sequential courseId
-    if (!body.courseId) {
-      try {
-        body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
-        console.log(`🆔 Generated sequential courseId: ${body.courseId} for single course: ${body.name}`);
-      } catch (error) {
-        console.error('❌ Error generating courseId with CourseIdManager:', error);
-        // Fallback: try non-atomic method
-        try {
+          // For single course creation, always generate sequential courseId
+          if (!body.courseId) {
+            try {
+            body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
+            console.log(`🆔 Generated sequential courseId: ${body.courseId} for single course: ${body.name}`);
+            } catch (error) {
+            console.error('❌ Error generating courseId with CourseIdManager:', error);
+            // Fallback: try non-atomic method
+            try {
           body.courseId = await CourseIdManager.getNextAvailableCourseId();
-        } catch (fallbackError) {
+            } catch (fallbackError) {
           console.error('❌ Fallback failed:', fallbackError);
           // Last resort
           body.courseId = `COURSE${String(Date.now()).slice(-4)}`;
-        }
-      }
-    }
+            }
+            }
+          }
 
-    // Final safety check: ensure the courseId doesn't already exist
-    const existingCourse = await Course.findOne({ courseId: body.courseId });
-    if (existingCourse) {
-      console.error(`❌ CourseId ${body.courseId} already exists! Generating new sequential ID...`);
-      // Generate a new sequential ID instead of random fallback
-      try {
-        body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
-        console.log(`🔄 Using new sequential courseId: ${body.courseId}`);
-      } catch (error) {
-        console.error('❌ Error generating replacement courseId:', error);
-        body.courseId = `COURSE${String(Date.now()).slice(-4)}_${Math.random().toString(36).substr(2, 3)}`;
-      }
-    }
+          // Final safety check: ensure the courseId doesn't already exist
+          const existingCourse = await Course.findOne({ courseId: body.courseId, tenantId: session.tenantId });
+          if (existingCourse) {
+            console.error(`❌ CourseId ${body.courseId} already exists! Generating new sequential ID...`);
+            // Generate a new sequential ID instead of random fallback
+            try {
+            body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
+            console.log(`🔄 Using new sequential courseId: ${body.courseId}`);
+            } catch (error) {
+            console.error('❌ Error generating replacement courseId:', error);
+            body.courseId = `COURSE${String(Date.now()).slice(-4)}_${Math.random().toString(36).substr(2, 3)}`;
+            }
+          }
     
-    const course = new Course(body)
-    await course.save()
+          const course = new Course(body)
+          await course.save()
     
-    // Update draft previews after creating new course
-    await CourseIdManager.updateDraftPreviews();
+          // Update draft previews after creating new course
+          await CourseIdManager.updateDraftPreviews();
     
-    const transformedCourse = {
-      ...course.toObject(),
-      id: course.courseId || course._id?.toString?.() || String(course._id),
-      name: course.name,
-      instructor: course.instructor || 'Unknown Instructor',
-      priceINR: course.priceINR,
-      type: course.type,
-      status: course.status || 'Active'
-    }
-    return NextResponse.json({ 
-      success: true, 
-      course: transformedCourse 
-    }, { status: 201 })
+          const transformedCourse = {
+            ...course.toObject(),
+            id: course.courseId || course._id?.toString?.() || String(course._id),
+            name: course.name,
+            instructor: course.instructor || 'Unknown Instructor',
+            priceINR: course.priceINR,
+            type: course.type,
+            status: course.status || 'Active'
+          }
+          return NextResponse.json({ 
+            success: true, 
+            course: transformedCourse 
+          }, { status: 201 })
     
-  } catch (error) {
-    console.error('❌ Course creation error:', error)
+        } catch (error) {
+          console.error('❌ Course creation error:', error)
     let message = "Failed to create course"
     let status = 500
     
@@ -405,21 +412,35 @@ export async function POST(request: Request) {
       success: false, 
       error: message 
     }, { status })
-  }
+      }
     }
-  );
+      );
 }
 
 export async function GET(request: Request) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      console.log('[Courses GET] Session data:', {
+    email: session?.email,
+    userId: session?.userId,
+    academyId: session?.academyId,
+    tenantId: session?.tenantId
+      });
+  
+      if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  try {
-    console.log('🔍 GET /api/courses - Fetching courses')
-    await dbConnect("uniqbrio")
-    console.log('✅ MongoDB connected successfully')
+      try {
+        console.log('🔍 GET /api/courses - Fetching courses')
+        await dbConnect("uniqbrio")
+        console.log('✅ MongoDB connected successfully')
     
     const { searchParams } = new URL(request.url)
     console.log('🔍 Search params:', Object.fromEntries(searchParams.entries()))
@@ -485,7 +506,7 @@ export async function GET(request: Request) {
       try {
         // First, try to get stored dropdown options from any course
         const courseWithOptions = await Course.findOne(
-          { [config.field]: { $exists: true, $not: { $size: 0 } } },
+          { [config.field]: { $exists: true, $not: { $size: 0 } }, tenantId: session.tenantId },
           { [config.field]: 1 }
         ).lean()
         
@@ -516,7 +537,8 @@ export async function GET(request: Request) {
             const courses = await Course.find(
               { 
                 isDeleted: { $ne: true },
-                [dataField]: { $exists: true, $ne: null }
+                [dataField]: { $exists: true, $ne: null },
+                tenantId: session.tenantId
               }, 
               { [dataField]: 1 }
             ).lean()
@@ -575,7 +597,7 @@ export async function GET(request: Request) {
       try {
         // Try to get stored locations from any course
         const courseWithLocations = await Course.findOne(
-          { availableLocations: { $exists: true, $not: { $size: 0 } } },
+          { availableLocations: { $exists: true, $not: { $size: 0 } }, tenantId: session.tenantId },
           { availableLocations: 1 }
         ).lean()
         
@@ -591,7 +613,8 @@ export async function GET(request: Request) {
           const coursesWithLocations = await Course.find(
             { 
               isDeleted: { $ne: true },
-              location: { $exists: true, $ne: null }
+              location: { $exists: true, $ne: null },
+              tenantId: session.tenantId
             }, 
             { location: 1 }
           ).lean()
@@ -626,6 +649,7 @@ export async function GET(request: Request) {
       const stats = await Course.aggregate([
         {
           $match: {
+            tenantId: session.tenantId,
             isDeleted: { $ne: true } // Exclude deleted courses from stats
           }
         },
@@ -673,8 +697,11 @@ export async function GET(request: Request) {
     
     // Build query based on search parameters
     const query: any = {
+      tenantId: session.tenantId,
       // Always exclude soft-deleted courses unless explicitly requested
-      isDeleted: { $ne: true }
+      isDeleted: { $ne: true },
+      // CRITICAL: Explicitly set tenantId to ensure tenant isolation
+      tenantId: session.tenantId
     }
     
     // If explicitly requesting deleted courses
@@ -773,7 +800,7 @@ export async function GET(request: Request) {
       }
     })
     
-  } catch (error) {
+      } catch (error) {
     console.error('Course fetch error:', error)
     let message = "Failed to fetch courses"
     if (error instanceof Error) message = error.message
@@ -782,18 +809,25 @@ export async function GET(request: Request) {
       success: false, 
       error: message 
     }, { status: 500 })
-  }
+      }
     }
-  );
+      );
 }
 
 export async function PUT(request: Request) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  try {
+      try {
     await dbConnect("uniqbrio")
     const body = await request.json()
     const { _id, ...updateData } = body
@@ -806,7 +840,7 @@ export async function PUT(request: Request) {
     }
     
     // Get the current course to check if status is changing
-    const currentCourse = await Course.findById(_id)
+    const currentCourse = await Course.findOne({ _id, tenantId: session.tenantId })
     if (!currentCourse) {
       return NextResponse.json({ 
         success: false, 
@@ -814,8 +848,8 @@ export async function PUT(request: Request) {
       }, { status: 404 })
     }
     
-    const course = await Course.findByIdAndUpdate(
-      _id, 
+    const course = await Course.findOneAndUpdate(
+      { _id, tenantId: session.tenantId },
       updateData, 
       { new: true, runValidators: true }
     )
@@ -837,7 +871,7 @@ export async function PUT(request: Request) {
           
           // Update all cohorts for this course to inactive status
           const cohortUpdateResult = await Cohort.updateMany(
-            { courseId: course.courseId || course._id },
+            { courseId: course.courseId || course._id, tenantId: session.tenantId },
             { status: 'Inactive', updatedAt: new Date() }
           )
           
@@ -865,7 +899,7 @@ export async function PUT(request: Request) {
       course: transformedCourse 
     })
     
-  } catch (error) {
+      } catch (error) {
     console.error('Course update error:', error)
     let message = "Failed to update course"
     let status = 500
@@ -881,18 +915,25 @@ export async function PUT(request: Request) {
       success: false, 
       error: message 
     }, { status })
-  }
+      }
     }
-  );
+      );
 }
 
 export async function DELETE(request: Request) {
-  const session = await getUserSession();
+      const session = await getUserSession();
   
-  return runWithTenantContext(
-    { tenantId: session?.tenantId || 'default' },
+      if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+      }
+  
+      return runWithTenantContext(
+    { tenantId: session.tenantId },
     async () => {
-  try {
+      try {
     await dbConnect("uniqbrio")
     const body = await request.json()
     const { _id, id, hardDelete = false } = body
@@ -912,9 +953,9 @@ export async function DELETE(request: Request) {
     }
     
     // Find the course to get its details
-    let course = await Course.findOne({ courseId: courseId })
+    let course = await Course.findOne({ courseId: courseId, tenantId: session.tenantId })
     if (!course && courseId.match(/^[0-9a-fA-F]{24}$/)) {
-      course = await Course.findById(courseId)
+      course = await Course.findOne({ _id: courseId, tenantId: session.tenantId })
     }
     
     if (!course) {
@@ -1005,7 +1046,7 @@ export async function DELETE(request: Request) {
     
     // Now soft delete the course (set isDeleted: true instead of actual deletion)
     let deletedCourse = await Course.findOneAndUpdate(
-      { courseId: courseId }, 
+      { courseId: courseId, tenantId: session.tenantId }, 
       { 
         isDeleted: true, 
         deletedAt: new Date() // Track when it was deleted
@@ -1016,8 +1057,8 @@ export async function DELETE(request: Request) {
     // If not found by courseId, try by MongoDB _id (for ObjectId)
     if (!deletedCourse && courseId.match(/^[0-9a-fA-F]{24}$/)) {
       console.log('🔍 Trying soft deletion by MongoDB _id:', courseId)
-      deletedCourse = await Course.findByIdAndUpdate(
-        courseId,
+      deletedCourse = await Course.findOneAndUpdate(
+        { _id: courseId, tenantId: session.tenantId },
         { 
           isDeleted: true, 
           deletedAt: new Date()
@@ -1055,7 +1096,7 @@ export async function DELETE(request: Request) {
       deletedCohortsCount
     })
     
-  } catch (error) {
+      } catch (error) {
     console.error('Course deletion error:', error)
     let message = "Failed to delete course"
     if (error instanceof Error) message = error.message
@@ -1064,7 +1105,7 @@ export async function DELETE(request: Request) {
       success: false, 
       error: message 
     }, { status: 500 })
-  }
+      }
     }
-  );
+      );
 }

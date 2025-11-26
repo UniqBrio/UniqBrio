@@ -11,12 +11,26 @@ import {
   verifyPaymentRecord,
   getStudentPaymentSummary,
 } from '@/lib/dashboard/payments/payment-record-service';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * POST /api/payments/payment-records
  * Create a new payment record
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -64,6 +78,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }
 
 /**
@@ -71,6 +86,18 @@ export async function POST(request: NextRequest) {
  * Get payment history for a specific payment
  */
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -178,4 +205,5 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }

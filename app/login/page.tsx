@@ -150,14 +150,25 @@ export default function LoginPage() {
   })
 
   // --- onSubmit Function (Keep the robust version from previous answer) ---
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement> | FormData) => {
+    // Prevent default form submission if it's an event
+    if ('preventDefault' in e) {
+      e.preventDefault();
+    }
+    
     setIsSubmitting(true);
-    console.log("[LoginPage] onSubmit: Attempting login with data:", { emailOrPhone: data.emailOrPhone });
+    
+    // Extract data based on input type
+    const data = 'preventDefault' in e 
+      ? Object.fromEntries(new FormData(e.currentTarget)) 
+      : e;
+    
+    console.log("[LoginPage] onSubmit: Attempting login with data:", { emailOrPhone: (data as any).emailOrPhone });
 
     try {
       const formData = new FormData();
-      formData.append("emailOrPhone", data.emailOrPhone);
-      formData.append("password", data.password);
+      formData.append("emailOrPhone", (data as any).emailOrPhone);
+      formData.append("password", (data as any).password);
       // formData.append("role", data.role); // Remove role from form submission
 
       const result = await login(formData);
@@ -229,7 +240,15 @@ export default function LoginPage() {
     // Keep your existing JSX structure here...
     // Wrap with AuthLayout
     <AuthLayout>
-      <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+      <form 
+        className="space-y-3" 
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(onSubmit)(e);
+        }}
+        method="post"
+        action="#"
+      >
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
 
         {/* Email or Phone */}

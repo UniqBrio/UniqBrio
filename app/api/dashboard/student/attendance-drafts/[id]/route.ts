@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import StudentAttendanceDraft from '@/models/dashboard/student/StudentAttendanceDraft';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 interface RouteParams {
   params: Promise<{
@@ -9,9 +11,21 @@ interface RouteParams {
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    await dbConnect("uniqbrio");
-    const { id } = await params;
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const { id } = await params;
 
     const draft = await StudentAttendanceDraft.findById(id);
     
@@ -22,27 +36,41 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: draft
-    });
-  } catch (error: any) {
-    console.error('Error fetching attendance draft:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch attendance draft',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({
+          success: true,
+          data: draft
+        });
+      } catch (error: any) {
+        console.error('Error fetching attendance draft:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to fetch attendance draft',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    await dbConnect("uniqbrio");
-    const { id } = await params;
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+        const { id } = await params;
 
     const body = await request.json();
     const {
@@ -90,27 +118,41 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: updatedDraft
-    });
+        return NextResponse.json({
+          success: true,
+          data: updatedDraft
+        });
 
-  } catch (error: any) {
-    console.error('Error updating attendance draft:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update attendance draft',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+      } catch (error: any) {
+        console.error('Error updating attendance draft:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to update attendance draft',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
     const { id } = await params;
 
     const deletedDraft = await StudentAttendanceDraft.findByIdAndDelete(id);
@@ -122,20 +164,22 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Attendance draft deleted successfully',
-      data: deletedDraft
-    });
-  } catch (error: any) {
-    console.error('Error deleting attendance draft:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to delete attendance draft',
-        message: error.message 
-      },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({
+          success: true,
+          message: 'Attendance draft deleted successfully',
+          data: deletedDraft
+        });
+      } catch (error: any) {
+        console.error('Error deleting attendance draft:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to delete attendance draft',
+            message: error.message 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

@@ -5,12 +5,26 @@ import PaymentTransaction from '@/models/dashboard/payments/PaymentTransaction';
 import { validateSubscriptionForm, validateRecurringPayment } from '@/lib/dashboard/payments/subscription-validation';
 import { generateInvoiceNumber } from '@/lib/dashboard/payments/payment-processing-service';
 import { dbConnect } from '@/lib/mongodb';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * POST /api/payments/monthly-subscriptions
  * Create a new monthly subscription and process first payment
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect();
     
@@ -157,6 +171,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }
 
 /**
@@ -164,6 +179,18 @@ export async function POST(request: NextRequest) {
  * Get monthly subscription for a student
  */
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect();
     
@@ -203,4 +230,5 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }

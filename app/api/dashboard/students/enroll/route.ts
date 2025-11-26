@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { enrollStudentInCohort } from '@/lib/dashboard/studentCohortSync';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { studentId, cohortId, action } = body;
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        const body = await request.json();
+        const { studentId, cohortId, action } = body;
 
     console.log(`🎓 [Enrollment API] ${action} request:`, { studentId, cohortId });
 
@@ -43,11 +54,13 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-  } catch (error) {
-    console.error('❌ [Enrollment API] Error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
-    }, { status: 500 });
-  }
+      } catch (error) {
+        console.error('❌ [Enrollment API] Error:', error);
+        return NextResponse.json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred'
+        }, { status: 500 });
+      }
+    }
+  );
 }

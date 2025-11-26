@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Course Draft Schema - specifically for draft courses
 const CourseDraftSchema = new mongoose.Schema({
@@ -58,8 +60,20 @@ async function generateNextDraftId(): Promise<string> {
 
 // POST - Create a new course draft
 export async function POST(req: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
     const body = await req.json();
     console.log('Creating course draft with data:', body);
@@ -132,6 +146,7 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }
 
 // GET - Fetch all course drafts

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { dbConnect } from '@/lib/mongodb';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define the Course schema
 const courseSchema = new mongoose.Schema({
@@ -39,12 +41,21 @@ const Course: mongoose.Model<CourseDocument> = mongoose.models.Course ||
   mongoose.model<CourseDocument>('Course', courseSchema);
 
 export async function GET() {
-  try {
-    await dbConnect("uniqbrio");
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
 
-    // Fetch courses
-    console.log('Fetching courses...');
-    const courses = await Course.find({}).lean();
+        // Fetch courses
+        console.log('Fetching courses...');
+        const courses = await Course.find({ tenantId: session.tenantId }).lean();
     
     if (!courses || courses.length === 0) {
       console.log('No courses found in database');
@@ -89,14 +100,16 @@ export async function GET() {
       }
     }
 
-    console.log(`Successfully found ${mapped.length} courses`);
-    return NextResponse.json(mapped);
+        console.log(`Successfully found ${mapped.length} courses`);
+        return NextResponse.json(mapped);
 
-  } catch (error: any) {
-    console.error('Error in GET /api/courses:', error);
-    return NextResponse.json({
-      error: 'Failed to fetch courses',
-      details: error.message
-    }, { status: 500 });
-  }
+      } catch (error: any) {
+        console.error('Error in GET /api/courses:', error);
+        return NextResponse.json({
+          error: 'Failed to fetch courses',
+          details: error.message
+        }, { status: 500 });
+      }
+    }
+  );
 }

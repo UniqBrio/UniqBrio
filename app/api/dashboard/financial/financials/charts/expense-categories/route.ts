@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { ExpenseModel } from '@/lib/dashboard/models';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET /api/financials/charts/expense-categories
 // Returns expense analysis by categories
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     // Test MongoDB connection first
     try {
@@ -43,7 +57,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build filters
-    let match: any = { ...dateFilter };
+    let match: any = { ...dateFilter, tenantId: session.tenantId };
     
     if (category && category !== 'all') {
       match.expenseCategory = category;
@@ -105,6 +119,8 @@ export async function GET(req: NextRequest) {
       stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
     }, { status: 500 });
   }
+    }
+  );
 }
 
 export const revalidate = 0;

@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { IncomeModel, ExpenseModel } from '@/lib/dashboard/models';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // GET /api/financials/charts/categories
 // Returns profit analysis by categories (both income and expense categories)
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     // Test MongoDB connection first
     try {
@@ -47,7 +61,7 @@ export async function GET(req: NextRequest) {
       ]
     } : {};
 
-    const match = { ...dateFilter, ...categoryFilter };
+    const match = { ...dateFilter, ...categoryFilter, tenantId: session.tenantId };
 
     // Aggregate income by category
     const incomeAgg = await IncomeModel.aggregate([
@@ -122,10 +136,11 @@ export async function GET(req: NextRequest) {
         totalExpenses: categoryData.reduce((sum, cat) => sum + cat.expense, 0)
       }
     });
-  } catch (e: any) {
-    console.error('Category charts API error', e);
-    return NextResponse.json({ error: 'Failed to load category data' }, { status: 500 });
-  }
+    } catch (e: any) {
+      console.error('Category charts API error', e);
+      return NextResponse.json({ error: 'Failed to load category data' }, { status: 500 });
+    }
+  });
 }
 
 export const revalidate = 0;

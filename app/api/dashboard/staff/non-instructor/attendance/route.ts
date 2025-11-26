@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import NonInstructorAttendanceModel from "@/models/dashboard/staff/NonInstructorAttendance"
 import { NonInstructorLeaveRequest } from "@/lib/dashboard/staff/models"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 function toUi(doc: any) {
   return {
@@ -19,12 +21,28 @@ function toYmd(d: Date) {
 }
 
 export async function GET() {
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     // Sync planned attendance from approved leave requests for today and future
     try {
       const today = toYmd(new Date())
-      const leaves = await NonInstructorLeaveRequest.find({ status: 'APPROVED', endDate: { $gte: today } }).lean()
+      const leaves = await NonInstructorLeaveRequest.find({ 
+        tenantId: session.tenantId,
+        status: 'APPROVED', 
+        endDate: { $gte: today } 
+      }).lean()
       if (leaves && leaves.length) {
         const ops: any[] = []
         for (const r of leaves) {
@@ -73,14 +91,28 @@ export async function GET() {
     } catch (e) {
       console.warn('Attendance planned sync failed', e)
     }
-    const items = await NonInstructorAttendanceModel.find({}).sort({ date: -1 }).lean()
+    const items = await NonInstructorAttendanceModel.find({ tenantId: session.tenantId }).sort({ date: -1 }).lean()
     return NextResponse.json({ success: true, data: items.map(toUi) })
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message || 'Failed to fetch attendance' }, { status: 500 })
   }
+    }
+  )
 }
 
 export async function POST(req: Request) {
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     const body = await req.json()
@@ -115,5 +147,7 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ success: false, error: e.message || 'Failed to create attendance' }, { status: 500 })
   }
+    }
+  )
 }
 
