@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useCustomColors } from '@/lib/use-custom-colors'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
@@ -8,7 +8,7 @@ import { Switch } from "@/components/dashboard/ui/switch"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Textarea } from "@/components/dashboard/ui/textarea"
-import { Bell, Mail, MessageSquare, Calendar, Activity, Save, Megaphone, Users, GraduationCap, Briefcase, UserCircle, CheckSquare, Info } from "lucide-react"
+import { Bell, Mail, MessageSquare, Calendar, Activity, Save, Megaphone, Users, GraduationCap, Briefcase, UserCircle, CheckSquare, Info, DollarSign } from "lucide-react"
 import { toast } from "@/components/dashboard/ui/use-toast"
 import {
   Dialog,
@@ -89,6 +89,56 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
     taskReminderTime: 1440,
     taskSoundEnabled: false,
   })
+  const [latestNotifications, setLatestNotifications] = useState<any[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(true)
+  const [notificationsError, setNotificationsError] = useState<string | null>(null)
+
+  const fetchLatestNotifications = async () => {
+    try {
+      setNotificationsLoading(true)
+      setNotificationsError(null)
+      const response = await fetch("/api/dashboard/recent-activities?limit=5")
+      if (!response.ok) {
+        throw new Error("Failed to fetch notifications")
+      }
+      const data = await response.json()
+      setLatestNotifications(data.notifications || [])
+    } catch (error) {
+      console.error("Error fetching latest notifications:", error)
+      setNotificationsError("Unable to load latest notifications right now.")
+    } finally {
+      setNotificationsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchLatestNotifications()
+  }, [])
+
+  const formatTimeAgo = (timestamp?: string) => {
+    if (!timestamp) return "Just now"
+    const eventTime = new Date(timestamp).getTime()
+    const diffMs = Date.now() - eventTime
+    const diffMinutes = Math.floor(diffMs / 60000)
+    if (diffMinutes < 1) return "Just now"
+    if (diffMinutes < 60) return `${diffMinutes}m ago`
+    const diffHours = Math.floor(diffMinutes / 60)
+    if (diffHours < 24) return `${diffHours}h ago`
+    const diffDays = Math.floor(diffHours / 24)
+    return `${diffDays}d ago`
+  }
+
+  const getNotificationVisuals = (type: string) => {
+    const visuals: Record<string, { color: string; bg: string; icon: typeof Bell }> = {
+      student_added: { color: primaryColor, bg: `${primaryColor}15`, icon: UserCircle },
+      course_added: { color: secondaryColor, bg: `${secondaryColor}15`, icon: Megaphone },
+      instructor_added: { color: "#0EA5E9", bg: "#E0F2FE", icon: GraduationCap },
+      staff_added: { color: "#F97316", bg: "#FFEDD5", icon: Briefcase },
+      payment_received: { color: "#16A34A", bg: "#DCFCE7", icon: DollarSign },
+      income_added: { color: "#9333EA", bg: "#F3E8FF", icon: Activity },
+    }
+    return visuals[type] || { color: primaryColor, bg: `${primaryColor}15`, icon: Bell }
+  }
 
   const handleToggle = (key: string, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
@@ -172,6 +222,80 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
           Disable All
         </Button>
       </div>
+
+      {/* Latest Notifications Preview */}
+      <Card className="border-dashed">
+        <CardHeader>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" style={{ color: primaryColor }} />
+                Latest Notifications
+              </CardTitle>
+              <CardDescription>
+                A snapshot of the most recent activities pulled from your tenant stash
+              </CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchLatestNotifications}
+              disabled={notificationsLoading}
+              className="gap-2"
+            >
+              <Bell className="h-4 w-4" />
+              {notificationsLoading ? "Refreshing..." : "Refresh"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {notificationsLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-1/2 bg-gray-100 rounded animate-pulse" />
+                    <div className="h-3 w-3/4 bg-gray-100 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : notificationsError ? (
+            <div className="flex items-center justify-between gap-3 p-3 rounded border border-dashed">
+              <p className="text-sm text-gray-600 dark:text-white">{notificationsError}</p>
+              <Button size="sm" onClick={fetchLatestNotifications} variant="outline">
+                Try again
+              </Button>
+            </div>
+          ) : latestNotifications.length === 0 ? (
+            <div className="p-4 text-center text-sm text-gray-500 dark:text-white border rounded-lg border-dashed">
+              No recent notifications to show. They will appear here once your stash has fresh activity.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {latestNotifications.map((item) => {
+                const visuals = getNotificationVisuals(item.type || "")
+                const Icon = visuals.icon
+                return (
+                  <div key={item.id} className="flex items-start gap-3 rounded-lg border px-3 py-2 bg-white dark:bg-gray-900">
+                    <div className="p-2 rounded-full" style={{ backgroundColor: visuals.bg }}>
+                      <Icon className="h-4 w-4" style={{ color: visuals.color }} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{item.title}</p>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">{formatTimeAgo(item.timestamp)}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-white mt-0.5">{item.message}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Communication Preferences */}
       <Card>

@@ -44,6 +44,11 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const [selectedColors, setSelectedColors] = useState<string[]>(
     customColors || DEFAULT_COLORS
   )
+  const primaryPreviewColor = selectedColors[0] || DEFAULT_COLORS[0]
+  const secondaryPreviewColor = selectedColors[1] || selectedColors[0] || DEFAULT_COLORS[1]
+  const gradientPreviewStyle = {
+    backgroundImage: `linear-gradient(135deg, ${primaryPreviewColor} 0%, ${secondaryPreviewColor} 100%)`,
+  }
   const [dateFormats, setDateFormats] = useState<DateFormat[]>([])
   const [currencies, setCurrencies] = useState<Currency[]>([])
   const [currencySearch, setCurrencySearch] = useState("")
@@ -575,18 +580,78 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                 ))}
               </div>
 
-              {/* Color Preview */}
-              <div className="p-4 border rounded-lg bg-white dark:bg-gray-900">
-                <p className="text-sm font-medium mb-3">Color Preview</p>
-                <div className="flex gap-2 flex-wrap">
-                  {selectedColors.map((color, index) => (
-                    <div
-                      key={index}
-                      className="w-16 h-16 rounded-lg shadow-md border-2 border-gray-200 transition-transform hover:scale-105"
-                      style={{ backgroundColor: color }}
-                      title={`Color ${index + 1}: ${color}`}
-                    />
-                  ))}
+              {/* Theme Preview inspired by design stash */}
+              <div className="p-4 border rounded-2xl bg-white dark:bg-gray-900">
+                <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
+                  <p className="text-sm font-semibold">Theme Preview</p>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Stash-style mock surface</span>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div
+                    className="rounded-2xl p-5 text-white shadow-lg min-h-[180px] flex flex-col justify-between overflow-hidden"
+                    style={gradientPreviewStyle}
+                  >
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.25em] opacity-80">Gradient Banner</p>
+                      <p className="text-xl font-semibold mt-2">Primary Hero</p>
+                      <p className="text-sm opacity-90">Visualize how gradients appear across the Stash experience.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-[11px] font-semibold">
+                      <span className="px-2 py-1 rounded-full bg-black/25 backdrop-blur">Primary · {primaryPreviewColor}</span>
+                      <span className="px-2 py-1 rounded-full bg-black/25 backdrop-blur">Secondary · {secondaryPreviewColor}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        className="px-4 py-2 rounded-lg text-sm font-semibold text-white shadow transition-transform hover:scale-[1.01]"
+                        style={{ backgroundColor: primaryPreviewColor }}
+                        disabled
+                      >
+                        Primary Button
+                      </button>
+                      <button
+                        type="button"
+                        className="px-4 py-2 rounded-lg text-sm font-semibold border transition-colors"
+                        style={{
+                          color: secondaryPreviewColor,
+                          borderColor: secondaryPreviewColor,
+                          backgroundColor: `${secondaryPreviewColor}14`,
+                        }}
+                        disabled
+                      >
+                        Secondary Button
+                      </button>
+                      <span
+                        className="px-3 py-1 text-xs font-semibold rounded-full border"
+                        style={{
+                          color: secondaryPreviewColor,
+                          borderColor: `${secondaryPreviewColor}80`,
+                          backgroundColor: `${secondaryPreviewColor}14`,
+                        }}
+                      >
+                        Stash Badge
+                      </span>
+                    </div>
+                    <div className="rounded-xl border border-dashed p-3">
+                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Palette Chips</p>
+                      <div className="flex gap-3 flex-wrap">
+                        {selectedColors.map((color, index) => (
+                          <div key={`${color}-${index}`} className="flex items-center gap-2">
+                            <div
+                              className="w-10 h-10 rounded-lg border shadow-sm"
+                              style={{ backgroundColor: color }}
+                              title={`Color ${index + 1}: ${color}`}
+                            />
+                            <span className="text-xs font-semibold text-gray-600 dark:text-gray-200">
+                              {(color || "").toUpperCase()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
