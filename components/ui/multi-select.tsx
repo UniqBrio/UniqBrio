@@ -28,11 +28,11 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="border rounded-md p-1 px-3 flex min-h-10 items-center text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <div className="border rounded-md p-1 px-3 flex min-h-10 items-center text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 bg-background">
           {selected.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {selected.map((item: string) => (
-                <Badge key={item} variant="secondary" className="flex items-center gap-1">
+                <Badge key={item} className="flex items-center gap-1 bg-purple-600 text-white hover:bg-purple-700">
                   {options.find((option: MultiSelectOption) => option.value === item)?.label || item}
                   <button
                     className="rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -47,7 +47,7 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
                     }}
                     onClick={() => handleUnselect(item)}
                   >
-                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                    <X className="h-3 w-3 text-white hover:text-gray-200" />
                   </button>
                 </Badge>
               ))}
@@ -57,9 +57,9 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
           )}
         </div>
       </PopoverTrigger>
-  <PopoverContent className="p-0 bg-popover" align="start">
-        <Command>
-          <div className="flex items-center px-3 pt-3 pb-1 gap-2">
+  <PopoverContent className="p-0 bg-background border border-border" align="start">
+        <Command className="bg-background">
+          <div className="flex items-center px-3 pt-3 pb-1 gap-2 bg-background">
             <CommandInput placeholder={placeholder} className="flex-1" />
             <div className="relative group">
               <button
@@ -86,9 +86,9 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
               </span>
             </div>
           </div>
-          <CommandList>
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto bg-popover">
+          <CommandList className="bg-background">
+            <CommandEmpty className="bg-background text-foreground">No options found.</CommandEmpty>
+            <CommandGroup className="max-h-64 overflow-auto bg-background">
               {options.map((option: MultiSelectOption) => (
                 <CommandItem
                   key={option.value}
@@ -100,11 +100,17 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
                     )
                     setOpen(true)
                   }}
-                  className="focus:bg-orange-500 focus:text-white hover:bg-orange-500 hover:text-white"
+                  className={`cursor-pointer ${
+                    selected.includes(option.value)
+                      ? "bg-purple-600 text-white hover:bg-purple-700"
+                      : "hover:bg-purple-600 hover:text-white focus:bg-purple-600 focus:text-white"
+                  }`}
                 >
                   <div
-                    className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
-                      selected.includes(option.value) ? "bg-primary text-primary-foreground" : "opacity-50"
+                    className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border ${
+                      selected.includes(option.value) 
+                        ? "bg-white border-white text-purple-600" 
+                        : "border-primary opacity-50"
                     }`}
                   >
                     {selected.includes(option.value) && <X className="h-3 w-3" />}

@@ -22,6 +22,10 @@ export interface BusinessInfo {
   businessNameFile: File | null;
   pincode: string;
   taxId: string;
+  // R2 uploaded image URLs (set after upload)
+  businessLogoUrl?: string;
+  businessNameUploadUrl?: string;
+  profilePictureUrl?: string;
 }
 
 export interface AdminInfo {

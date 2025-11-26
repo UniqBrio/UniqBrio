@@ -141,7 +141,7 @@ export default function RegistrationForm() {
     setIsSubmitting(true)
 
     try {
-      // Remove file objects from businessInfo before sending
+      // Upload images to R2 bucket first
       const { businessInfo, ...rest } = formState;
       const {
         logo,
@@ -149,10 +149,59 @@ export default function RegistrationForm() {
         businessNameFile,
         ...serializableBusinessInfo
       } = businessInfo;
+
+      let uploadedImageUrls: {
+        businessLogoUrl?: string;
+        businessNameUploadUrl?: string;
+        profilePictureUrl?: string;
+      } = {};
+
+      // Upload business images if any are provided
+      if (logo || businessNameFile || profilePicture) {
+        const imageFormData = new FormData();
+        
+        if (logo) {
+          imageFormData.append("businessLogo", logo);
+        }
+        if (businessNameFile) {
+          imageFormData.append("businessNameUpload", businessNameFile);
+        }
+        if (profilePicture) {
+          imageFormData.append("profilePicture", profilePicture);
+        }
+        imageFormData.append("businessName", businessInfo.businessName || "academy");
+
+        console.log("[Registration] Uploading business images...");
+        const uploadResponse = await fetch("/api/business-upload", {
+          method: "POST",
+          body: imageFormData,
+        });
+
+        const uploadData = await uploadResponse.json();
+        
+        if (!uploadResponse.ok || !uploadData.success) {
+          throw new Error(uploadData.error || "Failed to upload images");
+        }
+
+        uploadedImageUrls = {
+          businessLogoUrl: uploadData.businessLogoUrl,
+          businessNameUploadUrl: uploadData.businessNameUploadUrl,
+          profilePictureUrl: uploadData.profilePictureUrl,
+        };
+
+        console.log("[Registration] Images uploaded successfully:", uploadedImageUrls);
+      }
+
+      // Prepare payload with uploaded image URLs
       const payload = {
-        businessInfo: serializableBusinessInfo,
+        businessInfo: {
+          ...serializableBusinessInfo,
+          ...uploadedImageUrls,
+        },
         ...rest,
       };
+
+      console.log("[Registration] Submitting registration with image URLs...");
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -552,8 +552,17 @@ useEffect(() => {
             options={getServiceOptions(formState.businessInfo.industryType)}
             selected={formState.businessInfo.servicesOffered}
             onChange={(selected: string[]) => handleInputChange("servicesOffered", selected)}
-            placeholder="Select services offered"
+            placeholder={
+              formState.businessInfo.industryType 
+                ? "Select services offered" 
+                : "Please select Industry Type first"
+            }
           />
+          {!formState.businessInfo.industryType && (
+            <p className="text-xs text-amber-600 mt-1">
+              ⚠️ Please select an Industry Type above to see available services
+            </p>
+          )}
         </div>
 
         {/* Student/Client Size */}
@@ -754,7 +763,7 @@ useEffect(() => {
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleLogoChange}
-                className="cursor-pointer"
+                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
               />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: 2MB</p>
               {logoPreview && (
@@ -776,7 +785,7 @@ useEffect(() => {
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleBusinessNameFileChange}
-                className="cursor-pointer"
+                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:cursor-pointer"
               />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: 2MB</p>
               {formState.businessInfo.businessNameFile && (
@@ -792,7 +801,7 @@ useEffect(() => {
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleProfilePictureChange}
-                className="cursor-pointer"
+                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
               />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: 2MB</p>
               {profilePicturePreview && (
