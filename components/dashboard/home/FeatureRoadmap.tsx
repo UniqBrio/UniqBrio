@@ -9,6 +9,7 @@ import {
   Calendar as CalendarIcon,
   Heart,
 } from "lucide-react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface Feature {
   title: string;
@@ -172,7 +173,10 @@ export function FeatureRoadmap({ className = "" }: FeatureRoadmapProps) {
   return (
     <section className={`${className}`} aria-labelledby="roadmap-heading">
       <Card className="border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900">
-        <CardHeader className="pb-6 bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-500 relative overflow-hidden">
+        <CardHeader 
+          className="pb-6 relative overflow-hidden"
+          style={{ background: `linear-gradient(135deg, var(--custom-color-1), var(--custom-color-2))` }}
+        >
           {/* Decorative gradient orbs */}
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>

@@ -21,12 +21,14 @@ import {
   LabelList
 } from "recharts";
 import type { LeaveRecord } from "./types"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface LeaveAnalyticsProps {
   leaveData: LeaveRecord[];
 }
 
 export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const analytics = useMemo(() => {
     if (!leaveData || leaveData.length === 0) {
       return {
@@ -259,7 +261,14 @@ export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
 
   if (!analytics.totalLeaves) {
     return (
-      <div className="rounded-lg border border-dashed border-purple-200 bg-purple-50 p-6 text-center text-sm text-purple-600">
+      <div
+        className="rounded-lg border border-dashed p-6 text-center text-sm"
+        style={{
+          borderColor: `${primaryColor}55`,
+          background: `color-mix(in oklab, ${primaryColor} 10%, white)`,
+          color: primaryColor,
+        }}
+      >
         No leave data available yet. Once leave records are created, this area will populate with insights automatically.
       </div>
     );
@@ -279,18 +288,20 @@ export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <Card className="rounded-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100/50 p-6 shadow-sm">
+        <Card className="rounded-xl border-0 p-6 shadow-sm"
+              style={{ background: `linear-gradient(135deg, color-mix(in oklab, ${secondaryColor} 10%, white), color-mix(in oklab, ${secondaryColor} 20%, white))` }}>
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-orange-600 mb-1">Total Leaves</h3>
+              <h3 className="text-sm font-medium mb-1" style={{ color: secondaryColor }}>Total Leaves</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-orange-700">{analytics.thisMonthLeaves}</span>
+                <span className="text-3xl font-bold" style={{ color: secondaryColor }}>{analytics.thisMonthLeaves}</span>
               </div>
-              <p className="text-xs text-orange-600 mt-1">This month</p>
+              <p className="text-xs mt-1" style={{ color: secondaryColor }}>This month</p>
             </div>
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-lg bg-orange-200/50 flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-orange-600" />
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center"
+                   style={{ background: `color-mix(in oklab, ${secondaryColor} 20%, transparent)` }}>
+                <Calendar className="h-6 w-6" style={{ color: secondaryColor }} />
               </div>
             </div>
           </div>
@@ -338,13 +349,13 @@ export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
         
 
         {/* Cohorts Impacted Bar Chart */}
-        <Card className="shadow-sm border border-purple-200">
+        <Card className="shadow-sm" style={{ border: `1px solid ${primaryColor}33` }}>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-purple-800">
+            <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
               <CalendarDays className="h-4 w-4" />
               Cohorts Impacted
             </CardTitle>
-            <p className="text-sm text-purple-600">
+            <p className="text-sm" style={{ color: primaryColor }}>
               Leave distribution across cohorts
             </p>
           </CardHeader>
@@ -361,22 +372,22 @@ export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
                   }))}
                   margin={{ top: 25, right: 5, left: 5, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="2 2" stroke="#e9d5ff" opacity={0.4} />
+                  <CartesianGrid strokeDasharray="2 2" stroke={`${primaryColor}22`} opacity={0.7} />
                   <XAxis 
                     dataKey="name"
                     angle={0}
                     textAnchor="middle"
                     height={60}
-                    style={{ fontSize: '10px', fill: '#6b21a8' }}
-                    axisLine={{ stroke: '#c4b5fd', strokeWidth: 1 }}
-                    tickLine={{ stroke: '#c4b5fd' }}
-                    label={{ value: 'Cohorts', position: 'insideBottom', offset: 0, style: { fontSize: '12px', fill: '#6b21a8' } }}
+                    style={{ fontSize: '10px', fill: primaryColor }}
+                    axisLine={{ stroke: `${primaryColor}55`, strokeWidth: 1 }}
+                    tickLine={{ stroke: `${primaryColor}55` }}
+                    label={{ value: 'Cohorts', position: 'insideBottom', offset: 0, style: { fontSize: '12px', fill: primaryColor } }}
                   />
                   <YAxis 
-                    style={{ fontSize: '11px', fill: '#6b21a8' }}
-                    axisLine={{ stroke: '#c4b5fd', strokeWidth: 1 }}
-                    tickLine={{ stroke: '#c4b5fd' }}
-                    label={{ value: 'Number of Leaves', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fill: '#6b21a8', textAnchor: 'middle' } }}
+                    style={{ fontSize: '11px', fill: primaryColor }}
+                    axisLine={{ stroke: `${primaryColor}55`, strokeWidth: 1 }}
+                    tickLine={{ stroke: `${primaryColor}55` }}
+                    label={{ value: 'Number of Leaves', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fill: primaryColor, textAnchor: 'middle' } }}
                     domain={[0, (dataMax: number) => Math.max(1, Math.ceil(dataMax) + 1)]}
                   />
                   <Tooltip 
@@ -387,7 +398,7 @@ export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
                     }}
                     contentStyle={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                      border: '1px solid #c4b5fd', 
+                      border: `1px solid ${primaryColor}55`, 
                       borderRadius: '6px',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       whiteSpace: 'pre-line'
@@ -395,13 +406,13 @@ export function LeaveAnalytics({ leaveData }: LeaveAnalyticsProps) {
                   />
                   <Bar 
                     dataKey="leaves" 
-                    fill="#8b5cf6"
+                    fill={primaryColor}
                     radius={[4, 4, 0, 0]}
                   >
                     <LabelList 
                       dataKey="leaves" 
                       position="top" 
-                      style={{ fontSize: '12px', fontWeight: 'bold', fill: '#6b21a8' }}
+                      style={{ fontSize: '12px', fontWeight: 'bold', fill: primaryColor }}
                       offset={5}
                     />
                   </Bar>

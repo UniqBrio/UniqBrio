@@ -25,6 +25,7 @@ import {
   Activity,
   Megaphone
 } from "lucide-react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface NotificationTemplateDialogProps {
   type: "cohort" | "instructor" | "non-instructor" | "student" | "schedule" | "task"
@@ -33,6 +34,7 @@ interface NotificationTemplateDialogProps {
 }
 
 export function NotificationTemplateDialog({ type, open, onOpenChange }: NotificationTemplateDialogProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const getConfig = () => {
     switch (type) {
       case "cohort":
@@ -845,7 +847,7 @@ Please complete this task as soon as possible.`
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Icon className="h-5 w-5 text-purple-600" />
+            <Icon className="h-5 w-5" style={{ color: primaryColor }} />
             {config.title}
           </DialogTitle>
           <DialogDescription>
@@ -919,8 +921,8 @@ Please complete this task as soon as possible.`
           </TabsContent>
         </Tabs>
 
-        <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <h4 className="font-semibold text-sm mb-2 text-purple-900">Available Variables</h4>
+        <div className="mt-6 p-4 rounded-lg border" style={{ backgroundColor: `${primaryColor}10`, borderColor: `${primaryColor}40` }}>
+          <h4 className="font-semibold text-sm mb-2" style={{ color: `${primaryColor}dd` }}>Available Variables</h4>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {config.variables.map((variable, index) => (
               <div key={index}>
@@ -936,11 +938,12 @@ Please complete this task as soon as possible.`
 
 export function NotificationTemplateButton({ type }: { type: "cohort" | "instructor" | "non-instructor" | "student" | "schedule" | "task" }) {
   const [open, setOpen] = useState(false)
+  const { primaryColor } = useCustomColors()
 
   return (
     <>
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(true)}>
-        <Info className="h-5 w-5 text-purple-600" />
+        <Info className="h-5 w-5" style={{ color: primaryColor }} />
       </Button>
       <NotificationTemplateDialog type={type} open={open} onOpenChange={setOpen} />
     </>

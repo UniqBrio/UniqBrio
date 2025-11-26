@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect, useMemo } from "react"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { v4 as uuidv4 } from "uuid"
 import Image from "next/image"
 
@@ -83,6 +84,7 @@ type CourseNumberingStrategy = 'sequential' | 'uuid'
 
 export default function EnhancedCourseManagementPage() {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   
   function GridIcon({ className = "w-6 h-6" }) {
     return (
@@ -1026,28 +1028,48 @@ export default function EnhancedCourseManagementPage() {
               <TabsList className="grid w-full grid-cols-4 mb-6 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  style={{
+                    borderColor: secondaryColor,
+                    color: secondaryColor,
+                    ...(currentTab === 'dashboard' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                  }}
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger 
                   value="courses" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  style={{
+                    borderColor: secondaryColor,
+                    color: secondaryColor,
+                    ...(currentTab === 'courses' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                  }}
                 >
                   <BookOpen className="h-4 w-4" />
                   Courses
                 </TabsTrigger>
                 <TabsTrigger 
                   value="cohorts" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  style={{
+                    borderColor: secondaryColor,
+                    color: secondaryColor,
+                    ...(currentTab === 'cohorts' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                  }}
                 >
                   <Users className="h-4 w-4" />
                   Cohorts
                 </TabsTrigger>
                 <TabsTrigger 
                   value="settings" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  style={{
+                    borderColor: secondaryColor,
+                    color: secondaryColor,
+                    ...(currentTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                  }}
                 >
                   <Settings className="h-4 w-4" />
                   Settings
@@ -1255,10 +1277,10 @@ export default function EnhancedCourseManagementPage() {
                     />
                     
                     {/* Results Counter */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 rounded-lg border" style={{ background: `linear-gradient(to right, ${primaryColor}0D, ${secondaryColor}0D)`, borderColor: `${primaryColor}33` }}>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 dark:bg-purple-400 rounded-full"></div>
-                        <span className="text-sm font-medium text-purple-700">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+                        <span className="text-sm font-medium" style={{ color: primaryColor }}>
                           {filteredAndSortedCourses.length} course{filteredAndSortedCourses.length !== 1 ? 's' : ''} found
                         </span>
                       </div>
@@ -1269,7 +1291,8 @@ export default function EnhancedCourseManagementPage() {
                             variant="outline"
                             size="icon"
                             onClick={columnManagement.openColumnSelector}
-                            className="h-8 w-8 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-800/30"
+                            className="h-8 w-8 bg-opacity-10"
+                            style={{ borderColor: `${primaryColor}33`, backgroundColor: `${primaryColor}0D`, color: primaryColor }}
                             title="Column Selection"
                           >
                             <GridIcon className="h-4 w-4" />
@@ -1316,11 +1339,25 @@ export default function EnhancedCourseManagementPage() {
                     {/* Settings Sub-Tabs */}
                     <Tabs defaultValue="course-settings" className="w-full">
                       <TabsList className="grid w-full grid-cols-2 mb-6 bg-transparent gap-2 p-0 h-auto">
-                        <TabsTrigger value="course-settings" className="flex items-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700">
+                        <TabsTrigger 
+                          value="course-settings" 
+                          className="flex items-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                          style={{
+                            borderColor: secondaryColor,
+                            color: secondaryColor
+                          }}
+                        >
                           <BookOpen className="h-4 w-4" />
                           Course Settings
                         </TabsTrigger>
-                        <TabsTrigger value="cohort-settings" className="flex items-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700">
+                        <TabsTrigger 
+                          value="cohort-settings" 
+                          className="flex items-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                          style={{
+                            borderColor: secondaryColor,
+                            color: secondaryColor
+                          }}
+                        >
                           <Users className="h-4 w-4" />
                           Cohort Settings
                         </TabsTrigger>

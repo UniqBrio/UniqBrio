@@ -3,6 +3,7 @@
 import { useState, useRef } from "react"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, Upload, Download, Check, X, Plus } from "lucide-react"
 import "./SearchAndFilters.css"
 import {
@@ -136,6 +137,7 @@ export default function CohortSearchAndFilters({
   onExport,
   selectedCount = 0
 }: CohortSearchAndFiltersProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [filterAction, setFilterAction] = useState<string | null>(null);
   const firstCheckboxRef = useRef<HTMLInputElement | null>(null);
@@ -321,7 +323,7 @@ export default function CohortSearchAndFilters({
               tabIndex={0}
             >
               <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:text-white transition-colors" />
+                <Filter className="h-3.5 w-3.5 group-hover:text-white transition-colors" style={{ color: primaryColor }} />
                 {filterAction === "applied" && (
                   <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                     <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -461,7 +463,10 @@ export default function CohortSearchAndFilters({
             <div className="flex gap-2 mt-6">
               <Button
                 size="sm"
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                className="flex-1 text-white"
+                style={{ backgroundColor: primaryColor }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                 onClick={() => {
                   console.log('Applying filters:', pendingFilters);
                   setSelectedFilters({ ...pendingFilters });
@@ -551,7 +556,10 @@ export default function CohortSearchAndFilters({
             variant={viewMode === "list" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("list")}
-            className={`rounded-r-none ${viewMode === "list" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+            className="rounded-r-none"
+            style={viewMode === "list" ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => viewMode === "list" ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => viewMode === "list" ? e.currentTarget.style.backgroundColor = primaryColor : null}
            
             title="List View"
           >
@@ -565,7 +573,10 @@ export default function CohortSearchAndFilters({
             variant={viewMode === "grid" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("grid")}
-            className={`rounded-l-none border-l ${viewMode === "grid" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+            className="rounded-l-none border-l"
+            style={viewMode === "grid" ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => viewMode === "grid" ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => viewMode === "grid" ? e.currentTarget.style.backgroundColor = primaryColor : null}
             title="Grid View"
           >
             <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
@@ -613,7 +624,8 @@ export default function CohortSearchAndFilters({
             size="sm"
             onClick={onAddCohort}
             title="Add New Cohort"
-            className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
+            className="w-full sm:w-auto"
+            style={{ backgroundColor: primaryColor, color: 'white' }}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Cohorts

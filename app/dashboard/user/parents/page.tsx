@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import React, { useMemo, useState, useCallback } from "react"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -49,18 +50,18 @@ import ParentHeroSection from "@/components/dashboard/parents/ParentHeroSection"
 import ParentStatisticsCards from "@/components/dashboard/parents/ParentStatisticsCards"
 
 // Grid icon component for column selector
-function GridIcon({ className = "w-6 h-6" }) {
+function GridIcon({ className = "w-6 h-6", color = "#7C3AED" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+      <rect x="3" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="17" width="5" height="5" rx="1.5" fill={color} />
     </svg>
   );
 }
@@ -71,6 +72,7 @@ interface ParentFilters {
 }
 
 export default function ParentsPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const { currency } = useCurrency()
   const { toast } = useToast()
   const [loading, setLoading] = useState<boolean>(false)
@@ -367,14 +369,34 @@ export default function ParentsPage() {
             <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
               <TabsTrigger
                 value="analytics"
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  backgroundColor: 'transparent'
+                }}
+                data-active-style={{
+                  backgroundColor: primaryColor,
+                  color: 'white',
+                  borderColor: 'transparent'
+                }}
               >
                 <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
                 Analytics
               </TabsTrigger>
               <TabsTrigger
                 value="parents"
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  backgroundColor: 'transparent'
+                }}
+                data-active-style={{
+                  backgroundColor: primaryColor,
+                  color: 'white',
+                  borderColor: 'transparent'
+                }}
               >
                 <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                 All Parents
@@ -413,9 +435,9 @@ export default function ParentsPage() {
                   <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" size="sm" className="h-9" title="Filter">
-                        <Filter className="h-3.5 w-3.5 text-purple-500" />
+                        <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                         {(filters.categories.length > 0 || filters.paymentStatuses.length > 0) && (
-                          <span className="ml-2 inline-flex items-center justify-center bg-purple-500 text-white rounded-full h-5 w-5 text-xs font-bold">
+                          <span className="ml-2 inline-flex items-center justify-center text-white rounded-full h-5 w-5 text-xs font-bold" style={{ backgroundColor: primaryColor }}>
                             {filters.categories.length + filters.paymentStatuses.length}
                           </span>
                         )}
@@ -443,7 +465,7 @@ export default function ParentsPage() {
                                 />
                                 <span className="text-sm text-gray-700 dark:text-white">{option}</span>
                                 {pendingFilters.categories.includes(option) && (
-                                  <Check className="h-4 w-4 text-purple-500 ml-auto" />
+                                  <Check className="h-4 w-4 ml-auto" style={{ color: primaryColor }} />
                                 )}
                               </label>
                             ))}
@@ -470,7 +492,7 @@ export default function ParentsPage() {
                                 />
                                 <span className="text-sm text-gray-700 dark:text-white">{option}</span>
                                 {pendingFilters.paymentStatuses.includes(option) && (
-                                  <Check className="h-4 w-4 text-purple-500 ml-auto" />
+                                  <Check className="h-4 w-4 ml-auto" style={{ color: primaryColor }} />
                                 )}
                               </label>
                             ))}
@@ -546,14 +568,14 @@ export default function ParentsPage() {
                         <DropdownMenuItem onClick={() => { setSortBy('name'); setSortOrder('asc') }} className="cursor-pointer">
                           <div className="flex items-center justify-between w-full">
                             <span>Name (A-Z)</span>
-                            {sortBy === 'name' && sortOrder === 'asc' && <Check className="h-4 w-4 text-purple-500" />}
+                            {sortBy === 'name' && sortOrder === 'asc' && <Check className="h-4 w-4" style={{ color: primaryColor }} />}
                           </div>
                         </DropdownMenuItem>
                         
                         <DropdownMenuItem onClick={() => { setSortBy('name'); setSortOrder('desc') }} className="cursor-pointer">
                           <div className="flex items-center justify-between w-full">
                             <span>Name (Z-A)</span>
-                            {sortBy === 'name' && sortOrder === 'desc' && <Check className="h-4 w-4 text-purple-500" />}
+                            {sortBy === 'name' && sortOrder === 'desc' && <Check className="h-4 w-4" style={{ color: primaryColor }} />}
                           </div>
                         </DropdownMenuItem>
                         
@@ -562,14 +584,14 @@ export default function ParentsPage() {
                         <DropdownMenuItem onClick={() => { setSortBy('joinDate'); setSortOrder('desc') }} className="cursor-pointer">
                           <div className="flex items-center justify-between w-full">
                             <span>Newest First</span>
-                            {sortBy === 'joinDate' && sortOrder === 'desc' && <Check className="h-4 w-4 text-purple-500" />}
+                            {sortBy === 'joinDate' && sortOrder === 'desc' && <Check className="h-4 w-4" style={{ color: primaryColor }} />}
                           </div>
                         </DropdownMenuItem>
                         
                         <DropdownMenuItem onClick={() => { setSortBy('joinDate'); setSortOrder('asc') }} className="cursor-pointer">
                           <div className="flex items-center justify-between w-full">
                             <span>Oldest First</span>
-                            {sortBy === 'joinDate' && sortOrder === 'asc' && <Check className="h-4 w-4 text-purple-500" />}
+                            {sortBy === 'joinDate' && sortOrder === 'asc' && <Check className="h-4 w-4" style={{ color: primaryColor }} />}
                           </div>
                         </DropdownMenuItem>
                         
@@ -578,14 +600,14 @@ export default function ParentsPage() {
                         <DropdownMenuItem onClick={() => { setSortBy('paymentStatus'); setSortOrder('asc') }} className="cursor-pointer">
                           <div className="flex items-center justify-between w-full">
                             <span>Payment Status</span>
-                            {sortBy === 'paymentStatus' && <Check className="h-4 w-4 text-purple-500" />}
+                            {sortBy === 'paymentStatus' && <Check className="h-4 w-4" style={{ color: primaryColor }} />}
                           </div>
                         </DropdownMenuItem>
                         
                         <DropdownMenuItem onClick={() => { setSortBy('dueAmount'); setSortOrder('desc') }} className="cursor-pointer">
                           <div className="flex items-center justify-between w-full">
                             <span>Due Amount (High-Low)</span>
-                            {sortBy === 'dueAmount' && sortOrder === 'desc' && <Check className="h-4 w-4 text-purple-500" />}
+                            {sortBy === 'dueAmount' && sortOrder === 'desc' && <Check className="h-4 w-4" style={{ color: primaryColor }} />}
                           </div>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -616,12 +638,22 @@ export default function ParentsPage() {
                   {/* Column Selector Button (hidden in grid view) */}
                   {viewMode === 'list' && (
                     <button
-                      className="w-10 h-10 rounded-xl border border-purple-200 bg-[#fef2ff] hover:bg-purple-100 flex items-center justify-center shadow-sm hover:shadow transition-colors"
+                      className="w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm hover:shadow transition-colors"
+                      style={{
+                        borderColor: `${primaryColor}33`,
+                        backgroundColor: `${primaryColor}15`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${primaryColor}25`
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `${primaryColor}15`
+                      }}
                       onClick={() => setShowParentColumnSelector(true)}
                       title="Select Columns to Display"
                       aria-label="Edit displayed parent columns"
                     >
-                      <GridIcon className="w-6 h-6" />
+                      <GridIcon className="w-6 h-6" color={primaryColor} />
                     </button>
                   )}
 

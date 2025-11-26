@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useCustomColors } from '@/lib/use-custom-colors';
 import Image from 'next/image';
 import {
   Dialog,
@@ -90,6 +91,7 @@ export default function EnhancedCampaignModal({
   onSave,
   isEditing = false,
 }: EnhancedCampaignModalProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [formData, setFormData] = useState<Campaign>(
     campaign || {
       id: generateId(),
@@ -447,12 +449,12 @@ export default function EnhancedCampaignModal({
             </div>
 
             {/* Coming Soon: AI Features */}
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-dashed border-purple-300 rounded-lg p-4 space-y-2">
+            <div className="border-2 border-dashed rounded-lg p-4 space-y-2" style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}10, ${secondaryColor}10)`, borderColor: `${primaryColor}80` }}>
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-purple-600" />
-                <h3 className="font-semibold text-purple-900 inline-flex items-center gap-2">AI-Powered Distribution <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h3>
+                <Zap className="h-5 w-5" style={{ color: primaryColor }} />
+                <h3 className="font-semibold inline-flex items-center gap-2" style={{ color: primaryColor }}>AI-Powered Distribution <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h3>
               </div>
-              <p className="text-sm text-purple-700">
+              <p className="text-sm" style={{ color: `${primaryColor}dd` }}>
                 Automatically optimize channel selection and venue recommendations based on historical
                 performance and audience preferences
               </p>
@@ -587,12 +589,12 @@ export default function EnhancedCampaignModal({
             </div>
 
             {/* Coming Soon: AI Features */}
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-dashed border-indigo-300 rounded-lg p-4 space-y-2">
+            <div className="border-2 border-dashed rounded-lg p-4 space-y-2" style={{ backgroundImage: `linear-gradient(to right, ${secondaryColor}10, ${primaryColor}10)`, borderColor: `${secondaryColor}60` }}>
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-indigo-600" />
-                <h3 className="font-semibold text-indigo-900 inline-flex items-center gap-2">AI-Powered Optimization <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h3>
+                <Zap className="h-5 w-5" style={{ color: secondaryColor }} />
+                <h3 className="font-semibold inline-flex items-center gap-2" style={{ color: secondaryColor }}>AI-Powered Optimization <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h3>
               </div>
-              <p className="text-sm text-indigo-700">
+              <p className="text-sm" style={{ color: `${secondaryColor}dd` }}>
                 Get AI recommendations for budget allocation, target audience refinement, and optimal
                 timing for campaign launch
               </p>

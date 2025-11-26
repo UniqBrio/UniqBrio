@@ -1,4 +1,5 @@
 import React from 'react'
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { Save, RotateCcw, X, ChevronsRight, ChevronsLeft, ArrowRight, ArrowLeft, ChevronUp, ChevronDown } from 'lucide-react'
 
 export type EventColumnId = 'name' | 'sport' | 'type' | 'startDate' | 'endDate' | 'venue' | 'staff' | 'participants' | 'maxParticipants' | 'skillLevel' | 'format' | 'ageGroup' | 'entryFee' | 'status' | 'revenue'
@@ -55,6 +56,7 @@ export default function EventColumnSelector({
   visibleColumns,
   onSave
 }: EventColumnSelectorProps) {
+  const { primaryColor } = useCustomColors();
   const [draftDisplayed, setDraftDisplayed] = React.useState<EventColumnId[]>(visibleColumns)
   const [selectedAvailable, setSelectedAvailable] = React.useState<EventColumnId[]>([])
   const [selectedDisplayed, setSelectedDisplayed] = React.useState<EventColumnId[]>([])
@@ -388,7 +390,10 @@ export default function EventColumnSelector({
 
         <div className="flex justify-end gap-2 mt-4">
           <button
-            className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2"
+            className="px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
             onClick={handleSave}
             title="Save (Ctrl+S)"
           >

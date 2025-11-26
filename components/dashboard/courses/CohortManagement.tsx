@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { format } from "date-fns"
 import { Button } from "@/components/dashboard/ui/button"
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "@/components/dashboard/ui/dialog"
@@ -76,6 +77,7 @@ export default function CohortManagement({
   settings,
 }: Omit<CohortManagementProps, 'allStudents'>) {
   const { toast } = useToast();
+  const { primaryColor, secondaryColor } = useCustomColors();
 
   const identityDefaults: CohortIdentitySettings = {
     prefixSource: 'course-name',
@@ -156,15 +158,15 @@ export default function CohortManagement({
   function GridIcon({ className = "w-6 h-6" }) {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+        <rect x="3" y="3" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="10" y="3" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="17" y="3" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="3" y="10" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="10" y="10" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="17" y="10" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="3" y="17" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="10" y="17" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="17" y="17" width="5" height="5" rx="1.5" fill={primaryColor} />
       </svg>
     );
   }
@@ -1106,18 +1108,25 @@ export default function CohortManagement({
         const isStatusControlled = statusCourse?.status === 'Inactive' || statusCourse?.status === 'Completed';
         return (
           <div className="flex items-center gap-1">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              cohort.status === 'Active' ? 'bg-green-100 text-green-800' :
-              cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-              cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
-              cohort.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
-              'bg-gray-100 text-gray-800 dark:text-white'
-            }`}>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium`}
+              style={{
+                backgroundColor: cohort.status === 'Active' ? '#dcfce7' :
+                  cohort.status === 'Completed' ? '#dbeafe' :
+                  cohort.status === 'Upcoming' ? '#fef3c7' :
+                  cohort.status === 'On Hold' ? `${secondaryColor}20` :
+                  '#f3f4f6',
+                color: cohort.status === 'Active' ? '#166534' :
+                  cohort.status === 'Completed' ? '#1e40af' :
+                  cohort.status === 'Upcoming' ? '#854d0e' :
+                  cohort.status === 'On Hold' ? secondaryColor :
+                  '#1f2937'
+              }}
+            >
               {cohort.status || 'Active'}
             </span>
             {isStatusControlled && (
               <span title={`Status controlled by course (${statusCourse?.status})`} className="text-blue-500 text-xs">
-                ??
+                🔒
               </span>
             )}
           </div>
@@ -1284,7 +1293,7 @@ export default function CohortManagement({
       {/* Header Section - Same as Course Page */}
       <div className="pt-1 pb-4 sm:pb-6">
         <div className="flex items-center mb-2 flex-wrap gap-2">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-700">Cohort Management</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold" style={{ color: primaryColor }}>Cohort Management</h1>
         </div>
         <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-white">
           Organize students into cohorts for better learning experiences and streamlined management.
@@ -1345,10 +1354,10 @@ export default function CohortManagement({
           />
           
           {/* Results Counter */}
-          <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 mb-4 p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+          <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 mb-4 p-2 sm:p-3 rounded-lg border" style={{ background: `linear-gradient(to right, ${primaryColor}15, rgba(59,130,246,0.1))`, borderColor: primaryColor }}>
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-xs sm:text-sm font-medium text-purple-700">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+              <span className="text-xs sm:text-sm font-medium" style={{ color: primaryColor }}>
                 {filteredAndSortedCohorts.length} cohort{filteredAndSortedCohorts.length !== 1 ? 's' : ''} found
               </span>
               {selectedCohortIds.length > 0 && (
@@ -1363,7 +1372,10 @@ export default function CohortManagement({
                   variant="outline"
                   size="icon"
                   onClick={columnManagement.openColumnSelector}
-                  className="h-7 w-7 sm:h-8 sm:w-8 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                  className="h-7 w-7 sm:h-8 sm:w-8"
+                  style={{ borderColor: `${primaryColor}80`, backgroundColor: `${primaryColor}15`, color: primaryColor }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
                   title="Column Selection"
                 >
                   <GridIcon className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -1439,12 +1451,14 @@ export default function CohortManagement({
                         onClick={() => { setAddMembersCohortId(cohort.id ?? ''); setSelectedMembers([]); }}
                         title="Add Members"
                       >
-                        <span className="text-lg">??+</span>
+                        <span className="text-lg">👥+</span>
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-purple-500 hover:text-purple-600"
+                        style={{ color: primaryColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = `${primaryColor}dd`}
+                        onMouseLeave={(e) => e.currentTarget.style.color = primaryColor}
                         onClick={() => {
                           setNewCohort({
                             name: cohort.name || '',
@@ -1526,7 +1540,7 @@ export default function CohortManagement({
         </CardContent>
         </Card>
       ) : (
-        <div className="bg-white border border-purple-200 rounded-lg shadow-sm">
+        <div className="bg-white border rounded-lg shadow-sm" style={{ borderColor: primaryColor }}>
           <div className="p-4 sm:p-6">
             {filteredAndSortedCohorts.length > 0 ? (
               <div className={filteredAndSortedCohorts.length > 3 ? "flex gap-4 overflow-x-auto pb-4" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>
@@ -1539,16 +1553,22 @@ export default function CohortManagement({
                     return (
                       <div 
                         key={cohort.id} 
-                        className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer relative min-w-[320px] flex-shrink-0"
+                        className="border-2 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer relative min-w-[320px] flex-shrink-0"
+                        style={{ borderColor: secondaryColor }}
+                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${secondaryColor}dd`)}
+                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = secondaryColor)}
                         onClick={() => handleViewCohort(cohort)}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
+                              <h4 className="font-semibold text-base" style={{ color: primaryColor }}>{cohort.name}</h4>
                               <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                                 <button
-                                  className="flex items-center gap-0.5 text-purple-600 hover:text-purple-800 focus:outline-none p-1"
+                                  className="flex items-center gap-0.5 focus:outline-none p-1"
+                                  style={{ color: primaryColor }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.color = `${primaryColor}dd`)}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = primaryColor)}
                                   onClick={() => {
                                     setAddMembersCohortId(cohort.id ?? '');
                                     setSelectedMembers([]);
@@ -1559,7 +1579,10 @@ export default function CohortManagement({
                                   <Plus className="h-3 w-3" />
                                 </button>
                                 <button
-                                  className="text-purple-500 hover:text-purple-700 focus:outline-none p-1"
+                                  className="focus:outline-none p-1"
+                                  style={{ color: primaryColor }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.color = `${primaryColor}dd`)}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = primaryColor)}
                                   onClick={() => {
                                     setNewCohort({
                                       name: cohort.name || '',
@@ -1641,9 +1664,11 @@ export default function CohortManagement({
                                 cohort.status === 'Active' ? 'bg-green-100 text-green-800' :
                                 cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
                                 cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
-                                cohort.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
+                                cohort.status === 'On Hold' ? '' :
                                 'bg-gray-100 text-gray-800 dark:text-white'
-                              }`}>
+                              }`} 
+                                style={cohort.status === 'On Hold' ? ({ backgroundColor: `${secondaryColor}15`, color: secondaryColor, borderColor: `${secondaryColor}20` }) : undefined}
+                              >
                                 {cohort.status || 'Active'}
                               </span>
                               {(() => {
@@ -1651,7 +1676,7 @@ export default function CohortManagement({
                                 const isStatusControlled = course?.status === 'Inactive' || course?.status === 'Completed';
                                 return isStatusControlled ? (
                                   <span title={`Status controlled by course (${course?.status})`} className="text-blue-500 text-xs">
-                                    ??
+                                    🔒
                                   </span>
                                 ) : null;
                               })()}
@@ -1674,18 +1699,18 @@ export default function CohortManagement({
                           {cohort.location && (
                             <div className="flex items-center text-sm">
                               <span className="text-gray-600 dark:text-white w-16 text-xs">Location:</span>
-                              <span className="text-purple-600 font-medium">{cohort.location}</span>
+                              <span className="font-medium" style={{ color: primaryColor }}>{cohort.location}</span>
                             </div>
                           )}
                           {cohort.instructorName && (
                             <div className="flex items-center text-sm">
                               <span className="text-gray-600 dark:text-white w-16 text-xs">Instructor:</span>
-                              <span className="text-purple-700">{cohort.instructorName}</span>
+                              <span style={{ color: primaryColor }}>{cohort.instructorName}</span>
                             </div>
                           )}
                           <div className="flex items-center text-sm">
                             <span className="text-gray-600 dark:text-white w-16 text-xs">Capacity:</span>
-                            <span className="text-purple-600 font-medium">
+                            <span className="font-medium" style={{ color: primaryColor }}>
                               {cohort.members.length} / {cohort.capacity}
                               {cohort.members.length === cohort.capacity && 
                                 <span className="text-red-500 ml-1 text-xs">(Full)</span>
@@ -1743,13 +1768,17 @@ export default function CohortManagement({
                                 }
                                 
                                 return (
-                                  <span key={member.id} className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                                  <span key={member.id} className="px-2 py-1 rounded text-xs"
+                                    style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                                  >
                                     {displayName}
                                   </span>
                                 );
                               })}
                               {cohort.members.length > 3 && (
-                                <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded text-xs">
+                                <span className="px-2 py-1 rounded text-xs"
+                                  style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                                >
                                   +{cohort.members.length - 3} more
                                 </span>
                               )}
@@ -1771,7 +1800,10 @@ export default function CohortManagement({
                   variant="outline"
                   size="sm"
                   onClick={() => setViewAllCohorts(true)}
-                  className="text-xs sm:text-sm text-purple-600 border-purple-300 hover:bg-purple-50"
+                  className="text-xs sm:text-sm"
+                  style={{ color: primaryColor, borderColor: `${primaryColor}50` }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   View All {filteredAndSortedCohorts.length} Cohorts
                 </Button>
@@ -1846,11 +1878,23 @@ export default function CohortManagement({
             <Label className="text-xs">Associated Course <span style={{ color: 'red' }}>*</span></Label>
             <div className="relative">
               <select 
-                className={`w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors ${
-                  missingFields.has('courseId')
-                    ? 'border-red-500 ring-2 ring-red-200 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500'
-                }`}
+                className="w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                style={{
+                  borderColor: missingFields.has('courseId') ? '#ef4444' : '#d1d5db',
+                  ...(missingFields.has('courseId') ? { boxShadow: '0 0 0 2px #fecaca' } : {})
+                }}
+                onFocus={(e) => {
+                  if (!missingFields.has('courseId')) {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }
+                }}
+                onBlur={(e) => {
+                  if (!missingFields.has('courseId')) {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
+                }}
                 value={newCohort.courseId} 
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   const selectedCourseId = e.target.value;
@@ -1918,7 +1962,20 @@ export default function CohortManagement({
                   setCohortIdManuallyEdited(true)
                   setNewCohort(c => ({ ...c, id: updated }))
                 }}
-                className={`text-xs p-1 h-7 border rounded-sm ${identitySettings.allowManualIds ? 'border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500' : 'border-gray-300 bg-gray-50 cursor-not-allowed'}`}
+                className={`text-xs p-1 h-7 border rounded-sm ${identitySettings.allowManualIds ? '' : 'bg-gray-50 cursor-not-allowed'}`}
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  if (identitySettings.allowManualIds) {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }
+                }}
+                onBlur={(e) => {
+                  if (identitySettings.allowManualIds) {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
+                }}
                 title="Cohort ID is automatically generated based on your identity settings"
               />
               <Button
@@ -1950,13 +2007,22 @@ export default function CohortManagement({
               {newCohort.courseId && (() => {
                 const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
                 return selectedCourse?.instructor ? (
-                  <span className="text-green-600 ml-1" title={`Default instructor from course: ${selectedCourse.instructor}`}>?????</span>
+                  <span className="text-green-600 ml-1" title={`Default instructor from course: ${selectedCourse.instructor}`}>✓ Auto</span>
                 ) : null;
               })()}
             </Label>
             <div className="relative">
               <select
-                className="w-full p-1 border border-gray-300 rounded-sm text-xs h-7 pr-8 appearance-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                className="w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
                 value={newCohort.instructorName || ''}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewCohort(c => ({ ...c, instructorName: e.target.value }))}
                 disabled={instructorsLoading}
@@ -1983,20 +2049,32 @@ export default function CohortManagement({
               {newCohort.courseId && (() => {
                 const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
                 return selectedCourse?.status ? (
-                  <span className="text-blue-600 ml-1" title={`Inherited from course status: ${selectedCourse.status}`}>??</span>
+                  <span className="text-blue-600 ml-1" title={`Inherited from course status: ${selectedCourse.status}`}>🔗</span>
                 ) : null;
               })()}
             </Label>
             <div className="relative">
               <select
                 className={`w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors ${
-                  missingFields.has('status')
-                    ? 'border-red-500 ring-2 ring-red-200 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500'
-                } ${
                   newCohort.courseId && courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId)?.status === 'Inactive'
                     ? 'bg-gray-100 cursor-not-allowed' : ''
                 }`}
+                style={{
+                  borderColor: missingFields.has('status') ? '#ef4444' : '#d1d5db',
+                  ...(missingFields.has('status') ? { boxShadow: '0 0 0 2px #fecaca' } : {})
+                }}
+                onFocus={(e) => {
+                  if (!missingFields.has('status')) {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }
+                }}
+                onBlur={(e) => {
+                  if (!missingFields.has('status')) {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
+                }}
                 value={newCohort.status || 'Active'}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
@@ -2032,7 +2110,7 @@ export default function CohortManagement({
               {newCohort.courseId && (() => {
                 const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
                 if (selectedCourse?.status === 'Inactive') {
-                  return <div className="text-xs text-orange-600 mt-1">?? Course is inactive - cohort status restricted</div>;
+                  return <div className="text-xs mt-1" style={{ color: secondaryColor }}>⚠ Course is inactive - cohort status restricted</div>;
                 }
                 return null;
               })()}
@@ -2046,7 +2124,10 @@ export default function CohortManagement({
                   <div className="flex items-center gap-2 mb-2">
                     <Checkbox 
                       checked={useCustomSchedule}
-                      className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                      style={{
+                        '--checkbox-checked-bg': primaryColor,
+                        '--checkbox-checked-border': primaryColor
+                      } as React.CSSProperties}
                       onCheckedChange={(checked) => {
                         setUseCustomSchedule(!!checked);
                         // If switching to inherit from course, populate the dates
@@ -2076,9 +2157,9 @@ export default function CohortManagement({
                   {newCohort.courseId && (() => {
                     const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
                     return selectedCourse?.schedulePeriod?.startDate && !useCustomSchedule ? (
-                      <span className="text-green-600 ml-1" title="Inherited from course schedule">???</span>
+                      <span className="text-green-600 ml-1" title="Inherited from course schedule">✓ Auto</span>
                     ) : useCustomSchedule ? (
-                      <span className="text-orange-600 ml-1" title="Custom schedule">??</span>
+                      <span className="ml-1" style={{ color: secondaryColor }} title="Custom schedule">✏️</span>
                     ) : null;
                   })()}
                 </Label>
@@ -2128,9 +2209,9 @@ export default function CohortManagement({
                   {newCohort.courseId && (() => {
                     const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
                     return selectedCourse?.schedulePeriod?.endDate && !useCustomSchedule ? (
-                      <span className="text-green-600 ml-1" title="Inherited from course schedule">???</span>
+                      <span className="text-green-600 ml-1" title="Inherited from course schedule">✓ Auto</span>
                     ) : useCustomSchedule ? (
-                      <span className="text-orange-600 ml-1" title="Custom schedule">??</span>
+                      <span className="text-orange-600 ml-1" title="Custom schedule">✏️</span>
                     ) : null;
                   })()}
                 </Label>
@@ -2194,11 +2275,24 @@ export default function CohortManagement({
                 <div className="mt-1">
                   <Button
                     variant="outline"
-                    className={`w-full text-left justify-between text-xs h-7 px-2 hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:outline-none data-[state=open]:ring-2 ${
-                      missingFields.has('location')
-                        ? 'border-red-500 ring-2 ring-red-200 focus:ring-red-500 focus:border-red-500 data-[state=open]:border-red-500 data-[state=open]:ring-red-500'
-                        : 'focus:ring-purple-500 focus:border-purple-500 data-[state=open]:border-purple-500 data-[state=open]:ring-purple-500'
-                    }`}
+                    className="w-full text-left justify-between text-xs h-7 px-2 hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:outline-none data-[state=open]:ring-2"
+                    style={{
+                      ...(missingFields.has('location') 
+                        ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px #fecaca' }
+                        : { borderColor: '#d1d5db' })
+                    }}
+                    onFocus={(e) => {
+                      if (!missingFields.has('location')) {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!missingFields.has('location')) {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
+                    }}
                   >
                     <span className="truncate">{newCohort.location || 'Select location'}</span>
                     <ChevronDown className="ml-2 h-3 w-3 flex-shrink-0" />
@@ -2209,7 +2303,16 @@ export default function CohortManagement({
                 <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                   <Input
                     placeholder="Search or type new location..."
-                    className="w-full border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full border rounded-md px-2 py-1 text-xs focus:outline-none focus:border-transparent"
+                    style={{ borderColor: '#d1d5db' }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = primaryColor;
+                      e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#d1d5db';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                     value={locationSearchTerm}
                     onChange={e => {
                       const value = e.target.value;
@@ -2234,9 +2337,10 @@ export default function CohortManagement({
                       .map(location => (
                         <DropdownMenuItem
                           key={location}
-                          className={`px-2 py-1 cursor-pointer hover:bg-gray-100 text-xs ${
-                            newCohort.location === location ? 'bg-purple-100' : ''
-                          }`}
+                          className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-xs"
+                          style={{
+                            ...(newCohort.location === location ? { backgroundColor: `${primaryColor}20` } : {})
+                          }}
                           onSelect={() => {
                             setNewCohort(c => ({ ...c, location }));
                             setLocationSearchTerm('');
@@ -2259,7 +2363,8 @@ export default function CohortManagement({
                       location => location.toLowerCase() === locationSearchTerm.toLowerCase()
                     ) && (
                       <DropdownMenuItem
-                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-purple-600 text-xs font-medium"
+                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-xs font-medium"
+                        style={{ color: primaryColor }}
                         onSelect={async () => {
                           const newLocation = locationSearchTerm;
                           setNewCohort(c => ({ ...c, location: newLocation }));
@@ -2403,13 +2508,19 @@ export default function CohortManagement({
                           setSelectedDays(prev => prev.filter(d => d !== day.value))
                         }
                       }}
-                      className="h-3 w-3 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                      style={{
+                        '--checkbox-checked-bg': primaryColor,
+                        '--checkbox-checked-border': primaryColor
+                      } as React.CSSProperties}
+                      className="h-3 w-3"
                     />
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      selectedDays.includes(day.value) 
-                        ? 'bg-purple-100 text-purple-700 font-medium' 
-                        : 'bg-gray-100 text-gray-600 dark:text-white'
-                    }`}>
+                    <span className="px-2 py-1 rounded text-xs"
+                      style={{
+                        backgroundColor: selectedDays.includes(day.value) ? `${primaryColor}20` : '#f3f4f6',
+                        color: selectedDays.includes(day.value) ? primaryColor : '#4b5563',
+                        fontWeight: selectedDays.includes(day.value) ? '500' : 'normal'
+                      }}
+                    >
                       {day.label}
                     </span>
                   </label>
@@ -2443,7 +2554,10 @@ export default function CohortManagement({
           <div className="flex justify-end mt-4 gap-1 sm:gap-2">
             <Button variant="outline" onClick={handleCohortDialogClose} className="text-xs sm:text-sm">Cancel</Button>
             <Button
-              className="bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm"
+              className="text-white text-xs sm:text-sm"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
               disabled={(() => {
                 // Check if all mandatory fields are filled
                 const isCohortNameValid = newCohort.name && newCohort.name.trim() !== '';
@@ -3047,19 +3161,30 @@ export default function CohortManagement({
               {viewAllCohortsForCourse && cohorts
                 .filter(c => c.courseId === viewAllCohortsForCourse.courseId)
                 .map((cohort: Cohort) => (
-                  <div key={cohort.id} className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-4 hover:shadow-md transition-all">
+                  <div key={cohort.id} className="border-2 rounded-lg p-4 hover:shadow-md transition-all"
+                    style={{ borderColor: secondaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = `${secondaryColor}dd`}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = secondaryColor}
+                  >
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
+                        <h4 className="font-semibold text-base" style={{ color: primaryColor }}>{cohort.name}</h4>
                         <p className="text-xs text-gray-500 dark:text-white mt-1">ID: {cohort.id}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            cohort.status === 'Active' ? 'bg-green-100 text-green-800' :
-                            cohort.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-                            cohort.status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' :
-                            cohort.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
-                            'bg-gray-100 text-gray-800 dark:text-white'
-                          }`}>
+                          <span className="px-2 py-1 rounded-full text-xs font-medium"
+                            style={{
+                              backgroundColor: cohort.status === 'Active' ? '#dcfce7' :
+                                cohort.status === 'Completed' ? '#dbeafe' :
+                                cohort.status === 'Upcoming' ? '#fef3c7' :
+                                cohort.status === 'On Hold' ? `${secondaryColor}20` :
+                                '#f3f4f6',
+                              color: cohort.status === 'Active' ? '#166534' :
+                                cohort.status === 'Completed' ? '#1e40af' :
+                                cohort.status === 'Upcoming' ? '#854d0e' :
+                                cohort.status === 'On Hold' ? secondaryColor :
+                                '#1f2937'
+                            }}
+                          >
                             {cohort.status || 'Active'}
                           </span>
                           {(() => {
@@ -3096,12 +3221,15 @@ export default function CohortManagement({
                           }}
                           title="Add Members"
                         >
-                          <span className="text-sm">??+</span>
+                          <span className="text-sm">👥+</span>
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-purple-500 hover:text-purple-600"
+                          className="h-8 w-8"
+                          style={{ color: primaryColor, transition: 'color 0.2s' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = `${primaryColor}dd`; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = primaryColor; }}
                           onClick={() => {
                             setNewCohort({
                               name: cohort.name || '',
@@ -3182,18 +3310,18 @@ export default function CohortManagement({
                       {cohort.location && (
                         <div className="flex items-center text-sm">
                           <span className="text-gray-600 dark:text-white w-16 text-xs">Location:</span>
-                          <span className="text-purple-600 font-medium">{cohort.location}</span>
+                          <span className="font-medium" style={{ color: primaryColor }}>{cohort.location}</span>
                         </div>
                       )}
                       {cohort.instructorName && (
                         <div className="flex items-center text-sm">
                           <span className="text-gray-600 dark:text-white w-16 text-xs">Instructor:</span>
-                          <span className="text-purple-700">{cohort.instructorName}</span>
+                          <span style={{ color: `${primaryColor}ee` }}>{cohort.instructorName}</span>
                         </div>
                       )}
                       <div className="flex items-center text-sm">
                         <span className="text-gray-600 dark:text-white w-16 text-xs">Capacity:</span>
-                        <span className="text-purple-600 font-medium">
+                        <span className="font-medium" style={{ color: primaryColor }}>
                           {cohort.members.length} / {cohort.capacity}
                           {cohort.members.length === cohort.capacity && 
                             <span className="text-red-500 ml-1 text-xs">(Full)</span>
@@ -3254,13 +3382,13 @@ export default function CohortManagement({
                             }
                             
                             return (
-                              <span key={member.id} className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                              <span key={member.id} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: `${primaryColor}20`, color: `${primaryColor}ee` }}>
                                 {displayName}
                               </span>
                             );
                           })}
                           {cohort.members.length > 3 && (
-                            <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded text-xs">
+                            <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                               +{cohort.members.length - 3} more
                             </span>
                           )}
@@ -3332,10 +3460,10 @@ export default function CohortManagement({
                 );
                 
                 return (
-                  <div key={cohort.id} className="border-2 border-orange-400 hover:border-orange-500 rounded-lg p-4 hover:shadow-md transition-all">
+                  <div key={cohort.id} className="border-2 rounded-lg p-4 hover:shadow-md transition-all" style={{ borderColor: secondaryColor }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${secondaryColor}dd`; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = secondaryColor; }}>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-purple-700 text-base">{cohort.name}</h4>
+                        <h4 className="font-semibold text-base" style={{ color: primaryColor }}>{cohort.name}</h4>
                         <p className="text-xs text-gray-500 dark:text-white mt-1">ID: {cohort.id}</p>
                         {cohortCourse && (
                           <p className="text-xs text-blue-600 mt-1 font-medium">
@@ -3376,12 +3504,15 @@ export default function CohortManagement({
                           }}
                           title="Add Members"
                         >
-                          <span className="text-sm">??+</span>
+                          <span className="text-sm">👥+</span>
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-purple-500 hover:text-purple-600"
+                          className="h-8 w-8"
+                          style={{ color: primaryColor, transition: 'color 0.2s' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = `${primaryColor}dd`; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = primaryColor; }}
                           onClick={() => {
                             setNewCohort({
                               name: cohort.name || '',
@@ -3462,18 +3593,18 @@ export default function CohortManagement({
                       {cohort.location && (
                         <div className="flex items-center text-sm">
                           <span className="text-gray-600 dark:text-white w-16 text-xs">Location:</span>
-                          <span className="text-purple-600 font-medium">{cohort.location}</span>
+                          <span className="font-medium" style={{ color: primaryColor }}>{cohort.location}</span>
                         </div>
                       )}
                       {cohort.instructorName && (
                         <div className="flex items-center text-sm">
                           <span className="text-gray-600 dark:text-white w-16 text-xs">Instructor:</span>
-                          <span className="text-purple-700">{cohort.instructorName}</span>
+                          <span style={{ color: `${primaryColor}ee` }}>{cohort.instructorName}</span>
                         </div>
                       )}
                       <div className="flex items-center text-sm">
                         <span className="text-gray-600 dark:text-white w-16 text-xs">Capacity:</span>
-                        <span className="text-purple-600 font-medium">
+                        <span className="font-medium" style={{ color: primaryColor }}>
                           {cohort.members.length} / {cohort.capacity}
                           {cohort.members.length === cohort.capacity && 
                             <span className="text-red-500 ml-1 text-xs">(Full)</span>
@@ -3518,13 +3649,13 @@ export default function CohortManagement({
                             const student = students.find(s => s.id === member.id);
                             const displayName = member.name || student?.name || `Student ${member.id}`;
                             return (
-                              <span key={member.id} className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                              <span key={member.id} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: `${primaryColor}20`, color: `${primaryColor}ee` }}>
                                 {displayName}
                               </span>
                             );
                           })}
                           {cohort.members.length > 3 && (
-                            <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded text-xs">
+                            <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                               +{cohort.members.length - 3} more
                             </span>
                           )}

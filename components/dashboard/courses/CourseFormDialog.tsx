@@ -29,6 +29,7 @@ import {
   SettingsTab,
   MarketingTab
 } from "./course-form-tabs"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 // Dummy instructor data for testing
 const DUMMY_INSTRUCTORS = [
@@ -81,6 +82,7 @@ export default function CourseFormDialog({
   onGenerateCourseId,
   courseIdFormatHint
 }: CourseFormDialogProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Ref to track if we've initialized defaults for this dialog session
   const hasInitializedDefaults = useRef(false)
 
@@ -776,8 +778,15 @@ export default function CourseFormDialog({
                 <Button
                   variant="outline"
                   title={isEditingDraft ? "Update Draft" : "Save Draft"}
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50 px-1 py-0.5 text-xs min-h-6 min-w-[65px] h-7 w-[90px]"
-                  style={{lineHeight: '1.1'}}
+                  className="px-1 py-0.5 text-xs min-h-6 min-w-[65px] h-7 w-[90px]"
+                  style={{
+                    lineHeight: '1.1',
+                    borderColor: `${primaryColor}50`,
+                    color: primaryColor,
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   onClick={handleSaveDraft}
                 >
                   <Save className="h-3 w-3 mr-1" />
@@ -808,25 +817,85 @@ export default function CourseFormDialog({
             <TabsList className="grid w-full grid-cols-7 gap-2 bg-transparent p-0 h-auto">
               <TabsTrigger 
                 value="basic" 
-                className="text-xs px-3 py-2 border-2 border-transparent bg-purple-500 text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-purple-600 data-[state=inactive]:hover:bg-orange-50"
+                className="text-xs px-3 py-2 border-2 font-medium"
+                style={{
+                  borderColor: currentTab === 'basic' ? 'transparent' : secondaryColor,
+                  backgroundColor: currentTab === 'basic' ? primaryColor : 'transparent',
+                  color: currentTab === 'basic' ? 'white' : secondaryColor
+                }}
+                onMouseEnter={(e) => {
+                  if (currentTab !== 'basic') {
+                    e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
+                  } else {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}dd`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTab === 'basic' ? primaryColor : 'transparent';
+                }}
               >
                 Basic Info
               </TabsTrigger>
               <TabsTrigger 
                 value="pricing" 
-                className="text-xs px-3 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="text-xs px-3 py-2 border-2 font-medium"
+                style={{
+                  borderColor: currentTab === 'pricing' ? 'transparent' : secondaryColor,
+                  backgroundColor: currentTab === 'pricing' ? primaryColor : 'transparent',
+                  color: currentTab === 'pricing' ? 'white' : secondaryColor
+                }}
+                onMouseEnter={(e) => {
+                  if (currentTab !== 'pricing') {
+                    e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
+                  } else {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}dd`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTab === 'pricing' ? primaryColor : 'transparent';
+                }}
               >
                 Pricing
               </TabsTrigger>
               <TabsTrigger 
                 value="chapters" 
-                className="text-xs px-3 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="text-xs px-3 py-2 border-2 font-medium"
+                style={{
+                  borderColor: currentTab === 'chapters' ? 'transparent' : secondaryColor,
+                  backgroundColor: currentTab === 'chapters' ? primaryColor : 'transparent',
+                  color: currentTab === 'chapters' ? 'white' : secondaryColor
+                }}
+                onMouseEnter={(e) => {
+                  if (currentTab !== 'chapters') {
+                    e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
+                  } else {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}dd`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTab === 'chapters' ? primaryColor : 'transparent';
+                }}
               >
                 Chapters
               </TabsTrigger>
               <TabsTrigger 
                 value="schedule" 
-                className="text-xs px-3 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="text-xs px-3 py-2 border-2 font-medium"
+                style={{
+                  borderColor: currentTab === 'schedule' ? 'transparent' : secondaryColor,
+                  backgroundColor: currentTab === 'schedule' ? primaryColor : 'transparent',
+                  color: currentTab === 'schedule' ? 'white' : secondaryColor
+                }}
+                onMouseEnter={(e) => {
+                  if (currentTab !== 'schedule') {
+                    e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
+                  } else {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}dd`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTab === 'schedule' ? primaryColor : 'transparent';
+                }}
               >
                 Schedule
               </TabsTrigger>
@@ -945,7 +1014,14 @@ export default function CourseFormDialog({
               <Button
                 variant="outline"
                 title="Save Draft"
-                className="border-purple-300 text-purple-700 hover:bg-purple-50 px-1.5 py-1 text-xs min-h-5 min-w-[80px]"
+                className="px-1.5 py-1 text-xs min-h-5 min-w-[80px]"
+                style={{
+                  borderColor: `${primaryColor}50`,
+                  color: primaryColor,
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 onClick={handleSaveDraft}
               >
                 <Save className="h-3 w-3 mr-1" />
@@ -971,16 +1047,40 @@ export default function CourseFormDialog({
             {!isLastTab && currentTab !== "schedule" && (
               <Button
                 disabled={(currentTab === "basic" && !isBasicInfoValid) || (currentTab === "pricing" && !isPricingValid)}
-                className={`px-2.5 py-1 text-xs min-h-7 min-w-[70px] text-white transition-all duration-200 ${
-                  // Check if current tab's mandatory fields are completed
-                  (currentTab === "basic" && isBasicInfoValid) || 
-                  (currentTab === "pricing" && isPricingValid) || 
-                  (currentTab === "chapters" && validateChapters())
-                    ? "bg-purple-600 hover:bg-purple-700 shadow-lg" // Bright purple enabled state when mandatory fields are filled
-                    : (currentTab === "basic" && !isBasicInfoValid) || (currentTab === "pricing" && !isPricingValid)
-                      ? "bg-gray-400 hover:bg-gray-500" // Disabled state when mandatory fields are missing
-                      : "bg-purple-400 hover:bg-purple-500" // Normal state
-                }`}
+                className="px-2.5 py-1 text-xs min-h-7 min-w-[70px] text-white transition-all duration-200"
+                style={{
+                  backgroundColor: 
+                    (currentTab === "basic" && isBasicInfoValid) || 
+                    (currentTab === "pricing" && isPricingValid) || 
+                    (currentTab === "chapters" && validateChapters())
+                      ? primaryColor
+                      : (currentTab === "basic" && !isBasicInfoValid) || (currentTab === "pricing" && !isPricingValid)
+                        ? "#9ca3af"
+                        : `${primaryColor}99`,
+                  boxShadow: 
+                    ((currentTab === "basic" && isBasicInfoValid) || 
+                    (currentTab === "pricing" && isPricingValid) || 
+                    (currentTab === "chapters" && validateChapters()))
+                      ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if ((currentTab === "basic" && isBasicInfoValid) || 
+                      (currentTab === "pricing" && isPricingValid) || 
+                      (currentTab === "chapters" && validateChapters())) {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}dd`;
+                  } else if (!((currentTab === "basic" && !isBasicInfoValid) || (currentTab === "pricing" && !isPricingValid))) {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}aa`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if ((currentTab === "basic" && isBasicInfoValid) || 
+                      (currentTab === "pricing" && isPricingValid) || 
+                      (currentTab === "chapters" && validateChapters())) {
+                    e.currentTarget.style.backgroundColor = primaryColor;
+                  } else if (!((currentTab === "basic" && !isBasicInfoValid) || (currentTab === "pricing" && !isPricingValid))) {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}99`;
+                  }
+                }}
                 onClick={handleNextTab}
               >
                 Next
@@ -992,11 +1092,17 @@ export default function CourseFormDialog({
             {currentTab === "schedule" && (
               <Button
                 disabled={!!isCreateCourseDisabled}
-                className={`px-2.5 py-1 text-xs min-h-7 min-w-[80px] text-white transition-all duration-200 ${
-                  !isCreateCourseDisabled
-                    ? "bg-purple-600 hover:bg-purple-700 shadow-lg" // Bright purple when all mandatory fields are filled
-                    : "bg-purple-400 hover:bg-purple-500" // Normal state when disabled
-                }`}
+                className="px-2.5 py-1 text-xs min-h-7 min-w-[80px] text-white transition-all duration-200"
+                style={{
+                  backgroundColor: !isCreateCourseDisabled ? primaryColor : `${primaryColor}99`,
+                  boxShadow: !isCreateCourseDisabled ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = !isCreateCourseDisabled ? `${primaryColor}dd` : `${primaryColor}aa`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = !isCreateCourseDisabled ? primaryColor : `${primaryColor}99`;
+                }}
                 onClick={handleCreateCourse}
               >
                 {isEditMode ? (courses.every(c => c.id !== editCourseId) ? 'Create Course' : 'Save Changes') : 'Create Course'}
@@ -1035,7 +1141,14 @@ export default function CourseFormDialog({
             <Button
               variant="outline"
               onClick={handleSaveAsDraft}
-              className="border-purple-300 text-purple-700 hover:bg-purple-50 px-4 py-2"
+              className="px-4 py-2"
+              style={{
+                borderColor: `${primaryColor}50`,
+                color: primaryColor,
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               {isEditingDraft ? 'Update Draft' : 'Save as Draft'}
             </Button>

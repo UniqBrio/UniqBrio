@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useMemo, useState, useRef } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Button } from "@/components/dashboard/ui/staff/button"
 import { Edit, Trash2 } from "lucide-react"
 import GridIcon from "@/components/dashboard/icons/grid"
 import InstructorSearchAndFilters from "@/components/dashboard/instructor/instructor-profile/InstructorSearchAndFilters"
 import { sampleInstructors, getRoleOptions } from "@/data/dashboard/instructors"
-import type { Instructor, InstructorFilters } from "@/types/dashboard/staff/staff/instructor"
+import type { Instructor, InstructorFilters } from "@/types/dashboard/staff/instructor"
 import { INSTRUCTOR_TABLE_COLUMNS, type InstructorColumnId, getInstructorColumnLabel } from "@/components/dashboard/instructor/instructor-profile/instructor-columns"
 import AddInstructorDialogWrapper from "@/components/dashboard/instructor/add-instructor-dialog-refactored/AddInstructorDialogWrapper"
 import type { InstructorFormData } from "@/components/dashboard/instructor/add-instructor-dialog-refactored/types"
@@ -14,6 +15,7 @@ import { useInstructors, mapInstructorToForm } from "@/hooks/dashboard/staff/use
 import { useToast } from "@/hooks/dashboard/use-toast"
 
 export default function InstructorManagementPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const { toast } = useToast()
   const { instructors, addInstructor, updateInstructor, deleteInstructor, getFormById, addManyFromInstructors } = useInstructors();
   const [searchTerm, setSearchTerm] = useState("");
@@ -380,7 +382,8 @@ export default function InstructorManagementPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEdit(instructor)}
-                          className="text-purple-600 hover:text-purple-800 p-1"
+                          className="p-1"
+                          style={{ color: primaryColor }}
                           title="Edit instructor"
                         >
                           <Edit className="h-3.5 w-3.5" />
@@ -440,14 +443,22 @@ export default function InstructorManagementPage() {
                   </div>
                   <div className="flex flex-col justify-center gap-2">
                     <button
-                      className={`px-3 py-1 rounded ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                      className="px-3 py-1 rounded"
+                      style={{
+                        backgroundColor: selectedAvailable.length === 0 ? '#e5e7eb' : `${primaryColor}20`,
+                        color: selectedAvailable.length === 0 ? '#9ca3af' : primaryColor
+                      }}
                       onClick={addSelected}
                       disabled={selectedAvailable.length === 0}
                     >
                       ?
                     </button>
                     <button
-                      className={`px-3 py-1 rounded ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                      className="px-3 py-1 rounded"
+                      style={{
+                        backgroundColor: selectedDisplayed.length === 0 ? '#e5e7eb' : `${primaryColor}20`,
+                        color: selectedDisplayed.length === 0 ? '#9ca3af' : primaryColor
+                      }}
                       onClick={removeSelected}
                       disabled={selectedDisplayed.length === 0}
                     >
@@ -472,7 +483,8 @@ export default function InstructorManagementPage() {
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
-                    className="px-3 py-1 text-sm rounded bg-purple-600 text-white hover:bg-purple-700"
+                    className="px-3 py-1 text-sm rounded text-white"
+                    style={{ backgroundColor: primaryColor }}
                     onClick={() => { 
                       localStorage.setItem('instructorDisplayedColumns', JSON.stringify(draftDisplayed)); 
                       window.dispatchEvent(new CustomEvent('instructor-displayed-columns-changed', { detail: draftDisplayed })); 
@@ -493,7 +505,7 @@ export default function InstructorManagementPage() {
           )}
 
       {/* LAYER 2: Performance */}
-      <h2 className="text-lg font-semibold text-purple-600 mt-8 mb-3">Performance</h2>
+      <h2 className="text-lg font-semibold mt-8 mb-3" style={{ color: primaryColor }}>Performance</h2>
       
       <div className="pb-3 border-b opacity-50 pointer-events-none select-none" aria-disabled="true">
         <div className="flex items-center gap-2 mb-2">
@@ -512,7 +524,7 @@ export default function InstructorManagementPage() {
             <div className="text-xs text-gray-600 dark:text-white">Student Satisfaction</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">A+</div>
+            <div className="text-2xl font-bold" style={{ color: primaryColor }}>A+</div>
             <div className="text-xs text-gray-600 dark:text-white">Performance Grade</div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
@@ -47,6 +48,7 @@ interface AcademyInfoSettingsProps {
 }
 
 export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
+  const { primaryColor } = useCustomColors();
   const { setCurrency } = useCurrency()
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
@@ -649,7 +651,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         <Card>
           <CardContent className="py-10">
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: primaryColor }}></div>
               <span className="ml-3 text-gray-600 dark:text-white">Loading academy information...</span>
             </div>
           </CardContent>
@@ -661,7 +663,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-purple-600" />
+              <GraduationCap className="h-5 w-5" style={{ color: primaryColor }} />
               <CardTitle>Basic Information</CardTitle>
             </div>
             <Button 
@@ -927,7 +929,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-purple-600" />
+            <MapPin className="h-5 w-5" style={{ color: primaryColor }} />
             <CardTitle>Contact Information</CardTitle>
           </div>
           <CardDescription>How people can reach your academy</CardDescription>
@@ -1048,7 +1050,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-purple-600" />
+            <ImageIcon className="h-5 w-5" style={{ color: primaryColor }} />
             <CardTitle>Branding Assets</CardTitle>
           </div>
           <CardDescription>Upload your academy branding materials</CardDescription>
@@ -1166,7 +1168,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-purple-600" />
+            <Users className="h-5 w-5" style={{ color: primaryColor }} />
             <CardTitle>Social Media</CardTitle>
           </div>
           <CardDescription>Connect your social media profiles</CardDescription>
@@ -1227,7 +1229,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         <Button type="button" variant="outline" disabled={isLoading} className="w-full sm:w-auto">
           Cancel
         </Button>
-        <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700">
+        <Button type="submit" disabled={isLoading} className="w-full sm:w-auto text-white" style={{ backgroundColor: primaryColor }} onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)} onMouseLeave={(e) => !isLoading && (e.currentTarget.style.backgroundColor = primaryColor)}>
           {isLoading ? "Saving..." : "Save Academy Information"}
         </Button>
       </div>

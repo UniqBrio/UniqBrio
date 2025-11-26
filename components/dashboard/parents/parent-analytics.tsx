@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import React from "react";
 import { useCurrency } from "@/contexts/currency-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
@@ -35,6 +36,7 @@ interface ParentAnalyticsProps {
 }
 
 function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const categoriesList = useMemo(() => {
     const cats = new Set<string>();
     parents.forEach(p => {
@@ -77,7 +79,7 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
   ];
 
   const parentStatStyles = [
-    { bg: "bg-gradient-to-br from-purple-50 to-purple-100", titleText: "text-purple-700", valueText: "text-purple-900" },
+    { bg: "", titleText: "", valueText: "" },
     { bg: "bg-gradient-to-br from-green-50 to-green-100", titleText: "text-green-700", valueText: "text-green-900" },
     { bg: "bg-gradient-to-br from-red-50 to-red-100", titleText: "text-red-700", valueText: "text-red-900" },
     { bg: "bg-gradient-to-br from-blue-50 to-blue-100", titleText: "text-blue-700", valueText: "text-blue-900" },
@@ -226,14 +228,34 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {topStats.map((stat, index) => {
           const style = parentStatStyles[index] ?? parentStatStyles[0];
+          const isFirst = index === 0;
           return (
-            <Card key={index} className={`${style.bg} border shadow-sm`}>
+            <Card
+              key={index}
+              className={`${isFirst ? '' : style.bg} border shadow-sm`}
+              style={isFirst ? { backgroundImage: `linear-gradient(135deg, ${primaryColor}15, ${secondaryColor}26)` } : {}}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm font-medium ${style.titleText}`}>{stat.title}</p>
-                    <p className={`text-2xl font-bold ${style.valueText}`}>{stat.value}</p>
-                    <p className={`text-xs ${style.titleText} opacity-80`}>{stat.subtitle}</p>
+                    <p
+                      className={`text-sm font-medium ${isFirst ? '' : style.titleText}`}
+                      style={isFirst ? { color: primaryColor } : {}}
+                    >
+                      {stat.title}
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${isFirst ? '' : style.valueText}`}
+                      style={isFirst ? { color: primaryColor } : {}}
+                    >
+                      {stat.value}
+                    </p>
+                    <p
+                      className={`text-xs ${isFirst ? '' : style.titleText} opacity-80`}
+                      style={isFirst ? { color: primaryColor } : {}}
+                    >
+                      {stat.subtitle}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -247,13 +269,27 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
         <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto gap-2">
           <TabsTrigger 
             value="distribution"
-            className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none shadow-sm"
+            className="bg-background dark:bg-gray-900 border-2 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--pc)] data-[state=active]:to-[var(--sc)] data-[state=active]:border-[var(--pc)] hover:text-white hover:bg-gradient-to-r hover:from-[var(--pc)] hover:to-[var(--sc)] hover:border-[var(--pc)] focus:outline-none shadow-sm"
+            style={{
+              // @ts-ignore - arbitrary values via CSS vars
+              ['--pc']: primaryColor,
+              ['--sc']: secondaryColor,
+              color: secondaryColor,
+              borderColor: secondaryColor,
+            }}
           >
             Distribution & Status
           </TabsTrigger>
           <TabsTrigger 
             value="trends"
-            className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none shadow-sm"
+            className="bg-background dark:bg-gray-900 border-2 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--pc)] data-[state=active]:to-[var(--sc)] data-[state=active]:border-[var(--pc)] hover:text-white hover:bg-gradient-to-r hover:from-[var(--pc)] hover:to-[var(--sc)] hover:border-[var(--pc)] focus:outline-none shadow-sm"
+            style={{
+              // @ts-ignore
+              ['--pc']: primaryColor,
+              ['--sc']: secondaryColor,
+              color: secondaryColor,
+              borderColor: secondaryColor,
+            }}
           >
             Payment & Engagement
           </TabsTrigger>
@@ -265,8 +301,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
             {/* Parents by Categories */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#8A2BE2]">
-                  <BarChart3 className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                  <BarChart3 className="h-4 w-4" style={{ color: primaryColor }} />
                   Parents by Categories
                 </CardTitle>
               </CardHeader>
@@ -305,8 +341,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
                       </Bar>
                       <defs>
                         <linearGradient id="categoryGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#9370DB" />
-                          <stop offset="100%" stopColor="#8A2BE2" />
+                          <stop offset="0%" stopColor={primaryColor} />
+                          <stop offset="100%" stopColor={secondaryColor} />
                         </linearGradient>
                       </defs>
                     </BarChart>
@@ -318,8 +354,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
             {/* Payment Status Pie Chart */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#8A2BE2]">
-                  <DollarSign className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                  <DollarSign className="h-4 w-4" style={{ color: primaryColor }} />
                   Payment Status
                 </CardTitle>
               </CardHeader>
@@ -340,7 +376,7 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
                         {paymentChart.map((entry, index) => (
                           <Cell 
                             key={`cell-${index}`} 
-                            fill={paymentColors[entry.status as keyof typeof paymentColors]}
+                            fill={entry.status === 'Pending' ? secondaryColor : paymentColors[entry.status as keyof typeof paymentColors]}
                           />
                         ))}
                       </Pie>
@@ -357,8 +393,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
             {/* Parents by Status */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#8A2BE2]">
-                  <Activity className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                  <Activity className="h-4 w-4" style={{ color: primaryColor }} />
                   Parents by Status
                 </CardTitle>
               </CardHeader>
@@ -384,8 +420,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
                       </Bar>
                       <defs>
                         <linearGradient id="statusGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#FF7F50" />
-                          <stop offset="100%" stopColor="#FFA07A" />
+                          <stop offset="0%" stopColor={primaryColor} />
+                          <stop offset="100%" stopColor={secondaryColor} />
                         </linearGradient>
                       </defs>
                     </BarChart>
@@ -402,8 +438,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
             {/* Payment Collection Trend */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#8A2BE2]">
-                  <TrendingUp className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                  <TrendingUp className="h-4 w-4" style={{ color: primaryColor }} />
                   Payment Collection (Last 6 Months)
                 </CardTitle>
               </CardHeader>
@@ -436,8 +472,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
                           <stop offset="100%" stopColor="#059669" />
                         </linearGradient>
                         <linearGradient id="pendingGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#F59E0B" />
-                          <stop offset="100%" stopColor="#D97706" />
+                          <stop offset="0%" stopColor={secondaryColor} />
+                          <stop offset="100%" stopColor={secondaryColor} />
                         </linearGradient>
                       </defs>
                     </BarChart>
@@ -449,8 +485,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
             {/* Engagement Score Distribution */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#8A2BE2]">
-                  <Users className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                  <Users className="h-4 w-4" style={{ color: primaryColor }} />
                   Engagement Score Distribution
                 </CardTitle>
               </CardHeader>
@@ -479,8 +515,8 @@ function ParentAnalyticsComponent({ parents }: ParentAnalyticsProps) {
                       </Bar>
                       <defs>
                         <linearGradient id="engagementGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#DDA0DD" />
-                          <stop offset="100%" stopColor="#BA55D3" />
+                          <stop offset="0%" stopColor={primaryColor} />
+                          <stop offset="100%" stopColor={secondaryColor} />
                         </linearGradient>
                       </defs>
                     </BarChart>

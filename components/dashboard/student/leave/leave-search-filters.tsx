@@ -29,20 +29,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/dashboard/ui/label"
 import { Dialog, DialogContent } from "@/components/dashboard/ui/dialog"
 import { Textarea } from "@/components/dashboard/ui/textarea"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 // Grid icon component for column selector
-function GridIcon({ className = "w-6 h-6" }) {
+function GridIcon({ className = "w-6 h-6", color = "#7C3AED" }: { className?: string; color?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+      <rect x="3" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="17" width="5" height="5" rx="1.5" fill={color} />
     </svg>
   );
 }
@@ -92,6 +93,7 @@ export default function LeaveSearchFilters({
   setDateWindow,
 }: LeaveSearchFiltersProps) {
   const { toast } = useToast();
+  const { primaryColor } = useCustomColors();
   // Today's date ISO (yyyy-MM-dd) to cap date pickers
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], []);
 
@@ -389,7 +391,7 @@ export default function LeaveSearchFilters({
                 tabIndex={0}
               >
                 <span className="relative inline-block">
-                  <Filter className="h-3.5 w-3.5 text-purple-500" />
+                  <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                   {filterAction === 'applied' && (
                     <span className="absolute -top-1 -right-1">
                       <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -597,22 +599,26 @@ export default function LeaveSearchFilters({
       </div>
 
       {/* Leave count and Column Selector */}
-      <div className="flex items-center justify-between mb-4 bg-purple-50 rounded-lg px-4 py-2">
+      <div
+        className="flex items-center justify-between mb-4 rounded-lg px-4 py-2"
+        style={{ background: `color-mix(in oklab, ${primaryColor} 10%, white)` }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-purple-500 rounded-full" />
-          <span className="text-purple-600 font-medium text-sm">{filtered.length}</span>
-          <span className="text-purple-600 text-sm">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }} />
+          <span className="font-medium text-sm" style={{ color: primaryColor }}>{filtered.length}</span>
+          <span className="text-sm" style={{ color: primaryColor }}>
             leave record{filtered.length !== 1 ? 's' : ''} found
           </span>
         </div>
         {viewMode === 'list' && setDisplayedColumns && (
           <button
-            className="w-10 h-10 rounded-xl border border-purple-200 bg-[#fef2ff] hover:bg-purple-100 flex items-center justify-center shadow-sm hover:shadow transition-colors"
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm hover:shadow transition-colors"
+            style={{ border: `1px solid ${primaryColor}55`, background: `color-mix(in oklab, ${primaryColor} 6%, white)` }}
             onClick={() => setShowLeaveColumnSelector(true)}
             title="Displayed Columns"
             aria-label="Edit displayed leave columns"
           >
-            <GridIcon className="w-6 h-6" />
+            <GridIcon className="w-6 h-6" color={primaryColor} />
           </button>
         )}
       </div>
@@ -648,10 +654,14 @@ export default function LeaveSearchFilters({
               <h2 className="text-lg font-semibold">New Leave Request</h2>
               <p className="text-xs text-muted-foreground">Submit a leave request for a student</p>
             </div>
-            <span className="ml-3 inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-purple-100 text-purple-700 border border-purple-200 gap-1"><Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /> Coming soon</span>
+            <span
+              className="ml-3 inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium gap-1"
+              style={{ background: `color-mix(in oklab, ${primaryColor} 12%, white)`, color: primaryColor, border: `1px solid ${primaryColor}55` }}
+            ><Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /> Coming soon</span>
           </div>
 
-          <div className="rounded-md border bg-purple-50 text-purple-700 text-xs px-3 py-2">
+          <div className="rounded-md border text-xs px-3 py-2"
+               style={{ background: `color-mix(in oklab, ${primaryColor} 10%, white)`, color: primaryColor, borderColor: `${primaryColor}55` }}>
             This is a preview of the upcoming student leave request. Actions are disabled.
           </div>
 
@@ -723,7 +733,7 @@ export default function LeaveSearchFilters({
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="outline" onClick={()=>setRequestOpen(false)}>Close</Button>
             <Button variant="outline" disabled title="Coming soon">Save Draft</Button>
-            <Button className="bg-purple-600 text-white" disabled title="Coming soon">Create Request</Button>
+            <Button className="text-white" style={{ backgroundColor: primaryColor }} disabled title="Coming soon">Create Request</Button>
           </div>
         </DialogContent>
       </Dialog>

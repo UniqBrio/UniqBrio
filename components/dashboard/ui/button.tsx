@@ -13,10 +13,10 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-purple-600 hover:text-white hover:border-purple-600 dark:hover:bg-purple-700",
+          "border border-input bg-background hover:text-white",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-purple-600 hover:text-white dark:hover:bg-purple-700",
+        ghost: "hover:text-white",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -42,11 +42,25 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    // Add hover handler for outline and ghost variants to use dynamic primary color
+    const hoverHandlers = (variant === 'outline' || variant === 'ghost') ? {
+      onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.currentTarget.style.backgroundColor = 'hsl(var(--primary))'
+        if (variant === 'outline') e.currentTarget.style.borderColor = 'hsl(var(--primary))'
+      },
+      onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.currentTarget.style.backgroundColor = ''
+        if (variant === 'outline') e.currentTarget.style.borderColor = ''
+      }
+    } : {}
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
+        {...hoverHandlers}
       />
     )
   }

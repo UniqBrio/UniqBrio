@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -64,6 +65,7 @@ interface RecentActivity {
 
 export default function ServicesOverviewPage() {
   const router = useRouter()
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [scheduleStats, setScheduleStats] = useState<ScheduleStats>({
     totalSessions: 0,
     upcomingSessions: 0,
@@ -334,7 +336,7 @@ export default function ServicesOverviewPage() {
         {/* Header */}
         <div className="flex flex-col items-start gap-3 sm:gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 flex items-center gap-2 responsive-text-xl">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2 responsive-text-xl" style={{ color: primaryColor }}>
               <Activity className="h-8 w-8" />
               Services Overview
             </h1>
@@ -423,14 +425,27 @@ export default function ServicesOverviewPage() {
           <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
             <TabsTrigger
               value="dashboard"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+              style={{
+                borderColor: secondaryColor,
+                color: secondaryColor,
+                backgroundColor: 'transparent'
+              }}
+              data-primary={primaryColor}
+              data-secondary={secondaryColor}
             >
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
             <TabsTrigger
               value="service-areas"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-purple-500 text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-purple-600 data-[state=inactive]:hover:bg-orange-50"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 text-white font-medium data-[state=active]:text-white data-[state=inactive]:bg-transparent"
+              style={{
+                backgroundColor: primaryColor,
+                borderColor: 'transparent'
+              }}
+              data-primary={primaryColor}
+              data-secondary={secondaryColor}
             >
               <Users className="h-4 w-4" />
               Service Areas
@@ -451,10 +466,10 @@ export default function ServicesOverviewPage() {
           <TabsContent value="service-areas" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Schedule Overview */}
-              <Card className="border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30">
-                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
-                    <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-500" />
+              <Card className="border" style={{ borderColor: `${primaryColor}33`, background: `linear-gradient(to bottom right, ${primaryColor}0D, ${primaryColor}1A)` }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${primaryColor}33` }}>
+                  <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                    <Calendar className="h-5 w-5" style={{ color: primaryColor }} />
                     Schedule Management
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-white">
@@ -464,22 +479,23 @@ export default function ServicesOverviewPage() {
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-purple-700">This Week's Sessions</span>
-                      <span className="text-purple-900">{scheduleStats.thisWeekSessions}</span>
+                      <span style={{ color: primaryColor }}>This Week's Sessions</span>
+                      <span style={{ color: primaryColor }}>{scheduleStats.thisWeekSessions}</span>
                     </div>
-                    <Progress value={(scheduleStats.thisWeekSessions / 20) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
+                    <Progress value={(scheduleStats.thisWeekSessions / 20) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-purple-700">Today's Sessions</span>
-                      <span className="text-purple-900">{scheduleStats.todaySessions} sessions</span>
+                      <span style={{ color: primaryColor }}>Today's Sessions</span>
+                      <span style={{ color: primaryColor }}>{scheduleStats.todaySessions} sessions</span>
                     </div>
-                    <Progress value={(scheduleStats.todaySessions / 8) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
+                    <Progress value={(scheduleStats.todaySessions / 8) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
                   </div>
 
                   <Button
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                    className="w-full text-white"
+                    style={{ backgroundColor: primaryColor }}
                     onClick={() => router.push("/dashboard/services/schedule")}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
@@ -489,10 +505,10 @@ export default function ServicesOverviewPage() {
               </Card>
 
               {/* Courses Overview */}
-              <Card className="border-orange-200 dark:border-orange-900 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30">
-                <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-800 bg-white dark:bg-gray-900 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                    <BookOpen className="h-5 w-5 text-orange-600 dark:text-orange-500" />
+              <Card className="border" style={{ borderColor: `${secondaryColor}33`, background: `linear-gradient(to bottom right, ${secondaryColor}0D, ${secondaryColor}1A)` }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${secondaryColor}33` }}>
+                  <CardTitle className="flex items-center gap-2" style={{ color: secondaryColor }}>
+                    <BookOpen className="h-5 w-5" style={{ color: secondaryColor }} />
                     Course Management
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-white">
@@ -502,22 +518,23 @@ export default function ServicesOverviewPage() {
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-orange-700">Active Courses</span>
-                      <span className="text-orange-900">{courseStats.activeCourses}/{courseStats.totalCourses}</span>
+                      <span style={{ color: secondaryColor }}>Active Courses</span>
+                      <span style={{ color: secondaryColor }}>{courseStats.activeCourses}/{courseStats.totalCourses}</span>
                     </div>
-                    <Progress value={(courseStats.activeCourses / courseStats.totalCourses) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
+                    <Progress value={(courseStats.activeCourses / courseStats.totalCourses) * 100} className="h-2" style={{ backgroundColor: `${secondaryColor}1A` }} />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-orange-700">Enrollment Capacity</span>
-                      <span className="text-orange-900">{Math.round((courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100)}%</span>
+                      <span style={{ color: secondaryColor }}>Enrollment Capacity</span>
+                      <span style={{ color: secondaryColor }}>{Math.round((courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100)}%</span>
                     </div>
-                    <Progress value={(courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
+                    <Progress value={(courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100} className="h-2" style={{ backgroundColor: `${secondaryColor}1A` }} />
                   </div>
 
                   <Button
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                    className="w-full text-white"
+                    style={{ backgroundColor: secondaryColor }}
                     onClick={() => router.push("/dashboard/services/courses")}
                   >
                     <BookOpen className="mr-2 h-4 w-4" />
@@ -527,10 +544,10 @@ export default function ServicesOverviewPage() {
               </Card>
 
               {/* Cohort Overview */}
-              <Card className="border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30">
-                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
-                    <Users2 className="h-5 w-5 text-purple-600 dark:text-purple-500" />
+              <Card className="border" style={{ borderColor: `${primaryColor}33`, background: `linear-gradient(to bottom right, ${primaryColor}0D, ${primaryColor}1A)` }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${primaryColor}33` }}>
+                  <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                    <Users2 className="h-5 w-5" style={{ color: primaryColor }} />
                     Cohort Management
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-white">
@@ -540,22 +557,23 @@ export default function ServicesOverviewPage() {
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-purple-700">Active Cohorts</span>
-                      <span className="text-purple-900">{cohortStats.activeCohorts}/{cohortStats.totalCohorts}</span>
+                      <span style={{ color: primaryColor }}>Active Cohorts</span>
+                      <span style={{ color: primaryColor }}>{cohortStats.activeCohorts}/{cohortStats.totalCohorts}</span>
                     </div>
-                    <Progress value={(cohortStats.activeCohorts / cohortStats.totalCohorts) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
+                    <Progress value={(cohortStats.activeCohorts / cohortStats.totalCohorts) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-purple-700">Student Enrollment</span>
-                      <span className="text-purple-900">{cohortStats.totalStudents} students</span>
+                      <span style={{ color: primaryColor }}>Student Enrollment</span>
+                      <span style={{ color: primaryColor }}>{cohortStats.totalStudents} students</span>
                     </div>
-                    <Progress value={(cohortStats.totalStudents / (cohortStats.activeCohorts * cohortStats.averageCohortSize)) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
+                    <Progress value={(cohortStats.totalStudents / (cohortStats.activeCohorts * cohortStats.averageCohortSize)) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
                   </div>
 
                   <Button
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                    className="w-full text-white"
+                    style={{ backgroundColor: primaryColor }}
                     onClick={() => router.push("/dashboard/services/cohorts")}
                   >
                     <Users2 className="mr-2 h-4 w-4" />

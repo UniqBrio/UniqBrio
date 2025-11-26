@@ -18,6 +18,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface HeaderProps {
   
@@ -26,6 +27,7 @@ interface HeaderProps {
 }
 
 export default function Header({  userRole, changeUserRole }: HeaderProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [notifications, setNotifications] = useState(3)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
@@ -51,7 +53,7 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
             <Image src="/Academy logo.png" alt="UniqBrio Logo" fill style={{ objectFit: "contain" }} priority />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="text-xl font-bold text-purple-700 leading-tight">XYZ Academy</span>
+            <span className="text-xl font-bold leading-tight" style={{ color: primaryColor }}>XYZ Academy</span>
             <span className="text-sm text-gray-500 dark:text-white font-medium">Empowering Minds, Shaping Futures</span>
           </div>
         </div>
@@ -67,7 +69,8 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
                 <Bell className="h-5 w-5" />
                 {notifications > 0 && (
                   <Badge
-                    className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-orange-500 text-white text-xs"
+                    className="absolute -top-1 -right-1 px-1.5 py-0.5 text-white text-xs"
+                    style={{ backgroundColor: secondaryColor }}
                     aria-label={`${notifications} unread notifications`}
                   >
                     {notifications}
@@ -97,7 +100,13 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="items-center space-x-2 rounded-full border-purple" aria-label="User profile">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="items-center space-x-2 rounded-full border"
+              aria-label="User profile"
+              style={{ borderColor: `${primaryColor}33` }}
+            >
               
                 <Image
                   src="/placeholder-user.png"

@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/dashboard/ui/dialog"
 import { Home, Calendar, Users, GraduationCap, DollarSign, TrendingUp, Gift, ShoppingCart, MessageSquare, Cog, Palette, HelpCircle, Search, ChevronLeft, ChevronRight, Star, UserCheck, BookOpen, UserPlus, School, CalendarDays, Settings, Move } from 'lucide-react'
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface SidebarProps {
   collapsed: boolean
@@ -17,6 +18,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChange }: SidebarProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [showPositionDialog, setShowPositionDialog] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [favoriteItems, setFavoriteItems] = useState<string[]>(["Home", "Sell Products and Services"])
@@ -75,7 +77,10 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
           <div className="flex items-center justify-between">
             {!collapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-orange-500 rounded-lg flex items-center justify-center glow">
+                <div 
+                  className="w-8 h-8 rounded-lg flex items-center justify-center glow"
+                  style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}
+                >
                   <span className="text-white font-bold text-sm">XYZ</span>
                 </div>
                 <div>
@@ -112,7 +117,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
         <div className="flex-1 overflow-y-auto">
           {!collapsed && showFavorites && favoriteItems.length > 0 && (
             <div className="px-4 py-2">
-              <h3 className="text-sm font-semibold text-purple-600 mb-2">? Favorites</h3>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: primaryColor }}>? Favorites</h3>
               {favoriteItems.map((item) => (
                 <div
                   key={item}
@@ -130,7 +135,16 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowFavorites(!showFavorites)}
-                className="w-full justify-start mb-4 text-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-smooth"
+                className="w-full justify-start mb-4 transition-smooth"
+                style={{ color: secondaryColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${secondaryColor}10`;
+                  e.currentTarget.style.color = secondaryColor;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = secondaryColor;
+                }}
               >
                 <Star className="h-4 w-4 mr-2" />
                 Favorite Menu Items
@@ -141,7 +155,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
               <div key={item.name} className="mb-1">
                 <div className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-100 cursor-pointer group transition-smooth">
                   <div className="flex items-center space-x-3">
-                    <item.icon className="h-5 w-5 text-purple-600" />
+                    <item.icon className="h-5 w-5" style={{ color: primaryColor }} />
                     {!collapsed && (
                       <span
                         className={`text-sm ${item.name === "Sell Products and Services" ? "font-semibold gradient-text" : "text-gray-700 dark:text-white"}`}
@@ -155,10 +169,19 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleFavorite(item.name)}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-orange-50 transition-smooth"
+                      className="opacity-0 group-hover:opacity-100 p-1 transition-smooth"
+                      style={{
+                        backgroundColor: favoriteItems.includes(item.name) ? `${secondaryColor}10` : 'transparent'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}10`}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = favoriteItems.includes(item.name) ? `${secondaryColor}10` : 'transparent'}
                     >
                       <Star
-                        className={`h-4 w-4 ${favoriteItems.includes(item.name) ? "fill-orange-500 text-orange-500" : "text-gray-400 dark:text-white"}`}
+                        className="h-4 w-4"
+                        style={{
+                          color: favoriteItems.includes(item.name) ? secondaryColor : undefined,
+                          fill: favoriteItems.includes(item.name) ? secondaryColor : 'none'
+                        }}
                       />
                     </Button>
                   )}
@@ -175,10 +198,19 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                           variant="ghost"
                           size="sm"
                           onClick={() => toggleFavorite(subItem)}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-orange-50 transition-smooth"
+                          className="opacity-0 group-hover:opacity-100 p-1 transition-smooth"
+                          style={{
+                            backgroundColor: favoriteItems.includes(subItem) ? `${secondaryColor}10` : 'transparent'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}10`}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = favoriteItems.includes(subItem) ? `${secondaryColor}10` : 'transparent'}
                         >
                           <Star
-                            className={`h-3 w-3 ${favoriteItems.includes(subItem) ? "fill-orange-500 text-orange-500" : "text-gray-400 dark:text-white"}`}
+                            className="h-3 w-3"
+                            style={{
+                              color: favoriteItems.includes(subItem) ? secondaryColor : undefined,
+                              fill: favoriteItems.includes(subItem) ? secondaryColor : 'none'
+                            }}
                           />
                         </Button>
                       </div>
@@ -217,9 +249,13 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
                   onPositionChange(pos.toLowerCase() as any)
                   setShowPositionDialog(false)
                 }}
+                style={position === pos.toLowerCase() ? {
+                  backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`,
+                  color: 'white'
+                } : undefined}
                 className={
                   position === pos.toLowerCase()
-                    ? "bg-gradient-to-r from-purple-600 to-orange-500 text-white"
+                    ? ""
                     : "border-gray-300 hover:bg-gray-50 text-gray-700 dark:text-white"
                 }
               >

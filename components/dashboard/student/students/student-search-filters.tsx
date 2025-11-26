@@ -5,6 +5,7 @@ import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Progress } from "@/components/dashboard/ui/progress";
 import { useToast } from "@/hooks/dashboard/use-toast";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { ArrowUpDown, ArrowUp, ArrowDown, Check, Download, Filter, Plus, Search, Upload, X } from "lucide-react";
@@ -17,18 +18,18 @@ import { FormattedDateInput } from "@/components/dashboard/student/common/format
 import { formatDateForDisplay } from '@/lib/dashboard/student/utils'
 
 // Grid icon component for column selector
-function GridIcon({ className = "w-6 h-6" }) {
+function GridIcon({ className = "w-6 h-6", color = "#7C3AED" }: { className?: string; color?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+      <rect x="3" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="17" width="5" height="5" rx="1.5" fill={color} />
     </svg>
   );
 }
@@ -93,6 +94,7 @@ export default function StudentSearchFilters({
   courses = [],
 }: StudentSearchFiltersProps) {
   const { toast } = useToast();
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Today's date ISO (yyyy-MM-dd) to cap date pickers in filters
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], []);
 
@@ -735,7 +737,7 @@ export default function StudentSearchFilters({
               tabIndex={0}
             >
               <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 text-purple-500" />
+                <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                 {filterAction === "applied" && (
                   <span className="absolute -top-1 -right-1">
                     <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -967,7 +969,9 @@ export default function StudentSearchFilters({
           size="sm" 
           title={draftCount > 0 ? `View ${draftCount} draft${draftCount !== 1 ? 's' : ''}` : "No drafts available"}
           onClick={onOpenDrafts}
-          className={draftCount > 0 ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}
+          style={draftCount > 0 ? { backgroundColor: primaryColor, color: 'white' } : {}}
+          onMouseEnter={(e) => draftCount > 0 ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+          onMouseLeave={(e) => draftCount > 0 ? e.currentTarget.style.backgroundColor = primaryColor : null}
         >
           <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -996,13 +1000,13 @@ export default function StudentSearchFilters({
       )}
 
       {/* Student count and Column Selector */}
-      <div className="flex items-center justify-between mb-4 bg-purple-50 rounded-lg px-4 py-2">
+      <div className="flex items-center justify-between mb-4 rounded-lg px-4 py-2" style={{ backgroundColor: `${primaryColor}15` }}>
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-          <span className="text-purple-600 font-medium text-sm">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+          <span className="font-medium text-sm" style={{ color: `${primaryColor}dd` }}>
             {filtered.length}
           </span>
-          <span className="text-purple-600 text-sm">
+          <span className="text-sm" style={{ color: `${primaryColor}dd` }}>
             student{filtered.length !== 1 ? 's' : ''} found
           </span>
         </div>
@@ -1010,12 +1014,15 @@ export default function StudentSearchFilters({
         {/* Column Selector Button (hidden in grid view) */}
         {viewMode === 'list' && (
           <button
-            className="w-10 h-10 rounded-xl border border-purple-200 bg-[#fef2ff] hover:bg-purple-100 flex items-center justify-center shadow-sm hover:shadow transition-colors"
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm hover:shadow transition-colors"
+            style={{ border: `1px solid ${primaryColor}80`, backgroundColor: `${primaryColor}15` }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
             onClick={() => setShowStudentColumnSelector(true)}
             title="Displayed Columns"
             aria-label="Edit displayed student columns"
           >
-            <GridIcon className="w-6 h-6" />
+            <GridIcon className="w-6 h-6" color={primaryColor} />
           </button>
         )}
       </div>

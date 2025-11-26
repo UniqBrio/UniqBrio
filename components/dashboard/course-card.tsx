@@ -5,6 +5,7 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
 import { Progress } from "@/components/dashboard/ui/progress"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import {
   Star,
   Users,
@@ -40,6 +41,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
   // Use instructorName if available, else fallback to instructor
   const instructorDisplay = course.instructor || 'Unknown Instructor';
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const formatCurrency = (amount: number, currencyCode: string) => {
     // Note: priceINR is a legacy field name, but now stores price in academy's selected currency
     try {
@@ -63,7 +65,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
       case "Completed":
         return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700"
       case "Draft":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return "" // Will use inline styles
       default:
         return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700"
     }
@@ -73,18 +75,25 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
 
   return (
     <TooltipProvider>
-      <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-orange-400 hover:border-orange-500 relative overflow-hidden">
+      <Card 
+        className="group hover:shadow-lg transition-all duration-300 border-2 relative overflow-hidden"
+        style={{ borderColor: `${secondaryColor}80` }}
+        onMouseEnter={(e) => e.currentTarget.style.borderColor = secondaryColor}
+        onMouseLeave={(e) => e.currentTarget.style.borderColor = `${secondaryColor}80`}
+      >
         {/* Status indicator */}
         <div
-          className={`absolute top-0 left-0 right-0 h-1 ${
-            course.status === "Active"
-              ? "bg-green-500"
-              : course.status === "Upcoming"
-                ? "bg-blue-500"
+          className="absolute top-0 left-0 right-0 h-1"
+          style={{
+            backgroundColor:
+              course.status === "Active"
+                ? "#10b981"
+                : course.status === "Upcoming"
+                ? "#3b82f6"
                 : course.status === "Completed"
-                  ? "bg-gray-500"
-                  : "bg-orange-500"
-          }`}
+                  ? "#6b7280"
+                  : secondaryColor
+          }}
         />
 
         {/* Feature indicators */}
@@ -92,8 +101,8 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
           {course.dynamicPricing?.enabled && (
             <Tooltip>
               <TooltipTrigger>
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                  <TrendingUp className="h-3 w-3 text-purple-600" />
+                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${primaryColor}30` }}>
+                  <TrendingUp className="h-3 w-3" style={{ color: primaryColor }} />
                 </div>
               </TooltipTrigger>
               <TooltipContent>
@@ -145,7 +154,11 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg leading-tight mb-2 group-hover:text-purple-700 transition-colors">
+              <h3 
+                className="font-semibold text-lg leading-tight mb-2 transition-colors"
+                onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+                onMouseLeave={(e) => e.currentTarget.style.color = ''}
+              >
                 {course.name || 'Untitled Course'}
               </h3>
               <p className="text-sm text-gray-600 dark:text-white line-clamp-2 mb-3">{course.description || 'No description provided.'}</p>
@@ -203,22 +216,21 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
           {/* Instructor and Level */}
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                <Users className="h-3 w-3 text-purple-600" />
+              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${primaryColor}30` }}>
+                <Users className="h-3 w-3" style={{ color: primaryColor }} />
               </div>
               <span className="text-gray-600 dark:text-white">{instructorDisplay}</span>
             </div>
             <Badge
               variant="outline"
-              className={
-                course.level === "Easy"
-                  ? "border-green-200 text-green-700"
-                  : course.level === "Medium"
-                    ? "border-yellow-200 text-yellow-700"
-                    : "border-red-200 text-red-700"
-              }
+              className={getStatusColor(course.status)}
+              style={course.status === 'Draft' ? {
+                backgroundColor: `${secondaryColor}20`,
+                color: secondaryColor,
+                borderColor: `${secondaryColor}50`
+              } : {}}
             >
-              {course.level || 'Unspecified Level'}
+              {course.status}
             </Badge>
           </div>
 
@@ -229,7 +241,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <span className="text-gray-600 dark:text-white">{course.name || 'Untitled Course'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-purple-700 font-bold text-lg">{course.priceINR ? `${currency} ${course.priceINR}` : currency}</span>
+              <span className="font-bold text-lg" style={{ color: primaryColor }}>{course.priceINR ? `${currency} ${course.priceINR}` : currency}</span>
             </div>
           </div>
 
@@ -267,7 +279,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <span className="text-sm text-gray-500 dark:text-white">({course.enrolledStudents} reviews)</span>
             </div>
             <div className="text-right">
-              <div className="font-bold text-lg text-purple-600">{formatCurrency(course.priceINR, currency)}</div>
+              <div className="font-bold text-lg" style={{ color: primaryColor }}>{formatCurrency(course.priceINR, currency)}</div>
                  {course.dynamicPricing?.enabled &&
                 course.dynamicPricing.suggestedPrice !== undefined &&
                 course.dynamicPricing.suggestedPrice !== course.priceINR && (
@@ -312,7 +324,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               {course.industryPartners.length > 0 && (
                 <Tooltip>
                   <TooltipTrigger>
-                    <div className="flex items-center gap-1 text-xs text-purple-600">
+                    <div className="flex items-center gap-1 text-xs" style={{ color: primaryColor }}>
                       <Briefcase className="h-3 w-3" />
                       Jobs
                     </div>

@@ -3,6 +3,7 @@
 // Events Management Page
 import React, { useState, useMemo, useEffect } from "react"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import type { Event, EventFilters } from '@/types/dashboard/events/event'
 import { EventManagement, EventViewModal, EventFormModal } from "@/components/dashboard/events"
 import EventHeroSection from "@/components/dashboard/events/EventHeroSection"
@@ -200,7 +201,7 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
               <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
                 {event.type}
               </Badge>
-              <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">
+              <Badge variant="outline" className={`${primaryColor.bg} ${primaryColor.text} ${primaryColor.border}`}>
                 {event.skillLevel}
               </Badge>
             </div>
@@ -484,6 +485,7 @@ function EventDashboard({ events, currency }: { events: Event[]; currency: strin
 
 export default function EventsPage() {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -760,7 +762,7 @@ export default function EventsPage() {
                 {/* Analytics tab */}
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
                 >
                   <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Analytics</span>
@@ -769,7 +771,7 @@ export default function EventsPage() {
                 {/* Ongoing Events tab */}
                 <TabsTrigger 
                   value="events" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Ongoing</span>
@@ -777,7 +779,7 @@ export default function EventsPage() {
                 {/* Upcoming Events tab */}
                 <TabsTrigger 
                   value="upcoming" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Upcoming</span>
@@ -786,7 +788,7 @@ export default function EventsPage() {
                 {/* Completed Events tab */}
                 <TabsTrigger 
                   value="completed" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-orange-400 dark:border-orange-600 bg-transparent text-orange-600 dark:text-orange-400 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 dark:data-[state=inactive]:border-orange-600 data-[state=inactive]:text-orange-600 dark:data-[state=inactive]:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 data-[state=active]:hover:bg-purple-700 whitespace-nowrap flex-shrink-0"
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Completed</span>

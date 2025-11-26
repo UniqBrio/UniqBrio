@@ -11,6 +11,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { CalendarIcon, Clock, Users, AlertTriangle, Plus, Edit, Trash2, UserCheck, RefreshCw } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface ScheduleEvent {
   id: string
@@ -25,6 +26,7 @@ interface ScheduleEvent {
 }
 
 export default function ScheduleShiftManagement() {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [events, setEvents] = useState<ScheduleEvent[]>([
     {
@@ -71,15 +73,15 @@ export default function ScheduleShiftManagement() {
   const getEventColor = (type: string) => {
     switch (type) {
       case "teaching":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return { backgroundColor: `${secondaryColor}20`, color: `${secondaryColor}dd`, borderColor: `${secondaryColor}80` }
       case "sports":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return { backgroundColor: `${primaryColor}20`, color: `${primaryColor}dd`, borderColor: `${primaryColor}80` }
       case "arts":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return { backgroundColor: '#DBEAFE', color: '#1E40AF', borderColor: '#93C5FD' }
       case "meeting":
-        return "bg-green-100 text-green-800 border-green-200"
+        return { backgroundColor: '#D1FAE5', color: '#065F46', borderColor: '#6EE7B7' }
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+        return { backgroundColor: '#F3F4F6', color: '#1F2937', borderColor: '#D1D5DB' }
     }
   }
 
@@ -172,11 +174,11 @@ export default function ScheduleShiftManagement() {
               <h4 className="font-semibold">Color Codes</h4>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: secondaryColor }}></div>
                   <span className="text-sm">Teaching</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: primaryColor }}></div>
                   <span className="text-sm">Sports</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -207,8 +209,10 @@ export default function ScheduleShiftManagement() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {events.map((event) => (
-                <div key={event.id} className={`p-4 rounded-lg border-2 ${getEventColor(event.type)}`}>
+              {events.map((event) => {
+                const colors = getEventColor(event.type);
+                return (
+                <div key={event.id} className="p-4 rounded-lg border-2" style={{ backgroundColor: colors.backgroundColor, color: colors.color, borderColor: colors.borderColor }}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <span className="text-2xl">{getEventIcon(event.type)}</span>
@@ -239,7 +243,9 @@ export default function ScheduleShiftManagement() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="icon" variant="ghost" className="text-purple-600 hover:text-purple-800">
+                      <Button size="icon" variant="ghost" style={{ color: primaryColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = `${primaryColor}dd`}
+                        onMouseLeave={(e) => e.currentTarget.style.color = primaryColor}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button size="icon" variant="ghost">
@@ -251,7 +257,8 @@ export default function ScheduleShiftManagement() {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           </CardContent>
         </Card>

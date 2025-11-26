@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -56,6 +57,7 @@ interface StaffOverallStats {
 }
 
 export default function StaffManagementPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const router = useRouter()
   const [instructorStats, setInstructorStats] = useState<InstructorStats>({
     totalInstructors: 0,
@@ -203,7 +205,7 @@ export default function StaffManagementPage() {
         {/* Header */}
         <div className="flex flex-col items-start gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
+            <h1 className="text-3xl font-bold flex items-center gap-2" style={{ color: primaryColor }}>
               <Users className="h-8 w-8" />
               Staff Management
             </h1>
@@ -215,61 +217,61 @@ export default function StaffManagementPage() {
 
         {/* Stats Overview - Matching Services Page Theme */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+          <Card style={{ borderColor: primaryColor, backgroundImage: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}30)` }}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600">Total Staff</p>
-                  <p className="text-2xl font-bold text-purple-900">{overallStats.totalStaff}</p>
+                  <p className="text-sm font-medium" style={{ color: primaryColor }}>Total Staff</p>
+                  <p className="text-2xl font-bold" style={{ color: primaryColor }}>{overallStats.totalStaff}</p>
                 </div>
-                <Users className="h-8 w-8 text-purple-500" />
+                <Users className="h-8 w-8" style={{ color: primaryColor }} />
               </div>
-              <p className="text-xs text-purple-600 mt-1">
+              <p className="text-xs mt-1" style={{ color: primaryColor }}>
                 {overallStats.activeStaff} currently active
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+          <Card style={{ borderColor: secondaryColor, backgroundImage: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}30)` }}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-600">Instructors</p>
-                  <p className="text-2xl font-bold text-orange-900">{instructorStats.totalInstructors}</p>
+                  <p className="text-sm font-medium" style={{ color: secondaryColor }}>Instructors</p>
+                  <p className="text-2xl font-bold" style={{ color: secondaryColor }}>{instructorStats.totalInstructors}</p>
                 </div>
-                <GraduationCap className="h-8 w-8 text-orange-500" />
+                <GraduationCap className="h-8 w-8" style={{ color: secondaryColor }} />
               </div>
-              <p className="text-xs text-orange-600 mt-1">
+              <p className="text-xs mt-1" style={{ color: secondaryColor }}>
                 {instructorStats.activeInstructors} active
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+          <Card style={{ borderColor: primaryColor, backgroundImage: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}30)` }}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600">Non-Instructors</p>
-                  <p className="text-2xl font-bold text-purple-900">{nonInstructorStats.totalNonInstructors}</p>
+                  <p className="text-sm font-medium" style={{ color: primaryColor }}>Non-Instructors</p>
+                  <p className="text-2xl font-bold" style={{ color: primaryColor }}>{nonInstructorStats.totalNonInstructors}</p>
                 </div>
-                <UserCog className="h-8 w-8 text-purple-500" />
+                <UserCog className="h-8 w-8" style={{ color: primaryColor }} />
               </div>
-              <p className="text-xs text-purple-600 mt-1">
+              <p className="text-xs mt-1" style={{ color: primaryColor }}>
                 {nonInstructorStats.activeNonInstructors} active
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+          <Card style={{ borderColor: secondaryColor, backgroundImage: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}30)` }}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-600">On Leave Today</p>
-                  <p className="text-2xl font-bold text-orange-900">{overallStats.totalOnLeave}</p>
+                  <p className="text-sm font-medium" style={{ color: secondaryColor }}>On Leave Today</p>
+                  <p className="text-2xl font-bold" style={{ color: secondaryColor }}>{overallStats.totalOnLeave}</p>
                 </div>
-                <Calendar className="h-8 w-8 text-orange-500" />
+                <Calendar className="h-8 w-8" style={{ color: secondaryColor }} />
               </div>
-              <p className="text-xs text-orange-600 mt-1">
+              <p className="text-xs mt-1" style={{ color: secondaryColor }}>
                 {((overallStats.totalOnLeave / overallStats.totalStaff) * 100).toFixed(1)}% of staff
               </p>
             </CardContent>
@@ -281,14 +283,22 @@ export default function StaffManagementPage() {
           <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
             <TabsTrigger
               value="analytics"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-purple-500 text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-purple-600 data-[state=inactive]:hover:bg-orange-50"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium"
+              style={{
+                borderColor: secondaryColor,
+                color: secondaryColor
+              }}
             >
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
             <TabsTrigger
               value="staff-areas"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium"
+              style={{
+                borderColor: secondaryColor,
+                color: secondaryColor
+              }}
             >
               <Users className="h-4 w-4" />
               Staff Areas
@@ -298,10 +308,10 @@ export default function StaffManagementPage() {
           <TabsContent value="staff-areas" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Instructor Management */}
-              <Card className="border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100">
-                <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-orange-700">
-                    <GraduationCap className="h-5 w-5 text-orange-600" />
+              <Card style={{ borderColor: secondaryColor, backgroundImage: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}30)` }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: secondaryColor }}>
+                  <CardTitle className="flex items-center gap-2" style={{ color: secondaryColor }}>
+                    <GraduationCap className="h-5 w-5" style={{ color: secondaryColor }} />
                     Instructor Management
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-white">
@@ -311,36 +321,38 @@ export default function StaffManagementPage() {
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-orange-700">Active Instructors</span>
-                      <span className="text-orange-900">{instructorStats.activeInstructors}/{instructorStats.totalInstructors}</span>
+                      <span style={{ color: secondaryColor }}>Active Instructors</span>
+                      <span style={{ color: secondaryColor }}>{instructorStats.activeInstructors}/{instructorStats.totalInstructors}</span>
                     </div>
                     <Progress 
                       value={(instructorStats.activeInstructors / instructorStats.totalInstructors) * 100} 
-                      className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" 
+                      className="h-2"
+                      style={{ backgroundColor: `${secondaryColor}20` }}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-orange-700">Attendance Rate</span>
-                      <span className="text-orange-900">{instructorStats.attendanceRate}%</span>
+                      <span style={{ color: secondaryColor }}>Attendance Rate</span>
+                      <span style={{ color: secondaryColor }}>{instructorStats.attendanceRate}%</span>
                     </div>
-                    <Progress value={instructorStats.attendanceRate} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
+                    <Progress value={instructorStats.attendanceRate} className="h-2" style={{ backgroundColor: `${secondaryColor}20` }} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-white/50 p-2 rounded border border-orange-200">
-                      <div className="text-orange-600">On Leave Today</div>
-                      <div className="font-semibold text-orange-800">{instructorStats.onLeaveToday}</div>
+                    <div className="bg-white/50 p-2 rounded border" style={{ borderColor: secondaryColor }}>
+                      <div style={{ color: secondaryColor }}>On Leave Today</div>
+                      <div className="font-semibold" style={{ color: secondaryColor }}>{instructorStats.onLeaveToday}</div>
                     </div>
-                    <div className="bg-white/50 p-2 rounded border border-orange-200">
-                      <div className="text-orange-600">Available</div>
-                      <div className="font-semibold text-orange-800">{instructorStats.activeInstructors - instructorStats.onLeaveToday}</div>
+                    <div className="bg-white/50 p-2 rounded border" style={{ borderColor: secondaryColor }}>
+                      <div style={{ color: secondaryColor }}>Available</div>
+                      <div className="font-semibold" style={{ color: secondaryColor }}>{instructorStats.activeInstructors - instructorStats.onLeaveToday}</div>
                     </div>
                   </div>
 
                   <Button
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                    className="w-full text-white"
+                    style={{ backgroundColor: secondaryColor }}
                     onClick={() => router.push("/dashboard/user/staff/instructor")}
                   >
                     <GraduationCap className="mr-2 h-4 w-4" />
@@ -350,10 +362,10 @@ export default function StaffManagementPage() {
               </Card>
 
               {/* Non-Instructor Management */}
-              <Card className="border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100">
-                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-purple-700">
-                    <UserCog className="h-5 w-5 text-purple-600" />
+              <Card style={{ borderColor: primaryColor, backgroundImage: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}30)` }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: primaryColor }}>
+                  <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                    <UserCog className="h-5 w-5" style={{ color: primaryColor }} />
                     Non-Instructor Management
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-white">
@@ -363,36 +375,38 @@ export default function StaffManagementPage() {
                 <CardContent className="space-y-4 p-6">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-purple-700">Active Non-Instructors</span>
-                      <span className="text-purple-900">{nonInstructorStats.activeNonInstructors}/{nonInstructorStats.totalNonInstructors}</span>
+                      <span style={{ color: primaryColor }}>Active Non-Instructors</span>
+                      <span style={{ color: primaryColor }}>{nonInstructorStats.activeNonInstructors}/{nonInstructorStats.totalNonInstructors}</span>
                     </div>
                     <Progress 
                       value={(nonInstructorStats.activeNonInstructors / nonInstructorStats.totalNonInstructors) * 100} 
-                      className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" 
+                      className="h-2"
+                      style={{ backgroundColor: `${primaryColor}20` }}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">
-                      <span className="text-purple-700">Attendance Rate</span>
-                      <span className="text-purple-900">{nonInstructorStats.attendanceRate}%</span>
+                      <span style={{ color: primaryColor }}>Attendance Rate</span>
+                      <span style={{ color: primaryColor }}>{nonInstructorStats.attendanceRate}%</span>
                     </div>
-                    <Progress value={nonInstructorStats.attendanceRate} className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" />
+                    <Progress value={nonInstructorStats.attendanceRate} className="h-2" style={{ backgroundColor: `${primaryColor}20` }} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-white/50 p-2 rounded border border-purple-200">
-                      <div className="text-purple-600">On Leave Today</div>
-                      <div className="font-semibold text-purple-800">{nonInstructorStats.onLeaveToday}</div>
+                    <div className="bg-white/50 p-2 rounded border" style={{ borderColor: primaryColor }}>
+                      <div style={{ color: primaryColor }}>On Leave Today</div>
+                      <div className="font-semibold" style={{ color: primaryColor }}>{nonInstructorStats.onLeaveToday}</div>
                     </div>
-                    <div className="bg-white/50 p-2 rounded border border-purple-200">
-                      <div className="text-purple-600">Available</div>
-                      <div className="font-semibold text-purple-800">{nonInstructorStats.activeNonInstructors - nonInstructorStats.onLeaveToday}</div>
+                    <div className="bg-white/50 p-2 rounded border" style={{ borderColor: primaryColor }}>
+                      <div style={{ color: primaryColor }}>Available</div>
+                      <div className="font-semibold" style={{ color: primaryColor }}>{nonInstructorStats.activeNonInstructors - nonInstructorStats.onLeaveToday}</div>
                     </div>
                   </div>
 
                   <Button
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                    className="w-full text-white"
+                    style={{ backgroundColor: primaryColor }}
                     onClick={() => router.push("/dashboard/user/staff/non-instructor")}
                   >
                     <UserCog className="mr-2 h-4 w-4" />
@@ -410,7 +424,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5 text-purple-600" />
+                    <PieChart className="h-5 w-5" style={{ color: primaryColor }} />
                     Staff Distribution by Role
                   </CardTitle>
                   <CardDescription>
@@ -587,20 +601,20 @@ export default function StaffManagementPage() {
                   
                   {/* Enhanced Legend with Real Data */}
                   <div className="mt-6 grid grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700">
-                      <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full"></div>
+                    <div className="flex items-center gap-3 p-4 rounded-lg border" style={{ backgroundColor: `${secondaryColor}10`, borderColor: secondaryColor }}>
+                      <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${secondaryColor}, ${secondaryColor}dd)` }}></div>
                       <div>
-                        <div className="font-medium text-orange-800">{instructorStats.totalInstructors} Instructors</div>
-                        <div className="text-xs text-orange-600">{Math.round((instructorStats.totalInstructors / overallStats.totalStaff) * 100)}% of total staff</div>
-                        <div className="text-xs text-orange-500 mt-1">{instructorStats.activeInstructors} active � {instructorStats.onLeaveToday} on leave</div>
+                        <div className="font-medium" style={{ color: secondaryColor }}>{instructorStats.totalInstructors} Instructors</div>
+                        <div className="text-xs" style={{ color: secondaryColor }}>{Math.round((instructorStats.totalInstructors / overallStats.totalStaff) * 100)}% of total staff</div>
+                        <div className="text-xs mt-1" style={{ color: secondaryColor }}>{instructorStats.activeInstructors} active • {instructorStats.onLeaveToday} on leave</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
-                      <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
+                    <div className="flex items-center gap-3 p-4 rounded-lg border" style={{ backgroundColor: `${primaryColor}10`, borderColor: primaryColor }}>
+                      <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${primaryColor}, ${primaryColor}dd)` }}></div>
                       <div>
-                        <div className="font-medium text-purple-800">{nonInstructorStats.totalNonInstructors} Non-Instructors</div>
-                        <div className="text-xs text-purple-600">{Math.round((nonInstructorStats.totalNonInstructors / overallStats.totalStaff) * 100)}% of total staff</div>
-                        <div className="text-xs text-purple-500 mt-1">{nonInstructorStats.activeNonInstructors} active � {nonInstructorStats.onLeaveToday} on leave</div>
+                        <div className="font-medium" style={{ color: primaryColor }}>{nonInstructorStats.totalNonInstructors} Non-Instructors</div>
+                        <div className="text-xs" style={{ color: primaryColor }}>{Math.round((nonInstructorStats.totalNonInstructors / overallStats.totalStaff) * 100)}% of total staff</div>
+                        <div className="text-xs mt-1" style={{ color: primaryColor }}>{nonInstructorStats.activeNonInstructors} active • {nonInstructorStats.onLeaveToday} on leave</div>
                       </div>
                     </div>
                   </div>
@@ -611,7 +625,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-orange-600" />
+                    <BarChart3 className="h-5 w-5" style={{ color: secondaryColor }} />
                     Attendance Comparison
                   </CardTitle>
                 </CardHeader>
@@ -642,7 +656,7 @@ export default function StaffManagementPage() {
                                 {instructorStats.attendanceRate}%
                               </div>
                             </div>
-                            <span className="text-xs font-medium text-orange-700">Instructors</span>
+                            <span className="text-xs font-medium" style={{ color: secondaryColor }}>Instructors</span>
                           </div>
 
                           {/* Non-Instructor Bar with shadow */}
@@ -656,7 +670,7 @@ export default function StaffManagementPage() {
                                 {nonInstructorStats.attendanceRate}%
                               </div>
                             </div>
-                            <span className="text-xs font-medium text-purple-700">Non-Instructors</span>
+                            <span className="text-xs font-medium" style={{ color: primaryColor }}>Non-Instructors</span>
                           </div>
 
                           {/* Average Line Indicator */}
@@ -670,8 +684,8 @@ export default function StaffManagementPage() {
 
                     {/* Performance Gap Indicator */}
                     <div className="text-center">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-orange-50 rounded-full border">
-                        <Trophy className="h-4 w-4 text-orange-600" />
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border" style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}10, ${secondaryColor}10)`, borderColor: secondaryColor }}>
+                        <Trophy className="h-4 w-4" style={{ color: secondaryColor }} />
                         <span className="text-sm font-medium">
                           Gap: {Math.abs(instructorStats.attendanceRate - nonInstructorStats.attendanceRate)}%
                         </span>
@@ -688,7 +702,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-purple-600" />
+                    <Activity className="h-5 w-5" style={{ color: primaryColor }} />
                     Active vs Leave Status
                   </CardTitle>
                 </CardHeader>
@@ -793,13 +807,13 @@ export default function StaffManagementPage() {
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                       <div className="text-xs text-gray-600 dark:text-white mb-3 font-medium">Active Staff by Role:</div>
                       <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="flex justify-between items-center p-2 bg-orange-50 dark:bg-orange-900/30 rounded border border-orange-200 dark:border-orange-700">
-                          <span className="text-orange-700">Instructors</span>
-                          <span className="font-semibold text-orange-800">{instructorStats.activeInstructors}/{instructorStats.totalInstructors}</span>
+                        <div className="flex justify-between items-center p-2 rounded border" style={{ backgroundColor: `${secondaryColor}10`, borderColor: secondaryColor }}>
+                          <span style={{ color: secondaryColor }}>Instructors</span>
+                          <span className="font-semibold" style={{ color: secondaryColor }}>{instructorStats.activeInstructors}/{instructorStats.totalInstructors}</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 bg-purple-50 dark:bg-purple-900/30 rounded border border-purple-200 dark:border-purple-700">
-                          <span className="text-purple-700">Non-Instructors</span>
-                          <span className="font-semibold text-purple-800">{nonInstructorStats.activeNonInstructors}/{nonInstructorStats.totalNonInstructors}</span>
+                        <div className="flex justify-between items-center p-2 rounded border" style={{ backgroundColor: `${primaryColor}10`, borderColor: primaryColor }}>
+                          <span style={{ color: primaryColor }}>Non-Instructors</span>
+                          <span className="font-semibold" style={{ color: primaryColor }}>{nonInstructorStats.activeNonInstructors}/{nonInstructorStats.totalNonInstructors}</span>
                         </div>
                       </div>
                     </div>
@@ -811,7 +825,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-orange-600" />
+                    <Target className="h-5 w-5" style={{ color: secondaryColor }} />
                     Performance Overview Radar
                   </CardTitle>
                   <CardDescription>
@@ -892,15 +906,15 @@ export default function StaffManagementPage() {
                     {/* Enhanced Performance metrics with context */}
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-center">
-                        <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                          <div className="text-2xl font-bold text-orange-700">{instructorStats.attendanceRate}%</div>
-                          <div className="text-xs text-orange-600 mb-1">Instructor Average</div>
-                          <div className="text-xs text-orange-500">{instructorStats.activeInstructors} of {instructorStats.totalInstructors} active</div>
+                        <div className="p-4 rounded-lg border" style={{ backgroundImage: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}30)`, borderColor: secondaryColor }}>
+                          <div className="text-2xl font-bold" style={{ color: secondaryColor }}>{instructorStats.attendanceRate}%</div>
+                          <div className="text-xs mb-1" style={{ color: secondaryColor }}>Instructor Average</div>
+                          <div className="text-xs" style={{ color: secondaryColor }}>{instructorStats.activeInstructors} of {instructorStats.totalInstructors} active</div>
                         </div>
-                        <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                          <div className="text-2xl font-bold text-purple-700">{nonInstructorStats.attendanceRate}%</div>
-                          <div className="text-xs text-purple-600 mb-1">Non-Instructor Average</div>
-                          <div className="text-xs text-purple-500">{nonInstructorStats.activeNonInstructors} of {nonInstructorStats.totalNonInstructors} active</div>
+                        <div className="p-4 rounded-lg border" style={{ backgroundImage: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}30)`, borderColor: primaryColor }}>
+                          <div className="text-2xl font-bold" style={{ color: primaryColor }}>{nonInstructorStats.attendanceRate}%</div>
+                          <div className="text-xs mb-1" style={{ color: primaryColor }}>Non-Instructor Average</div>
+                          <div className="text-xs" style={{ color: primaryColor }}>{nonInstructorStats.activeNonInstructors} of {nonInstructorStats.totalNonInstructors} active</div>
                         </div>
                       </div>
                       

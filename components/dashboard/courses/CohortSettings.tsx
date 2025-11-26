@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Save
 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface CohortSettingsProps {
   settings: {
@@ -38,6 +39,7 @@ interface CohortSettingsProps {
 export default function CohortSettings({ settings, onUpdateSetting, onResetSettings, onSaveSettings }: CohortSettingsProps) {
   const [localSettings, setLocalSettings] = useState(settings)
   const [hasChanges, setHasChanges] = useState(false)
+  const { primaryColor } = useCustomColors()
 
   const handleLocalChange = (category: string, key: string, value: any) => {
     setLocalSettings(prev => ({
@@ -89,7 +91,7 @@ export default function CohortSettings({ settings, onUpdateSetting, onResetSetti
       {/* Identity Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <ArrowUpDown className="h-5 w-5 text-purple-600" />
+          <ArrowUpDown className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cohort Identity & Codes</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-7">
@@ -159,7 +161,7 @@ export default function CohortSettings({ settings, onUpdateSetting, onResetSetti
       {/* Capacity Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-purple-600" />
+          <Users className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Capacity Management</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -222,7 +224,8 @@ export default function CohortSettings({ settings, onUpdateSetting, onResetSetti
         <Button
           onClick={handleSave}
           disabled={!hasChanges}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-300 disabled:text-gray-500 dark:text-white"
+          className="flex items-center gap-2 dark:text-white"
+          style={hasChanges ? { backgroundColor: primaryColor, color: 'white' } : {}}
         >
           <Save className="h-4 w-4" />
           Save Settings

@@ -13,6 +13,7 @@ import {
   Settings,
   RotateCcw
 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface CourseSettingsProps {
   settings: {
@@ -32,6 +33,7 @@ interface CourseSettingsProps {
 }
 
 export default function CourseSettings({ settings, onUpdateSetting, onResetSettings, onSaveSettings }: CourseSettingsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [localSettings, setLocalSettings] = useState(settings)
   const [hasChanges, setHasChanges] = useState(false)
 
@@ -81,7 +83,7 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
       {/* Identity Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <LayoutDashboard className="h-5 w-5 text-purple-600" />
+          <LayoutDashboard className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Course Identity & Codes</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -179,7 +181,10 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
         <Button
           onClick={handleSave}
           disabled={!hasChanges}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-300 disabled:text-gray-500 dark:text-white"
+          className="flex items-center gap-2 text-white disabled:bg-gray-300 disabled:text-gray-500 dark:text-white"
+          style={{ backgroundColor: hasChanges ? primaryColor : undefined }}
+          onMouseEnter={(e) => hasChanges ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+          onMouseLeave={(e) => hasChanges ? e.currentTarget.style.backgroundColor = primaryColor : null}
         >
           <Save className="h-4 w-4" />
           Save Settings
@@ -187,12 +192,12 @@ export default function CourseSettings({ settings, onUpdateSetting, onResetSetti
       </div>
 
       {/* Settings Info Footer */}
-      <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+      <div className="mt-4 p-4 rounded-lg border" style={{ backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}30` }}>
         <div className="flex items-start gap-3">
-          <Settings className="h-5 w-5 text-purple-600 mt-0.5" />
+          <Settings className="h-5 w-5 mt-0.5" style={{ color: primaryColor }} />
           <div>
-            <h4 className="font-semibold text-purple-900 mb-1">About Course Identity Settings</h4>
-            <p className="text-sm text-purple-700">
+            <h4 className="font-semibold mb-1" style={{ color: `${primaryColor}dd` }}>About Course Identity Settings</h4>
+            <p className="text-sm" style={{ color: `${primaryColor}cc` }}>
               Configure how course IDs are generated and displayed. Click &quot;Save Settings&quot; to apply your changes to new courses.
             </p>
           </div>

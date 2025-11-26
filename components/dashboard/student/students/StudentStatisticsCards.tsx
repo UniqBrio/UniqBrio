@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Users, UserCheck, GraduationCap, TrendingUp, Clock, CheckCircle } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface StudentStats {
   totalStudents: number;
@@ -18,6 +19,7 @@ interface StudentStatisticsCardsProps {
 }
 
 export default function StudentStatisticsCards({ stats: propStats }: StudentStatisticsCardsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [stats, setStats] = useState<StudentStats>(propStats || {
     totalStudents: 0,
     activeStudents: 0,
@@ -97,26 +99,26 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+      <Card className="bg-gradient-to-br border" style={{ background: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}20)`, borderColor: primaryColor }}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-purple-600">Enrolled Courses</p>
-              <p className="text-2xl font-bold text-purple-900">{stats.totalCourses}</p>
+              <p className="text-sm font-medium" style={{ color: primaryColor }}>Enrolled Courses</p>
+              <p className="text-2xl font-bold" style={{ color: primaryColor, opacity: 0.9 }}>{stats.totalCourses}</p>
             </div>
-            <GraduationCap className="h-8 w-8 text-purple-500" />
+            <GraduationCap className="h-8 w-8" style={{ color: primaryColor }} />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+      <Card className="bg-gradient-to-br border" style={{ background: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}20)`, borderColor: secondaryColor }}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-orange-600">Attendance Rate</p>
-              <p className="text-2xl font-bold text-orange-900">{stats.attendanceRate}%</p>
+              <p className="text-sm font-medium" style={{ color: secondaryColor }}>Attendance Rate</p>
+              <p className="text-2xl font-bold" style={{ color: secondaryColor, opacity: 0.9 }}>{stats.attendanceRate}%</p>
             </div>
-            <Clock className="h-8 w-8 text-orange-500" />
+            <Clock className="h-8 w-8" style={{ color: secondaryColor }} />
           </div>
         </CardContent>
       </Card>

@@ -6,6 +6,7 @@ import { Filter } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { FilterDropdown } from "@/components/dashboard/ui/staff/filter-dropdown"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface FilterState {
   status: string[]
@@ -31,6 +32,7 @@ export function SalesFilterDropdown({
 }: SalesFilterDropdownProps) {
   const [pendingFilters, setPendingFilters] = useState<FilterState>(filters)
   const [permanentFilterIcon, setPermanentFilterIcon] = useState<"apply" | "clear" | null>(null)
+  const { primaryColor } = useCustomColors()
 
   // Sync pending filters with selected filters when they change
   useEffect(() => {
@@ -70,7 +72,7 @@ export function SalesFilterDropdown({
                 className="h-9 flex items-center gap-1 relative"
               >
                 <span className="relative inline-block">
-                  <Filter className="h-3.5 w-3.5 text-purple-500" />
+                  <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                   {permanentFilterIcon === "apply" && (
                     <div className="absolute -top-2 -right-2 z-20">
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -127,7 +129,7 @@ export function SalesFilterDropdown({
           <Button variant="outline" size="sm" onClick={handleClear} className="text-xs">
             Clear All
           </Button>
-          <Button size="sm" onClick={handleApply} className="bg-purple-600 hover:bg-purple-700 text-white text-xs">
+          <Button size="sm" onClick={handleApply} className="text-white text-xs" style={{ backgroundColor: primaryColor }}>
             Apply Filters
           </Button>
         </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Switch } from "@/components/dashboard/ui/switch"
 import { Label } from "@/components/dashboard/ui/label"
@@ -22,6 +23,7 @@ interface AdminSecuritySettingsProps {
 }
 
 export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [isSaving, setIsSaving] = useState(false)
   const [settings, setSettings] = useState({
     requireMfa: false,
@@ -70,7 +72,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-purple-600" />
+            <Shield className="h-5 w-5" style={{ color: primaryColor }} />
             Authentication Policies
           </CardTitle>
           <CardDescription>
@@ -95,7 +97,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
 
           <div className="flex items-center justify-between p-4 rounded-lg border bg-gradient-to-r from-purple-50 to-white">
             <div className="flex items-center gap-3">
-              <Lock className="h-5 w-5 text-purple-600" />
+              <Lock className="h-5 w-5" style={{ color: primaryColor }} />
               <div>
                 <Label htmlFor="enforcePasswordPolicy" className="font-medium">Enforce Password Policy</Label>
                 <p className="text-sm text-gray-500 dark:text-white">Require strong passwords for all users</p>
@@ -156,7 +158,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5 text-purple-600" />
+            <Server className="h-5 w-5" style={{ color: primaryColor }} />
             Session & Access Control
           </CardTitle>
           <CardDescription>
@@ -219,7 +221,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
 
           <div className="flex items-center justify-between p-4 rounded-lg border bg-gradient-to-r from-orange-50 to-white">
             <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-orange-600" />
+              <Shield className="h-5 w-5" style={{ color: secondaryColor }} />
               <div>
                 <Label htmlFor="ssoEnabled" className="font-medium">Single Sign-On (SSO)</Label>
                 <p className="text-sm text-gray-500 dark:text-white">Enable SAML/OAuth SSO integration</p>
@@ -238,7 +240,7 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-purple-600" />
+            <Database className="h-5 w-5" style={{ color: primaryColor }} />
             Audit & Compliance
           </CardTitle>
           <CardDescription>
@@ -284,7 +286,10 @@ export function AdminSecuritySettings({ onUpdate }: AdminSecuritySettingsProps) 
       <Button
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full bg-purple-600 hover:bg-purple-700 gap-2"
+        className="w-full gap-2 text-white"
+        style={{ backgroundColor: primaryColor }}
+        onMouseEnter={(e) => !isSaving && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)}
+        onMouseLeave={(e) => !isSaving && (e.currentTarget.style.backgroundColor = primaryColor)}
       >
         <Save className="h-4 w-4" />
         {isSaving ? "Saving..." : "Save Security Settings"}

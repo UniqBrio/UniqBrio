@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog";
 import { Button } from "@/components/dashboard/ui/button";
@@ -37,6 +38,7 @@ export function IncomeDraftsDialog({
   onOpenChange, 
   onEditDraft
 }: IncomeDraftsDialogProps) {
+  const { primaryColor } = useCustomColors();
   const [drafts, setDrafts] = useState<IncomeDraft[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -198,7 +200,7 @@ export function IncomeDraftsDialog({
           <div className="overflow-y-auto flex-1 py-4 min-h-0">
             {loading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto mb-2" style={{ borderColor: primaryColor }}></div>
                 <p className="text-gray-500 dark:text-white">Loading drafts...</p>
               </div>
             ) : error ? (
@@ -254,7 +256,7 @@ export function IncomeDraftsDialog({
                           onClick={() => handleEditDraft(draft)}
                           title="Edit Draft"
                         >
-                          <Pencil className="h-4 w-4 text-purple-600" />
+                          <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
                         </Button>
                         <Button
                           variant="ghost"

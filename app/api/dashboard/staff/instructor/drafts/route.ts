@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import DraftModel from "@/models/dashboard/staff/Draft"
-import { getUserSession } from '@/lib/auth'
+import { getUserSession } from '@/lib/tenant/api-helpers'
 import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 export async function GET() {

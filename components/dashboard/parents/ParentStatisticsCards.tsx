@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Users, UserCheck, CreditCard, MessageCircle, Calendar, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -18,6 +19,7 @@ interface ParentStatisticsCardsProps {
 }
 
 export default function ParentStatisticsCards({ stats: propStats }: ParentStatisticsCardsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [stats, setStats] = useState<ParentStats>(propStats || {
     totalParents: 0,
     activeParents: 0,
@@ -86,26 +88,26 @@ export default function ParentStatisticsCards({ stats: propStats }: ParentStatis
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+      <Card className="bg-gradient-to-br border" style={{ backgroundColor: `${primaryColor}15`, borderColor: primaryColor }}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-purple-600">Paid Status</p>
-              <p className="text-2xl font-bold text-purple-900">{stats.paidParents}</p>
+              <p className="text-sm font-medium" style={{ color: `${primaryColor}cc` }}>Paid Status</p>
+              <p className="text-2xl font-bold" style={{ color: primaryColor }}>{stats.paidParents}</p>
             </div>
-            <CreditCard className="h-8 w-8 text-purple-500" />
+            <CreditCard className="h-8 w-8" style={{ color: primaryColor }} />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+      <Card className="bg-gradient-to-br border" style={{ backgroundColor: `${secondaryColor}15`, borderColor: secondaryColor }}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-orange-600">Communication</p>
-              <p className="text-2xl font-bold text-orange-900">{stats.communicationRate}%</p>
+              <p className="text-sm font-medium" style={{ color: `${secondaryColor}cc` }}>Communication</p>
+              <p className="text-2xl font-bold" style={{ color: secondaryColor }}>{stats.communicationRate}%</p>
             </div>
-            <MessageCircle className="h-8 w-8 text-orange-500" />
+            <MessageCircle className="h-8 w-8" style={{ color: secondaryColor }} />
           </div>
         </CardContent>
       </Card>

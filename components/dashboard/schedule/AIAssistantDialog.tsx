@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/dashboard/ui/button"
 import { Card } from "@/components/dashboard/ui/card"
 import { Zap, TrendingUp, Sparkles, Users, Clock, MapPin } from "lucide-react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface AIAssistantDialogProps {
   isOpen: boolean
@@ -12,12 +13,14 @@ interface AIAssistantDialogProps {
 }
 
 export default function AIAssistantDialog({ isOpen, onOpenChange, suggestions }: AIAssistantDialogProps) {
+  const { primaryColor } = useCustomColors();
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-purple-600" />
+            <Zap className="h-5 w-5" style={{ color: primaryColor }} />
             AI Scheduling Assistant
           </DialogTitle>
           <DialogDescription>Get intelligent suggestions to optimize your schedule</DialogDescription>
@@ -31,8 +34,8 @@ export default function AIAssistantDialog({ isOpen, onOpenChange, suggestions }:
             </h4>
             <div className="space-y-3">
               {suggestions.map((suggestion, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                  <Sparkles className="h-4 w-4 text-purple-600 mt-0.5" />
+                <div key={index} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: `${primaryColor}10` }}>
+                  <Sparkles className="h-4 w-4 mt-0.5" style={{ color: primaryColor }} />
                   <div className="flex-1">
                     <p className="text-sm">{suggestion}</p>
                     <Button size="sm" variant="outline" className="mt-2 bg-transparent">

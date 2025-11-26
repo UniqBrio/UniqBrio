@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
 import { Card, CardContent } from "@/components/dashboard/ui/card";
@@ -22,6 +23,7 @@ import { Button } from "@/components/dashboard/ui/button";
 
 export default function PaymentsPage() {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { toast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
@@ -321,7 +323,7 @@ export default function PaymentsPage() {
       {/* Header */}
       <div className="responsive-dashboard-container mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">Payment Management</h1>
+          <h1 className={`text-3xl font-bold ${primaryColor.text} flex items-center gap-2`}>Payment Management</h1>
           <p className="text-gray-600 dark:text-white text-sm">
             Track student payments, send reminders, and manage financial records
           </p>
@@ -342,28 +344,28 @@ export default function PaymentsPage() {
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-transparent p-0 h-auto gap-1 sm:gap-2 lg:gap-3">
           <TabsTrigger
             value="analytics"
-            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
+            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
           >
             <LayoutDashboard className="h-5 w-5 mr-2" />
             Analytics
           </TabsTrigger>
           <TabsTrigger
             value="student-wise"
-            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
+            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
           >
             <CreditCard className="h-5 w-5 mr-2" />
             Student-wise
           </TabsTrigger>
           <TabsTrigger
             value="course-cohort"
-            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
+            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
           >
             <BookOpen className="h-5 w-5 mr-2" />
             Course & Cohort
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="bg-white dark:bg-gray-900 border-2 border-orange-400 dark:border-orange-600 text-orange-600 dark:text-orange-400 rounded-lg px-6 py-3 font-semibold data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all"
+            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
           >
             <Settings className="h-5 w-5 mr-2" />
             Settings
@@ -376,19 +378,19 @@ export default function PaymentsPage() {
             <>
               {/* First Row - Revenue Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-0 shadow-sm">
+                <Card className={`bg-gradient-to-br ${primaryColor.bgLight} border-0 shadow-sm`}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-purple-600 mb-1">
+                        <p className={`text-sm font-medium ${primaryColor.text} mb-1`}>
                           Total Received
                         </p>
-                        <p className="text-3xl font-bold text-purple-900">
+                        <p className={`text-3xl font-bold ${primaryColor.textDark}`}>
                           {currency} {(analytics.totalReceived || 0).toLocaleString()}
                         </p>
-                        <p className="text-xs text-purple-600 mt-1">All time</p>
+                        <p className={`text-xs ${primaryColor.text} mt-1`}>All time</p>
                       </div>
-                      <div className="text-purple-600 dark:text-purple-400 bg-purple-200 dark:bg-purple-800/50 p-3 rounded-lg">
+                      <div className={`${primaryColor.text} ${primaryColor.iconBg} p-3 rounded-lg`}>
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>

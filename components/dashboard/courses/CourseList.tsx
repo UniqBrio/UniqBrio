@@ -10,6 +10,7 @@ import ConfirmationDialog from "./ConfirmationDialog"
 import { Pencil, Trash2, Plus, X, MapPin } from "lucide-react";
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { useCurrency } from "@/contexts/currency-context";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface CourseListProps {
   courses: Course[];
@@ -33,6 +34,7 @@ interface CourseListProps {
 
 export default function CourseList({ courses, viewMode, onCourseClick, onEditCourse, onDeleteCourse, onAddCourse, cohorts = [], displayedColumns = ['courseId', 'name', 'instructor', 'location', 'type', 'level', 'priceINR', 'status'], selectedCourseIds = [], onToggleCourseSelect, onToggleAllVisible, showIdBadges = false, enrollmentSettings }: CourseListProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [viewAllCourses, setViewAllCourses] = useState(false);
 
@@ -95,7 +97,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
       render: (course: Course) => {
         const idValue = course.courseId || course.customId || course.id || '-'
         return showIdBadges ? (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-xs font-medium">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}>
             {idValue}
           </span>
         ) : idValue
@@ -378,12 +380,18 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
               {courses.map((course, index) => (
                 <Card 
                   key={course.id || (course as any)._id || `course-${index}`} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 border-orange-400 dark:border-orange-600 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-gray-900 rounded-xl p-0 w-80 flex-shrink-0"
+                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 bg-white dark:bg-gray-900 rounded-xl p-0 w-80 flex-shrink-0"
+                  style={{ borderColor: secondaryColor }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = `${secondaryColor}cc`}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = secondaryColor}
                   onClick={() => onCourseClick(course)}
                 >
                   <CardContent className="p-5 pb-2 relative">
                     <button
-                      className="absolute top-1 right-1 text-purple-500 hover:text-purple-600 p-1 rounded-full focus:outline-none z-10 opacity-80 group-hover:opacity-100"
+                      className="absolute top-1 right-1 p-1 rounded-full focus:outline-none z-10 opacity-80 group-hover:opacity-100"
+                      style={{ color: primaryColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = `${primaryColor}dd`}
+                      onMouseLeave={(e) => e.currentTarget.style.color = primaryColor}
                       title="Edit"
                       onClick={e => { e.stopPropagation(); onEditCourse(course); }}
                     >
@@ -394,10 +402,10 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       <div className="flex flex-col">
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight line-clamp-2">{course.name}</h3>
                         {course.sessionDetails?.sessionDuration && (
-                          <span className="text-sm text-orange-600 mt-1">Session Duration: {course.sessionDetails.sessionDuration} hrs</span>
+                          <span className="text-sm mt-1" style={{ color: secondaryColor }}>Session Duration: {course.sessionDetails.sessionDuration} hrs</span>
                         )}
                         {showIdBadges && (
-                          <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[11px] font-semibold">
+                          <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}>
                             {course.courseId || course.customId || course.id || '�'}
                           </span>
                         )}
@@ -412,19 +420,25 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                         )}
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm select-none ${
-                        course.status === 'Active' ? 'bg-purple-100 text-purple-700' :
-                        course.status === 'Completed' ? 'bg-orange-100 text-orange-700' :
+                        course.status === 'Active' ? '' :
+                        course.status === 'Completed' ? '' :
                         course.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
                         course.status === 'Inactive' ? 'bg-gray-200 text-gray-700 dark:text-white' :
-                        course.status === 'Draft' ? 'bg-orange-100 text-orange-700' :
+                        course.status === 'Draft' ? '' :
                         'bg-gray-100 text-gray-800 dark:text-white'
-                      }`}>
+                      }`}
+                      style={
+                        course.status === 'Active' ? { backgroundColor: `${primaryColor}20`, color: primaryColor } :
+                        course.status === 'Completed' ? { backgroundColor: `${secondaryColor}20`, color: secondaryColor } :
+                        course.status === 'Draft' ? { backgroundColor: `${secondaryColor}20`, color: secondaryColor } :
+                        undefined
+                      }>
                         {course.status}
                       </span>
                     </div>
                     <div className="mb-2 flex flex-wrap gap-2 items-center">
-                      <span className="inline-block bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs font-medium border border-purple-100">{course.type}</span>
-                      <span className="inline-block bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs font-medium border border-orange-100">{course.level}</span>
+                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium border" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, borderColor: `${primaryColor}30` }}>{course.type}</span>
+                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium border" style={{ backgroundColor: `${secondaryColor}15`, color: secondaryColor, borderColor: `${secondaryColor}30` }}>{course.level}</span>
                       {course.tags && course.tags.length > 0 && course.tags.slice(0,2).map((tag, i) => (
                         <span key={i} className="inline-block bg-gray-100 text-gray-600 dark:text-white px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
                       ))}
@@ -434,7 +448,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     {course.description && <p className="text-xs text-gray-500 dark:text-white line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
-                        <span className="text-xl font-bold text-purple-700">{currency} {course.priceINR?.toLocaleString()}</span>
+                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currency} {course.priceINR?.toLocaleString()}</span>
                         {renderCapacityIndicator(course, true)}
                       </div>
                     </div>
@@ -458,7 +472,9 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
               variant="outline"
               size="sm"
               onClick={() => setViewAllCourses(true)}
-              className="text-purple-600 border-purple-300 hover:bg-purple-50"
+              style={{ color: primaryColor, borderColor: `${primaryColor}50` }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               View All {courses.length} Courses
             </Button>
@@ -491,7 +507,10 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
               {courses.map((course, index) => (
                 <Card 
                   key={course.id || (course as any)._id || `course-${index}`} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 border-orange-400 dark:border-orange-600 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-gray-900 rounded-xl p-0"
+                  className="hover:shadow-lg transition-shadow cursor-pointer group relative border-2 bg-white dark:bg-gray-900 rounded-xl p-0"
+                  style={{ borderColor: secondaryColor }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = `${secondaryColor}cc`}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = secondaryColor}
                   onClick={() => {
                     onCourseClick(course);
                     setViewAllCourses(false);
@@ -499,7 +518,10 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                 >
                   <CardContent className="p-5 pb-2 relative">
                     <button
-                      className="absolute top-1 right-1 text-purple-500 hover:text-orange-500 p-1 rounded-full focus:outline-none z-10 opacity-80 group-hover:opacity-100"
+                      className="absolute top-1 right-1 p-1 rounded-full focus:outline-none z-10 opacity-80 group-hover:opacity-100"
+                      style={{ color: primaryColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = `${primaryColor}dd`}
+                      onMouseLeave={(e) => e.currentTarget.style.color = primaryColor}
                       title="Edit"
                       onClick={e => { e.stopPropagation(); onEditCourse(course); setViewAllCourses(false); }}
                     >
@@ -510,7 +532,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       <div className="flex flex-col">
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight line-clamp-2">{course.name}</h3>
                         {course.sessionDetails?.sessionDuration && (
-                          <span className="text-sm text-orange-600 mt-1">Session Duration: {course.sessionDetails.sessionDuration} hrs</span>
+                          <span className="text-sm mt-1" style={{ color: secondaryColor }}>Session Duration: {course.sessionDetails.sessionDuration} hrs</span>
                         )}
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm select-none ${
@@ -525,8 +547,8 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       </span>
                     </div>
                     <div className="mb-2 flex flex-wrap gap-2 items-center">
-                      <span className="inline-block bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs font-medium border border-purple-100">{course.type}</span>
-                      <span className="inline-block bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs font-medium border border-orange-100">{course.level}</span>
+                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium border" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, borderColor: `${primaryColor}30` }}>{course.type}</span>
+                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium border" style={{ backgroundColor: `${secondaryColor}15`, color: secondaryColor, borderColor: `${secondaryColor}30` }}>{course.level}</span>
                       {course.tags && course.tags.length > 0 && course.tags.slice(0,2).map((tag, i) => (
                         <span key={i} className="inline-block bg-gray-100 text-gray-600 dark:text-white px-2 py-0.5 rounded text-xs font-medium border border-gray-200">{tag}</span>
                       ))}
@@ -536,12 +558,15 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     {course.description && <p className="text-xs text-gray-500 dark:text-white line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
-                        <span className="text-xl font-bold text-purple-700">{currency} {course.priceINR?.toLocaleString()}</span>
+                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currency} {course.priceINR?.toLocaleString()}</span>
                       </div>
                     </div>
                   </CardContent>
                   <button
-                    className="absolute -bottom-0 right-0 text-purple-500 hover:text-red-500 focus:outline-none z-10 p-1 opacity-80 group-hover:opacity-100"
+                    className="absolute -bottom-0 right-0 focus:outline-none z-10 p-1 opacity-80 group-hover:opacity-100"
+                    style={{ color: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'rgb(239, 68, 68)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = primaryColor}
                     title="Delete"
                     onClick={e => { handleDelete(e, course); setViewAllCourses(false); }}
                   >

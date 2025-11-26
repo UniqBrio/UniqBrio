@@ -23,12 +23,14 @@ import {
   Badge as BadgeIcon,
   ToggleLeft,
 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 
 export function AttendanceGamification() {
   const [gamificationEnabled, setGamificationEnabled] = useState(true)
   const [leaderboardEnabled, setLeaderboardEnabled] = useState(true)
   const [certificatesEnabled, setCertificatesEnabled] = useState(true)
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   return (
     <div className="space-y-6 ">
@@ -83,14 +85,14 @@ export function AttendanceGamification() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="border-2 border-purple-200 bg-purple-50">
+                <Card className="border-2" style={{ borderColor: `${primaryColor}44`, background: `color-mix(in oklab, ${primaryColor} 8%, white)` }}>
                   <CardContent className="p-4 flex flex-col items-center text-center">
-                    <div className="h-16 w-16 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                      <Award className="h-8 w-8 text-purple-600" />
+                    <div className="h-16 w-16 rounded-full flex items-center justify-center mb-3" style={{ background: `color-mix(in oklab, ${primaryColor} 15%, white)` }}>
+                      <Award className="h-8 w-8" style={{ color: primaryColor }} />
                     </div>
-                    <h3 className="font-bold text-purple-700">Perfect Week</h3>
-                    <p className="text-sm text-purple-600 mt-1">100% attendance for a week</p>
-                    <Badge className="mt-3 bg-purple-200 text-purple-800 hover:bg-purple-300">Common</Badge>
+                    <h3 className="font-bold" style={{ color: primaryColor }}>Perfect Week</h3>
+                    <p className="text-sm mt-1" style={{ color: primaryColor }}>100% attendance for a week</p>
+                    <Badge className="mt-3" style={{ background: `color-mix(in oklab, ${primaryColor} 20%, white)`, color: primaryColor }}>Common</Badge>
                   </CardContent>
                 </Card>
 
@@ -105,14 +107,14 @@ export function AttendanceGamification() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-orange-200 bg-orange-50">
+                <Card className="border-2" style={{ borderColor: `${secondaryColor}44`, background: `color-mix(in oklab, ${secondaryColor} 8%, white)` }}>
                   <CardContent className="p-4 flex flex-col items-center text-center">
-                    <div className="h-16 w-16 rounded-full bg-orange-100 flex items-center justify-center mb-3">
-                      <Trophy className="h-8 w-8 text-orange-600" />
+                    <div className="h-16 w-16 rounded-full flex items-center justify-center mb-3" style={{ background: `color-mix(in oklab, ${secondaryColor} 15%, white)` }}>
+                      <Trophy className="h-8 w-8" style={{ color: secondaryColor }} />
                     </div>
-                    <h3 className="font-bold text-orange-700">Perfect Quarter</h3>
-                    <p className="text-sm text-orange-600 mt-1">100% attendance for a quarter</p>
-                    <Badge className="mt-3 bg-orange-200 text-orange-800 hover:bg-orange-300">Rare</Badge>
+                    <h3 className="font-bold" style={{ color: secondaryColor }}>Perfect Quarter</h3>
+                    <p className="text-sm mt-1" style={{ color: secondaryColor }}>100% attendance for a quarter</p>
+                    <Badge className="mt-3" style={{ background: `color-mix(in oklab, ${secondaryColor} 20%, white)`, color: secondaryColor }}>Rare</Badge>
                   </CardContent>
                 </Card>
 
@@ -358,17 +360,17 @@ export function AttendanceGamification() {
               {certificatesEnabled ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="border-2 border-purple-200">
+                    <Card className="border-2" style={{ borderColor: `${primaryColor}44` }}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-bold text-purple-700">Perfect Attendance</h3>
-                          <Badge className="bg-purple-100 text-purple-800">Monthly</Badge>
+                          <h3 className="font-bold" style={{ color: primaryColor }}>Perfect Attendance</h3>
+                          <Badge style={{ background: `color-mix(in oklab, ${primaryColor} 20%, white)`, color: primaryColor }}>Monthly</Badge>
                         </div>
-                        <div className="aspect-video bg-gradient-to-r from-purple-50 to-purple-100 rounded-md flex items-center justify-center mb-4 border border-purple-200">
+                        <div className="aspect-video rounded-md flex items-center justify-center mb-4" style={{ background: `linear-gradient(90deg, ${primaryColor}11, ${primaryColor}1f)`, border: `1px solid ${primaryColor}33` }}>
                           <div className="text-center p-4">
-                            <Award className="h-12 w-12 text-purple-600 mx-auto mb-2" />
-                            <div className="text-lg font-bold text-purple-800">Certificate of Achievement</div>
-                            <div className="text-sm text-purple-600">Perfect Attendance Award</div>
+                            <Award className="h-12 w-12 mx-auto mb-2" style={{ color: primaryColor }} />
+                            <div className="text-lg font-bold" style={{ color: primaryColor }}>Certificate of Achievement</div>
+                            <div className="text-sm" style={{ color: primaryColor }}>Perfect Attendance Award</div>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
@@ -387,17 +389,17 @@ export function AttendanceGamification() {
                       </CardContent>
                     </Card>
 
-                    <Card className="border-2 border-orange-200">
+                    <Card className="border-2" style={{ borderColor: `${secondaryColor}44` }}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-bold text-orange-700">Attendance Excellence</h3>
-                          <Badge className="bg-orange-100 text-orange-800">Quarterly</Badge>
+                          <h3 className="font-bold" style={{ color: secondaryColor }}>Attendance Excellence</h3>
+                          <Badge style={{ background: `color-mix(in oklab, ${secondaryColor} 20%, white)`, color: secondaryColor }}>Quarterly</Badge>
                         </div>
-                        <div className="aspect-video bg-gradient-to-r from-orange-50 to-orange-100 rounded-md flex items-center justify-center mb-4 border border-orange-200">
+                        <div className="aspect-video rounded-md flex items-center justify-center mb-4" style={{ background: `linear-gradient(90deg, ${secondaryColor}11, ${secondaryColor}1f)`, border: `1px solid ${secondaryColor}33` }}>
                           <div className="text-center p-4">
-                            <Trophy className="h-12 w-12 text-orange-600 mx-auto mb-2" />
-                            <div className="text-lg font-bold text-orange-800">Certificate of Excellence</div>
-                            <div className="text-sm text-orange-600">Attendance Excellence Award</div>
+                            <Trophy className="h-12 w-12 mx-auto mb-2" style={{ color: secondaryColor }} />
+                            <div className="text-lg font-bold" style={{ color: secondaryColor }}>Certificate of Excellence</div>
+                            <div className="text-sm" style={{ color: secondaryColor }}>Attendance Excellence Award</div>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">

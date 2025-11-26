@@ -13,6 +13,7 @@ import {
   Users,
   Save,
 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface NonInstructorSettingsProps {
   settings: {
@@ -32,6 +33,7 @@ interface NonInstructorSettingsProps {
 }
 
 export default function NonInstructorSettings({ settings, onUpdateSetting, onResetSettings, onSaveSettings }: NonInstructorSettingsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Ensure settings has identity property with defaults
   const defaultIdentity = {
     customIdPrefix: 'NI',
@@ -79,8 +81,8 @@ export default function NonInstructorSettings({ settings, onUpdateSetting, onRes
     <div className="space-y-6">
       <div className="flex items-center justify-between border-b pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Non-Instructor Management Settings</h2>
-          <p className="text-sm text-gray-500 dark:text-white mt-1">Customize non-instructor identity and ID generation</p>
+          <h2 className="text-2xl font-bold" style={{ color: primaryColor }}>Non-Instructor Management Settings</h2>
+          <p className="text-sm mt-1" style={{ color: `${primaryColor}cc` }}>Customize non-instructor identity and ID generation</p>
         </div>
         <Button
           variant="outline"
@@ -96,8 +98,8 @@ export default function NonInstructorSettings({ settings, onUpdateSetting, onRes
       {/* Non-Instructor Identity & ID Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Non-Instructor Identity & ID Configuration</h3>
+          <Users className="h-5 w-5" style={{ color: primaryColor }} />
+          <h3 className="text-lg font-semibold">Non-Instructor Identity & ID Configuration</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
           <div className="space-y-2">
@@ -194,7 +196,8 @@ export default function NonInstructorSettings({ settings, onUpdateSetting, onRes
         <Button
           onClick={handleSave}
           disabled={!hasChanges}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-white"
+          style={{ backgroundColor: hasChanges ? primaryColor : undefined, borderColor: hasChanges ? primaryColor : undefined }}
         >
           <Save className="h-4 w-4" />
           Save Settings
@@ -202,12 +205,12 @@ export default function NonInstructorSettings({ settings, onUpdateSetting, onRes
       </div>
 
       {/* Settings Info Footer */}
-      <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+      <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: `${primaryColor}15`, border: `1px solid ${primaryColor}33` }}>
         <div className="flex items-start gap-3">
-          <Users className="h-5 w-5 text-purple-600 mt-0.5" />
+          <Users className="h-5 w-5 mt-0.5" style={{ color: primaryColor }} />
           <div>
-            <h4 className="font-semibold text-purple-900 mb-1">About Non-Instructor Management Settings</h4>
-            <p className="text-sm text-purple-700">
+            <h4 className="font-semibold mb-1" style={{ color: primaryColor }}>About Non-Instructor Management Settings</h4>
+            <p className="text-sm" style={{ color: `${primaryColor}cc` }}>
               Configure how non-instructor IDs are generated and displayed. Click &quot;Save Settings&quot; to apply your changes.
             </p>
           </div>

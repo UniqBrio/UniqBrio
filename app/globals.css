@@ -29,10 +29,10 @@
     --background: 0 0% 100%; /* From your #ffffff */
     --foreground: 0 0% 3.9%; /* shadcn default, can be 0 0% 0% if pure black is preferred */
 
-    --primary: 271 81% 56%; /* Purple #8b5cf6 */
+    --primary: 271 81% 56%; /* Purple #8b5cf6 - can be overridden by user */
     --primary-foreground: 0 0% 100%; /* White text on purple */
 
-    --secondary: 25 95% 53%; /* Orange #fd9c2d */
+    --secondary: 25 95% 53%; /* Orange #fd9c2d - can be overridden by user */
     --secondary-foreground: 0 0% 0%; /* Black text on orange */
 
     --accent: 277.1 100% 21.8%; /* From your #39006f */
@@ -43,6 +43,13 @@
 
     --success: 130.1 52.8% 40.8%; /* Mapped from your --success #319f43 */
     --success-foreground: 0 0% 100%; /* White text for high contrast on green */
+
+    /* Custom color variables - dynamically set by user preferences */
+    --custom-color-1: #8b5cf6; /* Default purple */
+    --custom-color-2: #fd9c2d; /* Default orange */
+    --custom-color-3: #000000;
+    --custom-color-4: #000000;
+    --custom-color-5: #000000;
 
     /* Standard shadcn/ui variables, some may use your custom colors */
     --card: 0 0% 100%;

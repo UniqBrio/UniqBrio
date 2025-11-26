@@ -27,6 +27,7 @@ import {
 } from "@/components/dashboard/ui/dropdown-menu"
 import { useInstructorOptions, type Instructor } from "@/hooks/dashboard/useInstructors"
 import { cn } from "@/lib/dashboard/utils"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface InstructorDropdownProps {
   value?: string
@@ -51,6 +52,7 @@ export default function InstructorDropdown({
   showAvatar = false,
   showExpertise = false
 }: InstructorDropdownProps) {
+  const { primaryColor } = useCustomColors()
   const { instructorOptions, loading, error } = useInstructorOptions()
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -87,9 +89,20 @@ export default function InstructorDropdown({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
+              "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none",
               !selectedInstructor && "text-gray-400 dark:text-white"
             )}
+            style={open ? { borderColor: primaryColor, boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = primaryColor
+              e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}`
+            }}
+            onBlur={(e) => {
+              if (!open) {
+                e.currentTarget.style.borderColor = ''
+                e.currentTarget.style.boxShadow = ''
+              }
+            }}
             disabled={disabled || loading}
           >
             <div className="flex items-center gap-2">
@@ -114,7 +127,14 @@ export default function InstructorDropdown({
                 placeholder="Search instructors..."
                 value={searchTerm}
                 onValueChange={setSearchTerm}
-                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus:ring-2 focus:ring-purple-500"
+                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
+                onFocus={(e) => {
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}`
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.boxShadow = ''
+                }}
               />
             </div>
 
@@ -144,9 +164,21 @@ export default function InstructorDropdown({
                         value={instructor.id}
                         onSelect={() => handleSelect(instructor.id)}
                         className={cn(
-                          "cursor-pointer px-4 py-2 hover:bg-gray-100",
-                          value === instructor.id && "bg-purple-100"
+                          "cursor-pointer px-4 py-2 hover:bg-gray-100"
                         )}
+                        style={value === instructor.id ? { backgroundColor: `${primaryColor}20` } : {}}
+                        onMouseEnter={(e) => {
+                          if (value !== instructor.id) {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (value !== instructor.id) {
+                            e.currentTarget.style.backgroundColor = ''
+                          } else {
+                            e.currentTarget.style.backgroundColor = `${primaryColor}20`
+                          }
+                        }}
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-3">
@@ -206,6 +238,7 @@ export function SimpleInstructorDropdown({
   placeholder = "Select instructor",
   className
 }: SimpleInstructorDropdownProps) {
+  const { primaryColor } = useCustomColors()
   const { instructorOptions, loading } = useInstructorOptions()
   
   return (
@@ -214,10 +247,19 @@ export function SimpleInstructorDropdown({
         <Button 
           variant="outline" 
           className={cn(
-            "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
+            "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none",
             !value && "text-gray-400 dark:text-white",
             className
           )}
+          style={{ '--primary-color': primaryColor } as React.CSSProperties}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = primaryColor
+            e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}`
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = ''
+            e.currentTarget.style.boxShadow = ''
+          }}
         >
           {value ? (
             instructorOptions.find(inst => inst.id === value)?.name || "Unknown"
@@ -236,9 +278,9 @@ export function SimpleInstructorDropdown({
               key={instructor.id}
               onClick={() => onChange(instructor.id, instructor.name)}
               className={cn(
-                "px-4 py-2 cursor-pointer hover:bg-gray-100",
-                value === instructor.id && "bg-purple-100"
+                "px-4 py-2 cursor-pointer hover:bg-gray-100"
               )}
+              style={value === instructor.id ? { backgroundColor: `${primaryColor}20` } : {}}
             >
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />

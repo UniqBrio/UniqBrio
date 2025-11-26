@@ -1,5 +1,6 @@
 'use client';
 
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/dashboard/ui/card';
 import { Badge } from '@/components/dashboard/ui/badge';
 import { Button } from '@/components/dashboard/ui/button';
@@ -81,6 +82,7 @@ export default function EnhancedCampaignList({
   onEdit,
   onDelete,
 }: EnhancedCampaignListProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const getStatusColor = (status: Campaign['status']) => {
     switch (status) {
       case 'Active':
@@ -239,7 +241,7 @@ export default function EnhancedCampaignList({
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {campaign.channels.slice(0, 3).map((channel) => (
-                        <Badge key={channel} variant="outline" className="text-xs bg-purple-50">
+                        <Badge key={channel} variant="outline" className="text-xs" style={{ backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}80` }}>
                           {channel}
                         </Badge>
                       ))}
@@ -254,9 +256,9 @@ export default function EnhancedCampaignList({
 
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-                    <p className="text-xs text-purple-600 font-medium">Reach</p>
-                    <p className="text-lg font-bold text-purple-900">
+                  <div className="rounded-lg p-3 border" style={{ backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}80` }}>
+                    <p className="text-xs font-medium" style={{ color: `${primaryColor}cc` }}>Reach</p>
+                    <p className="text-lg font-bold" style={{ color: primaryColor }}>
                       {(campaign.reach / 1000).toFixed(1)}k
                     </p>
                   </div>
@@ -408,7 +410,7 @@ export default function EnhancedCampaignList({
                       onClick={() => onEdit(campaign)}
                       title="Edit campaign"
                     >
-                      <Edit2 className="h-4 w-4 text-purple-600" />
+                      <Edit2 className="h-4 w-4" style={{ color: primaryColor }} />
                     </Button>
                     <Button
                       variant="ghost"

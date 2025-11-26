@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import type { ReactNode } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -159,6 +160,7 @@ type ColumnDefinition = {
 }
 
 export default function AuditLogsPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [auditLogs, setAuditLogs] = useState<any[]>([])
   const [filteredLogs, setFilteredLogs] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -738,7 +740,7 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
           {/* Header */}
           <div className="flex flex-col items-start gap-3 sm:gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-700 flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2" style={{ color: primaryColor }}>
                 <Activity className="h-6 w-6 sm:h-8 sm:w-8" />
                 <span>Audit Logs & Activity Tracking</span>
               </h1>
@@ -753,14 +755,28 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
             <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
               <TabsTrigger 
                 value="analytics" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  '--hover-bg': `${secondaryColor}15`,
+                  '--active-bg': primaryColor,
+                  '--active-hover-bg': `${primaryColor}dd`
+                } as React.CSSProperties}
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Analytics
               </TabsTrigger>
               <TabsTrigger 
                 value="audit-logs" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  '--hover-bg': `${secondaryColor}15`,
+                  '--active-bg': primaryColor,
+                  '--active-hover-bg': `${primaryColor}dd`
+                } as React.CSSProperties}
               >
                 <List className="h-4 w-4" />
                 Audit Logs
@@ -771,29 +787,29 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
             <TabsContent value="analytics" className="mt-6">
               {/* Stats Overview */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+                <Card style={{ backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${primaryColor}25)`, borderColor: primaryColor }}>
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs sm:text-sm font-medium text-purple-600 truncate">Total Logs</p>
-                        <p className="text-xl sm:text-2xl font-bold text-purple-900">{filteredLogs.length}</p>
+                        <p className="text-xs sm:text-sm font-medium truncate" style={{ color: primaryColor }}>Total Logs</p>
+                        <p className="text-xl sm:text-2xl font-bold" style={{ color: `${primaryColor}dd` }}>{filteredLogs.length}</p>
                       </div>
-                      <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 flex-shrink-0" />
+                      <FileText className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" style={{ color: primaryColor }} />
                     </div>
-                    <p className="text-xs text-purple-600 mt-1">of {auditLogs.length} total</p>
+                    <p className="text-xs mt-1" style={{ color: primaryColor }}>of {auditLogs.length} total</p>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+                <Card style={{ backgroundImage: `linear-gradient(to br, ${secondaryColor}15, ${secondaryColor}25)`, borderColor: secondaryColor }}>
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs sm:text-sm font-medium text-orange-600 truncate">Today's Activity</p>
-                        <p className="text-xl sm:text-2xl font-bold text-orange-900">
+                        <p className="text-xs sm:text-sm font-medium truncate" style={{ color: secondaryColor }}>Today's Activity</p>
+                        <p className="text-xl sm:text-2xl font-bold" style={{ color: `${secondaryColor}dd` }}>
                           {todayDate ? filteredLogs.filter(log => format(log.timestamp, "yyyy-MM-dd") === format(todayDate, "yyyy-MM-dd")).length : 0}
                         </p>
                       </div>
-                      <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 flex-shrink-0" />
+                      <Clock className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" style={{ color: secondaryColor }} />
                     </div>
                   </CardContent>
                 </Card>
@@ -826,14 +842,14 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+                <Card style={{ backgroundImage: `linear-gradient(to br, ${secondaryColor}15, ${secondaryColor}25)`, borderColor: secondaryColor }}>
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs sm:text-sm font-medium text-orange-600 truncate">Actions</p>
-                        <p className="text-xl sm:text-2xl font-bold text-orange-900">{filteredLogs.length}</p>
+                        <p className="text-xs sm:text-sm font-medium truncate" style={{ color: secondaryColor }}>Actions</p>
+                        <p className="text-xl sm:text-2xl font-bold" style={{ color: `${secondaryColor}dd` }}>{filteredLogs.length}</p>
                       </div>
-                      <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 flex-shrink-0" />
+                      <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0" style={{ color: secondaryColor }} />
                     </div>
                   </CardContent>
                 </Card>
@@ -1015,8 +1031,8 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
 
             {/* Audit Logs Tab Content */}
             <TabsContent value="audit-logs" className="mt-6">
-              <Card className="border-purple-200 dark:border-purple-700">
-                <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
+              <Card style={{ borderColor: primaryColor }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: primaryColor }}>
               <div className="flex flex-col gap-4">
                 {/* Toolbar with Search, Filters and Export in one row */}
                 <div className="flex flex-col lg:flex-row gap-2 items-start lg:items-center">
@@ -1042,7 +1058,7 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                           title="Filter"
                         >
                           <span className="relative inline-block">
-                            <Filter className="h-3.5 w-3.5 text-purple-500" />
+                            <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                             {filterAction === "applied" && (
                               <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                                 <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -1175,7 +1191,8 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                         <Button
                           size="sm"
                           onClick={handleApplyFilters}
-                          className="flex-1 bg-purple-600 hover:bg-purple-700"
+                          className="flex-1 text-white"
+                          style={{ backgroundColor: primaryColor }}
                         >
                           Apply
                         </Button>
@@ -1191,7 +1208,8 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                     
                     <Button
                       onClick={handleExportLogs}
-                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                      className="text-white"
+                      style={{ backgroundColor: secondaryColor }}
                       size="sm"
                       disabled={selectedLogs.length === 0 && filteredLogs.length === 0 || filteredLogs.length > MAX_EXPORT}
                     >
@@ -1201,9 +1219,9 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center gap-3 bg-purple-50/80 border border-purple-100 rounded-2xl px-4 py-2">
-                  <div className="flex items-center gap-2 text-purple-700 w-full sm:w-auto">
-                    <span className="h-2.5 w-2.5 rounded-full bg-purple-500" aria-hidden="true" />
+                <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl px-4 py-2" style={{ backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${primaryColor}25)`, borderColor: `${primaryColor}40`, borderWidth: '1px', borderStyle: 'solid' }}>
+                  <div className="flex items-center gap-2 w-full sm:w-auto" style={{ color: primaryColor }}>
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: primaryColor }} aria-hidden="true" />
                     <span className="text-sm font-semibold">
                       {filteredLogs.length.toLocaleString()} {filteredLogs.length === 1 ? "log" : "logs"} found
                     </span>
@@ -1212,7 +1230,12 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="ml-auto h-9 w-9 rounded-2xl bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 shadow-[0_4px_12px_rgba(134,65,244,0.25)] dark:shadow-[0_4px_12px_rgba(134,65,244,0.15)] border border-purple-100 dark:border-purple-700 hover:bg-purple-600 hover:text-white dark:hover:bg-purple-700"
+                    className="ml-auto h-9 w-9 rounded-2xl bg-white dark:bg-gray-800 border"
+                    style={{ 
+                      color: primaryColor,
+                      borderColor: `${primaryColor}40`,
+                      boxShadow: `0 4px 12px ${primaryColor}40`
+                    }}
                     onClick={() => setColumnSelectorOpen(true)}
                     aria-label="Choose visible columns"
                   >

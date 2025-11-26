@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
 import React from "react";
@@ -23,6 +24,7 @@ export default function UnsavedChangesDialog({
   onSaveAsDraft,
   onDiscardChanges,
 }: UnsavedChangesDialogProps) {
+  const { primaryColor } = useCustomColors();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -33,7 +35,7 @@ export default function UnsavedChangesDialog({
           <p className="text-sm text-gray-600 dark:text-white mb-4">{description}</p>
           <div className="flex items-center justify-end gap-2">
             <Button variant="outline" onClick={onContinueEditing}>Continue Editing</Button>
-            <Button variant="outline" className="border-purple-300/70 text-purple-700" onClick={onSaveAsDraft}>Save as Draft</Button>
+            <Button variant="outline" style={{ borderColor: `${primaryColor}80`, color: primaryColor }} onClick={onSaveAsDraft}>Save as Draft</Button>
             <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={onDiscardChanges}>Discard Changes</Button>
           </div>
         </div>

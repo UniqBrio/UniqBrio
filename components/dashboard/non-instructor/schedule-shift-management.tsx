@@ -11,6 +11,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { CalendarIcon, Clock, Users, AlertTriangle, Plus, Edit, Trash2, UserCheck, RefreshCw } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface ScheduleEvent {
   id: string
@@ -25,6 +26,7 @@ interface ScheduleEvent {
 }
 
 export default function ScheduleShiftManagement() {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [events, setEvents] = useState<ScheduleEvent[]>([
     {
@@ -68,18 +70,18 @@ export default function ScheduleShiftManagement() {
     },
   ])
 
-  const getEventColor = (type: string) => {
+  const getEventStyles = (type: string) => {
     switch (type) {
       case "teaching":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return { backgroundColor: `${secondaryColor}1a`, color: secondaryColor, borderColor: `${secondaryColor}33` } as React.CSSProperties
       case "sports":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return { backgroundColor: `${primaryColor}1a`, color: primaryColor, borderColor: `${primaryColor}33` } as React.CSSProperties
       case "arts":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return { backgroundColor: `#3B82F61a`, color: `#1E40AF`, borderColor: `#3B82F633` } as React.CSSProperties
       case "meeting":
-        return "bg-green-100 text-green-800 border-green-200"
+        return { backgroundColor: `#22C55E1a`, color: `#15803D`, borderColor: `#22C55E33` } as React.CSSProperties
       default:
-        return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white border-gray-200 dark:border-gray-700"
+        return { backgroundColor: `#F3F4F6`, color: `#111827`, borderColor: `#E5E7EB` } as React.CSSProperties
     }
   }
 
@@ -172,11 +174,11 @@ export default function ScheduleShiftManagement() {
               <h4 className="font-semibold">Color Codes</h4>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: secondaryColor }}></div>
                   <span className="text-sm">Teaching</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                  <div className="w-3 h-3 rounded" style={{ backgroundColor: primaryColor }}></div>
                   <span className="text-sm">Sports</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -208,7 +210,7 @@ export default function ScheduleShiftManagement() {
           <CardContent>
             <div className="space-y-4">
               {events.map((event) => (
-                <div key={event.id} className={`p-4 rounded-lg border-2 ${getEventColor(event.type)}`}>
+                <div key={event.id} className={`p-4 rounded-lg border-2`} style={getEventStyles(event.type)}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <span className="text-2xl">{getEventIcon(event.type)}</span>
@@ -239,7 +241,7 @@ export default function ScheduleShiftManagement() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="icon" variant="ghost" className="text-purple-600 hover:text-purple-800">
+                      <Button size="icon" variant="ghost" style={{ color: primaryColor }}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button size="icon" variant="ghost">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import "./ScheduleFilters.css"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -856,6 +857,7 @@ export default function EnhancedSchedulePage() {
 
   const { user, theme, toggleTheme, language, setLanguage, isOffline } = useApp()
   const { currency } = useCurrency()
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [events, setEvents] = useState<ScheduleEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -2226,7 +2228,7 @@ export default function EnhancedSchedulePage() {
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
+              <h1 className="text-3xl font-bold flex items-center gap-2" style={{ color: primaryColor }}>
                 Schedule Management
                 {isOffline ? <WifiOff className="h-6 w-6 text-yellow-600" /> : null}
               </h1>
@@ -2237,15 +2239,15 @@ export default function EnhancedSchedulePage() {
 
           {/* Bulk Actions */}
           {selectedCohorts.length > 0 && (
-            <Card className="border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/30">
+            <Card className="border" style={{ borderColor: `${primaryColor}33`, backgroundColor: `${primaryColor}0D` }}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-purple-700">{selectedCohorts.length} cohort session(s) selected</span>
+                  <span className="font-medium" style={{ color: primaryColor }}>{selectedCohorts.length} cohort session(s) selected</span>
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setIsBulkActionsDialogOpen(true)}>
+                    <Button size="sm" className="text-white" style={{ backgroundColor: primaryColor }} onClick={() => setIsBulkActionsDialogOpen(true)}>
                       Bulk Actions
                     </Button>
-                    <Button size="sm" variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50" onClick={() => setselectedCohorts([])}>
+                    <Button size="sm" variant="outline" style={{ borderColor: `${primaryColor}33`, color: primaryColor }} onClick={() => setselectedCohorts([])}>
                       Clear Selection
                     </Button>
                   </div>
@@ -2259,21 +2261,36 @@ export default function EnhancedSchedulePage() {
             <TabsList className="grid w-full grid-cols-3 bg-transparent gap-2 p-0 h-auto">
               <TabsTrigger 
                 value="analytics" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'analytics' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Analytics
               </TabsTrigger>
               <TabsTrigger 
                 value="schedule" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'schedule' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
               >
                 <CalendarLucide className="h-4 w-4" />
                 Schedule
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
               >
                 <Settings className="h-4 w-4" />
                 Settings

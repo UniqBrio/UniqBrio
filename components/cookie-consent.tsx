@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react" // Import useSession
 import { setCookieConsent, getCookieConsent } from "@/lib/cookies"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { X } from "lucide-react"
 import Link from "next/link"
 
 export default function CookieConsent() {
   const { data: session, status } = useSession() // Get session status
+  const { primaryColor } = useCustomColors();
   const [showConsent, setShowConsent] = useState(false)
   const [showPreferences, setShowPreferences] = useState(false)
   const [preferences, setPreferences] = useState({
@@ -59,7 +61,7 @@ export default function CookieConsent() {
   // Preferences Panel
   if (showPreferences) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 p-6 rounded-2xl border-2 border-purple-200 dark:border-purple-700">
+      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 p-6 rounded-2xl border-2" style={{ borderColor: `${primaryColor}50` }}>
         <div className="mb-4">
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Cookie Preferences</h3>
@@ -104,7 +106,8 @@ export default function CookieConsent() {
                   id="analytics"
                   checked={preferences.analytics}
                   onChange={(e) => setPreferences({ ...preferences, analytics: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 text-purple-700 focus:ring-purple-500 cursor-pointer"
+                  className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                  style={{ accentColor: primaryColor }}
                 />
                 <label htmlFor="analytics" className="font-semibold text-gray-900 dark:text-white text-sm cursor-pointer">
                   Analytics
@@ -125,7 +128,8 @@ export default function CookieConsent() {
                   id="marketing"
                   checked={preferences.marketing}
                   onChange={(e) => setPreferences({ ...preferences, marketing: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 text-purple-700 focus:ring-purple-500 cursor-pointer"
+                  className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                  style={{ accentColor: primaryColor }}
                 />
                 <label htmlFor="marketing" className="font-semibold text-gray-900 dark:text-white text-sm cursor-pointer">
                   Marketing
@@ -147,7 +151,10 @@ export default function CookieConsent() {
           </button>
           <button
             onClick={savePreferences}
-            className="flex-1 px-4 py-3 bg-purple-700 text-white rounded-xl hover:bg-purple-800 transition-colors font-semibold text-base"
+            className="flex-1 px-4 py-3 text-white rounded-xl transition-colors font-semibold text-base"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
           >
             Save Preferences
           </button>
@@ -155,7 +162,7 @@ export default function CookieConsent() {
 
         <p className="text-xs text-gray-500 dark:text-white mt-4 text-center">
           Learn more in our{" "}
-          <Link href="/legal/cookies" target="_blank" className="text-purple-700 hover:underline">
+          <Link href="/legal/cookies" target="_blank" className="hover:underline" style={{ color: primaryColor }}>
             Cookie Policy
           </Link>
         </p>
@@ -165,7 +172,7 @@ export default function CookieConsent() {
 
   // Initial Banner
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 p-6 rounded-2xl border-2 border-purple-200 dark:border-purple-700">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 p-6 rounded-2xl border-2" style={{ borderColor: `${primaryColor}50` }}>
       <div className="mb-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -183,7 +190,7 @@ export default function CookieConsent() {
 
         <p className="text-gray-600 dark:text-white leading-relaxed text-sm">
           We use a few cookies to keep you logged in and make UniqBrio faster. Nothing creepy – promise! Learn more in our{" "}
-          <Link href="/legal/cookies" target="_blank" className="text-purple-700 hover:underline font-medium">
+          <Link href="/legal/cookies" target="_blank" className="hover:underline font-medium" style={{ color: primaryColor }}>
             Cookie Policy
           </Link>
           .
@@ -199,7 +206,10 @@ export default function CookieConsent() {
         </button>
         <button
           onClick={acceptAll}
-          className="flex-1 px-4 py-3 bg-purple-700 text-white rounded-xl hover:bg-purple-800 transition-colors font-semibold text-base"
+          className="flex-1 px-4 py-3 text-white rounded-xl transition-colors font-semibold text-base"
+          style={{ backgroundColor: primaryColor }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
         >
           Sounds good!
         </button>

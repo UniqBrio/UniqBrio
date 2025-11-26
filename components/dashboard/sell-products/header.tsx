@@ -10,6 +10,7 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/dashboard/ui/avatar"
 import { Globe, Bell, Settings, User } from 'lucide-react'
 import { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface HeaderProps {
   onSettingsClick: () => void
@@ -18,6 +19,7 @@ interface HeaderProps {
 export function Header({ onSettingsClick }: HeaderProps) {
   const [language, setLanguage] = useState("English")
   const [userRole, setUserRole] = useState("Super Admin")
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   return (
     <header className="bg-white/90 border-b border-gray-200 px-6 py-4 shadow-sm">
@@ -47,7 +49,8 @@ export function Header({ onSettingsClick }: HeaderProps) {
 
           <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-smooth">
             <Bell className="h-5 w-5 text-gray-700 dark:text-white" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-gradient-to-r from-purple-600 to-orange-500 glow text-white">
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs glow text-white"
+                   style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}>
               3
             </Badge>
           </Button>
@@ -68,7 +71,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
                 size="sm"
                 className="flex items-center space-x-2 hover:bg-gray-100 transition-smooth"
               >
-                <Avatar className="h-8 w-8 border-2 border-purple-600">
+                <Avatar className="h-8 w-8 border-2" style={{ borderColor: primaryColor }}>
                   <AvatarImage src="/placeholder.svg?height=32&width=32" />
                   <AvatarFallback>SA</AvatarFallback>
                 </Avatar>

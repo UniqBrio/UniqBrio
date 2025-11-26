@@ -100,7 +100,7 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
         <div className="space-y-6">
           {/* Emergency Toggle */}
           <div className="flex items-center space-x-2 p-3 bg-red-50 rounded-lg border border-red-200">
-            <Checkbox id="emergency" checked={isEmergency} onCheckedChange={setIsEmergency} />
+            <Checkbox id="emergency" checked={isEmergency} onCheckedChange={(checked) => setIsEmergency(checked === true)} />
             <Label htmlFor="emergency" className="flex items-center gap-2 text-red-700 font-medium">
               <AlertTriangle className="h-4 w-4" />
               Emergency Notification
@@ -172,7 +172,7 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
                     selectedTemplate?.id === template.id ? "ring-2 ring-purple-500 bg-purple-50" : "hover:bg-gray-50"
                   }`}
                   onClick={() => {
-                    setSelectedTemplate(template)
+                    setSelectedTemplate(template as NotificationTemplate)
                     setCustomMessage(template.template)
                   }}
                 >
@@ -182,9 +182,9 @@ export default function NotificationSystem({ events, selectedEvents = [] }: Noti
                         <h4 className="font-medium">{template.name}</h4>
                         <p className="text-sm text-gray-600 dark:text-white mt-1">{template.template}</p>
                       </div>
-                      {!isEmergency && "channels" in template && (
+                      {!isEmergency && "channels" in template && (template as NotificationTemplate).channels && (
                         <div className="flex gap-1">
-                          {template.channels.map((channel) => (
+                          {(template as NotificationTemplate).channels.map((channel: string) => (
                             <Badge key={channel} variant="outline" className="text-xs">
                               {channel}
                             </Badge>

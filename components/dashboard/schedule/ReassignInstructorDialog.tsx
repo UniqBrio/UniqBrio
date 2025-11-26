@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog"
 import { Button } from "@/components/dashboard/ui/button"
 import { Label } from "@/components/dashboard/ui/label"
@@ -45,6 +46,7 @@ export default function ReassignInstructorDialog({
   leaveRequests = [],
   selectedCohort,
 }: ReassignInstructorDialogProps) {
+  const { primaryColor } = useCustomColors()
   const selectedInstructor = instructors.find(inst => inst.id === newInstructorId)
   
   // Parse session time
@@ -67,7 +69,7 @@ export default function ReassignInstructorDialog({
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5 text-purple-500" />
+            <UserCheck className="h-5 w-5" style={{ color: primaryColor }} />
             Reassign Session Instructor
           </DialogTitle>
           <DialogDescription>
@@ -76,12 +78,12 @@ export default function ReassignInstructorDialog({
         </DialogHeader>
         
         {/* Session-Specific Change Notice - Compact */}
-        <div className="bg-purple-50 border border-purple-200 rounded p-2 text-xs mb-3">
+        <div className="rounded p-2 text-xs mb-3" style={{ backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}80`, borderWidth: '1px' }}>
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0"></div>
+            <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: primaryColor }}></div>
             <div>
-              <span className="font-medium text-purple-800">Session-Specific Change:</span>
-              <span className="text-purple-700 ml-1">Only affects this session, others unchanged.</span>
+              <span className="font-medium" style={{ color: `${primaryColor}dd` }}>Session-Specific Change:</span>
+              <span className="ml-1" style={{ color: `${primaryColor}cc` }}>Only affects this session, others unchanged.</span>
             </div>
           </div>
         </div>
@@ -96,7 +98,7 @@ export default function ReassignInstructorDialog({
                 <span>{format(sessionDate, 'dd-MMM-yy')} at {sessionTime}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-purple-500" />
+                <Users className="h-4 w-4" style={{ color: primaryColor }} />
                 <span className="font-medium">Students:</span>
                 <span>{enrolledStudents} enrolled</span>
               </div>

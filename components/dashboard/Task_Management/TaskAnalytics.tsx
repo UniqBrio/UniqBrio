@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import {
   BarChart,
@@ -31,6 +32,7 @@ interface TaskAnalyticsProps {
 }
 
 export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   // Priority Distribution
   const priorityData = useMemo(() => {
     const priorities = { high: 0, medium: 0, low: 0 }
@@ -85,7 +87,7 @@ export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
     }
 
     return [
-      { name: "Tasks Created", value: thisWeek.created, color: "#8b5cf6" },
+      { name: "Tasks Created", value: thisWeek.created, color: primaryColor },
       { name: "Tasks Completed", value: thisWeek.completed, color: "#22c55e" },
     ]
   }, [tasks])
@@ -140,15 +142,15 @@ export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
         </Card>
 
         {/* Completed Card */}
-        <Card className="bg-violet-50 border border-violet-500">
+        <Card className="border" style={{ borderColor: primaryColor, background: `color-mix(in oklab, ${primaryColor} 10%, white)` }}>
           <CardContent className="pt-6">
             <div className="flex flex-col items-start">
               <div className="flex items-center justify-between w-full mb-2">
-                <p className="text-sm text-violet-700 font-medium">Completed</p>
-                <div className="h-3 w-3 rounded-full bg-violet-600" />
+                <p className="text-sm font-medium" style={{ color: primaryColor }}>Completed</p>
+                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: primaryColor }} />
               </div>
-              <p className="text-2xl font-bold text-violet-800">{stats.completedToday}</p>
-              <p className="text-xs text-violet-700">Summary</p>
+              <p className="text-2xl font-bold" style={{ color: primaryColor }}>{stats.completedToday}</p>
+              <p className="text-xs" style={{ color: primaryColor }}>Summary</p>
             </div>
           </CardContent>
         </Card>
@@ -173,7 +175,7 @@ export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Target className="h-5 w-5 text-purple-600" />
+              <Target className="h-5 w-5" style={{ color: primaryColor }} />
               Priority Distribution (Active Task)
             </CardTitle>
           </CardHeader>
@@ -205,7 +207,7 @@ export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+              <TrendingUp className="h-5 w-5" style={{ color: primaryColor }} />
               Active Task Status
             </CardTitle>
           </CardHeader>
@@ -238,7 +240,7 @@ export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-purple-600" />
+              <AlertCircle className="h-5 w-5" style={{ color: primaryColor }} />
               Deadline Status
             </CardTitle>
           </CardHeader>
@@ -268,7 +270,7 @@ export function TaskAnalytics({ tasks, stats }: TaskAnalyticsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+              <TrendingUp className="h-5 w-5" style={{ color: primaryColor }} />
               This Week's Performance
             </CardTitle>
           </CardHeader>

@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StickyTable } from "@/components/dashboard/ui/staff/sticky-table"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Pencil, Trash2, Users } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface StudentAttendanceRecord {
   id: string; // MongoDB ObjectId string
@@ -39,6 +40,7 @@ interface AttendanceTableProps {
 
 
 export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSelect, onToggleSelectAll, displayedColumns, onEditRecord, onDeleteRecord, onSelectRecord }: AttendanceTableProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const data = attendanceData || [];
 
   const cols = useMemo(() => {
@@ -113,7 +115,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
                 className="cursor-pointer text-sm hover:bg-gray-100 p-2 rounded transition-colors inline-block"
                 onClick={() => onEditRecord(row)}
               >
-                <Pencil className="text-purple-600 h-4 w-4" />
+                <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
               </span>
             )}
             {onDeleteRecord && (
@@ -136,7 +138,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
   // Empty state (match student list style)
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white rounded-xl border border-dashed border-purple-200">
+      <div className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white rounded-xl border border-dashed" style={{ borderColor: `${primaryColor}80` }}>
         <Users className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
         <h3 className="text-lg font-medium mb-2">No attendance records found</h3>
         <p className="text-sm">Try adjusting your filters or search criteria</p>
@@ -157,7 +159,8 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
           return (
             <input
               type="checkbox"
-              className="accent-purple-600 cursor-pointer"
+              className="cursor-pointer"
+              style={{ accentColor: primaryColor }}
               checked={allSelected}
               onChange={(e) => onToggleSelectAll?.(e.target.checked)}
             />
@@ -183,14 +186,16 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
             return (
               <TableRow
                 key={row.id}
-                className={`border-b hover:bg-gray-50 ${isSelected ? 'bg-purple-50/60' : ''}`}
+                className="border-b hover:bg-gray-50"
+                style={isSelected ? { backgroundColor: `${primaryColor}15` } : {}}
                 onClick={() => { onSelectRecord?.(row); }}
               >
                 {onToggleSelect && (
                   <TableCell className="w-10 px-4" onClick={e => e.stopPropagation()}>
                     <input
                       type="checkbox"
-                      className="accent-purple-600 cursor-pointer"
+                      className="cursor-pointer"
+                      style={{ accentColor: primaryColor }}
                       checked={isSelected}
                       onChange={(e) => onToggleSelect(row.id.toString(), e.target.checked)}
                     />

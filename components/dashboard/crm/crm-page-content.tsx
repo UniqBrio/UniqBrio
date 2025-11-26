@@ -13,11 +13,13 @@ import AnalyticsPage from "@/components/dashboard/crm/analytics"
 import SettingsPage from "@/components/dashboard/crm/settings"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { MessageSquare } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 type CRMSection = "dashboard" | "leads" | "enquiries" | "sessions" | "trials" | "funnel" | "analytics" | "settings"
 
 export default function CRMPageContent() {
   const [activeSection, setActiveSection] = useState<CRMSection>("dashboard")
+  const { primaryColor } = useCustomColors()
 
   const renderSection = () => {
     switch (activeSection) {
@@ -49,7 +51,7 @@ export default function CRMPageContent() {
           <CardContent className="p-0">
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2 mb-2">
+              <h1 className="text-3xl font-bold flex items-center gap-2 mb-2" style={{ color: primaryColor }}>
                 <MessageSquare className="h-8 w-8" />
                 Customer Relationship Management
               </h1>

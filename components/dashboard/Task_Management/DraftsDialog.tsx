@@ -12,6 +12,7 @@ import { DraftItem } from './use-drafts'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog'
 import { format } from 'date-fns'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface DraftsDialogProps<TData = any> {
   drafts: DraftItem<TData>[]
@@ -36,6 +37,7 @@ export function DraftsDialog<TData = any>({
   open,
   onOpenChange,
 }: DraftsDialogProps<TData>) {
+  const { primaryColor } = useCustomColors()
   const filteredDrafts = filterType ? drafts.filter(d => d.type === filterType) : drafts
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
@@ -147,7 +149,17 @@ export function DraftsDialog<TData = any>({
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); onLoadDraft(draft) }}
-                              className="p-2 rounded hover:bg-purple-50 text-purple-600 hover:text-purple-700"
+                              className="p-2 rounded"
+                              onMouseEnter={(e) => {
+                                const el = e.currentTarget as HTMLButtonElement
+                                el.style.background = `color-mix(in oklab, ${primaryColor} 12%, white)`
+                                el.style.color = primaryColor
+                              }}
+                              onMouseLeave={(e) => {
+                                const el = e.currentTarget as HTMLButtonElement
+                                el.style.background = ''
+                                el.style.color = ''
+                              }}
                               aria-label="Edit draft"
                             >
                               <Pencil className="h-4 w-4" />

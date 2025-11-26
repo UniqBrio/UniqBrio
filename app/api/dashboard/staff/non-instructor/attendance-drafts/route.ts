@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import NonInstructorAttendanceDraftModel from "@/models/dashboard/staff/NonInstructorAttendanceDraft"
-import { getUserSession } from '@/lib/auth'
+import { getUserSession } from '@/lib/tenant/api-helpers'
 import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 function toUi(doc: any) {

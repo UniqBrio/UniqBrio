@@ -9,12 +9,14 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Bell, Mail, MessageSquare, AlertTriangle, CheckCircle2 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 export function AttendanceSettings() {
   const [emailEnabled, setEmailEnabled] = useState(true)
   const [smsEnabled, setSmsEnabled] = useState(true)
   const [whatsappEnabled, setWhatsappEnabled] = useState(false)
   const [inAppEnabled, setInAppEnabled] = useState(true)
+  const { primaryColor } = useCustomColors()
 
   return (
     <div className="space-y-6">
@@ -40,8 +42,8 @@ export function AttendanceSettings() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <Mail className="h-5 w-5 text-purple-600" />
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: `color-mix(in oklab, ${primaryColor} 15%, white)` }}>
+                      <Mail className="h-5 w-5" style={{ color: primaryColor }} />
                     </div>
                     <div>
                       <h4 className="font-medium">Email Notifications</h4>
@@ -53,8 +55,8 @@ export function AttendanceSettings() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <MessageSquare className="h-5 w-5 text-purple-600" />
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: `color-mix(in oklab, ${primaryColor} 15%, white)` }}>
+                      <MessageSquare className="h-5 w-5" style={{ color: primaryColor }} />
                     </div>
                     <div>
                       <h4 className="font-medium">SMS Notifications</h4>
@@ -66,8 +68,8 @@ export function AttendanceSettings() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <MessageSquare className="h-5 w-5 text-purple-600" />
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: `color-mix(in oklab, ${primaryColor} 15%, white)` }}>
+                      <MessageSquare className="h-5 w-5" style={{ color: primaryColor }} />
                     </div>
                     <div>
                       <h4 className="font-medium">WhatsApp Notifications</h4>
@@ -79,8 +81,8 @@ export function AttendanceSettings() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <Bell className="h-5 w-5 text-purple-600" />
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: `color-mix(in oklab, ${primaryColor} 15%, white)` }}>
+                      <Bell className="h-5 w-5" style={{ color: primaryColor }} />
                     </div>
                     <div>
                       <h4 className="font-medium">Push Notifications</h4>

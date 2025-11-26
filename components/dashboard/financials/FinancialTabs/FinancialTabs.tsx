@@ -8,6 +8,7 @@ import { IncomeTab } from "./IncomeTab"
 import { ExpensesTab } from "./ExpensesTab"
 import { ROITab } from "./ROITab"
 import { ForecastTab } from "./ForecastTab"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface FinancialTabsProps {
   activeTab: string
@@ -34,28 +35,38 @@ export function FinancialTabs({
   forecastPeriod,
   setForecastPeriod
 }: FinancialTabsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   return (
     <div className="bg-white shadow-md border-2 border-gray-300 rounded-lg p-2 sm:p-3 lg:p-4 w-full overflow-hidden">
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6 lg:space-y-8 tabs-purple">
+    <Tabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="space-y-4 sm:space-y-6 lg:space-y-8 tabs-purple"
+      style={{
+        // @ts-ignore custom properties
+        "--ub-primary-color": primaryColor,
+        // @ts-ignore
+        "--ub-secondary-color": secondaryColor,
+        // @ts-ignore
+        "--ub-secondary-tint": `${secondaryColor}1a`,
+      } as React.CSSProperties}
+    >
        <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 sm:gap-2 bg-transparent border-0 p-1 sm:p-2 w-full min-h-0 mb-2 sm:mb-4">
         <TabsTrigger 
           value="overview" 
-          className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 transition-all duration-150 font-semibold data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none text-[10px] sm:text-xs lg:text-sm px-1 py-1 sm:px-2 sm:py-1 lg:px-3 lg:py-2 min-w-0"
-          
+          className="tab-trigger text-[10px] sm:text-xs lg:text-sm px-1 py-1 sm:px-2 sm:py-1 lg:px-3 lg:py-2 min-w-0"
         >
           <span className="truncate">Overview</span>
         </TabsTrigger>
         <TabsTrigger 
           value="income" 
-          className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 transition-all duration-150 font-semibold data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none text-[10px] sm:text-xs lg:text-sm px-1 py-1 sm:px-2 sm:py-1 lg:px-3 lg:py-2 min-w-0"
-          
+          className="tab-trigger text-[10px] sm:text-xs lg:text-sm px-1 py-1 sm:px-2 sm:py-1 lg:px-3 lg:py-2 min-w-0"
         >
           <span className="truncate">Income</span>
         </TabsTrigger>
         <TabsTrigger 
           value="expenses" 
-          className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 transition-all duration-150 font-semibold data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none text-[10px] sm:text-xs lg:text-sm px-1 py-1 sm:px-2 sm:py-1 lg:px-3 lg:py-2 min-w-0"
-          
+          className="tab-trigger text-[10px] sm:text-xs lg:text-sm px-1 py-1 sm:px-2 sm:py-1 lg:px-3 lg:py-2 min-w-0"
         >
           <span className="truncate">Expenses</span>
         </TabsTrigger>

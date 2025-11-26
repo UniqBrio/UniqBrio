@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/dashboard/ui/button';
 import { Input } from '@/components/dashboard/ui/input';
+import { useCustomColors } from '@/lib/use-custom-colors';
 import {
   Popover,
   PopoverContent,
@@ -70,6 +71,7 @@ export default function CampaignFilters({
   onExportAll,
   onExportSelected,
 }: CampaignFiltersProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [pendingFilters, setPendingFilters] = useState<{ statuses: string[]; types: string[] }>({
     statuses: filterStatus === 'All' ? [] : [filterStatus],
@@ -127,7 +129,7 @@ export default function CampaignFilters({
               title="Advanced Filters"
               tabIndex={0}
             >
-              <Filter className="h-3.5 w-3.5 text-purple-500" />
+              <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
             </Button>
           </PopoverTrigger>
           <PopoverContent
@@ -239,7 +241,10 @@ export default function CampaignFilters({
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => onViewModeChange('list')}
-            className={`rounded-r-none h-9 ${viewMode === 'list' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
+            className="rounded-r-none h-9"
+            style={viewMode === 'list' ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => viewMode === 'list' ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => viewMode === 'list' ? e.currentTarget.style.backgroundColor = primaryColor : null}
             title="List View"
           >
             <List className="h-4 w-4" />
@@ -248,7 +253,10 @@ export default function CampaignFilters({
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => onViewModeChange('grid')}
-            className={`rounded-l-none border-l h-9 ${viewMode === 'grid' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
+            className="rounded-l-none border-l h-9"
+            style={viewMode === 'grid' ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => viewMode === 'grid' ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => viewMode === 'grid' ? e.currentTarget.style.backgroundColor = primaryColor : null}
             title="Grid View"
           >
             <Grid className="h-4 w-4" />
@@ -257,7 +265,10 @@ export default function CampaignFilters({
 
         {/* New Campaign Button */}
         <Button 
-          className="bg-purple-600 hover:bg-purple-700 text-white h-9 whitespace-nowrap"
+          className="text-white h-9 whitespace-nowrap"
+          style={{ backgroundColor: primaryColor }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
           size="sm"
           onClick={onAddCampaign}
           title="Create a new campaign"
@@ -268,10 +279,10 @@ export default function CampaignFilters({
       </div>
 
       {/* Campaign Count Badge */}
-      <div className="flex items-center gap-3 bg-purple-50 rounded-lg px-4 py-2 w-fit">
-        <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-        <span className="text-purple-600 font-medium text-sm">{campaignCount}</span>
-        <span className="text-purple-600 text-sm">
+      <div className="flex items-center gap-3 rounded-lg px-4 py-2 w-fit" style={{ backgroundColor: `${primaryColor}15` }}>
+        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+        <span className="font-medium text-sm" style={{ color: `${primaryColor}dd` }}>{campaignCount}</span>
+        <span className="text-sm" style={{ color: `${primaryColor}dd` }}>
           campaign{campaignCount !== 1 ? 's' : ''} found
         </span>
       </div>

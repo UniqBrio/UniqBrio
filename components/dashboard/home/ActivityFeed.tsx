@@ -11,6 +11,7 @@ import {
   BookOpen,
   Users,
 } from "lucide-react";
+import { useCustomColors } from '@/lib/use-custom-colors';
 
 interface Activity {
   id: string;
@@ -32,6 +33,7 @@ export function ActivityFeed({
   className = "",
   maxItems = 8,
 }: ActivityFeedProps) {
+  const { primaryColor } = useCustomColors()
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -176,7 +178,8 @@ export function ActivityFeed({
 
   return (
     <Card className={`${className} border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900`}>
-      <CardHeader className="pb-6 bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 relative overflow-hidden">
+      <CardHeader className="pb-6 relative overflow-hidden"
+        style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}>
         {/* Decorative gradient orbs */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -223,7 +226,12 @@ export function ActivityFeed({
               <a
                 key={activity.id}
                 href={activity.link || "#"}
-                className="group block p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-purple-400 dark:hover:border-purple-600 hover:shadow-lg transition-all duration-300"
+                className="group block p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:shadow-lg transition-all duration-300"
+                style={{
+                  '--hover-border-color': primaryColor,
+                } as React.CSSProperties}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = primaryColor}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = ''}
               >
                 <div className="flex gap-4">
                   {/* Icon */}
@@ -238,7 +246,14 @@ export function ActivityFeed({
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <h4 className="font-semibold text-sm text-neutral-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                      <h4 
+                        className="font-semibold text-sm text-neutral-900 dark:text-white transition-colors"
+                        style={{
+                          '--hover-text-color': primaryColor,
+                        } as React.CSSProperties}
+                        onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = ''}
+                      >
                         {activity.title}
                       </h4>
                       {activity.status === "pending" && (

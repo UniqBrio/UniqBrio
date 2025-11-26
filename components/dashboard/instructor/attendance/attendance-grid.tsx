@@ -3,6 +3,7 @@
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Calendar, Clock, User, MapPin, Pencil, Trash2, NotepadText, BookOpen } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface StudentAttendanceRecord {
   id: number;
@@ -34,6 +35,7 @@ export function AttendanceGrid({
   onEditRecord,
   onDeleteRecord
 }: AttendanceGridProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const needsHorizontalScroll = attendanceData.length > 3; // show horizontal scroll & indicator only if more than 3 records
   return (
     <div className={needsHorizontalScroll ? "overflow-x-auto" : ""}>
@@ -42,17 +44,20 @@ export function AttendanceGrid({
         style={needsHorizontalScroll ? { minWidth: 'max-content' } : undefined}
       >
       {attendanceData.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-white bg-purple-50/40 rounded-xl border border-dashed border-purple-300 min-w-[320px] w-[320px]">
-          <Calendar className="h-16 w-16 mb-4 text-purple-300" />
-          <p className="text-lg font-medium text-purple-700">No attendance records found</p>
-          <p className="text-sm text-purple-600">Try adjusting your search or filters or add a new record.</p>
+        <div
+          className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-white rounded-xl border border-dashed min-w-[320px] w-[320px]"
+          style={{ borderColor: `${primaryColor}55`, background: `color-mix(in oklab, ${primaryColor} 6%, white)` }}
+        >
+          <Calendar className="h-16 w-16 mb-4" style={{ color: `${primaryColor}66` }} />
+          <p className="text-lg font-medium" style={{ color: primaryColor }}>No attendance records found</p>
+          <p className="text-sm" style={{ color: primaryColor }}>Try adjusting your search or filters or add a new record.</p>
         </div>
       ) : (
         attendanceData.map((record) => (
           <Card 
             key={record.id} 
-            className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white border-2 border-orange-400 hover:border-orange-500 relative rounded-xl overflow-hidden flex-shrink-0" 
-            style={{ width: '280px', minWidth: '280px' }}
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white relative rounded-xl overflow-hidden flex-shrink-0" 
+            style={{ width: '280px', minWidth: '280px', borderWidth: 2, borderStyle: 'solid', borderColor: secondaryColor }}
             onClick={() => onSelectRecord?.(record)}
           >
             <CardContent className="p-4">
@@ -63,7 +68,7 @@ export function AttendanceGrid({
                   onClick={(e) => { e.stopPropagation(); onEditRecord?.(record); }}
                   aria-label="Edit attendance"
                 >
-                  <Pencil className="h-4 w-4 text-purple-600" />
+                  <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
                 </button>
               )}
 

@@ -17,6 +17,7 @@ import {
   Mail,
   Plus,
 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface DashboardStats {
   totalLeads: number
@@ -38,6 +39,7 @@ interface RecentActivity {
 }
 
 export default function CRMDashboard() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [stats, setStats] = useState<DashboardStats>({
     totalLeads: 156,
     totalEnquiries: 89,
@@ -110,8 +112,8 @@ export default function CRMDashboard() {
       title: "Active Trials",
       value: stats.activeTrials,
       icon: Calendar,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: primaryColor,
+      bgColor: `${primaryColor}10`,
       change: "+15%",
       changeType: "positive" as const,
     },
@@ -119,8 +121,8 @@ export default function CRMDashboard() {
       title: "Conversion Rate",
       value: `${stats.conversionRate}%`,
       icon: TrendingUp,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      color: secondaryColor,
+      bgColor: `${secondaryColor}10`,
       change: "+5%",
       changeType: "positive" as const,
     },
@@ -157,7 +159,7 @@ export default function CRMDashboard() {
               <p className="text-gray-600 dark:text-white">Welcome back! Here's what's happening with your leads today.</p>
             </div>
             <div className="mt-4 md:mt-0">
-              <Button className="w-full md:w-auto bg-purple-500 text-white">
+              <Button className="w-full md:w-auto text-white" style={{ backgroundColor: primaryColor }}>
                 <Plus className="w-4 h-4 mr-2" />
                 Quick Add
               </Button>
@@ -177,8 +179,8 @@ export default function CRMDashboard() {
                         {stat.change} from last month
                       </p>
                     </div>
-                    <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    <div className={`p-3 rounded-full`} style={{ backgroundColor: typeof stat.bgColor === 'string' && stat.bgColor.startsWith('#') ? `${stat.bgColor}20` : stat.bgColor }}>
+                      <stat.icon className={`w-6 h-6`} style={{ color: stat.color }} />
                     </div>
                   </div>
                 </CardContent>
@@ -202,20 +204,15 @@ export default function CRMDashboard() {
                         className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <div
-                          className={`p-2 rounded-full ${
-                            activity.type === "enquiry"
-                              ? "bg-blue-100"
-                              : activity.type === "trial"
-                                ? "bg-green-100"
-                                : activity.type === "lead"
-                                  ? "bg-purple-100"
-                                  : "bg-orange-100"
-                          }`}
+                          className={`p-2 rounded-full`}
+                          style={{ 
+                            backgroundColor: activity.type === "lead" ? `${primaryColor}20` : activity.type === "session" ? `${secondaryColor}20` : activity.type === "enquiry" ? "#dbeafe" : "#dcfce7"
+                          }}
                         >
                           {activity.type === "enquiry" && <MessageSquare className="w-4 h-4 text-blue-600" />}
                           {activity.type === "trial" && <Calendar className="w-4 h-4 text-green-600" />}
-                          {activity.type === "lead" && <Users className="w-4 h-4 text-purple-600" />}
-                          {activity.type === "session" && <Clock className="w-4 h-4 text-orange-600" />}
+                          {activity.type === "lead" && <Users className="w-4 h-4" style={{ color: primaryColor }} />}
+                          {activity.type === "session" && <Clock className="w-4 h-4" style={{ color: secondaryColor }} />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
@@ -272,7 +269,7 @@ export default function CRMDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <AlertCircle className="w-5 h-5 text-orange-500" />
+                    <AlertCircle className="w-5 h-5" style={{ color: secondaryColor }} />
                     <span>Alerts</span>
                   </CardTitle>
                 </CardHeader>

@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from "react"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { HeroSection } from "@/components/dashboard/sell-products/hero-section"
 import { ProductsGrid } from "@/components/dashboard/sell-products/products-grid"
@@ -259,19 +260,34 @@ export default function ProductsServicesPage() {
             <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1 bg-transparent">
               <TabsTrigger
                 value="analytics"
-                className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                style={{
+                  borderColor: currentView === 'analytics' ? primaryColor : secondaryColor,
+                  color: currentView === 'analytics' ? 'white' : secondaryColor,
+                  backgroundColor: currentView === 'analytics' ? primaryColor : 'transparent'
+                }}
               >
                 Analytics & Reports
               </TabsTrigger>
               <TabsTrigger
                 value="sales"
-                className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                style={{
+                  borderColor: currentView === 'sales' ? primaryColor : secondaryColor,
+                  color: currentView === 'sales' ? 'white' : secondaryColor,
+                  backgroundColor: currentView === 'sales' ? primaryColor : 'transparent'
+                }}
               >
                 Sales & Invoices
               </TabsTrigger>
               <TabsTrigger
                 value="products"
-                className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                style={{
+                  borderColor: currentView === 'products' ? primaryColor : secondaryColor,
+                  color: currentView === 'products' ? 'white' : secondaryColor,
+                  backgroundColor: currentView === 'products' ? primaryColor : 'transparent'
+                }}
               >
                 Products & Services
               </TabsTrigger>

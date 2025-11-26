@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { Tabs, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 import { LayoutDashboard, CreditCard , Wallet, FileText, Calculator, TrendingUp } from "lucide-react"
 import "./top-tabs.css"
@@ -9,9 +10,24 @@ import "./top-tabs.css"
 type TopTabKey = 'dashboard' | 'income' | 'expense' | 'report' | 'roi' | 'forecast'
 
 export function TopTabs({ value, onChange }: { value: TopTabKey, onChange: (v: TopTabKey) => void }) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   return (
     <div className="w-full">
-      <Tabs value={value} onValueChange={(v) => onChange(v as TopTabKey)} className="space-y-2 tabs-top w-full overflow-hidden">
+      <Tabs
+        value={value}
+        onValueChange={(v) => onChange(v as TopTabKey)}
+        className="space-y-2 tabs-top w-full overflow-hidden"
+        style={{
+          // Provide CSS variables for themed CSS
+          // @ts-ignore - custom properties
+          "--ub-primary-color": primaryColor,
+          // @ts-ignore
+          "--ub-secondary-color": secondaryColor,
+          // slight tint for hover
+          // @ts-ignore
+          "--ub-secondary-tint": `${secondaryColor}1a`,
+        } as React.CSSProperties}
+      >
         <TabsList className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-1 sm:gap-2 bg-transparent border-0 p-0 w-full min-h-0">
           <TabsTrigger value="dashboard" className="tab-trigger min-w-0 flex-1">
             <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />

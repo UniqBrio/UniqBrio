@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { BookOpen, CheckCircle, Users, Banknote, Star, Trophy } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface Stats {
   totalCourses: number;
@@ -19,6 +20,7 @@ interface StatisticsCardsProps {
 
 export default function StatisticsCards({ stats: propStats }: StatisticsCardsProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [stats, setStats] = useState<Stats>(propStats || {
     totalCourses: 0,
     activeCourses: 0,
@@ -63,14 +65,14 @@ export default function StatisticsCards({ stats: propStats }: StatisticsCardsPro
   }, [propStats]);
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+      <Card className="bg-gradient-to-br border" style={{ backgroundColor: `${primaryColor}20`, borderColor: primaryColor }}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-purple-600">Total Courses</p>
-              <p className="text-2xl font-bold text-purple-900">{stats.totalCourses}</p>
+              <p className="text-sm font-medium" style={{ color: `${primaryColor}dd` }}>Total Courses</p>
+              <p className="text-2xl font-bold" style={{ color: `${primaryColor}` }}>{stats.totalCourses}</p>
             </div>
-            <BookOpen className="h-8 w-8 text-purple-500" />
+            <BookOpen className="h-8 w-8" style={{ color: primaryColor }} />
           </div>
         </CardContent>
       </Card>
@@ -99,14 +101,14 @@ export default function StatisticsCards({ stats: propStats }: StatisticsCardsPro
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+      <Card className="bg-gradient-to-br border" style={{ backgroundColor: `${secondaryColor}20`, borderColor: secondaryColor }}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-orange-600">Revenue ({currency})</p>
-              <p className="text-2xl font-bold text-orange-900">{stats.totalRevenue.toLocaleString('en-IN')}  </p>
+              <p className="text-sm font-medium" style={{ color: `${secondaryColor}dd` }}>Revenue ({currency})</p>
+              <p className="text-2xl font-bold" style={{ color: secondaryColor }}>{stats.totalRevenue.toLocaleString('en-IN')}  </p>
             </div>
-            <Banknote className="h-8 w-8 text-orange-500" />
+            <Banknote className="h-8 w-8" style={{ color: secondaryColor }} />
           </div>
         </CardContent>
       </Card>

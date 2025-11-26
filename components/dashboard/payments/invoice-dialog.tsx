@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +41,7 @@ export function InvoiceDialog({
   onOpenChange,
 }: InvoiceDialogProps) {
   const { currency } = useCurrency();
+  const { primaryColor } = useCustomColors();
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
@@ -307,7 +309,7 @@ export function InvoiceDialog({
         {/* Invoice Content */}
         <div className="bg-white p-8 print:p-12 mx-6 mb-6" id="invoice-content">
           {/* Header with Logo */}
-          <div className="border-b-4 border-purple-600 pb-6 mb-6">
+          <div className="pb-6 mb-6" style={{ borderBottom: '4px solid', borderColor: primaryColor }}>
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-4 mb-2">
@@ -322,7 +324,7 @@ export function InvoiceDialog({
                     />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-purple-700">XYZ Academy</h1>
+                    <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>XYZ Academy</h1>
                     <p className="text-gray-600 dark:text-white font-medium">Empowering Minds, Shaping Futures</p>
                   </div>
                 </div>
@@ -333,7 +335,7 @@ export function InvoiceDialog({
                 </div>
               </div>
               <div className="text-right">
-                <h2 className="text-2xl font-bold text-purple-600 mb-2">INVOICE</h2>
+                <h2 className="text-2xl font-bold mb-2" style={{ color: primaryColor }}>INVOICE</h2>
                 <div className="text-sm">
                   <p className="font-semibold">Invoice #: {invoiceId || 'Generating...'}</p>
                   <p className="text-gray-600 dark:text-white">Date: {invoiceDate}</p>

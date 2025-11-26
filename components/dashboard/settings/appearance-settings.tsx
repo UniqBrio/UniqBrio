@@ -30,13 +30,13 @@ interface Currency {
 }
 
 export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettingsProps) {
-  const { theme, toggleTheme } = useApp()
+  const { theme, toggleTheme, customColors, setCustomColors, applyCustomColors, resetToDefaultColors: resetColors } = useApp()
   const [isSaving, setIsSaving] = useState(false)
   const [isLoadingFormats, setIsLoadingFormats] = useState(true)
   const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true)
   const DEFAULT_COLORS = ["#8b5cf6", "#DE7D14"]
   const [selectedColors, setSelectedColors] = useState<string[]>(
-    preferences?.customColors || DEFAULT_COLORS
+    customColors || DEFAULT_COLORS
   )
   const [dateFormats, setDateFormats] = useState<DateFormat[]>([])
   const [currencies, setCurrencies] = useState<Currency[]>([])
@@ -124,7 +124,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   // Helper function to get currency symbols
   const getCurrencySymbol = (code: string): string => {
     const symbols: { [key: string]: string } = {
-      USD: "", EUR: "", GBP: "", JPY: "",
+      USD: "", EUR: "", GBP: "", JPY: "",INR: "",
       AUD: "", CAD: "", CNY: "", CHF: "", BRL: "",
       MXN: "", ZAR: "", SEK: "", NOK: "", DKK: "",
       RUB: "", KRW: "", SGD: "", HKD: "", NZD: ""
@@ -178,6 +178,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
 
   const resetToDefaultColors = () => {
     setSelectedColors([...DEFAULT_COLORS])
+    resetColors() // Call the context function to reset globally
     toast({
       title: "Colors Reset",
       description: "Theme colors have been reset to default (Purple and Orange).",
@@ -193,10 +194,17 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const handleSave = async () => {
     try {
       setIsSaving(true)
+      
+      // Apply colors globally through context
+      setCustomColors(selectedColors)
+      applyCustomColors(selectedColors)
+      
+      // Also save to backend if needed
       await onUpdate({ ...settings, theme, customColors: selectedColors })
+      
       toast({
         title: "Appearance Updated",
-        description: "Your appearance preferences have been saved.",
+        description: "Your appearance preferences have been saved and applied globally.",
       })
     } catch (error) {
       toast({
@@ -216,7 +224,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-purple-600" />
+            <Globe className="h-5 w-5" style={{ color: 'var(--custom-color-1)' }} />
             Localization
           </CardTitle>
           <CardDescription>
@@ -269,7 +277,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
           <div className="pt-6 border-t">
             <div className="mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Palette className="h-5 w-5 text-purple-600" />
+                <Palette className="h-5 w-5" style={{ color: 'var(--custom-color-1)' }} />
                 Theme Preferences
               </h3>
               <p className="text-sm text-gray-500 dark:text-white mt-1">
@@ -371,17 +379,54 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
               </div>
 
               {/* Color Preview */}
-              <div className="p-4 border rounded-lg bg-white">
+              <div className="p-4 border rounded-lg bg-white dark:bg-gray-900">
                 <p className="text-sm font-medium mb-3">Color Preview</p>
-                <div className="flex gap-2 flex-wrap">
-                  {selectedColors.map((color, index) => (
-                    <div
-                      key={index}
-                      className="w-16 h-16 rounded-lg shadow-md border-2 border-gray-200 transition-transform hover:scale-105"
-                      style={{ backgroundColor: color }}
-                      title={`Color ${index + 1}: ${color}`}
-                    />
-                  ))}
+                <div className="space-y-4">
+                  {/* Color swatches */}
+                  <div className="flex gap-2 flex-wrap">
+                    {selectedColors.map((color, index) => (
+                      <div
+                        key={index}
+                        className="w-16 h-16 rounded-lg shadow-md border-2 border-gray-200 transition-transform hover:scale-105"
+                        style={{ backgroundColor: color }}
+                        title={`Color ${index + 1}: ${color}`}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Live preview examples */}
+                  <div className="space-y-2 pt-3 border-t">
+                    <p className="text-xs text-gray-500 dark:text-white mb-2">Live Preview Examples:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        className="px-4 py-2 text-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium"
+                        style={{ backgroundColor: selectedColors[0] }}
+                      >
+                        Primary Button
+                      </button>
+                      <button
+                        className="px-4 py-2 text-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium"
+                        style={{ backgroundColor: selectedColors[1] }}
+                      >
+                        Secondary Button
+                      </button>
+                      <div
+                        className="px-3 py-1 text-white rounded-full text-xs font-medium"
+                        style={{ backgroundColor: selectedColors[0] }}
+                      >
+                        Badge
+                      </div>
+                      <div
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ 
+                          background: `linear-gradient(135deg, ${selectedColors[0]}, ${selectedColors[1] || selectedColors[0]})`,
+                          color: 'white'
+                        }}
+                      >
+                        Gradient Card
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -392,7 +437,8 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full bg-purple-600 hover:bg-purple-700 gap-2"
+            className="w-full text-white gap-2"
+            style={{ backgroundColor: 'var(--custom-color-1)' }}
           >
             <Save className="h-4 w-4" />
             {isSaving ? "Saving..." : "Save Appearance Settings"}

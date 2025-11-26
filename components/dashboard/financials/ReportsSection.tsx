@@ -2,6 +2,7 @@
 "use client"
 
 import React from "react";
+import { useCustomColors } from '@/lib/use-custom-colors';
 import Image from "next/image"
 import { useCurrency } from "@/contexts/currency-context"
 
@@ -30,6 +31,7 @@ export function ReportsSection({
   setCustomEndDate
 }: ReportsSectionProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   // State for error message
   const [dateError, setDateError] = React.useState<string>("");
   const [recordCountError, setRecordCountError] = React.useState<string>("");
@@ -272,7 +274,10 @@ export function ReportsSection({
                   </div>
                 )}
                 <Button
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                  className="w-full text-white"
+                  style={{ backgroundColor: secondaryColor }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}dd`}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = secondaryColor}
                   onClick={handleProfitLossDownload}
                   disabled={
                     isCheckingRecordCount || 

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import {
   Dialog,
   DialogClose,
@@ -41,6 +42,7 @@ export function CohortDetailDialog({
   open,
   onOpenChange,
 }: CohortDetailDialogProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
   const [students, setStudents] = useState<Student[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
@@ -155,7 +157,10 @@ export function CohortDetailDialog({
       <div className={containerClass}>
         {fields.map(({ icon: Icon, label, value }) => (
           <div className="flex items-start gap-3" key={label}>
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-50 text-purple-500">
+            <div
+              className="flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
+            >
               <Icon className="h-3 w-3" />
             </div>
             <div className="flex-1">
@@ -239,7 +244,7 @@ export function CohortDetailDialog({
     {
       icon: Hash,
       label: "Balance",
-      value: <span className="font-semibold text-purple-600">{formatCurrency(currentPayment?.outstandingAmount || 0)}</span>,
+      value: <span className="font-semibold" style={{ color: primaryColor }}>{formatCurrency(currentPayment?.outstandingAmount || 0)}</span>,
     },
     {
       icon: Hash,
@@ -274,8 +279,14 @@ export function CohortDetailDialog({
         data-no-close
         className="max-w-[980px] border-none bg-transparent p-0 shadow-none"
       >
-        <div className="flex max-h-[86vh] flex-col overflow-hidden rounded-[24px] bg-background dark:bg-gray-900 shadow-[0_24px_60px_-30px_rgba(124,58,237,0.45)] dark:shadow-[0_24px_60px_-30px_rgba(124,58,237,0.65)]">
-          <div className="relative bg-gradient-to-r from-[#6D28D9] via-[#8B5CF6] to-[#F97316] px-5 py-5 text-white">
+        <div
+          className="flex max-h-[86vh] flex-col overflow-hidden rounded-[24px] bg-background dark:bg-gray-900"
+          style={{ boxShadow: `0 24px 60px -30px ${primaryColor}73` }}
+        >
+          <div
+            className="relative px-5 py-5 text-white"
+            style={{ backgroundImage: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})` }}
+          >
             <DialogTitle className="sr-only">Cohort student details</DialogTitle>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
@@ -301,11 +312,10 @@ export function CohortDetailDialog({
                     {currentStudent.category || "Beginner"}
                   </Badge>
                 )}
-                <Badge className={`rounded-full border-none px-3 py-[3px] text-[11px] font-semibold text-white ${
-                  currentPayment?.status === "Paid"
-                    ? "bg-emerald-500"
-                    : "bg-orange-400"
-                }`}>
+                <Badge
+                  className="rounded-full border-none px-3 py-[3px] text-[11px] font-semibold text-white"
+                  style={{ backgroundColor: currentPayment?.status === "Paid" ? "#10b981" : secondaryColor }}
+                >
                   {currentPayment?.status || "Pending"}
                 </Badge>
                 <DialogClose asChild>
@@ -324,7 +334,10 @@ export function CohortDetailDialog({
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+                  <div
+                    className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid"
+                    style={{ borderColor: primaryColor, borderRightColor: "transparent" }}
+                  ></div>
                   <p className="mt-3 text-sm text-slate-600">Loading students...</p>
                 </div>
               </div>
@@ -341,40 +354,40 @@ export function CohortDetailDialog({
               <>
                 <div className="grid gap-4 lg:grid-cols-5">
                   <section className="rounded-[18px] border border-slate-100 bg-white/95 p-4 shadow-sm">
-                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold text-[#7C3AED]">
-                      <User className="h-5 w-5" />
+                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold" style={{ color: primaryColor }}>
+                      <User className="h-5 w-5" style={{ color: primaryColor }} />
                       Student Information
                     </h3>
                     {renderFields(studentInfoFields)}
                   </section>
 
                   <section className="rounded-[18px] border border-slate-100 bg-white/95 p-4 shadow-sm">
-                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold text-[#7C3AED]">
-                      <BookOpen className="h-5 w-5" />
+                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold" style={{ color: primaryColor }}>
+                      <BookOpen className="h-5 w-5" style={{ color: primaryColor }} />
                       Course Details
                     </h3>
                     {renderFields(cohortFields)}
                   </section>
 
                   <section className="rounded-[18px] border border-slate-100 bg-white/95 p-4 shadow-sm lg:col-span-2">
-                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold text-[#7C3AED]">
-                      <Hash className="h-5 w-5" />
+                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold" style={{ color: primaryColor }}>
+                      <Hash className="h-5 w-5" style={{ color: primaryColor }} />
                       Payment Summary
                     </h3>
                     {renderFields(paymentSummaryFields, { columns: 2 })}
                   </section>
 
                   <section className="rounded-[18px] border border-slate-100 bg-white/95 p-4 shadow-sm">
-                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold text-[#7C3AED]">
-                      <Phone className="h-5 w-5" />
+                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold" style={{ color: primaryColor }}>
+                      <Phone className="h-5 w-5" style={{ color: primaryColor }} />
                       Communication
                     </h3>
                     {renderFields(communicationFields)}
                   </section>
 
                   <section className="rounded-[18px] border border-slate-100 bg-white/95 p-4 shadow-sm lg:col-span-5">
-                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold text-[#7C3AED]">
-                      <Calendar className="h-5 w-5" />
+                    <h3 className="mb-3 flex items-center gap-2 text-[15px] font-semibold" style={{ color: primaryColor }}>
+                      <Calendar className="h-5 w-5" style={{ color: primaryColor }} />
                       Important Dates
                     </h3>
                     {renderFields(importantDatesFields, { columns: 2 })}
@@ -391,7 +404,7 @@ export function CohortDetailDialog({
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </button>
-                  <span className="text-sm font-semibold text-orange-600">
+                  <span className="text-sm font-semibold" style={{ color: secondaryColor }}>
                     Student {currentStudentIndex + 1} of {totalStudents}
                   </span>
                   <button

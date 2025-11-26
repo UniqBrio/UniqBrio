@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { Card, CardContent, CardHeader } from "@/components/dashboard/ui/card";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Button } from "@/components/dashboard/ui/button";
 import { Star, Users, Clock, Edit, Trash2 } from "lucide-react";
@@ -125,9 +126,10 @@ const GridCourseCard = React.memo<{
 
   return (
     <Card 
-      className={`w-full max-w-sm cursor-pointer transition-all hover:shadow-lg border-2 border-orange-400 hover:border-orange-500 ${
-        isSelected ? 'ring-2 ring-primary' : ''
-      }`}
+      className="w-full max-w-sm cursor-pointer transition-all hover:shadow-lg border-2"
+      style={{ borderColor: secondaryColor }}
+      onMouseEnter={(e) => e.currentTarget.style.borderColor = `${secondaryColor}dd`}
+      onMouseLeave={(e) => e.currentTarget.style.borderColor = secondaryColor}
       onClick={handleClick}
     >
       <CardHeader className="p-4">
@@ -151,7 +153,7 @@ const GridCourseCard = React.memo<{
             )}
             {onDeleteCourse && (
               <Button variant="ghost" size="sm" onClick={handleDelete}>
-              <Trash2 className="mr-2 h-4 w-4 text-purple-500" />
+              <Trash2 className="mr-2 h-4 w-4" style={{ color: primaryColor }} />
               </Button>
             )}
           </div>
@@ -287,7 +289,7 @@ const ListCourseCard = React.memo<{
               )}
               {onDeleteCourse && (
                 <Button variant="ghost" size="sm" onClick={handleDelete}>
-                 <Trash2 className="mr-2 h-4 w-4 text-purple-500" />
+                 <Trash2 className="mr-2 h-4 w-4" style={{ color: primaryColor }} />
                 </Button>
               )}
             </div>
@@ -312,6 +314,7 @@ export const VirtualizedCourseList: React.FC<VirtualizedCourseListProps> = ({
   onToggleSelection,
   height = 600
 }) => {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { itemCount, itemSize, itemsPerRow } = useMemo(() => {
     if (viewMode === 'grid') {
       const itemsPerRow = 3; // 3 cards per row in grid mode

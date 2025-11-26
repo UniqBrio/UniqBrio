@@ -2,9 +2,9 @@
 
 export const dynamic = 'force-dynamic';
 
-;
 import CohortManagement from "@/components/dashboard/courses/CohortManagement";
 import { useState, useEffect } from "react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import type { Course } from "@/types/dashboard/course";
 import { 
   createCourseStatusMap, 

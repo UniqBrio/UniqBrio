@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ChevronsRight, ChevronsLeft, ArrowRight, ArrowLeft, Save, RotateCcw, X, ChevronUp, ChevronDown } from "lucide-react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 export interface ColumnSelectorModalProps {
   open: boolean;
@@ -33,6 +34,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
   includeActionsColumn = true,
   requiredColumns = [],
 }) => {
+  const { primaryColor } = useCustomColors()
   // Always-on column (not user removable)
   const ACTIONS_COL = "Actions";
   // Work with a draft list that excludes the always-on column if it appears in the incoming prop
@@ -228,7 +230,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <div className="font-semibold mb-2 text-gray-800 dark:text-white">Available Columns</div>
             <div
               ref={availableListRef}
-              className={`w-full h-40 border rounded p-2 overflow-y-auto bg-white dark:bg-gray-800/50 ${focusedList === 'available' ? 'border-purple-400 ring-1 ring-purple-300' : 'border-gray-300 dark:border-gray-700'}`}
+              className={`w-full h-40 border rounded p-2 overflow-y-auto bg-white dark:bg-gray-800/50 ${focusedList === 'available' ? 'ring-1' : 'border-gray-300 dark:border-gray-700'}`}
+              style={focusedList === 'available' ? { borderColor: primaryColor, '--tw-ring-color': primaryColor } as React.CSSProperties : {}}
               role="listbox"
               tabIndex={focusedList === 'available' ? 0 : -1}
               aria-label="Available columns"
@@ -237,14 +240,16 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               {availableColumns.map((col, idx) => (
                 <label
                   key={col}
-                  className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 text-gray-800 dark:text-white ${focusedList === 'available' && focusedIndex === idx ? 'bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                  className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 text-gray-800 dark:text-white ${focusedList === 'available' && focusedIndex === idx ? 'border' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                  style={focusedList === 'available' && focusedIndex === idx ? { backgroundColor: `${primaryColor}15`, borderColor: primaryColor } : {}}
                   onClick={() => { setFocusedList('available'); setFocusedIndex(idx); availableListRef.current?.focus(); }}
                 >
                   <input
                     type="checkbox"
                     checked={selectedAvailable.includes(col)}
                     onChange={() => setSelectedAvailable(prev => prev.includes(col) ? prev.filter(v => v !== col) : [...prev, col])}
-                    className="form-checkbox h-4 w-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 dark:focus:ring-purple-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    className="form-checkbox h-4 w-4 bg-gray-100 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                    style={{ accentColor: primaryColor }}
                   />
                   <span>{getColumnLabel ? getColumnLabel(col) : col}</span>
                 </label>
@@ -254,7 +259,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
           {/* Move buttons */}
           <div className="flex flex-col justify-center gap-2">
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-700'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'text-white'}`}
+              style={selectedAvailable.length > 0 ? { backgroundColor: `${primaryColor}30`, color: primaryColor } : {}}
+              onMouseEnter={(e) => selectedAvailable.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}50`)}
+              onMouseLeave={(e) => selectedAvailable.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
               onClick={handleAdd}
               disabled={!selectedAvailable.length}
               title="Add Selected (→)"
@@ -262,7 +270,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ArrowRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-700'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'text-white'}`}
+              style={availableColumns.length > 0 ? { backgroundColor: `${primaryColor}30`, color: primaryColor } : {}}
+              onMouseEnter={(e) => availableColumns.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}50`)}
+              onMouseLeave={(e) => availableColumns.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
               onClick={() => { setDraftDisplayed(prev => [...prev, ...availableColumns]); setSelectedAvailable([]); }}
               disabled={!availableColumns.length}
               title="Add All"
@@ -270,7 +281,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ChevronsRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-700'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'text-white'}`}
+              style={selectedDisplayed.length > 0 ? { backgroundColor: `${primaryColor}30`, color: primaryColor } : {}}
+              onMouseEnter={(e) => selectedDisplayed.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}50`)}
+              onMouseLeave={(e) => selectedDisplayed.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
               onClick={handleRemove}
               disabled={!selectedDisplayed.length}
               title="Remove Selected (←)"
@@ -278,7 +292,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 || draftDisplayed.length === requiredColumns.length ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-700'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 || draftDisplayed.length === requiredColumns.length ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : 'text-white'}`}
+              style={draftDisplayed.length > 0 && draftDisplayed.length !== requiredColumns.length ? { backgroundColor: `${primaryColor}30`, color: primaryColor } : {}}
+              onMouseEnter={(e) => (draftDisplayed.length > 0 && draftDisplayed.length !== requiredColumns.length) && (e.currentTarget.style.backgroundColor = `${primaryColor}50`)}
+              onMouseLeave={(e) => (draftDisplayed.length > 0 && draftDisplayed.length !== requiredColumns.length) && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
               onClick={() => { setDraftDisplayed(requiredColumns); setSelectedDisplayed([]); }}
               disabled={draftDisplayed.length === 0 || draftDisplayed.length === requiredColumns.length}
               title="Remove All"
@@ -311,7 +328,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
             <div
               ref={displayedListRef}
-              className={`w-full h-40 border rounded p-2 overflow-y-auto bg-white dark:bg-gray-800/50 ${focusedList === 'displayed' ? 'border-purple-400 ring-1 ring-purple-300' : 'border-gray-300 dark:border-gray-700'}`}
+              className={`w-full h-40 border rounded p-2 overflow-y-auto bg-white dark:bg-gray-800/50 ${focusedList === 'displayed' ? 'ring-1' : 'border-gray-300 dark:border-gray-700'}`}
+              style={focusedList === 'displayed' ? { borderColor: primaryColor, '--tw-ring-color': primaryColor } as React.CSSProperties : {}}
               role="listbox"
               tabIndex={focusedList === 'displayed' ? 0 : -1}
               aria-label="Displayed columns"
@@ -325,8 +343,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                     className={`flex items-center gap-2 py-1 rounded px-2 text-gray-800 dark:text-white ${
                       isRequired 
                         ? 'bg-gray-200 dark:bg-gray-700/50 cursor-not-allowed opacity-70' 
-                        : `cursor-pointer ${focusedList === 'displayed' && focusedIndex === idx ? 'bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`
+                        : `cursor-pointer ${focusedList === 'displayed' && focusedIndex === idx ? 'border' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`
                     }`}
+                    style={!isRequired && focusedList === 'displayed' && focusedIndex === idx ? { backgroundColor: `${primaryColor}15`, borderColor: primaryColor } : {}}
                     onClick={() => { 
                       if (!isRequired) {
                         setFocusedList('displayed'); 
@@ -344,7 +363,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                         }
                       }}
                       disabled={isRequired}
-                      className="form-checkbox h-4 w-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 dark:focus:ring-purple-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      className="form-checkbox h-4 w-4 bg-gray-100 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                      style={!isRequired ? { accentColor: primaryColor } : {}}
                     />
                     <span className={isRequired ? 'font-medium' : ''}>{getColumnLabel ? getColumnLabel(col) : col}</span>
                     {isRequired && <span className="ml-auto text-xs text-gray-500 dark:text-white italic">(Required)</span>}
@@ -356,7 +376,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
         </div>
         <div className="flex justify-end gap-2 mt-6">
           <button
-            className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2"
+            className="px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             onClick={() => {
               const finalDisplayed = includeActionsColumn ? [...draftDisplayed, ACTIONS_COL] : draftDisplayed;
               setDisplayedColumns(finalDisplayed);

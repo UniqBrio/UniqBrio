@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
@@ -20,6 +21,7 @@ export default function ChaptersTab({
   onFormChange,
   showDeleteConfirmation = () => {}
 }: ChaptersTabProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   
   // Validation functions
   const validateChapterName = (name: string) => {
@@ -90,11 +92,23 @@ export default function ChaptersTab({
               );
               updateChapters(newChapters);
             }}
-            className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+            className="w-16 border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+            style={{ borderColor: '#d1d5db' }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = primaryColor;
+              e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           />
           <button
             type="button"
-            className="ml-1 text-gray-600 dark:text-white hover:text-purple-600 p-1 rounded-full flex items-center gap-1 text-xs"
+            className="ml-1 text-gray-600 dark:text-white p-1 rounded-full flex items-center gap-1 text-xs"
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = ''}
             onClick={() => document.getElementById('commonRefInput')?.click()}
             title="Overall reference PDF"
           >
@@ -238,7 +252,15 @@ export default function ChaptersTab({
                         }
                       }}
                       placeholder="Chapter Name (letters, numbers, spaces, -, _, () only)"
-                      className="w-full border border-gray-300 rounded-md px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-md px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                        e.currentTarget.style.boxShadow = '';
+                      }}
                     />
                   </td>
                   <td className="px-1 py-0.5 align-top">
@@ -259,14 +281,31 @@ export default function ChaptersTab({
                         }
                       }}
                       placeholder="Chapter Description (letters, numbers, basic punctuation only)"
-                      className="w-full border border-gray-300 rounded-md px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-md px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                        e.currentTarget.style.boxShadow = '';
+                      }}
                       rows={2}
                     />
                   </td>
                   <td className="px-1 py-0.5 align-top">
                     <button
                       type="button"
-                      className="text-gray-600 dark:text-white hover:text-purple-600 p-1 rounded-full"
+                      className="text-gray-600 dark:text-white p-1 rounded-full"
+                      style={{
+                        transition: 'color 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = primaryColor;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '';
+                      }}
                       onClick={() => document.getElementById(`chapterRefInput${idx}`)?.click()}
                       title="Attach Reference PDF"
                     >
@@ -417,7 +456,7 @@ export default function ChaptersTab({
                               }}
                               aria-label="Delete Chapter"
                             >
-                              <Trash2 className="mr-1 h-3 w-3 text-purple-500" />
+                              <Trash2 className="mr-1 h-3 w-3" style={{ color: primaryColor }} />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>Delete Chapter</TooltipContent>

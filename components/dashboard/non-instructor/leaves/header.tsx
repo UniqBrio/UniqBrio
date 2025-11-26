@@ -16,6 +16,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/dashboard/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface HeaderProps {
   currentLanguage: string
@@ -28,6 +29,7 @@ export default function Header({ currentLanguage, changeLanguage, userRole, chan
   const [notifications, setNotifications] = useState(3)
   const languages = ["English", "Spanish", "French", "German", "Chinese"]
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:px-6">
@@ -41,7 +43,7 @@ export default function Header({ currentLanguage, changeLanguage, userRole, chan
       {/* Center section - Academy Name */}
       <div className="flex items-center justify-center">
         <h1 className="text-2xl font-bold text-center">
-          <span className="text-purple-700">XYZ</span> <span className="text-orange-500">Academy</span>
+          <span style={{ color: primaryColor }}>XYZ</span> <span style={{ color: secondaryColor }}>Academy</span>
         </h1>
       </div>
 
@@ -70,7 +72,8 @@ export default function Header({ currentLanguage, changeLanguage, userRole, chan
                 <Bell className="h-5 w-5" />
                 {notifications > 0 && (
                   <Badge
-                    className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-orange-500 text-white text-xs"
+                    className="absolute -top-1 -right-1 px-1.5 py-0.5 text-white text-xs"
+                    style={{ backgroundColor: secondaryColor }}
                     aria-label={`${notifications} unread notifications`}
                   >
                     {notifications}

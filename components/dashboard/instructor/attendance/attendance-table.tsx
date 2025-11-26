@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/dashboard/ui/table"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Pencil, Trash2, Users } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface StudentAttendanceRecord {
   id: number;
@@ -38,6 +39,7 @@ interface AttendanceTableProps {
 
 export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSelect, onToggleSelectAll, displayedColumns, onEditRecord, onDeleteRecord, onSelectRecord }: AttendanceTableProps) {
   const data = attendanceData || [];
+  const { primaryColor } = useCustomColors();
 
   // Format date as dd-MMM-yyyy (e.g., 23-Oct-2025) for consistent display
   const formatDisplayDate = (s?: string) => {
@@ -112,7 +114,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
                 className={`text-sm p-2 rounded transition-colors inline-block ${isPlanned ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-100'}`}
                 onClick={isPlanned ? undefined : () => onEditRecord(row)}
               >
-                <Pencil className={`h-4 w-4 ${isPlanned ? '' : 'text-purple-600'}`} />
+                <Pencil className="h-4 w-4" style={isPlanned ? undefined : { color: primaryColor }} />
               </span>
             )}
             {onDeleteRecord && (
@@ -137,7 +139,10 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
   // Empty state (match student list style)
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white rounded-xl border border-dashed border-purple-200">
+      <div
+        className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white rounded-xl border border-dashed"
+        style={{ borderColor: `${primaryColor}55` }}
+      >
         <Users className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
         <h3 className="text-lg font-medium mb-2">No attendance records found</h3>
         <p className="text-sm">Try adjusting your filters or search criteria</p>
@@ -155,7 +160,8 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
                 {col === '__select' ? (
                   <input
                     type="checkbox"
-                    className="accent-purple-600 cursor-pointer"
+                    className="cursor-pointer"
+                    style={{ accentColor: primaryColor }}
                     checked={allSelected}
                     onChange={(e) => onToggleSelectAll?.(e.target.checked)}
                   />
@@ -181,14 +187,16 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
             return (
               <TableRow
                 key={row.id}
-                className={`border-b hover:bg-gray-50 ${isSelected ? 'bg-purple-50/60' : ''}`}
+                className={`border-b hover:bg-gray-50`}
+                style={isSelected ? { background: `color-mix(in oklab, ${primaryColor} 12%, white)` } : undefined}
                 onClick={() => { onSelectRecord?.(row); }}
               >
                 {onToggleSelect && (
                   <TableCell className="w-10 px-4" onClick={e => e.stopPropagation()}>
                     <input
                       type="checkbox"
-                      className="accent-purple-600 cursor-pointer"
+                      className="cursor-pointer"
+                      style={{ accentColor: primaryColor }}
                       checked={isSelected}
                       onChange={(e) => onToggleSelect(row.id.toString(), e.target.checked)}
                     />

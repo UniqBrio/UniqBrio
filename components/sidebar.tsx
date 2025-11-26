@@ -1,5 +1,5 @@
 "use client"
-function SidebarPositionSelector() {
+function SidebarPositionSelector({ primaryColor }: { primaryColor: string }) {
   const { position, setPosition } = useSidebarPosition()
   const { theme, toggleTheme } = useApp()
   return (
@@ -16,7 +16,7 @@ function SidebarPositionSelector() {
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs bg-purple-600 text-white font-semibold rounded-md px-2 py-1">
+          <TooltipContent side="top" className="text-xs text-white font-semibold rounded-md px-2 py-1" style={{ backgroundColor: primaryColor }}>
             {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           </TooltipContent>
         </Tooltip>
@@ -38,7 +38,7 @@ function SidebarPositionSelector() {
                     <ArrowLeft className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs bg-purple-600 text-white font-semibold rounded-md px-2 py-1">Left sidebar</TooltipContent>
+                <TooltipContent side="bottom" className="text-xs text-white font-semibold rounded-md px-2 py-1" style={{ backgroundColor: primaryColor }}>Left sidebar</TooltipContent>
               </Tooltip>
               <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
@@ -50,7 +50,7 @@ function SidebarPositionSelector() {
                     <ArrowRight className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs bg-purple-600 text-white font-semibold rounded-md px-2 py-1">Right sidebar</TooltipContent>
+                <TooltipContent side="bottom" className="text-xs text-white font-semibold rounded-md px-2 py-1" style={{ backgroundColor: primaryColor }}>Right sidebar</TooltipContent>
               </Tooltip>
             </div>
           </PopoverContent>
@@ -59,6 +59,7 @@ function SidebarPositionSelector() {
     </div>
   )
 }
+
 
 
 import type React from "react"
@@ -115,6 +116,7 @@ import { Badge } from "@/components/ui/badge"
 import { useSidebarPosition } from "@/app/contexts/sidebar-position-context"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useApp } from "@/contexts/dashboard/app-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface SidebarProps {
   position: "left" | "right" 
@@ -154,6 +156,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
   const [favoritesOpen, setFavoritesOpen] = useState(false)
   const favoritesRef = useRef<HTMLDivElement>(null)
   const { setPosition } = useSidebarPosition()
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   // Define all menu items
 
@@ -707,7 +710,22 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
         <>
           {hasSubmenu ? (
             <>
-              <div className="flex items-center w-full px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-400 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors justify-between">
+              <div 
+                className="flex items-center w-full px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-white focus:outline-none transition-colors justify-between"
+                style={{
+                  ['--hover-bg' as any]: `${primaryColor}10`,
+                  ['--hover-text' as any]: primaryColor,
+                  ['--focus-ring' as any]: primaryColor
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${primaryColor}10`;
+                  e.currentTarget.style.color = primaryColor;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '';
+                  e.currentTarget.style.color = '';
+                }}
+              >
                 <Tooltip delayDuration={300}>
                   <TooltipTrigger asChild>
                     {item.external ? (
@@ -757,26 +775,31 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       </Link>
                     )}
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-purple-700 text-white">
+                  <TooltipContent side="right" style={{ backgroundColor: primaryColor }} className="text-white">
                     {item.tooltip}
                   </TooltipContent>
                 </Tooltip>
                 <span
                   role="button"
                   tabIndex={0}
-                  className={cn("inline-flex items-center justify-center h-6 w-6 mr-1 rounded text-gray-400 dark:text-white hover:text-orange-500 dark:hover:text-orange-400 cursor-pointer", isFavorite ? "text-orange-500 dark:text-orange-400" : "text-gray-400 dark:text-white")}
+                  className="inline-flex items-center justify-center h-6 w-6 mr-1 rounded cursor-pointer"
+                  style={{ color: isFavorite ? secondaryColor : undefined }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = secondaryColor}
+                  onMouseLeave={(e) => !isFavorite && (e.currentTarget.style.color = '')}
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFavorite(item.id);
                   }}
                   aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
-                  <Star className={cn("h-4 w-4", isFavorite ? "fill-orange-500" : "")} />
+                  <Star className="h-4 w-4" style={{ fill: isFavorite ? secondaryColor : 'none' }} />
                 </span>
                 <span
                   role="button"
                   tabIndex={0}
-                  className={cn("inline-flex items-center justify-center h-6 w-6", "text-gray-500 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 cursor-pointer")}
+                  className="inline-flex items-center justify-center h-6 w-6 cursor-pointer"
+                  onMouseEnter={(e) => e.currentTarget.style.color = primaryColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleSubmenu(item.id);
@@ -801,10 +824,15 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={cn(
-                        "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
-                        "justify-start flex-1",
-                      )}
+                      className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${primaryColor}1A`;
+                        e.currentTarget.style.color = primaryColor;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '';
+                        e.currentTarget.style.color = '';
+                      }}
                     >
                       <span className="text-gray-500 dark:text-white mr-3">{item.icon}</span>
                       <span className="text-left flex items-center gap-1">
@@ -827,10 +855,15 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                   ) : (
                     <Link
                       href={item.href}
-                      className={cn(
-                        "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-purple-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
-                        "justify-start flex-1",
-                      )}
+                      className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${primaryColor}1A`;
+                        e.currentTarget.style.color = primaryColor;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '';
+                        e.currentTarget.style.color = '';
+                      }}
                     >
                       <span className="text-gray-500 dark:text-white mr-3">{item.icon}</span>
                       <span className="text-left">{item.name}</span>
@@ -851,15 +884,18 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("h-6 w-6 mr-1", isFavorite ? "text-orange-500" : "text-gray-400 dark:text-white")}
+                    className="h-6 w-6 mr-1"
+                    style={{ color: isFavorite ? secondaryColor : undefined }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = secondaryColor}
+                    onMouseLeave={(e) => !isFavorite && (e.currentTarget.style.color = '')}
                     onClick={() => toggleFavorite(item.id)}
                     aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                   >
-                    <Star className={cn("h-4 w-4", isFavorite ? "fill-orange-500" : "")}/>
+                    <Star className="h-4 w-4" style={{ fill: isFavorite ? secondaryColor : 'none' }}/>
                   </Button>
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="bg-purple-700 text-white">
+              <TooltipContent side="right" style={{ backgroundColor: primaryColor }} className="text-white">
                 {item.tooltip}
               </TooltipContent>
             </Tooltip>
@@ -927,7 +963,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                 <TooltipTrigger asChild>
                   <button
                     onClick={toggleSidebar}
-                    className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="p-2 rounded-md hover:bg-gray-100 focus:outline-none"
                     aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                   >
                     {getCollapseIcon()}
@@ -957,7 +993,9 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                               href={item.href}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center justify-center px-2 py-2 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="flex items-center justify-center px-2 py-2 rounded-md focus:outline-none"
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}1A`}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                               aria-label={item.name}
                             >
                               <span className="text-gray-500 dark:text-white">{item.icon}</span>
@@ -965,7 +1003,9 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                           ) : (
                             <Link
                               href={item.href}
-                              className="flex items-center justify-center px-2 py-2 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="flex items-center justify-center px-2 py-2 rounded-md focus:outline-none"
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}1A`}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                               aria-label={item.name}
                               passHref
                             >
@@ -977,7 +1017,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                         )}
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="bg-purple-700 text-white">
+                    <TooltipContent side="right" style={{ backgroundColor: primaryColor }} className="text-white">
                       {item.tooltip}
                     </TooltipContent>
                   </Tooltip>
@@ -1008,7 +1048,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                 <div className="px-4 mb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <Star className="h-4 w-4 mr-2 fill-orange-500 text-orange-500" />
+                      <Star className="h-4 w-4 mr-2" style={{ fill: secondaryColor, color: secondaryColor }} />
                       <span className="font-semibold">Favourites</span>
                     </div>
                     {/* Plus/Minus icon for expand/collapse */}
@@ -1055,7 +1095,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
           </>
         )}
         {/* Sidebar position selector at the bottom */}
-        <SidebarPositionSelector />
+        <SidebarPositionSelector primaryColor={primaryColor} />
       </>
     )
   }

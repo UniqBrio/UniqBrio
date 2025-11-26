@@ -7,6 +7,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Switch } from "@/components/dashboard/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Separator } from "@/components/dashboard/ui/separator"
+import { useCustomColors } from "@/lib/use-custom-colors";
 import {
   LayoutDashboard,
   Settings,
@@ -79,6 +80,7 @@ interface StudentSettingsProps {
 }
 
 export default function StudentSettings({ settings, onUpdateSetting, onResetSettings, onSaveSettings }: StudentSettingsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Ensure all required properties exist with defaults
   const initialSettings = {
     identity: settings.identity || {
@@ -207,7 +209,7 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
         <>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <LayoutDashboard className="h-5 w-5 text-purple-600" />
+              <LayoutDashboard className="h-5 w-5" style={{ color: primaryColor }} />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Student Identity & ID Configuration</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -300,7 +302,7 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
         <>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-purple-600" />
+              <Users className="h-5 w-5" style={{ color: primaryColor }} />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Enrollment & Cohort Rules</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -371,12 +373,12 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
       </div>
 
       {/* Settings Info Footer */}
-      <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+      <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: `${primaryColor}15`, border: `1px solid ${primaryColor}80` }}>
         <div className="flex items-start gap-3">
-          <Settings className="h-5 w-5 text-purple-600 mt-0.5" />
+          <Settings className="h-5 w-5 mt-0.5" style={{ color: primaryColor }} />
           <div>
-            <h4 className="font-semibold text-purple-900 mb-1">About Student Management Settings</h4>
-            <p className="text-sm text-purple-700">
+            <h4 className="font-semibold mb-1" style={{ color: `${primaryColor}dd` }}>About Student Management Settings</h4>
+            <p className="text-sm" style={{ color: `${primaryColor}cc` }}>
               Configure how student IDs are generated and enrollment policies. Click &quot;Save Settings&quot; to apply your changes.
             </p>
           </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Switch } from "@/components/dashboard/ui/switch"
@@ -26,6 +27,7 @@ interface NotificationSettingsProps {
 }
 
 export function NotificationSettings({ onUpdate, disabled = true }: NotificationSettingsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [isSaving, setIsSaving] = useState(false)
   const [showCourseTemplates, setShowCourseTemplates] = useState(false)
   const [settings, setSettings] = useState({
@@ -175,7 +177,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-purple-600" />
+            <Bell className="h-5 w-5" style={{ color: primaryColor }} />
             Communication Preferences
           </CardTitle>
           <CardDescription>
@@ -185,7 +187,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
             <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-purple-600" />
+              <Mail className="h-5 w-5" style={{ color: primaryColor }} />
               <div>
                 <Label htmlFor="emailNotifications" className="font-medium">Email Notifications</Label>
                 <p className="text-sm text-gray-500 dark:text-white">
@@ -203,7 +205,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
 
           <div className="flex items-center justify-between p-4 rounded-lg border dark:border-gray-700 bg-background dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <div className="flex items-center gap-3">
-              <Bell className="h-5 w-5 text-purple-600" />
+              <Bell className="h-5 w-5" style={{ color: primaryColor }} />
               <div>
                 <Label htmlFor="pushNotifications" className="font-medium">In App Notifications</Label>
                 <p className="text-sm text-gray-500 dark:text-white">
@@ -245,7 +247,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Megaphone className="h-5 w-5 text-purple-600" />
+                <Megaphone className="h-5 w-5" style={{ color: primaryColor }} />
                 Course Notifications
               </CardTitle>
               <CardDescription>
@@ -255,13 +257,13 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
             <Dialog open={showCourseTemplates} onOpenChange={setShowCourseTemplates}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Info className="h-5 w-5 text-purple-600" />
+                  <Info className="h-5 w-5" style={{ color: primaryColor }} />
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Megaphone className="h-5 w-5 text-purple-600" />
+                    <Megaphone className="h-5 w-5" style={{ color: primaryColor }} />
                     Course Notification Templates
                   </DialogTitle>
                   <DialogDescription>
@@ -371,12 +373,12 @@ Note: Associated cohorts and sessions may be affected.`}
                     <div className="space-y-4">
                       <div className="border rounded-lg p-4 bg-gray-50">
                         <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                          <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">Course Created</span>
+                          <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>Course Created</span>
                         </h4>
                         <div className="bg-white p-4 rounded border">
                           <div className="flex items-start gap-3">
-                            <div className="bg-purple-100 p-2 rounded-full">
-                              <Megaphone className="h-5 w-5 text-purple-600" />
+                            <div className="p-2 rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
+                              <Megaphone className="h-5 w-5" style={{ color: primaryColor }} />
                             </div>
                             <div className="flex-1 text-sm">
                               <p className="font-semibold">New Course Created</p>
@@ -432,8 +434,8 @@ Note: Associated cohorts and sessions may be affected.`}
                   </TabsContent>
                 </Tabs>
 
-                <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <h4 className="font-semibold text-sm mb-2 text-purple-900">Available Variables</h4>
+                <div className="mt-6 p-4 rounded-lg border" style={{ backgroundColor: `${primaryColor}10`, borderColor: `${primaryColor}40` }}>
+                  <h4 className="font-semibold text-sm mb-2" style={{ color: `${primaryColor}dd` }}>Available Variables</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div><code className="bg-white px-2 py-1 rounded">{"{{courseName}}"}</code> - Course name</div>
                     <div><code className="bg-white px-2 py-1 rounded">{"{{courseCode}}"}</code> - Course code</div>
@@ -490,7 +492,7 @@ Note: Associated cohorts and sessions may be affected.`}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-600" />
+                <Users className="h-5 w-5" style={{ color: primaryColor }} />
                 Cohort Notifications
               </CardTitle>
               <CardDescription>
@@ -567,7 +569,7 @@ Note: Associated cohorts and sessions may be affected.`}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-purple-600" />
+                <GraduationCap className="h-5 w-5" style={{ color: primaryColor }} />
                 Instructor Notifications
               </CardTitle>
               <CardDescription>
@@ -619,7 +621,7 @@ Note: Associated cohorts and sessions may be affected.`}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-purple-600" />
+                <Briefcase className="h-5 w-5" style={{ color: primaryColor }} />
                 Non-Instructor Notifications
               </CardTitle>
               <CardDescription>
@@ -670,7 +672,7 @@ Note: Associated cohorts and sessions may be affected.`}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <UserCircle className="h-5 w-5 text-purple-600" />
+                <UserCircle className="h-5 w-5" style={{ color: primaryColor }} />
                 Student Notifications
               </CardTitle>
               <CardDescription>
@@ -729,7 +731,7 @@ Note: Associated cohorts and sessions may be affected.`}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-purple-600" />
+                <Calendar className="h-5 w-5" style={{ color: primaryColor }} />
                 Schedule Notifications
               </CardTitle>
               <CardDescription>
@@ -829,7 +831,7 @@ Note: Associated cohorts and sessions may be affected.`}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <CheckSquare className="h-5 w-5 text-purple-600" />
+                <CheckSquare className="h-5 w-5" style={{ color: primaryColor }} />
                 Task Notifications
               </CardTitle>
               <CardDescription>
@@ -930,7 +932,10 @@ Note: Associated cohorts and sessions may be affected.`}
         <Button
           onClick={handleSave}
           disabled={isSaving || disabled}
-          className="bg-purple-600 hover:bg-purple-700 gap-2"
+          className="gap-2"
+          style={{ backgroundColor: primaryColor }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
         >
           <Save className="h-4 w-4" />
           {isSaving ? "Saving..." : "Save Changes"}

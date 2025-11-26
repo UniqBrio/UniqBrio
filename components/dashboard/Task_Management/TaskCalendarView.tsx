@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -33,6 +34,7 @@ export default function TaskCalendarView({
   onUpdateTask,
   onUpdateTaskRemarks
 }: TaskCalendarViewProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   // Calendar state
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -115,7 +117,7 @@ export default function TaskCalendarView({
       case "new":
         return "bg-gray-100 text-gray-800 dark:text-white hover:bg-gray-200"
       case "open":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-200"
+        return ""
       default:
         return "bg-gray-100 text-gray-800 dark:text-white hover:bg-gray-200"
     }
@@ -132,6 +134,16 @@ export default function TaskCalendarView({
       default:
         return "bg-gray-500"
     }
+  }
+
+  const getOpenStatusStyle = (status: string) => {
+    if (status === "open") {
+      return {
+        backgroundColor: `${primaryColor}20`,
+        color: primaryColor,
+      }
+    }
+    return {}
   }
 
   const formatDisplayDate = (dateStr: string) => {
@@ -160,9 +172,28 @@ export default function TaskCalendarView({
             className={cn(
               "px-4 py-2 rounded-md transition-colors",
               viewMode === "day" 
-                ? "bg-purple-500 text-white hover:bg-purple-600" 
-                : "text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                ? "text-white" 
+                : ""
             )}
+            style={viewMode === "day" ? {
+              backgroundColor: primaryColor
+            } : {
+              color: secondaryColor
+            }}
+            onMouseEnter={(e) => {
+              if (viewMode !== "day") {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
+              } else {
+                e.currentTarget.style.backgroundColor = `${primaryColor}dd`
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (viewMode !== "day") {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              } else {
+                e.currentTarget.style.backgroundColor = primaryColor
+              }
+            }}
             onClick={() => {
               setViewMode("day")
               setSelectedDate(null)
@@ -176,9 +207,28 @@ export default function TaskCalendarView({
             className={cn(
               "px-4 py-2 rounded-md transition-colors",
               viewMode === "week" 
-                ? "bg-purple-500 text-white hover:bg-purple-600" 
-                : "text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                ? "text-white" 
+                : ""
             )}
+            style={viewMode === "week" ? {
+              backgroundColor: primaryColor
+            } : {
+              color: secondaryColor
+            }}
+            onMouseEnter={(e) => {
+              if (viewMode !== "week") {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
+              } else {
+                e.currentTarget.style.backgroundColor = `${primaryColor}dd`
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (viewMode !== "week") {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              } else {
+                e.currentTarget.style.backgroundColor = primaryColor
+              }
+            }}
             onClick={() => {
               setViewMode("week")
               setSelectedDate(null)
@@ -192,9 +242,28 @@ export default function TaskCalendarView({
             className={cn(
               "px-4 py-2 rounded-md transition-colors",
               viewMode === "month" 
-                ? "bg-purple-500 text-white hover:bg-purple-600" 
-                : "text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                ? "text-white" 
+                : ""
             )}
+            style={viewMode === "month" ? {
+              backgroundColor: primaryColor
+            } : {
+              color: secondaryColor
+            }}
+            onMouseEnter={(e) => {
+              if (viewMode !== "month") {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
+              } else {
+                e.currentTarget.style.backgroundColor = `${primaryColor}dd`
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (viewMode !== "month") {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              } else {
+                e.currentTarget.style.backgroundColor = primaryColor
+              }
+            }}
             onClick={() => {
               setViewMode("month")
               setSelectedDate(null)
@@ -337,8 +406,12 @@ export default function TaskCalendarView({
                       "hover:bg-gray-50",
                       !isCurrentMonth && "bg-gray-50/50 text-gray-400 dark:text-white",
                       today && "bg-blue-100 border-2 border-blue-400 shadow-md relative",
-                      isSelected && "bg-purple-50 border-purple-200",
+                      isSelected && "",
                     )}
+                    style={isSelected ? {
+                      backgroundColor: `${primaryColor}15`,
+                      borderColor: `${primaryColor}80`
+                    } : {}}
                     onClick={() => {
                       setSelectedDate(date)
                       setCurrentDate(date)
@@ -420,8 +493,12 @@ export default function TaskCalendarView({
                       "min-h-[120px] p-1 border-r border-b last:border-r-0 cursor-pointer transition-colors",
                       "hover:bg-gray-50",
                       today && "bg-blue-100 border-2 border-blue-400 shadow-md relative",
-                      isSelected && "bg-purple-50 border-purple-200",
+                      isSelected && "",
                     )}
+                    style={isSelected ? {
+                      backgroundColor: `${primaryColor}15`,
+                      borderColor: `${primaryColor}80`
+                    } : {}}
                     onClick={() => {
                       setSelectedDate(date)
                       setCurrentDate(date)
@@ -551,7 +628,10 @@ export default function TaskCalendarView({
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center gap-2">
                           <div className={cn("w-2 h-2 rounded-full", getPriorityColor(task.priority))}></div>
-                          <Badge className={getStatusColor(task.status)}>
+                          <Badge 
+                            className={getStatusColor(task.status)}
+                            style={getOpenStatusStyle(task.status)}
+                          >
                             {task.status === "inprogress" ? "In Progress" : task.status === "onhold" ? "On hold" : task.status.charAt(0).toUpperCase() + task.status.slice(1)}
                           </Badge>
                         </div>
@@ -594,7 +674,15 @@ export default function TaskCalendarView({
               <span className="text-sm">On hold</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-purple-100 border border-purple-200 rounded"></div>
+              <div 
+                className="w-4 h-4 rounded" 
+                style={{ 
+                  backgroundColor: `${primaryColor}20`, 
+                  borderWidth: '1px', 
+                  borderStyle: 'solid', 
+                  borderColor: `${primaryColor}40` 
+                }}
+              ></div>
               <span className="text-sm">Open</span>
             </div>
             <div className="flex items-center space-x-2">
@@ -641,7 +729,10 @@ export default function TaskCalendarView({
 
               <div className="flex gap-2">
                 <span className="text-gray-600 dark:text-white min-w-[120px]">Status:</span>
-                <Badge className={getStatusColor(selectedTask.status)}>
+                <Badge 
+                  className={getStatusColor(selectedTask.status)}
+                  style={getOpenStatusStyle(selectedTask.status)}
+                >
                   {selectedTask.status === "inprogress" ? "In Progress" : selectedTask.status === "onhold" ? "On hold" : selectedTask.status.charAt(0).toUpperCase() + selectedTask.status.slice(1)}
                 </Badge>
               </div>

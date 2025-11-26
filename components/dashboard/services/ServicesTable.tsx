@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/dashboard/ui/table"
@@ -87,6 +88,7 @@ export default function ServicesTable({
   onExportToCalendar,
   onViewHistory
 }: ServicesTableProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   return (
     <Card>
       <CardHeader>
@@ -286,15 +288,19 @@ export default function ServicesTable({
                     {visibleColumns.capacity && (
                       <TableCell>
                         <div className="flex items-center">
-                          <span className={service.enrolled === service.capacity ? "text-orange-500" : ""}>
+                          <span
+                            style={service.enrolled === service.capacity ? { color: secondaryColor } : undefined}
+                          >
                             {service.enrolled}/{service.capacity}
                           </span>
                           <div className="w-24 h-2 bg-gray-200 rounded-full ml-2">
                             <div
-                              className={`h-full rounded-full ${
-                                service.enrolled / service.capacity > 0.8 ? "bg-orange-500" : "bg-green-500"
-                              }`}
-                              style={{ width: `${(service.enrolled / service.capacity) * 100}%` }}
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${(service.enrolled / service.capacity) * 100}%`,
+                                backgroundColor:
+                                  service.enrolled / service.capacity > 0.8 ? secondaryColor : "#22c55e",
+                              }}
                             />
                           </div>
                         </div>
@@ -344,7 +350,7 @@ export default function ServicesTable({
                                 className="text-red-600"
                                 onClick={() => onDelete(service)}
                               >
-                                <Trash2 className="mr-2 h-4 w-4 text-purple-500" />
+                                <Trash2 className="mr-2 h-4 w-4" style={{ color: primaryColor }} />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>

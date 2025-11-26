@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { useCurrency } from "@/contexts/currency-context"
+import { useCustomColors } from '@/lib/use-custom-colors'
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ interface AnalyticsDashboardProps {
 export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
   const { currency } = useCurrency();
   const [reportPeriod, setReportPeriod] = useState("monthly")
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   const salesData = [
     { month: "Jan", revenue: 12000 },
@@ -49,10 +51,10 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
   ]
 
   const COLORS = [
-    "#9333ea", // Purple
-    "#f97316", // Orange
-    "#22c55e", // Green
-    "#3b82f6", // Blue
+    primaryColor,    // Primary color (purple)
+    secondaryColor,  // Secondary color (orange)
+    "#22c55e",       // Green
+    "#3b82f6",       // Blue
   ]
 
   return (
@@ -81,14 +83,14 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="bg-purple-50 border border-purple-500">
+        <Card className="border" style={{ background: `linear-gradient(to bottom right, ${primaryColor}15, ${primaryColor}20)`, borderColor: primaryColor }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-md font-semibold text-purple-700">Total Sales</CardTitle>
-            <ShoppingCart className="h-5 w-5 text-purple-600" />
+            <CardTitle className="text-md font-semibold" style={{ color: `${primaryColor}cc` }}>Total Sales</CardTitle>
+            <ShoppingCart className="h-5 w-5" style={{ color: primaryColor }} />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-purple-800">247</div>
-            <p className="text-sm text-purple-700">Completed sales</p>
+            <div className="text-3xl font-extrabold" style={{ color: primaryColor }}>247</div>
+            <p className="text-sm" style={{ color: `${primaryColor}cc` }}>Completed sales</p>
           </CardContent>
         </Card>
 
@@ -145,7 +147,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
                   }}
                   formatter={(value: number) => [`?${value.toLocaleString()}`, 'Revenue']}
                 />
-                <Bar dataKey="revenue" fill="#9333ea" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="revenue" fill={primaryColor} radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

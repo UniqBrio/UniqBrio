@@ -6,6 +6,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Pencil, Trash2, X, RefreshCw } from "lucide-react"
 import { format } from "date-fns"
 import { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 type DraftType = {
   id: string;
   name: string;
@@ -33,6 +34,7 @@ export default function DraftsDialog({
   onDeleteDraft,
   onRefreshDrafts
 }: DraftsDialogProps) {
+  const { primaryColor } = useCustomColors();
   const [deleteConfirmDraft, setDeleteConfirmDraft] = useState<DraftType | null>(null);
 
   return (
@@ -95,7 +97,10 @@ export default function DraftsDialog({
                       {/* Create Course button */}
                       <button
                         type="button"
-                        className="p-2 rounded hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-gray-200 dark:border-gray-700 flex items-center"
+                        className="p-2 rounded border border-gray-200 dark:border-gray-700 flex items-center"
+                        style={{ color: primaryColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         title="Create Course from Draft"
                         onClick={() => onEditDraft(draft)}
                       >

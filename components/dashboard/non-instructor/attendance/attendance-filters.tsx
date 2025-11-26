@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 // CSV export helper
 const exportAttendanceCSV = (attendanceData: any[]) => {
@@ -78,6 +79,7 @@ export function AttendanceFilters({
 }: AttendanceFiltersProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [filterAction, setFilterAction] = useState<"none" | "applied" | "cleared">("none");
+  const { primaryColor } = useCustomColors();
   
   // Helper: format Date to local ISO yyyy-MM-dd for the date input value
   const dateToIso = (d: Date | null) => {
@@ -135,7 +137,7 @@ export function AttendanceFilters({
                     aria-label="Filter options"
                   >
                     <span className="relative inline-block">
-                      <Filter className="h-3.5 w-3.5 text-purple-500" />
+                      <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                       {filterAction === "applied" && (
                         <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                           <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Users, BookOpen, Calendar, UserCheck, BarChart3, DollarSign, Coins } from "lucide-react";
 import { useCounterAnimation } from "@/components/dashboard/home/useCounterAnimation";
@@ -221,6 +222,7 @@ import {
 
 export function HomeMetrics() {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [studentCount, setStudentCount] = useState<number | null>(null);
   const [students, setStudents] = useState<any[]>([]);
   const [cohorts, setCohorts] = useState<any[]>([]);
@@ -357,7 +359,7 @@ export function HomeMetrics() {
           {data.courseName && data.courseName !== data.course && (
             <p className="text-sm text-gray-600 dark:text-white">Name: {data.courseName}</p>
           )}
-          <p className="text-sm text-purple-600 font-medium">Students: {data.students}</p>
+          <p className="text-sm font-medium" style={{ color: primaryColor }}>Students: {data.students}</p>
         </div>
       );
     }
@@ -374,7 +376,7 @@ export function HomeMetrics() {
           {data.cohortName && data.cohortName !== data.cohort && (
             <p className="text-sm text-gray-600 dark:text-white">Name: {data.cohortName}</p>
           )}
-          <p className="text-sm text-orange-600 font-medium">Students: {data.students}</p>
+          <p className="text-sm font-medium" style={{ color: secondaryColor }}>Students: {data.students}</p>
         </div>
       );
     }
@@ -514,7 +516,7 @@ export function HomeMetrics() {
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
           <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-purple-600" />
+            <BarChart3 className="h-5 w-5" style={{ color: primaryColor }} />
             Performance Analytics
           </h3>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
@@ -569,8 +571,8 @@ export function HomeMetrics() {
                   </Bar>
                   <defs>
                     <linearGradient id="courseGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#9370DB" />
-                      <stop offset="100%" stopColor="#8A2BE2" />
+                      <stop offset="0%" stopColor={primaryColor} stopOpacity={1} />
+                      <stop offset="100%" stopColor={primaryColor} stopOpacity={0.7} />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -627,8 +629,8 @@ export function HomeMetrics() {
                   </Bar>
                   <defs>
                     <linearGradient id="cohortGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#FF8C00" />
-                      <stop offset="100%" stopColor="#FFA500" />
+                      <stop offset="0%" stopColor={secondaryColor} stopOpacity={1} />
+                      <stop offset="100%" stopColor={secondaryColor} stopOpacity={0.7} />
                     </linearGradient>
                   </defs>
                 </BarChart>

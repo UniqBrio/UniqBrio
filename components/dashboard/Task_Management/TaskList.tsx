@@ -1,4 +1,5 @@
 import React from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
@@ -32,6 +33,7 @@ interface TaskListProps {
 }
 
 export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDeleteTask, onUpdateTask, onUpdateTaskRemarks, selectedTaskIds, onTaskSelection, onSelectAll, allTasksSelected, someTasksSelected, displayedColumns, tableType = "active" }: TaskListProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const renderedColumns = tableType === "completed" ? displayedColumns.filter(c => c !== 'overdue') : displayedColumns
 
   const getColumnHeader = (colId: TaskColId) => {
@@ -127,8 +129,11 @@ export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDe
                 "h-7 px-2 text-xs",
                 task.isCompleted 
                   ? "bg-green-100 text-green-700 hover:bg-green-200 cursor-default" 
-                  : "bg-purple-500 text-white hover:bg-purple-600"
+                  : "text-white"
               )}
+              style={!task.isCompleted ? { backgroundColor: primaryColor } : {}}
+              onMouseEnter={(e) => !task.isCompleted && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)}
+              onMouseLeave={(e) => !task.isCompleted && (e.currentTarget.style.backgroundColor = primaryColor)}
               disabled={task.isCompleted}
             >
               {task.isCompleted ? "Completed" : "Mark Complete"}
@@ -148,7 +153,16 @@ export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDe
                       e.stopPropagation()
                       onEditTask(task)
                     }} 
-                    className="h-7 w-7 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    className="h-7 w-7"
+                    style={{ color: primaryColor }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = `${primaryColor}dd`;
+                      e.currentTarget.style.backgroundColor = `${primaryColor}20`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = primaryColor;
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
                     aria-label="Edit task"
                   >
                     <Pencil className="h-3 w-3" />
@@ -233,13 +247,28 @@ export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDe
                 
                 {/* Table Body */}
                 <tbody>
-                  {tasks.map((task) => (
+                  {tasks.map((task) => {
+                    const isOverdue = isTaskOverdue(task);
+                    return (
                     <tr
                       key={task.id}
                       className={cn(
                         "border-b transition-colors hover:bg-muted/50 cursor-pointer h-12",
-                        task.isCompleted ? "bg-green-50 hover:bg-green-100" : isTaskOverdue(task) ? "bg-orange-50 hover:bg-orange-100" : ""
+                        task.isCompleted ? "bg-green-50 hover:bg-green-100" : ""
                       )}
+                      style={!task.isCompleted && isOverdue ? {
+                        backgroundColor: `${secondaryColor}15`,
+                      } : {}}
+                      onMouseEnter={(e) => {
+                        if (!task.isCompleted && isOverdue) {
+                          e.currentTarget.style.backgroundColor = `${secondaryColor}25`;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!task.isCompleted && isOverdue) {
+                          e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
+                        }
+                      }}
                       onClick={() => onViewTask(task)}
                     >
                       <td className="p-3 align-middle w-16 min-w-[64px]">
@@ -267,7 +296,7 @@ export function TaskList({ tasks, onToggleComplete, onViewTask, onEditTask, onDe
                         </td>
                       ))}
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>

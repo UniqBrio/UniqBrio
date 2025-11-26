@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo, useEffect } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { useCurrency } from "@/contexts/currency-context"
 import { 
   Plus, 
@@ -75,6 +76,7 @@ function getEventStatus(startDate: string, endDate: string): "Upcoming" | "Ongoi
 }
 
 export const EventManagement: React.FC<EventManagementProps> = (props) => {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
   const {
     events: externalEvents,
@@ -704,7 +706,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       {isLoading ? (
           <div className="bg-white rounded-lg shadow-md p-12 flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 mb-4" style={{ borderColor: primaryColor }}></div>
             <p className="text-gray-600 dark:text-white text-sm">Loading events...</p>
           </div>
         </div>
@@ -754,7 +756,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                     </td>
                     {visibleColumns.includes('name') && <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{event.name}</td>}
                     {visibleColumns.includes('sport') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">
-                      <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">{event.sport}</Badge>
+                      <Badge variant="outline" style={{ backgroundColor: `${primaryColor}10`, color: primaryColor, borderColor: `${primaryColor}40` }}>{event.sport}</Badge>
                     </td>}
                     {visibleColumns.includes('type') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.type}</td>}
                     {visibleColumns.includes('staff') && <td className="px-6 py-4 text-sm text-gray-600 dark:text-white">{event.staff}</td>}
@@ -782,17 +784,23 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleViewEvent(event) }}
-                          className="p-1 hover:bg-purple-100 rounded transition-colors"
+                          className="p-1 rounded transition-colors"
+                          style={{ backgroundColor: 'transparent' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           title="View Details"
                         >
-                          <Eye className="h-4 w-4 text-purple-600" />
+                          <Eye className="h-4 w-4" style={{ color: primaryColor }} />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleEditEvent(event) }}
-                          className="p-1 hover:bg-purple-100 rounded transition-colors"
+                          className="p-1 rounded transition-colors"
+                          style={{ backgroundColor: 'transparent' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           title="Edit"
                         >
-                          <Edit2 className="h-4 w-4 text-purple-600" />
+                          <Edit2 className="h-4 w-4" style={{ color: primaryColor }} />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); openDeleteDialog(event.id) }}
@@ -833,8 +841,8 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
               return (
                 <div
                   key={event.id}
-                  className="group relative flex flex-col rounded-xl border border-orange-600 dark:border-orange-500 bg-background dark:bg-gray-900 shadow-sm transition-all duration-200 hover:shadow-md p-4 h-[220px] cursor-pointer flex-shrink-0"
-                  style={{ minWidth: '320px', width: '320px' }}
+                  className="group relative flex flex-col rounded-xl bg-background dark:bg-gray-900 shadow-sm transition-all duration-200 hover:shadow-md p-4 h-[220px] cursor-pointer flex-shrink-0"
+                  style={{ minWidth: '320px', width: '320px', border: `1px solid ${secondaryColor}` }}
                   onClick={() => handleViewEvent(event)}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -844,7 +852,10 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                         {eventStatus}
                       </Badge>
                       <button
-                        className="text-purple-600 hover:text-purple-800 p-1 rounded-full focus:outline-none"
+                        className="p-1 rounded-full focus:outline-none transition-colors"
+                        style={{ color: primaryColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = `${primaryColor}cc`}
+                        onMouseLeave={(e) => e.currentTarget.style.color = primaryColor}
                         title="Edit"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -856,10 +867,10 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                     </span>
                   </div>
                   <div className="flex gap-2 mb-2 flex-wrap">
-                    <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
+                    <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                       {event.sport}
                     </span>
-                    <span className="text-xs px-2 py-0.5 rounded bg-orange-100 text-orange-700 font-medium">
+                    <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ backgroundColor: `${secondaryColor}20`, color: secondaryColor }}>
                       {event.type}
                     </span>
                   </div>
@@ -1458,7 +1469,10 @@ export function EventFormModal({
             <Button
               onClick={handleSaveClick}
               disabled={event ? !hasChanges || Object.keys(validationErrors).length > 0 : Object.keys(validationErrors).length > 0}
-              className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = `${primaryColor}dd` }}
+              onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = primaryColor }}
             >
               {event ? "Update Event" : "Submit"}
             </Button>
@@ -1477,19 +1491,23 @@ export function EventViewModal({
   event: Event
   onClose: () => void
 }) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[95vh] overflow-y-auto">
-        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 flex items-center justify-between">
+        <div className="sticky top-0 text-white p-6 flex items-center justify-between" style={{ backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}>
           <div>
             <h2 className="text-2xl font-bold">{event.name}</h2>
-            <p className="text-purple-100 mt-1">{event.sport} � {event.type}</p>
+            <p className="mt-1" style={{ color: '#ffffff99' }}>{event.sport} � {event.type}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-purple-500 rounded transition-colors"
+            className="p-1 rounded transition-colors"
+            style={{ backgroundColor: 'transparent' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <X className="h-5 w-5" />
           </button>
@@ -1542,7 +1560,7 @@ export function EventViewModal({
           {/* Dates */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-purple-600 mt-1" />
+              <Calendar className="h-5 w-5 mt-1" style={{ color: primaryColor }} />
               <div>
                 <p className="text-sm text-gray-600 dark:text-white">Event Dates & Times</p>
                 <p className="font-semibold text-gray-900 dark:text-white">
@@ -1551,7 +1569,7 @@ export function EventViewModal({
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Clock className="h-5 w-5 text-purple-600 mt-1" />
+              <Clock className="h-5 w-5 mt-1" style={{ color: primaryColor }} />
               <div>
                 <p className="text-sm text-gray-600 dark:text-white">Registration Deadline</p>
                 <p className="font-semibold text-gray-900 dark:text-white">
@@ -1560,7 +1578,7 @@ export function EventViewModal({
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-purple-600 mt-1" />
+              <MapPin className="h-5 w-5 mt-1" style={{ color: primaryColor }} />
               <div>
                 <p className="text-sm text-gray-600 dark:text-white">Venue</p>
                 <p className="font-semibold text-gray-900 dark:text-white">{event.venue}</p>
@@ -1582,7 +1600,7 @@ export function EventViewModal({
                 {event.entryFee ? (
                   <div>
                     <p className="text-sm text-gray-600 dark:text-white mb-1">Entry Fee</p>
-                    <p className="font-semibold text-purple-600">{currency} {event.entryFee}</p>
+                    <p className="font-semibold" style={{ color: primaryColor }}>{currency} {event.entryFee}</p>
                   </div>
                 ) : null}
                 {event.prizes && (
@@ -1605,7 +1623,10 @@ export function EventViewModal({
         <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3 justify-end">
           <Button
             onClick={onClose}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            className="text-white"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
           >
             Close
           </Button>

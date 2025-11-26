@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/dashboard/ui/checkbox";
 import { useState, useEffect } from "react";
 import { fetchCohorts, type Cohort } from "@/data/dashboard/cohorts";
 import { cn, formatDateForDisplay } from "@/lib/dashboard/student/utils";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface StudentListProps {
   students: Student[];
@@ -25,6 +26,7 @@ interface StudentListProps {
 }
 
 export function StudentList({ students, viewMode, onSelectStudent, onEditStudent, onDeleteStudent, selectedIds = [], onToggleSelect, onToggleSelectAll, courses = [], displayedColumns = ['Student ID', 'Name', 'Course', 'Actions'], loading = false }: StudentListProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [cohortsLoading, setCohortsLoading] = useState(false);
 
@@ -223,7 +225,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
             <div className="font-medium">
               {same ? cd.id : (
                 <>
-                  <span className="text-purple-700">{cd.id}</span>
+                  <span style={{ color: `${primaryColor}dd` }}>{cd.id}</span>
                   <span className="mx-1 text-gray-400 dark:text-white">�</span>
                   <span>{cd.name}</span>
                 </>
@@ -261,7 +263,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
               <div className="font-medium">
                 {same ? cohortDetails.id : (
                   <>
-                    <span className="text-purple-700">{cohortDetails.id}</span>
+                    <span style={{ color: `${primaryColor}dd` }}>{cohortDetails.id}</span>
                     <span className="mx-1 text-gray-400 dark:text-white">�</span>
                     <span>{cohortDetails.name}</span>
                   </>
@@ -294,7 +296,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                 onEditStudent(student);
               }}
             >
-              <Pencil className="text-purple-600 h-4 w-4" />
+              <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
             </span>
             <span
               role="button"
@@ -319,7 +321,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: primaryColor }}></div>
           <p className="text-gray-600 dark:text-white">Loading students...</p>
         </div>
       </div>
@@ -343,8 +345,10 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
         {students.map(student => (
           <Card 
             key={student.id} 
-            className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white border-2 border-orange-400 hover:border-orange-500 relative rounded-xl overflow-hidden flex-shrink-0"
-            style={{ width: '280px', minWidth: '280px' }}
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white border-2 relative rounded-xl overflow-hidden flex-shrink-0"
+            style={{ width: '280px', minWidth: '280px', borderColor: secondaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = `${secondaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = secondaryColor}
             onClick={() => onSelectStudent(student)}
           >
             {/* Edit Button */}
@@ -356,7 +360,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
               }}
               aria-label="Edit student"
             >
-              <Pencil className="h-4 w-4 text-purple-600" />
+              <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
             </button>
 
             <CardContent className="p-6">
@@ -373,7 +377,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2 justify-start">
                     {student.gender && (
-                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium">
+                      <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: `${primaryColor}20`, color: `${primaryColor}dd` }}>
                         {student.gender}
                       </span>
                     )}
@@ -405,7 +409,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                         const same = cohortDetails.id === cohortDetails.name;
                         return same ? cohortDetails.id : (
                           <>
-                            <span className="text-purple-700">{cohortDetails.id}</span>
+                            <span style={{ color: `${primaryColor}dd` }}>{cohortDetails.id}</span>
                             <span className="mx-1 text-gray-400 dark:text-white">�</span>
                             <span>{cohortDetails.name}</span>
                           </>

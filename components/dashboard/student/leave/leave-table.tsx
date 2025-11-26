@@ -7,6 +7,7 @@ import { StickyTable } from "@/components/dashboard/ui/staff/sticky-table"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Trash2, Users } from "lucide-react"
 import type { LeaveRecord } from "./types"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface LeaveTableProps {
   leaveData: LeaveRecord[];
@@ -28,6 +29,7 @@ export function LeaveTable({
   onDeleteRecord,
 }: LeaveTableProps) {
   const data = leaveData || [];
+  const { primaryColor } = useCustomColors();
 
   const cols = useMemo(() => {
     const defaultCols = [
@@ -131,7 +133,10 @@ export function LeaveTable({
   // Empty state
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white dark:bg-gray-900 rounded-xl border border-dashed border-purple-200 dark:border-purple-800">
+      <div
+        className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-white bg-white dark:bg-gray-900 rounded-xl border border-dashed"
+        style={{ borderColor: `${primaryColor}55` }}
+      >
         <Users className="h-16 w-16 text-gray-300 dark:text-white mb-4" />
         <h3 className="text-lg font-medium mb-2">No leave records found</h3>
         <p className="text-sm">All students were present during the selected period</p>
@@ -152,7 +157,8 @@ export function LeaveTable({
           return (
             <input
               type="checkbox"
-              className="accent-purple-600 cursor-pointer"
+              className="cursor-pointer"
+              style={{ accentColor: primaryColor }}
               checked={allSelected}
               onChange={(e) => onToggleSelectAll?.(e.target.checked)}
             />
@@ -177,14 +183,16 @@ export function LeaveTable({
             return (
               <TableRow
                 key={row.id}
-                className={`border-b hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-purple-50/60' : ''}`}
+                className={`border-b hover:bg-gray-50 cursor-pointer`}
+                style={isSelected ? { background: `color-mix(in oklab, ${primaryColor} 12%, white)` } : undefined}
                 onClick={() => { onSelectRecord?.(row); }}
               >
                 {onToggleSelect && (
                   <TableCell className="w-10 px-4" onClick={e => e.stopPropagation()}>
                     <input
                       type="checkbox"
-                      className="accent-purple-600 cursor-pointer"
+                      className="cursor-pointer"
+                      style={{ accentColor: primaryColor }}
                       checked={isSelected}
                       onChange={(e) => onToggleSelect(row.id.toString(), e.target.checked)}
                     />

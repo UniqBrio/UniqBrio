@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { StatsOverview } from "@/components/dashboard/financials/StatsOverview"
 import { FinancialTabs } from "@/components/dashboard/financials/FinancialTabs/FinancialTabs"
 import { IncomeExpensesSection } from "@/components/dashboard/financials/IncomeExpensesSection"
@@ -18,6 +19,7 @@ import { useToast } from "@/hooks/dashboard/use-toast"
 import { TopTabs } from "@/components/dashboard/financials/TopTabs"
 
 function FinancialsPageContent() {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Top-level navigation tabs: Dashboard, Income, Expense, Report, ROI, Forecast
   const [topTab, setTopTab] = useState<'dashboard' | 'income' | 'expense' | 'report' | 'roi' | 'forecast'>('dashboard')
   const [activeTab, setActiveTab] = useState("overview")
@@ -324,12 +326,10 @@ function FinancialsPageContent() {
 
   return (
     <div className="responsive-dashboard-container px-2 sm:px-3 lg:px-4 pt-2 sm:pt-3 pb-3 sm:pb-4 relative max-w-full overflow-hidden">
-      <div className="w-full min-w-0">
+        <div className="w-full min-w-0">
         <div className="flex items-center mb-2 sm:mb-3 lg:mb-4 flex-wrap gap-1 sm:gap-2 lg:gap-4 relative">
-          <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-purple-700 leading-tight truncate">Financial Management</h1>
-        </div>
-        
-        {/* Top navigation tabs - mobile optimized */}
+          <h1 className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold ${primaryColor.text} leading-tight truncate`}>Financial Management</h1>
+        </div>        {/* Top navigation tabs - mobile optimized */}
         <div className="w-full mt-2 sm:mt-3 lg:mt-4 overflow-hidden">
           <TopTabs value={topTab} onChange={setTopTab} />
         </div>

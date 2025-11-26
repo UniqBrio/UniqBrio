@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog"
 import { Button } from "@/components/dashboard/ui/button"
@@ -30,6 +31,7 @@ interface TaskFormDialogProps {
 }
 
 export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, editTask, initialData, loadedDraftId }: TaskFormDialogProps) {
+  const { primaryColor } = useCustomColors()
   const [formData, setFormData] = useState<TaskFormData>(resetFormData())
   const [initialFormData, setInitialFormData] = useState<TaskFormData>(resetFormData())
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -355,9 +357,13 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                   }}
                   onFocus={() => setCreatedOnFocused(true)}
                   onBlur={() => setCreatedOnFocused(false)}
-                  className={`border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent ${
+                  className={`border rounded-md px-3 py-2 text-sm focus:outline-none ${
                     !formData.createdOn ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   } ${createdOnFocused || !formData.createdOn ? '' : 'text-transparent'}`}
+                  style={createdOnFocused ? {
+                    boxShadow: `0 0 0 2px ${primaryColor}66`,
+                    borderColor: 'transparent'
+                  } : {}}
                 />
                 {!createdOnFocused && formData.createdOn && (
                   <div className="absolute inset-0 flex items-center px-3 text-sm pointer-events-none text-gray-900 dark:text-white">
@@ -445,9 +451,13 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                       }
                     }}
                     min={formData.createdOn ? format(formData.createdOn, "yyyy-MM-dd") : undefined}
-                    className={`border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent ${
+                    className={`border rounded-md px-3 py-2 text-sm focus:outline-none ${
                       !formData.targetDate ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     } ${targetDateFocused || !formData.targetDate ? '' : 'text-transparent'}`}
+                    style={targetDateFocused ? {
+                      boxShadow: `0 0 0 2px ${primaryColor}66`,
+                      borderColor: 'transparent'
+                    } : {}}
                     required
                   />
                   {!targetDateFocused && formData.targetDate && (
@@ -529,7 +539,13 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
               <Button 
                 variant="outline" 
                 onClick={handleSaveDraft}
-                className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                className="border-gray-300"
+                style={{
+                  borderColor: primaryColor,
+                  color: primaryColor
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Save className="mr-2 h-4 w-4" />
                 {isEditingDraft ? 'Update Draft' : 'Save Draft'}
@@ -543,9 +559,15 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                 {editTask ? 'Update Task' : 'Create Task'}
               </Button>
               {!canUpdateTask && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-purple-600 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none text-center">
+                <div 
+                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none text-center"
+                  style={{ backgroundColor: primaryColor }}
+                >
                   {getTooltipMessage()}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-purple-600"></div>
+                  <div 
+                    className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent"
+                    style={{ borderTopColor: primaryColor }}
+                  ></div>
                 </div>
               )}
             </div>
@@ -573,7 +595,13 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
               <Button 
                 variant="outline" 
                 onClick={handleSaveDraftFromUnsaved}
-                className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                className="border-gray-300"
+                style={{
+                  borderColor: primaryColor,
+                  color: primaryColor
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 {isEditingDraft ? 'Update Draft' : 'Save as Draft'}
               </Button>

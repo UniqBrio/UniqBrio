@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ChevronsRight, ChevronsLeft, ArrowRight, ArrowLeft, Save, RotateCcw, X, ChevronUp, ChevronDown } from "lucide-react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 export interface ColumnSelectorModalProps {
   open: boolean;
@@ -24,6 +25,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
   onReset,
   storageKeyPrefix,
 }) => {
+  const { primaryColor } = useCustomColors();
   // Work with a draft list from the incoming prop
   const [draftDisplayed, setDraftDisplayed] = useState<string[]>(displayedColumns);
   const [selectedAvailable, setSelectedAvailable] = useState<string[]>([]);
@@ -215,7 +217,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             <div className="font-semibold mb-2 text-black">Available Columns</div>
             <div
               ref={availableListRef}
-              className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'available' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+              className={`w-full h-40 border rounded p-2 overflow-y-auto`}
+              style={focusedList === 'available' ? { borderColor: primaryColor } : undefined}
               role="listbox"
               tabIndex={focusedList === 'available' ? 0 : -1}
               aria-label="Available columns"
@@ -224,7 +227,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               {availableColumns.map((col, idx) => (
                 <label
                   key={col}
-                  className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'available' && focusedIndex === idx ? 'bg-purple-100 border border-purple-300' : 'hover:bg-gray-50'}`}
+                  className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'available' && focusedIndex === idx ? '' : 'hover:bg-gray-50'}`}
+                  style={focusedList === 'available' && focusedIndex === idx ? { backgroundColor: `${primaryColor}15`, border: `1px solid ${primaryColor}4D` } : undefined}
                   onClick={() => { setFocusedList('available'); setFocusedIndex(idx); availableListRef.current?.focus(); }}
                 >
                   <input
@@ -240,7 +244,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
           {/* Move buttons */}
           <div className="flex flex-col justify-center gap-2">
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              style={selectedAvailable.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={handleAdd}
               disabled={!selectedAvailable.length}
               title="Add Selected (?)"
@@ -248,7 +253,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ArrowRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              style={availableColumns.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={() => { setDraftDisplayed(prev => [...prev, ...availableColumns]); setSelectedAvailable([]); }}
               disabled={!availableColumns.length}
               title="Add All"
@@ -256,7 +262,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ChevronsRight className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              style={selectedDisplayed.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={handleRemove}
               disabled={!selectedDisplayed.length}
               title="Remove Selected (?)"
@@ -264,7 +271,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              style={draftDisplayed.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={() => { setDraftDisplayed([]); setSelectedDisplayed([]); }}
               disabled={!draftDisplayed.length}
               title="Remove All"
@@ -278,7 +286,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               <div className="font-semibold text-black">Displayed Columns</div>
               <div className="flex gap-1">
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+                  style={selectedDisplayed.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
                   onClick={() => moveDisplayed('up')}
                   disabled={!selectedDisplayed.length}
                   title="Move Up (Ctrl+PgUp)"
@@ -286,7 +295,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                   <ChevronUp className="w-4 h-4" />
                 </button>
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+                  style={selectedDisplayed.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
                   onClick={() => moveDisplayed('down')}
                   disabled={!selectedDisplayed.length}
                   title="Move Down (Ctrl+PgDn)"
@@ -297,7 +307,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
             <div
               ref={displayedListRef}
-              className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'displayed' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+              className={`w-full h-40 border rounded p-2 overflow-y-auto`}
+              style={focusedList === 'displayed' ? { borderColor: primaryColor } : undefined}
               role="listbox"
               tabIndex={focusedList === 'displayed' ? 0 : -1}
               aria-label="Displayed columns"
@@ -306,7 +317,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               {draftDisplayed.map((col, idx) => (
                 <label
                   key={col}
-                  className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'displayed' && focusedIndex === idx ? 'bg-purple-100 border border-purple-300' : 'hover:bg-gray-50'}`}
+                  className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'displayed' && focusedIndex === idx ? '' : 'hover:bg-gray-50'}`}
+                  style={focusedList === 'displayed' && focusedIndex === idx ? { backgroundColor: `${primaryColor}15`, border: `1px solid ${primaryColor}4D` } : undefined}
                   onClick={() => { setFocusedList('displayed'); setFocusedIndex(idx); displayedListRef.current?.focus(); }}
                 >
                   <input
@@ -322,7 +334,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
         </div>
         <div className="flex justify-end gap-2 mt-6">
           <button
-            className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2"
+            className="px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+            style={{ backgroundColor: primaryColor }}
             onClick={() => {
               const finalDisplayed = [...draftDisplayed];
               setDisplayedColumns(finalDisplayed);

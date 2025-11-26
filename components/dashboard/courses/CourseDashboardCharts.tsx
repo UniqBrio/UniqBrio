@@ -19,17 +19,21 @@ import { Course } from "@/types/dashboard/course"
 import { useIsMobile } from "@/hooks/dashboard/use-mobile"
 import { useResponsiveBreakpoints, useResponsiveValue } from "@/hooks/dashboard/useResponsiveBreakpoints"
 import { ResponsiveChartContainer } from "@/components/dashboard/ui/responsive-container"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface CourseDashboardChartsProps {
   courses: Course[]
   currency?: string
 }
 
-const COLORS = ["#8b5cf6", "#f97316", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#22c55e"]
+// Colors will be derived from theme with sensible fallbacks
+const FALLBACK_COLORS = ["#8b5cf6", "#f97316", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#22c55e"]
 
 export default function CourseDashboardCharts({ courses, currency = "INR" }: CourseDashboardChartsProps) {
   const isMobile = useIsMobile()
   const { screenSize } = useResponsiveBreakpoints()
+  const { primaryColor, secondaryColor } = useCustomColors()
+  const COLORS = [primaryColor, secondaryColor, ...FALLBACK_COLORS].slice(0, FALLBACK_COLORS.length)
   
   // Responsive chart configurations
   const chartConfig = useResponsiveValue({
@@ -154,7 +158,7 @@ export default function CourseDashboardCharts({ courses, currency = "INR" }: Cou
                   />
                   <Bar 
                     dataKey="revenue" 
-                    fill="#8b5cf6" 
+                    fill={primaryColor}
                     radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
                   />
                 </BarChart>
@@ -335,7 +339,7 @@ export default function CourseDashboardCharts({ courses, currency = "INR" }: Cou
                   />
                   <Bar 
                     dataKey="count" 
-                    fill="#f97316" 
+                    fill={secondaryColor}
                     radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
                   />
                 </BarChart>

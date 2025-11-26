@@ -19,6 +19,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/dashboard/ui/table"
 import { Plus, Search, MessageSquare, Phone, Mail, Bot, Send } from "lucide-react"
 import { CRMNavigation } from "@/components/dashboard/crm-navigation"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface Enquiry {
   id: string
@@ -38,6 +39,7 @@ interface Enquiry {
 }
 
 export default function EnquiriesPage() {
+  const { primaryColor } = useCustomColors()
   const [enquiries, setEnquiries] = useState<Enquiry[]>([])
   const [filteredEnquiries, setFilteredEnquiries] = useState<Enquiry[]>([])
   const [loading, setLoading] = useState(false)
@@ -192,7 +194,7 @@ export default function EnquiriesPage() {
             </div>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
-                <Button className="w-full md:w-auto bg-purple-500 text-white">
+                <Button className="w-full md:w-auto text-white" style={{ backgroundColor: primaryColor }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Enquiry
                 </Button>

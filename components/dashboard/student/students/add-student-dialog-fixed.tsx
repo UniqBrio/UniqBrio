@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/dashboard/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/dashboard/ui/alert-dialog';
 import { fetchCourses, type Course } from '@/data/dashboard/courses';
@@ -300,7 +301,10 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
                         size="sm"
                         onClick={handleCreateCourseDraft}
                         disabled={!selectedLevel || isCreating}
-                        className="flex-1 text-xs bg-purple-600 hover:bg-purple-700"
+                        className="flex-1 text-xs text-white"
+                        style={{ backgroundColor: primaryColor }}
+                        onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)}
+                        onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)}
                       >
                         {isCreating ? 'Creating...' : 'Create Draft'}
                       </Button>
@@ -784,6 +788,7 @@ function RelationshipCombobox({ value, onChange }: RelationshipComboboxProps){
 type NewStudentType = Omit<Partial<Student>, 'guardian'> & { guardian: Parent; firstName?:string; middleName?:string; lastName?:string; guardianFirstName?:string; guardianMiddleName?:string; guardianLastName?:string; };
 
 export function AddStudentDialogFixed(props: AddStudentDialogProps){
+  const { primaryColor } = useCustomColors();
   const { open,onOpenChange,onAdd,initialStudent,courses:prefetchedCourses,coursesLoading,draftId } = props;
   const { toast } = useToast();
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId || null);

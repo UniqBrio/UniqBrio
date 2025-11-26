@@ -13,6 +13,7 @@ import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { Instructor, LeaveRequest } from "@/types/dashboard/staff/staff/leave"
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input"
 import { format } from "date-fns"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 type FiltersValue = {
   jobLevels: string[]
@@ -28,6 +29,7 @@ type Props = {
 
 export default function AdvancedFilters({ value, onChange }: Props) {
   const { state } = useLeave()
+  const { primaryColor } = useCustomColors()
 
   // Local UI states (not exposed to parent)
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
@@ -212,7 +214,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                             )
                           }
                           onClick={(e) => e.stopPropagation()}
-                          className="data-[state=checked]:bg-purple-600 border-purple-500"
+                          style={pendingStaffTypes.includes(contractType.value) ? { backgroundColor: primaryColor, borderColor: primaryColor } : { borderColor: primaryColor }}
                         />
                         <span className="text-sm">{contractType.label}</span>
                       </DropdownMenuItem>
@@ -285,7 +287,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                             )
                           }
                           onClick={(e) => e.stopPropagation()}
-                          className="data-[state=checked]:bg-purple-600 border-purple-500"
+                          style={pendingLeaveTypes.includes(leaveType) ? { backgroundColor: primaryColor, borderColor: primaryColor } : { borderColor: primaryColor }}
                         />
                         <span className="text-sm">{leaveType}</span>
                       </DropdownMenuItem>
@@ -350,7 +352,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                             )
                           }
                           onClick={(e) => e.stopPropagation()}
-                          className="data-[state=checked]:bg-purple-600 border-purple-500"
+                          style={pendingJobLevels.includes(level) ? { backgroundColor: primaryColor, borderColor: primaryColor } : { borderColor: primaryColor }}
                         />
                         <span className="text-sm">{level}</span>
                       </DropdownMenuItem>
@@ -424,7 +426,8 @@ export default function AdvancedFilters({ value, onChange }: Props) {
             </Button>
             <Button
               size="sm"
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="text-white"
+              style={{ backgroundColor: primaryColor }}
               onClick={() => {
                 onChange({
                   jobLevels: pendingJobLevels,

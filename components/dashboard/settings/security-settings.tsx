@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -15,6 +16,7 @@ interface SecuritySettingsProps {
 }
 
 export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
+  const { primaryColor } = useCustomColors()
   const [isSaving, setIsSaving] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [passwordData, setPasswordData] = useState({
@@ -87,7 +89,7 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-purple-600" />
+            <Lock className="h-5 w-5" style={{ color: primaryColor }} />
             Change Password
           </CardTitle>
           <CardDescription>
@@ -142,7 +144,10 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
           <Button
             onClick={handlePasswordChange}
             disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword}
-            className="w-full bg-purple-600 hover:bg-purple-700 gap-2"
+            className="w-full gap-2"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
           >
             <Save className="h-4 w-4" />
             {isSaving ? "Updating..." : "Update Password"}
@@ -154,7 +159,7 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-purple-600" />
+            <Shield className="h-5 w-5" style={{ color: primaryColor }} />
             Session Management
           </CardTitle>
           <CardDescription>
@@ -180,7 +185,10 @@ export function SecuritySettings({ user, onUpdate }: SecuritySettingsProps) {
           <Button
             onClick={handleSecurityUpdate}
             disabled={isSaving}
-            className="w-full bg-purple-600 hover:bg-purple-700 gap-2"
+            className="w-full gap-2"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
           >
             <Save className="h-4 w-4" />
             {isSaving ? "Saving..." : "Save Security Settings"}

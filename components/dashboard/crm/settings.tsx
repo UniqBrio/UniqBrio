@@ -21,6 +21,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/dashboard/ui/table"
 import { Plus, Edit, Trash2, Mail, MessageSquare, Phone, Bell, Users, Tag, Save, Upload, Download } from "lucide-react"
 import { format } from "date-fns"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface CommunicationTemplate {
   id: string
@@ -61,6 +62,7 @@ interface UserRole {
 }
 
 export default function SettingsPage() {
+  const { primaryColor } = useCustomColors()
   const [templates, setTemplates] = useState<CommunicationTemplate[]>([])
   const [tagRules, setTagRules] = useState<TagRule[]>([])
   const [notifications, setNotifications] = useState<NotificationSetting[]>([])
@@ -219,7 +221,7 @@ export default function SettingsPage() {
       case "SMS":
         return "bg-green-100 text-green-800"
       case "WhatsApp":
-        return "bg-purple-100 text-purple-800"
+        return `bg-[${primaryColor}15] text-[${primaryColor}]`
       default:
         return "bg-gray-100 text-gray-800 dark:text-white"
     }
@@ -229,7 +231,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: primaryColor }}></div>
       </div>
     )
   }
@@ -282,7 +284,10 @@ export default function SettingsPage() {
               </div>
               <Button 
                 onClick={() => setShowTemplateDialog(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+                className="text-white gap-2"
+                style={{ backgroundColor: primaryColor }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Template</span>
@@ -319,7 +324,8 @@ export default function SettingsPage() {
                         <TableCell>
                           <Switch 
                             checked={template.isActive}
-                            className="data-[state=checked]:bg-purple-600"
+                            style={{ '--primary-color': primaryColor } as React.CSSProperties}
+                            className="data-[state=checked]:bg-[var(--primary-color)]"
                           />
                         </TableCell>
                         <TableCell className="text-sm text-gray-600 dark:text-white">
@@ -408,7 +414,10 @@ export default function SettingsPage() {
               </div>
               <Button 
                 onClick={() => setShowTagRuleDialog(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+                className="text-white gap-2"
+                style={{ backgroundColor: primaryColor }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
               >
                 <Plus className="w-4 h-4" />
                 Add Rule
@@ -421,7 +430,7 @@ export default function SettingsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h4 className="font-medium text-gray-900 dark:text-white">{rule.name}</h4>
-                        <Badge variant="outline" className="text-xs border-purple-200 text-purple-700 bg-purple-50">
+                        <Badge variant="outline" className="text-xs" style={{ borderColor: `${primaryColor}20`, color: primaryColor, backgroundColor: `${primaryColor}15` }}>
                           {rule.tag}
                         </Badge>
                       </div>
@@ -430,7 +439,8 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3 self-end sm:self-center flex-shrink-0">
                       <Switch 
                         checked={rule.isActive}
-                        className="data-[state=checked]:bg-purple-600"
+                        style={{ '--primary-color': primaryColor } as React.CSSProperties}
+                        className="data-[state=checked]:bg-[var(--primary-color)]"
                       />
                       <Button 
                         variant="ghost" 
@@ -463,7 +473,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch 
                       checked={notification.enabled}
-                      className="data-[state=checked]:bg-purple-600 self-end sm:self-center"
+                      style={{ '--primary-color': primaryColor } as React.CSSProperties}
+                      className="data-[state=checked]:bg-[var(--primary-color)] self-end sm:self-center"
                     />
                   </div>
                 ))}

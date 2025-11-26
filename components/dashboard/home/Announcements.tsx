@@ -10,6 +10,7 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface Announcement {
   id: string;
@@ -31,6 +32,7 @@ export function Announcements({
   className = "",
   maxItems = 4,
 }: AnnouncementsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [announcements, setAnnouncements] = useState<Announcement[]>([
     {
       id: "1",
@@ -130,7 +132,10 @@ export function Announcements({
 
   return (
     <Card className={`${className} border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900`}>
-      <CardHeader className="pb-6 bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 relative overflow-hidden">
+      <CardHeader
+        className="pb-6 relative overflow-hidden"
+        style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+      >
         {/* Decorative gradient orbs */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -142,7 +147,8 @@ export function Announcements({
             </div>
             Latest Updates
           </CardTitle>
-          <span className="text-xs px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-blue-700 font-bold shadow-lg">
+          <span className="text-xs px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm font-bold shadow-lg"
+                style={{ color: primaryColor }}>
             {announcements.filter((a) => !a.isRead).length} New
           </span>
         </div>
@@ -191,7 +197,7 @@ export function Announcements({
                           {announcement.title}
                         </h4>
                         {!announcement.isRead && (
-                          <span className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
+                          <span className="flex-shrink-0 w-2 h-2 rounded-full" style={{ backgroundColor: secondaryColor }} />
                         )}
                       </div>
 
@@ -208,7 +214,8 @@ export function Announcements({
                           <a
                             href={announcement.link}
                             onClick={() => markAsRead(announcement.id)}
-                            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium flex items-center gap-1"
+                            className="text-xs hover:underline font-medium flex items-center gap-1"
+                            style={{ color: primaryColor }}
                           >
                             Learn More
                             <ChevronRight className="w-3 h-3" />
@@ -226,7 +233,7 @@ export function Announcements({
         {/* View All Link */}
         {announcements.length > maxItems && (
           <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800 text-center">
-            <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            <button className="text-sm hover:underline font-medium" style={{ color: primaryColor }}>
               View All Announcements ({announcements.length})
             </button>
           </div>

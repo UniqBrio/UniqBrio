@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Button } from "@/components/dashboard/ui/button"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -48,6 +49,7 @@ interface ScheduleSettingsProps {
 }
 
 export default function ScheduleSettings({ settings, onUpdateSetting, onResetSettings }: ScheduleSettingsProps) {
+  const { primaryColor } = useCustomColors()
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -70,7 +72,7 @@ export default function ScheduleSettings({ settings, onUpdateSetting, onResetSet
       {/* Session Modification Tracking */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Grid3x3 className="h-5 w-5 text-purple-600" />
+          <Grid3x3 className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Session Modification Tracking</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -122,7 +124,7 @@ export default function ScheduleSettings({ settings, onUpdateSetting, onResetSet
       {/* Modification Requirements */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Grid3x3 className="h-5 w-5 text-purple-600" />
+          <Grid3x3 className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Modification Requirements</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -23,6 +24,7 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
+  const { primaryColor } = useCustomColors()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null)
@@ -130,7 +132,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-purple-600" />
+              <User className="h-5 w-5" style={{ color: primaryColor }} />
               Profile Information
             </CardTitle>
             <CardDescription>
@@ -138,7 +140,14 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             </CardDescription>
           </div>
           {!isEditing && (
-            <Button onClick={() => setIsEditing(true)} className="text-purple-600 bg-transparent hover:bg-purple-100 gap-2" title="Edit Profile" >
+            <Button 
+              onClick={() => setIsEditing(true)} 
+              className="bg-transparent gap-2" 
+              style={{ color: primaryColor }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              title="Edit Profile"
+            >
               <Pencil className="h-4 w-4" />
               
             </Button>
@@ -151,7 +160,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           <div className="relative group">
             <Avatar className="h-20 w-20 sm:h-24 sm:w-24 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               <AvatarImage src={avatarPreview || user?.avatar} alt={user?.name} />
-              <AvatarFallback className="text-2xl bg-purple-100 text-purple-700">
+              <AvatarFallback className="text-2xl" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                 {user?.name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
@@ -374,7 +383,10 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="bg-purple-600 hover:bg-purple-700 gap-2"
+              className="gap-2"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
             >
               <Save className="h-4 w-4" />
               {isSaving ? "Saving..." : "Save Changes"}

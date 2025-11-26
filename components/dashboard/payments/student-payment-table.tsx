@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useCurrency } from "@/contexts/currency-context";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import { Card, CardContent } from "@/components/dashboard/ui/card";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Button } from "@/components/dashboard/ui/button";
@@ -43,6 +44,7 @@ export function StudentPaymentTable({
   onRefresh,
 }: StudentPaymentTableProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<keyof Payment>("studentId");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -154,15 +156,19 @@ export function StudentPaymentTable({
       Complete: "bg-green-500 text-white hover:bg-green-500",
       Completed: "bg-green-500 text-white hover:bg-green-500",
       Recurring: "bg-blue-500 text-white hover:bg-blue-500",
-      Partial: "bg-orange-500 text-white hover:bg-orange-500",
+      Partial: "text-white",
     };
 
-    return <Badge className={`${colors[displayStatus] || "bg-gray-500 text-white hover:bg-gray-500"} rounded-full px-3 py-1`}>{displayStatus}</Badge>;
+    const badgeStyle = displayStatus === 'Partial' ? { backgroundColor: secondaryColor } : {};
+    return <Badge className={`${colors[displayStatus] || "bg-gray-500 text-white hover:bg-gray-500"} rounded-full px-3 py-1`} style={badgeStyle}>{displayStatus}</Badge>;
   };
 
   const getReminderBadge = (isOn: boolean) => {
     return (
-      <Badge className={`${isOn ? "bg-purple-600 text-white hover:bg-purple-600" : "bg-gray-200 text-gray-600 dark:text-white hover:bg-gray-200"} rounded-full px-3 py-1`}>
+      <Badge 
+        className={`${!isOn ? "bg-gray-200 text-gray-600 dark:text-white hover:bg-gray-200" : "text-white"} rounded-full px-3 py-1`}
+        style={isOn ? { backgroundColor: primaryColor } : {}}
+      >
         {isOn ? "On" : "Off"}
       </Badge>
     );
@@ -230,8 +236,10 @@ export function StudentPaymentTable({
             filteredPayments.map((payment, index) => (
               <Card 
                 key={payment.id || payment.studentId || index}
-                className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white border-2 border-purple-400 hover:border-purple-500 relative rounded-xl overflow-hidden flex-shrink-0"
-                style={{ width: '280px', minWidth: '280px' }}
+                className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white border-2 relative rounded-xl overflow-hidden flex-shrink-0"
+                style={{ width: '280px', minWidth: '280px', borderColor: `${primaryColor}80` }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = primaryColor}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = `${primaryColor}80`}
                 onClick={() => handleOpenDetailDialog(payment)}
               >
                 <CardContent className="p-6">
@@ -242,7 +250,7 @@ export function StudentPaymentTable({
                         <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
                           {payment.studentName}
                         </h3>
-                        <p className="text-sm text-purple-600 font-medium">
+                        <p className="text-sm font-medium" style={{ color: primaryColor }}>
                           {payment.studentId}
                         </p>
                       </div>
@@ -260,7 +268,7 @@ export function StudentPaymentTable({
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {payment.enrolledCourseName || "-"}
                         </p>
-                        <p className="text-xs text-purple-600">
+                        <p className="text-xs" style={{ color: primaryColor }}>
                           {payment.enrolledCourse || "N/A"}
                         </p>
                       </div>
@@ -268,7 +276,7 @@ export function StudentPaymentTable({
                         <p className="text-xs text-gray-500 dark:text-white">Cohort</p>
                         {payment.cohortId ? (
                           <div className="space-y-0.5">
-                            <p className="text-sm font-medium text-purple-700">
+                            <p className="text-sm font-medium" style={{ color: primaryColor }}>
                               {payment.cohortId}
                             </p>
                             <p className="text-xs text-gray-600 dark:text-white">
@@ -286,11 +294,15 @@ export function StudentPaymentTable({
                         <Badge 
                           variant="outline" 
                           className={`text-xs
-                            ${payment.studentCategory === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
                             ${payment.studentCategory === 'Regular' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
                             ${payment.studentCategory === 'Basic' ? 'bg-green-50 text-green-700 border-green-200' : ''}
                             ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 dark:text-white border-gray-200' : ''}
                           `}
+                          style={payment.studentCategory === 'Premium' ? {
+                            backgroundColor: `${primaryColor}20`,
+                            color: primaryColor,
+                            borderColor: `${primaryColor}50`
+                          } : {}}
                         >
                           {payment.studentCategory || 'Not Set'}
                         </Badge>

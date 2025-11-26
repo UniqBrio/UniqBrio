@@ -7,6 +7,7 @@ import { z } from "zod"
 import { toast } from "@/components/ui/use-toast"
 import { Loader2, Save, User, Lock, Bell, Shield } from "lucide-react"
 import { ProfileSettings } from "@/components/dashboard/settings/profile-settings"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -38,6 +39,11 @@ export default function SettingsPage() {
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false)
   const [profileData, setProfileData] = useState<any>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  const { primaryColor, secondaryColor } = useCustomColors()
+  const [buttonHover, setButtonHover] = useState<Record<string, boolean>>({})
+
+  const handleMouseEnter = (key: string) => setButtonHover(prev => ({ ...prev, [key]: true }))
+  const handleMouseLeave = (key: string) => setButtonHover(prev => ({ ...prev, [key]: false }))
 
   // Fetch profile data
   useEffect(() => {
@@ -167,28 +173,32 @@ export default function SettingsPage() {
         <div className="bg-white rounded-lg shadow-sm p-4">
           <nav className="space-y-1">
             <button
-              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "profile" ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"}`}
+              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "profile" ? "" : "hover:bg-gray-100"}`}
+              style={activeTab === "profile" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : {}}
               onClick={() => setActiveTab("profile")}
             >
               <User size={18} />
               <span>Profile</span>
             </button>
             <button
-              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "password" ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"}`}
+              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "password" ? "" : "hover:bg-gray-100"}`}
+              style={activeTab === "password" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : {}}
               onClick={() => setActiveTab("password")}
             >
               <Lock size={18} />
               <span>Password</span>
             </button>
             <button
-              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "notifications" ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"}`}
+              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "notifications" ? "" : "hover:bg-gray-100"}`}
+              style={activeTab === "notifications" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : {}}
               onClick={() => setActiveTab("notifications")}
             >
               <Bell size={18} />
               <span>Notifications</span>
             </button>
             <button
-              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "privacy" ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"}`}
+              className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "privacy" ? "" : "hover:bg-gray-100"}`}
+              style={activeTab === "privacy" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : {}}
               onClick={() => setActiveTab("privacy")}
             >
               <Shield size={18} />
@@ -203,7 +213,7 @@ export default function SettingsPage() {
             <div>
               {isLoadingProfile ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
+                  <Loader2 className="animate-spin h-8 w-8" style={{ color: primaryColor }} />
                 </div>
               ) : profileData ? (
                 <ProfileSettings user={profileData} onUpdate={handleProfileUpdate} />
@@ -268,7 +278,10 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={isSubmittingPassword}
-                    className="py-2 px-4 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center"
+                    className="py-2 px-4 text-white rounded-lg transition-colors flex items-center"
+                    style={{ backgroundColor: buttonHover.password ? `${primaryColor}dd` : primaryColor }}
+                    onMouseEnter={() => handleMouseEnter('password')}
+                    onMouseLeave={() => handleMouseLeave('password')}
                   >
                     {isSubmittingPassword ? (
                       <>
@@ -297,8 +310,14 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-white">Receive email notifications for account activity</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-700"></div>
+                    <input type="checkbox" className="sr-only peer" defaultChecked onChange={(e) => {
+                      const toggle = e.target.nextElementSibling as HTMLElement;
+                      if (toggle) toggle.style.backgroundColor = e.target.checked ? primaryColor : '';
+                    }} />
+                    <div 
+                      className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                      style={{ backgroundColor: primaryColor, ['--tw-ring-color' as any]: `${primaryColor}40` }}
+                    ></div>
                   </label>
                 </div>
 
@@ -308,8 +327,14 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-white">Receive text messages for important updates</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-700"></div>
+                    <input type="checkbox" className="sr-only peer" onChange={(e) => {
+                      const toggle = e.target.nextElementSibling as HTMLElement;
+                      if (toggle) toggle.style.backgroundColor = e.target.checked ? primaryColor : '';
+                    }} />
+                    <div 
+                      className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                      style={{ ['--tw-ring-color' as any]: `${primaryColor}40` }}
+                    ></div>
                   </label>
                 </div>
 
@@ -319,15 +344,24 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-white">Receive promotional emails and offers</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-700"></div>
+                    <input type="checkbox" className="sr-only peer" defaultChecked onChange={(e) => {
+                      const toggle = e.target.nextElementSibling as HTMLElement;
+                      if (toggle) toggle.style.backgroundColor = e.target.checked ? primaryColor : '';
+                    }} />
+                    <div 
+                      className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                      style={{ backgroundColor: primaryColor, ['--tw-ring-color' as any]: `${primaryColor}40` }}
+                    ></div>
                   </label>
                 </div>
 
                 <div className="pt-4">
                   <button
                     type="button"
-                    className="py-2 px-4 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center"
+                    className="py-2 px-4 text-white rounded-lg transition-colors flex items-center"
+                    style={{ backgroundColor: buttonHover.notificationsSave ? `${primaryColor}dd` : primaryColor }}
+                    onMouseEnter={() => handleMouseEnter('notificationsSave')}
+                    onMouseLeave={() => handleMouseLeave('notificationsSave')}
                   >
                     <Save className="mr-2" size={18} />
                     Save Preferences
@@ -357,8 +391,14 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-white">Allow us to share your data with trusted partners</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-700"></div>
+                    <input type="checkbox" className="sr-only peer" onChange={(e) => {
+                      const toggle = e.target.nextElementSibling as HTMLElement;
+                      if (toggle) toggle.style.backgroundColor = e.target.checked ? primaryColor : '';
+                    }} />
+                    <div 
+                      className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                      style={{ ['--tw-ring-color' as any]: `${primaryColor}40` }}
+                    ></div>
                   </label>
                 </div>
 
@@ -368,15 +408,24 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-500 dark:text-white">Allow us to track your activity for a better experience</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-700"></div>
+                    <input type="checkbox" className="sr-only peer" defaultChecked onChange={(e) => {
+                      const toggle = e.target.nextElementSibling as HTMLElement;
+                      if (toggle) toggle.style.backgroundColor = e.target.checked ? primaryColor : '';
+                    }} />
+                    <div 
+                      className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                      style={{ backgroundColor: primaryColor, ['--tw-ring-color' as any]: `${primaryColor}40` }}
+                    ></div>
                   </label>
                 </div>
 
                 <div className="pt-4">
                   <button
                     type="button"
-                    className="py-2 px-4 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center"
+                    className="py-2 px-4 text-white rounded-lg transition-colors flex items-center"
+                    style={{ backgroundColor: buttonHover.privacySave ? `${primaryColor}dd` : primaryColor }}
+                    onMouseEnter={() => handleMouseEnter('privacySave')}
+                    onMouseLeave={() => handleMouseLeave('privacySave')}
                   >
                     <Save className="mr-2" size={18} />
                     Save Settings

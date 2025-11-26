@@ -13,11 +13,13 @@ import { cn } from "@/lib/dashboard/staff/utils"
 import type { LeaveRequest } from "@/types/dashboard/staff/staff/leave"
 import type { LeavePolicy } from "./leave-policy-dialog"
 import LeaveRequestDetailsDialog from "./leave-request-details-dialog"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 type CalendarViewMode = "day" | "week" | "month"
 
 export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) {
-  const { state } = useLeave()
+  const { state } = useLeave();
+  const { primaryColor, secondaryColor } = useCustomColors();
 
   // Calendar state
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -216,12 +218,21 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
           <Button
             variant={viewMode === "day" ? "default" : "ghost"}
             size="sm"
-            className={cn(
-              "px-4 py-2 rounded-md transition-colors",
-              viewMode === "day" 
-                ? "bg-purple-500 text-white hover:bg-purple-600" 
-                : "text-orange-600 hover:bg-orange-50 hover:text-orange-700"
-            )}
+            className="px-4 py-2 rounded-md transition-colors"
+            style={viewMode === "day" 
+              ? { backgroundColor: primaryColor, color: 'white' }
+              : { color: secondaryColor }
+            }
+            onMouseEnter={(e) => {
+              if (viewMode !== "day") {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}10`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (viewMode !== "day") {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             onClick={() => {
               setViewMode("day")
               setSelectedDate(null)
@@ -232,12 +243,21 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
           <Button
             variant={viewMode === "week" ? "default" : "ghost"}
             size="sm"
-            className={cn(
-              "px-4 py-2 rounded-md transition-colors",
-              viewMode === "week" 
-                ? "bg-purple-500 text-white hover:bg-purple-600" 
-                : "text-orange-600 hover:bg-orange-50 hover:text-orange-700"
-            )}
+            className="px-4 py-2 rounded-md transition-colors"
+            style={viewMode === "week" 
+              ? { backgroundColor: primaryColor, color: 'white' }
+              : { color: secondaryColor }
+            }
+            onMouseEnter={(e) => {
+              if (viewMode !== "week") {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}10`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (viewMode !== "week") {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             onClick={() => {
               setViewMode("week")
               setSelectedDate(null)
@@ -248,12 +268,21 @@ export default function LeaveCalendarView({ policy }: { policy?: LeavePolicy }) 
           <Button
             variant={viewMode === "month" ? "default" : "ghost"}
             size="sm"
-            className={cn(
-              "px-4 py-2 rounded-md transition-colors",
-              viewMode === "month" 
-                ? "bg-purple-500 text-white hover:bg-purple-600" 
-                : "text-orange-600 hover:bg-orange-50 hover:text-orange-700"
-            )}
+            className="px-4 py-2 rounded-md transition-colors"
+            style={viewMode === "month" 
+              ? { backgroundColor: primaryColor, color: 'white' }
+              : { color: secondaryColor }
+            }
+            onMouseEnter={(e) => {
+              if (viewMode !== "month") {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}10`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (viewMode !== "month") {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             onClick={() => {
               setViewMode("month")
               setSelectedDate(null)

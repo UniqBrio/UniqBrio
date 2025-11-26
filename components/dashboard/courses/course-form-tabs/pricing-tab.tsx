@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import Image from "next/image"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
@@ -23,6 +24,7 @@ export default function PricingTab({
   mockReferralCodes = [], 
   courses = [] 
 }: PricingTabProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
   
   const validateDateTimeRange = (startDateTime: string, endDateTime: string): boolean => {
@@ -85,7 +87,16 @@ export default function PricingTab({
           </Label>
           <select
             id="paymentCategory"
-            className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent mb-2"
+            className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent mb-2"
+            style={{ borderColor: '#d1d5db' }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = primaryColor;
+              e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             value={formData.paymentCategory || ''}
             onChange={e => onFormChange('paymentCategory', e.target.value)}
           >
@@ -108,7 +119,16 @@ export default function PricingTab({
               type="number"
               min="1"
               placeholder={formData.courseCategory === 'Ongoing Training' ? '5000' : '25000'}
-              className="pl-8 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              className="pl-8 border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+              style={{ borderColor: '#d1d5db' }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = primaryColor;
+                e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               value={formData.priceINR || ''}
               onKeyDown={e => {
                 if (e.key === '-') {
@@ -158,7 +178,8 @@ export default function PricingTab({
                 <Label htmlFor="paymentFrequency" className="mb-1 text-xs">Payment Frequency</Label>
                 <select
                   id="paymentFrequency"
-                  className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                  className="w-full border rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent"
+                  style={{ borderColor: '#d1d5db' }}
                   value="monthly"
                   disabled
                 >
@@ -173,12 +194,14 @@ export default function PricingTab({
                     id="trainingDuration"
                     type="number"
                     placeholder="12"
-                    className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent flex-1"
+                    className="border rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent flex-1"
+                    style={{ borderColor: '#d1d5db' }}
                     disabled
                   />
                   <select
                     id="durationUnit"
-                    className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent min-w-[80px]"
+                    className="border rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent min-w-[80px]"
+                    style={{ borderColor: '#d1d5db' }}
                     value="months"
                     disabled
                   >
@@ -236,7 +259,16 @@ export default function PricingTab({
             <Label htmlFor="referralCode" className="mb-1 text-xs">Referral Code</Label>
             <select
               id="referralCode"
-              className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              className="w-full border rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:border-transparent"
+              style={{ borderColor: '#d1d5db' }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = primaryColor;
+                e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               value={formData.referralCode || ''}
               onChange={e => {
                 const selectedCode = e.target.value;
@@ -321,7 +353,16 @@ export default function PricingTab({
                   onFormChange('commissionRate', numValue.toString());
                 }
               }}
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+              className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+              style={{ borderColor: '#d1d5db' }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = primaryColor;
+                e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
         </div>
@@ -348,7 +389,16 @@ export default function PricingTab({
                     onFormChange('referralDuration', duration.toString());
                   }
                 }}
-                className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
               {formData.referralStart && formData.referralEnd && 
                 !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
@@ -376,7 +426,16 @@ export default function PricingTab({
                     onFormChange('referralDuration', duration.toString());
                   }
                 }}
-                className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
               {formData.referralStart && formData.referralEnd && 
                 !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (

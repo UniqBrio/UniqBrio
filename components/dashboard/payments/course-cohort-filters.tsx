@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useRef, useState } from "react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import { useCurrency } from "@/contexts/currency-context";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
@@ -13,18 +14,18 @@ import { format as formatDateFns } from 'date-fns';
 import { ColumnSelectorModal } from "@/contexts/dashboard/ColumnSelectorModal";
 
 // Grid icon component for column selector
-function GridIcon({ className = "w-6 h-6" }) {
+function GridIcon({ className = "w-6 h-6", color = "#7C3AED" }: { className?: string; color?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+      <rect x="3" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="3" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="10" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="3" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="10" y="17" width="5" height="5" rx="1.5" fill={color} />
+      <rect x="17" y="17" width="5" height="5" rx="1.5" fill={color} />
     </svg>
   );
 }
@@ -68,6 +69,7 @@ export default function CourseCohortFilters({
   setViewMode,
 }: CourseCohortFiltersProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const firstCheckboxRef = useRef<HTMLInputElement | null>(null);
 
   // Column management
@@ -277,7 +279,7 @@ export default function CourseCohortFilters({
                          tabIndex={0}
                        >
                          <span className="relative inline-block">
-                           <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:text-white transition-colors" />
+                           <Filter className="h-3.5 w-3.5 transition-colors" style={{ color: primaryColor }} />
                            {filterAction === "applied" && (
                              <span className="absolute -top-1 -right-1">
                                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -407,9 +409,10 @@ export default function CourseCohortFilters({
 
               <div className="flex justify-between gap-2 mt-4">
                 <Button
-                                  size="sm"
-                                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
-                                  onClick={() => {
+                  size="sm"
+                  className="flex-1 text-white"
+                  style={{ backgroundColor: primaryColor, borderColor: primaryColor }}
+                  onClick={() => {
                                     setSelectedFilters({ ...pendingFilters });
                                     setFilterDropdownOpen(false);
                                     setFilterAction("applied");
@@ -496,7 +499,8 @@ export default function CourseCohortFilters({
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode?.('list')}
-            className={`rounded-r-none ${viewMode === 'list' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
+            className={`rounded-r-none`}
+            style={viewMode === 'list' ? { backgroundColor: primaryColor, color: 'white', borderColor: primaryColor } : {}}
             title="List View"
             aria-label="List View"
           >
@@ -510,7 +514,8 @@ export default function CourseCohortFilters({
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode?.('grid')}
-            className={`rounded-l-none border-l ${viewMode === 'grid' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
+            className={`rounded-l-none border-l`}
+            style={viewMode === 'grid' ? { backgroundColor: primaryColor, color: 'white', borderColor: primaryColor } : {}}
             title="Grid View"
             aria-label="Grid View"
           >
@@ -537,25 +542,26 @@ export default function CourseCohortFilters({
       </div>
 
       {/* Course count */}
-      <div className="flex items-center justify-between mb-4 bg-purple-50 rounded-lg px-4 py-2">
+      <div className="flex items-center justify-between mb-4 rounded-lg px-4 py-2" style={{ backgroundColor: `${primaryColor}15` }}>
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-          <span className="text-purple-600 font-medium text-sm">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+          <span className="font-medium text-sm" style={{ color: primaryColor }}>
             {filtered.length}
           </span>
-          <span className="text-purple-600 text-sm">
+          <span className="text-sm" style={{ color: primaryColor }}>
             course{filtered.length !== 1 ? 's' : ''} found
           </span>
         </div>
         
         {/* Column Selector Button */}
         <button
-          className="w-10 h-10 rounded-xl border border-purple-200 bg-[#fef2ff] hover:bg-purple-100 flex items-center justify-center shadow-sm hover:shadow transition-colors"
+          className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm hover:shadow transition-colors"
+          style={{ border: `1px solid ${primaryColor}33`, backgroundColor: `${primaryColor}0f` }}
           onClick={() => setShowColumnSelector(true)}
           title="Displayed Columns"
           aria-label="Edit displayed course columns"
         >
-          <GridIcon className="w-6 h-6" />
+          <GridIcon className="w-6 h-6" color={primaryColor} />
         </button>
       </div>
 

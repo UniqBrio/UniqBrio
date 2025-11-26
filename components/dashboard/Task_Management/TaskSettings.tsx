@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { Button } from "@/components/dashboard/ui/button"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -43,6 +44,7 @@ interface TaskSettingsProps {
 }
 
 export default function TaskSettings({ settings, onUpdateSetting, onResetSettings }: TaskSettingsProps) {
+  const { primaryColor } = useCustomColors();
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -65,7 +67,7 @@ export default function TaskSettings({ settings, onUpdateSetting, onResetSetting
       {/* Task Display Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-purple-600" />
+          <FileText className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Task Display</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -101,7 +103,7 @@ export default function TaskSettings({ settings, onUpdateSetting, onResetSetting
       {/* Task Notification Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Bell className="h-5 w-5 text-purple-600" />
+          <Bell className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Task Reminders</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -129,12 +131,12 @@ export default function TaskSettings({ settings, onUpdateSetting, onResetSetting
 
       
       {/* Settings Info Footer */}
-      <div className="mt-8 p-4 bg-purple-50 rounded-lg border border-purple-200">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-purple-600 mt-0.5" />
+      <div className="mt-8 p-4 rounded-lg border" style={{ backgroundColor: `${primaryColor}10`, borderColor: `${primaryColor}40` }}>
+        <div className="flex gap-3">
+          <AlertTriangle className="h-5 w-5 mt-0.5" style={{ color: primaryColor }} />
           <div>
-            <h4 className="font-semibold text-purple-900 mb-1">Task-Specific Settings</h4>
-            <p className="text-sm text-purple-700">
+            <h4 className="font-semibold mb-1" style={{ color: primaryColor }}>Task-Specific Settings</h4>
+            <p className="text-sm" style={{ color: `${primaryColor}dd` }}>
               These settings only apply to task management features. For general application settings like appearance, 
               notifications, and system preferences, visit the main Settings page.
             </p>

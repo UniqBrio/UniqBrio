@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import React, { useState, useMemo } from "react"
-;
+import { useCustomColors } from "@/lib/use-custom-colors"
 import CampaignFilters from "@/components/dashboard/promotion/campaign-filters";
 import CampaignList from "@/components/dashboard/promotion/campaign-list";
 import CampaignModal from "@/components/dashboard/promotion/campaign-modal";
@@ -288,6 +288,7 @@ const promotionTools: PromotionTool[] = [
 
 export default function PromotionPage() {
   const { toast } = useToast()
+  const { primaryColor, secondaryColor } = useCustomColors()
   
   // Campaign State Management
   const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns)
@@ -568,13 +569,13 @@ export default function PromotionPage() {
 
           {/* Statistics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="border-2 bg-gradient-to-br from-purple-50 to-purple-100">
+            <Card className="border-2" style={{ backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${primaryColor}25)` }}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-purple-700">Active Campaigns</CardTitle>
+                <CardTitle className="text-sm font-medium" style={{ color: primaryColor }}>Active Campaigns</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-purple-900">{stats.activeCampaigns}</div>
-                <p className="text-xs text-purple-600 mt-1">Running campaigns</p>
+                <div className="text-3xl font-bold" style={{ color: primaryColor }}>{stats.activeCampaigns}</div>
+                <p className="text-xs mt-1" style={{ color: primaryColor }}>Running campaigns</p>
               </CardContent>
             </Card>
 
@@ -614,21 +615,30 @@ export default function PromotionPage() {
             <TabsList className="grid w-full grid-cols-3 bg-transparent gap-2 p-0">
               <TabsTrigger 
                 value="analytics" 
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 dark:border-orange-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+                style={{
+                  borderColor: secondaryColor,
+                }}
               >
                 <BarChart4 className="h-4 w-4" />
                 <span>Analytics</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="campaigns" 
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 dark:border-orange-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+                style={{
+                  borderColor: secondaryColor,
+                }}
               >
                 <TrendingUp className="h-4 w-4" />
                 <span>Campaigns</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="tools" 
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-orange-500 dark:border-orange-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 hover:bg-gray-50 dark:hover:bg-gray-800 data-[state=active]:hover:bg-purple-700"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+                style={{
+                  borderColor: secondaryColor,
+                }}
               >
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Tools</span>
@@ -704,7 +714,8 @@ export default function PromotionPage() {
                           <CardDescription>{tool.description}</CardDescription>
                           <Button 
                             onClick={() => handleOpenTool(tool)}
-                            className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
+                            className="w-full text-white" 
+                            style={{ backgroundColor: primaryColor }}
                             size="sm"
                           >
                             Open Tool
@@ -780,7 +791,8 @@ export default function PromotionPage() {
                           onClick={handleSendToolPrompt}
                           disabled={!toolPromptInput.trim()}
                           size="sm"
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          className="text-white"
+                          style={{ backgroundColor: primaryColor }}
                         >
                           <Send className="h-4 w-4" />
                         </Button>

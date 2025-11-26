@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState, useEffect, useRef } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import GridIcon from "./icons/grid-icon"
 import { Save, RotateCcw, X, ChevronUp, ChevronDown, ArrowRight, ArrowLeft, ChevronsRight, ChevronsLeft } from "lucide-react"
 
@@ -49,6 +50,7 @@ export default function TaskColumnSelector({
   className, 
   buttonTitle = "Select displayed columns" 
 }: Props) {
+  const { primaryColor } = useCustomColors();
   const [open, setOpen] = useState(false)
   // Ensure mandatory (non-editable) columns are always present in draft
   const [draft, setDraft] = useState<TaskColId[]>(() => {
@@ -321,7 +323,8 @@ export default function TaskColumnSelector({
                 <div className="font-semibold mb-2">Available Columns</div>
                 <div
                   ref={availableListRef}
-                  className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'available' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+                  className="w-full h-40 border rounded p-2 overflow-y-auto"
+                  style={focusedList === 'available' ? { borderColor: `${primaryColor}80`, boxShadow: `0 0 0 1px ${primaryColor}50` } : {}}
                   role="listbox"
                   tabIndex={focusedList === 'available' ? 0 : -1}
                   aria-label="Available columns"
@@ -330,7 +333,12 @@ export default function TaskColumnSelector({
                   {available.map((col, idx) => (
                     <label
                       key={col}
-                      className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'available' && focusedIndex === idx ? 'bg-purple-100 border border-purple-300' : 'hover:bg-gray-50'}`}
+                      className="flex items-center gap-2 py-1 cursor-pointer rounded px-2 hover:bg-gray-50"
+                      style={focusedList === 'available' && focusedIndex === idx ? {
+                        backgroundColor: `${primaryColor}20`,
+                        borderWidth: '1px',
+                        borderColor: `${primaryColor}80`
+                      } : {}}
                       onClick={() => { setFocusedList('available'); setFocusedIndex(idx); availableListRef.current?.focus(); }}
                     >
                       <input
@@ -345,7 +353,17 @@ export default function TaskColumnSelector({
               </div>
               <div className="flex flex-col justify-center gap-2">
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className="px-3 py-1 rounded flex items-center justify-center transition-colors"
+                  style={selectedAvailable.length === 0 ? {
+                    backgroundColor: '#f3f4f6',
+                    color: '#9ca3af',
+                    cursor: 'not-allowed'
+                  } : {
+                    backgroundColor: `${primaryColor}20`,
+                    color: primaryColor
+                  }}
+                  onMouseEnter={(e) => selectedAvailable.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
+                  onMouseLeave={(e) => selectedAvailable.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}20`)}
                   onClick={handleAdd}
                   disabled={selectedAvailable.length === 0}
                   title="Add Selected (→)"
@@ -353,7 +371,17 @@ export default function TaskColumnSelector({
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${available.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className="px-3 py-1 rounded flex items-center justify-center transition-colors"
+                  style={available.length === 0 ? {
+                    backgroundColor: '#f3f4f6',
+                    color: '#9ca3af',
+                    cursor: 'not-allowed'
+                  } : {
+                    backgroundColor: `${primaryColor}20`,
+                    color: primaryColor
+                  }}
+                  onMouseEnter={(e) => available.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
+                  onMouseLeave={(e) => available.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}20`)}
                   onClick={() => { 
                     const next = normalizeOrder([...draft, ...available.filter(c => !draft.includes(c))]);
                     setDraft(next);
@@ -366,7 +394,17 @@ export default function TaskColumnSelector({
                   <ChevronsRight className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className="px-3 py-1 rounded flex items-center justify-center transition-colors"
+                  style={selectedDisplayed.length === 0 ? {
+                    backgroundColor: '#f3f4f6',
+                    color: '#9ca3af',
+                    cursor: 'not-allowed'
+                  } : {
+                    backgroundColor: `${primaryColor}20`,
+                    color: primaryColor
+                  }}
+                  onMouseEnter={(e) => selectedDisplayed.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
+                  onMouseLeave={(e) => selectedDisplayed.length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}20`)}
                   onClick={handleRemove}
                   disabled={selectedDisplayed.length === 0}
                   title="Remove Selected (←)"
@@ -374,7 +412,17 @@ export default function TaskColumnSelector({
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className="px-3 py-1 rounded flex items-center justify-center transition-colors"
+                  style={draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? {
+                    backgroundColor: '#f3f4f6',
+                    color: '#9ca3af',
+                    cursor: 'not-allowed'
+                  } : {
+                    backgroundColor: `${primaryColor}20`,
+                    color: primaryColor
+                  }}
+                  onMouseEnter={(e) => draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}30`)}
+                  onMouseLeave={(e) => draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length > 0 && (e.currentTarget.style.backgroundColor = `${primaryColor}20`)}
                   onClick={() => { 
                     const next = normalizeOrder([...NON_EDITABLE_COLS]);
                     setDraft(next);
@@ -411,7 +459,8 @@ export default function TaskColumnSelector({
                 </div>
                 <div
                   ref={displayedListRef}
-                  className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'displayed' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+                  className="w-full h-40 border rounded p-2 overflow-y-auto"
+                  style={focusedList === 'displayed' ? { borderColor: `${primaryColor}80`, boxShadow: `0 0 0 1px ${primaryColor}50` } : {}}
                   role="listbox"
                   tabIndex={focusedList === 'displayed' ? 0 : -1}
                   aria-label="Displayed columns"
@@ -427,10 +476,13 @@ export default function TaskColumnSelector({
                         className={`flex items-center gap-2 py-1 rounded px-2 ${
                           mandatory 
                             ? 'opacity-70 cursor-not-allowed' 
-                            : isFocused 
-                            ? 'bg-purple-100 border border-purple-300 cursor-pointer' 
                             : 'cursor-pointer hover:bg-gray-50'
                         }`}
+                        style={!mandatory && isFocused ? {
+                          backgroundColor: `${primaryColor}20`,
+                          borderWidth: '1px',
+                          borderColor: `${primaryColor}80`
+                        } : {}}
                         onClick={() => {
                           if (!mandatory) {
                             setFocusedList('displayed');
@@ -460,7 +512,10 @@ export default function TaskColumnSelector({
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button
-                className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2"
+                className="px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+                style={{ backgroundColor: primaryColor }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                 onClick={save}
                 title="Save (Ctrl+S)"
                 aria-label="Save"

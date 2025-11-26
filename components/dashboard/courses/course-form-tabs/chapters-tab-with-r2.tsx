@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "@/hooks/dashboard/use-toast"
 import FileUploadComponent from "@/components/dashboard/ui/file-upload"
 import { Plus, X, Trash2, Paperclip, ArrowUp, ArrowDown, Upload, File } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface ChaptersTabProps {
   formData: any
@@ -19,6 +20,7 @@ export default function ChaptersTab({
   onFormChange,
   showDeleteConfirmation = () => {}
 }: ChaptersTabProps) {
+  const { primaryColor } = useCustomColors()
   
   // Validation functions
   const validateChapterName = (name: string) => {
@@ -106,7 +108,7 @@ export default function ChaptersTab({
           type="button"
           onClick={addChapter}
           size="sm"
-          className="bg-purple-600 hover:bg-purple-700 text-white"
+          style={{ backgroundColor: primaryColor, color: 'white' }}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Chapter
@@ -118,7 +120,7 @@ export default function ChaptersTab({
           <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-2">
-                <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded">
+                <span className="text-xs font-medium px-2 py-1 rounded" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                   Chapter {index + 1}
                 </span>
                 <div className="flex space-x-1">
@@ -316,7 +318,7 @@ export default function ChaptersTab({
       {chapters.length === 0 && (
         <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
           <p className="text-gray-500 dark:text-white mb-4">No chapters added yet</p>
-          <Button onClick={addChapter} className="bg-purple-600 hover:bg-purple-700 text-white">
+          <Button onClick={addChapter} style={{ backgroundColor: primaryColor, color: 'white' }}>
             <Plus className="h-4 w-4 mr-2" />
             Add First Chapter
           </Button>

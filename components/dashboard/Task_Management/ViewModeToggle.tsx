@@ -1,6 +1,7 @@
 import React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { CalendarIcon } from "./icons/calendar-icon"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface ViewModeToggleProps {
   viewMode: "grid" | "list"
@@ -18,6 +19,7 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
   setIsCalendarView,
   showCalendarOption = true,
 }) => {
+  const { primaryColor } = useCustomColors()
   const activeSegment = isCalendarView ? "calendar" : viewMode
 
   return (
@@ -30,9 +32,10 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
               type="button"
               className={`flex items-center justify-center w-9 h-9 transition-colors ${
                 activeSegment === "list"
-                  ? "bg-purple-500 text-white"
+                  ? "text-white"
                   : "bg-white text-black hover:bg-gray-100"
               } rounded-l-md focus:outline-none border-r`}
+              style={activeSegment === "list" ? { backgroundColor: primaryColor } : {}}
               aria-pressed={activeSegment === "list"}
               onClick={() => {
                 setIsCalendarView(false)
@@ -56,11 +59,12 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
               type="button"
               className={`flex items-center justify-center w-9 h-9 transition-colors ${
                 activeSegment === "grid"
-                  ? "bg-purple-500 text-white"
+                  ? "text-white"
                   : "bg-white text-black hover:bg-gray-100"
               } ${showCalendarOption ? "" : "rounded-r-md"} focus:outline-none ${
                 showCalendarOption ? "border-r" : ""
               }`}
+              style={activeSegment === "grid" ? { backgroundColor: primaryColor } : {}}
               aria-pressed={activeSegment === "grid"}
               onClick={() => {
                 setIsCalendarView(false)
@@ -86,9 +90,10 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
                 type="button"
                 className={`flex items-center justify-center w-9 h-9 transition-colors ${
                   activeSegment === "calendar"
-                    ? "bg-purple-500 text-white"
+                    ? "text-white"
                     : "bg-white text-black hover:bg-gray-100"
                 } rounded-r-md focus:outline-none`}
+                style={activeSegment === "calendar" ? { backgroundColor: primaryColor } : {}}
                 aria-pressed={activeSegment === "calendar"}
                 aria-label="Calendar view"
                 onClick={() => {

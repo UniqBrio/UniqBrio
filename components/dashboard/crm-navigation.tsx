@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useCRM } from "@/contexts/dashboard/crm-context"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import {
   LayoutDashboard,
   Users,
@@ -32,6 +33,7 @@ const navigation = [
 export function CRMNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { activeSection, setActiveSection } = useCRM()
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   return (
     <>
@@ -43,7 +45,12 @@ export function CRMNavigation() {
               <TabsTrigger
                 key={item.name}
                 value={item.section}
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-background transition-colors duration-150 font-semibold rounded-lg data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-background transition-colors duration-150 font-semibold rounded-lg focus:outline-none"
+                style={{
+                  borderColor: activeSection === item.section ? primaryColor : secondaryColor,
+                  color: activeSection === item.section ? 'white' : secondaryColor,
+                  backgroundColor: activeSection === item.section ? primaryColor : 'transparent'
+                }}
               >
                 <item.icon className="w-4 h-4" />
                 <span className="hidden lg:inline">{item.name}</span>

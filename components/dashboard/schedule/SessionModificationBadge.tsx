@@ -1,4 +1,5 @@
 import React from 'react'
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Clock, RefreshCw, XCircle, AlertTriangle } from "lucide-react"
 
@@ -19,6 +20,7 @@ const SessionModificationBadge: React.FC<SessionModificationBadgeProps> = ({
   className = "",
   variant = "default"
 }) => {
+  const { primaryColor } = useCustomColors()
   if (!modificationType) return null
 
   const getConfig = () => {
@@ -34,8 +36,14 @@ const SessionModificationBadge: React.FC<SessionModificationBadgeProps> = ({
         return {
           icon: RefreshCw,
           text: variant === "compact" ? "Instructor Changed" : "Instructor Reassigned",
-          colorClasses: "border-purple-400 text-purple-700 bg-purple-50 hover:bg-purple-100",
-          dotColor: "bg-purple-500"
+          colorClasses: "",
+          dotColor: "",
+          dynamicStyles: {
+            borderColor: primaryColor,
+            color: primaryColor,
+            backgroundColor: `${primaryColor}15`
+          },
+          dynamicDotStyle: { backgroundColor: primaryColor }
         }
       case "cancelled":
         return {
@@ -85,20 +93,32 @@ const SessionModificationBadge: React.FC<SessionModificationBadgeProps> = ({
 
   if (variant === "detailed") {
     return (
-      <div className={`inline-flex items-center gap-2 rounded-lg border-2 ${config.colorClasses} ${getSizeClasses()} ${className}`}>
+      <div 
+        className={`inline-flex items-center gap-2 rounded-lg border-2 ${config.colorClasses || ''} ${getSizeClasses()} ${className}`}
+        style={config.dynamicStyles || {}}
+      >
         <div className="flex items-center gap-2">
           {showIcon && <IconComponent className={getIconSize()} />}
           {showText && <span className="font-medium">{config.text}</span>}
         </div>
-        <div className={`w-2 h-2 rounded-full ${config.dotColor} animate-pulse`}></div>
+        <div 
+          className={`w-2 h-2 rounded-full ${config.dotColor || ''} animate-pulse`}
+          style={config.dynamicDotStyle || {}}
+        ></div>
       </div>
     )
   }
 
   if (variant === "compact") {
     return (
-      <div className={`inline-flex items-center gap-1 rounded-full ${config.colorClasses} ${getSizeClasses()} ${className}`}>
-        <div className={`w-1.5 h-1.5 rounded-full ${config.dotColor}`}></div>
+      <div 
+        className={`inline-flex items-center gap-1 rounded-full ${config.colorClasses || ''} ${getSizeClasses()} ${className}`}
+        style={config.dynamicStyles || {}}
+      >
+        <div 
+          className={`w-1.5 h-1.5 rounded-full ${config.dotColor || ''}`}
+          style={config.dynamicDotStyle || {}}
+        ></div>
         {showText && <span className="font-medium text-xs">Modified</span>}
       </div>
     )
@@ -108,7 +128,8 @@ const SessionModificationBadge: React.FC<SessionModificationBadgeProps> = ({
   return (
     <Badge 
       variant="outline" 
-      className={`border-2 ${config.colorClasses} ${getSizeClasses()} ${className}`}
+      className={`border-2 ${config.colorClasses || ''} ${getSizeClasses()} ${className}`}
+      style={config.dynamicStyles || {}}
       title={`This session has been ${modificationType?.replace('_', ' ')}`}
     >
       {showIcon && <IconComponent className={`${getIconSize()} mr-1`} />}

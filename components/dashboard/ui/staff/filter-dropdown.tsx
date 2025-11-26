@@ -7,6 +7,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
 import { ChevronDown, Search } from "lucide-react"
 import { cn } from "@/lib/dashboard/staff/utils"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface FilterOption {
   value: string
@@ -35,6 +36,7 @@ export function FilterDropdown({
   title = "Filter Options",
   showTitle = true
 }: FilterDropdownProps) {
+  const { primaryColor } = useCustomColors()
   const [pending, setPending] = useState<string[]>(value)
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -146,7 +148,6 @@ export function FilterDropdown({
                     checked={isChecked}
                     onCheckedChange={() => toggle()}
                     onClick={(e) => e.stopPropagation()}
-                    className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                   />
                   <span className="text-sm flex-1">{option.label || option.value}</span>
                 </DropdownMenuItem>

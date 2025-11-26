@@ -1,5 +1,6 @@
 "use client"
 
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Button } from "@/components/dashboard/ui/button"
 import { Plus, Upload, Download } from "lucide-react"
 
@@ -10,10 +11,11 @@ interface ServicesHeaderProps {
 }
 
 export default function ServicesHeader({ onAddService, onImport, onExport }: ServicesHeaderProps) {
+  const { primaryColor } = useCustomColors();
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h1 className="text-3xl font-bold text-purple-700">Services</h1>
+        <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>Services</h1>
         <p className="text-gray-500 dark:text-white">Manage your arts and sports classes</p>
       </div>
       <div className="flex flex-wrap gap-2">

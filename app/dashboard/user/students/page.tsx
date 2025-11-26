@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useCustomColors } from "@/lib/use-custom-colors";
 ;
 import { StudentAnalytics } from "@/components/dashboard/student/students/student-analytics";
 import { StudentList } from "@/components/dashboard/student/students/student-list";
@@ -45,6 +46,7 @@ type StudentNumberingStrategy = 'sequential' | 'uuid'
 
 export default function StudentsPage() {
   const { toast } = useToast();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<string>('name');
@@ -664,48 +666,47 @@ export default function StudentsPage() {
           {/* Navigation Tabs */}
           <Tabs defaultValue="dashboard" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-4 sm:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
-              <TabsTrigger 
-                value="dashboard" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
-              >
-                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="students" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
-              >
-                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                Students
-              </TabsTrigger>
-              <TabsTrigger 
-                value="student-attendance" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
-              >
-                <ClipboardList className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden lg:inline">Attendance</span><span className="lg:hidden">Attend</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="student-leaves" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
-              >
-                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                Leaves
-              </TabsTrigger>
-              <TabsTrigger 
-                value="settings" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
-              >
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden lg:inline">Settings</span><span className="lg:hidden">Config</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="achievements" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium text-xs sm:text-sm responsive-text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-700"
-              >
-                <Trophy className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="inline-flex items-center gap-1"><span className="hidden lg:inline">Achievements</span><span className="lg:hidden">Awards</span> <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></span>
-              </TabsTrigger>
+              {[
+                { value: 'dashboard', icon: LayoutDashboard, label: 'Analytics', shortLabel: 'Stats' },
+                { value: 'students', icon: Users, label: 'Students', shortLabel: 'Students' },
+                { value: 'student-attendance', icon: ClipboardList, label: 'Attendance', shortLabel: 'Attend' },
+                { value: 'student-leaves', icon: Calendar, label: 'Leaves', shortLabel: 'Leaves' },
+                { value: 'settings', icon: Settings, label: 'Settings', shortLabel: 'Config' },
+                { value: 'achievements', icon: Trophy, label: 'Achievements', shortLabel: 'Awards', badge: true },
+              ].map((tab) => (
+                <TabsTrigger 
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors"
+                  style={{
+                    borderColor: secondaryColor,
+                    color: secondaryColor,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
+                      e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                  data-active-style={{
+                    backgroundColor: primaryColor,
+                    color: 'white',
+                    borderColor: primaryColor
+                  }}
+                >
+                  <tab.icon className="h-3 w-3 sm:h-4 sm:w-4" />
+                  {tab.label !== tab.shortLabel ? (
+                    <><span className="hidden lg:inline">{tab.label}</span><span className="lg:hidden">{tab.shortLabel}</span></>
+                  ) : (
+                    <span>{tab.label}</span>
+                  )}
+                  {tab.badge && <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1" />}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
             {/* Dashboard Tab Content */}
@@ -912,7 +913,7 @@ export default function StudentsPage() {
         <Dialog open={showPaymentPrompt} onOpenChange={setShowPaymentPrompt}>
           <DialogContent className="max-w-md top-24 sm:top-28 translate-y-0">
             <DialogHeader>
-              <DialogTitle className="text-lg font-semibold text-purple-700">Student Added</DialogTitle>
+              <DialogTitle className="text-lg font-semibold" style={{ color: primaryColor }}>Student Added</DialogTitle>
               <DialogDescription>
                 {lastAddedStudent ? (
                   <span>

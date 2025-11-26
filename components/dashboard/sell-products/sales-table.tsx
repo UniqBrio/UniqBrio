@@ -28,6 +28,7 @@ import { ColumnSelectorModal } from "./column-selector"
 import { SalesFilterDropdown } from "./sales-filter-dropdown"
 import { GridListToggle } from "@/components/dashboard/GridListToggle"
 import GridIcon from "@/components/dashboard/icons/grid"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface Sale {
   id: string
@@ -62,6 +63,7 @@ const formatDate = (dateString: string) => {
 
 export function SalesTable({ sales }: SalesTableProps) {
   const { currency } = useCurrency();
+  const { primaryColor } = useCustomColors();
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSales, setSelectedSales] = useState<Set<string>>(new Set())
   const [filters, setFilters] = useState<FilterState>({
@@ -198,7 +200,7 @@ export function SalesTable({ sales }: SalesTableProps) {
     <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
       <div className="p-6">
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-purple-700">Recent Sales & Invoices</h2>
+          <h2 className="text-xl font-bold" style={{ color: primaryColor }}>Recent Sales & Invoices</h2>
         </div>
 
         {/* Search and Filters */}
@@ -251,7 +253,8 @@ export function SalesTable({ sales }: SalesTableProps) {
                   <DropdownMenuItem
                     key={option.value}
                     onClick={() => setSortBy(option.value)}
-                    className={sortBy === option.value ? "bg-purple-50" : ""}
+                    className={sortBy === option.value ? "" : ""}
+                    style={sortBy === option.value ? { backgroundColor: `${primaryColor}10` } : undefined}
                   >
                     {option.label}
                   </DropdownMenuItem>
@@ -291,14 +294,15 @@ export function SalesTable({ sales }: SalesTableProps) {
 
         {/* Results Summary with Column Selector */}
         <div className="text-sm mb-2 flex items-center justify-between w-full">
-          <div className="flex items-center gap-2 text-[#7C3AED]">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#7C3AED] opacity-80" aria-hidden="true" />
+          <div className="flex items-center gap-2" style={{ color: primaryColor }}>
+            <span className="inline-block w-2.5 h-2.5 rounded-full opacity-80" style={{ backgroundColor: primaryColor }} aria-hidden="true" />
             <span>
               Showing <span className="font-semibold">{sortedSales.length}</span> of <span className="font-semibold">{sales.length}</span> sales
             </span>
           </div>
           <span
-            className="ml-2 px-2 py-1 bg-purple-100 rounded border border-purple-300 flex items-center justify-center cursor-pointer"
+            className="ml-2 px-2 py-1 rounded border flex items-center justify-center cursor-pointer"
+            style={{ backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}4D` }}
             onClick={() => setColumnSelectorOpen(true)}
             title="Select displayed columns"
           >
@@ -404,11 +408,12 @@ export function SalesTable({ sales }: SalesTableProps) {
                       <TableCell className="text-gray-700 dark:text-white">{formatDate(sale.date)}</TableCell>
                     )}
                     {isVisible("amount") && (
-                      <TableCell className="font-bold text-purple-600">{currency} {sale.finalAmount}</TableCell>
+                      <TableCell className="font-bold" style={{ color: primaryColor }}>{currency} {sale.finalAmount}</TableCell>
                     )}
                     {isVisible("paymentMethod") && (
                       <TableCell>
-                        <Badge variant="outline" className="border-purple-300 text-purple-600">
+                        <Badge variant="outline" className=""
+                          style={{ borderColor: `${primaryColor}4D`, color: primaryColor }}>
                           {sale.paymentMethod}
                         </Badge>
                       </TableCell>

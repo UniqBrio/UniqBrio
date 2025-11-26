@@ -6,6 +6,7 @@ import { Progress } from "@/components/dashboard/ui/progress"
 import { Button } from "@/components/dashboard/ui/button"
 import { Skeleton } from "@/components/dashboard/ui/skeleton"
 import { Clock, Users, BookOpen, TrendingUp, Award, AlertTriangle, Calendar, Star, Target, Trophy } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors";
 import {
   ResponsiveContainer,
   BarChart,
@@ -29,6 +30,7 @@ import { useDashboardStats } from "@/hooks/dashboard/staff/use-dashboard-stats"
 
 
 export default function InstructorDashboard() {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Get real instructor data
   const { instructors, loading: instructorsLoading } = useInstructors();
   
@@ -94,13 +96,13 @@ export default function InstructorDashboard() {
             </Card>
             
             {/* Total Students */}
-            <Card className="bg-purple-50 border border-purple-500">
+            <Card className="border" style={{ backgroundColor: `${primaryColor}20`, borderColor: primaryColor }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-md font-semibold text-purple-700">Total Students</CardTitle>
-                <Users className="h-5 w-5 text-purple-600" />
+                <CardTitle className="text-md font-semibold" style={{ color: `${primaryColor}dd` }}>Total Students</CardTitle>
+                <Users className="h-5 w-5" style={{ color: primaryColor }} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold text-purple-800">
+                <div className="text-3xl font-extrabold" style={{ color: primaryColor }}>
                   {statsLoading ? (
                     <Skeleton className="h-8 w-12" />
                   ) : statsError ? (
@@ -109,7 +111,7 @@ export default function InstructorDashboard() {
                     stats.totalStudents
                   )}
                 </div>
-                <p className="text-sm text-purple-700">Enrolled students</p>
+                <p className="text-sm" style={{ color: `${primaryColor}dd` }}>Enrolled students</p>
               </CardContent>
             </Card>
           </div>
@@ -239,9 +241,9 @@ export default function InstructorDashboard() {
           {/* Disabled state to match Attendance tab (banner removed as requested) */}
           <div className="opacity-50 pointer-events-none select-none">
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: `${secondaryColor}15` }}>
                 <div className="flex items-center gap-3">
-                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  <AlertTriangle className="h-4 w-4" style={{ color: secondaryColor }} />
                   <div>
                     <p className="font-medium">Low Attendance Alert</p>
                     <p className="text-sm text-gray-600 dark:text-white">Class 10-A Math has 65% attendance this week</p>
@@ -315,7 +317,7 @@ export default function InstructorDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-purple-500" />
+              <Award className="h-5 w-5" style={{ color: primaryColor }} />
               Recognition Badges {" "}
                       
 
@@ -343,14 +345,14 @@ export default function InstructorDashboard() {
                   <p className="text-xs font-medium">Mentor</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <BookOpen className="h-6 w-6 text-purple-600" />
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: `${primaryColor}20` }}>
+                    <BookOpen className="h-6 w-6" style={{ color: primaryColor }} />
                   </div>
                   <p className="text-xs font-medium">Innovator</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <TrendingUp className="h-6 w-6 text-orange-600" />
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: `${secondaryColor}20` }}>
+                    <TrendingUp className="h-6 w-6" style={{ color: secondaryColor }} />
                   </div>
                   <p className="text-xs font-medium">Growth</p>
                 </div>

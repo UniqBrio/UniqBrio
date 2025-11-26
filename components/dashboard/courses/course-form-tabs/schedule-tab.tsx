@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { format } from "date-fns"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
@@ -29,6 +30,7 @@ export default function ScheduleTab({
   onFormChange,
   showDeleteConfirmation = () => {}
 }: ScheduleTabProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [reminderTypeSearch, setReminderTypeSearch] = useState('');
   const defaultReminderTypes = ['class', 'exam', 'assignment', 'workshop'];
   
@@ -114,11 +116,25 @@ export default function ScheduleTab({
                 onChange={e => updateSchedulePeriod('startDate', e.target.value)}
                 onFocus={() => setStartDateFocused(true)}
                 onBlur={() => setStartDateFocused(false)}
-                className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${
+                className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent ${
                   !formData.schedulePeriod?.startDate 
                     ? 'border-red-300 bg-red-50' 
                     : 'border-gray-300'
                 } ${startDateFocused || !formData.schedulePeriod?.startDate ? '' : 'text-transparent'}`}
+                style={!formData.schedulePeriod?.startDate ? undefined : { borderColor: '#d1d5db' }}
+                onFocusCapture={(e) => {
+                  if (formData.schedulePeriod?.startDate) {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+                  }
+                }}
+                onBlurCapture={(e) => {
+                  if (formData.schedulePeriod?.startDate) {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
+                  setStartDateFocused(false);
+                }}
                 required
               />
               {!startDateFocused && formData.schedulePeriod?.startDate && (
@@ -142,11 +158,25 @@ export default function ScheduleTab({
                     onChange={e => updateSchedulePeriod('endDate', e.target.value)}
                     onFocus={() => setEndDateFocused(true)}
                     onBlur={() => setEndDateFocused(false)}
-                    className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${
+                    className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent ${
                       !formData.schedulePeriod?.endDate 
                         ? 'border-red-300 bg-red-50' 
                         : 'border-gray-300'
                     } ${endDateFocused || !formData.schedulePeriod?.endDate ? '' : 'text-transparent'}`}
+                    style={!formData.schedulePeriod?.endDate ? undefined : { borderColor: '#d1d5db' }}
+                    onFocusCapture={(e) => {
+                      if (formData.schedulePeriod?.endDate) {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
+                      }
+                    }}
+                    onBlurCapture={(e) => {
+                      if (formData.schedulePeriod?.endDate) {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
+                      setEndDateFocused(false);
+                    }}
                     required
                   />
                   {!endDateFocused && formData.schedulePeriod?.endDate && (
@@ -239,7 +269,15 @@ export default function ScheduleTab({
                   updateSessionDetails('sessionDuration', numValue.toString());
                 }
               }} 
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent" 
+              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:border-transparent" 
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = primaryColor;
+                e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '';
+                e.currentTarget.style.boxShadow = '';
+              }}
             />
           </div>
           <div>
@@ -270,7 +308,15 @@ export default function ScheduleTab({
                   updateSessionDetails('maxClasses', numValue.toString());
                 }
               }} 
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent" 
+              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:border-transparent" 
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = primaryColor;
+                e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '';
+                e.currentTarget.style.boxShadow = '';
+              }}
             />
           </div>
         </div>
@@ -390,7 +436,15 @@ export default function ScheduleTab({
                           );
                           updateFrequencies(updated);
                         }}
-                        className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                        className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = primaryColor;
+                          e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = '';
+                          e.currentTarget.style.boxShadow = '';
+                        }}
                       />
                       {freq.start && freq.end && !validateTimeRange(freq.start, freq.end) && (
                         <p className="text-red-500 text-xs">End time must be after start time</p>
@@ -434,7 +488,15 @@ export default function ScheduleTab({
                           updateFrequencies(updated);
                         }
                       }}
-                      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                        e.currentTarget.style.boxShadow = '';
+                      }}
                     />
                   </div>
                 </div>
@@ -546,7 +608,15 @@ export default function ScheduleTab({
                         updateReminderSettings('customSchedule', updated);
                       }}
                       placeholder="Reminder type"
-                      className="w-32 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                      className="w-32 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                        e.currentTarget.style.boxShadow = '';
+                      }}
                     />
                 )}
                 <Input
@@ -582,7 +652,15 @@ export default function ScheduleTab({
                     }
                   }}
                   placeholder="Days before"
-                  className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                  className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
                 />
                 <Input
                   type="number"
@@ -617,7 +695,15 @@ export default function ScheduleTab({
                     }
                   }}
                   placeholder="Hours before"
-                  className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                  className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
                 />
                 <Switch
                   checked={reminder.enabled}

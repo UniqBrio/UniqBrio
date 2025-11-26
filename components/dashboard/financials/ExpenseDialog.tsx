@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
 import { useCurrency } from "@/contexts/currency-context"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog"
@@ -29,6 +30,7 @@ interface ExpenseDialogProps {
 }
 
 export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode = 'add', onSave, draftId = null, onDraftSave }: ExpenseDialogProps) {
+  const { primaryColor } = useCustomColors();
   const { toast } = useToast();
   const { currency } = useCurrency();
   // Vendor Type search/add state
@@ -524,7 +526,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                             </DropdownMenuItem>
                           ))}
                         {expenseCategorySearchTerm && !((options.expenseCategories || []).find((cat: string) => cat.toLowerCase() === expenseCategorySearchTerm.toLowerCase())) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]" onSelect={async () => { const newVal = expenseCategorySearchTerm; setExpenseCategorySearchTerm(''); handleExpenseChange('expenseCategory', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'expenseCategories', value: newVal }) }); setOptions(prev => ({ ...prev, expenseCategories: Array.from(new Set([...(prev.expenseCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = expenseCategorySearchTerm; setExpenseCategorySearchTerm(''); handleExpenseChange('expenseCategory', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'expenseCategories', value: newVal }) }); setOptions(prev => ({ ...prev, expenseCategories: Array.from(new Set([...(prev.expenseCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
                             Add "{expenseCategorySearchTerm}" as new category
                           </DropdownMenuItem>
                         )}
@@ -567,7 +569,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                             </DropdownMenuItem>
                           ))}
                         {vendorNameSearchTerm && !((options.vendorNames || []) as string[]).find((vendor: string) => vendor.toLowerCase() === vendorNameSearchTerm.toLowerCase()) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]" onSelect={async () => { const newVal = vendorNameSearchTerm; setVendorNameSearchTerm(''); handleExpenseChange('vendorName', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorNames', value: newVal }) }); setOptions(prev => ({ ...prev, vendorNames: Array.from(new Set([...(prev.vendorNames || []), newVal])) })); } catch (e) { console.error('Failed to persist new vendor', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = vendorNameSearchTerm; setVendorNameSearchTerm(''); handleExpenseChange('vendorName', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorNames', value: newVal }) }); setOptions(prev => ({ ...prev, vendorNames: Array.from(new Set([...(prev.vendorNames || []), newVal])) })); } catch (e) { console.error('Failed to persist new vendor', e); } }}>
                             Add "{vendorNameSearchTerm}" as new vendor
                           </DropdownMenuItem>
                         )}
@@ -610,7 +612,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                             </DropdownMenuItem>
                           ))}
                         {vendorTypeSearchTerm && !((options.vendorTypes || []) as string[]).find((type: string) => type.toLowerCase() === vendorTypeSearchTerm.toLowerCase()) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]" onSelect={async () => { const newVal = vendorTypeSearchTerm; setVendorTypeSearchTerm(''); handleExpenseChange('vendorType', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorTypes', value: newVal }) }); setOptions(prev => ({ ...prev, vendorTypes: Array.from(new Set([...(prev.vendorTypes || []), newVal])) })); } catch (e) { console.error('Failed to persist new type', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = vendorTypeSearchTerm; setVendorTypeSearchTerm(''); handleExpenseChange('vendorType', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorTypes', value: newVal }) }); setOptions(prev => ({ ...prev, vendorTypes: Array.from(new Set([...(prev.vendorTypes || []), newVal])) })); } catch (e) { console.error('Failed to persist new type', e); } }}>
                             Add "{vendorTypeSearchTerm}" as new type
                           </DropdownMenuItem>
                         )}
@@ -739,7 +741,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                       onClick={handleSaveDraft}
                       disabled={!isDirty || savingDraft}
                       title={!isDirty ? 'No changes to save' : undefined}
-                      className="h-10 px-4 bg-purple-600 text-white hover:bg-purple-600 hover:text-white border-0"
+                      style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
                       tabIndex={12}
                     >
                       <FileText className="h-4 w-4 mr-2" />
@@ -751,7 +753,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                           <Button
                             type="submit"
                             disabled={!isRequiredFieldsFilled || hasFieldErrors || !isDirty}
-                            className="h-10 px-6 bg-purple-600 text-white hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} className="h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                             tabIndex={13}
                           >
                             Add Expense
@@ -778,7 +780,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                       onClick={handleSaveDraft}
                       disabled={!isDirty || savingDraft}
                       title={!isDirty ? 'No changes to save as draft' : undefined}
-                      className="h-10 px-4 bg-purple-600 text-white hover:bg-purple-600 hover:text-white border-0"
+                      style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
                       tabIndex={13}
                     >
                       <FileText className="h-4 w-4 mr-2" />
@@ -790,7 +792,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                           <Button
                             type="submit"
                             disabled={!isRequiredFieldsFilled || hasFieldErrors || !isDirty}
-                            className="h-10 px-6 bg-purple-600 text-white hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} className="h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                             tabIndex={13}
                           >
                             {initialExpense ? 'Save Changes' : 'Add Expense'}
@@ -834,7 +836,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                 setShowUnsavedAlert(false);
                 await handleSaveDraft();
               }}
-              className="h-10 px-4 bg-purple-600 text-white border-0"
+              style={{ backgroundColor: primaryColor, color: 'white' }} className="h-10 px-4 border-0"
             >
               <FileText className="h-4 w-4 mr-2" />
               Save as Draft

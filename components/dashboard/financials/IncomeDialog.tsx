@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
 import { useCurrency } from "@/contexts/currency-context"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter as AlertFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription as AlertDescription } from "@/components/dashboard/ui/alert-dialog" // alias footer/description to avoid name clash
@@ -29,6 +30,7 @@ interface IncomeDialogProps {
 }
 
 export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 'add', onSave, draftId = null, onDraftSave }: IncomeDialogProps) {
+  const { primaryColor } = useCustomColors();
   const { toast } = useToast();
   const { currency } = useCurrency();
   const [incomeFormError, setIncomeFormError] = useState("");
@@ -425,7 +427,10 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     type="number" 
                     min="0.01" 
                     step="any" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
+                    style={{ '--focus-ring-color': primaryColor } as any}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }}
                     value={incomeForm.amount} 
                     onChange={e => handleIncomeChange('amount', e.target.value)} 
                     onKeyDown={e => { if (e.key === '-' || e.key === '+' || e.key === 'e') { e.preventDefault(); } }} 
@@ -441,7 +446,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="w-full h-10 text-left justify-between border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                        className="w-full h-10 text-left justify-between border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                         tabIndex={3}
                         onKeyDown={(e) => {
                           if (e.altKey && e.key === 'ArrowDown') {
@@ -456,7 +461,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new category..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value={categorySearchTerm} onChange={e => setCategorySearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input placeholder="Search or type new category..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 custom-focus-ring" value={categorySearchTerm} onChange={e => setCategorySearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto">
                         {(options.incomeCategories || [])
@@ -467,7 +472,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                             </DropdownMenuItem>
                           ))}
                         {categorySearchTerm && !((options.incomeCategories || []).find((cat: string) => cat.toLowerCase() === categorySearchTerm.toLowerCase())) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]" onSelect={async () => { const newVal = categorySearchTerm; handleIncomeChange('incomeCategory', newVal); setCategorySearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeCategories', value: newVal }) }); setOptions(prev => ({ ...prev, incomeCategories: Array.from(new Set([...(prev.incomeCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 add-new-item text-[15px]" onSelect={async () => { const newVal = categorySearchTerm; handleIncomeChange('incomeCategory', newVal); setCategorySearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeCategories', value: newVal }) }); setOptions(prev => ({ ...prev, incomeCategories: Array.from(new Set([...(prev.incomeCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
                             Add "{categorySearchTerm}" as new category
                           </DropdownMenuItem>
                         )}
@@ -481,7 +486,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="w-full h-10 text-left justify-between border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                        className="w-full h-10 text-left justify-between border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                         tabIndex={4}
                         onKeyDown={(e) => {
                           if (e.altKey && e.key === 'ArrowDown') {
@@ -496,7 +501,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new source..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value={sourceSearchTerm} onChange={e => setSourceSearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input placeholder="Search or type new source..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 custom-focus-ring" value={sourceSearchTerm} onChange={e => setSourceSearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto">
                         {(options.incomeSources || [])
@@ -507,7 +512,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                             </DropdownMenuItem>
                           ))}
                         {sourceSearchTerm && !((options.incomeSources || []) as string[]).find((source: string) => source.toLowerCase() === sourceSearchTerm.toLowerCase()) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]" onSelect={async () => { const newVal = sourceSearchTerm; handleIncomeChange('sourceType', newVal); setSourceSearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeSources', value: newVal }) }); setOptions(prev => ({ ...prev, incomeSources: Array.from(new Set([...(prev.incomeSources || []), newVal])) })); } catch (e) { console.error('Failed to persist new source', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 add-new-item text-[15px]" onSelect={async () => { const newVal = sourceSearchTerm; handleIncomeChange('sourceType', newVal); setSourceSearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeSources', value: newVal }) }); setOptions(prev => ({ ...prev, incomeSources: Array.from(new Set([...(prev.incomeSources || []), newVal])) })); } catch (e) { console.error('Failed to persist new source', e); } }}>
                             Add "{sourceSearchTerm}" as new source
                           </DropdownMenuItem>
                         )}
@@ -518,7 +523,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Payment Mode</Label>
                   <Select value={incomeForm.paymentMode} onValueChange={v => handleIncomeChange('paymentMode', v)}>
-                    <SelectTrigger className="w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" tabIndex={5}>
+                    <SelectTrigger className="w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" tabIndex={5}>
                       <SelectValue placeholder="Select mode" />
                     </SelectTrigger>
                     <SelectContent>
@@ -536,7 +541,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     required={incomeForm.paymentMode?.toLowerCase() !== 'cash'}
                     disabled={incomeForm.paymentMode?.toLowerCase() === 'cash'}
                   >
-                    <SelectTrigger className={`w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'opacity-50 cursor-not-allowed' : ''}`} tabIndex={6}>
+                    <SelectTrigger className={`w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent ${incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'opacity-50 cursor-not-allowed' : ''}`} tabIndex={6}>
                       <SelectValue placeholder={incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : 'Select account'} />
                     </SelectTrigger>
                     <SelectContent>
@@ -555,7 +560,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Received By</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                     value={incomeForm.receivedBy} 
                     onChange={e => handleIncomeChange('receivedBy', e.target.value)} 
                     placeholder="Enter receiver's name" 
@@ -566,7 +571,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Received From</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                     value={incomeForm.receivedFrom} 
                     onChange={e => handleIncomeChange('receivedFrom', e.target.value)} 
                     placeholder="Enter sender's name" 
@@ -577,7 +582,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Receipt / Transaction Number</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                     value={incomeForm.receiptNumber} 
                     onChange={e => handleIncomeChange('receiptNumber', e.target.value)} 
                     placeholder="Enter receipt or transaction number" 
@@ -589,7 +594,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700 dark:text-white">Description</Label>
                 <textarea 
-                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y" 
+                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y" 
                   value={incomeForm.description} 
                   onChange={e => handleIncomeChange('description', e.target.value)} 
                   placeholder="Enter description or notes about this income"
@@ -600,7 +605,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 <Label className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
                 <input 
                   type="file" 
-                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
+                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent cursor-pointer" 
  
                   accept=".pdf,.png,.jpg,.jpeg" 
                   onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleIncomeChange('attachments', file); }} 
@@ -624,7 +629,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                       onClick={handleSaveDraft}
                       disabled={!isDirty || savingDraft}
                       title={!isDirty ? 'No changes to save' : undefined}
-                      className="h-10 px-4 bg-purple-600 text-white hover:bg-purple-600 hover:text-white border-0"
+                      style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
                       tabIndex={12}
                     >
                       <FileText className="h-4 w-4 mr-2" />
@@ -636,7 +641,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                           <Button 
                             type="submit" 
                             disabled={!isRequiredFieldsFilled || hasFieldErrors || !isDirty} 
-                            className="h-10 px-6 bg-purple-600 text-white hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} className="h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                             tabIndex={13}
                           >
                             Add Income
@@ -663,7 +668,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                           <Button 
                             type="submit" 
                             disabled={!isRequiredFieldsFilled || hasFieldErrors || !isDirty} 
-                            className="h-10 px-6 bg-purple-600 text-white hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = primaryColor)} className="h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                             tabIndex={12}
                           >
                             {initialIncome ? 'Save Changes' : 'Add Income'}
@@ -687,7 +692,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                       onClick={handleSaveDraft}
                       disabled={!isDirty || savingDraft}
                       title={!isDirty ? 'No changes to save as draft' : undefined}
-                      className="h-10 px-4 bg-purple-600 text-white hover:bg-purple-600 hover:text-white border-0"
+                      style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
                       tabIndex={13}
                     >
                       <FileText className="h-4 w-4 mr-2" />
@@ -729,7 +734,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 setShowUnsavedAlert(false);
                 await handleSaveDraft();
               }}
-              className="h-10 px-4 bg-purple-600 text-white hover:bg-purple-600 hover:text-white border-0"
+              style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
             >
               <FileText className="h-4 w-4 mr-2" />
               Save as Draft
@@ -774,3 +779,4 @@ function Detail({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

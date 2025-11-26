@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
@@ -69,6 +70,7 @@ interface RecentActivity {
 
 export default function UserManagementPage() {
   const router = useRouter()
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [userStats, setUserStats] = useState<UserStats>({
     students: { total: 0, active: 0, enrolled: 0, onLeave: 0 },
     staff: { total: 0, instructors: 0, nonInstructors: 0, onLeave: 0, instructorsOnLeave: 0, nonInstructorsOnLeave: 0 },
@@ -282,7 +284,7 @@ export default function UserManagementPage() {
           {/* Header */}
           <div className="flex flex-col items-start gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
+              <h1 className="text-3xl font-bold flex items-center gap-2" style={{ color: primaryColor }}>
                 <Users className="h-8 w-8" />
                 User Management
               </h1>
@@ -294,46 +296,55 @@ export default function UserManagementPage() {
 
           {/* Stats Overview - Matching Services & Staff Page Theme */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300">
+            <Card className="bg-gradient-to-br border" style={{ 
+              backgroundImage: `linear-gradient(to bottom right, ${primaryColor}15, ${primaryColor}25)`,
+              borderColor: `${primaryColor}50`
+            }}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-purple-600">Total Users</p>
-                    <p className="text-2xl font-bold text-purple-800">{totalUsers}</p>
+                    <p className="text-sm font-medium" style={{ color: primaryColor }}>Total Users</p>
+                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>{totalUsers}</p>
                   </div>
-                  <Users className="h-8 w-8 text-purple-500" />
+                  <Users className="h-8 w-8" style={{ color: primaryColor }} />
                 </div>
-                <p className="text-xs text-purple-600 mt-1">
+                <p className="text-xs mt-1" style={{ color: primaryColor }}>
                   students & staff
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300">
+            <Card className="bg-gradient-to-br border" style={{ 
+              backgroundImage: `linear-gradient(to bottom right, ${primaryColor}15, ${primaryColor}25)`,
+              borderColor: `${primaryColor}50`
+            }}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-purple-600">Students</p>
-                    <p className="text-2xl font-bold text-purple-800">{userStats.students.total}</p>
+                    <p className="text-sm font-medium" style={{ color: primaryColor }}>Students</p>
+                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>{userStats.students.total}</p>
                   </div>
-                  <GraduationCap className="h-8 w-8 text-purple-500" />
+                  <GraduationCap className="h-8 w-8" style={{ color: primaryColor }} />
                 </div>
-                <p className="text-xs text-purple-600 mt-1">
+                <p className="text-xs mt-1" style={{ color: primaryColor }}>
                   total students
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300">
+            <Card className="bg-gradient-to-br border" style={{ 
+              backgroundImage: `linear-gradient(to bottom right, ${secondaryColor}15, ${secondaryColor}25)`,
+              borderColor: `${secondaryColor}50`
+            }}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-orange-600">Staff</p>
-                    <p className="text-2xl font-bold text-orange-800">{userStats.staff.total}</p>
+                    <p className="text-sm font-medium" style={{ color: secondaryColor }}>Staff</p>
+                    <p className="text-2xl font-bold" style={{ color: secondaryColor }}>{userStats.staff.total}</p>
                   </div>
-                  <UserCog className="h-8 w-8 text-orange-500" />
+                  <UserCog className="h-8 w-8" style={{ color: secondaryColor }} />
                 </div>
-                <p className="text-xs text-orange-600 mt-1">
+                <p className="text-xs mt-1" style={{ color: secondaryColor }}>
                   {userStats.staff.instructors} instructors
                 </p>
               </CardContent>
@@ -374,14 +385,21 @@ export default function UserManagementPage() {
             <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
               <TabsTrigger
                 value="analytics"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor
+                }}
               >
                 <BarChart3 className="h-4 w-4" />
                 Analytics
               </TabsTrigger>
               <TabsTrigger
                 value="user-areas"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-purple-500 text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-purple-600 data-[state=inactive]:hover:bg-orange-50"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent text-white font-medium"
+                style={{
+                  backgroundColor: primaryColor
+                }}
               >
                 <Users className="h-4 w-4" />
                 User Areas
@@ -391,10 +409,10 @@ export default function UserManagementPage() {
             <TabsContent value="user-areas" className="space-y-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {/* Students Management */}
-                <Card className="border-purple-300 bg-gradient-to-br from-purple-50 to-purple-150 dark:from-purple-950/20 dark:to-purple-900/20 dark:border-purple-700">
-                  <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
-                      <GraduationCap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <Card className="bg-gradient-to-br dark:border-gray-700" style={{ backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${primaryColor}25)`, borderColor: `${primaryColor}50` }}>
+                  <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${primaryColor}30` }}>
+                    <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                      <GraduationCap className="h-5 w-5" style={{ color: primaryColor }} />
                       Student Management
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-white">
@@ -403,18 +421,19 @@ export default function UserManagementPage() {
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
-                        <div className="text-purple-600 dark:text-purple-400">Total Students</div>
-                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.students.total}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border" style={{ borderColor: `${primaryColor}50` }}>
+                        <div style={{ color: primaryColor }}>Total Students</div>
+                        <div className="font-semibold" style={{ color: primaryColor, opacity: 0.9 }}>{userStats.students.total}</div>
                       </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
-                        <div className="text-purple-600 dark:text-purple-400">On Leave Today</div>
-                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.students.onLeave}</div>
+                    <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border" style={{ borderColor: `${primaryColor}50` }}>
+                      <div style={{ color: primaryColor }}>On Leave Today</div>
+                      <div className="font-semibold" style={{ color: primaryColor, opacity: 0.9 }}>{userStats.students.onLeave}</div>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      className="w-full text-white"
+                      style={{ backgroundColor: primaryColor }}
                       onClick={() => router.push("/dashboard/user/students")}
                     >
                       <GraduationCap className="mr-2 h-4 w-4" />
@@ -424,10 +443,10 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Staff Management */}
-                <Card className="border-orange-200 dark:border-orange-700 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
-                  <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                      <UserCog className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              <Card className="border" style={{ borderColor: secondaryColor, background: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}20)` }}>
+                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${secondaryColor}50` }}>
+                  <CardTitle className="flex items-center gap-2" style={{ color: secondaryColor }}>
+                    <UserCog className="h-5 w-5" style={{ color: secondaryColor }} />
                       Staff Management
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-white">
@@ -437,40 +456,44 @@ export default function UserManagementPage() {
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700 dark:text-orange-400">Instructors</span>
-                        <span className="text-orange-900 dark:text-orange-300">{userStats.staff.instructors}</span>
+                        <span style={{ color: secondaryColor }}>Instructors</span>
+                        <span style={{ color: secondaryColor, opacity: 0.9 }}>{userStats.staff.instructors}</span>
                       </div>
                       <Progress 
                         value={(userStats.staff.instructors / userStats.staff.total) * 100} 
-                        className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" 
+                        className="h-2"
+                        style={{ backgroundColor: `${secondaryColor}20`, ['--progress-background' as any]: secondaryColor }}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700 dark:text-orange-400">Non-Instructors</span>
-                        <span className="text-orange-900 dark:text-orange-300">{userStats.staff.nonInstructors}</span>
+                        <span style={{ color: secondaryColor }}>Non-Instructors</span>
+                        <span style={{ color: secondaryColor, opacity: 0.9 }}>{userStats.staff.nonInstructors}</span>
                       </div>
-                      <Progress value={(userStats.staff.nonInstructors / userStats.staff.total) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" />
+                      <Progress value={(userStats.staff.nonInstructors / userStats.staff.total) * 100} className="h-2" style={{ backgroundColor: `${secondaryColor}20`, ['--progress-background' as any]: secondaryColor }} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
-                        <div className="text-orange-600 dark:text-orange-400">Total Staff</div>
-                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.total}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div style={{ color: secondaryColor }}>{`Total Staff`}</div>
+                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total}</div>
                       </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
-                        <div className="text-orange-600">Total Staff</div>
-                        <div className="font-semibold text-orange-800">{userStats.staff.total}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div style={{ color: secondaryColor }}>{`Total Staff`}</div>
+                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total}</div>
                       </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
-                        <div className="text-orange-600 dark:text-orange-400">On Leave Today</div>
-                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.onLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div style={{ color: secondaryColor }}>{`On Leave Today`}</div>
+                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.onLeave}</div>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      className="w-full text-white"
+                      style={{ backgroundColor: secondaryColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}dd`}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = secondaryColor}
                       onClick={() => router.push("/dashboard/user/staff")}
                     >
                       <UserCog className="mr-2 h-4 w-4" />
@@ -480,10 +503,10 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Instructors Quick Access */}
-                <Card className="border-purple-200 dark:border-purple-700 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20">
-                  <CardHeader className="pb-2 border-b border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-900 rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
-                      <GraduationCap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <Card style={{ borderColor: `${primaryColor}50`, background: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}20)` }}>
+                  <CardHeader className="pb-2 bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderBottom: '1px solid', borderColor: `${primaryColor}50` }}>
+                    <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
+                      <GraduationCap className="h-5 w-5" style={{ color: primaryColor }} />
                       Instructors
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-white">
@@ -493,28 +516,32 @@ export default function UserManagementPage() {
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-purple-700 dark:text-purple-400">Active Instructors</span>
-                        <span className="text-purple-900 dark:text-purple-300">{userStats.staff.instructors - userStats.staff.instructorsOnLeave}/{userStats.staff.instructors}</span>
+                        <span style={{ color: primaryColor }}>{`Active Instructors`}</span>
+                        <span style={{ color: `${primaryColor}dd` }}>{userStats.staff.instructors - userStats.staff.instructorsOnLeave}/{userStats.staff.instructors}</span>
                       </div>
                       <Progress 
                         value={userStats.staff.instructors > 0 ? ((userStats.staff.instructors - userStats.staff.instructorsOnLeave) / userStats.staff.instructors) * 100 : 0} 
-                        className="h-2 bg-purple-100 dark:bg-purple-900/30 [&>div]:bg-purple-500 dark:[&>div]:bg-purple-600" 
+                        className="h-2"
+                        style={{ '--progress-background': `${primaryColor}20`, '--progress-foreground': primaryColor } as React.CSSProperties}
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
-                        <div className="text-purple-600 dark:text-purple-400">Total Instructors</div>
-                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.staff.instructors}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${primaryColor}50` }}>
+                        <div style={{ color: primaryColor }}>{`Total Instructors`}</div>
+                        <div className="font-semibold" style={{ color: `${primaryColor}dd` }}>{userStats.staff.instructors}</div>
                       </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-purple-200 dark:border-purple-700">
-                        <div className="text-purple-600 dark:text-purple-400">On Leave Today</div>
-                        <div className="font-semibold text-purple-800 dark:text-purple-300">{userStats.staff.instructorsOnLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${primaryColor}50` }}>
+                        <div style={{ color: primaryColor }}>{`On Leave Today`}</div>
+                        <div className="font-semibold" style={{ color: `${primaryColor}dd` }}>{userStats.staff.instructorsOnLeave}</div>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      className="w-full text-white"
+                      style={{ backgroundColor: primaryColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                       onClick={() => router.push("/dashboard/user/staff/instructor")}
                     >
                       <GraduationCap className="mr-2 h-4 w-4" />
@@ -524,10 +551,10 @@ export default function UserManagementPage() {
                 </Card>
 
                 {/* Non-Instructors Quick Access */}
-                <Card className="border-orange-200 dark:border-orange-700 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
-                  <CardHeader className="pb-2 border-b border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                      <UserCog className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <Card style={{ borderColor: `${secondaryColor}50`, background: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}20)` }}>
+                  <CardHeader className="pb-2 bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderBottom: '1px solid', borderColor: `${secondaryColor}50` }}>
+                    <CardTitle className="flex items-center gap-2" style={{ color: secondaryColor }}>
+                      <UserCog className="h-5 w-5" style={{ color: secondaryColor }} />
                       Non-Instructors
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-white">
@@ -537,28 +564,32 @@ export default function UserManagementPage() {
                   <CardContent className="space-y-4 p-6">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm font-medium">
-                        <span className="text-orange-700 dark:text-orange-400">Active Non-Instructors</span>
-                        <span className="text-orange-900 dark:text-orange-300">{userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave}/{userStats.staff.nonInstructors}</span>
+                        <span style={{ color: secondaryColor }}>{`Active Non-Instructors`}</span>
+                        <span style={{ color: `${secondaryColor}dd` }}>{userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave}/{userStats.staff.nonInstructors}</span>
                       </div>
                       <Progress 
                         value={userStats.staff.nonInstructors > 0 ? ((userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave) / userStats.staff.nonInstructors) * 100 : 0} 
-                        className="h-2 bg-orange-100 dark:bg-orange-900/30 [&>div]:bg-orange-500 dark:[&>div]:bg-orange-600" 
+                        className="h-2"
+                        style={{ '--progress-background': `${secondaryColor}20`, '--progress-foreground': secondaryColor } as React.CSSProperties}
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
-                        <div className="text-orange-600 dark:text-orange-400">Total Non-Instructors</div>
-                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.nonInstructors}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div style={{ color: secondaryColor }}>{`Total Non-Instructors`}</div>
+                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.nonInstructors}</div>
                       </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-orange-200 dark:border-orange-700">
-                        <div className="text-orange-600 dark:text-orange-400">On Leave Today</div>
-                        <div className="font-semibold text-orange-800 dark:text-orange-300">{userStats.staff.nonInstructorsOnLeave}</div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div style={{ color: secondaryColor }}>{`On Leave Today`}</div>
+                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.nonInstructorsOnLeave}</div>
                       </div>
                     </div>
 
                     <Button
-                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      className="w-full text-white"
+                      style={{ backgroundColor: secondaryColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}dd`}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = secondaryColor}
                       onClick={() => router.push("/dashboard/user/staff/non-instructor")}
                     >
                       <UserCog className="mr-2 h-4 w-4" />
@@ -662,7 +693,7 @@ export default function UserManagementPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <PieChart className="h-5 w-5 text-purple-600" />
+                      <PieChart className="h-5 w-5" style={{ color: primaryColor }} />
                       User Distribution by Category
                     </CardTitle>
                     <CardDescription>
@@ -675,20 +706,20 @@ export default function UserManagementPage() {
                         <svg className="w-full h-64" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
                           <defs>
                             <linearGradient id="studentsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#a855f7" />
-                              <stop offset="100%" stopColor="#7c3aed" />
+                              <stop offset="0%" stopColor={primaryColor} stopOpacity="0.8" />
+                              <stop offset="100%" stopColor={primaryColor} stopOpacity="1" />
                             </linearGradient>
                             <linearGradient id="staffGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#fb923c" />
-                              <stop offset="100%" stopColor="#ea580c" />
+                              <stop offset="0%" stopColor={secondaryColor} stopOpacity="0.8" />
+                              <stop offset="100%" stopColor={secondaryColor} stopOpacity="1" />
                             </linearGradient>
                             <linearGradient id="parentsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#a855f7" />
-                              <stop offset="100%" stopColor="#7c3aed" />
+                              <stop offset="0%" stopColor={primaryColor} stopOpacity="0.8" />
+                              <stop offset="100%" stopColor={primaryColor} stopOpacity="1" />
                             </linearGradient>
                             <linearGradient id="alumniGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#fb923c" />
-                              <stop offset="100%" stopColor="#ea580c" />
+                              <stop offset="0%" stopColor={secondaryColor} stopOpacity="0.8" />
+                              <stop offset="100%" stopColor={secondaryColor} stopOpacity="1" />
                             </linearGradient>
                           </defs>
                           
@@ -766,32 +797,32 @@ export default function UserManagementPage() {
                     </div>
                     
                     <div className="mt-6 grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
-                        <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${primaryColor}20`, borderWidth: '1px', borderColor: `${primaryColor}50` }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${primaryColor}cc, ${primaryColor})` }}></div>
                         <div>
-                          <div className="font-medium text-purple-800 dark:text-purple-400 text-sm">{userStats.students.total} Total Students</div>
-                          <div className="text-xs text-purple-600 dark:text-purple-400">{Math.round((userStats.students.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-sm" style={{ color: `${primaryColor}dd` }}>{userStats.students.total} Total Students</div>
+                          <div className="text-xs" style={{ color: primaryColor }}>{Math.round((userStats.students.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700">
-                        <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full"></div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${secondaryColor}20`, borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${secondaryColor}cc, ${secondaryColor})` }}></div>
                         <div>
-                          <div className="font-medium text-orange-800 dark:text-orange-400 text-sm">{userStats.staff.total} Staff</div>
-                          <div className="text-xs text-orange-600 dark:text-orange-400">{Math.round((userStats.staff.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-sm" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total} Staff</div>
+                          <div className="text-xs" style={{ color: secondaryColor }}>{Math.round((userStats.staff.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
-                        <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full"></div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${primaryColor}20`, borderWidth: '1px', borderColor: `${primaryColor}50` }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${primaryColor}cc, ${primaryColor})` }}></div>
                         <div>
-                          <div className="font-medium text-purple-800 dark:text-purple-400 text-sm">{userStats.parents.total} Parents</div>
-                          <div className="text-xs text-purple-600 dark:text-purple-400">{Math.round((userStats.parents.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-sm" style={{ color: `${primaryColor}dd` }}>{userStats.parents.total} Parents</div>
+                          <div className="text-xs" style={{ color: primaryColor }}>{Math.round((userStats.parents.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700">
-                        <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full"></div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${secondaryColor}20`, borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${secondaryColor}cc, ${secondaryColor})` }}></div>
                         <div>
-                          <div className="font-medium text-orange-800 dark:text-orange-400 text-sm">{userStats.alumni.total} Alumni</div>
-                          <div className="text-xs text-orange-600 dark:text-orange-400">{Math.round((userStats.alumni.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-sm" style={{ color: `${secondaryColor}dd` }}>{userStats.alumni.total} Alumni</div>
+                          <div className="text-xs" style={{ color: secondaryColor }}>{Math.round((userStats.alumni.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
                     </div>
@@ -802,7 +833,7 @@ export default function UserManagementPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-purple-600" />
+                      <Activity className="h-5 w-5" style={{ color: primaryColor }} />
                       Recent Activity
                     </CardTitle>
                     <CardDescription>

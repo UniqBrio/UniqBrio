@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Input } from "@/components/dashboard/ui/input"
 import { Button } from "@/components/dashboard/ui/button"
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
@@ -80,6 +81,7 @@ export function TaskFiltersAndSort({
   selectedTaskIds,
   additionalButtons,
 }: TaskFiltersAndSortProps) {
+  const { primaryColor } = useCustomColors();
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
   const [permanentFilterIcon, setPermanentFilterIcon] = useState<"apply" | "clear" | null>(null)
   
@@ -253,7 +255,7 @@ export function TaskFiltersAndSort({
                                     }
                                   })
                                 }
-                                className="data-[state=checked]:bg-purple-600 border-purple-500"
+                                style={{ accentColor: primaryColor }}
                               />
                               <span
                                 className="text-sm select-none"
@@ -311,7 +313,7 @@ export function TaskFiltersAndSort({
                                   }
                                 })
                               }
-                              className="data-[state=checked]:bg-purple-600 border-purple-500"
+                              style={{ accentColor: primaryColor }}
                             />
                             <span
                               className="text-sm select-none"
@@ -437,7 +439,10 @@ export function TaskFiltersAndSort({
                   </Button>
                   <Button
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                    className="text-white"
+                    style={{ backgroundColor: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                     onClick={() => {
                       // If nothing is selected, default to "all"
                       const prioritiesToApply = pendingPriorities.length > 0 ? pendingPriorities : ["all"]
@@ -494,7 +499,9 @@ export function TaskFiltersAndSort({
                 <DropdownMenuItem
                   key={option.value}
                   onClick={() => setSortBy(option.value as SortBy)}
-                  className={sortBy.startsWith(option.value.split("-")[0] + "-" + option.value.split("-")[1]) ? "bg-purple-50" : ""}
+                  style={sortBy.startsWith(option.value.split("-")[0] + "-" + option.value.split("-")[1]) ? {
+                    backgroundColor: `${primaryColor}15`
+                  } : {}}
                 >
                   {option.label}
                 </DropdownMenuItem>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -118,6 +119,7 @@ export default function ScheduleCalendarView({
   currentDate = new Date(),
   onDateChange,
 }: ScheduleCalendarViewProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [internalCurrentDate, setInternalCurrentDate] = useState(new Date())
   const [internalSelectedView, setInternalSelectedView] = useState<"day" | "week" | "month">("month")
 
@@ -188,9 +190,9 @@ export default function ScheduleCalendarView({
       case "Cancelled":
         return "bg-red-500"
       case "Pending":
-        return "bg-orange-500"
+        return "" // Will use inline style with secondaryColor
       case "Rescheduled":
-        return "bg-purple-500"
+        return ""
       default:
         return "bg-gray-500"
     }
@@ -200,9 +202,9 @@ export default function ScheduleCalendarView({
     // Check for reassignment status first
     if (event.reassignmentInfo) {
       if (event.reassignmentInfo.type === 'reassigned_from') {
-        return <Badge className="bg-orange-500 hover:bg-orange-600">Reassigned From</Badge>
+        return <Badge className="hover:opacity-80" style={{ backgroundColor: secondaryColor, color: 'white' }}>Reassigned From</Badge>
       } else if (event.reassignmentInfo.type === 'reassigned_to') {
-        return <Badge className="bg-purple-500 hover:bg-purple-600">Reassigned To</Badge>
+        return <Badge className="hover:opacity-80" style={{ backgroundColor: primaryColor, color: 'white' }}>Reassigned To</Badge>
       }
     }
 
@@ -210,15 +212,22 @@ export default function ScheduleCalendarView({
     const status = getCurrentStatus(event)
     switch (status) {
       case "Upcoming":
-        return <Badge className="bg-blue-500 hover:bg-blue-600">Upcoming</Badge>
+        return <Badge className="hover:opacity-90" style={{ backgroundColor: primaryColor, color: 'white' }}>Upcoming</Badge>
       case "Ongoing":
-        return <Badge className="bg-green-500 hover:bg-green-600">Ongoing</Badge>
+        return (
+          <Badge
+            className="hover:opacity-90"
+            style={{ backgroundImage: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`, color: 'white' }}
+          >
+            Ongoing
+          </Badge>
+        )
       case "Completed":
-        return <Badge variant="secondary">Completed</Badge>
+        return <Badge style={{ backgroundColor: `${primaryColor}1a`, color: primaryColor }}>Completed</Badge>
       case "Cancelled":
         return <Badge variant="destructive">Cancelled</Badge>
       case "Pending":
-        return <Badge variant="outline">Pending</Badge>
+        return <Badge variant="outline" style={{ borderColor: secondaryColor, color: secondaryColor }}>Pending</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -230,7 +239,8 @@ export default function ScheduleCalendarView({
     return (
       <Card
         key={event.id}
-        className={`${event.isCancelled ? "border-red-200" : ""} ${isSelected ? "ring-2 ring-purple-500" : ""} transition-all hover:shadow-md cursor-pointer`}
+        className={`${event.isCancelled ? "border-red-200" : ""} ${isSelected ? "ring-2" : ""} transition-all hover:shadow-md cursor-pointer`}
+        style={isSelected ? { boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
         onClick={() => onScheduleClick(event)}
       >
         <CardHeader className="pb-2">
@@ -239,9 +249,9 @@ export default function ScheduleCalendarView({
               <div>
                 <CardTitle className="text-lg flex items-center gap-2">
                   {getEventDisplayName(event)}
-                  {event.isRecurring && <Repeat className="h-4 w-4 text-purple-500" />}
+                  {event.isRecurring && <Repeat className="h-4 w-4" style={{ color: primaryColor }} />}
                   {/* Video icon removed from title - shown in details instead */}
-                  {event.waitlist && event.waitlist.length > 0 && <Users className="h-4 w-4 text-orange-500" />}
+                  {event.waitlist && event.waitlist.length > 0 && <Users className="h-4 w-4" style={{ color: secondaryColor }} />}
                 </CardTitle>
                 <CardDescription className="flex items-center gap-2">
                   {format(event.date, "EEEE, MMMM d, yyyy")}
@@ -256,7 +266,7 @@ export default function ScheduleCalendarView({
             <div className="flex items-center gap-2">
               {getStatusBadge(event)}
               {event.refundStatus === "pending" && (
-                <Badge variant="outline" className="text-orange-600 border-orange-300">
+                <Badge variant="outline" className="text-gray-600 border-gray-300" style={{ color: secondaryColor, borderColor: secondaryColor }}>
                   Refund Pending
                 </Badge>
               )}
@@ -267,7 +277,7 @@ export default function ScheduleCalendarView({
                 </Badge>
               )}
               {event.modificationType === "instructor_changed" && (
-                <Badge variant="outline" className="border-purple-400 text-purple-700 bg-purple-50">
+                <Badge variant="outline" className="border-gray-400 text-gray-700 bg-gray-50" style={{ borderColor: primaryColor, color: primaryColor, backgroundColor: `${primaryColor}15` }}>
                   <UserCheck className="h-3 w-3 mr-1" />
                   Reassigned
                 </Badge>
@@ -281,7 +291,7 @@ export default function ScheduleCalendarView({
               <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.startTime} - {event.endTime}
               {event.rescheduleInfo && event.originalSessionData && (
-                <span className="ml-2 text-xs text-purple-600 line-through">
+                <span className="ml-2 text-xs line-through" style={{ color: primaryColor }}>
                   (was {event.originalSessionData.startTime} - {event.originalSessionData.endTime})
                 </span>
               )}
@@ -290,7 +300,7 @@ export default function ScheduleCalendarView({
               <Users className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.students}/{event.maxCapacity} students
               {event.waitlist && event.waitlist.length > 0 && (
-                <span className="ml-1 text-orange-600">(+{event.waitlist.length} waitlist)</span>
+                <span className="ml-1" style={{ color: secondaryColor }}>(+{event.waitlist.length} waitlist)</span>
               )}
             </div>
             <div className="flex items-center">
@@ -305,16 +315,16 @@ export default function ScheduleCalendarView({
 
           {/* Reschedule Information */}
           {event.rescheduleInfo && event.originalSessionData && (
-            <div className="mt-2 p-2 bg-purple-50 rounded-md text-sm">
+            <div className="mt-2 p-2 rounded-md text-sm" style={{ backgroundColor: `${primaryColor}15` }}>
               <div className="flex items-start">
-                <RefreshCw className="h-4 w-4 mr-2 mt-0.5 text-purple-600" />
+                <RefreshCw className="h-4 w-4 mr-2 mt-0.5" style={{ color: primaryColor }} />
                 <div>
-                  <span className="font-medium text-purple-800">Rescheduled from:</span>
-                  <div className="text-purple-700 mt-1">
+                  <span className="font-medium" style={{ color: `${primaryColor}dd` }}>Rescheduled from:</span>
+                  <div className="mt-1" style={{ color: `${primaryColor}cc` }}>
                     {format(event.originalSessionData.date, "dd-MMM-yy")} at {event.originalSessionData.startTime} - {event.originalSessionData.endTime}
                   </div>
                   {event.rescheduleInfo.reason && (
-                    <div className="text-purple-600 text-xs mt-1">
+                    <div className="text-xs mt-1" style={{ color: primaryColor }}>
                       {event.rescheduleInfo.reason}
                     </div>
                   )}
@@ -325,16 +335,16 @@ export default function ScheduleCalendarView({
 
           {/* Reassignment Information */}
           {event.reassignmentInfo && (
-            <div className="mt-2 p-2 bg-purple-50 rounded-md text-sm">
+            <div className="mt-2 p-2 rounded-md text-sm" style={{ backgroundColor: `${primaryColor}15` }}>
               <div className="flex items-start">
-                <UserCheck className="h-4 w-4 mr-2 mt-0.5 text-purple-600" />
+                <UserCheck className="h-4 w-4 mr-2 mt-0.5" style={{ color: primaryColor }} />
                 <div>
-                  <span className="font-medium text-purple-800">Instructor Reassigned:</span>
-                  <div className="text-purple-700 mt-1">
+                  <span className="font-medium" style={{ color: `${primaryColor}dd` }}>Instructor Reassigned:</span>
+                  <div className="mt-1" style={{ color: `${primaryColor}cc` }}>
                     From: {event.reassignmentInfo.originalInstructor} ? To: {event.reassignmentInfo.newInstructor}
                   </div>
                   {event.reassignmentInfo.reason && (
-                    <div className="text-purple-600 text-xs mt-1">
+                    <div className="text-xs mt-1" style={{ color: primaryColor }}>
                       Reason: {event.reassignmentInfo.reason}
                     </div>
                   )}
@@ -368,7 +378,7 @@ export default function ScheduleCalendarView({
                 {event.courseName && (
                   <div className="flex flex-col">
                     <span className="text-gray-500 dark:text-white text-xs">Course</span>
-                    <span className="font-medium text-purple-700">{event.courseName}</span>
+                    <span className="font-medium" style={{ color: primaryColor }}>{event.courseName}</span>
                   </div>
                 )}
                 {event.cohortName && (
@@ -414,7 +424,8 @@ export default function ScheduleCalendarView({
                 href={event.joinLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-purple-600 hover:underline flex items-center gap-1"
+                className="text-sm hover:underline flex items-center gap-1"
+                style={{ color: primaryColor }}
               >
                 <Video className="h-4 w-4" />
                 Join Virtual Class
@@ -423,13 +434,13 @@ export default function ScheduleCalendarView({
           )}
 
           {event.sessionNotes && (
-            <div className="mt-2 p-2 bg-blue-50 rounded-md text-sm">
+            <div className="mt-2 p-2 rounded-md text-sm" style={{ backgroundColor: `${primaryColor}15` }}>
               <strong>Notes:</strong> {event.sessionNotes}
             </div>
           )}
 
           {event.instructions && (
-            <div className="mt-2 p-2 bg-yellow-50 rounded-md text-sm">
+            <div className="mt-2 p-2 rounded-md text-sm" style={{ backgroundColor: `${secondaryColor}15` }}>
               <strong>Instructions:</strong> {event.instructions}
             </div>
           )}
@@ -524,18 +535,19 @@ export default function ScheduleCalendarView({
   const renderCompactEvent = (event: ScheduleEvent) => (
     <div
       key={event.id}
-      className={`p-3 rounded-md cursor-pointer transition-colors border ${
+      className={"p-3 rounded-md cursor-pointer transition-colors border"}
+      style={
         event.isCancelled
-          ? "bg-red-50 border-red-200 hover:bg-red-100"
-          : "bg-purple-50 border-purple-200 hover:bg-purple-100"
-      }`}
+          ? { backgroundColor: '#fee2e2', borderColor: '#fecaca' }
+          : { backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}33` }
+      }
       onClick={() => onScheduleClick(event)}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="font-medium flex items-center gap-2">
             {getEventDisplayName(event)}
-            {event.isRecurring && <Repeat className="h-4 w-4 text-purple-500" />}
+            {event.isRecurring && <Repeat className="h-4 w-4" style={{ color: primaryColor }} />}
             {/* Video icon removed from compact view - type shown in details */}
           </div>
           <div className="text-sm text-gray-600 dark:text-white mt-1">
@@ -611,9 +623,13 @@ export default function ScheduleCalendarView({
           {days.map((day) => {
             const isToday = isSameDay(day, new Date())
             return (
-              <div key={`header-${day.toString()}`} className={`text-center p-2 rounded-md ${isToday ? "bg-purple-100 ring-2 ring-purple-500" : ""}`}>
-                <div className={`text-sm font-medium ${isToday ? "text-purple-700" : "text-gray-600 dark:text-white"}`}>{format(day, "EEE")}</div>
-                <div className={`text-lg font-bold ${isToday ? "text-purple-900" : ""}`}>{format(day, "d")}</div>
+              <div
+                key={`header-${day.toString()}`}
+                className={"text-center p-2 rounded-md"}
+                style={isToday ? { backgroundColor: `${primaryColor}20`, boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
+              >
+                <div className={`text-sm font-medium ${!isToday ? "text-gray-600 dark:text-white" : ""}`} style={isToday ? { color: primaryColor } : {}}>{format(day, "EEE")}</div>
+                <div className="text-lg font-bold" style={isToday ? { color: primaryColor } : {}}>{format(day, "d")}</div>
               </div>
             )
           })}
@@ -626,22 +642,27 @@ export default function ScheduleCalendarView({
             const isToday = isSameDay(day, new Date())
 
             return (
-              <div key={day.toString()} className={`border rounded-md p-2 min-h-[200px] bg-white ${isToday ? "ring-2 ring-purple-500" : ""}`}>
+              <div
+                key={day.toString()}
+                className={`border rounded-md p-2 min-h-[200px] bg-white`}
+                style={isToday ? { boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
+              >
                 <div className="space-y-2">
                   {dayEvents.length > 0 ? (
                     dayEvents.slice(0, 3).map((event) => (
                       <div
                         key={event.id}
-                        className={`p-2 rounded-md text-xs cursor-pointer transition-colors ${
+                        className={`p-2 rounded-md text-xs cursor-pointer transition-colors border`}
+                        style={
                           event.isCancelled
-                            ? "bg-red-50 border border-red-200 hover:bg-red-100"
-                            : "bg-purple-50 border border-purple-200 hover:bg-purple-100"
-                        }`}
+                            ? { backgroundColor: '#fee2e2', borderColor: '#fecaca' }
+                            : { backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}33` }
+                        }
                         onClick={() => onScheduleClick(event)}
                       >
                         <div className="font-medium truncate flex items-center gap-1">
                           {getEventShortName(event)}
-                          {event.isRecurring && <Repeat className="h-3 w-3" />}
+                          {event.isRecurring && <Repeat className="h-3 w-3" style={{ color: primaryColor }} />}
                         </div>
                         <div className="flex items-center text-gray-500 dark:text-white">
                           <Clock className="h-3 w-3 mr-1" />
@@ -706,13 +727,15 @@ export default function ScheduleCalendarView({
                 key={day.toString()}
                 className={`min-h-[100px] p-2 border rounded-md cursor-pointer ${
                   isCurrentMonth ? "bg-white" : "bg-gray-50"
-                } ${isToday ? "ring-2 ring-purple-500" : ""}`}
+                }`}
+                style={isToday ? { boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
                 onClick={() => onDateClick(day)}
               >
                 <div
                   className={`text-sm font-medium mb-1 ${
                     isCurrentMonth ? "text-gray-900" : "text-gray-400 dark:text-white"
-                  } ${isToday ? "text-purple-600" : ""}`}
+                  }`}
+                  style={isToday ? { color: primaryColor } : {}}
                 >
                   {day.getDate()}
                 </div>
@@ -720,11 +743,12 @@ export default function ScheduleCalendarView({
                   {dayEvents.slice(0, 3).map((event) => (
                     <div
                       key={event.id}
-                      className={`text-xs p-1 rounded truncate cursor-pointer ${
+                      className={`text-xs p-1 rounded truncate cursor-pointer border`}
+                      style={
                         event.isCancelled
-                          ? "bg-red-100 text-red-700 border border-red-200"
-                          : "bg-purple-100 text-purple-700 border border-purple-200"
-                      }`}
+                          ? { backgroundColor: '#fecaca', color: '#b91c1c', borderColor: '#fecaca' }
+                          : { backgroundColor: `${primaryColor}26`, color: primaryColor, borderColor: `${primaryColor}33` }
+                      }
                       onClick={(e) => {
                         e.stopPropagation()
                         onScheduleClick(event)
@@ -732,7 +756,7 @@ export default function ScheduleCalendarView({
                       title={`${getEventDisplayName(event)} - ${event.startTime}`}
                     >
                       <div className="flex items-center gap-1">
-                        {event.isRecurring && <Repeat className="h-2 w-2" />}
+                        {event.isRecurring && <Repeat className="h-2 w-2" style={{ color: primaryColor }} />}
                         {getEventShortName(event)}
                       </div>
                     </div>

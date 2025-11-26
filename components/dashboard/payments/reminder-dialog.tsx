@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCurrency } from "@/contexts/currency-context";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export function ReminderDialog({
   onOpenChange,
 }: ReminderDialogProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [selectedMode, setSelectedMode] = useState<"email" | "inapp" | "whatsapp" | "sms">("email");
   const [isEditing, setIsEditing] = useState(false);
   const [messageContent, setMessageContent] = useState("");
@@ -247,7 +249,10 @@ QR auto-generated for Email & WhatsApp previews.`;
               Cancel
             </Button>
             <Button 
-              className={selectedMode === "email" ? "bg-purple-600 hover:bg-purple-700" : "bg-orange-500 hover:bg-orange-600"}
+              className="text-white"
+              style={{ backgroundColor: selectedMode === "email" ? primaryColor : secondaryColor }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = selectedMode === "email" ? `${primaryColor}dd` : `${secondaryColor}dd`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedMode === "email" ? primaryColor : secondaryColor}
               onClick={handleSendReminder}
             >
               {selectedMode === "email" ? (

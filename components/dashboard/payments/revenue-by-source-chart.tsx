@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { useCurrency } from "@/contexts/currency-context";
+import { useCustomColors } from "@/lib/use-custom-colors";
 import { BookOpen } from "lucide-react";
 import {
   BarChart,
@@ -24,6 +25,7 @@ interface RevenueBySourceChartProps {
 
 export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
   const { currency } = useCurrency();
+  const { primaryColor } = useCustomColors();
   // Transform data for the chart - limit to top 3
   const chartData = data.slice(0, 3).map((item) => ({
     course: item.courseId,
@@ -41,7 +43,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
   return (
     <Card className="border shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-purple-700">
+        <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
           <BookOpen className="h-5 w-5" />
           Revenue by Source (Top 3)
         </CardTitle>
@@ -86,7 +88,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                   const courseName = props.payload?.courseName || 'Unknown Course';
                   return [
                     <div key="revenue-tooltip" className="space-y-1">
-                      <div className="font-semibold text-purple-700">{courseName}</div>
+                      <div className="font-semibold" style={{ color: primaryColor }}>{courseName}</div>
                       <div className="text-lg font-bold">{currency} {value.toLocaleString()}</div>
                       <div className="text-sm text-gray-600 dark:text-white">Course ID: {props.payload?.course}</div>
                     </div>,
@@ -112,8 +114,8 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
               </Bar>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#6D28D9" stopOpacity={0.9} />
+                  <stop offset="0%" stopColor={primaryColor} stopOpacity={0.9} />
+                  <stop offset="100%" stopColor={primaryColor} stopOpacity={0.7} />
                 </linearGradient>
               </defs>
             </BarChart>
@@ -130,7 +132,7 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
             {displayData.map((item, index) => (
               <div key={item.course} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded font-mono">
+                  <span className="text-xs px-2 py-1 rounded font-mono" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                     {item.course}
                   </span>
                   <span className="text-sm font-medium text-gray-700 dark:text-white">

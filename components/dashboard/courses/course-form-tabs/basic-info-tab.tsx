@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
 import { Button } from "@/components/dashboard/ui/button"
@@ -42,6 +43,7 @@ export default function BasicInfoTab({
   onGenerateCourseId,
   courseIdHint
 }: BasicInfoTabProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   
   const [searchTerm, setSearchTerm] = useState('')
   const [freeGiftSearchTerm, setFreeGiftSearchTerm] = useState('')
@@ -324,7 +326,17 @@ export default function BasicInfoTab({
                 value={formData.courseId || formData.id || ''}
                 readOnly={!allowManualCourseId}
                 onChange={allowManualCourseId ? (e) => onFormChange('id', e.target.value) : undefined}
-                className={`${allowManualCourseId ? 'border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500' : 'bg-gray-100 cursor-not-allowed border border-gray-300'} rounded-md px-3 py-2`}
+                className={`${allowManualCourseId ? 'border rounded-md px-3 py-2' : 'bg-gray-100 cursor-not-allowed border border-gray-300 rounded-md px-3 py-2'}`}
+                style={allowManualCourseId ? { borderColor: '#d1d5db' } : undefined}
+                onFocus={allowManualCourseId ? (e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  e.currentTarget.style.outline = 'none';
+                } : undefined}
+                onBlur={allowManualCourseId ? (e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                } : undefined}
               />
               {onGenerateCourseId && (
                 <Button
@@ -366,7 +378,16 @@ export default function BasicInfoTab({
                 });
               }
             }}
-            className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="border rounded-md px-3 py-2 text-[15px] focus:outline-none focus:border-transparent"
+            style={{ borderColor: '#d1d5db' }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = primaryColor;
+              e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           />
         </div>
         <div>
@@ -375,7 +396,16 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500"
+                className="w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:outline-none"
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 {formData.status || 'Active'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -385,7 +415,16 @@ export default function BasicInfoTab({
               <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                 <Input
                   placeholder="Search status..."
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:border-transparent"
+                  style={{ borderColor: '#d1d5db' }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   value={statusSearchTerm}
                   onChange={e => setStatusSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.stopPropagation()}
@@ -397,9 +436,10 @@ export default function BasicInfoTab({
                   .map(status => (
                     <DropdownMenuItem
                       key={status}
-                      className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px] ${
-                        formData.status === status ? 'bg-purple-100' : ''
-                      }`}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{
+                        ...(formData.status === status ? { backgroundColor: `${primaryColor}20` } : {})
+                      }}
                       onSelect={() => {
                         onFormChange('status', status);
                         setStatusSearchTerm('');
@@ -442,7 +482,16 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.location ? 'text-gray-400 dark:text-white' : ''}`}
+                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:outline-none ${!formData.location ? 'text-gray-400 dark:text-white' : ''}`}
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 {formData.location || 'Select location'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -452,7 +501,16 @@ export default function BasicInfoTab({
               <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                 <Input
                   placeholder="Search or type new location..."
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:border-transparent"
+                  style={{ borderColor: '#d1d5db' }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   value={locationSearchTerm}
                   onChange={e => {
                     const value = e.target.value;
@@ -477,9 +535,10 @@ export default function BasicInfoTab({
                     .map(location => (
                       <DropdownMenuItem
                         key={location}
-                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px] ${
-                          formData.location === location ? 'bg-purple-100' : ''
-                        }`}
+                        className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                        style={{
+                          ...(formData.location === location ? { backgroundColor: `${primaryColor}20` } : {})
+                        }}
                         onSelect={() => {
                           onFormChange('location', location);
                           setLocationSearchTerm('');
@@ -494,7 +553,8 @@ export default function BasicInfoTab({
                     location => location.toLowerCase() === locationSearchTerm.toLowerCase()
                   ) && (
                     <DropdownMenuItem
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]"
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{ color: primaryColor }}
                       onSelect={async () => {
                         const newLocation = locationSearchTerm;
                         onFormChange('location', newLocation);
@@ -542,7 +602,16 @@ export default function BasicInfoTab({
                 onFormChange('maxStudents', '');
               }
             }}
-            className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="border rounded-md px-3 py-2 text-[15px] focus:outline-none focus:border-transparent"
+            style={{ borderColor: '#d1d5db' }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = primaryColor;
+              e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           />
         </div>
       </div>
@@ -566,7 +635,16 @@ export default function BasicInfoTab({
               });
             }
           }}
-          className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="border rounded-md px-3 py-2 text-[15px] focus:outline-none focus:border-transparent"
+          style={{ borderColor: '#d1d5db' }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = primaryColor;
+            e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = '#d1d5db';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
         />
       </div>
 
@@ -577,7 +655,16 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400 dark:text-white' : ''}`}
+                className={`w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:outline-none ${!formData.level ? 'text-gray-400 dark:text-white' : ''}`}
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 {formData.level || 'Select level'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -587,7 +674,16 @@ export default function BasicInfoTab({
               <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                 <Input
                   placeholder="Search or type new level..."
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:border-transparent"
+                  style={{ borderColor: '#d1d5db' }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   value={levelSearchTerm}
                   onChange={e => {
                     const value = e.target.value;
@@ -605,9 +701,10 @@ export default function BasicInfoTab({
                   .map(level => (
                     <DropdownMenuItem
                       key={level}
-                      className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px] ${
-                        formData.level === level ? 'bg-purple-100' : ''
-                      }`}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{
+                        ...(formData.level === level ? { backgroundColor: `${primaryColor}20` } : {})
+                      }}
                       onSelect={() => {
                         onFormChange('level', level);
                         setLevelSearchTerm('');
@@ -621,7 +718,8 @@ export default function BasicInfoTab({
                     level => level.toLowerCase() === levelSearchTerm.toLowerCase()
                   ) && (
                     <DropdownMenuItem
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]"
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{ color: primaryColor }}
                       onSelect={async () => {
                         await addNewDropdownOption('levels', levelSearchTerm);
                         onFormChange('level', levelSearchTerm);
@@ -641,7 +739,16 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.type ? 'text-gray-400 dark:text-white' : ''}`}
+                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:outline-none ${!formData.type ? 'text-gray-400 dark:text-white' : ''}`}
+                style={{ borderColor: '#d1d5db' }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 {formData.type || 'Select type'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -651,7 +758,16 @@ export default function BasicInfoTab({
               <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                 <Input
                   placeholder="Search or type new type..."
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:border-transparent"
+                  style={{ borderColor: '#d1d5db' }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   value={typeSearchTerm}
                   onChange={e => {
                     const value = e.target.value;
@@ -669,9 +785,10 @@ export default function BasicInfoTab({
                   .map(type => (
                     <DropdownMenuItem
                       key={type}
-                      className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px] ${
-                        formData.type === type ? 'bg-purple-100' : ''
-                      }`}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{
+                        ...(formData.type === type ? { backgroundColor: `${primaryColor}20` } : {})
+                      }}
                       onSelect={() => {
                         onFormChange('type', type);
                         setTypeSearchTerm('');
@@ -685,7 +802,8 @@ export default function BasicInfoTab({
                     type => type.toLowerCase() === typeSearchTerm.toLowerCase()
                   ) && (
                     <DropdownMenuItem
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]"
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{ color: primaryColor }}
                       onSelect={async () => {
                         await addNewDropdownOption('types', typeSearchTerm);
                         onFormChange('type', typeSearchTerm);
@@ -705,7 +823,19 @@ export default function BasicInfoTab({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.courseCategory ? 'text-gray-400 dark:text-white' : ''}`}
+                className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:outline-none ${!formData.courseCategory ? 'text-gray-400 dark:text-white' : ''}`}
+                style={{
+                  borderColor: '',
+                  boxShadow: ''
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '';
+                  e.currentTarget.style.boxShadow = '';
+                }}
               >
                 {formData.courseCategory || 'Select category'}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -715,8 +845,16 @@ export default function BasicInfoTab({
               <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                 <Input
                   placeholder="Search or type new category..."
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   value={categorySearchTerm}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = primaryColor;
+                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
                   onChange={e => {
                     const value = e.target.value;
                     // Allow only alphabets and spaces for categories
@@ -733,9 +871,10 @@ export default function BasicInfoTab({
                   .map(category => (
                     <DropdownMenuItem
                       key={category}
-                      className={`px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px] ${
-                        formData.courseCategory === category ? 'bg-purple-100' : ''
-                      }`}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{
+                        backgroundColor: formData.courseCategory === category ? `${primaryColor}20` : ''
+                      }}
                       onSelect={() => {
                         onFormChange('courseCategory', category);
                         setCategorySearchTerm('');
@@ -749,7 +888,8 @@ export default function BasicInfoTab({
                     category => category.toLowerCase() === categorySearchTerm.toLowerCase()
                   ) && (
                     <DropdownMenuItem
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-purple-600 text-[15px]"
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]"
+                      style={{ color: primaryColor }}
                       onSelect={async () => {
                         await addNewDropdownOption('categories', categorySearchTerm);
                         onFormChange('courseCategory', categorySearchTerm);
@@ -773,7 +913,15 @@ export default function BasicInfoTab({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="mt-2 text-left text-[15px] border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500"
+              className="mt-2 text-left text-[15px] border-2 hover:bg-gray-50 hover:border-gray-400 focus:outline-none"
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = primaryColor;
+                e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '';
+                e.currentTarget.style.boxShadow = '';
+              }}
               style={{
                 minWidth: '120px',
                 width: (formData.tags?.length || 0) === 0
@@ -801,8 +949,16 @@ export default function BasicInfoTab({
             <div className="flex items-center mb-2 gap-1">
               <Input
                 placeholder="Search or add tags..."
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:border-transparent"
                 value={searchTerm}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '';
+                  e.currentTarget.style.boxShadow = '';
+                }}
                 onChange={e => {
                   const value = e.target.value;
                   // Allow only alphabets and spaces for tags
@@ -902,8 +1058,16 @@ export default function BasicInfoTab({
             id="studentGuidelines" 
             placeholder="Student Guidelines or special instructions (letters, numbers, basic punctuation only)..." 
             rows={2} 
-            className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:border-transparent"
             value={formData.studentGuidelines || ''}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = primaryColor;
+              e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '';
+              e.currentTarget.style.boxShadow = '';
+            }}
             onChange={e => {
               const newValue = e.target.value;
               if (newValue === '' || validateGuidelines(newValue)) {
@@ -954,8 +1118,16 @@ export default function BasicInfoTab({
             <div className="flex items-center mb-2 gap-2">
               <Input
                 placeholder="Search or add gifts..."
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:border-transparent"
                 value={freeGiftSearchTerm}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '';
+                  e.currentTarget.style.boxShadow = '';
+                }}
                 onChange={e => {
                   const value = e.target.value;
                   // Allow only alphabets and spaces for free gifts
@@ -1117,7 +1289,15 @@ export default function BasicInfoTab({
                       }
                     }}
                     placeholder="Enter FAQ question (letters, numbers, basic punctuation only)"
-                    className="mb-2 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="mb-2 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:border-transparent"
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = primaryColor;
+                      e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '';
+                      e.currentTarget.style.boxShadow = '';
+                    }}
                   />
                   <Label className="font-medium">Answer</Label>
                   <Textarea
@@ -1138,7 +1318,15 @@ export default function BasicInfoTab({
                     }}
                     placeholder="Enter FAQ answer (letters, numbers, basic punctuation only)"
                     rows={2}
-                    className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:border-transparent"
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = primaryColor;
+                      e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '';
+                      e.currentTarget.style.boxShadow = '';
+                    }}
                   />
                 </>
               ) : (

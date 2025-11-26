@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/dashboard/ui/card';
 import { Badge } from '@/components/dashboard/ui/badge';
 import {
@@ -52,6 +53,7 @@ interface AnalyticsDashboardProps {
 }
 
 export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProps) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Calculate overall metrics
   const totalReach = campaigns.reduce((sum, c) => sum + c.reach, 0);
   const totalEngagement = campaigns.reduce((sum, c) => sum + c.engagement, 0);
@@ -115,7 +117,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
     { week: 'Week 4', reach: 2800, engagement: 680, conversions: 89 },
   ];
 
-  const COLORS = ['#8b5cf6', '#3b82f6', '#06b6d4', '#ec4899', '#f59e0b', '#10b981'];
+  const COLORS = [primaryColor, secondaryColor, '#06b6d4', '#ec4899', '#f59e0b', '#10b981'];
 
   const StatCard = ({
     icon: Icon,
@@ -130,14 +132,14 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
     value: string | number;
     change?: string;
     trend?: 'up' | 'down';
-    color: string;
+    color: string; // CSS color value
   }) => (
     <Card className={`border-2 bg-gradient-to-br from-white to-gray-50`}>
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-white">{label}</p>
-            <p className={`text-2xl font-bold mt-2 ${color}`}>{value}</p>
+            <p className={`text-2xl font-bold mt-2`} style={{ color }}>{value}</p>
             {change && (
               <div className="flex items-center gap-1 mt-1">
                 {trend === 'up' ? (
@@ -155,8 +157,8 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
               </div>
             )}
           </div>
-          <div className={`p-3 rounded-lg ${color} bg-opacity-10`}>
-            <Icon className={`h-6 w-6 ${color}`} />
+          <div className={`p-3 rounded-lg`} style={{ backgroundColor: `${color}1a` }}>
+            <Icon className={`h-6 w-6`} style={{ color }} />
           </div>
         </div>
       </CardContent>
@@ -173,7 +175,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
           value={`${(totalReach / 1000).toFixed(1)}k`}
           change="+12%"
           trend="up"
-          color="text-purple-600"
+          color={primaryColor}
         />
         <StatCard
           icon={Eye}
@@ -216,7 +218,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
           value={totalConversions}
           change="+15%"
           trend="up"
-          color="text-orange-600"
+          color={secondaryColor}
         />
         <StatCard
           icon={DollarSign}
@@ -255,7 +257,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
                   yAxisId="left"
                   type="monotone"
                   dataKey="reach"
-                  stroke="#8b5cf6"
+                  stroke={primaryColor}
                   strokeWidth={2}
                   name="Reach"
                 />
@@ -263,7 +265,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
                   yAxisId="left"
                   type="monotone"
                   dataKey="engagement"
-                  stroke="#3b82f6"
+                  stroke={secondaryColor}
                   strokeWidth={2}
                   name="Engagement"
                 />
@@ -319,15 +321,18 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
           </CardHeader>
           <CardContent className="space-y-3">
             {statusBreakdown.map((item) => {
-              let badgeColor = 'bg-gray-100 text-gray-800 dark:text-white';
-              if (item.status === 'Active') badgeColor = 'bg-green-100 text-green-800';
-              if (item.status === 'Scheduled') badgeColor = 'bg-blue-100 text-blue-800';
-              if (item.status === 'Completed') badgeColor = 'bg-gray-100 text-gray-800 dark:text-white';
-              if (item.status === 'Draft') badgeColor = 'bg-yellow-100 text-yellow-800';
+              const style: React.CSSProperties =
+                item.status === 'Active'
+                  ? { backgroundColor: '#dcfce7', color: '#166534' }
+                  : item.status === 'Scheduled'
+                  ? { backgroundColor: `${primaryColor}26`, color: primaryColor }
+                  : item.status === 'Draft'
+                  ? { backgroundColor: `${secondaryColor}26`, color: secondaryColor }
+                  : { backgroundColor: '#f3f4f6', color: '#111827' };
 
               return (
                 <div key={item.status} className="flex items-center justify-between">
-                  <Badge className={badgeColor}>{item.status}</Badge>
+                  <Badge style={style}>{item.status}</Badge>
                   <span className="text-lg font-bold">{item.count}</span>
                 </div>
               );
@@ -351,9 +356,10 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all"
+                  className="h-2 rounded-full transition-all"
                   style={{
                     width: `${Math.min((totalBudgetSpent / totalBudget) * 100, 100)}%`,
+                    backgroundImage: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`,
                   }}
                 />
               </div>
@@ -385,7 +391,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
               .slice(0, 3)
               .map((campaign, idx) => (
                 <div key={campaign.id} className="flex items-start gap-2 pb-2 border-b last:border-0">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -399,7 +405,13 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
       </div>
 
       {/* Coming Soon: AI Analytics */}
-      <Card className="border-2 border-dashed border-purple-300 bg-gradient-to-r from-purple-50 to-blue-50">
+      <Card
+        className="border-2 border-dashed"
+        style={{
+          borderColor: `${primaryColor}4d`,
+          backgroundImage: `linear-gradient(90deg, ${primaryColor}0d, ${secondaryColor}0d)`,
+        }}
+      >
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-2">
@@ -412,7 +424,7 @@ export default function AnalyticsDashboard({ campaigns }: AnalyticsDashboardProp
           </div>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm text-purple-800">
+          <ul className="space-y-2 text-sm" style={{ color: `${primaryColor}dd` }}>
             <li>� Predictive analytics for campaign performance</li>
             <li>� Automated optimization recommendations</li>
             <li>� Budget allocation suggestions</li>

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useMemo } from "react";
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Search, Filter, ArrowUpDown, Upload, Download, Check, X, Plus, FileText } from "lucide-react";
@@ -52,6 +53,7 @@ export default function IncomeSearchFilters({
   setShowIncomeDraftsDialog,
   draftsCount = 0,
 }: IncomeSearchFiltersProps) {
+  const { primaryColor } = useCustomColors();
   const { currency } = useCurrency();
   
   // Month/Year filter state - default to current month/year
@@ -403,7 +405,8 @@ export default function IncomeSearchFilters({
             variant="ghost" 
             size="sm" 
             onClick={()=>setViewMode('list')} 
-            className={`rounded-l-md rounded-r-none border-0 h-9 px-3 ${viewMode==='list' ? 'bg-purple-500 text-white' : 'bg-gray-50'}`} 
+            style={{ backgroundColor: viewMode==='list' ? primaryColor : '', color: viewMode==='list' ? 'white' : '' }}
+            className={`rounded-l-md rounded-r-none border-0 h-9 px-3 ${viewMode==='list' ? '' : 'bg-gray-50'}`} 
             title="List View" 
             disabled={disabled}
           >
@@ -413,7 +416,8 @@ export default function IncomeSearchFilters({
             variant="ghost" 
             size="sm" 
             onClick={()=>setViewMode('grid')} 
-            className={`rounded-r-md rounded-l-none border-0 h-9 px-3 ${viewMode==='grid' ? 'bg-purple-500 text-white' : 'bg-gray-50'}`} 
+            style={{ backgroundColor: viewMode==='grid' ? primaryColor : '', color: viewMode==='grid' ? 'white' : '' }}
+            className={`rounded-r-md rounded-l-none border-0 h-9 px-3 ${viewMode==='grid' ? '' : 'bg-gray-50'}`} 
             title="Grid View" 
             disabled={disabled}
           >
@@ -433,7 +437,7 @@ export default function IncomeSearchFilters({
               onClick={(e) => { e.preventDefault(); toggleFilterDropdown(); }}
             >
               <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 text-purple-500" />
+                <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                 {filterAction === "applied" && (
                   <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                     <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -623,17 +627,29 @@ export default function IncomeSearchFilters({
           variant="outline"
           size="sm"
           onClick={() => setShowIncomeDraftsDialog?.(true)}
+          style={{ backgroundColor: draftsCount >= 1 ? primaryColor : '', color: draftsCount >= 1 ? 'white' : '' }}
           className={`h-9 px-3 flex items-center gap-2 ${
             draftsCount >= 1 
-              ? "bg-purple-600 text-white hover:bg-purple-600 hover:text-white" 
+              ? "" 
               : "border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
           }`}
+          onMouseEnter={(e) => { if (draftsCount >= 1) e.currentTarget.style.backgroundColor = primaryColor; }}
+          onMouseLeave={(e) => { if (draftsCount >= 1) e.currentTarget.style.backgroundColor = primaryColor; }}
           title="Income Drafts"
         >
           <FileText className="h-4 w-4" />
           Drafts ({draftsCount})
         </Button>
-        <Button size="sm" title="Add Income" onClick={onAddIncome} className="bg-purple-600 text-white hover:bg-purple-600 hover:text-white"> <Plus className="h-4 w-4 mr-2" /> Add Income </Button>
+        <Button 
+          size="sm" 
+          title="Add Income" 
+          onClick={onAddIncome} 
+          style={{ backgroundColor: primaryColor, color: 'white' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
+        > 
+          <Plus className="h-4 w-4 mr-2" /> Add Income 
+        </Button>
 
         </div>
       {importing && (

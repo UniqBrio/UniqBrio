@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { useCurrency } from "@/contexts/currency-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
@@ -86,6 +87,7 @@ interface AnalyticsData {
 
 export default function AnalyticsPage() {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(false)
   const [timeFilter, setTimeFilter] = useState("30")
@@ -346,7 +348,7 @@ export default function AnalyticsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-white">Trial Attendance</p>
-                    <p className="text-2xl font-bold text-purple-600">
+                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>
                       {Math.round(
                         (analyticsData.conversionMetrics.trialsAttended /
                           analyticsData.conversionMetrics.trialsScheduled) *
@@ -359,7 +361,7 @@ export default function AnalyticsPage() {
                       attended
                     </p>
                   </div>
-                  <Calendar className="w-8 h-8 text-purple-500" />
+                  <Calendar className="w-8 h-8" style={{ color: primaryColor }} />
                 </div>
               </CardContent>
             </Card>
@@ -369,10 +371,10 @@ export default function AnalyticsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-white">Avg Response Time</p>
-                    <p className="text-2xl font-bold text-orange-600">2.4h</p>
+                    <p className="text-2xl font-bold" style={{ color: secondaryColor }}>2.4h</p>
                     <p className="text-sm text-gray-500 dark:text-white">Across all counselors</p>
                   </div>
-                  <Clock className="w-8 h-8 text-orange-500" />
+                  <Clock className="w-8 h-8" style={{ color: secondaryColor }} />
                 </div>
               </CardContent>
             </Card>

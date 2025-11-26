@@ -1,4 +1,5 @@
 import React from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
@@ -35,6 +36,7 @@ export function TaskGridView({
   selectedTaskIds,
   onTaskSelection,
 }: TaskGridViewProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const isTaskOverdue = (task: Task) => {
     if (task.isCompleted) return false
     const td = safeParse(task.targetDate)
@@ -56,14 +58,25 @@ export function TaskGridView({
       className="task-grid-scroll overflow-x-auto pb-4 px-1"
     >
       <div className="flex gap-4 min-w-max">
-        {tasks.map((task) => (
+        {tasks.map((task) => {
+          const overdueStyle = isTaskOverdue(task) ? {
+            backgroundColor: `${secondaryColor}15`,
+            borderColor: `${secondaryColor}80`
+          } : {}
+          return (
           <Card
             key={task.id}
             className={cn(
               "relative border-2 rounded-xl transition-all duration-200 hover:shadow-md hover:cursor-pointer flex-shrink-0 w-80",
-              task.isCompleted ? "bg-green-50 border-green-200" : isTaskOverdue(task) ? "bg-orange-50 border-orange-300" : "border-orange-300",
-              selectedTaskIds.has(task.id) ? "ring-2 ring-purple-300" : ""
+              task.isCompleted ? "bg-green-50 border-green-200" : isTaskOverdue(task) ? "" : "border-orange-300",
+              selectedTaskIds.has(task.id) ? "ring-2" : ""
             )}
+            style={{
+              ...overdueStyle,
+              ...(selectedTaskIds.has(task.id) ? {
+                boxShadow: `0 0 0 2px ${primaryColor}80`
+              } : {})
+            }}
             onClick={() => onViewTask(task)}
           >
           {/* Status Badge and Edit Icon */}
@@ -81,7 +94,16 @@ export function TaskGridView({
                       e.stopPropagation()
                       onEditTask(task)
                     }}
-                    className="h-6 w-6 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    className="h-6 w-6"
+                    style={{ color: primaryColor }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = `${primaryColor}dd`
+                      e.currentTarget.style.backgroundColor = `${primaryColor}15`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = primaryColor
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
                     aria-label="Edit task"
                   >
                     <Pencil className="h-3 w-3" />
@@ -175,7 +197,10 @@ export function TaskGridView({
                     e.stopPropagation()
                     onToggleComplete(task.id, true)
                   }}
-                  className="h-7 px-3 text-xs bg-purple-500 text-white hover:bg-purple-600"
+                  className="h-7 px-3 text-xs text-white"
+                  style={{ backgroundColor: primaryColor }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                 >
                   Mark Complete
                 </Button>
@@ -204,7 +229,7 @@ export function TaskGridView({
             </div>
           </CardContent>
           </Card>
-        ))}
+        )})}
       </div>
     </div>
   )

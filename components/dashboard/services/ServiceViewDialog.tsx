@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Separator } from "@/components/dashboard/ui/separator"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface Service {
   id: string
@@ -50,6 +51,8 @@ interface ServiceViewDialogProps {
 }
 
 export default function ServiceViewDialog({ isOpen, onOpenChange, service }: ServiceViewDialogProps) {
+  const { secondaryColor } = useCustomColors();
+  
   if (!service) return null
 
   const enrollmentPercentage = (service.enrolled / service.capacity) * 100
@@ -136,10 +139,11 @@ export default function ServiceViewDialog({ isOpen, onOpenChange, service }: Ser
                 </div>
                 <div className="w-full h-3 bg-gray-200 rounded-full">
                   <div
-                    className={`h-full rounded-full ${
-                      enrollmentPercentage > 80 ? "bg-orange-500" : "bg-green-500"
-                    }`}
-                    style={{ width: `${enrollmentPercentage}%` }}
+                    className="h-full rounded-full"
+                    style={{ 
+                      width: `${enrollmentPercentage}%`,
+                      backgroundColor: enrollmentPercentage > 80 ? secondaryColor : "#22c55e"
+                    }}
                   />
                 </div>
               </div>

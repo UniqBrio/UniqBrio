@@ -24,8 +24,10 @@ import { DraftsDialog } from "./DraftsDialog"
 import { useTasksApi } from "@/hooks/dashboard/use-tasks-api"
 import TaskSettings from "./TaskSettings"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 export default function TaskManagement() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const { tasks, setTasks, create, update, remove } = useTasksApi()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [viewTask, setViewTask] = useState<Task | null>(null)
@@ -397,7 +399,7 @@ export default function TaskManagement() {
     <div className="container mx-auto py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-purple-600">Task Management</h1>
+        <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>Task Management</h1>
       </div>
 
       {/* Tabs */}
@@ -405,21 +407,66 @@ export default function TaskManagement() {
         <TabsList className="grid w-full grid-cols-3 bg-transparent gap-2 p-0 h-auto mb-6">
           <TabsTrigger 
             value="analytics" 
-            className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+            className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+            style={{
+              borderColor: activeTab === 'analytics' ? 'transparent' : secondaryColor,
+              color: activeTab === 'analytics' ? 'white' : secondaryColor,
+              backgroundColor: activeTab === 'analytics' ? primaryColor : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'analytics') {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'analytics') {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             <LayoutDashboard className="h-4 w-4" />
             Analytics
           </TabsTrigger>
           <TabsTrigger 
             value="tasks" 
-            className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+            className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+            style={{
+              borderColor: activeTab === 'tasks' ? 'transparent' : secondaryColor,
+              color: activeTab === 'tasks' ? 'white' : secondaryColor,
+              backgroundColor: activeTab === 'tasks' ? primaryColor : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'tasks') {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'tasks') {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             <List className="h-4 w-4" />
             Tasks
           </TabsTrigger>
           <TabsTrigger 
             value="settings" 
-            className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+            className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+            style={{
+              borderColor: activeTab === 'settings' ? 'transparent' : secondaryColor,
+              color: activeTab === 'settings' ? 'white' : secondaryColor,
+              backgroundColor: activeTab === 'settings' ? primaryColor : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'settings') {
+                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'settings') {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             <Settings className="h-4 w-4" />
             Settings
@@ -435,7 +482,7 @@ export default function TaskManagement() {
         <TabsContent value="tasks" className="space-y-6">
           {/* Task List Title */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-purple-600">Active Tasks</h2>
+            <h2 className="text-2xl font-bold" style={{ color: primaryColor }}>Active Tasks</h2>
           </div>
 
           {/* Filters and Sort */}
@@ -484,7 +531,8 @@ export default function TaskManagement() {
                 >
                   <Button 
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600 hover:border-purple-700"
+                    className="text-white"
+                    style={{ backgroundColor: primaryColor, borderColor: primaryColor }}
                     onClick={() => setDraftsDialogOpen(true)}
                   >
                     <FileText className="h-4 w-4 mr-2" /> Drafts ({drafts.filter(d=>d.type==='task').length})
@@ -495,7 +543,8 @@ export default function TaskManagement() {
                   <DialogTrigger asChild>
                     <Button 
                       size="sm"
-                      className="bg-purple-600 hover:bg-purple-700 text-white border-purple-600 hover:border-purple-700"
+                      className="text-white"
+                      style={{ backgroundColor: primaryColor, borderColor: primaryColor }}
                       onClick={() => {
                         // Force fresh form when explicitly adding a new task
                         if (currentDraft) setCurrentDraft(null)
@@ -688,7 +737,7 @@ export default function TaskManagement() {
             isOpen={editDialogOpen}
             onOpenChange={setEditDialogOpen}
             onSave={handleUpdateTask}
-            editTask={editTask}
+            editTask={editTask || undefined}
             onSaveDraft={(data, draftId) => {
               saveDraft(data.taskName || 'Untitled Task', data, draftId)
               toast({
@@ -720,3 +769,5 @@ export default function TaskManagement() {
     </div>
   )
 }
+
+

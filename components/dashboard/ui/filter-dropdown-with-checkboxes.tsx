@@ -5,6 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Button } from "@/components/dashboard/ui/button"
 import { ChevronDown } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
  
 interface FilterOption {
   value: string
@@ -32,6 +33,7 @@ export function FilterDropdownWithCheckboxes({
   className = "",
   showFooterActions = true
 }: FilterDropdownProps) {
+  const { primaryColor } = useCustomColors()
   const [pending, setPending] = useState<string[]>(value)
   const [open, setOpen] = useState(false)
  
@@ -100,7 +102,6 @@ export function FilterDropdownWithCheckboxes({
                   return updated
                 })
               }}
-              className="data-[state=checked]:bg-purple-600 border-purple-500"
             />
             <span className="text-sm">{option.label}</span>
           </DropdownMenuItem>
@@ -110,7 +111,14 @@ export function FilterDropdownWithCheckboxes({
             <Button size="sm" variant="outline" className="flex-1" onClick={handleClear}>
               Clear All
             </Button>
-            <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700 text-white" onClick={handleApply}>
+            <Button 
+              size="sm" 
+              className="flex-1 text-white" 
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+              onClick={handleApply}
+            >
               Apply
             </Button>
           </div>

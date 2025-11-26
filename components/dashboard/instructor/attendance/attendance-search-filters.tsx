@@ -32,6 +32,7 @@ import {
 // Removed MultiSelectDropdown and ColumnSelectorModal per requirements
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input"
 import AttendanceColumnSelector from "./attendance-column-selector"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 // Column selector UI removed
 
@@ -102,6 +103,7 @@ export default function AttendanceSearchFilters({
   draftCount: draftCountProp,
 }: AttendanceSearchFiltersProps) {
   const { toast } = useToast();
+  const { primaryColor } = useCustomColors();
 
   // Draft count state (for attendance drafts)
   const [draftCount, setDraftCount] = useState(0);
@@ -548,7 +550,7 @@ export default function AttendanceSearchFilters({
                 tabIndex={0}
               >
                 <span className="relative inline-block">
-                  <Filter className="h-3.5 w-3.5 text-purple-500" />
+                  <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
                   {filterAction === 'applied' && (
                     <span className="absolute -top-1 -right-1">
                       <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -619,7 +621,8 @@ export default function AttendanceSearchFilters({
                               checked={checked}
                               onCheckedChange={() => toggle()}
                               onClick={(e) => e.stopPropagation()}
-                              className="data-[state=checked]:bg-purple-600 border-purple-500"
+                              className="border"
+                              style={{ borderColor: primaryColor, backgroundColor: checked ? primaryColor : undefined }}
                             />
                             <span className="text-sm">{statusLabel(s)}</span>
                           </DropdownMenuItem>
@@ -796,7 +799,8 @@ export default function AttendanceSearchFilters({
           <Button
             onClick={onOpenDrafts}
             size="sm"
-            className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+            className="h-9 text-white rounded-lg hover:opacity-90"
+            style={{ backgroundColor: primaryColor }}
             title={`Drafts (${effectiveDraftCount})`}
           >
             <FileText className="h-4 w-4 mr-2" />
@@ -806,7 +810,7 @@ export default function AttendanceSearchFilters({
 
         {/* Add Attendance */}
         {onAddAttendance && (
-          <Button onClick={onAddAttendance} size="sm" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+          <Button onClick={onAddAttendance} size="sm" className="h-9 text-white rounded-lg hover:opacity-90" style={{ backgroundColor: primaryColor }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Attendance
           </Button>
@@ -817,18 +821,18 @@ export default function AttendanceSearchFilters({
       {importing && (
         <div className="w-full flex items-center gap-4 mt-2">
           <div className="flex-1 bg-gray-200 rounded-full h-2">
-            <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${(importStats.processed / importStats.total) * 100}%` }}></div>
+            <div className="h-2 rounded-full" style={{ width: `${(importStats.processed / importStats.total) * 100}%`, backgroundColor: primaryColor }}></div>
           </div>
           <span className="text-sm text-gray-600 dark:text-white">{importStats.processed}/{importStats.total}</span>
         </div>
       )}
 
       {/* Attendance count */}
-      <div className="flex items-center justify-between mb-4 bg-purple-50 rounded-lg px-4 py-2">
+      <div className="flex items-center justify-between mb-4 rounded-lg px-4 py-2" style={{ background: `color-mix(in oklab, ${primaryColor} 10%, white)` }}>
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-purple-500 rounded-full" />
-          <span className="text-purple-600 font-medium text-sm">{filtered.length}</span>
-          <span className="text-purple-600 text-sm">attendance record{filtered.length !== 1 ? 's' : ''} found</span>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }} />
+          <span className="font-medium text-sm" style={{ color: primaryColor }}>{filtered.length}</span>
+          <span className="text-sm" style={{ color: primaryColor }}>attendance record{filtered.length !== 1 ? 's' : ''} found</span>
         </div>
         {/* Column selector button */}
         {typeof displayedColumns !== 'undefined' && typeof setDisplayedColumns !== 'undefined' && (

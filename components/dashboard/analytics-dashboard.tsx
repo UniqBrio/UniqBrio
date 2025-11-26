@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -30,6 +31,7 @@ interface AnalyticsDashboardProps {
 }
 
 export default function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
+  const { primaryColor } = useCustomColors();
   const [selectedPeriod, setSelectedPeriod] = useState("week")
   const [selectedMetric, setSelectedMetric] = useState("attendance")
 
@@ -292,7 +294,7 @@ export default function AnalyticsDashboard({ events }: AnalyticsDashboardProps) 
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-purple-700">Analytics Dashboard</h2>
+          <h2 className="text-2xl font-bold" style={{ color: primaryColor }}>Analytics Dashboard</h2>
           <p className="text-gray-500 dark:text-white">Comprehensive insights into your schedule performance</p>
         </div>
       </div>
@@ -348,14 +350,14 @@ export default function AnalyticsDashboard({ events }: AnalyticsDashboardProps) 
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
+            <Card className="border" style={{ background: `linear-gradient(to bottom right, ${primaryColor}15, ${primaryColor}20)`, borderColor: primaryColor }}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-purple-600">Total Cohorts</p>
-                    <p className="text-2xl font-bold text-purple-900">{totalCohorts}</p>
+                    <p className="text-sm font-medium" style={{ color: `${primaryColor}cc` }}>Total Cohorts</p>
+                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>{totalCohorts}</p>
                   </div>
-                  <Users className="h-8 w-8 text-purple-500" />
+                  <Users className="h-8 w-8" style={{ color: primaryColor }} />
                 </div>
               </CardContent>
             </Card>

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import InstructorAttendanceDraftModel from "@/models/dashboard/staff/InstructorAttendanceDraft"
-import { getUserSession } from '@/lib/auth'
+import { getUserSession } from '@/lib/tenant/api-helpers'
 import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 // Map DB doc to current UI shape (derive student* from instructor*)

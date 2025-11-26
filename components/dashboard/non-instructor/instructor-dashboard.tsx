@@ -23,6 +23,7 @@ import {
 import React from "react"
 import { useNonInstructors } from "@/hooks/dashboard/staff/use-non-instructors"
 import { parseToYMDFlexible } from "@/lib/dashboard/staff/date-utils"
+import { useCustomColors } from "@/lib/use-custom-colors"
 // ComingSoonNotice intentionally not used here; sections remain disabled/greyed out without the banner
 
 
@@ -31,6 +32,7 @@ import { parseToYMDFlexible } from "@/lib/dashboard/staff/date-utils"
 export default function InstructorDashboard() {
   // Get real non-instructor data
   const { instructors, loading: instructorsLoading } = useNonInstructors();
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Derived metrics from backend data
   const activeInstructors = instructors.length;
 
@@ -65,27 +67,27 @@ export default function InstructorDashboard() {
       {/* Quick Stats - Extended */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Active Non-Instructors */}
-            <Card className="bg-green-50 border border-green-500">
+            <Card className="border" style={{ backgroundColor: `${primaryColor}15`, borderColor: primaryColor }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-md font-semibold text-green-700">Total Non-Instructors</CardTitle>
-                <Users className="h-5 w-5 text-green-600" />
+                <CardTitle className="text-md font-semibold" style={{ color: primaryColor }}>Total Non-Instructors</CardTitle>
+                <Users className="h-5 w-5" style={{ color: primaryColor }} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold text-green-800">
+                <div className="text-3xl font-extrabold" style={{ color: primaryColor }}>
                   {instructorsLoading ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
                     activeInstructors
                   )}
                 </div>
-                <p className="text-sm text-green-700">Active Non-Instructors</p>
+                <p className="text-sm" style={{ color: primaryColor }}>Active Non-Instructors</p>
               </CardContent>
             </Card>
             {/* Top Roles by Headcount */}
-            <Card className="bg-blue-50 border border-blue-500">
+            <Card className="border" style={{ backgroundColor: `${secondaryColor}15`, borderColor: secondaryColor }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-md font-semibold text-blue-700">Top 3 categories by role</CardTitle>
-                <TrendingUp className="h-5 w-5 text-blue-600" />
+                <CardTitle className="text-md font-semibold" style={{ color: secondaryColor }}>Top 3 categories by role</CardTitle>
+                <TrendingUp className="h-5 w-5" style={{ color: secondaryColor }} />
               </CardHeader>
               <CardContent>
                 {instructorsLoading ? (
@@ -95,16 +97,16 @@ export default function InstructorDashboard() {
                     <Skeleton className="h-4 w-24" />
                   </div>
                 ) : topRoles.length === 0 ? (
-                  <p className="text-sm text-blue-700">No roles found</p>
+                  <p className="text-sm" style={{ color: secondaryColor }}>No roles found</p>
                 ) : (
                   <div className="space-y-2">
                     {topRoles.slice(0,3).map((r, idx) => (
                       <div key={r.role} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">{idx+1}</div>
-                          <span className="text-sm text-blue-800">{r.role}</span>
+                          <div className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center" style={{ backgroundColor: secondaryColor }}>{idx+1}</div>
+                          <span className="text-sm" style={{ color: secondaryColor }}>{r.role}</span>
                         </div>
-                        <span className="text-sm font-medium text-blue-900">{r.count}</span>
+                        <span className="text-sm font-medium" style={{ color: secondaryColor }}>{r.count}</span>
                       </div>
                     ))}
                   </div>
@@ -113,16 +115,16 @@ export default function InstructorDashboard() {
             </Card>
 
             {/* New Hires This Month */}
-            <Card className="bg-purple-50 border border-purple-500">
+            <Card className="border" style={{ backgroundColor: `${primaryColor}15`, borderColor: primaryColor }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-md font-semibold text-purple-700">New Hires This Month</CardTitle>
-                <Calendar className="h-5 w-5 text-purple-600" />
+                <CardTitle className="text-md font-semibold" style={{ color: primaryColor }}>New Hires This Month</CardTitle>
+                <Calendar className="h-5 w-5" style={{ color: primaryColor }} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold text-purple-800">
+                <div className="text-3xl font-extrabold" style={{ color: primaryColor }}>
                   {instructorsLoading ? <Skeleton className="h-8 w-12" /> : newHiresThisMonth}
                 </div>
-                <p className="text-sm text-purple-700">
+                <p className="text-sm" style={{ color: primaryColor }}>
                   Joined during {new Date().toLocaleString(undefined, { month: 'long' })}
                 </p>
               </CardContent>
@@ -168,7 +170,7 @@ export default function InstructorDashboard() {
                       label={{ value: "No. of non-instructors", angle: -90, position: "insideLeft", style: { textAnchor: "middle" } }}
                     />
                     <Tooltip formatter={(v: any) => [String(v), "Non-Instructors"]} />
-                    <Bar dataKey="value" name="Non-Instructors" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey="value" name="Non-Instructors" fill={primaryColor} radius={[4, 4, 0, 0]}>
                       <LabelList dataKey="value" position="top" formatter={(v: any) => String(v)} />
                     </Bar>
                   </BarChart>
@@ -213,7 +215,7 @@ export default function InstructorDashboard() {
                   )
                 }
 
-                const colors = ["#8B5CF6", "#DE7D14", "#22C55E", "#06B6D4", "#F97316", "#A3E635", "#EF4444"]
+                const colors = [primaryColor, secondaryColor, "#22C55E", "#06B6D4", "#F97316", "#A3E635", "#EF4444"]
                 return (
                   <PieChart>
                     <Pie
@@ -330,7 +332,7 @@ export default function InstructorDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-purple-500" />
+              <Award className="h-5 w-5" style={{ color: primaryColor }} />
               Recognition Badges {" "}
                       
 
@@ -358,8 +360,8 @@ export default function InstructorDashboard() {
                   <p className="text-xs font-medium">Mentor</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <BookOpen className="h-6 w-6 text-purple-600" />
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: `${primaryColor}1a` }}>
+                    <BookOpen className="h-6 w-6" style={{ color: primaryColor }} />
                   </div>
                   <p className="text-xs font-medium">Innovator</p>
                 </div>

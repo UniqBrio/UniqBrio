@@ -32,6 +32,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { CRMNavigation } from "@/components/dashboard/crm-navigation"
 
 interface CounselingSession {
@@ -55,6 +56,7 @@ interface CounselingSession {
 }
 
 export default function SessionsPage() {
+  const { primaryColor } = useCustomColors()
   const [sessions, setSessions] = useState<CounselingSession[]>([])
   const [filteredSessions, setFilteredSessions] = useState<CounselingSession[]>([])
   const [loading, setLoading] = useState(false)
@@ -216,7 +218,7 @@ export default function SessionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: primaryColor }}></div>
       </div>
     )
   }
@@ -228,7 +230,7 @@ export default function SessionsPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Counseling Sessions</h1>
           <p className="text-gray-500 dark:text-white">Manage and track counseling sessions</p>
         </div>
-        <Button className="w-full md:w-auto bg-purple-500 text-white" onClick={() => setShowAddDialog(true)}>
+        <Button className="w-full md:w-auto text-white" style={{ backgroundColor: primaryColor }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} onClick={() => setShowAddDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Add Session
         </Button>

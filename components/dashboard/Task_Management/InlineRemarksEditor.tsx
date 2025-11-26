@@ -3,6 +3,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Plus, Edit3 } from "lucide-react"
 import { cn } from "@/lib/dashboard/utils"
 import { RemarksEditDialog } from "./RemarksEditDialog"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface InlineRemarksEditorProps {
   initialValue: string
@@ -18,6 +19,7 @@ export function InlineRemarksEditor({
   className 
 }: InlineRemarksEditorProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { primaryColor } = useCustomColors()
 
   const handleSave = (value: string) => {
     onSave(value)
@@ -35,21 +37,25 @@ export function InlineRemarksEditor({
       onClick={(e) => e.stopPropagation()}
     >
       {initialValue ? (
-        <div 
-          className="flex items-center gap-1 cursor-pointer hover:text-purple-600 group"
+        <div
+          className="group flex items-center gap-1 cursor-pointer"
           onClick={handleClick}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = primaryColor }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '' }}
           title={`Click to edit remarks: ${initialValue}`}
         >
-          <div className="max-w-32 truncate text-sm text-muted-foreground" title={initialValue}>
+          <div className="max-w-32 truncate text-sm" title={initialValue}>
             {initialValue}
           </div>
-          <Edit3 className="h-3 w-3 text-gray-400 dark:text-white group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Edit3 className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       ) : (
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-gray-400 dark:text-white hover:text-purple-600"
+          className="h-6 w-6 text-gray-400 dark:text-white"
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = primaryColor }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '' }}
           onClick={handleClick}
           title="Add remarks"
         >

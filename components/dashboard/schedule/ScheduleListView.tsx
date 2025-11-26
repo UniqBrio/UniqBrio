@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
@@ -73,6 +74,7 @@ export default function ScheduleListView({
   onProcessRefund,
   onClearFilters,
 }: ScheduleListViewProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -120,9 +122,9 @@ export default function ScheduleListView({
         case "Cancelled":
           return "bg-red-500"
         case "Pending":
-          return "bg-orange-500"
+          return "" // Will use inline style with secondaryColor
         case "Rescheduled":
-          return "bg-purple-500"
+          return ""
         default:
           return "bg-gray-500"
       }
@@ -134,7 +136,8 @@ export default function ScheduleListView({
     return (
       <Card
         key={event.id}
-        className={`${event.isCancelled ? "border-red-200" : ""} ${isSelected ? "ring-2 ring-purple-500" : ""} transition-all hover:shadow-md`}
+        className={`${event.isCancelled ? "border-red-200" : ""} ${isSelected ? "ring-2" : ""} transition-all hover:shadow-md`}
+        style={isSelected ? { boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
       >
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
@@ -150,9 +153,9 @@ export default function ScheduleListView({
               <div>
                 <CardTitle className="text-lg flex items-center gap-2">
                   {getEventDisplayName(event)}
-                  {event.isRecurring && <Repeat className="h-4 w-4 text-purple-500" />}
+                  {event.isRecurring && <Repeat className="h-4 w-4" style={{ color: primaryColor }} />}
                   {event.type === "online" && <Video className="h-4 w-4 text-blue-500" />}
-                  {event.waitlist && event.waitlist.length > 0 && <Users className="h-4 w-4 text-orange-500" />}
+                  {event.waitlist && event.waitlist.length > 0 && <Users className="h-4 w-4" style={{ color: secondaryColor }} />}
                 </CardTitle>
                 <CardDescription className="flex items-center gap-2">
                   {format(event.date, "dd-MMM-yy")}
@@ -165,9 +168,18 @@ export default function ScheduleListView({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className={getStatusColor()}>{event.status}</Badge>
+              <Badge 
+                className={getStatusColor()}
+                style={
+                  event.status === "Rescheduled" 
+                    ? { backgroundColor: primaryColor, color: 'white' }
+                    : event.status === "Pending"
+                    ? { backgroundColor: secondaryColor, color: 'white' }
+                    : {}
+                }
+              >{event.status}</Badge>
               {event.refundStatus === "pending" && (
-                <Badge variant="outline" className="text-orange-600 border-orange-300">
+                <Badge variant="outline" className="text-gray-600 border-gray-300" style={{ color: secondaryColor, borderColor: secondaryColor }}>
                   Refund Pending
                 </Badge>
               )}
@@ -178,7 +190,7 @@ export default function ScheduleListView({
                 </Badge>
               )}
               {event.modificationType === "instructor_changed" && (
-                <Badge variant="outline" className="border-purple-400 text-purple-700 bg-purple-50">
+                <Badge variant="outline" className="border-gray-400 text-gray-700 bg-gray-50" style={{ borderColor: primaryColor, color: primaryColor, backgroundColor: `${primaryColor}15` }}>
                   <UserCheck className="h-3 w-3 mr-1" />
                   Reassigned
                 </Badge>
@@ -192,7 +204,7 @@ export default function ScheduleListView({
               <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.startTime} - {event.endTime}
               {event.rescheduleInfo && event.originalSessionData && (
-                <span className="ml-2 text-xs text-purple-600 line-through">
+                <span className="ml-2 text-xs line-through" style={{ color: primaryColor }}>
                   (was {event.originalSessionData.startTime} - {event.originalSessionData.endTime})
                 </span>
               )}
@@ -209,23 +221,23 @@ export default function ScheduleListView({
               <Users className="h-4 w-4 mr-2 text-gray-500 dark:text-white" />
               {event.students}/{event.maxCapacity} students
               {event.waitlist && event.waitlist.length > 0 && (
-                <span className="ml-1 text-orange-600">(+{event.waitlist.length} waitlist)</span>
+                <span className="ml-1" style={{ color: secondaryColor }}>(+{event.waitlist.length} waitlist)</span>
               )}
             </div>
           </div>
 
           {/* Reschedule Information */}
           {event.rescheduleInfo && event.originalSessionData && (
-            <div className="mt-2 p-2 bg-purple-50 rounded-md text-sm">
+            <div className="mt-2 p-2 rounded-md text-sm" style={{ backgroundColor: `${primaryColor}15` }}>
               <div className="flex items-start">
-                <RefreshCw className="h-4 w-4 mr-2 mt-0.5 text-purple-600" />
+                <RefreshCw className="h-4 w-4 mr-2 mt-0.5" style={{ color: primaryColor }} />
                 <div>
-                  <span className="font-medium text-purple-800">Rescheduled:</span>
-                  <div className="text-purple-700 mt-1">
+                  <span className="font-medium" style={{ color: `${primaryColor}dd` }}>Rescheduled:</span>
+                  <div className="mt-1" style={{ color: `${primaryColor}cc` }}>
                     Original: {format(event.originalSessionData.date, "dd-MMM-yy")} at {event.originalSessionData.startTime} - {event.originalSessionData.endTime}
                   </div>
                   {event.rescheduleInfo.reason && (
-                    <div className="text-purple-600 mt-1">
+                    <div className="mt-1" style={{ color: primaryColor }}>
                       Reason: {event.rescheduleInfo.reason}
                     </div>
                   )}
@@ -236,20 +248,20 @@ export default function ScheduleListView({
 
           {/* Reassignment Information */}
           {event.reassignmentInfo && (
-            <div className="mt-2 p-2 bg-purple-50 rounded-md text-sm">
+            <div className="mt-2 p-2 rounded-md text-sm" style={{ backgroundColor: `${primaryColor}15` }}>
               <div className="flex items-start">
-                <UserCheck className="h-4 w-4 mr-2 mt-0.5 text-purple-600" />
+                <UserCheck className="h-4 w-4 mr-2 mt-0.5" style={{ color: primaryColor }} />
                 <div>
-                  <span className="font-medium text-purple-800">Instructor Reassigned:</span>
-                  <div className="text-purple-700 mt-1">
+                  <span className="font-medium" style={{ color: `${primaryColor}dd` }}>Instructor Reassigned:</span>
+                  <div className="mt-1" style={{ color: `${primaryColor}cc` }}>
                     From: {event.reassignmentInfo.originalInstructor} ? To: {event.reassignmentInfo.newInstructor}
                   </div>
                   {event.reassignmentInfo.reason && (
-                    <div className="text-purple-600 mt-1">
+                    <div className="mt-1" style={{ color: primaryColor }}>
                       Reason: {event.reassignmentInfo.reason}
                     </div>
                   )}
-                  <div className="text-xs text-purple-500 mt-1">
+                  <div className="text-xs mt-1" style={{ color: `${primaryColor}99` }}>
                     Reassigned at: {format(new Date(event.reassignmentInfo.reassignedAt), "dd-MMM-yy 'at' h:mm a")}
                   </div>
                 </div>
@@ -327,7 +339,8 @@ export default function ScheduleListView({
                 href={event.joinLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-purple-600 hover:underline flex items-center gap-1"
+                className="text-sm hover:underline flex items-center gap-1"
+                style={{ color: primaryColor }}
               >
                 <Video className="h-4 w-4" />
                 Join Virtual Class

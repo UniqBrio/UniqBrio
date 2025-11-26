@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/dashboard/ui/dialog"
 import { Upload, Sparkles, RefreshCw, Save, Wand2, X, CheckCircle, Smartphone, Wallet, Building2, CreditCard, Receipt, Building, Banknote, Edit } from 'lucide-react'
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface Product {
   id: string
@@ -57,6 +58,7 @@ export function Dialogs({
   cartItems,
   selectedProduct,
 }: DialogsProps) {
+  const { primaryColor } = useCustomColors();
   const [aiImageStyle, setAiImageStyle] = useState("Realistic")
   const [generatedImage, setGeneratedImage] = useState("")
   const [aiImagePrompt, setAiImagePrompt] = useState("")
@@ -182,7 +184,7 @@ export function Dialogs({
               >
                 Cancel
               </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button className="text-white" style={{ backgroundColor: primaryColor }}>
                 <Save className="h-4 w-4 mr-2" />
                 Save Product
               </Button>
@@ -231,7 +233,8 @@ export function Dialogs({
             </div>
             <Button
               onClick={generateAIImage}
-              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+              className="w-full text-white"
+              style={{ backgroundImage: `linear-gradient(90deg, ${primaryColor}, ${primaryColor}DD)` }}
             >
               <Wand2 className="h-4 w-4 mr-2" />
               Generate AI Image
@@ -252,7 +255,12 @@ export function Dialogs({
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Regenerate
                   </Button>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button 
+                    className="text-white"
+                    style={{ backgroundColor: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                  >
                     <Save className="h-4 w-4 mr-2" />
                     Save to Product
                   </Button>
@@ -273,7 +281,11 @@ export function Dialogs({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Upload Image 1</label>
-                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                <div
+                  className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors"
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = primaryColor)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "")}
+                >
                   {uploadedImage1 ? (
                     <div className="relative">
                       <img src={uploadedImage1} alt="Upload 1" className="w-full h-32 object-cover rounded-lg" />
@@ -317,7 +329,11 @@ export function Dialogs({
               </div>
               <div>
                 <label className="text-sm font-medium">Upload Image 2</label>
-                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                <div
+                  className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors"
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = primaryColor)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "")}
+                >
                   {uploadedImage2 ? (
                     <div className="relative">
                       <img src={uploadedImage2} alt="Upload 2" className="w-full h-32 object-cover rounded-lg" />
@@ -376,7 +392,7 @@ export function Dialogs({
               >
                 Cancel
               </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button className="text-white" style={{ backgroundColor: primaryColor }}>
                 <Wand2 className="h-4 w-4 mr-2" />
                 Apply Edit
               </Button>
@@ -442,7 +458,7 @@ export function Dialogs({
               <label className="text-sm font-medium">Apply Coupon</label>
               <div className="flex space-x-2">
                 <Input placeholder="Enter coupon code" />
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white">Apply</Button>
+                <Button className="text-white" style={{ backgroundColor: primaryColor }}>Apply</Button>
               </div>
             </div>
 
@@ -477,7 +493,7 @@ export function Dialogs({
               >
                 Cancel
               </Button>
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button className="text-white" style={{ backgroundColor: primaryColor }}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Complete Payment
               </Button>

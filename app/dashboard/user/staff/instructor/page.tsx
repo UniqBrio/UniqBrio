@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/staff/tabs"
 import InstructorDashboard from "@/components/dashboard/instructor/instructor-dashboard"
 import InstructorProfile from "@/components/dashboard/instructor/instructor-profile/index"
@@ -85,6 +86,7 @@ const getDefaultInstructorSettings = () => ({
 type InstructorSettingsState = ReturnType<typeof getDefaultInstructorSettings>
 
 export default function InstructorPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const { toast } = useToast()
   const { addInstructor } = useInstructors()
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -180,7 +182,7 @@ export default function InstructorPage() {
         <CardHeader>
           <div className="flex items-start justify-between w-full">
             <div>
-              <h1 className="text-3xl font-bold text-purple-700 mb-2">Instructor Management Hub</h1>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: primaryColor }}>Instructor Management Hub</h1>
               <p className="text-gray-600 dark:text-white">Comprehensive instructor management and tools</p>
             </div>
             {/* Buttons moved into the Instructors tab toolbar next to Export */}
@@ -192,35 +194,40 @@ export default function InstructorPage() {
               <TabsList className="grid w-full grid-cols-5 gap-1 h-auto p-1">
                 <TabsTrigger
                   value="dashboard"
-                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
-                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <GraduationCap className="h-4 w-4 mr-2" />
                   Instructors
                 </TabsTrigger>
                 <TabsTrigger
                   value="leave"
-                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <CalendarDays className="h-4 w-4 mr-2" />
                   Leave Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="attendance"
-                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <ClipboardCheck className="h-4 w-4 mr-2" />
                   Attendance Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="settings"
-                  className="text-xs border-2 border-[#DE7D14] dark:border-orange-600 text-[#DE7D14] dark:text-orange-400 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] dark:hover:bg-purple-700 focus:outline-none"
+                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <SettingsIcon className="h-4 w-4 mr-2" />
                   Settings
@@ -339,7 +346,7 @@ export default function InstructorPage() {
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
           <CardContent className="p-4 text-center">
-            <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+            <Users className="h-8 w-8 mx-auto mb-2" style={{ color: primaryColor }} />
             <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
               Hiring
               <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />

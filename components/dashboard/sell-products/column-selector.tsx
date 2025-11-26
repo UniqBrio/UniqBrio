@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { ArrowRight, ArrowLeft, ChevronsRight, ChevronsLeft, Save, RotateCcw, X, ChevronUp, ChevronDown } from "lucide-react"
 import { SALES_TABLE_COLUMNS, type SalesColumnId } from "./sales-columns"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 export interface ColumnSelectorModalProps {
   open: boolean
@@ -17,6 +18,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
   onOpenChange,
   storageKey,
 }) => {
+  const { primaryColor } = useCustomColors()
   const allowedColumns = SALES_TABLE_COLUMNS.map(c => c.id) as readonly SalesColumnId[]
   
   const anchorMandatory = (arr: SalesColumnId[]) => {
@@ -297,7 +299,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
             <div
               ref={availableListRef}
-              className={`w-full h-64 border rounded p-2 overflow-y-auto ${focusedList === 'available' ? 'border-purple-300 ring-1 ring-purple-200' : 'border-gray-300'}`}
+              className={`w-full h-64 border rounded p-2 overflow-y-auto border-gray-300`}
+              style={focusedList === 'available' ? { borderColor: primaryColor } : undefined}
               role="listbox"
               tabIndex={focusedList === 'available' ? 0 : -1}
               aria-label="Available columns"
@@ -311,13 +314,12 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                 availableOptions.map((col, idx) => (
                   <label
                     key={col}
-                    className={`flex items-center gap-2 py-2 px-2 cursor-pointer rounded ${
-                      focusedList === 'available' && focusedIndex === idx
-                        ? 'bg-purple-100 border border-purple-300'
-                        : selectedAvailable.includes(col)
-                        ? 'bg-purple-50'
-                        : 'hover:bg-gray-50'
-                    }`}
+                    className={`flex items-center gap-2 py-2 px-2 cursor-pointer rounded ${selectedAvailable.includes(col) ? '' : 'hover:bg-gray-50'}`}
+                    style={focusedList === 'available' && focusedIndex === idx
+                      ? { backgroundColor: `${primaryColor}15`, border: `1px solid ${primaryColor}4D` }
+                      : selectedAvailable.includes(col)
+                      ? { backgroundColor: `${primaryColor}0F` }
+                      : undefined}
                     onClick={() => {
                       setFocusedList('available')
                       setFocusedIndex(idx)
@@ -346,8 +348,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 selectedAvailable.length === 0
                   ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
-                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  : ''
               }`}
+              style={selectedAvailable.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={moveToDisplayed}
               disabled={!selectedAvailable.length}
               title="Add Selected (→)"
@@ -358,8 +361,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 availableOptions.length === 0
                   ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
-                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  : ''
               }`}
+              style={availableOptions.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={moveAllToDisplayed}
               disabled={!availableOptions.length}
               title="Add All"
@@ -370,8 +374,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 selectedDisplayed.length === 0
                   ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
-                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  : ''
               }`}
+              style={selectedDisplayed.length === 0 ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={moveToAvailable}
               disabled={!selectedDisplayed.length}
               title="Remove Selected (←)"
@@ -382,8 +387,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               className={`px-3 py-2 rounded flex items-center justify-center transition-colors ${
                 draftDisplayed.length === MANDATORY_COLUMNS.length
                   ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed'
-                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  : ''
               }`}
+              style={draftDisplayed.length === MANDATORY_COLUMNS.length ? undefined : { backgroundColor: `${primaryColor}15`, color: `${primaryColor}CC` }}
               onClick={moveAllToAvailable}
               disabled={draftDisplayed.length === MANDATORY_COLUMNS.length}
               title="Remove All"
@@ -428,7 +434,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
             <div
               ref={displayedListRef}
-              className={`w-full h-64 border rounded p-2 overflow-y-auto ${focusedList === 'displayed' ? 'border-purple-300 ring-1 ring-purple-200' : 'border-gray-300'}`}
+              className={`w-full h-64 border rounded p-2 overflow-y-auto border-gray-300`}
+              style={focusedList === 'displayed' ? { borderColor: primaryColor } : undefined}
               role="listbox"
               tabIndex={focusedList === 'displayed' ? 0 : -1}
               aria-label="Displayed columns"
@@ -440,16 +447,17 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                   <label
                     key={col}
                     className={`flex items-center gap-2 py-2 px-2 rounded ${
-                      isRequired
-                        ? 'bg-gray-100 cursor-not-allowed opacity-70'
-                        : `cursor-pointer ${
-                            focusedList === 'displayed' && focusedIndex === idx
-                              ? 'bg-purple-100 border border-purple-300'
-                              : selectedDisplayed.includes(col)
-                              ? 'bg-purple-50'
-                              : 'hover:bg-gray-50'
-                          }`
+                      isRequired ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'cursor-pointer'
                     }`}
+                    style={
+                      isRequired
+                        ? undefined
+                        : (focusedList === 'displayed' && focusedIndex === idx)
+                        ? { backgroundColor: `${primaryColor}15`, border: `1px solid ${primaryColor}4D` }
+                        : selectedDisplayed.includes(col)
+                        ? { backgroundColor: `${primaryColor}0F` }
+                        : undefined
+                    }
                     onClick={() => {
                       if (!isRequired) {
                         setFocusedList('displayed')
@@ -498,7 +506,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               Cancel
             </button>
             <button
-              className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2"
+                className="px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+                style={{ backgroundColor: primaryColor }}
               onClick={handleSave}
               title="Save Changes (Ctrl+S)"
             >

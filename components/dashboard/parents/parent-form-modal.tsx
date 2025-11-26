@@ -3,6 +3,7 @@
 import { X, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/dashboard/ui/button'
 import { useState, useEffect } from 'react'
+import { useCustomColors } from '@/lib/use-custom-colors'
 import { PhoneCountryCodeSelect } from '@/components/dashboard/student/common/phone-country-code-select'
 import { type Parent } from '@/types/dashboard/parent'
 
@@ -37,6 +38,7 @@ export function ParentFormModal({
   initialParent,
   isEditing = false,
 }: ParentFormModalProps) {
+  const { primaryColor } = useCustomColors();
   const [formData, setFormData] = useState<Parent>({
     parentId: '',
     firstName: '',
@@ -647,7 +649,10 @@ export function ParentFormModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            className="text-white"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
           >
             {isEditing ? 'Update Parent' : 'Add Parent'}
           </Button>

@@ -1,16 +1,27 @@
 "use client";
 import React from "react";
 import { Code2, Database, Zap, FileCode } from "lucide-react";
+import { useCustomColors } from "@/lib/use-custom-colors";
 
 export function ArchitectureCard() {
+  const { primaryColor, secondaryColor } = useCustomColors();
   return (
     <section aria-labelledby="arch-heading" className="mt-20">
       <h2 id="arch-heading" className="text-2xl font-bold tracking-tight mb-6">Architecture Snapshot</h2>
-      <div className="relative rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800 backdrop-blur p-8 flex flex-col gap-6 shadow-xl overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500 to-purple-500 opacity-10 blur-3xl rounded-full -mr-32 -mt-32" />
+      <div
+        className="relative rounded-3xl border border-neutral-200 dark:border-neutral-800 backdrop-blur p-8 flex flex-col gap-6 shadow-xl overflow-hidden"
+        style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}22, #ffffff, ${secondaryColor}22)` }}
+      >
+        <div
+          className="absolute top-0 right-0 w-64 h-64 opacity-10 blur-3xl rounded-full -mr-32 -mt-32"
+          style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+        />
         <div className="relative z-10">
           <div className="flex items-start gap-4 mb-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg">
+            <div
+              className="inline-flex items-center justify-center w-12 h-12 rounded-xl text-white shadow-lg"
+              style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+            >
               <Code2 className="w-6 h-6" />
             </div>
             <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 flex-1">
@@ -35,7 +46,14 @@ export function ArchitectureCard() {
             ))}
           </div>
           <div className="flex gap-3">
-            <a href="/docs/UniqBrio-Help-Guide" className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 shadow-lg hover:shadow-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+            <a
+              href="/docs/UniqBrio-Help-Guide"
+              className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white shadow-lg hover:shadow-xl transition-all focus-visible:outline-none"
+              style={{
+                backgroundImage: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`,
+                boxShadow: `0 10px 20px ${primaryColor}33`
+              }}
+            >
               <FileCode className="w-4 h-4" />
               Read Guide
             </a>

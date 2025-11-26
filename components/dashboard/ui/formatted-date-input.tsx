@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react"
 import { format as formatDateFns } from "date-fns"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 type FormattedDateInputProps = {
   id?: string
@@ -34,6 +35,7 @@ export function FormattedDateInput({
   placeholder = "dd-mmm-yyyy",
   tabIndex,
 }: FormattedDateInputProps) {
+  const { primaryColor } = useCustomColors()
   const [focused, setFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -70,8 +72,11 @@ export function FormattedDateInput({
             }
           }}
           className={`absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white z-10 ${
-            disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:text-purple-600'
+            disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
           }`}
+          style={!disabled ? { color: primaryColor } : {}}
+          onMouseEnter={(e) => !disabled && (e.currentTarget.style.opacity = '0.8')}
+          onMouseLeave={(e) => !disabled && (e.currentTarget.style.opacity = '1')}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -99,13 +104,14 @@ export function FormattedDateInput({
           // Hide only the native right-side indicator; keep our left icon
           className={[
             "no-native-date-indicator w-full rounded-md border bg-background py-2 pl-9 pr-3 text-sm",
-            "outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent",
+            "outline-none focus:ring-1 focus:border-transparent",
             error ? "border-red-300 bg-red-50" : "border-gray-300",
             // When not focused and a value exists, hide the native text so the overlay shows
             !focused && value ? "text-transparent caret-transparent" : "text-foreground",
             disabled ? "opacity-60 cursor-not-allowed" : "",
             className,
           ].join(" ")}
+          style={focused ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}` } : {}}
           placeholder={placeholder}
           aria-invalid={error || undefined}
           aria-required={required || undefined}

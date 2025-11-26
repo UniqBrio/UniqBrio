@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import {
   BarChart,
   Bar,
@@ -51,8 +52,7 @@ interface ServicesDashboardChartsProps {
   cohortStats: CohortStats
   recentActivities: RecentActivity[]
 }
-
-const COLORS = ["#8b5cf6", "#f97316", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#22c55e"]
+ 
 
 export default function ServicesDashboardCharts({
   scheduleStats,
@@ -67,6 +67,7 @@ export default function ServicesDashboardCharts({
     { name: "Cohorts", count: cohortStats.totalCohorts },
   ]
 
+  const { primaryColor } = useCustomColors()
   // 2) Activity by hour (last 12 hours)
   const now = new Date()
   const last12: { label: string; count: number }[] = []
@@ -95,15 +96,15 @@ export default function ServicesDashboardCharts({
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={overviewData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name">
+              <XAxis dataKey="name" stroke={primaryColor}>
                 <Label value="Entity" offset={-4} position="insideBottom" className="fill-gray-600 text-xs" />
               </XAxis>
-              <YAxis>
+              <YAxis stroke={primaryColor}>
                 <Label value="Count" angle={-90} position="insideLeft" offset={10} className="fill-gray-600 text-xs" />
               </YAxis>
               <Tooltip />
-              <Bar dataKey="count" fill="#8b5cf6">
-                <LabelList dataKey="count" position="top" className="fill-purple-700 text-xs" />
+              <Bar dataKey="count" fill={primaryColor}>
+                <LabelList dataKey="count" position="top" className="fill-gray-700 text-xs" />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -119,15 +120,15 @@ export default function ServicesDashboardCharts({
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={last12}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" minTickGap={20}>
+              <XAxis dataKey="label" minTickGap={20} stroke={primaryColor}>
                 <Label value="Hour" offset={-4} position="insideBottom" className="fill-gray-600 text-xs" />
               </XAxis>
-              <YAxis allowDecimals={false}>
+              <YAxis allowDecimals={false} stroke={primaryColor}>
                 <Label value="Events" angle={-90} position="insideLeft" offset={10} className="fill-gray-600 text-xs" />
               </YAxis>
               <Tooltip />
-              <Line type="monotone" dataKey="count" stroke="#06b6d4" strokeWidth={2} dot={false}>
-                <LabelList dataKey="count" position="top" className="fill-cyan-700 text-xs" />
+              <Line type="monotone" dataKey="count" stroke={primaryColor} strokeWidth={2} dot={false}>
+                <LabelList dataKey="count" position="top" className="fill-gray-700 text-xs" />
               </Line>
             </LineChart>
           </ResponsiveContainer>

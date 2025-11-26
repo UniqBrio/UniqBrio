@@ -15,6 +15,7 @@ import {
 import CohortManagement from "./CohortManagement"
 import { ColumnSelectorModal } from "@/components/dashboard/ui/ColumnSelectorModal"
 import { useColumnManagement } from "@/hooks/dashboard/useColumnManagement"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface Cohort {
   id: string;
@@ -47,18 +48,19 @@ export default function CohortsTab({
   onEditCohort,
   onDeleteCohort
 }: CohortsTabProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   function GridIcon({ className = "w-6 h-6" }) {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-        <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+        <rect x="3" y="3" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="10" y="3" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="17" y="3" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="3" y="10" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="10" y="10" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="17" y="10" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="3" y="17" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="10" y="17" width="5" height="5" rx="1.5" fill={primaryColor} />
+        <rect x="17" y="17" width="5" height="5" rx="1.5" fill={primaryColor} />
       </svg>
     );
   }
@@ -142,7 +144,8 @@ export default function CohortsTab({
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("grid")}
-              className={`rounded-r-none ${viewMode === "grid" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+              className={"rounded-r-none"}
+              style={viewMode === "grid" ? { backgroundColor: primaryColor, color: 'white' } : {}}
               title="Grid View"
             >
               <Grid3X3 className="h-4 w-4" />
@@ -151,14 +154,15 @@ export default function CohortsTab({
               variant={viewMode === "list" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("list")}
-              className={`rounded-l-none border-l ${viewMode === "list" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+              className={"rounded-l-none border-l"}
+              style={viewMode === "list" ? { backgroundColor: primaryColor, color: 'white' } : {}}
               title="List View"
             >
               <List className="h-4 w-4" />
             </Button>
           </div>
           
-          <Button onClick={onAddCohort} className="bg-purple-600 hover:bg-purple-700 text-white">
+          <Button onClick={onAddCohort} style={{ backgroundColor: primaryColor, color: 'white' }}>
             <Plus className="mr-2 h-4 w-4" />
             Add Cohort
           </Button>
@@ -176,17 +180,17 @@ export default function CohortsTab({
             className="pl-10"
           />
         </div>
-        <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50">
+        <Button variant="outline" style={{ borderColor: `${primaryColor}33`, color: primaryColor }}>
           <Filter className="mr-2 h-4 w-4" />
           Filters
         </Button>
       </div>
 
       {/* Results Counter */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 rounded-lg border" style={{ background: `${primaryColor}15`, borderColor: `${primaryColor}33` }}>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-          <span className="text-sm font-medium text-purple-700">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+          <span className="text-sm font-medium" style={{ color: primaryColor }}>
             {filteredCohorts.length} cohort{filteredCohorts.length !== 1 ? 's' : ''} found
           </span>
         </div>
@@ -197,7 +201,8 @@ export default function CohortsTab({
               variant="outline"
               size="icon"
               onClick={columnManagement.openColumnSelector}
-              className="h-8 w-8 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100"
+              className="h-8 w-8"
+              style={{ borderColor: `${primaryColor}33`, backgroundColor: `${primaryColor}15`, color: primaryColor }}
               title="Column Selection"
             >
               <GridIcon className="h-4 w-4" />
@@ -274,7 +279,8 @@ export default function CohortsTab({
                     variant="outline"
                     size="sm"
                     onClick={() => handleViewCohort(cohort)}
-                    className="flex-1 border-purple-300 text-purple-700 hover:bg-purple-50"
+                    className="flex-1"
+                    style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                   >
                     View Details
                   </Button>
@@ -282,7 +288,7 @@ export default function CohortsTab({
                     variant="outline"
                     size="sm"
                     onClick={(e) => { e.stopPropagation(); onEditCohort?.(cohort); }}
-                    className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                    style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -290,7 +296,7 @@ export default function CohortsTab({
                     variant="outline"
                     size="sm"
                     onClick={(e) => { e.stopPropagation(); onDeleteCohort?.(cohort); }}
-                    className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                    style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -346,7 +352,7 @@ export default function CohortsTab({
                               variant="outline"
                               size="sm"
                               onClick={(e) => { e.stopPropagation(); handleViewCohort(cohort); }}
-                              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                              style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                             >
                               View
                             </Button>
@@ -354,7 +360,7 @@ export default function CohortsTab({
                               variant="outline"
                               size="sm"
                               onClick={(e) => { e.stopPropagation(); onEditCohort?.(cohort); }}
-                              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                              style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -362,7 +368,7 @@ export default function CohortsTab({
                               variant="outline"
                               size="sm"
                               onClick={(e) => { e.stopPropagation(); onDeleteCohort?.(cohort); }}
-                              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                              style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -419,7 +425,7 @@ export default function CohortsTab({
                             variant="outline"
                             size="sm"
                             onClick={(e) => { e.stopPropagation(); handleViewCohort(cohort); }}
-                            className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                            style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                           >
                             View
                           </Button>
@@ -427,7 +433,7 @@ export default function CohortsTab({
                             variant="outline"
                             size="sm"
                             onClick={(e) => { e.stopPropagation(); onEditCohort?.(cohort); }}
-                            className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                            style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -435,7 +441,7 @@ export default function CohortsTab({
                             variant="outline"
                             size="sm"
                             onClick={(e) => { e.stopPropagation(); onDeleteCohort?.(cohort); }}
-                            className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                            style={{ borderColor: `${primaryColor}33`, color: primaryColor }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -460,7 +466,7 @@ export default function CohortsTab({
             {searchTerm ? "Try adjusting your search terms." : "Get started by creating your first cohort."}
           </p>
           {!searchTerm && (
-            <Button onClick={onAddCohort} className="mt-4 bg-purple-600 hover:bg-purple-700 text-white">
+            <Button onClick={onAddCohort} className="mt-4" style={{ backgroundColor: primaryColor, color: 'white' }}>
               <Plus className="mr-2 h-4 w-4" />
               Add Cohort
             </Button>

@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Save
 } from "lucide-react"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface InstructorSettingsProps {
   settings: {
@@ -32,6 +33,7 @@ interface InstructorSettingsProps {
 }
 
 export default function InstructorSettings({ settings, onUpdateSetting, onResetSettings, onSaveSettings }: InstructorSettingsProps) {
+  const { primaryColor, secondaryColor } = useCustomColors()
   // Ensure settings has identity property with defaults
   const defaultIdentity = {
     customIdPrefix: 'INST',
@@ -97,7 +99,7 @@ export default function InstructorSettings({ settings, onUpdateSetting, onResetS
       {/* Instructor Identity & ID Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <LayoutDashboard className="h-5 w-5 text-purple-600" />
+          <LayoutDashboard className="h-5 w-5" style={{ color: primaryColor }} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Instructor Identity & ID Configuration</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
@@ -202,12 +204,12 @@ export default function InstructorSettings({ settings, onUpdateSetting, onResetS
       </div>
 
       {/* Settings Info Footer */}
-      <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+      <div className="mt-4 p-4 rounded-lg border" style={{ backgroundColor: `${primaryColor}10`, borderColor: `${primaryColor}40` }}>
         <div className="flex items-start gap-3">
-          <Settings className="h-5 w-5 text-purple-600 mt-0.5" />
+          <Settings className="h-5 w-5 mt-0.5" style={{ color: primaryColor }} />
           <div>
-            <h4 className="font-semibold text-purple-900 mb-1">About Instructor Management Settings</h4>
-            <p className="text-sm text-purple-700">
+            <h4 className="font-semibold mb-1" style={{ color: `${primaryColor}dd` }}>About Instructor Management Settings</h4>
+            <p className="text-sm" style={{ color: `${primaryColor}cc` }}>
               Configure how instructor IDs are generated and displayed. Click &quot;Save Settings&quot; to apply your changes.
             </p>
           </div>

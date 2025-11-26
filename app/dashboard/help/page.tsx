@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { Input } from "@/components/dashboard/ui/input"
@@ -21,6 +22,7 @@ import {
 import { useToast } from "@/hooks/dashboard/use-toast"
 
 export default function HelpPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const { toast } = useToast()
   const [customerEmail, setCustomerEmail] = useState("")
   const [ticketTitle, setTicketTitle] = useState("")
@@ -554,7 +556,7 @@ export default function HelpPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-purple-700 flex items-center gap-2">
+              <h1 className="text-3xl font-bold flex items-center gap-2" style={{ color: primaryColor }}>
                 <HelpCircle className="h-8 w-8" />
                 Help Center
               </h1>
@@ -570,7 +572,16 @@ export default function HelpPage() {
             <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
               <TabsTrigger
                 value="tickets"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-orange-400 bg-transparent text-orange-600 font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-orange-400 data-[state=inactive]:text-orange-600 hover:bg-orange-50 data-[state=active]:hover:bg-purple-600"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor
+                }}
+                data-active-style={{
+                  backgroundColor: primaryColor,
+                  color: 'white',
+                  borderColor: 'transparent'
+                }}
               >
                 <AlertCircle className="h-4 w-4" />
                 Tickets
@@ -589,18 +600,28 @@ export default function HelpPage() {
             {/* Tickets Tab */}
             <TabsContent value="tickets" className="space-y-6">
               {/* Tickets List Table */}
-              <Card className="border-purple-200">
-                <CardHeader className="border-b border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
+              <Card className="border" style={{ borderColor: `${primaryColor}33` }}>
+                <CardHeader className="border-b" style={{ 
+                  borderColor: `${primaryColor}33`,
+                  backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${primaryColor}25)`
+                }}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-purple-700">Your Tickets</CardTitle>
+                      <CardTitle style={{ color: primaryColor }}>Your Tickets</CardTitle>
                       <CardDescription>
                         View and track all your submitted tickets
                       </CardDescription>
                     </div>
                     <Button 
                       onClick={() => setCreatingTicket(true)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      className="text-white"
+                      style={{ backgroundColor: primaryColor }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = '0.9'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '1'
+                      }}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create New Ticket
@@ -619,7 +640,7 @@ export default function HelpPage() {
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-gray-50 dark:bg-gray-800 border-b-2 border-purple-200 dark:border-purple-700">
+                        <thead className="bg-gray-50 dark:bg-gray-800 border-b-2" style={{ borderColor: `${primaryColor}33` }}>
                           <tr>
                             <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Ticket ID</th>
                             <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white">Title</th>
@@ -633,9 +654,22 @@ export default function HelpPage() {
                             <tr 
                               key={ticket.id}
                               onClick={() => setViewingTicket(ticket)}
-                              className={`border-b border-gray-200 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors cursor-pointer ${
-                                highlightedTicketId === ticket.id ? 'bg-purple-100 dark:bg-purple-900/30' : ''
+                              className={`border-b border-gray-200 dark:border-gray-700 transition-colors cursor-pointer ${
+                                highlightedTicketId === ticket.id ? '' : ''
                               }`}
+                              style={{
+                                backgroundColor: highlightedTicketId === ticket.id ? `${primaryColor}20` : 'transparent'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (highlightedTicketId !== ticket.id) {
+                                  e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (highlightedTicketId !== ticket.id) {
+                                  e.currentTarget.style.backgroundColor = 'transparent'
+                                }
+                              }}
                             >
                               <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{ticket.id}</td>
                               <td className="px-4 py-3 text-sm text-gray-700 dark:text-white">{ticket.title}</td>
@@ -664,24 +698,33 @@ export default function HelpPage() {
             <TabsContent value="ai-assistant" className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2 opacity-50 pointer-events-none">
                 {/* AI Chat Interface */}
-                <Card className="border-purple-200">
-                  <CardHeader className="border-b border-purple-200 bg-gradient-to-br from-purple-50 via-purple-100 to-blue-50">
+                <Card className="border" style={{ borderColor: `${primaryColor}33` }}>
+                  <CardHeader className="border-b" style={{
+                    borderColor: `${primaryColor}33`,
+                    backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${primaryColor}25, ${secondaryColor}10)`
+                  }}>
                     <div className="flex items-center gap-3">
                       {selectedChatId && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={handleBackToNew}
-                          className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                          style={{ color: primaryColor }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = `${primaryColor}20`
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
                         >
                           <ArrowLeft className="h-4 w-4" />
                         </Button>
                       )}
-                      <div className="p-2 bg-purple-600 dark:bg-purple-700 rounded-lg">
+                      <div className="p-2 rounded-lg" style={{ backgroundColor: primaryColor }}>
                         <Sparkles className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-purple-700">
+                        <CardTitle style={{ color: primaryColor }}>
                           {selectedChatId ? chats.find(c => c.id === selectedChatId)?.question : "AI Assistant"}
                         </CardTitle>
                         <CardDescription>
@@ -699,14 +742,19 @@ export default function HelpPage() {
                             <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                               <div className={`max-w-[80%] rounded-lg p-3 ${
                                 msg.role === 'user' 
-                                  ? 'bg-purple-600 text-white' 
-                                  : 'bg-white border border-purple-200'
-                              }`}>
+                                  ? 'text-white' 
+                                  : 'bg-white border'
+                              }`} style={{
+                                backgroundColor: msg.role === 'user' ? primaryColor : undefined,
+                                borderColor: msg.role === 'ai' ? `${primaryColor}33` : undefined
+                              }}>
                                 <div className="flex items-center gap-2 mb-1">
-                                  {msg.role === 'ai' && <Bot className="h-4 w-4 text-purple-600" />}
+                                  {msg.role === 'ai' && <Bot className="h-4 w-4" style={{ color: primaryColor }} />}
                                   <span className={`text-xs ${
-                                    msg.role === 'user' ? 'text-purple-100' : 'text-muted-foreground'
-                                  }`}>
+                                    msg.role === 'user' ? '' : 'text-muted-foreground'
+                                  }`} style={{
+                                    color: msg.role === 'user' ? `${primaryColor}20` : undefined
+                                  }}>
                                     {msg.time}
                                   </span>
                                 </div>
@@ -739,7 +787,16 @@ export default function HelpPage() {
                         <Button 
                           onClick={handleAiQuery} 
                           disabled={!aiQuery.trim() || isAiLoading}
-                          className="w-full bg-purple-600 hover:bg-purple-700"
+                          className="w-full text-white"
+                          style={{ backgroundColor: primaryColor }}
+                          onMouseEnter={(e) => {
+                            if (!e.currentTarget.disabled) {
+                              e.currentTarget.style.opacity = '0.9'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.opacity = '1'
+                          }}
                         >
                           <Send className="h-4 w-4 mr-2" />
                           {isAiLoading ? "Thinking..." : "Ask AI Assistant"}
@@ -748,9 +805,12 @@ export default function HelpPage() {
 
                       {/* AI Response for new conversations */}
                       {!selectedChatId && aiResponse && (
-                        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+                        <Card className="border-2" style={{
+                          borderColor: `${primaryColor}33`,
+                          backgroundImage: `linear-gradient(to br, ${primaryColor}15, ${secondaryColor}10)`
+                        }}>
                           <CardHeader>
-                            <CardTitle className="text-purple-700 flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
                               <Bot className="h-5 w-5" />
                               AI Response
                             </CardTitle>
@@ -758,10 +818,30 @@ export default function HelpPage() {
                           <CardContent>
                             <p className="text-sm text-gray-700 dark:text-white whitespace-pre-line">{aiResponse}</p>
                             <div className="mt-4 flex gap-2">
-                              <Button variant="outline" size="sm" className="border-purple-400 text-purple-600 hover:bg-purple-50">
+                              <Button variant="outline" size="sm" style={{
+                                borderColor: primaryColor,
+                                color: primaryColor
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent'
+                              }}
+                              >
                                 Was this helpful?
                               </Button>
-                            <Button variant="outline" size="sm" className="border-orange-400 text-orange-600 hover:bg-orange-50">
+                            <Button variant="outline" size="sm" style={{
+                              borderColor: secondaryColor,
+                              color: secondaryColor
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = `${secondaryColor}10`
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent'
+                            }}
+                            >
                               Create Ticket
                             </Button>
                             </div>
@@ -772,7 +852,7 @@ export default function HelpPage() {
                       {/* Suggested Questions - only show for new conversations */}
                       {!selectedChatId && (
                         <div>
-                          <h3 className="text-sm font-semibold mb-3 text-purple-700">Suggested Questions</h3>
+                          <h3 className="text-sm font-semibold mb-3" style={{ color: primaryColor }}>Suggested Questions</h3>
                           <div className="grid gap-2">
                             {[
                               "How do I reset my password?",
@@ -784,7 +864,17 @@ export default function HelpPage() {
                               <Button
                                 key={index}
                                 variant="outline"
-                                className="justify-start text-left h-auto py-3 px-4 border-orange-400 text-orange-600 hover:bg-orange-50"
+                                className="justify-start text-left h-auto py-3 px-4"
+                                style={{
+                                  borderColor: secondaryColor,
+                                  color: secondaryColor
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = `${secondaryColor}10`
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'transparent'
+                                }}
                                 onClick={() => setAiQuery(question)}
                               >
                                 <Bot className="h-4 w-4 mr-2 flex-shrink-0" />
@@ -799,11 +889,14 @@ export default function HelpPage() {
                 </Card>
 
                 {/* Chat History */}
-                <Card className="border-purple-200">
-                  <CardHeader className="border-b border-purple-200 bg-gradient-to-br from-orange-50 to-orange-100">
+                <Card className="border" style={{ borderColor: `${primaryColor}33` }}>
+                  <CardHeader className="border-b" style={{
+                    borderColor: `${primaryColor}33`,
+                    backgroundImage: `linear-gradient(to br, ${secondaryColor}15, ${secondaryColor}25)`
+                  }}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-orange-700 flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2" style={{ color: secondaryColor }}>
                           <History className="h-5 w-5" />
                           Chat History
                         </CardTitle>
@@ -813,8 +906,15 @@ export default function HelpPage() {
                       </div>
                       <Button
                         onClick={handleBackToNew}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        className="text-white"
                         size="sm"
+                        style={{ backgroundColor: primaryColor }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.opacity = '0.9'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.opacity = '1'
+                        }}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         New Chat
@@ -822,30 +922,36 @@ export default function HelpPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-6">
-                    <div className="space-y-3 max-h-[600px] overflow-y-auto" style={{
-                      scrollbarWidth: 'thin',
-                      scrollbarColor: '#a78bfa #ede9fe'
-                    }}>
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto">
                       <style jsx>{`
                         div::-webkit-scrollbar {
                           width: 8px;
                         }
                         div::-webkit-scrollbar-track {
-                          background: #ede9fe;
+                          background: ${primaryColor}20;
                           border-radius: 10px;
                         }
                         div::-webkit-scrollbar-thumb {
-                          background: #a78bfa;
+                          background: ${primaryColor};
                           border-radius: 10px;
                         }
                         div::-webkit-scrollbar-thumb:hover {
-                          background: #8b5cf6;
+                          background: ${primaryColor}DD;
                         }
                       `}</style>
                       {chats.map((chat) => (
                         <Card 
                           key={chat.id} 
-                          className="border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-colors cursor-pointer"
+                          className="border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
+                          style={{
+                            borderColor: 'rgb(229 231 235)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = `${primaryColor}66`
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'rgb(229 231 235)'
+                          }}
                           onClick={() => handleViewChat(chat.id)}
                         >
                           <CardContent className="pt-4">
@@ -858,13 +964,20 @@ export default function HelpPage() {
                                   <Button 
                                     variant="ghost" 
                                     size="sm" 
-                                    className="h-8 w-8 p-0 hover:bg-purple-100"
+                                    className="h-8 w-8 p-0"
+                                    style={{ backgroundColor: 'transparent' }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.backgroundColor = `${primaryColor}20`
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = 'transparent'
+                                    }}
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       handleEditChatName(chat.id)
                                     }}
                                   >
-                                    <Edit className="h-4 w-4 text-purple-600" />
+                                    <Edit className="h-4 w-4" style={{ color: primaryColor }} />
                                   </Button>
                                   <Button 
                                     variant="ghost" 
@@ -925,7 +1038,14 @@ export default function HelpPage() {
             <Button variant="outline" onClick={() => setEditingChatId(null)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveEditedName} className="bg-purple-600 hover:bg-purple-700">
+            <Button onClick={handleSaveEditedName} className="text-white" style={{ backgroundColor: primaryColor }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+              }}
+            >
               Save
             </Button>
           </DialogFooter>
@@ -959,7 +1079,7 @@ export default function HelpPage() {
       <Dialog open={creatingTicket} onOpenChange={setCreatingTicket}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-orange-700">Create New Ticket</DialogTitle>
+            <DialogTitle style={{ color: secondaryColor }}>Create New Ticket</DialogTitle>
             <DialogDescription>
               Submit a new ticket or issue you're experiencing
             </DialogDescription>
@@ -1011,9 +1131,20 @@ export default function HelpPage() {
                   />
                   <label
                     htmlFor="file-upload"
-                    className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors w-full"
+                    className="flex items-center gap-2 px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer transition-colors w-full"
+                    style={{
+                      borderColor: `${primaryColor}66`
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = primaryColor
+                      e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = `${primaryColor}66`
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
                   >
-                    <Paperclip className="h-4 w-4 text-purple-600" />
+                    <Paperclip className="h-4 w-4" style={{ color: primaryColor }} />
                     <span className="text-sm text-gray-600 dark:text-white">Click to attach files (PNG, JPG, JPEG, CSV, MP4)</span>
                   </label>
                 </div>
@@ -1046,7 +1177,14 @@ export default function HelpPage() {
               <Button type="button" variant="outline" onClick={() => setCreatingTicket(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
+              <Button type="submit" className="text-white" style={{ backgroundColor: primaryColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.9'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1'
+                }}
+              >
                 Submit Ticket
               </Button>
             </DialogFooter>
@@ -1059,7 +1197,7 @@ export default function HelpPage() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <span className="text-purple-700">{viewingTicket?.id}</span>
+              <span style={{ color: primaryColor }}>{viewingTicket?.id}</span>
               <Badge className={`${getPriorityColor(viewingTicket?.priority || '')} text-white`}>
                 {viewingTicket?.priority}
               </Badge>
@@ -1102,7 +1240,7 @@ export default function HelpPage() {
               <div>
                 <label className="text-sm font-semibold text-gray-700 dark:text-white">Calculated Priority</label>
                 <div className="mt-1">
-                  <Badge className="bg-purple-600 text-white">{viewingTicket.calculatedPriority}</Badge>
+                  <Badge className="text-white" style={{ backgroundColor: primaryColor }}>{viewingTicket.calculatedPriority}</Badge>
                 </div>
               </div>
               <div>

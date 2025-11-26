@@ -4,6 +4,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { BookOpen, Users, LayoutDashboard } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface MainTabsProps {
   current: string
@@ -11,6 +12,7 @@ interface MainTabsProps {
 
 export default function MainTabs({ current }: MainTabsProps) {
   const router = useRouter()
+  const { primaryColor, secondaryColor } = useCustomColors()
 
   const tabs = [
     { id: "/services/courses", label: "Dashboard", icon: LayoutDashboard, href: "/services/courses" },
@@ -28,11 +30,10 @@ export default function MainTabs({ current }: MainTabsProps) {
           <Link key={tab.id} href={tab.href}>
             <Button
               variant={isActive ? "default" : "outline"}
-              className={`flex items-center gap-2 px-4 py-2 ${
-                isActive 
-                  ? "bg-purple-500 text-white hover:bg-purple-600" 
-                  : "border-orange-400 text-orange-600 hover:bg-orange-50"
-              }`}
+              className="flex items-center gap-2 px-4 py-2 text-white"
+              style={isActive 
+                ? { backgroundColor: primaryColor }
+                : { borderColor: secondaryColor, color: secondaryColor }}
             >
               <Icon className="h-4 w-4" />
               {tab.label}

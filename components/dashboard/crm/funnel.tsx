@@ -20,6 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { CRMNavigation } from "@/components/dashboard/crm-navigation"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface FunnelStage {
   id: string
@@ -54,6 +55,7 @@ interface FunnelMetrics {
 }
 
 export default function FunnelPage() {
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [funnelData, setFunnelData] = useState<FunnelStage[]>([])
   const [metrics, setMetrics] = useState<FunnelMetrics | null>(null)
   const [loading, setLoading] = useState(false)
@@ -223,19 +225,19 @@ export default function FunnelPage() {
   const getStageColor = (stageId: string) => {
     switch (stageId) {
       case "new":
-        return "bg-purple-500"
+        return primaryColor
       case "qualified":
-        return "bg-purple-500"
+        return primaryColor
       case "trial-booked":
-        return "bg-orange-500"
+        return secondaryColor
       case "attended":
-        return "bg-orange-500"
+        return secondaryColor
       case "enrolled":
-        return "bg-purple-500"
+        return primaryColor
       case "dropped":
-        return "bg-gray-500"
+        return "#6b7280"
       default:
-        return "bg-gray-500"
+        return "#6b7280"
     }
   }
 
@@ -256,7 +258,7 @@ export default function FunnelPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: primaryColor }}></div>
       </div>
     )
   }
@@ -333,7 +335,7 @@ export default function FunnelPage() {
             <div key={stage.id} className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${getStageColor(stage.id)}`} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getStageColor(stage.id) }} />
                   <span className="font-medium">{stage.name}</span>
                 </div>
                 <div className="flex items-center gap-4">

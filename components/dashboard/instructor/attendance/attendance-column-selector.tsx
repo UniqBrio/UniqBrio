@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, useRef } from "react"
 import GridIcon from "@/components/dashboard/icons/grid-icon"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Save, RotateCcw, X, ChevronUp, ChevronDown, ArrowRight, ArrowLeft, ChevronsRight, ChevronsLeft } from "lucide-react"
 
 // Attendance table column labels used by AttendanceTable
@@ -36,6 +37,7 @@ type Props = {
 }
 
 export default function AttendanceColumnSelector({ value, onChange, storageKey = "attendanceDisplayedColumns", className, buttonTitle = "Select displayed columns" }: Props) {
+  const { primaryColor } = useCustomColors();
   const [open, setOpen] = useState(false)
   // Ensure mandatory (non-editable) columns are always present in draft
   const [draft, setDraft] = useState<AttendanceColLabel[]>(() => {
@@ -297,7 +299,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
     <>
       <button
         type="button"
-        className={`inline-flex items-center justify-center h-10 w-10 rounded-lg border border-gray-300 bg-gray-100 hover:bg-gray-200 transition-colors ${className || ""}`}
+        className={`inline-flex items-center justify-center h-10 w-10 rounded-lg border bg-gray-100 hover:bg-gray-200 transition-colors ${className || ""}`}
+        style={{ borderColor: primaryColor }}
         title={buttonTitle}
         onClick={() => {
           const cleaned = (value || []).filter(v => ATTENDANCE_TABLE_COLUMNS.some(c => c.label === v)) as AttendanceColLabel[]
@@ -306,7 +309,7 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
         }}
         aria-label={buttonTitle}
       >
-        <GridIcon className="w-9 h-7" color="#7C3AED" />
+        <GridIcon className="w-9 h-7" color={primaryColor} />
       </button>
 
       {open && (
@@ -328,7 +331,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                 <div className="font-semibold mb-2 text-black">Available Columns</div>
                 <div
                   ref={availableListRef}
-                  className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'available' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+                  className={`w-full h-40 border rounded p-2 overflow-y-auto`}
+                  style={focusedList === 'available' ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}55` } : undefined}
                   role="listbox"
                   tabIndex={focusedList === 'available' ? 0 : -1}
                   aria-label="Available columns"
@@ -337,7 +341,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                   {available.map((col, idx) => (
                     <label
                       key={col}
-                      className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'available' && focusedIndex === idx ? 'bg-purple-100 border border-purple-300' : 'hover:bg-gray-50'}`}
+                      className={`flex items-center gap-2 py-1 cursor-pointer rounded px-2 ${focusedList === 'available' && focusedIndex === idx ? '' : 'hover:bg-gray-50'}`}
+                      style={focusedList === 'available' && focusedIndex === idx ? { background: `color-mix(in oklab, ${primaryColor} 10%, white)`, border: `1px solid ${primaryColor}55` } : undefined}
                       onClick={() => { setFocusedList('available'); setFocusedIndex(idx); availableListRef.current?.focus(); }}
                     >
                       <input
@@ -353,7 +358,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
               </div>
               <div className="flex flex-col justify-center gap-2">
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+                  style={selectedAvailable.length === 0 ? undefined : { background: `color-mix(in oklab, ${primaryColor} 12%, white)`, color: primaryColor }}
                   onClick={handleAdd}
                   disabled={selectedAvailable.length === 0}
                   title="Add Selected (?)"
@@ -361,7 +367,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${available.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${available.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+                  style={available.length === 0 ? undefined : { background: `color-mix(in oklab, ${primaryColor} 12%, white)`, color: primaryColor }}
                   onClick={() => { 
                     const next = sanitizeOrder([...draft, ...available.filter(c => !draft.includes(c))]);
                     setDraft(next);
@@ -374,7 +381,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                   <ChevronsRight className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+                  style={selectedDisplayed.length === 0 ? undefined : { background: `color-mix(in oklab, ${primaryColor} 12%, white)`, color: primaryColor }}
                   onClick={handleRemove}
                   disabled={selectedDisplayed.length === 0}
                   title="Remove Selected (?)"
@@ -382,7 +390,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
-                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+                  className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+                  style={draft.filter(c => !NON_EDITABLE_COLS.includes(c)).length === 0 ? undefined : { background: `color-mix(in oklab, ${primaryColor} 12%, white)`, color: primaryColor }}
                   onClick={() => { 
                     const next = sanitizeOrder([...NON_EDITABLE_COLS]);
                     setDraft(next);
@@ -419,7 +428,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                 </div>
                 <div
                   ref={displayedListRef}
-                  className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'displayed' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+                  className={`w-full h-40 border rounded p-2 overflow-y-auto`}
+                  style={focusedList === 'displayed' ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}55` } : undefined}
                   role="listbox"
                   tabIndex={focusedList === 'displayed' ? 0 : -1}
                   aria-label="Displayed columns"
@@ -432,13 +442,8 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
                     return (
                       <label 
                         key={col} 
-                        className={`flex items-center gap-2 py-1 rounded px-2 ${
-                          mandatory 
-                            ? 'cursor-not-allowed' 
-                            : isFocused 
-                            ? 'bg-purple-100 border border-purple-300 cursor-pointer' 
-                            : 'cursor-pointer hover:bg-gray-50'
-                        }`}
+                        className={`flex items-center gap-2 py-1 rounded px-2 ${mandatory ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'}`}
+                        style={(!mandatory && isFocused) ? { background: `color-mix(in oklab, ${primaryColor} 10%, white)`, border: `1px solid ${primaryColor}55` } : undefined}
                         onClick={() => {
                           if (!mandatory) {
                             setFocusedList('displayed');

@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/dashboard/use-toast";
 import { LeaveAnalytics } from "@/components/dashboard/student/leave/leave-analytics";
 import { LeaveTable } from "@/components/dashboard/student/leave/leave-table";
 import LeaveSearchFilters from "@/components/dashboard/student/leave/leave-search-filters";
+import { useCustomColors } from '@/lib/use-custom-colors';
 
 import type { LeaveRecord } from "@/components/dashboard/student/leave/types";
 import { formatDateForDisplay } from "@/lib/dashboard/student/utils";
@@ -27,6 +28,7 @@ import { Badge } from "@/components/dashboard/ui/badge";
 import { Button } from "@/components/dashboard/ui/button";
 
 export function LeaveManagement() {
+  const { primaryColor } = useCustomColors();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("analytics");
   const [searchTerm, setSearchTerm] = useState("");
@@ -359,7 +361,10 @@ export function LeaveManagement() {
   return (
     <div className="w-full space-y-5">
       <div className="pt-1">
-        <div className="rounded-3xl border border-purple-100 bg-white p-6 shadow-sm">
+        <div 
+          className="rounded-3xl border bg-white p-6 shadow-sm"
+          style={{ borderColor: `${primaryColor}20` }}
+        >
           <div className="flex flex-col gap-2">
             <h2 className="text-3xl font-bold text-primary md:text-4xl">
               Student Leave Management
@@ -396,7 +401,10 @@ export function LeaveManagement() {
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="flex flex-col items-center gap-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    <div 
+                      className="animate-spin rounded-full h-12 w-12 border-b-2"
+                      style={{ borderColor: primaryColor }}
+                    ></div>
                     <p className="text-gray-600 dark:text-white">Loading leave data...</p>
                   </div>
                 </div>
@@ -413,7 +421,10 @@ export function LeaveManagement() {
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="flex flex-col items-center gap-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    <div 
+                      className="animate-spin rounded-full h-12 w-12 border-b-2"
+                      style={{ borderColor: primaryColor }}
+                    ></div>
                     <p className="text-gray-600 dark:text-white">Loading leave data...</p>
                   </div>
                 </div>

@@ -6,6 +6,7 @@ import { Input } from "@/components/dashboard/ui/input"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { Search, AlertTriangle, Edit, ShoppingCart, Heart, Filter, Check, X, Star } from 'lucide-react'
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface Product {
   id: string
@@ -28,6 +29,7 @@ interface ProductsGridProps {
 
 export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProps) {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [searchQuery, setSearchQuery] = useState("")
   const [hoveredProductId, setHoveredProductId] = useState<string | null>(null)
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
@@ -92,7 +94,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                   className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white transition-smooth relative h-12 px-4"
                 >
                   <span className="relative inline-block">
-                    <Filter className="h-4 w-4 text-purple-500" />
+                    <Filter className="h-4 w-4" style={{ color: primaryColor }} />
                     {filterAction === "applied" && selectedCategories.length > 0 && (
                       <span className="absolute -top-1 -right-1">
                         <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -124,7 +126,8 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                             type="checkbox"
                             checked={pendingCategories.includes(category)}
                             onChange={() => toggleCategory(category)}
-                            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            className="w-4 h-4 border-gray-300 rounded"
+                            style={{ accentColor: primaryColor }}
                           />
                           <span className="text-sm text-gray-700 dark:text-white">{category}</span>
                         </label>
@@ -135,7 +138,8 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                   <div className="flex gap-2 pt-3 border-t border-gray-200">
                     <Button
                       size="sm"
-                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                      className="flex-1 text-white"
+                      style={{ backgroundColor: primaryColor }}
                       onClick={applyFilters}
                     >
                       Apply Filters
@@ -157,7 +161,13 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
             <Button
               variant="outline"
               size="sm"
-              className="border-orange-300 hover:bg-orange-50 text-orange-600 transition-smooth"
+              style={{ 
+                borderColor: `${secondaryColor}50`, 
+                color: secondaryColor 
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}10`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              className="transition-smooth"
             >
               <AlertTriangle className="h-4 w-4 mr-2" />
               Alerts
@@ -191,7 +201,8 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                 <div className="absolute inset-0 flex items-center justify-center gap-2">
                   <Button
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white transition-smooth"
+                    className="text-white transition-smooth"
+                    style={{ backgroundColor: primaryColor }}
                     onClick={() => onEdit(product)}
                     title="Edit"
                   >
@@ -199,7 +210,10 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                   </Button>
                   <Button
                     size="sm"
-                    className="bg-orange-600 hover:bg-orange-700 text-white transition-smooth"
+                    className="text-white transition-smooth"
+                    style={{ backgroundColor: secondaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     onClick={() => onAddToCart(product)}
                     title="Add to Cart"
                   >
@@ -247,7 +261,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
               </div>
 
               {/* Category Badge */}
-              <Badge variant="outline" className="border-purple-300 text-purple-600 mb-3">
+              <Badge variant="outline" className="mb-3" style={{ borderColor: primaryColor, color: primaryColor }}>
                 {product.category}
               </Badge>
 
@@ -262,7 +276,7 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
               {/* Footer Stats */}
               <div className="flex items-center justify-between text-xs text-gray-600 dark:text-white pb-3 border-t border-gray-200 pt-3">
                 <span>{product.sales} sold</span>
-                <span className="text-orange-500">⚡</span>
+                <span style={{ color: secondaryColor }}>⚡</span>
               </div>
             </div>
           </div>

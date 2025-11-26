@@ -75,7 +75,8 @@ export function FeatureGrid() {
       <div className="flex items-center gap-3 mb-8">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
         <h2 id="features-heading" className="text-2xl font-bold tracking-tight flex items-center gap-3 text-neutral-800 dark:text-neutral-200">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
+          <div className="p-2.5 rounded-xl text-white shadow-lg"
+            style={{ backgroundImage: `linear-gradient(135deg, var(--custom-color-1), var(--custom-color-2))` }}>
             <SettingsIcon className="w-5 h-5" />
           </div>
           Platform Modules
@@ -94,7 +95,19 @@ export function FeatureGrid() {
             <div className={`relative inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${f.gradient} text-white mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
               {f.icon}
             </div>
-            <h3 className="relative font-bold text-lg mb-2 text-neutral-900 dark:text-white group-hover:bg-gradient-to-r group-hover:from-violet-600 group-hover:to-fuchsia-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+            <h3 className="relative font-bold text-lg mb-2 text-neutral-900 dark:text-white transition-all duration-300"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundImage = `linear-gradient(90deg, var(--custom-color-1), var(--custom-color-2))`;
+                e.currentTarget.style.backgroundClip = 'text';
+                e.currentTarget.style.webkitBackgroundClip = 'text';
+                e.currentTarget.style.color = 'transparent';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundImage = '';
+                e.currentTarget.style.backgroundClip = '';
+                e.currentTarget.style.webkitBackgroundClip = '';
+                e.currentTarget.style.color = '';
+              }}>
               {f.title}
             </h3>
             <p className="relative text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">{f.description}</p>

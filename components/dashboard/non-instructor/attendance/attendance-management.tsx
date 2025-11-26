@@ -23,11 +23,13 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { LayoutDashboard,Download, Upload, Settings, Plus, X, BarChart3, Camera, Table2, Calendar, Trophy, Bell, FileText, RefreshCcw, Pencil, Trash2, Hash, Clock, CheckCircle2 } from "lucide-react"
 import { useToast } from "@/hooks/dashboard/use-toast"
+import { useCustomColors } from "@/lib/use-custom-colors"
  
 
 
 function AttendanceManagementInner() {
   const { toast } = useToast();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [activeTab, setActiveTab] = useState("analytics");
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isSelfieModalOpen, setIsSelfieModalOpen] = useState(false);
@@ -330,8 +332,8 @@ function AttendanceManagementInner() {
   return (
     <div className="space-y-3">
       <div className="w-full">
-        <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
-  <h1 className="text-3xl md:text-3xl font-bold text-purple-700">Non-Instructor Attendance Management </h1>
+          <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
+        <h1 className="text-3xl md:text-3xl font-bold" style={{ color: primaryColor }}>Non-Instructor Attendance Management </h1>
         </div>
   <p className="text-lg mb-0 text-gray-700 dark:text-white">
     Track, manage, and analyze attendance for all non-instructors</p>
@@ -373,7 +375,8 @@ function AttendanceManagementInner() {
         <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 w-full gap-2 bg-transparent h-auto p-0">
           <TabsTrigger
             value="analytics"
-            className="hexagon-tab text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+            className="hexagon-tab bg-transparent transition-all duration-150 font-semibold px-4 py-2 focus:outline-none"
+            style={activeTab === 'analytics' ? { background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`, color: 'white' } : { color: secondaryColor }}
           >
             <LayoutDashboard className="w-4 h-4 mr-2 inline-block" />
             Analytics
@@ -381,7 +384,8 @@ function AttendanceManagementInner() {
           
           <TabsTrigger
             value="table"
-            className="hexagon-tab text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+            className="hexagon-tab bg-transparent transition-all duration-150 font-semibold px-4 py-2 focus:outline-none"
+            style={activeTab === 'table' ? { background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`, color: 'white' } : { color: secondaryColor }}
           >
             <Table2 className="w-4 h-4 mr-2 inline-block" />
             Attendance Table
@@ -458,8 +462,8 @@ function AttendanceManagementInner() {
               {viewMode === "list" ? (
                 <>
                   {selectedIds.length > 0 && (
-                    <div className="flex items-center gap-3 px-4 py-2 bg-purple-50 border-b border-purple-200 text-sm">
-                      <span className="text-purple-700 font-medium">{selectedIds.length} selected</span>
+                    <div className="flex items-center gap-3 px-4 py-2 text-sm" style={{ backgroundColor: `${primaryColor}15`, borderBottom: `1px solid ${primaryColor}33` }}>
+                      <span className="font-medium" style={{ color: primaryColor }}>{selectedIds.length} selected</span>
                       {/* Bulk status actions removed per requirements */}
                       <button
                         className="ml-auto px-2 py-1 rounded bg-white border text-gray-600 dark:text-white hover:bg-gray-50"
@@ -545,7 +549,7 @@ function AttendanceManagementInner() {
           {recordToView && (
             <>
               {/* Gradient header for consistency */}
-              <div className="relative overflow-hidden rounded-t-2xl bg-gradient-to-r from-[#8B5CF6] via-[#9b5cf6] to-[#DE7D14] p-8 text-white">
+              <div className="relative overflow-hidden rounded-t-2xl p-8 text-white" style={{ background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})` }}>
                 <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="relative z-10 flex flex-col gap-3">
@@ -591,26 +595,26 @@ function AttendanceManagementInner() {
                   return (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Attendance details */}
-                      <section className="rounded-xl border border-purple-100/60 bg-white/70 backdrop-blur-md shadow-sm hover:shadow-md transition-shadow">
-                        <div className="px-5 py-3 border-b text-sm font-semibold text-purple-700/90">Attendance</div>
+                      <section className="rounded-xl border bg-white/70 backdrop-blur-md shadow-sm hover:shadow-md transition-shadow" style={{ borderColor: `${primaryColor}33` }}>
+                        <div className="px-5 py-3 border-b text-sm font-semibold" style={{ color: primaryColor }}>Attendance</div>
                         <div className="px-5 pb-5 pt-2 text-[15px]">
-                          <DetailRow icon={Calendar} iconClass="text-purple-500" label="Date" value={formatDisplayDate(recordToView.date)} />
-                          <DetailRow icon={Clock} iconClass="text-purple-500" label="Start Time" value={recordToView.startTime || "?"} />
-                          <DetailRow icon={Clock} iconClass="text-purple-500" label="End Time" value={recordToView.endTime || "?"} />
+                          <DetailRow icon={Calendar} iconClass="" label="Date" value={formatDisplayDate(recordToView.date)} />
+                          <DetailRow icon={Clock} iconClass="" label="Start Time" value={recordToView.startTime || "?"} />
+                          <DetailRow icon={Clock} iconClass="" label="End Time" value={recordToView.endTime || "?"} />
                           <DetailRow
                             icon={CheckCircle2}
-                            iconClass="text-purple-500"
+                            iconClass=""
                             label="Status"
                             value={<Badge variant="secondary" className={recordToView.status === 'present' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : (recordToView.status === 'planned' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-rose-100 text-rose-700 border-rose-200')}>
                               {(() => { const s=(recordToView.status||'').toLowerCase(); if (s==='planned') return 'Planned leave'; if (s==='absent') return 'Unplanned Leave'; return s? s.charAt(0).toUpperCase()+s.slice(1) : '?' })()}
                             </Badge>}
                           />
-                          <DetailRow icon={FileText} iconClass="text-purple-500" label="Remarks" value={recordToView.notes || "?"} />
+                          <DetailRow icon={FileText} iconClass="" label="Remarks" value={recordToView.notes || "?"} />
                         </div>
                       </section>
 
                       {/* Empty spacer card to balance grid or for future extensions */}
-                      <section className="rounded-xl border border-indigo-100/60 bg-white/70 backdrop-blur-md shadow-sm min-h-[120px] hidden lg:block" />
+                      <section className="rounded-xl border bg-white/70 backdrop-blur-md shadow-sm min-h-[120px] hidden lg:block" style={{ borderColor: `${primaryColor}22` }} />
                     </div>
                   )
                 })()}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -40,6 +41,7 @@ interface Lead {
 }
 
 export default function LeadsPage() {
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [leads, setLeads] = useState<Lead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(false)
@@ -143,9 +145,9 @@ export default function LeadsPage() {
       case "Contacted":
         return "bg-yellow-100 text-yellow-800"
       case "Qualified":
-        return "bg-purple-100 text-purple-800"
+        return `bg-[${primaryColor}15] text-[${primaryColor}]`
       case "Trial Scheduled":
-        return "bg-orange-100 text-orange-800"
+        return `bg-[${secondaryColor}15] text-[${secondaryColor}]`
       case "Converted":
         return "bg-green-100 text-green-800"
       case "Lost":
@@ -214,7 +216,7 @@ export default function LeadsPage() {
             </Button>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
-                <Button className="w-full md:w-auto bg-purple-500 text-white">
+                <Button className="w-full md:w-auto text-white" style={{ backgroundColor: primaryColor }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Lead
                 </Button>
@@ -341,11 +343,11 @@ export default function LeadsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-white">Qualified</p>
-                    <p className="text-2xl font-bold text-purple-600">
+                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>
                       {leads.filter((l) => l.status === "Qualified").length}
                     </p>
                   </div>
-                  <Calendar className="w-8 h-8 text-purple-500" />
+                  <Calendar className="w-8 h-8" style={{ color: primaryColor }} />
                 </div>
               </CardContent>
             </Card>

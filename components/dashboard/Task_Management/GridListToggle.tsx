@@ -1,5 +1,6 @@
 import React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface GridListToggleProps {
   viewMode: "grid" | "list"
@@ -13,7 +14,9 @@ export const GridListToggle: React.FC<GridListToggleProps> = ({
   setViewMode,
   isCalendarView,
   setIsCalendarView,
-}) => (
+}) => {
+  const { primaryColor } = useCustomColors()
+  return (
   <TooltipProvider>
     <div className="flex border rounded-md overflow-hidden">
       <Tooltip>
@@ -22,9 +25,10 @@ export const GridListToggle: React.FC<GridListToggleProps> = ({
             type="button"
             className={`flex items-center justify-center w-9 h-9 transition-colors ${
               viewMode === "list"
-                ? "bg-purple-500 text-white"
+                ? "text-white"
                 : "bg-white text-black hover:bg-gray-100"
             } rounded-l-md focus:outline-none border-r`}
+            style={viewMode === "list" ? { backgroundColor: primaryColor } : undefined}
             aria-pressed={viewMode === "list"}
             onClick={() => {
               setViewMode("list")
@@ -48,9 +52,10 @@ export const GridListToggle: React.FC<GridListToggleProps> = ({
             type="button"
             className={`flex items-center justify-center w-9 h-9 transition-colors ${
               viewMode === "grid"
-                ? "bg-purple-500 text-white"
+                ? "text-white"
                 : "bg-white text-black hover:bg-gray-100"
             } rounded-r-md focus:outline-none`}
+            style={viewMode === "grid" ? { backgroundColor: primaryColor } : undefined}
             aria-pressed={viewMode === "grid"}
             onClick={() => {
               setViewMode("grid")
@@ -71,4 +76,5 @@ export const GridListToggle: React.FC<GridListToggleProps> = ({
       </Tooltip>
     </div>
   </TooltipProvider>
-)
+  )
+}

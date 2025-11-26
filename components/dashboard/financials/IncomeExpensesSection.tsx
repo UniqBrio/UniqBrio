@@ -2,20 +2,21 @@
 
 import React, { useState } from "react";
 import { format as formatDate } from "date-fns";
+import { useCustomColors } from '@/lib/use-custom-colors';
 import { useCurrency } from "@/contexts/currency-context";
 // 3x3 grid icon
-function GridIcon({ className = "w-6 h-6" }) {
+function GridIcon({ className = "w-6 h-6", fill = "#7C3AED" }: { className?: string, fill?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="3" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="10" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="3" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="10" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
-      <rect x="17" y="17" width="5" height="5" rx="1.5" fill="#7C3AED" />
+      <rect x="3" y="3" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="10" y="3" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="17" y="3" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="3" y="10" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="10" y="10" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="17" y="10" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="3" y="17" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="10" y="17" width="5" height="5" rx="1.5" fill={fill} />
+      <rect x="17" y="17" width="5" height="5" rx="1.5" fill={fill} />
     </svg>
   );
 }
@@ -83,7 +84,8 @@ export function IncomeExpensesSection({
   visibleSection = 'both'
 }: IncomeExpensesSectionProps) {
 
-  // Currency context
+  // Custom colors and currency context
+  const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
 
   // Toast
@@ -459,21 +461,24 @@ export function IncomeExpensesSection({
         
         {/* Count bar for both views + column selector button */}
         <div className="mb-4 flex items-center justify-between">
-          <div className="w-full rounded-xl bg-[#f4f2ff] px-6 py-3 flex items-center text-base font-medium text-purple-700" style={{background: 'linear-gradient(90deg, #f4f2ff 80%, #fff 100%)'}}>
+          <div className="w-full rounded-xl px-6 py-3 flex items-center text-base font-medium" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor, backgroundImage: `linear-gradient(90deg, ${primaryColor}20 80%, #fff 100%)` }}>
             <span className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-[#a78bfa] inline-block mr-2"></span>
+              <span className="h-3 w-3 rounded-full inline-block mr-2" style={{ backgroundColor: primaryColor }}></span>
               <span className="font-bold">{filteredIncomes.length}</span>
               <span className="font-normal">{filteredIncomes.length === 1 ? 'income found' : 'incomes found'}</span>
             </span>
           </div>
           {incomeViewMode === 'list' && (
             <button
-              className="ml-4 w-10 h-10 rounded-xl border border-purple-200 bg-[#f4f2ff] hover:bg-purple-100 flex items-center justify-center shadow-sm hover:shadow transition-colors"
+              className="ml-4 w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm hover:shadow transition-colors"
+              style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}10` }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
               onClick={() => setShowIncomeColumnSelector(true)}
               title="Displayed Columns"
               aria-label="Edit displayed income columns"
             >
-              <GridIcon className="w-6 h-6" />
+              <GridIcon className="w-6 h-6" fill={primaryColor} />
             </button>
           )}
         </div>
@@ -537,7 +542,7 @@ export function IncomeExpensesSection({
                       </tr>
                     ) : (
                       filteredIncomes.map((income) => (
-                        <tr key={income.id} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-[#f3f0ff] dark:hover:bg-purple-900/20 cursor-pointer transition-colors" onClick={() => handleViewIncome(income)}>
+                        <tr key={income.id} className="border-b border-gray-200 dark:border-gray-700 group cursor-pointer transition-colors" style={{ ':hover': { backgroundColor: `${primaryColor}10` } }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''} onClick={() => handleViewIncome(income)}>
                           {/* Selection checkbox cell */}
                           <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
                             <input
@@ -559,7 +564,7 @@ export function IncomeExpensesSection({
                                 return <td key="amount" className="px-6 py-3 text-black">{income.amount.toLocaleString()}</td>;
                               case "Category":
                                 return <td key="category" className="px-6 py-3">
-                                  <span className="inline-block rounded-full bg-purple-100 text-purple-700 px-3 py-1 text-xs font-medium">
+                                  <span className="inline-block rounded-full px-3 py-1 text-xs font-medium" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                                     {income.incomeCategory}
                                   </span>
                                 </td>;
@@ -724,21 +729,24 @@ export function IncomeExpensesSection({
         
         {/* Count bar for both views + column selector button */}
         <div className="mb-4 flex items-center justify-between">
-          <div className="w-full rounded-xl bg-[#f4f2ff] px-6 py-3 flex items-center text-base font-medium text-purple-700" style={{background: 'linear-gradient(90deg, #f4f2ff 80%, #fff 100%)'}}>
+          <div className="w-full rounded-xl px-6 py-3 flex items-center text-base font-medium" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor, backgroundImage: `linear-gradient(90deg, ${primaryColor}20 80%, #fff 100%)` }}>
             <span className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-[#a78bfa] inline-block mr-2"></span>
+              <span className="h-3 w-3 rounded-full inline-block mr-2" style={{ backgroundColor: primaryColor }}></span>
               <span className="font-bold">{filteredExpenses.length}</span>
               <span className="font-normal">{filteredExpenses.length === 1 ? 'expense found' : 'expenses found'}</span>
             </span>
           </div>
           {expenseViewMode === 'list' && (
             <button
-              className="ml-4 w-10 h-10 rounded-xl border border-purple-200 bg-[#f4f2ff] hover:bg-purple-100 flex items-center justify-center shadow-sm hover:shadow transition-colors"
+              className="ml-4 w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm hover:shadow transition-colors"
+              style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}10` }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
               onClick={() => setShowExpenseColumnSelector(true)}
               title="Displayed Columns"
               aria-label="Edit displayed expense columns"
             >
-              <GridIcon className="w-6 h-6" />
+              <GridIcon className="w-6 h-6" fill={primaryColor} />
             </button>
           )}
         </div>
@@ -802,7 +810,7 @@ export function IncomeExpensesSection({
                       </tr>
                     ) : (
                       filteredExpenses.map((expense) => (
-                        <tr key={expense.id} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-[#f3f0ff] dark:hover:bg-purple-900/20 cursor-pointer transition-colors" onClick={() => handleViewExpense(expense)}>
+                        <tr key={expense.id} className="border-b border-gray-200 dark:border-gray-700 group cursor-pointer transition-colors" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''} onClick={() => handleViewExpense(expense)}>
                           {/* Selection checkbox cell */}
                           <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
                             <input
@@ -824,7 +832,7 @@ export function IncomeExpensesSection({
                                 return <td key="amount" className="px-6 py-3 text-black">{expense.amount.toLocaleString()}</td>;
                               case "Category":
                                 return <td key="category" className="px-6 py-3">
-                                  <span className="inline-block rounded-full bg-purple-100 text-purple-700 px-3 py-1 text-xs font-medium">
+                                  <span className="inline-block rounded-full px-3 py-1 text-xs font-medium" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                                     {expense.expenseCategory}
                                   </span>
                                 </td>;
@@ -838,7 +846,7 @@ export function IncomeExpensesSection({
                                 </td>;
                               case "Payment Mode":
                                 return <td key="paymentMode" className="px-6 py-3">
-                                  <span className="inline-block rounded-full bg-orange-100 text-orange-700 px-3 py-1 text-xs font-medium">
+                                  <span className="inline-block rounded-full px-3 py-1 text-xs font-medium" style={{ backgroundColor: `${secondaryColor}20`, color: secondaryColor }}>
                                     {expense.paymentMode || '-'}
                                   </span>
                                 </td>;

@@ -5,6 +5,7 @@ import { Separator } from "@/components/dashboard/ui/separator"
 import { Clock, RefreshCw, XCircle, User, Calendar, MapPin, AlertTriangle, CheckCircle, Info } from "lucide-react"
 import { format } from "date-fns"
 import { SessionModification, OriginalSessionData } from "@/types/dashboard/schedule"
+import { useCustomColors } from '@/lib/use-custom-colors'
 
 interface SessionHistoryComponentProps {
   originalData?: OriginalSessionData
@@ -51,12 +52,14 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
   reassignmentInfo,
   className = ""
 }) => {
+  const { primaryColor } = useCustomColors();
+  
   const getModificationIcon = (type: string) => {
     switch (type) {
       case 'rescheduled':
         return <Clock className="h-4 w-4 text-blue-500" />
       case 'instructor_changed':
-        return <RefreshCw className="h-4 w-4 text-purple-500" />
+        return <RefreshCw className="h-4 w-4" style={{ color: primaryColor }} />
       case 'cancelled':
         return <XCircle className="h-4 w-4 text-red-500" />
       case 'active':
@@ -71,7 +74,7 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
       case 'rescheduled':
         return 'border-blue-200 bg-blue-50'
       case 'instructor_changed':
-        return 'border-purple-200 bg-purple-50'
+        return `border-[${primaryColor}40] bg-[${primaryColor}10]`
       case 'cancelled':
         return 'border-red-200 bg-red-50'
       case 'active':
@@ -324,23 +327,23 @@ const SessionHistoryComponent: React.FC<SessionHistoryComponentProps> = ({
               )}
               
               {reassignmentInfo && (
-                <div className="flex items-start gap-2 p-2 bg-purple-100 rounded">
-                  <RefreshCw className="h-4 w-4 text-purple-600 mt-0.5" />
+                <div className="flex items-start gap-2 p-2 rounded" style={{ backgroundColor: `${primaryColor}20` }}>
+                  <RefreshCw className="h-4 w-4 mt-0.5" style={{ color: primaryColor }} />
                   <div>
-                    <div className="font-medium text-purple-800">
+                    <div className="font-medium" style={{ color: primaryColor }}>
                       Instructor Reassignment ({reassignmentInfo.type.replace('_', ' ')})
                     </div>
-                    <div className="text-purple-700">
-                      {reassignmentInfo.originalInstructor} ? {reassignmentInfo.newInstructor}
+                    <div style={{ color: `${primaryColor}E6` }}>
+                      {reassignmentInfo.originalInstructor} → {reassignmentInfo.newInstructor}
                     </div>
                     {reassignmentInfo.reason && (
-                      <div className="text-purple-700">Reason: {reassignmentInfo.reason}</div>
+                      <div style={{ color: `${primaryColor}E6` }}>Reason: {reassignmentInfo.reason}</div>
                     )}
-                    <div className="text-xs text-purple-600">
+                    <div className="text-xs" style={{ color: `${primaryColor}CC` }}>
                       Reassigned at: {formatDateTime(reassignmentInfo.reassignedAt)}
                     </div>
                     {reassignmentInfo.backendId && (
-                      <div className="text-xs text-purple-500">Backend ID: {reassignmentInfo.backendId}</div>
+                      <div className="text-xs" style={{ color: `${primaryColor}99` }}>Backend ID: {reassignmentInfo.backendId}</div>
                     )}
                   </div>
                 </div>

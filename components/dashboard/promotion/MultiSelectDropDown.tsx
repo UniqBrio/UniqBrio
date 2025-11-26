@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useCustomColors } from '@/lib/use-custom-colors';
 
 interface MultiSelectDropdownProps {
   label: string;
@@ -23,6 +24,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   className = "",
   displayTransform,
 }) => {
+  const { primaryColor } = useCustomColors();
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = React.useState('');
@@ -120,7 +122,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggle(opt)}
-                        className="accent-purple-600"
+                        style={{ accentColor: primaryColor }}
                       />
                       <span className="truncate" title={toLabel(opt)}>{toLabel(opt)}</span>
                     </label>
