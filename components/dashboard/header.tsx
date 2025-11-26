@@ -55,10 +55,21 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
       }
       
       const data = await response.json()
-      
-      if (data.success && data.activities) {
-        setNotificationsList(data.activities)
-        setNotifications(data.unreadCount || 0)
+      const latestNotifications = Array.isArray(data?.activities)
+        ? data.activities
+        : Array.isArray(data?.notifications)
+          ? data.notifications
+          : Array.isArray(data)
+            ? data
+            : []
+      if (latestNotifications.length) {
+        setNotificationsList(latestNotifications)
+        const unreadFromApi = typeof data?.unreadCount === 'number' ? data.unreadCount : undefined
+        const derivedUnread = latestNotifications.filter((item: any) => item && item.read === false).length
+        setNotifications(unreadFromApi ?? derivedUnread ?? latestNotifications.length)
+      } else {
+        setNotificationsList([])
+        setNotifications(0)
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)

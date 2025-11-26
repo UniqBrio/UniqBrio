@@ -584,7 +584,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
               <div className="p-4 border rounded-2xl bg-white dark:bg-gray-900">
                 <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
                   <p className="text-sm font-semibold">Theme Preview</p>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Stash-style mock surface</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Live preview</span>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div
@@ -594,7 +594,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.25em] opacity-80">Gradient Banner</p>
                       <p className="text-xl font-semibold mt-2">Primary Hero</p>
-                      <p className="text-sm opacity-90">Visualize how gradients appear across the Stash experience.</p>
+                      <p className="text-sm opacity-90">Preview how gradients appear across your workspace.</p>
                     </div>
                     <div className="flex flex-wrap gap-2 text-[11px] font-semibold">
                       <span className="px-2 py-1 rounded-full bg-black/25 backdrop-blur">Primary · {primaryPreviewColor}</span>
@@ -631,7 +631,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                           backgroundColor: `${secondaryPreviewColor}14`,
                         }}
                       >
-                        Stash Badge
+                        Accent Badge
                       </span>
                     </div>
                     <div className="rounded-xl border border-dashed p-3">
@@ -645,7 +645,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                               title={`Color ${index + 1}: ${color}`}
                             />
                             <span className="text-xs font-semibold text-gray-600 dark:text-gray-200">
-                              {(color || "").toUpperCase()}
+                              {`Color ${index + 1}`}
                             </span>
                           </div>
                         ))}
