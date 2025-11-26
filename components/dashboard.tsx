@@ -52,11 +52,15 @@ const Dashboard = () => {
           }
         } else {
           console.error("[Dashboard] KYC status API returned error:", response.status);
+          // Set a default status to allow dashboard to load
+          setKycStatus("pending");
         }
       } catch (error) {
         console.error("[Dashboard] Error checking KYC status:", error);
+        // Set a default status to allow dashboard to load even on error
+        setKycStatus("pending");
       } finally {
-        // Only set loading to false if we're not redirecting
+        // Always set loading to false after KYC check completes
         setIsLoading(false);
       }
     };
@@ -66,51 +70,6 @@ const Dashboard = () => {
 
     // Clear any old localStorage flags that might cause issues
     localStorage.removeItem('kycSuccessShown');
-
-    // Process KYC status after initial check
-    const processKycStatus = () => {
-      if (!kycStatus) return;
-      
-      // Only show KYC popup if KYC is not submitted or verified
-      if (kycStatus === "pending") {
-        setShowKycPopup(true);
-      } else if (kycStatus === "rejected") {
-        // Show rejection popup for rejected KYCs
-        setShowKycRejectedPopup(true);
-        setShowKycPopup(false);
-      } else if (kycStatus === "verified") {
-        // Clear any pending banners and show a one-time congrats
-        setShowKycPopup(false);
-        setShowKycRejectedPopup(false);
-        setShowKycForm(false);
-        const kycVerifiedShown = localStorage.getItem('kycVerifiedShown');
-        console.log("KYC Status is verified. kycVerifiedShown:", kycVerifiedShown);
-        
-        if (!kycVerifiedShown) {
-          console.log("Showing congratulations banner for first time (no success toast for verified status)");
-          setShowKycVerifiedBanner(true); // Show banner only once
-          localStorage.setItem('kycVerifiedShown', '1');
-          
-          // Auto-hide the banner after 8 seconds (longer than popup for better UX)
-          setTimeout(() => {
-            setShowKycVerifiedBanner(false);
-          }, 8000);
-        } else {
-          console.log("KYC verification congratulations already shown, not showing banner");
-          // Don't show banner if already shown before
-          setShowKycVerifiedBanner(false);
-        }
-      } else if (kycStatus === "submitted") {
-        // KYC is submitted, hide all popups
-        setShowKycPopup(false);
-        setShowKycRejectedPopup(false);
-      }
-    };
-
-    // Only process KYC status after it's been set and we're not loading
-    if (kycStatus && !isLoading) {
-      processKycStatus();
-    }
 
     // Fetch academy/user info (scoped by session cookie)
     const fetchAcademyInfo = async () => {
@@ -171,7 +130,48 @@ const Dashboard = () => {
 
     fetchAcademyInfo();
     fetchDashboardSummary();
-  }, [kycStatus, isLoading]); // Add dependencies
+  }, []); // Run only once on mount
+
+  // Separate useEffect to handle KYC status changes
+  useEffect(() => {
+    if (!kycStatus || isLoading) return;
+    
+    // Only show KYC popup if KYC is not submitted or verified
+    if (kycStatus === "pending") {
+      setShowKycPopup(true);
+    } else if (kycStatus === "rejected") {
+      // Show rejection popup for rejected KYCs
+      setShowKycRejectedPopup(true);
+      setShowKycPopup(false);
+    } else if (kycStatus === "verified") {
+      // Clear any pending banners and show a one-time congrats
+      setShowKycPopup(false);
+      setShowKycRejectedPopup(false);
+      setShowKycForm(false);
+      const kycVerifiedShown = localStorage.getItem('kycVerifiedShown');
+      console.log("KYC Status is verified. kycVerifiedShown:", kycVerifiedShown);
+      
+      if (!kycVerifiedShown) {
+        console.log("Showing congratulations banner for first time (no success toast for verified status)");
+        setShowKycVerifiedBanner(true); // Show banner only once
+        localStorage.setItem('kycVerifiedShown', '1');
+        
+        // Auto-hide the banner after 8 seconds (longer than popup for better UX)
+        setTimeout(() => {
+          setShowKycVerifiedBanner(false);
+        }, 8000);
+      } else {
+        console.log("KYC verification congratulations already shown, not showing banner");
+        // Don't show banner if already shown before
+        setShowKycVerifiedBanner(false);
+      }
+    } else if (kycStatus === 'submitted') {
+      // Don't show any popup for submitted status
+      setShowKycPopup(false);
+      setShowKycRejectedPopup(false);
+      setShowKycForm(false);
+    }
+  }, [kycStatus, isLoading]); // Watch kycStatus changes
 
   const handleKycSuccess = () => {
     setKycStatus("submitted");

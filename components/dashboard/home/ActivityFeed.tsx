@@ -33,7 +33,7 @@ export function ActivityFeed({
   className = "",
   maxItems = 8,
 }: ActivityFeedProps) {
-  const { primaryColor } = useCustomColors()
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 

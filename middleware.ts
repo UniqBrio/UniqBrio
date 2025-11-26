@@ -121,12 +121,19 @@ export async function middleware(request: NextRequest) {
   if (payload?.email) {
     try {
       // Use API route instead of direct Prisma in middleware (edge environment)
+      // Add timeout to prevent middleware hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       const userInfoResponse = await fetch(`${request.nextUrl.origin}/api/user-registration-status`, {
         headers: {
           'Authorization': `Bearer ${sessionCookieValue}`,
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (userInfoResponse.ok) {
         const userData = await userInfoResponse.json();
@@ -178,11 +185,13 @@ export async function middleware(request: NextRequest) {
 
         console.log(`[Middleware] Registration status check passed for ${payload.email} - verified: ${userData?.verified}, complete: ${userData?.registrationComplete}`);
       } else {
-        console.log(`[Middleware] Failed to fetch user registration status: ${userInfoResponse.status}`);
+        console.log(`[Middleware] Failed to fetch user registration status: ${userInfoResponse.status} - continuing with normal flow`);
+        // Continue with normal flow if API fails - allow user to access pages
       }
     } catch (error) {
       console.error(`[Middleware] Error checking registration status for ${payload.email}:`, error);
-      // Continue with normal flow if API check fails
+      // Continue with normal flow if API check fails - this prevents blocking all pages
+      console.log(`[Middleware] Allowing access despite registration check failure`);
     }
   }
 
