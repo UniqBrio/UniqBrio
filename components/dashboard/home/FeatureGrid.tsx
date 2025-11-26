@@ -63,7 +63,7 @@ const features: FeatureItem[] = [
   {
     title: "Settings",
     description: "Profile, security, appearance & system ops.",
-    href: "/settings",
+    href: "/dashboard/settings",
     icon: <SettingsIcon className="w-5 h-5" />,
     gradient: "from-slate-500 to-gray-500"
   }

@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get user
+    await dbConnect();
     const user = await UserModel.findOne({ email: decoded.email as string }).lean()
 
     console.log("[Academy Info API] User found:", !!user, "userId:", user?.userId)
@@ -34,14 +35,39 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Get registration data
-    const registration = await RegistrationModel.findOne({ userId: user.userId || "" });
+    // Get registration data - try multiple search strategies
+    let registration = null;
+    
+    // Strategy 1: Search by userId or academyId if they exist
+    if (user.userId || user.academyId) {
+      const whereConditions = [];
+      if (user.userId) whereConditions.push({ userId: user.userId });
+      if (user.academyId) whereConditions.push({ academyId: user.academyId });
+      
+      registration = await RegistrationModel.findOne({
+        $or: whereConditions
+      }).lean();
+      
+      console.log("[Academy Info API] Search by IDs, found:", !!registration)
+    }
+    
+    // Strategy 2: Search by email in adminInfo if no registration found yet
+    if (!registration) {
+      registration = await RegistrationModel.findOne({
+        'adminInfo.email': decoded.email
+      }).lean();
+      
+      console.log("[Academy Info API] Search by email in adminInfo, found:", !!registration)
+    }
 
     console.log("[Academy Info API] Registration found:", !!registration)
     console.log("[Academy Info API] BusinessInfo keys:", registration?.businessInfo ? Object.keys(registration.businessInfo as object) : "none")
 
     if (!registration) {
-      return NextResponse.json({ error: "Registration data not found" }, { status: 404 })
+      return NextResponse.json({ 
+        error: "Registration data not found",
+        message: "Please complete your registration first or contact support."
+      }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -84,9 +110,37 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
+    // Find registration using multiple strategies
+    let registration = null;
+    
+    // Strategy 1: Search by userId or academyId
+    if (user.userId || user.academyId) {
+      const whereConditions = [];
+      if (user.userId) whereConditions.push({ userId: user.userId });
+      if (user.academyId) whereConditions.push({ academyId: user.academyId });
+      
+      registration = await RegistrationModel.findOne({
+        $or: whereConditions
+      });
+    }
+    
+    // Strategy 2: Search by email in adminInfo
+    if (!registration) {
+      registration = await RegistrationModel.findOne({
+        'adminInfo.email': decoded.email
+      });
+    }
+    
+    if (!registration) {
+      return NextResponse.json({ 
+        error: "Registration not found",
+        message: "Please complete your registration first."
+      }, { status: 404 })
+    }
+
     // Update registration data
     const updatedRegistration = await RegistrationModel.findOneAndUpdate(
-      { userId: user.userId || "" },
+      { _id: registration._id },
       {
         $set: {
           businessInfo: body.businessInfo,

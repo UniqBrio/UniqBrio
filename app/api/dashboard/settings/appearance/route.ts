@@ -55,6 +55,7 @@ export async function PUT(request: NextRequest) {
           dateFormat: updates.dateFormat ?? currentPreferences.dateFormat,
           timeFormat: updates.timeFormat ?? currentPreferences.timeFormat,
           currency: updates.currency ?? currentPreferences.currency,
+          timeZone: updates.timeZone ?? currentPreferences.timeZone,
           customColors: updates.customColors ?? currentPreferences.customColors,
         };
 
@@ -78,6 +79,7 @@ export async function PUT(request: NextRequest) {
             dateFormat: updates.dateFormat ?? currentPreferences.dateFormat,
             timeFormat: updates.timeFormat ?? currentPreferences.timeFormat,
             currency: updates.currency ?? currentPreferences.currency,
+            timeZone: updates.timeZone ?? currentPreferences.timeZone,
             customColors: updates.customColors ?? currentPreferences.customColors,
           };
 

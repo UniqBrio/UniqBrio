@@ -25,10 +25,7 @@ import { useCountryCodes } from "@/hooks/dashboard/staff/use-country-codes"
 import { useCurrency } from "@/contexts/currency-context"
 import { 
   GraduationCap, 
-  Upload, 
   Plus,
-  X, 
-  Image as ImageIcon,
   MapPin,
   Phone,
   Mail,
@@ -39,7 +36,9 @@ import {
   Calendar,
   Info,
   Map,
-  DollarSign
+  DollarSign,
+  Pencil,
+  Save
 } from "lucide-react"
 import { toast } from "@/components/dashboard/ui/use-toast"
 
@@ -50,6 +49,7 @@ interface AcademyInfoSettingsProps {
 export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   const { primaryColor } = useCustomColors();
   const { setCurrency } = useCurrency()
+  const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
   const [bannerPreview, setBannerPreview] = useState<string | null>(null)
@@ -211,8 +211,10 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
           setFormData(prev => ({
             ...prev,
             academyName: businessInfo.businessName || "",
+            branchName: businessInfo.branchName || "",
             legalEntityName: businessInfo.legalEntityName || "",
             tagline: businessInfo.tagline || "",
+            foundedYear: businessInfo.foundedYear || new Date().getFullYear().toString(),
             phone: businessInfo.phoneNumber || "",
             email: businessInfo.businessEmail || "",
             industryType: businessInfo.industryType || "",
@@ -227,6 +229,13 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             website: businessInfo.website || "",
             taxId: businessInfo.taxId || "",
             preferredLanguage: businessInfo.preferredLanguage || "",
+            socialMedia: businessInfo.socialMedia || {
+              facebook: "",
+              instagram: "",
+              twitter: "",
+              youtube: "",
+              linkedin: "",
+            },
             // Set currency from backend, or auto-set from country, or fallback to country mapping
             currency: businessInfo.currency || (businessInfo.country ? getCurrencyByCountry(businessInfo.country) : ""),
           }))
@@ -372,6 +381,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       reader.onloadend = () => {
         const result = reader.result as string
         setLogoPreview(result)
+        // Emit event to refresh header immediately
+        window.dispatchEvent(new CustomEvent('academyLogoUpdated'))
       }
       reader.readAsDataURL(file)
     }
@@ -430,6 +441,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       const reader = new FileReader()
       reader.onloadend = () => {
         setBusinessNameFilePreview(reader.result as string)
+        // Emit event to refresh header immediately
+        window.dispatchEvent(new CustomEvent('academyLogoUpdated'))
       }
       reader.readAsDataURL(file)
       handleInputChange("businessNameFile", file)
@@ -580,12 +593,17 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isEditing) {
+      setIsEditing(true)
+      return
+    }
     setIsLoading(true)
 
     try {
       // Map formData back to businessInfo structure
       const businessInfo = {
         businessName: formData.academyName,
+        branchName: formData.branchName,
         legalEntityName: formData.legalEntityName,
         businessEmail: formData.email,
         phoneNumber: formData.phone,
@@ -630,6 +648,11 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         })
       }
 
+      // Emit event to refresh header with updated images
+      window.dispatchEvent(new CustomEvent('academyLogoUpdated'))
+      window.dispatchEvent(new CustomEvent('profileImageUpdated'))
+
+      setIsEditing(false)
       toast({
         title: "Success",
         description: "Academy information updated successfully",
@@ -666,21 +689,41 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               <GraduationCap className="h-5 w-5" style={{ color: primaryColor }} />
               <CardTitle>Basic Information</CardTitle>
             </div>
-            <Button 
-              type="button"
-              variant="outline" 
-              disabled={true}
-              className="gap-2 bg-gray-50 cursor-not-allowed"
-            >
-              
-              <Plus className="h-4 w-4" /> Add Branch
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
-            </Button>
+            <div className="flex gap-2">
+              {!isEditing && (
+                <Button 
+                  onClick={() => setIsEditing(true)} 
+                  variant="ghost"
+                  className="gap-0" 
+                  style={{ color: primaryColor, borderColor: primaryColor }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}15`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                  title="Edit Academy Info"
+                >
+                  <Pencil className="h-4 w-4" />
+                  <span className="hidden sm:inline"></span>
+                </Button>
+              )}
+              <Button 
+                type="button"
+                variant="outline" 
+                disabled={true}
+                className="gap-2 bg-gray-50 cursor-not-allowed"
+              >
+                
+                <Plus className="h-4 w-4" /> Add Branch
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              </Button>
+            </div>
           </div>
           <CardDescription>Essential details about your academy</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="academyName">Academy Name *</Label>
               <Input
@@ -688,6 +731,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="e.g., Elite Arts & Sports Academy"
                 value={formData.academyName}
                 onChange={(e) => handleInputChange("academyName", e.target.value)}
+                disabled={!isEditing}
                 required
               />
             </div>
@@ -698,9 +742,21 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="e.g., Elite Arts & Sports LLC"
                 value={formData.legalEntityName}
                 onChange={(e) => handleInputChange("legalEntityName", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="tagline">Tagline</Label>
+              <Input
+                id="tagline"
+                placeholder="e.g., Excellence in Arts & Sports Education"
+                value={formData.tagline}
+                onChange={(e) => handleInputChange("tagline", e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+            
+            <div className="space-y-2 md:col-span-1">
               <Label htmlFor="branchName">Branch Name</Label>
               <div className="flex gap-2">
                 <Input
@@ -708,6 +764,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   placeholder="e.g., Downtown Branch, Main Campus"
                   value={formData.branchName}
                   onChange={(e) => handleInputChange("branchName", e.target.value)}
+                  disabled={!isEditing}
                   className="flex-1"
                 />
                 <Button
@@ -724,14 +781,21 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tagline">Tagline</Label>
-              <Input
-                id="tagline"
-                placeholder="e.g., Excellence in Arts & Sports Education"
-                value={formData.tagline}
-                onChange={(e) => handleInputChange("tagline", e.target.value)}
-              />
-              
+              <Label htmlFor="industryType">Industry Type</Label>
+              <Select
+                value={formData.industryType}
+                onValueChange={(value) => handleInputChange("industryType", value)}
+                disabled={!isEditing}
+              >
+                <SelectTrigger id="industryType">
+                  <SelectValue placeholder="Select industry type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="arts">Arts</SelectItem>
+                  <SelectItem value="sports">Sports</SelectItem>
+                  <SelectItem value="arts_sports">Arts & Sports</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="foundedYear">Founded Year</Label>
@@ -760,17 +824,69 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                     })
                   }
                 }}
+                disabled={!isEditing}
                 min="1900"
                 max={new Date().getFullYear().toString()}
                 maxLength={4}
               />
+            </div>
+            
+            
+            <div className="space-y-2">
+              <Label htmlFor="studentSize">Student Count</Label>
+              <Select
+                value={formData.studentSize}
+                onValueChange={(value) => handleInputChange("studentSize", value)}
+                disabled={!isEditing}
+              >
+                <SelectTrigger id="studentSize">
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small (21-50 students)</SelectItem>
+                  <SelectItem value="medium">Medium (51-200 students)</SelectItem>
+                  <SelectItem value="large">Large (201+ students)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="staffCount">Staff Count</Label>
+              <Select
+                value={formData.staffCount}
+                onValueChange={(value) => handleInputChange("staffCount", value)}
+                disabled={!isEditing}
+              >
+                <SelectTrigger id="staffCount">
+                  <SelectValue placeholder="Select count" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solo">Solo (1 instructor)</SelectItem>
+                  <SelectItem value="small">Small Team (2-5)</SelectItem>
+                  <SelectItem value="medium">Medium Team (6-15)</SelectItem>
+                  <SelectItem value="large">Large Team (16+)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 md:col-span-1">
+              <Label htmlFor="servicesOffered">Services Offered</Label>
+              <Input
+                id="servicesOffered"
+                placeholder="e.g., Painting, Music, Football, Dance"
+                value={Array.isArray(formData.servicesOffered) ? formData.servicesOffered.join(", ") : ""}
+                onChange={(e) => {
+                  const services = e.target.value.split(",").map(s => s.trim()).filter(Boolean)
+                  handleInputChange("servicesOffered", services)
+                }}
+                disabled={!isEditing}
+              />
+              <p className="text-xs text-gray-500 dark:text-white">Enter services separated by commas</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="currency">Preferred Currency</Label>
               <Select
                 value={formData.currency}
                 onValueChange={handleCurrencyChange}
-                disabled={isLoadingCurrencies}
+                disabled={isLoadingCurrencies || !isEditing}
               >
                 <SelectTrigger id="currency">
                   <SelectValue placeholder={isLoadingCurrencies ? "Loading currencies..." : "Select currency"} />
@@ -810,115 +926,50 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               <p className="text-xs text-gray-500 dark:text-white">Auto-set based on country selection</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="industryType">Industry Type</Label>
-              <Select
-                value={formData.industryType}
-                onValueChange={(value) => handleInputChange("industryType", value)}
-              >
-                <SelectTrigger id="industryType">
-                  <SelectValue placeholder="Select industry type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="arts">Arts</SelectItem>
-                  <SelectItem value="sports">Sports</SelectItem>
-                  <SelectItem value="arts_sports">Arts & Sports</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="servicesOffered">Services Offered</Label>
-              <Input
-                id="servicesOffered"
-                placeholder="e.g., Painting, Music, Football, Dance"
-                value={Array.isArray(formData.servicesOffered) ? formData.servicesOffered.join(", ") : ""}
-                onChange={(e) => {
-                  const services = e.target.value.split(",").map(s => s.trim()).filter(Boolean)
-                  handleInputChange("servicesOffered", services)
-                }}
-              />
-              <p className="text-xs text-gray-500 dark:text-white">Enter services separated by commas</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="studentSize">Student/Client Size</Label>
-              <Select
-                value={formData.studentSize}
-                onValueChange={(value) => handleInputChange("studentSize", value)}
-              >
-                <SelectTrigger id="studentSize">
-                  <SelectValue placeholder="Select size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="micro">Micro (1-20 students)</SelectItem>
-                  <SelectItem value="small">Small (21-50 students)</SelectItem>
-                  <SelectItem value="medium">Medium (51-200 students)</SelectItem>
-                  <SelectItem value="large">Large (201-500 students)</SelectItem>
-                  <SelectItem value="enterprise">Enterprise (500+ students)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="staffCount">Staff/Instructor Count</Label>
-              <Select
-                value={formData.staffCount}
-                onValueChange={(value) => handleInputChange("staffCount", value)}
-              >
-                <SelectTrigger id="staffCount">
-                  <SelectValue placeholder="Select count" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="solo">Solo (1 instructor)</SelectItem>
-                  <SelectItem value="small">Small Team (2-5)</SelectItem>
-                  <SelectItem value="medium">Medium Team (6-15)</SelectItem>
-                  <SelectItem value="large">Large Team (16+)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="preferredLanguage">Preferred Language</Label>
               <Input
                 id="preferredLanguage"
                 placeholder="e.g., English"
                 value={formData.preferredLanguage}
                 onChange={(e) => handleInputChange("preferredLanguage", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
-            {/* Academy Logo (Enabled) */}
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="logoBasic">Academy Logo</Label>
-              <div className="flex items-center gap-4">
-                {logoPreview ? (
-                  <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-purple-200">
-                    <img
-                      src={logoPreview}
-                      alt="Logo preview"
-                      className="w-full h-full object-cover"
-                    />
-                    <button
+            <div className="space-y-2 md:col-span-1">
+              <Label htmlFor="businessLogo">Academy Logo</Label>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="flex-1 space-y-2">
+                  <Input
+                    id="businessLogo"
+                    ref={logoInputRefBasic}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                    onChange={handleLogoUploadBasic}
+                    className="cursor-pointer"
+                    disabled={!isEditing}
+                  />
+                  <p className="text-xs text-muted-foreground">PNG, JPG, JPEG, SVG (Max 5MB)</p>
+                </div>
+                {logoPreview && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 h-20 rounded border overflow-hidden flex items-center justify-center bg-gray-50">
+                      <img
+                        src={logoPreview}
+                        alt="Logo preview"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={removeLogoBasic}
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                      disabled={!isEditing}
                     >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => logoInputRefBasic.current?.click()}
-                    className="w-24 h-24 border-2 border-dashed border-purple-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
-                  >
-                    <Upload className="h-6 w-6 text-purple-400 mb-1" />
-                    <p className="text-xs text-gray-600 dark:text-white text-center px-2">Upload logo</p>
-                    <p className="text-xs text-gray-400 dark:text-white">Max 5MB</p>
+                      Remove
+                    </Button>
                   </div>
                 )}
-                <input
-                  ref={logoInputRefBasic}
-                  id="logoBasic"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUploadBasic}
-                  className="hidden"
-                />
               </div>
             </div>
           </div>
@@ -935,7 +986,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
           <CardDescription>How people can reach your academy</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <CountryStateDropdown
               country={formData.country}
               state={formData.state}
@@ -952,6 +1003,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 setFormData(f => ({ ...f, state: value }))
               }}
               mode="country"
+              disabled={!isEditing}
             />
             <CountryStateDropdown
               country={formData.country}
@@ -963,6 +1015,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 setFormData(f => ({ ...f, state: value }))
               }}
               mode="state"
+              disabled={!isEditing}
             />
             <div className="space-y-2">
               <Label htmlFor="city">City</Label>
@@ -971,6 +1024,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="New York"
                 value={formData.city}
                 onChange={(e) => handleInputChange("city", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
@@ -980,9 +1034,10 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="10001"
                 value={formData.zipCode}
                 onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="phone">Phone Number</Label>
               <div className="relative">
                 <Phone className="hidden sm:block absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
@@ -993,16 +1048,18 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   className="sm:pl-10"
+                  disabled={!isEditing}
                 />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-3">
               <Label htmlFor="address">Street Address</Label>
               <Input
                 id="address"
                 placeholder="123 Main Street"
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
@@ -1016,6 +1073,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className="sm:pl-10"
+                  disabled={!isEditing}
                 />
               </div>
             </div>
@@ -1030,6 +1088,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   value={formData.website}
                   onChange={(e) => handleInputChange("website", e.target.value)}
                   className="sm:pl-10"
+                  disabled={!isEditing}
                 />
               </div>
             </div>
@@ -1040,131 +1099,14 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="Enter your Tax ID"
                 value={formData.taxId}
                 onChange={(e) => handleInputChange("taxId", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Branding Assets */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5" style={{ color: primaryColor }} />
-            <CardTitle>Branding Assets</CardTitle>
-          </div>
-          <CardDescription>Upload your academy branding materials</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Logo Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="logoUpload">Business Logo</Label>
-              <Input
-                id="logoUpload"
-                ref={logoInputRefBasic}
-                type="file"
-                accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                onChange={handleLogoUploadBasic}
-                className="cursor-pointer"
-              />
-              <p className="text-xs text-muted-foreground">PNG, JPG, JPEG, SVG (Max 5MB)</p>
-              {logoPreview && (
-                <div className="mt-2 space-y-2">
-                  <div className="w-20 h-20 rounded border overflow-hidden flex items-center justify-center bg-gray-50">
-                    <img
-                      src={logoPreview}
-                      alt="Logo preview"
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={removeLogoBasic}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {/* Business Name File Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="businessNameFileUpload">Business Name Image</Label>
-              <Input
-                id="businessNameFileUpload"
-                type="file"
-                accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                onChange={handleBusinessNameFileUpload}
-                className="cursor-pointer"
-              />
-              <p className="text-xs text-muted-foreground">PNG, JPG, JPEG, SVG (Max 2MB)</p>
-              {businessNameFilePreview && (
-                <div className="mt-2 space-y-2">
-                  <div className="w-20 h-20 rounded border overflow-hidden flex items-center justify-center bg-gray-50">
-                    <img
-                      src={businessNameFilePreview}
-                      alt="Business name preview"
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setBusinessNameFilePreview(null)
-                      handleInputChange("businessNameFile", null)
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {/* Profile Picture Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="profilePictureUpload">Profile Picture</Label>
-              <Input
-                id="profilePictureUpload"
-                type="file"
-                accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                onChange={handleProfilePictureUpload}
-                className="cursor-pointer"
-              />
-              <p className="text-xs text-muted-foreground">PNG, JPG, JPEG, SVG (Max 2MB)</p>
-              {profilePicturePreview && (
-                <div className="mt-2 space-y-2">
-                  <div className="w-20 h-20 rounded-full border overflow-hidden flex items-center justify-center bg-gray-50">
-                    <img
-                      src={profilePicturePreview}
-                      alt="Profile preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setProfilePicturePreview(null)
-                      handleInputChange("profilePicture", null)
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-   
-      {/* Social Media */}
+      {/* Contact Information */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -1174,7 +1116,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
           <CardDescription>Connect your social media profiles</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="facebook">Facebook</Label>
               <Input
@@ -1182,6 +1124,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="https://facebook.com/youracademy"
                 value={formData.socialMedia.facebook}
                 onChange={(e) => handleNestedInputChange("socialMedia", "facebook", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
@@ -1191,6 +1134,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="https://instagram.com/youracademy"
                 value={formData.socialMedia.instagram}
                 onChange={(e) => handleNestedInputChange("socialMedia", "instagram", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
@@ -1200,6 +1144,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="https://twitter.com/youracademy"
                 value={formData.socialMedia.twitter}
                 onChange={(e) => handleNestedInputChange("socialMedia", "twitter", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
             <div className="space-y-2">
@@ -1209,15 +1154,17 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 placeholder="https://youtube.com/@youracademy"
                 value={formData.socialMedia.youtube}
                 onChange={(e) => handleNestedInputChange("socialMedia", "youtube", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="linkedin">LinkedIn</Label>
               <Input
                 id="linkedin"
                 placeholder="https://linkedin.com/company/youracademy"
                 value={formData.socialMedia.linkedin}
                 onChange={(e) => handleNestedInputChange("socialMedia", "linkedin", e.target.value)}
+                disabled={!isEditing}
               />
             </div>
           </div>
@@ -1225,14 +1172,33 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       </Card>
 
       {/* Submit Button */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
-        <Button type="button" variant="outline" disabled={isLoading} className="w-full sm:w-auto">
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isLoading} className="w-full sm:w-auto text-white" style={{ backgroundColor: primaryColor }} onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)} onMouseLeave={(e) => !isLoading && (e.currentTarget.style.backgroundColor = primaryColor)}>
-          {isLoading ? "Saving..." : "Save Academy Information"}
-        </Button>
-      </div>
+      {isEditing && (
+        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+            onClick={() => {
+              setIsEditing(false)
+              window.location.reload()
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full sm:w-auto text-white gap-2"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)}
+            onMouseLeave={(e) => !isLoading && (e.currentTarget.style.backgroundColor = primaryColor)}
+          >
+            <Save className="h-4 w-4" />
+            {isLoading ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+      )}
         </>
       )}
 

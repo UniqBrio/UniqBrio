@@ -230,7 +230,7 @@ export async function middleware(request: NextRequest) {
   const studentPaths = ["/student", "/dashboard"]; // Student can access student and dashboard
 
   // Define paths accessible by *any* authenticated user
-  const sharedAuthenticatedPaths = ["/account", "/settings", "/notifications", "/verification", "/verify-otp", "/register"];
+  const sharedAuthenticatedPaths = ["/account", "/verification", "/verify-otp", "/register"];
 
   let isAllowed = false;
 

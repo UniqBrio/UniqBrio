@@ -29,6 +29,12 @@ interface Currency {
   symbol: string
 }
 
+interface TimeZoneInfo {
+  name: string
+  offset: string
+  gmtOffset: string
+}
+
 export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettingsProps) {
   const { theme, toggleTheme, customColors, setCustomColors, applyCustomColors, resetToDefaultColors: resetColors } = useApp()
   const [isSaving, setIsSaving] = useState(false)
@@ -41,10 +47,16 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const [dateFormats, setDateFormats] = useState<DateFormat[]>([])
   const [currencies, setCurrencies] = useState<Currency[]>([])
   const [currencySearch, setCurrencySearch] = useState("")
+  const [timeZones, setTimeZones] = useState<string[]>([])
+  const [timeZoneInfo, setTimeZoneInfo] = useState<Map<string, TimeZoneInfo>>(new Map())
+  const [showTimeZoneWarning, setShowTimeZoneWarning] = useState(false)
+  const [countryFromAcademy, setCountryFromAcademy] = useState<string>("")
   const [settings, setSettings] = useState({
     dateFormat: preferences?.dateFormat || "dd-MMM-yyyy",
     timeFormat: preferences?.timeFormat || "12h",
     currency: preferences?.currency || "USD",
+    country: preferences?.country || "",
+    timeZone: preferences?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
   })
 
   // Load date formats from local static list (hardcoded)
@@ -58,6 +70,34 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
     } finally {
       setIsLoadingFormats(false)
     }
+  }, [])
+
+  // Fetch country from academy info
+  useEffect(() => {
+    const fetchAcademyInfo = async () => {
+      try {
+        const response = await fetch('/api/user-academy-info')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.academyInfo?.businessInfo?.country) {
+            const country = data.academyInfo.businessInfo.country
+            setCountryFromAcademy(country)
+            
+            // Check if timezone matches this country
+            if (country && settings.timeZone) {
+              const expectedTimeZone = getDefaultTimeZoneForCountry(country)
+              if (settings.timeZone !== expectedTimeZone) {
+                setShowTimeZoneWarning(true)
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching academy info:', error)
+      }
+    }
+    
+    fetchAcademyInfo()
   }, [])
 
   // Fetch currencies from API
@@ -105,13 +145,13 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         console.error('Error fetching currencies:', error)
         // Fallback to default currencies
         setCurrencies([
-          { code: "USD", name: "US Dollar", symbol: "" },
-          { code: "EUR", name: "Euro", symbol: "" },
-          { code: "GBP", name: "British Pound", symbol: "" },
-          { code: "JPY", name: "Japanese Yen", symbol: "" },
-          { code: "AUD", name: "Australian Dollar", symbol: "" },
-          { code: "CAD", name: "Canadian Dollar", symbol: "" },
-          { code: "CNY", name: "Chinese Yuan", symbol: "" },
+          { code: "USD", name: "US Dollar", symbol: "$" },
+          { code: "EUR", name: "Euro", symbol: "€" },
+          { code: "GBP", name: "British Pound", symbol: "£" },
+          { code: "JPY", name: "Japanese Yen", symbol: "¥" },
+          { code: "AUD", name: "Australian Dollar", symbol: "$" },
+          { code: "CAD", name: "Canadian Dollar", symbol: "$" },
+          { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
         ])
       } finally {
         setIsLoadingCurrencies(false)
@@ -120,6 +160,122 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
 
     fetchCurrencies()
   }, [])
+
+  // Helper function to get GMT offset for a timezone
+  const getTimeZoneOffset = (timeZone: string): string => {
+    try {
+      const date = new Date()
+      const options: Intl.DateTimeFormatOptions = { 
+        timeZone, 
+        timeZoneName: 'longOffset' 
+      }
+      const formatter = new Intl.DateTimeFormat('en-US', options)
+      const parts = formatter.formatToParts(date)
+      const offsetPart = parts.find(part => part.type === 'timeZoneName')
+      
+      if (offsetPart && offsetPart.value.includes('GMT')) {
+        return offsetPart.value.replace('GMT', '').trim()
+      }
+      
+      // Fallback: calculate offset manually
+      const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }))
+      const tzDate = new Date(date.toLocaleString('en-US', { timeZone }))
+      const offset = (tzDate.getTime() - utcDate.getTime()) / (1000 * 60 * 60)
+      
+      const hours = Math.floor(Math.abs(offset))
+      const minutes = Math.abs((offset % 1) * 60)
+      const sign = offset >= 0 ? '+' : '-'
+      
+      return `${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+    } catch (error) {
+      return '+00:00'
+    }
+  }
+
+  // Load time zones from API
+  useEffect(() => {
+    const fetchTimeZones = async () => {
+      try {
+        // Use Intl API directly (more reliable and no network dependency)
+        const zones = Intl.supportedValuesOf('timeZone')
+        setTimeZones(zones)
+        
+        // Build timezone info map
+        const infoMap = new Map<string, TimeZoneInfo>()
+        zones.forEach((zone: string) => {
+          const offset = getTimeZoneOffset(zone)
+          infoMap.set(zone, {
+            name: zone,
+            offset: offset,
+            gmtOffset: `GMT${offset}`
+          })
+        })
+        setTimeZoneInfo(infoMap)
+      } catch (error) {
+        console.error('Error loading timezones:', error)
+        // Minimal fallback
+        const fallbackZones = ['Asia/Kolkata', 'America/New_York', 'Europe/London', 'Asia/Tokyo']
+        setTimeZones(fallbackZones)
+        
+        const infoMap = new Map<string, TimeZoneInfo>()
+        fallbackZones.forEach((zone: string) => {
+          const offset = getTimeZoneOffset(zone)
+          infoMap.set(zone, {
+            name: zone,
+            offset: offset,
+            gmtOffset: `GMT${offset}`
+          })
+        })
+        setTimeZoneInfo(infoMap)
+      }
+    }
+    
+    fetchTimeZones()
+  }, [])
+
+  // Get default timezone for country
+  const getDefaultTimeZoneForCountry = (country: string): string => {
+    const countryTimeZones: { [key: string]: string } = {
+      'United States': 'America/New_York',
+      'United Kingdom': 'Europe/London',
+      'India': 'Asia/Kolkata',
+      'Australia': 'Australia/Sydney',
+      'Canada': 'America/Toronto',
+      'Germany': 'Europe/Berlin',
+      'France': 'Europe/Paris',
+      'Japan': 'Asia/Tokyo',
+      'China': 'Asia/Shanghai',
+      'Brazil': 'America/Sao_Paulo',
+      'Singapore': 'Asia/Singapore',
+      'UAE': 'Asia/Dubai',
+    }
+    return countryTimeZones[country] || Intl.DateTimeFormat().resolvedOptions().timeZone
+  }
+
+  // Check if timezone matches country
+  const checkTimeZoneCountryMatch = (country: string, timeZone: string): boolean => {
+    const expectedTimeZone = getDefaultTimeZoneForCountry(country)
+    return timeZone === expectedTimeZone
+  }
+
+  // Handle timezone change
+  const handleTimeZoneChange = (newTimeZone: string) => {
+    setSettings(prev => ({ ...prev, timeZone: newTimeZone }))
+    
+    // Check against country from academy info
+    if (countryFromAcademy && !checkTimeZoneCountryMatch(countryFromAcademy, newTimeZone)) {
+      setShowTimeZoneWarning(true)
+    } else {
+      setShowTimeZoneWarning(false)
+    }
+  }
+
+  // Handle country change
+  const handleCountryChange = (newCountry: string) => {
+    const defaultTimeZone = getDefaultTimeZoneForCountry(newCountry)
+    setSettings(prev => ({ ...prev, country: newCountry, timeZone: defaultTimeZone }))
+    setShowTimeZoneWarning(false)
+  }
 
   // Helper function to get currency symbols
   const getCurrencySymbol = (code: string): string => {
@@ -133,12 +289,12 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   }
 
   const addColor = () => {
-    if (selectedColors.length < 5) {
+    if (selectedColors.length < 2) {
       setSelectedColors([...selectedColors, "#000000"])
     } else {
       toast({
         title: "Maximum reached",
-        description: "You can only select up to 5 colors.",
+        description: "You can only select up to 2 colors.",
         variant: "destructive",
       })
     }
@@ -204,7 +360,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
       
       toast({
         title: "Appearance Updated",
-        description: "Your appearance preferences have been saved and applied globally.",
+        description: "Your appearance preferences have been saved.",
       })
     } catch (error) {
       toast({
@@ -273,6 +429,47 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
           </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="timeZone">Time Zone</Label>
+            <Select
+              value={settings.timeZone}
+              onValueChange={handleTimeZoneChange}
+            >
+              <SelectTrigger id="timeZone">
+                <SelectValue placeholder="Select time zone" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px] overflow-y-auto">
+                {timeZones.map((zone) => {
+                  const info = timeZoneInfo.get(zone)
+                  return (
+                    <SelectItem key={zone} value={zone}>
+                      <div className="flex items-center justify-between w-full gap-4">
+                        <span>{zone.replace(/_/g, ' ')}</span>
+                        {info && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                            {info.gmtOffset}
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+            {showTimeZoneWarning && (
+              <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                    The selected time zone doesn't match your country. Please verify this is correct.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Theme Settings - now inside the same card */}
           <div className="pt-6 border-t">
             <div className="mb-4">
@@ -291,7 +488,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                 <div>
                   <Label className="font-medium">Custom Color Palette</Label>
                   <p className="text-sm text-gray-500 dark:text-white mt-1">
-                    Select up to 5 colors for your theme ({selectedColors.length}/5)
+                    Select up to 2 colors for your theme ({selectedColors.length}/2)
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -311,7 +508,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                     variant="outline"
                     size="sm"
                     onClick={addColor}
-                    disabled={selectedColors.length >= 5}
+                    disabled={selectedColors.length >= 2}
                     className="gap-2 flex-1 sm:flex-initial"
                   >
                     <Palette className="h-4 w-4" />
@@ -381,52 +578,15 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
               {/* Color Preview */}
               <div className="p-4 border rounded-lg bg-white dark:bg-gray-900">
                 <p className="text-sm font-medium mb-3">Color Preview</p>
-                <div className="space-y-4">
-                  {/* Color swatches */}
-                  <div className="flex gap-2 flex-wrap">
-                    {selectedColors.map((color, index) => (
-                      <div
-                        key={index}
-                        className="w-16 h-16 rounded-lg shadow-md border-2 border-gray-200 transition-transform hover:scale-105"
-                        style={{ backgroundColor: color }}
-                        title={`Color ${index + 1}: ${color}`}
-                      />
-                    ))}
-                  </div>
-                  
-                  {/* Live preview examples */}
-                  <div className="space-y-2 pt-3 border-t">
-                    <p className="text-xs text-gray-500 dark:text-white mb-2">Live Preview Examples:</p>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        className="px-4 py-2 text-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium"
-                        style={{ backgroundColor: selectedColors[0] }}
-                      >
-                        Primary Button
-                      </button>
-                      <button
-                        className="px-4 py-2 text-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium"
-                        style={{ backgroundColor: selectedColors[1] }}
-                      >
-                        Secondary Button
-                      </button>
-                      <div
-                        className="px-3 py-1 text-white rounded-full text-xs font-medium"
-                        style={{ backgroundColor: selectedColors[0] }}
-                      >
-                        Badge
-                      </div>
-                      <div
-                        className="px-4 py-2 rounded-lg text-sm font-medium"
-                        style={{ 
-                          background: `linear-gradient(135deg, ${selectedColors[0]}, ${selectedColors[1] || selectedColors[0]})`,
-                          color: 'white'
-                        }}
-                      >
-                        Gradient Card
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex gap-2 flex-wrap">
+                  {selectedColors.map((color, index) => (
+                    <div
+                      key={index}
+                      className="w-16 h-16 rounded-lg shadow-md border-2 border-gray-200 transition-transform hover:scale-105"
+                      style={{ backgroundColor: color }}
+                      title={`Color ${index + 1}: ${color}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

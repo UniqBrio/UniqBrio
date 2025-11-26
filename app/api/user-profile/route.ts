@@ -78,13 +78,15 @@ export async function GET(request: NextRequest) {
         middleName: '',
         lastName: adminInfo.fullName?.split(' ').slice(1).join(' ') || '',
         phone: adminInfo.phone || '',
-        phoneCountryCode: '+1',
+        phoneCountryCode: adminInfo.phoneCountryCode || '+1',
+        mobile: adminInfo.mobile || '',
         country: businessInfo.country || '',
         stateProvince: businessInfo.state || '',
         address: businessInfo.address || '',
-        position: '',
+        position: adminInfo.position || '',
         linkedinUrl: adminInfo.socialProfile || '',
-        avatar: ''
+        bio: adminInfo.bio || '',
+        avatar: adminInfo.avatar || businessInfo.profilePicture || businessInfo.profilePictureUrl || ''
       }
     });
 
@@ -153,7 +155,12 @@ export async function PUT(request: NextRequest) {
           ...adminInfo,
           fullName: `${updates.firstName || ''} ${updates.middleName || ''} ${updates.lastName || ''}`.trim(),
           phone: updates.phone || adminInfo.phone,
-          socialProfile: updates.linkedinUrl || adminInfo.socialProfile
+          phoneCountryCode: updates.phoneCountryCode || adminInfo.phoneCountryCode,
+          mobile: updates.mobile || adminInfo.mobile,
+          position: updates.position || adminInfo.position,
+          socialProfile: updates.linkedinUrl || adminInfo.socialProfile,
+          bio: updates.bio || adminInfo.bio,
+          avatar: updates.avatar || adminInfo.avatar,
         };
 
         // Update businessInfo
@@ -161,7 +168,9 @@ export async function PUT(request: NextRequest) {
           ...businessInfo,
           country: updates.country || businessInfo.country,
           state: updates.stateProvince || businessInfo.state,
-          address: updates.address || businessInfo.address
+          address: updates.address || businessInfo.address,
+          // Also update profile picture in businessInfo for header display
+          profilePicture: updates.avatar || businessInfo.profilePicture || businessInfo.profilePictureUrl,
         };
 
         await RegistrationModel.updateOne(

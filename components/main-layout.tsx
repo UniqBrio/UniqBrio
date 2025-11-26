@@ -6,6 +6,7 @@ import Sidebar from "./sidebar"
 import Header from "./header"
 import GlobalFooter from "./global-footer"
 import { TourButton } from "./tour/TourButton"
+import { Toaster as DashboardToaster } from "@/components/dashboard/ui/toaster"
 import "../styles/responsive-dashboard.css"
 
 import ErrorBoundary from "./error-boundary"
@@ -18,6 +19,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const { position } = useSidebarPosition()
   const [academyName, setAcademyName] = useState("");
   const [userName, setUserName] = useState("");
+  const [businessLogoUrl, setBusinessLogoUrl] = useState("");
+  const [profilePictureUrl, setProfilePictureUrl] = useState("");
+  const [tagline, setTagline] = useState("");
   const [isMobile, setIsMobile] = useState(false)
 
   // Handle mobile detection
@@ -55,12 +59,28 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           const data = await res.json();
           setAcademyName(data.academyName || "");
           setUserName(data.userName || "");
+          setBusinessLogoUrl(data.businessLogoUrl || "");
+          setProfilePictureUrl(data.profilePictureUrl || "");
+          setTagline(data.tagline || "");
         }
       } catch (err) {
         // fallback: do nothing
       }
     }
     fetchInfo();
+
+    // Listen for image update events
+    const handleImageUpdate = () => {
+      fetchInfo();
+    };
+
+    window.addEventListener('profileImageUpdated', handleImageUpdate);
+    window.addEventListener('academyLogoUpdated', handleImageUpdate);
+
+    return () => {
+      window.removeEventListener('profileImageUpdated', handleImageUpdate);
+      window.removeEventListener('academyLogoUpdated', handleImageUpdate);
+    };
   }, []);
 
   // Determine layout based on sidebar position with responsive design
@@ -95,6 +115,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 changeUserRole={changeUserRole}
                 academyName={academyName}
                 userName={userName}
+                businessLogoUrl={businessLogoUrl}
+                profilePictureUrl={profilePictureUrl}
+                tagline={tagline}
                 toggleSidebar={toggleSidebar}
                 isMobile={isMobile}
                 sidebarCollapsed={sidebarCollapsed}
@@ -135,6 +158,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 changeUserRole={changeUserRole}
                 academyName={academyName}
                 userName={userName}
+                businessLogoUrl={businessLogoUrl}
+                profilePictureUrl={profilePictureUrl}
+                tagline={tagline}
               />
               <main className="flex-1 overflow-y-auto p-4 md:p-6">
                 <ErrorBoundary
@@ -164,5 +190,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     }
   }
 
-  return renderLayout()
+  return (
+    <>
+      {renderLayout()}
+      <DashboardToaster />
+    </>
+  )
 }

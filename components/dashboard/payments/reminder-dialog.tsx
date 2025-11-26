@@ -77,7 +77,7 @@ Tap to pay now via:
 � Payment Link: -
 
 Best regards,
-UniqBrio Academic Team
+UniqBrio Support Team.
 support@uniqbrio.com
 
 ___________________________________________

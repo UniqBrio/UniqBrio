@@ -23,6 +23,7 @@ export default function NotificationsPage() {
       date: "2025-03-27T10:30:00",
       read: false,
     },
+    
     {
       id: "2",
       title: "Login Attempt",

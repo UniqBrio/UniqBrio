@@ -28,6 +28,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null)
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { countryCodes, loading: countryCodesLoading } = useCountryCodes()
   const [phoneError, setPhoneError] = useState<string | null>(null)
@@ -49,11 +50,34 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     avatar: user?.avatar || "",
   })
 
+  // Fetch profile picture from academy info
+  React.useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const response = await fetch('/api/user-academy-info')
+        if (response.ok) {
+          const data = await response.json()
+          // Get profile picture from the response
+          const profilePic = data.profilePictureUrl
+          if (profilePic) {
+            setProfilePictureUrl(profilePic)
+            setAvatarPreview(profilePic)
+            setFormData(prev => ({ ...prev, avatar: profilePic }))
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile picture:', error)
+      }
+    }
+    
+    fetchProfilePicture()
+  }, [])
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -77,11 +101,51 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       return
     }
 
-    // Create preview
+    // Create preview and save immediately
     const reader = new FileReader()
-    reader.onloadend = () => {
-      setAvatarPreview(reader.result as string)
-      setFormData(prev => ({ ...prev, avatar: reader.result as string }))
+    reader.onloadend = async () => {
+      const base64Image = reader.result as string
+      setAvatarPreview(base64Image)
+      setFormData(prev => ({ ...prev, avatar: base64Image }))
+      
+      // Save to backend immediately
+      try {
+        // Update user profile with avatar
+        await onUpdate({ ...formData, avatar: base64Image })
+        
+        // Also update profile picture in academy info
+        const academyResponse = await fetch('/api/dashboard/academy-info')
+        if (academyResponse.ok) {
+          const academyData = await academyResponse.json()
+          const businessInfo = academyData.businessInfo || {}
+          
+          await fetch('/api/dashboard/academy-info', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              businessInfo: {
+                ...businessInfo,
+                profilePicture: base64Image
+              }
+            })
+          })
+        }
+        
+        // Emit event to refresh header immediately
+        window.dispatchEvent(new CustomEvent('profileImageUpdated'))
+        
+        toast({
+          title: "Profile Picture Updated",
+          description: "Your profile picture has been updated successfully.",
+        })
+      } catch (error) {
+        console.error('Error saving profile picture:', error)
+        toast({
+          title: "Error",
+          description: "Failed to save profile picture. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
     reader.readAsDataURL(file)
   }
@@ -109,8 +173,36 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const handleSave = async () => {
     try {
       setIsSaving(true)
+      
+      // If avatar was changed, also update it in academy info
+      if (avatarPreview && avatarPreview !== profilePictureUrl) {
+        try {
+          const academyResponse = await fetch('/api/dashboard/academy-info')
+          if (academyResponse.ok) {
+            const academyData = await academyResponse.json()
+            const businessInfo = academyData.businessInfo || {}
+            
+            // Update profile picture in academy info
+            await fetch('/api/dashboard/academy-info', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                businessInfo: {
+                  ...businessInfo,
+                  profilePicture: avatarPreview
+                }
+              })
+            })
+          }
+        } catch (error) {
+          console.error('Error updating academy info profile picture:', error)
+        }
+      }
+      
       await onUpdate(formData)
       setIsEditing(false)
+      // Emit event to refresh header
+      window.dispatchEvent(new CustomEvent('profileImageUpdated'))
       toast({
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
@@ -129,8 +221,8 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          <div className="flex-1">
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" style={{ color: primaryColor }} />
               Profile Information
@@ -142,7 +234,8 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           {!isEditing && (
             <Button 
               onClick={() => setIsEditing(true)} 
-              className="bg-transparent gap-2" 
+              variant="ghost"
+              className="gap-2"
               style={{ color: primaryColor }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}15`}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -158,18 +251,38 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         {/* Avatar Section */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <div className="relative group">
-            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <AvatarImage src={avatarPreview || user?.avatar} alt={user?.name} />
-              <AvatarFallback className="text-2xl" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
-                {user?.name?.charAt(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div 
-              className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera className="h-6 w-6 text-white" />
-            </div>
+            {avatarPreview || user?.avatar ? (
+              <>
+                <Avatar
+                  className="h-20 w-20 sm:h-24 sm:w-24 cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <AvatarImage src={avatarPreview || user?.avatar} alt={user?.name} />
+                  <AvatarFallback
+                    className="text-2xl"
+                    style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                  >
+                    {user?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div
+                  className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+               
+                </div>
+              </>
+            ) : (
+              <div
+                className="h-20 w-20 sm:h-24 sm:w-24 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+                style={{ borderColor: `${primaryColor}40` }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${primaryColor}80`)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = `${primaryColor}40`)}
+              >
+                <Camera className="h-8 w-8 text-gray-400 dark:text-gray-500" style={{ color: `${primaryColor}80` }} />
+              </div>
+            )}
           </div>
           <div className="flex-1">
             <input
@@ -179,23 +292,12 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               onChange={handlePhotoChange}
               className="hidden"
             />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera className="h-4 w-4" />
-              Change Photo
-            </Button>
-            <p className="text-sm text-gray-500 dark:text-white mt-2">
-              JPG or PNG. Max size 2MB.
-            </p>
+            
           </div>
         </div>
 
         {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
             <div className="relative">
@@ -350,7 +452,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2 gap-2">
           <Label htmlFor="address">Address</Label>
           <Input
             id="address"
@@ -395,7 +497,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               variant="outline"
               onClick={() => {
                 setIsEditing(false)
-                setAvatarPreview(user?.avatar || null)
+                setAvatarPreview(profilePictureUrl || user?.avatar || null)
                 setPhoneError(null)
                 setFormData({
                   name: user?.name || "",

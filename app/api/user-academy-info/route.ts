@@ -37,6 +37,9 @@ export async function GET(request: NextRequest) {
     let userId = user.userId || "";
     let academyId = user.academyId || "";
     let academyName = "";
+    let businessLogoUrl = "";
+    let profilePictureUrl = "";
+    let tagline = "";
 
     console.log(`[user-academy-info] Initial IDs - userId: ${userId}, academyId: ${academyId}`);
 
@@ -52,12 +55,19 @@ export async function GET(request: NextRequest) {
     if (matchingRegistration) {
       userId = matchingRegistration.userId;
       academyId = matchingRegistration.academyId;
-      academyName = (matchingRegistration.businessInfo as any)?.businessName || "";
+      const businessInfo = matchingRegistration.businessInfo as any;
+      academyName = businessInfo?.businessName || "";
+      // Support both old (businessLogoUrl) and new (logo) field names
+      businessLogoUrl = businessInfo?.businessLogoUrl || businessInfo?.logo || "";
+      profilePictureUrl = businessInfo?.profilePictureUrl || businessInfo?.profilePicture || "";
+      tagline = businessInfo?.tagline || "";
       
       console.log(`[user-academy-info] Found matching registration by email!`, {
         userId,
         academyId,
         academyName,
+        businessLogoUrl,
+        profilePictureUrl,
         regId: matchingRegistration._id
       });
     }
@@ -80,7 +90,11 @@ export async function GET(request: NextRequest) {
         academyId = reg.academyId;
         const businessInfo = reg.businessInfo as any;
         academyName = businessInfo?.businessName || "";
-        console.log(`[user-academy-info] Found registration via User IDs:`, { userId, academyId, academyName });
+        // Support both old (businessLogoUrl) and new (logo) field names
+        businessLogoUrl = businessInfo?.businessLogoUrl || businessInfo?.logo || "";
+        profilePictureUrl = businessInfo?.profilePictureUrl || businessInfo?.profilePicture || "";
+        tagline = businessInfo?.tagline || "";
+        console.log(`[user-academy-info] Found registration via User IDs:`, { userId, academyId, academyName, businessLogoUrl, profilePictureUrl });
       }
     }
 
@@ -108,6 +122,9 @@ export async function GET(request: NextRequest) {
       academyName,
       userName,
       userEmail: userEmail,
+      businessLogoUrl,
+      profilePictureUrl,
+      tagline,
       // Debug info to verify data sources
       debug: {
         userSource: "User collection",

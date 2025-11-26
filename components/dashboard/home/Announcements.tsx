@@ -1,16 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
-import {
-  Megaphone,
-  Trophy,
-  AlertCircle,
-  Info,
-  Sparkles,
-  X,
-  Bell,
-  BellRing,
-} from "lucide-react";
+import { Megaphone, Trophy, AlertCircle, Info, Sparkles, X, Bell, BellRing } from "lucide-react";
 import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface Announcement {
@@ -38,8 +29,38 @@ export function Announcements({
   const [showPopup, setShowPopup] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
-  
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  const [announcements, setAnnouncements] = useState<Announcement[]>([
+    {
+      id: "1",
+      type: "achievement",
+      title: "New Milestone Reached!",
+      message: "Our academy has successfully enrolled 500+ students this semester!",
+      timestamp: new Date(Date.now() - 2 * 60 * 60000),
+      isRead: false,
+      priority: "high",
+    },
+    {
+      id: "2",
+      type: "update",
+      title: "Platform Update v2.5",
+      message:
+        "New features added: Enhanced scheduling, improved attendance tracking, and financial analytics dashboard.",
+      timestamp: new Date(Date.now() - 24 * 60 * 60000),
+      isRead: false,
+      priority: "medium",
+    },
+    {
+      id: "3",
+      type: "alert",
+      title: "System Maintenance Notice",
+      message:
+        "Scheduled maintenance on Sunday, Nov 24 from 2:00 AM - 4:00 AM. Some services may be temporarily unavailable.",
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60000),
+      isRead: true,
+      priority: "high",
+    },
+  ]);
 
   const getAnnouncementIcon = (type: Announcement["type"]) => {
     const iconMap = {
@@ -55,25 +76,21 @@ export function Announcements({
     const colorMap = {
       update: {
         bg: "bg-purple-100 dark:bg-purple-950",
-        text: "text-purple-700 dark:text-purple-300",
         border: "border-purple-200 dark:border-purple-800",
         gradient: "from-purple-500 to-pink-500",
       },
       achievement: {
         bg: "bg-green-100 dark:bg-green-950",
-        text: "text-green-700 dark:text-green-300",
         border: "border-green-200 dark:border-green-800",
         gradient: "from-green-500 to-emerald-500",
       },
       alert: {
         bg: "bg-red-100 dark:bg-red-950",
-        text: "text-red-700 dark:text-red-300",
         border: "border-red-200 dark:border-red-800",
         gradient: "from-red-500 to-orange-500",
       },
       info: {
         bg: "bg-blue-100 dark:bg-blue-950",
-        text: "text-blue-700 dark:text-blue-300",
         border: "border-blue-200 dark:border-blue-800",
         gradient: "from-blue-500 to-cyan-500",
       },
@@ -141,74 +158,58 @@ export function Announcements({
   };
 
   const handleClick = () => {
-    setShowPopup(!showPopup);
+    setShowPopup((prev) => !prev);
   };
 
   return (
     <div className={`${className} relative`}>
-      {/* Floating Button */}
       <button
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
-        className="group relative overflow-hidden rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_50px_rgba(0,0,0,0.2)] transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
-        style={{ 
-          backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-        }}
+        className="group relative w-full overflow-hidden rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_50px_rgba(0,0,0,0.2)] transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
+        style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
       >
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-             style={{ 
-               backgroundImage: `linear-gradient(225deg, ${primaryColor}, ${secondaryColor})`,
-             }}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{ backgroundImage: `linear-gradient(225deg, ${primaryColor}, ${secondaryColor})` }}
         />
-        
-        {/* Shine effect */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
         </div>
-
-        {/* Decorative particles */}
-        <div className="absolute -top-1 -right-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-        <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+        <div className="absolute -top-1 -right-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+        <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
 
         <div className="relative z-10 flex items-center gap-3 px-6 py-4">
-          {/* Icon with animation */}
           <div className="relative">
-            <div className={`p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 ${isHovered ? 'rotate-12 scale-110' : ''}`}>
+            <div className={`p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 ${isHovered ? "rotate-12 scale-110" : ""}`}>
               {unreadCount > 0 ? (
                 <BellRing className="w-6 h-6 text-white animate-pulse" />
               ) : (
                 <Bell className="w-6 h-6 text-white" />
               )}
             </div>
-            
-            {/* Pulse ring for unread */}
-            {unreadCount > 0 && (
-              <div className="absolute inset-0 rounded-xl bg-white/30 animate-ping" />
-            )}
+            {unreadCount > 0 && <div className="absolute inset-0 rounded-xl bg-white/30 animate-ping" />}
           </div>
 
           <div className="text-left">
-            <div className="text-base font-bold text-white flex items-center gap-2">
-              Latest Updates
-            </div>
+            <div className="text-base font-bold text-white flex items-center gap-2">Latest Updates</div>
             <div className="text-xs text-white/90 font-medium">
-              {unreadCount > 0 ? `${unreadCount} new announcement${unreadCount > 1 ? 's' : ''}` : 'No new updates'}
+              {unreadCount > 0 ? `${unreadCount} new announcement${unreadCount > 1 ? "s" : ""}` : "No new updates"}
             </div>
           </div>
 
-          {/* Badge */}
           {unreadCount > 0 && (
-            <div className="ml-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm font-bold text-xs shadow-lg animate-bounce"
-                 style={{ color: primaryColor }}>
+            <div
+              className="ml-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm font-bold text-xs shadow-lg animate-bounce"
+              style={{ color: primaryColor }}
+            >
               {unreadCount}
             </div>
           )}
         </div>
       </button>
 
-      {/* Popup Card */}
       {showPopup && (
         <div
           ref={popupRef}
@@ -221,10 +222,9 @@ export function Announcements({
               className="pb-4 pt-4 relative overflow-hidden"
               style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
             >
-              {/* Decorative gradient orbs */}
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-              
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse" />
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
+
               <div className="flex items-center justify-between relative z-10">
                 <CardTitle className="text-base font-bold flex items-center gap-2.5 text-white">
                   <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm shadow-lg">
@@ -262,14 +262,12 @@ export function Announcements({
                         }`}
                       >
                         <div className="flex gap-3">
-                          {/* Icon */}
                           <div
                             className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${colors.gradient} text-white flex items-center justify-center shadow-md group-hover:scale-105 group-hover:rotate-3 transition-all duration-300`}
                           >
                             {getAnnouncementIcon(announcement.type)}
                           </div>
 
-                          {/* Content */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-bold text-sm text-neutral-900 dark:text-white truncate">
@@ -300,15 +298,12 @@ export function Announcements({
                                     Learn More
                                   </a>
                                 )}
-                                
+
                                 {!announcement.isRead && (
                                   <button
                                     onClick={() => markAsRead(announcement.id)}
                                     className="text-[10px] px-2 py-1 rounded-md font-semibold transition-all duration-200 hover:scale-105"
-                                    style={{ 
-                                      backgroundColor: primaryColor,
-                                      color: 'white'
-                                    }}
+                                    style={{ backgroundColor: primaryColor, color: "white" }}
                                   >
                                     Mark Read
                                   </button>
@@ -316,6 +311,13 @@ export function Announcements({
                               </div>
                             </div>
                           </div>
+
+                          <button
+                            onClick={() => dismissAnnouncement(announcement.id)}
+                            className="self-start w-6 h-6 flex items-center justify-center rounded-full text-neutral-400 hover:text-neutral-600"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     );
@@ -323,7 +325,6 @@ export function Announcements({
                 </div>
               )}
 
-              {/* View All Link */}
               {announcements.length > maxItems && (
                 <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 text-center">
                   <button className="text-xs hover:underline font-semibold transition-colors" style={{ color: primaryColor }}>
@@ -337,4 +338,6 @@ export function Announcements({
       )}
     </div>
   );
-}export default Announcements;
+}
+
+export default Announcements;
