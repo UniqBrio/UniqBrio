@@ -193,7 +193,6 @@ export default function Header(props: HeaderProps) {
   }, [])
 
   const visibleNotifications = notificationsList.slice(0, 5)
-  const inlineNotifications = notificationsList.slice(0, 3)
   const hasNotifications = visibleNotifications.length > 0
   const shouldShowViewAllButton = notifications > 5
 
@@ -246,25 +245,6 @@ export default function Header(props: HeaderProps) {
 
       {/* Right section - Utilities */}
       <div className="flex items-center space-x-0.5 sm:space-x-1 md:space-x-2 flex-shrink-0">
-        {inlineNotifications.length > 0 && (
-          <div className="hidden lg:flex flex-col mr-2 max-w-xs text-left">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">Latest Notifications</span>
-            <div className="mt-1 space-y-1">
-              {inlineNotifications.map((notification) => (
-                <div key={`inline-${notification.id}`} className="flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 flex-shrink-0" />
-                  <p className="truncate flex-1" title={notification.title || notification.message}>
-                    {notification.title || notification.message || "Notification"}
-                  </p>
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500 flex-shrink-0">
-                    {formatTimestamp(notification.timestamp)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Notifications Dropdown */}
         <DropdownMenu
           open={notificationsMenuOpen}
