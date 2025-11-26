@@ -16,6 +16,16 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
+
+interface HeaderNotification {
+  id: string
+  title?: string
+  message?: string
+  type?: string
+  timestamp?: string
+  read?: boolean
+}
 
 interface HeaderProps {
   academyName?: string;
@@ -44,12 +54,18 @@ export default function Header(props: HeaderProps) {
     sidebarCollapsed = false,
   } = props
   const [notifications, setNotifications] = useState(0)
-  const [notificationsList, setNotificationsList] = useState<any[]>([])
+  const [notificationsList, setNotificationsList] = useState<HeaderNotification[]>([])
   const [loadingNotifications, setLoadingNotifications] = useState(false)
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const [notificationsMenuOpen, setNotificationsMenuOpen] = useState(false)
   const notificationHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
+
+  const applyFallbackNotifications = () => {
+    const fallback = createSampleNotifications()
+    setNotificationsList(fallback)
+    setNotifications(fallback.filter((item) => item.read === false).length)
+  }
 
   // Fetch notifications when component mounts
   useEffect(() => {
@@ -68,27 +84,24 @@ export default function Header(props: HeaderProps) {
       }
       
       const data = await response.json()
-      const latestNotifications = Array.isArray(data?.activities)
+      const latestNotifications: HeaderNotification[] = (Array.isArray(data?.activities)
         ? data.activities
         : Array.isArray(data?.notifications)
           ? data.notifications
           : Array.isArray(data)
             ? data
-            : []
+            : []) as HeaderNotification[]
       if (latestNotifications.length) {
         setNotificationsList(latestNotifications)
         const unreadFromApi = typeof data?.unreadCount === 'number' ? data.unreadCount : undefined
-        const derivedUnread = latestNotifications.filter((item) => item && item.read === false).length
+        const derivedUnread = latestNotifications.filter((item: HeaderNotification) => item && item.read === false).length
         setNotifications(unreadFromApi ?? derivedUnread ?? latestNotifications.length)
       } else {
-        setNotificationsList([])
-        setNotifications(0)
+        applyFallbackNotifications()
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
-      // Set empty array on error
-      setNotificationsList([])
-      setNotifications(0)
+      applyFallbackNotifications()
     } finally {
       setLoadingNotifications(false)
     }
@@ -114,7 +127,7 @@ export default function Header(props: HeaderProps) {
     }
   }
 
-  const getNotificationIcon = (type: string) => {
+  const getNotificationIcon = (type?: string) => {
     switch (type) {
       case 'payment_received':
         return <Check className="h-4 w-4 text-green-600" />

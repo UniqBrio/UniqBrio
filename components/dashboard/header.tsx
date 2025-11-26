@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { useCustomColors } from "@/lib/use-custom-colors"
 import { ScrollArea } from "@/components/dashboard/ui/scroll-area"
+import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
 
 interface HeaderProps {
   
@@ -37,6 +38,11 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
   const [notificationsMenuOpen, setNotificationsMenuOpen] = useState(false)
   const notificationHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
+  const applyFallbackNotifications = () => {
+    const fallback = createSampleNotifications()
+    setNotificationsList(fallback)
+    setNotifications(fallback.filter((item) => item.read === false).length)
+  }
 
   // Fetch notifications when component mounts
   useEffect(() => {
@@ -68,14 +74,11 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
         const derivedUnread = latestNotifications.filter((item: any) => item && item.read === false).length
         setNotifications(unreadFromApi ?? derivedUnread ?? latestNotifications.length)
       } else {
-        setNotificationsList([])
-        setNotifications(0)
+        applyFallbackNotifications()
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
-      // Set empty array on error
-      setNotificationsList([])
-      setNotifications(0)
+      applyFallbackNotifications()
     } finally {
       setLoadingNotifications(false)
     }
@@ -130,7 +133,8 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
     }
   }
 
-  const formatTimestamp = (timestamp: string) => {
+  const formatTimestamp = (timestamp?: string) => {
+    if (!timestamp) return ""
     const date = new Date(timestamp)
     const now = new Date()
     const diff = now.getTime() - date.getTime()

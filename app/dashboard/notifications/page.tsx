@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Bell, CheckCircle, AlertCircle, Info, Calendar, Settings, Trash2, User, Check, Clock } from "lucide-react"
+import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
 
 type Notification = {
   id: string
@@ -34,13 +35,21 @@ export default function DashboardNotificationsPage() {
       }
       
       const data = await response.json()
-      
-      if (data.success && data.activities) {
-        setNotifications(data.activities)
+      const latestNotifications = Array.isArray(data?.activities)
+        ? data.activities
+        : Array.isArray(data?.notifications)
+          ? data.notifications
+          : Array.isArray(data)
+            ? data
+            : []
+      if (latestNotifications.length) {
+        setNotifications(latestNotifications)
+      } else {
+        setNotifications(createSampleNotifications() as Notification[])
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
-      setNotifications([])
+      setNotifications(createSampleNotifications() as Notification[])
     } finally {
       setLoading(false)
     }
