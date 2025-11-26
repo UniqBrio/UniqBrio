@@ -23,22 +23,21 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
       {/* Content wrapper with z-index */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Logo and Tagline Section - Centered at the top */}
-        {/* This div takes full width and centers its flex children */}
-        <div className="flex flex-col items-center justify-center py-3 bg-transparent animate-fadeIn">
-        <Image
-          src="/UniqBrio%20Logo%20Transparent.png" // URL-encoded space in filename
-          alt="UniqBrio Logo"
-          width={180} // Adjust size as needed
-          height={90} // Adjust size as needed
-          priority
-          className="mb-1 drop-shadow-lg" // Add some space below the logo
-        />
-        <p className="text-gray-700 dark:text-white text-base -mt-12 italic font-medium">Mentoring Businesses, Nurturing Learners</p>
-      </div>
+        {/* Logo and Tagline Section - Top Left Corner */}
+        <div className="absolute top-0 left-2 z-15 animate-fadeIn">
+          <Image
+            src="/UniqBrio%20Logo%20Transparent.png" // URL-encoded space in filename
+            alt="UniqBrio Logo"
+            width={180} // Smaller size for corner placement
+            height={80}
+            priority
+            className="drop-shadow-lg left-2"
+          />
+          <p className="text-gray-700 dark:text-white left-2 text-sm -mt-8 italic font-medium">Mentoring Businesses, Nurturing Learners</p>
+        </div>
 
       {/* Wrapper for Left and Right Panels - This will be a flex row */}
-      <div className="flex flex-1 w-full">
+      <div className="flex flex-1 w-full pt-0">
         {/* Left side - Features (Centered horizontally and vertically) */}
         <div className="hidden items-center justify-center lg:flex lg:w-1/2 flex-col bg-transparent p-4 animate-slideInLeft">
           <div className="text-center items-center mb-6">
@@ -142,7 +141,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
 
         {/* Right side - Auth forms */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-3 md:p-6 bg-transparent animate-slideInRight">
+        <div className="w-full lg:w-1/2 flex items-start justify-center pt-8 p-3 md:p-6 bg-transparent animate-slideInRight">
           {/* Card container for AuthTabs and form */}
           <div className="w-full max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 dark:border-gray-700/60 p-6 hover:shadow-3xl transition-all duration-500"> {/* Added card styling back */}
             <AuthTabs /> {/* AuthTabs handles its own internal spacing and negative margins */}

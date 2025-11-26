@@ -303,7 +303,7 @@ export default function LoginPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full h-10 text-base font-semibold text-white bg-orange-500 hover:bg-[#e08c28] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+          className="w-full h-9 text-xs font-semibold text-white bg-orange-500 hover:bg-[#e08c28] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
           disabled={isSubmitting}
         >
           {isSubmitting ? (

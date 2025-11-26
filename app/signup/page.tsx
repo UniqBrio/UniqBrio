@@ -13,6 +13,16 @@ import { toast } from "@/components/ui/use-toast"
 import AuthLayout from "@/components/auth-layout" // Import AuthLayout
 import { useSearchParams } from "next/navigation"
 import ConfettiCelebration from "@/components/confetti-celebration"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { TermsContent } from "@/components/legal/terms-content"
+import { PrivacyContent } from "@/components/legal/privacy-content"
+import { CookiesContent } from "@/components/legal/cookies-content"
 
 const signupSchema = z
   .object({
@@ -173,7 +183,7 @@ export default function SignupPage() {
   return (
     // Wrap with AuthLayout
     <AuthLayout>
-      <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
 
         {/* Full Name */}
@@ -185,7 +195,7 @@ export default function SignupPage() {
             id="name"
             type="text"
             placeholder="Enter your full name"
-            className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
+            className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
             {...register("name")}
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
@@ -200,7 +210,7 @@ export default function SignupPage() {
             id="email"
             type="email"
             placeholder="abc@abc.com"
-            className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
+            className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
             {...register("email")}
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
@@ -215,7 +225,7 @@ export default function SignupPage() {
             id="phone"
             type="tel"
             placeholder="Enter your phone number"
-            className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
+            className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
             {...register("phone")}
           />
           {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
@@ -231,10 +241,10 @@ export default function SignupPage() {
               id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Enter strong password"
-              className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.password ? "border-red-500" : ""}`}
+              className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.password ? "border-red-500" : ""}`}
               {...register("password")}
             />
-            <button
+              <button
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white"
               onClick={() => setShowPassword(!showPassword)}
@@ -317,7 +327,7 @@ export default function SignupPage() {
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
-              className={`w-full h-9 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.confirmPassword ? "border-red-500" : ""}`}
+              className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.confirmPassword ? "border-red-500" : ""}`}
               {...register("confirmPassword")}
             />
             <button
@@ -343,35 +353,59 @@ export default function SignupPage() {
           </div>
           <label htmlFor="terms" className="ml-2 text-sm text-gray-700 dark:text-white leading-relaxed">
             I agree to the{" "}
-            <a 
-              href="/legal/terms" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[#8a3ffc] font-medium hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              User Agreement
-            </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="text-[#8a3ffc] font-medium hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  User Agreement
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle>Terms of Service</DialogTitle>
+                </DialogHeader>
+                <TermsContent />
+              </DialogContent>
+            </Dialog>
             ,{" "}
-            <a 
-              href="/legal/privacy" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[#8a3ffc] font-medium hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Privacy Policy
-            </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="text-[#8a3ffc] font-medium hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Privacy Policy
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle>Privacy Policy</DialogTitle>
+                </DialogHeader>
+                <PrivacyContent />
+              </DialogContent>
+            </Dialog>
             , and{" "}
-            <a 
-              href="/legal/cookies" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[#8a3ffc] font-medium hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Cookie Policy
-            </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="text-[#8a3ffc] font-medium hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Cookie Policy
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh]">
+                <DialogHeader>
+                  <DialogTitle>Cookie Policy</DialogTitle>
+                </DialogHeader>
+                <CookiesContent />
+              </DialogContent>
+            </Dialog>
             .
           </label>
         </div>
@@ -380,9 +414,10 @@ export default function SignupPage() {
         )}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full h-10 text-base font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="w-full max-w-xs h-9 text-sm font-medium text-white bg-purple-700 hover:bg-[#7535e5] rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isSubmitting || !termsAccepted}
         >
           {isSubmitting ? (
@@ -394,10 +429,11 @@ export default function SignupPage() {
             "Join now"
           )}
         </button>
+        </div>
       </form>
 
       {/* Login Link */}
-      <div className="mt-2 text-center text-sm">
+      <div className="mt-3 text-center text-sm">
         Already on UniqBrio?{" "}
         <Link href="/login" className="text-orange-500 hover:underline font-bold">
           Login

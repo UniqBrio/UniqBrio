@@ -58,7 +58,7 @@ export default function GoogleAuthButton({
     <button
       onClick={handleGoogleAuth}
       disabled={isLoading}
-      className={`flex items-center justify-center w-full h-11 gap-3 text-sm font-semibold bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md ${textColor} rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed`}
+      className={`flex items-center justify-center w-full h-9 gap-2 text-xs font-semibold bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md ${textColor} rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed`}
     >
       {isLoading ? (
         <Loader2 className="animate-spin" size={18} />

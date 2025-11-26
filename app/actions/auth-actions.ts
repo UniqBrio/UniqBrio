@@ -104,8 +104,13 @@ export async function signup(formData: FormData) {
     // Always assign 'super_admin' role for new users
     const userRole = "super_admin"
 
+    // Generate a unique userId
+    const userId = `USER-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+    console.log("[AuthAction] signup: Generated userId:", userId);
+
     // Create user
     const newUser = await UserModel.create({
+      userId,
       name,
       email,
       phone,
