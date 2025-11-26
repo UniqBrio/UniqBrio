@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import {
   Megaphone,
@@ -8,7 +8,8 @@ import {
   Info,
   Sparkles,
   X,
-  ChevronRight,
+  Bell,
+  BellRing,
 } from "lucide-react";
 import { useCustomColors } from "@/lib/use-custom-colors";
 
@@ -33,6 +34,11 @@ export function Announcements({
   maxItems = 4,
 }: AnnouncementsProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
+  const [isHovered, setIsHovered] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  
   const [announcements, setAnnouncements] = useState<Announcement[]>([
     {
       id: "1",
@@ -129,118 +135,235 @@ export function Announcements({
   };
 
   const displayedAnnouncements = announcements.slice(0, maxItems);
+  const unreadCount = announcements.filter((a) => !a.isRead).length;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        setShowPopup(false);
+        setIsHovered(false);
+      }
+    };
+
+    if (showPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showPopup]);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setShowPopup(true);
+    }, 300);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
+
+  const handleClick = () => {
+    setShowPopup(!showPopup);
+  };
 
   return (
-    <Card className={`${className} border-0 shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.18)] transition-all duration-500 overflow-hidden bg-white dark:bg-neutral-900`}>
-      <CardHeader
-        className="pb-6 relative overflow-hidden"
-        style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+    <div className={`${className} relative`}>
+      {/* Floating Button */}
+      <button
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        className="group relative overflow-hidden rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_50px_rgba(0,0,0,0.2)] transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
+        style={{ 
+          backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+        }}
       >
-        {/* Decorative gradient orbs */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+             style={{ 
+               backgroundImage: `linear-gradient(225deg, ${primaryColor}, ${secondaryColor})`,
+             }}
+        />
         
-        <div className="flex items-center justify-between relative z-10">
-          <CardTitle className="text-xl font-bold flex items-center gap-3 text-white">
-            <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transform hover:rotate-12 hover:scale-110 transition-all duration-300">
-              <Megaphone className="w-6 h-6" />
-            </div>
-            Latest Updates
-          </CardTitle>
-          <span className="text-xs px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm font-bold shadow-lg"
-                style={{ color: primaryColor }}>
-            {announcements.filter((a) => !a.isRead).length} New
-          </span>
+        {/* Shine effect */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
         </div>
-      </CardHeader>
-      <CardContent className="bg-gradient-to-b from-neutral-50/50 to-white dark:from-neutral-900/50 dark:to-neutral-900 pt-6">
-        {displayedAnnouncements.length === 0 ? (
-          <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
-            <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>No announcements at this time</p>
+
+        {/* Decorative particles */}
+        <div className="absolute -top-1 -right-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+        <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+
+        <div className="relative z-10 flex items-center gap-3 px-6 py-4">
+          {/* Icon with animation */}
+          <div className="relative">
+            <div className={`p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 ${isHovered ? 'rotate-12 scale-110' : ''}`}>
+              {unreadCount > 0 ? (
+                <BellRing className="w-6 h-6 text-white animate-pulse" />
+              ) : (
+                <Bell className="w-6 h-6 text-white" />
+              )}
+            </div>
+            
+            {/* Pulse ring for unread */}
+            {unreadCount > 0 && (
+              <div className="absolute inset-0 rounded-xl bg-white/30 animate-ping" />
+            )}
           </div>
-        ) : (
-          <div className="space-y-3">
-            {displayedAnnouncements.map((announcement) => {
-              const colors = getAnnouncementColor(announcement.type);
 
-              return (
-                <div
-                  key={announcement.id}
-                  className={`group relative p-5 rounded-xl border-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
-                    announcement.isRead
-                      ? "border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 opacity-70"
-                      : `${colors.border} ${colors.bg} shadow-md`
-                  }`}
-                >
-                  {/* Dismiss Button */}
-                  <button
-                    onClick={() => dismissAnnouncement(announcement.id)}
-                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-lg hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80 backdrop-blur-sm"
-                    aria-label="Dismiss announcement"
-                  >
-                    <X className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
-                  </button>
+          <div className="text-left">
+            <div className="text-base font-bold text-white flex items-center gap-2">
+              Latest Updates
+            </div>
+            <div className="text-xs text-white/90 font-medium">
+              {unreadCount > 0 ? `${unreadCount} new announcement${unreadCount > 1 ? 's' : ''}` : 'No new updates'}
+            </div>
+          </div>
 
-                  <div className="flex gap-4">
-                    {/* Icon */}
-                    <div
-                      className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${colors.gradient} text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
-                    >
-                      {getAnnouncementIcon(announcement.type)}
-                    </div>
+          {/* Badge */}
+          {unreadCount > 0 && (
+            <div className="ml-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm font-bold text-xs shadow-lg animate-bounce"
+                 style={{ color: primaryColor }}>
+              {unreadCount}
+            </div>
+          )}
+        </div>
+      </button>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 pr-6">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <h4 className="font-bold text-base text-neutral-900 dark:text-white">
-                          {announcement.title}
-                        </h4>
-                        {!announcement.isRead && (
-                          <span className="flex-shrink-0 w-2 h-2 rounded-full" style={{ backgroundColor: secondaryColor }} />
-                        )}
-                      </div>
-
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2 line-clamp-2">
-                        {announcement.message}
-                      </p>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                          {formatTimestamp(announcement.timestamp)}
-                        </span>
-
-                        {announcement.link && (
-                          <a
-                            href={announcement.link}
-                            onClick={() => markAsRead(announcement.id)}
-                            className="text-xs hover:underline font-medium flex items-center gap-1"
-                            style={{ color: primaryColor }}
-                          >
-                            Learn More
-                            <ChevronRight className="w-3 h-3" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
+      {/* Popup Card */}
+      {showPopup && (
+        <div
+          ref={popupRef}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={handleMouseLeave}
+          className="absolute top-full right-0 mt-3 z-50 w-[480px] max-w-[90vw] animate-in fade-in slide-in-from-top-2 duration-300"
+        >
+          <Card className="border-0 shadow-[0_20px_70px_rgba(0,0,0,0.3)] overflow-hidden bg-white dark:bg-neutral-900 backdrop-blur-xl">
+            <CardHeader
+              className="pb-4 pt-4 relative overflow-hidden"
+              style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+            >
+              {/* Decorative gradient orbs */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              
+              <div className="flex items-center justify-between relative z-10">
+                <CardTitle className="text-base font-bold flex items-center gap-2.5 text-white">
+                  <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm shadow-lg">
+                    <Megaphone className="w-4 h-4" />
                   </div>
+                  All Announcements
+                </CardTitle>
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="p-1.5 rounded-lg hover:bg-white/20 transition-colors duration-200"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="bg-gradient-to-b from-neutral-50/50 to-white dark:from-neutral-900/50 dark:to-neutral-900 pt-4 pb-4 max-h-[400px] overflow-y-auto">
+              {displayedAnnouncements.length === 0 ? (
+                <div className="text-center py-6 text-neutral-500 dark:text-neutral-400">
+                  <Megaphone className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">No announcements at this time</p>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              ) : (
+                <div className="space-y-2.5">
+                  {displayedAnnouncements.map((announcement) => {
+                    const colors = getAnnouncementColor(announcement.type);
 
-        {/* View All Link */}
-        {announcements.length > maxItems && (
-          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800 text-center">
-            <button className="text-sm hover:underline font-medium" style={{ color: primaryColor }}>
-              View All Announcements ({announcements.length})
-            </button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                    return (
+                      <div
+                        key={announcement.id}
+                        className={`group relative p-3.5 rounded-lg border transition-all duration-300 hover:scale-[1.01] hover:shadow-md ${
+                          announcement.isRead
+                            ? "border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 opacity-70"
+                            : `${colors.border} ${colors.bg} shadow-sm`
+                        }`}
+                      >
+                        <div className="flex gap-3">
+                          {/* Icon */}
+                          <div
+                            className={`flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${colors.gradient} text-white flex items-center justify-center shadow-md group-hover:scale-105 group-hover:rotate-3 transition-all duration-300`}
+                          >
+                            {getAnnouncementIcon(announcement.type)}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-bold text-sm text-neutral-900 dark:text-white truncate">
+                                {announcement.title}
+                              </h4>
+                              {!announcement.isRead && (
+                                <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: secondaryColor }} />
+                              )}
+                            </div>
+
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1.5 leading-relaxed overflow-hidden text-ellipsis line-clamp-1">
+                              {announcement.message}
+                            </p>
+
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] text-neutral-500 dark:text-neutral-500 font-medium">
+                                {formatTimestamp(announcement.timestamp)}
+                              </span>
+
+                              <div className="flex items-center gap-2">
+                                {announcement.link && (
+                                  <a
+                                    href={announcement.link}
+                                    onClick={() => markAsRead(announcement.id)}
+                                    className="text-[10px] hover:underline font-semibold"
+                                    style={{ color: primaryColor }}
+                                  >
+                                    Learn More
+                                  </a>
+                                )}
+                                
+                                {!announcement.isRead && (
+                                  <button
+                                    onClick={() => markAsRead(announcement.id)}
+                                    className="text-[10px] px-2 py-1 rounded-md font-semibold transition-all duration-200 hover:scale-105"
+                                    style={{ 
+                                      backgroundColor: primaryColor,
+                                      color: 'white'
+                                    }}
+                                  >
+                                    Mark Read
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* View All Link */}
+              {announcements.length > maxItems && (
+                <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 text-center">
+                  <button className="text-xs hover:underline font-semibold transition-colors" style={{ color: primaryColor }}>
+                    View All Announcements ({announcements.length})
+                  </button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
   );
-}
-
-export default Announcements;
+}export default Announcements;

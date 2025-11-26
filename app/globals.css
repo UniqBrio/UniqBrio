@@ -277,6 +277,19 @@
   background-size: 1000px 100%;
 }
 
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
 /* Payment Table with Sticky Header and Fixed Height */
 .table-container-with-sticky-header {
   max-height: 450px; /* Approximately 4 rows + header + horizontal scrollbar space */

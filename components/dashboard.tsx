@@ -4,11 +4,11 @@ import { useState, useEffect } from "react"
 import KYCForm from "./kyc-form"
 import { 
   HomeMetrics, 
-  ActivityFeed, 
   FinancialSnapshot, 
-  Announcements, 
-  FeatureRoadmap,
-  FeatureGrid
+  Announcements,
+  PerformanceAnalytics,
+  FavoritesBar,
+  FeedbackSection
 } from "@/components/dashboard/home"
 
 const Dashboard = () => {
@@ -448,15 +448,18 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <div className="mb-4 sm:mb-6 flex items-start justify-between gap-4">
+        <FavoritesBar />
+        <Announcements />
+      </div>
+
       <HomeMetrics />
         
       {/* Main Dashboard Content */}
       <div className="space-y-4 sm:space-y-6">
-        <Announcements />
         <FinancialSnapshot />
-        <FeatureGrid />
-        <FeatureRoadmap />
-        <ActivityFeed />
+        <PerformanceAnalytics />
+        <FeedbackSection />
       </div>
     </div>
   );
