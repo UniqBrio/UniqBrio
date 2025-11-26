@@ -143,7 +143,10 @@ export function FinancialSnapshot({
         const apiData = await res.json();
         
         console.log('Chart API response:', apiData);
-        setChartData(apiData.data || []);
+        // Show only last 6 months
+        const allData = apiData.data || [];
+        const last6Months = allData.slice(-6);
+        setChartData(last6Months);
       } catch (error) {
         console.error("Error fetching chart data:", error);
       } finally {

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useCustomColors } from "@/lib/use-custom-colors";
-import { MessageSquare, Send, CheckCircle } from "lucide-react";
+import { MessageSquare, Send, CheckCircle, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -57,6 +57,7 @@ export function FeedbackSection() {
   const [selectedPage, setSelectedPage] = useState<string>("");
   const [newFeatureName, setNewFeatureName] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async () => {
@@ -71,10 +72,12 @@ export function FeedbackSection() {
       type: feedbackType,
       page: feedbackType === "new-feature" ? newFeatureName : selectedPage,
       remarks: remarks,
+      files: uploadedFiles.map(f => f.name),
       timestamp: new Date().toISOString(),
     };
 
     console.log("Feedback submitted:", feedbackData);
+    console.log("Uploaded files:", uploadedFiles);
 
     // Show success message
     setIsSubmitted(true);
@@ -85,6 +88,7 @@ export function FeedbackSection() {
       setSelectedPage("");
       setNewFeatureName("");
       setRemarks("");
+      setUploadedFiles([]);
       setIsSubmitted(false);
     }, 3000);
   };
@@ -259,6 +263,81 @@ export function FeedbackSection() {
                 <p className="text-xs text-muted-foreground">
                   Be as detailed as possible to help us understand your needs better
                 </p>
+              </div>
+            )}
+
+            {/* File Upload Section */}
+            {feedbackType && (
+              <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                <Label htmlFor="file-upload" className="font-medium">
+                  Upload Screenshots (Optional)
+                </Label>
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".png,.jpg,.jpeg,.svg"
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        setUploadedFiles((prev) => [...prev, ...files]);
+                        e.target.value = ''; // Reset input
+                      }}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="cursor-pointer flex flex-col items-center gap-2"
+                    >
+                      <div className="p-3 rounded-full bg-primary/10">
+                        <Upload className="w-6 h-6" style={{ color: primaryColor }} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Click to upload images</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PNG, JPG, JPEG or SVG (Max 5 files)
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Uploaded Files List */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">
+                        Uploaded Files ({uploadedFiles.length})
+                      </p>
+                      <div className="space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 rounded-md bg-muted/50 border"
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <Upload className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+                              <span className="text-sm truncate">{file.name}</span>
+                              <span className="text-xs text-muted-foreground flex-shrink-0">
+                                ({(file.size / 1024).toFixed(1)} KB)
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setUploadedFiles((prev) =>
+                                  prev.filter((_, i) => i !== index)
+                                );
+                              }}
+                              className="p-1 hover:bg-destructive/10 rounded transition-colors flex-shrink-0"
+                              type="button"
+                            >
+                              <X className="w-4 h-4 text-destructive" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

@@ -13,6 +13,7 @@ interface TourOverlayProps {
   onNext: () => void;
   onPrevious: () => void;
   onSkip: () => void;
+  onDontShowAgain?: () => void;
 }
 
 export function TourOverlay({
@@ -22,50 +23,123 @@ export function TourOverlay({
   onNext,
   onPrevious,
   onSkip,
+  onDontShowAgain,
 }: TourOverlayProps) {
   const { primaryColor } = useCustomColors();
   const router = useRouter();
   const pathname = usePathname();
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [popupPosition, setPopupPosition] = useState({ top: 100, left: 300 });
 
   const step = tourSteps[currentStep];
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === tourSteps.length - 1;
 
+  // Highlight sidebar item and position popup next to it
   useEffect(() => {
-    if (!isActive || !step) return;
+    if (!isActive || !step || !step.sidebarSelector) return;
 
-    // Navigate to the step's route if not already there
-    const targetRoute = step.route;
-    const isExternal = targetRoute.startsWith('http');
-    
-    if (!isExternal && pathname !== targetRoute) {
-      setIsNavigating(true);
-      router.push(targetRoute);
-      // Small delay to allow page to load
-      setTimeout(() => setIsNavigating(false), 500);
+    // Remove previous highlights
+    document.querySelectorAll('[data-tour-highlight]').forEach(el => {
+      el.removeAttribute('data-tour-highlight');
+      (el as HTMLElement).style.cssText = '';
+    });
+
+    // Find the sidebar item - target the actual link/anchor element
+    const sidebarItem = document.querySelector(`${step.sidebarSelector}`);
+    if (sidebarItem) {
+      // Find the parent container (the flex div wrapper)
+      const parentContainer = sidebarItem.closest('.flex.items-center') || sidebarItem.parentElement;
+      const targetElement = parentContainer || sidebarItem;
+      
+      targetElement.setAttribute('data-tour-highlight', 'true');
+      (targetElement as HTMLElement).style.cssText = `
+        background: linear-gradient(90deg, ${primaryColor}40, ${primaryColor}20) !important;
+        border-left: 4px solid ${primaryColor} !important;
+        box-shadow: 0 0 20px ${primaryColor}60 !important;
+        transform: translateX(4px) !important;
+        transition: all 0.3s ease !important;
+        border-radius: 6px !important;
+      `;
+
+      // Calculate position next to the sidebar item - use the actual element's position
+      const rect = (targetElement as HTMLElement).getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const popupHeight = 350; // Approximate popup height
+      const popupWidth = 384; // w-96 = 384px
+      
+      let top, left;
+      
+      // Check if element is in the header (top 100px of viewport)
+      const isHeaderElement = rect.top < 100;
+      
+      if (isHeaderElement) {
+        // For header elements, position popup below the element
+        top = rect.bottom + window.scrollY + 10; // 10px gap below element
+        
+        // Position horizontally - align right edge with element or center on it
+        left = Math.min(
+          rect.left + rect.width / 2 - popupWidth / 2, // Center on element
+          viewportWidth - popupWidth - 20 // Don't go off right edge
+        );
+        left = Math.max(20, left); // Don't go off left edge
+      } else {
+        // For sidebar elements, position to the right as before
+        top = rect.top + window.scrollY;
+        
+        // Adjust if popup would go off screen bottom
+        if (rect.top + popupHeight > viewportHeight) {
+          top = Math.max(20, viewportHeight - popupHeight - 20 + window.scrollY);
+        }
+        
+        // Position to right of sidebar
+        left = rect.right + 20;
+      }
+      
+      setPopupPosition({
+        top: top,
+        left: left
+      });
+
+      // Scroll element into view if needed
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [currentStep, isActive, step, pathname, router]);
+
+    // Cleanup on unmount or step change
+    return () => {
+      document.querySelectorAll('[data-tour-highlight]').forEach(el => {
+        el.removeAttribute('data-tour-highlight');
+        (el as HTMLElement).style.cssText = '';
+      });
+    };
+  }, [currentStep, isActive, step, primaryColor]);
 
   if (!isActive || !step) return null;
 
   const handleNext = () => {
-    if (step.route.startsWith('http')) {
-      // For external links, open in new tab but continue tour
-      window.open(step.route, '_blank');
-    }
     onNext();
   };
 
   const handleFinish = () => {
     saveTourProgress(currentStep, true);
+    // Remove all highlights
+    document.querySelectorAll('[data-tour-highlight]').forEach(el => {
+      el.removeAttribute('data-tour-highlight');
+      (el as HTMLElement).style.cssText = '';
+    });
     onClose();
   };
 
   return (
     <>
-      {/* Tour card */}
-      <div className="fixed top-20 right-6 w-96 z-[9999] animate-in slide-in-from-top-4 duration-300">
+      {/* Tour card - positioned dynamically next to sidebar item */}
+      <div 
+        className="fixed w-96 z-[9999] transition-all duration-500 ease-in-out"
+        style={{
+          top: `${popupPosition.top}px`,
+          left: `${popupPosition.left}px`,
+        }}
+      >
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           {/* Header */}
           <div
@@ -124,13 +198,6 @@ export function TourOverlay({
             <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
               {step.description}
             </p>
-
-            {isNavigating && (
-              <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
-                <span>Loading page...</span>
-              </div>
-            )}
           </div>
 
           {/* Footer with navigation buttons */}
@@ -138,7 +205,7 @@ export function TourOverlay({
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={onPrevious}
-                disabled={isFirstStep || isNavigating}
+                disabled={isFirstStep}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -148,7 +215,6 @@ export function TourOverlay({
               {isLastStep ? (
                 <button
                   onClick={handleFinish}
-                  disabled={isNavigating}
                   className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white rounded-md transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed animate-pulse"
                   style={{ backgroundColor: primaryColor }}
                 >
@@ -157,7 +223,6 @@ export function TourOverlay({
               ) : (
                 <button
                   onClick={handleNext}
-                  disabled={isNavigating}
                   className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white rounded-md transition-all hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: primaryColor }}
                 >
@@ -167,14 +232,25 @@ export function TourOverlay({
               )}
             </div>
             
-            {/* Skip button inside card */}
-            <button
-              onClick={onSkip}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-            >
-              <SkipForward className="w-3 h-3" />
-              Skip Tour
-            </button>
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              {onDontShowAgain && (
+                <button
+                  onClick={onDontShowAgain}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                  Don't Show Again
+                </button>
+              )}
+              <button
+                onClick={onSkip}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+              >
+                <SkipForward className="w-3 h-3" />
+                Skip Tour
+              </button>
+            </div>
           </div>
         </div>
       </div>

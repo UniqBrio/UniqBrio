@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Play, X } from "lucide-react";
 import { TourOverlay } from "./TourOverlay";
-import { getTourProgress, resetTour } from "./tour-data";
+import { getTourProgress, resetTour, setTourHidden, isTourHidden } from "./tour-data";
 import { useCustomColors } from "@/lib/use-custom-colors";
 
 export function TourButton() {
@@ -13,19 +13,26 @@ export function TourButton() {
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [tourHidden, setTourHiddenState] = useState(false);
 
   // Only show on dashboard home page
   const isHomePage = pathname === "/dashboard";
 
   useEffect(() => {
-    // Check if user has completed the tour
-    const progress = getTourProgress();
-    if (!progress || !progress.completed) {
-      // Show welcome popup for first-time users only on home page
-      const hasSeenWelcome = localStorage.getItem('tourWelcomeSeen');
-      if (!hasSeenWelcome && isHomePage) {
-        setShowWelcome(true);
-        localStorage.setItem('tourWelcomeSeen', 'true');
+    // Check if user has permanently hidden the tour
+    const hidden = isTourHidden();
+    setTourHiddenState(hidden);
+    
+    if (!hidden) {
+      // Check if user has completed the tour
+      const progress = getTourProgress();
+      if (!progress || !progress.completed) {
+        // Show welcome popup for first-time users only on home page
+        const hasSeenWelcome = localStorage.getItem('tourWelcomeSeen');
+        if (!hasSeenWelcome && isHomePage) {
+          setShowWelcome(true);
+          localStorage.setItem('tourWelcomeSeen', 'true');
+        }
       }
     }
   }, [isHomePage]);
@@ -50,6 +57,13 @@ export function TourButton() {
     setShowWelcome(false);
   };
 
+  const handleDontShowAgain = () => {
+    setTourHidden();
+    setTourHiddenState(true);
+    setShowWelcome(false);
+    setIsTourActive(false);
+  };
+
   const handleClose = () => {
     setIsTourActive(false);
   };
@@ -57,7 +71,7 @@ export function TourButton() {
   return (
     <>
       {/* Welcome Popup - only on home page */}
-      {showWelcome && !isTourActive && isHomePage && (
+      {showWelcome && !isTourActive && isHomePage && !tourHidden && (
         <div className="fixed top-20 right-6 w-96 z-[9999] animate-in slide-in-from-top-4 duration-300">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
             <div
@@ -77,21 +91,29 @@ export function TourButton() {
               <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4">
                 Would you like to take a guided tour of your dashboard? We'll walk you through all the features and help you get started.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-2">
                 <button
                   onClick={startTour}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white font-medium rounded-md transition-all hover:shadow-lg"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 text-white font-medium rounded-md transition-all hover:shadow-lg"
                   style={{ backgroundColor: primaryColor }}
                 >
                   <Play className="w-4 h-4" />
                   Start Tour
                 </button>
-                <button
-                  onClick={() => setShowWelcome(false)}
-                  className="px-4 py-2.5 text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Maybe Later
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowWelcome(false)}
+                    className="flex-1 px-4 py-2.5 text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Maybe Later
+                  </button>
+                  <button
+                    onClick={handleDontShowAgain}
+                    className="flex-1 px-4 py-2.5 text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Don't Show Again
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -99,7 +121,7 @@ export function TourButton() {
       )}
 
       {/* Floating Tour Button - only on home page */}
-      {!isTourActive && !showWelcome && isHomePage && (
+      {!isTourActive && !showWelcome && isHomePage && !tourHidden && (
         <button
           onClick={startTour}
           className="fixed top-20 right-6 z-[9998] flex items-center gap-2 px-4 py-2.5 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-in slide-in-from-right-4 duration-300"
@@ -119,6 +141,7 @@ export function TourButton() {
         onNext={handleNext}
         onPrevious={handlePrevious}
         onSkip={handleSkip}
+        onDontShowAgain={handleDontShowAgain}
       />
     </>
   );

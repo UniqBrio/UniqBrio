@@ -734,6 +734,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center flex-1"
+                        data-tour-id={item.id}
                       >
                         <span className="text-gray-500 dark:text-white mr-3">{item.icon}</span>
                         <span className="text-left flex items-center gap-1 dark:text-white">
@@ -757,6 +758,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       <Link
                         href={item.href}
                         className="flex items-center flex-1"
+                        data-tour-id={item.id}
                       >
                         <span className="text-gray-500 dark:text-white mr-3">{item.icon}</span>
                         <span className="text-left">{item.name}</span>
@@ -825,6 +827,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
+                      data-tour-id={item.id}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = `${primaryColor}1A`;
                         e.currentTarget.style.color = primaryColor;
@@ -856,6 +859,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                     <Link
                       href={item.href}
                       className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
+                      data-tour-id={item.id}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = `${primaryColor}1A`;
                         e.currentTarget.style.color = primaryColor;
