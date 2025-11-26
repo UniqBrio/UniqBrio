@@ -39,37 +39,7 @@ export function Announcements({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   
-  const [announcements, setAnnouncements] = useState<Announcement[]>([
-    {
-      id: "1",
-      type: "achievement",
-      title: "New Milestone Reached!",
-      message: "Our academy has successfully enrolled 500+ students this semester!",
-      timestamp: new Date(Date.now() - 2 * 60 * 60000),
-      isRead: false,
-      priority: "high",
-    },
-    {
-      id: "2",
-      type: "update",
-      title: "Platform Update v2.5",
-      message: "New features added: Enhanced scheduling, improved attendance tracking, and financial analytics dashboard.",
-      timestamp: new Date(Date.now() - 24 * 60 * 60000),
-      isRead: false,
-      
-      priority: "medium",
-    },
-    {
-      id: "3",
-      type: "alert",
-      title: "System Maintenance Notice",
-      message: "Scheduled maintenance on Sunday, Nov 24 from 2:00 AM - 4:00 AM. Some services may be temporarily unavailable.",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60000),
-      isRead: true,
-      priority: "high",
-    },
-    
-  ]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   const getAnnouncementIcon = (type: Announcement["type"]) => {
     const iconMap = {
@@ -272,9 +242,10 @@ export function Announcements({
             </CardHeader>
             <CardContent className="bg-gradient-to-b from-neutral-50/50 to-white dark:from-neutral-900/50 dark:to-neutral-900 pt-4 pb-4 max-h-[400px] overflow-y-auto">
               {displayedAnnouncements.length === 0 ? (
-                <div className="text-center py-6 text-neutral-500 dark:text-neutral-400">
-                  <Megaphone className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">No announcements at this time</p>
+                <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
+                  <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium">No latest updates</p>
+                  <p className="text-xs mt-1 opacity-70">Check back later for announcements</p>
                 </div>
               ) : (
                 <div className="space-y-2.5">

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import Sidebar from "./sidebar"
 import Header from "./header"
 import GlobalFooter from "./global-footer"
+import { TourButton } from "./tour/TourButton"
 import "../styles/responsive-dashboard.css"
 
 import ErrorBoundary from "./error-boundary"
@@ -83,6 +84,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               isMobile={isMobile}
             />
             
+            {/* Tour Button */}
+            <TourButton />
+            
             <div className="flex flex-col flex-1 overflow-hidden min-w-0">
               <Header
                 currentLanguage={currentLanguage}
@@ -120,6 +124,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       case "right":
         return (
           <div className="flex h-screen bg-gray-50">
+            {/* Tour Button */}
+            <TourButton />
+            
             <div className="flex flex-col flex-1 overflow-hidden">
               <Header
                 currentLanguage={currentLanguage}
