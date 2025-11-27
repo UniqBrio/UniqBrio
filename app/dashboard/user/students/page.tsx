@@ -712,7 +712,7 @@ export default function StudentsPage() {
             {/* Dashboard Tab Content */}
             <TabsContent value="dashboard" className="space-y-4">
               <StudentStatisticsCards />
-              
+              {/* Removed duplicate secondary summary cards */}
               {/* Student Analytics */}
               <div className="bg-card rounded-3xl shadow-xl p-6 animate-fade-in border">
                 <StudentAnalytics students={studentList} loading={studentsLoading} />

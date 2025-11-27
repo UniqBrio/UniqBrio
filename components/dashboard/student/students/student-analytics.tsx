@@ -116,18 +116,7 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
 
   const filtered = () => getFilteredAnalyticsData();
 
-  const topStats = [
-    { title: "Total Students", value: filtered().length, subtitle: "Registered students" },
-    { title: "Total Courses", value: totalCourses, subtitle: "Available courses" },
-    { title: "Total Cohorts", value: totalCohorts, subtitle: "Active cohorts" },
-  ];
-
-  const studentStatStyles = [
-    { bg: "bg-gradient-to-br from-purple-50 to-purple-100", titleText: "text-purple-700", valueText: "text-purple-900" },
-    { bg: "bg-gradient-to-br from-blue-50 to-blue-100", titleText: "text-blue-700", valueText: "text-blue-900" },
-    { bg: "bg-gradient-to-br from-indigo-50 to-indigo-100", titleText: "text-indigo-700", valueText: "text-indigo-900" },
-    { bg: "bg-gradient-to-br from-amber-50 to-amber-100", titleText: "text-amber-700", valueText: "text-amber-900" },
-  ];
+  // Removed duplicate summary cards (Total Students, Total Courses, Total Cohorts)
 
   const COLORS = ['#8A2BE2', '#9B59B6', '#7B68EE', '#DDA0DD', '#FFA500', '#FF8C00', '#FFB347', '#FFCC80'];
 
@@ -372,25 +361,6 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
 
   return (
     <div className="space-y-4" id="student-analytics-section">
-      {/* Top Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {topStats.map((stat, index) => {
-          const style = studentStatStyles[index] ?? studentStatStyles[0];
-          return (
-            <Card key={index} className={`${style.bg} border shadow-sm`}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`text-sm font-medium ${style.titleText}`}>{stat.title}</p>
-                    <p className={`text-2xl font-bold ${style.valueText}`}>{stat.value}</p>
-                    <p className={`text-xs ${style.titleText} opacity-80`}>{stat.subtitle}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
 
 
 

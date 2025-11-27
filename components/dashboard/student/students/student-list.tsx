@@ -226,7 +226,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
               {same ? cd.id : (
                 <>
                   <span style={{ color: `${primaryColor}dd` }}>{cd.id}</span>
-                  <span className="mx-1 text-gray-400 dark:text-white">�</span>
+                  <span className="mx-1 text-gray-400 dark:text-white">-</span>
                   <span>{cd.name}</span>
                 </>
               )}
@@ -264,7 +264,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                 {same ? cohortDetails.id : (
                   <>
                     <span style={{ color: `${primaryColor}dd` }}>{cohortDetails.id}</span>
-                    <span className="mx-1 text-gray-400 dark:text-white">�</span>
+                    <span className="mx-1 text-gray-400 dark:text-white">-</span>
                     <span>{cohortDetails.name}</span>
                   </>
                 )}
@@ -422,17 +422,17 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                             <div className="font-medium">{header}</div>
                             {cohortDetails?.timing && (
                               <div className="text-xs text-gray-600 dark:text-white">
-                                <span className="font-semibold">?? Time:</span> {cohortDetails.timing}
+                                <span className="font-semibold">Time:</span> {cohortDetails.timing}
                               </div>
                             )}
                             {cohortDetails?.instructor && (
                               <div className="text-xs text-gray-600 dark:text-white">
-                                <span className="font-semibold">????? Instructor:</span> {cohortDetails.instructor}
+                                <span className="font-semibold">Instructor:</span> {cohortDetails.instructor}
                               </div>
                             )}
                             {cohortDetails?.capacity && (
                               <div className="text-xs text-gray-600 dark:text-white">
-                                <span className="font-semibold">?? Enrolled:</span> {cohortDetails.capacity}
+                                <span className="font-semibold">Enrolled:</span> {cohortDetails.capacity}
                               </div>
                             )}
                           </div>

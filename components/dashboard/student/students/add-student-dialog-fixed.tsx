@@ -135,6 +135,7 @@ function GenderCombobox({ value, onChange, error }: GenderComboboxProps){
 // Search-only combobox for courses with course draft creation capability
 interface CourseSearchComboboxProps { value:string; onChange:(id:string)=>void; courses:Course[]; loading:boolean; error?:string|null; width?:number; hasError?:boolean; onCourseDraftCreated?:(courseName:string, level:string)=>void; onRefresh?:()=>void; }
 function CourseSearchCombobox({ value, onChange, courses, loading, error, width, hasError, onCourseDraftCreated, onRefresh }: CourseSearchComboboxProps){
+  const { primaryColor } = useCustomColors();
   const [open,setOpen]=useState(false);
   const [query,setQuery]=useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -1984,16 +1985,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                   <Save className="w-4 h-4" />
                   <span className="text-sm">{currentDraftId ? 'Update Draft' : 'Save Draft'}</span>
                 </Button>
-                <DialogClose asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 rounded-full hover:bg-gray-100"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogClose>
+                {/* Removed redundant close button to avoid double X */}
               </div>
             </div>
             

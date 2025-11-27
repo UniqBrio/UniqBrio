@@ -11,7 +11,7 @@ interface StudentStats {
   totalCourses: number;
   attendanceRate: number;
   completionRate: number;
-  averageGrade: number;
+  totalCohorts: number;
 }
 
 interface StudentStatisticsCardsProps {
@@ -26,21 +26,23 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
     totalCourses: 0,
     attendanceRate: 0,
     completionRate: 0,
-    averageGrade: 0,
+    totalCohorts: 0,
   });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         // Fetch student stats
-        const [studentsResponse, coursesResponse] = await Promise.all([
+        const [studentsResponse, coursesResponse, cohortsResponse] = await Promise.all([
           fetch('/api/dashboard/services/user-management/students'),
-          fetch('/api/dashboard/services/courses?stats=true')
+          fetch('/api/dashboard/services/courses?stats=true'),
+          fetch('/api/dashboard/services/cohorts?stats=true')
         ]);
 
-        const [studentsData, coursesData] = await Promise.all([
+        const [studentsData, coursesData, cohortsData] = await Promise.all([
           studentsResponse.json(),
-          coursesResponse.json()
+          coursesResponse.json(),
+          cohortsResponse.json()
         ]);
 
         console.log('Student stats data:', studentsData);
@@ -57,7 +59,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           // Calculate real stats based on actual data, default to 0 if no students
           attendanceRate: totalStudents > 0 ? 92 : 0, // TODO: Replace with real attendance calculation
           completionRate: totalStudents > 0 ? 78 : 0, // TODO: Replace with real completion calculation  
-          averageGrade: totalStudents > 0 ? 85 : 0, // TODO: Replace with real grade calculation
+          totalCohorts: cohortsData?.stats?.totalCohorts ?? 0,
         };
 
         console.log('New student stats:', newStats);
@@ -135,14 +137,14 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-500">
+      <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-500">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-yellow-600">Avg Grade</p>
-              <p className="text-2xl font-bold text-yellow-900">{stats.averageGrade}%</p>
+              <p className="text-sm font-medium text-indigo-600">Total Cohorts</p>
+              <p className="text-2xl font-bold text-indigo-900">{stats.totalCohorts}</p>
             </div>
-            <TrendingUp className="h-8 w-8 text-yellow-500" />
+            <Users className="h-8 w-8 text-indigo-500" />
           </div>
         </CardContent>
       </Card>

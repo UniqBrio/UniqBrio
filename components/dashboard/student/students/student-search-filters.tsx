@@ -731,13 +731,16 @@ export default function StudentSearchFilters({
             <Button
               variant="outline"
               size="sm"
-              className="h-9 flex items-center gap-1 relative"
+              className="h-9 flex items-center gap-1 relative group"
               aria-label="Filter options"
               title="Filter"
               tabIndex={0}
             >
               <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
+                {/* Normal icon (primary color) */}
+                <Filter className="h-3.5 w-3.5 transition-opacity group-hover:opacity-0" style={{ color: primaryColor }} />
+                {/* Hover icon (white for visibility) */}
+                <Filter className="h-3.5 w-3.5 absolute top-0 left-0 text-white opacity-0 group-hover:opacity-100" />
                 {filterAction === "applied" && (
                   <span className="absolute -top-1 -right-1">
                     <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

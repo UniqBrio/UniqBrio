@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/dashboard/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Student } from "@/types/dashboard/student";
 import { type Course } from "@/data/dashboard/courses";
@@ -115,15 +115,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
                   )}
                 </div>
               </div>
-              <DialogClose asChild>
-                <button
-                  type="button"
-                  className="ml-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-white hover:bg-gray-100 hover:text-gray-700 dark:text-white"
-                  aria-label="Close"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </DialogClose>
+              {/* Removed redundant close button to avoid duplicate X */}
             </div>
           </DialogHeader>
         </div>
@@ -160,7 +152,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
               <div className="space-y-3">
                 <Field 
                   label="Course" 
-                  value={course ? `${course.courseId || course.id} - ${course.name}` : student.enrolledCourseName || '�'} 
+                  value={course ? `${course.courseId || course.id} - ${course.name}` : student.enrolledCourseName || '—'} 
                 />
                 <Field label="Registration Date" value={formatDate(student.registrationDate)} />
                 <Field label="Course Start Date" value={formatDate(student.courseStartDate)} />
@@ -172,7 +164,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
                   label="Cohort" 
                   value={cohortInfo ? (
                     <div className="space-y-1">
-                      <div className="font-medium">{cohortInfo.id} � {cohortInfo.name || 'Unnamed'}</div>
+                      <div className="font-medium">{cohortInfo.id} - {cohortInfo.name || 'Unnamed'}</div>
                       {(cohortInfo.instructor || cohortInfo.timing) && (
                         <div className="text-xs text-gray-500 dark:text-white space-y-0.5">
                           {cohortInfo.instructor && <div>Instructor: {cohortInfo.instructor}</div>}
@@ -180,7 +172,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
                         </div>
                       )}
                     </div>
-                  ) : (student.cohortId || '�')} 
+                  ) : (student.cohortId || '—')} 
                 />
               </div>
             </div>
