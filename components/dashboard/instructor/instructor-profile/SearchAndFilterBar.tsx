@@ -341,31 +341,32 @@ export default function SearchAndFilterBar({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-9 flex items-center gap-1 relative"
+                      className="h-9 flex items-center gap-1 relative hover:bg-transparent hover:border-gray-300"
+                      aria-label="Filters"
                     >
-                      <span className="relative inline-block">
-                        <Filter className="h-3.5 w-3.5 text-purple-500" />
+                      <span className="relative inline-flex items-center">
+                        <Filter className="h-4 w-4 mr-2" />
                         {permanentFilterIcon === "apply" && (
-                          <div className="absolute -top-2 -right-2 z-20">
+                          <span className="absolute -top-2 -right-3">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                               <circle cx="10" cy="10" r="10" fill="#22C55E"/>
                               <path d="M6 10.5l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                          </div>
+                          </span>
                         )}
                         {permanentFilterIcon === "clear" && (
-                          <div className="absolute -top-2 -right-2 z-20">
+                          <span className="absolute -top-2 -right-3">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                               <circle cx="10" cy="10" r="10" fill="#EF4444"/>
                               <path d="M7 7l6 6M13 7l-6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
                             </svg>
-                          </div>
+                          </span>
                         )}
                       </span>
                     </Button>
                   </PopoverTrigger>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">Filter</TooltipContent>
+                <TooltipContent>Filters</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <PopoverContent className="w-80 p-4 filter-panel">

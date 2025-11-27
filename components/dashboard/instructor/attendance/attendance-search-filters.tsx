@@ -766,6 +766,7 @@ export default function AttendanceSearchFilters({
             className="rounded-r-none"
             title="List View"
             aria-label="List View"
+            style={viewMode === 'list' ? { backgroundColor: '#8B5CF6' } : {}}
           >
             <div className="flex flex-col gap-0.5 w-4 h-4">
               <div className="bg-current h-0.5 rounded-sm" />
@@ -780,6 +781,7 @@ export default function AttendanceSearchFilters({
             className="rounded-l-none border-l"
             title="Grid View"
             aria-label="Grid View"
+            style={viewMode === 'grid' ? { backgroundColor: '#8B5CF6' } : {}}
           >
             <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
               <div className="bg-current rounded-sm" />

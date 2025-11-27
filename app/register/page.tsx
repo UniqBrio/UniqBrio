@@ -347,7 +347,7 @@ export default function RegistrationForm() {
       <CardFooter className="flex justify-between px-6 py-4 border-t">
         {!registrationComplete && (
           <>
-            <Button variant="outline" onClick={handleBack} disabled={currentStep === 0 || isSubmitting || showWelcomePopup}>
+            <Button variant="outline" className="hover:text-white" onClick={handleBack} disabled={currentStep === 0 || isSubmitting || showWelcomePopup}>
               Back
             </Button>
             {currentStep === steps.length - 1 ? (
