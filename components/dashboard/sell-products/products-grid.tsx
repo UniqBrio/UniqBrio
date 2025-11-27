@@ -91,10 +91,13 @@ export function ProductsGrid({ products, onAddToCart, onEdit }: ProductsGridProp
                 <Button
                   variant="outline"
                   size="default"
-                  className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white transition-smooth relative h-12 px-4"
+                  className="border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-white transition-smooth relative h-12 px-4 group"
                 >
-                  <span className="relative inline-block">
-                    <Filter className="h-4 w-4" style={{ color: primaryColor }} />
+                  <span
+                    className="relative inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
+                    style={{ "--filter-color": primaryColor } as React.CSSProperties}
+                  >
+                    <Filter className="h-4 w-4" />
                     {filterAction === "applied" && selectedCategories.length > 0 && (
                       <span className="absolute -top-1 -right-1">
                         <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

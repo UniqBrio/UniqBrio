@@ -1054,11 +1054,16 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 flex items-center gap-1 relative"
+                          className="h-9 flex items-center gap-1 relative px-3 group border text-[color:var(--filter-icon-color)] hover:bg-[color:var(--filter-hover-bg)] hover:text-white"
                           title="Filter"
+                          style={{
+                            borderColor: primaryColor,
+                            '--filter-icon-color': primaryColor,
+                            '--filter-hover-bg': primaryColor,
+                          } as React.CSSProperties}
                         >
-                          <span className="relative inline-block">
-                            <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
+                          <span className="relative inline-flex text-[color:var(--filter-icon-color)] transition-colors duration-200 group-hover:text-white">
+                            <Filter className="h-3.5 w-3.5" />
                             {filterAction === "applied" && (
                               <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                                 <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

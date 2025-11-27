@@ -148,9 +148,8 @@ export function AttendanceFilters({
                     className="h-9 flex items-center gap-1 relative group"
                     aria-label="Filter options"
                   >
-                    <span className="relative inline-block">
-                      <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:opacity-0" />
-                      <Filter className="h-3.5 w-3.5 absolute top-0 left-0 text-white opacity-0 group-hover:opacity-100" />
+                    <span className="relative inline-flex text-purple-500 transition-colors duration-200 group-hover:text-white">
+                      <Filter className="h-3.5 w-3.5" />
                       {filterAction === "applied" && (
                         <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                           <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

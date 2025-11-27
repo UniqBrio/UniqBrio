@@ -69,10 +69,13 @@ export function SalesFilterDropdown({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 flex items-center gap-1 relative"
+                className="h-9 flex items-center gap-1 relative group"
               >
-                <span className="relative inline-block">
-                  <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
+                <span
+                  className="relative inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
+                  style={{ "--filter-color": primaryColor } as React.CSSProperties}
+                >
+                  <Filter className="h-3.5 w-3.5" />
                   {permanentFilterIcon === "apply" && (
                     <div className="absolute -top-2 -right-2 z-20">
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

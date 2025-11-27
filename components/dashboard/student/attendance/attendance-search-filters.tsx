@@ -557,9 +557,8 @@ export default function AttendanceSearchFilters({
                 title="Filter"
                 tabIndex={0}
               >
-                <span className="relative inline-block">
-                  <Filter className="h-3.5 w-3.5 text-purple-500 group-hover:opacity-0" />
-                  <Filter className="h-3.5 w-3.5 absolute top-0 left-0 text-white opacity-0 group-hover:opacity-100" />
+                  <span className="relative inline-flex text-purple-500 transition-colors duration-200 group-hover:text-white">
+                    <Filter className="h-3.5 w-3.5" />
                   {filterAction === 'applied' && (
                     <span className="absolute -top-1 -right-1">
                       <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

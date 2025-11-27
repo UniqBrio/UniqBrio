@@ -133,11 +133,14 @@ export function AttendanceFilters({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-9 flex items-center gap-1 relative"
+                    className="h-9 flex items-center gap-1 relative group"
                     aria-label="Filter options"
                   >
-                    <span className="relative inline-block">
-                      <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
+                    <span
+                      className="relative inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
+                      style={{ "--filter-color": primaryColor } as React.CSSProperties}
+                    >
+                      <Filter className="h-3.5 w-3.5" />
                       {filterAction === "applied" && (
                         <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                           <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

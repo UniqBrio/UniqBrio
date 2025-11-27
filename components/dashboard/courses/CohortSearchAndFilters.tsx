@@ -322,8 +322,11 @@ export default function CohortSearchAndFilters({
               title="Filter"
               tabIndex={0}
             >
-              <span className="relative inline-block">
-                <Filter className="h-3.5 w-3.5 group-hover:text-white transition-colors" style={{ color: primaryColor }} />
+              <span
+                className="relative inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
+                style={{ "--filter-color": primaryColor } as React.CSSProperties}
+              >
+                <Filter className="h-3.5 w-3.5" />
                 {filterAction === "applied" && (
                   <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
                     <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">

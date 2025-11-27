@@ -434,8 +434,13 @@ export default function ParentsPage() {
 
                   <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9" title="Filter">
-                        <Filter className="h-3.5 w-3.5" style={{ color: primaryColor }} />
+                      <Button variant="outline" size="sm" className="h-9 group" title="Filter">
+                        <span
+                          className="inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
+                          style={{ "--filter-color": primaryColor } as React.CSSProperties}
+                        >
+                          <Filter className="h-3.5 w-3.5" />
+                        </span>
                         {(filters.categories.length > 0 || filters.paymentStatuses.length > 0) && (
                           <span className="ml-2 inline-flex items-center justify-center text-white rounded-full h-5 w-5 text-xs font-bold" style={{ backgroundColor: primaryColor }}>
                             {filters.categories.length + filters.paymentStatuses.length}
