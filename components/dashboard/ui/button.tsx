@@ -40,27 +40,78 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, onMouseEnter, onMouseLeave, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
-    
-    // Add hover handler for outline and ghost variants to use dynamic primary color
-    const hoverHandlers = (variant === 'outline' || variant === 'ghost') ? {
-      onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.currentTarget.style.backgroundColor = 'hsl(var(--primary))'
-        if (variant === 'outline') e.currentTarget.style.borderColor = 'hsl(var(--primary))'
-      },
-      onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.currentTarget.style.backgroundColor = ''
-        if (variant === 'outline') e.currentTarget.style.borderColor = ''
+
+    const shouldApplyPrimaryHover = variant === 'outline' || variant === 'ghost'
+
+    const applyPrimaryHoverStyles = (target: HTMLButtonElement) => {
+      if (!shouldApplyPrimaryHover) return
+
+      // Cache original inline values so we can restore them on mouse leave.
+      if (target.dataset.primaryHoverBg === undefined) {
+        target.dataset.primaryHoverBg = target.style.backgroundColor || ''
       }
-    } : {}
-    
+      if (target.dataset.primaryHoverBorder === undefined) {
+        target.dataset.primaryHoverBorder = target.style.borderColor || ''
+      }
+      if (target.dataset.primaryHoverColor === undefined) {
+        target.dataset.primaryHoverColor = target.style.color || ''
+      }
+
+      target.style.backgroundColor = 'hsl(var(--primary))'
+      if (variant === 'outline') {
+        target.style.borderColor = 'hsl(var(--primary))'
+      }
+      target.style.color = 'hsl(var(--primary-foreground))'
+    }
+
+    const resetPrimaryHoverStyles = (target: HTMLButtonElement) => {
+      if (!shouldApplyPrimaryHover) return
+
+      if (target.dataset.primaryHoverBg !== undefined) {
+        target.style.backgroundColor = target.dataset.primaryHoverBg
+        delete target.dataset.primaryHoverBg
+      } else {
+        target.style.backgroundColor = ''
+      }
+
+      if (variant === 'outline') {
+        if (target.dataset.primaryHoverBorder !== undefined) {
+          target.style.borderColor = target.dataset.primaryHoverBorder
+          delete target.dataset.primaryHoverBorder
+        } else {
+          target.style.borderColor = ''
+        }
+      }
+
+      if (target.dataset.primaryHoverColor !== undefined) {
+        target.style.color = target.dataset.primaryHoverColor
+        delete target.dataset.primaryHoverColor
+      } else {
+        target.style.color = ''
+      }
+    }
+
+    const handleMouseEnter = (event: React.MouseEvent<HTMLButtonElement>) => {
+      onMouseEnter?.(event)
+      if (event.defaultPrevented) return
+      applyPrimaryHoverStyles(event.currentTarget)
+    }
+
+    const handleMouseLeave = (event: React.MouseEvent<HTMLButtonElement>) => {
+      onMouseLeave?.(event)
+      if (event.defaultPrevented) return
+      resetPrimaryHoverStyles(event.currentTarget)
+    }
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         {...props}
-        {...hoverHandlers}
       />
     )
   }
