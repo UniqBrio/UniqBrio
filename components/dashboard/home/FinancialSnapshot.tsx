@@ -143,9 +143,52 @@ export function FinancialSnapshot({
         const apiData = await res.json();
         
         console.log('Chart API response:', apiData);
-        // Show only last 6 months
+        // Show only last 6 months and exclude any future periods
         const allData = apiData.data || [];
-        const last6Months = allData.slice(-6);
+        const now = new Date();
+
+        // Attempt to parse a Date from the item. Prefer explicit date fields; fallback to name like "Dec'25"
+        const parseItemDate = (item: any): Date | null => {
+          if (item?.date) {
+            const d = new Date(item.date);
+            return isNaN(d.getTime()) ? null : d;
+          }
+          const name: string = item?.name ?? '';
+          // Match formats like: Dec'25, Dec 2025, 2025-12
+          const apostropheMatch = name.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'(\d{2})$/);
+          if (apostropheMatch) {
+            const monthStr = apostropheMatch[1];
+            const yy = parseInt(apostropheMatch[2], 10);
+            const year = 2000 + yy;
+            const monthIndex = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(monthStr);
+            return new Date(year, monthIndex, 1);
+          }
+          const spaceYearMatch = name.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[\s-](\d{4})$/);
+          if (spaceYearMatch) {
+            const monthStr = spaceYearMatch[1];
+            const year = parseInt(spaceYearMatch[2], 10);
+            const monthIndex = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(monthStr);
+            return new Date(year, monthIndex, 1);
+          }
+          const isoYearMonth = name.match(/^(\d{4})-(\d{2})$/);
+          if (isoYearMonth) {
+            const year = parseInt(isoYearMonth[1], 10);
+            const monthIndex = parseInt(isoYearMonth[2], 10) - 1;
+            return new Date(year, monthIndex, 1);
+          }
+          return null;
+        };
+
+        const filtered = allData.filter((item: any) => {
+          const d = parseItemDate(item);
+          if (!d) return true; // If unknown, keep but will be trimmed by slicing
+          // Keep only items where item month <= current month (no future)
+          const cmp = new Date(d.getFullYear(), d.getMonth(), 1).getTime() <= new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+          return cmp;
+        });
+
+        // Take the last 6 entries after filtering
+        const last6Months = filtered.slice(-6);
         setChartData(last6Months);
       } catch (error) {
         console.error("Error fetching chart data:", error);

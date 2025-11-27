@@ -29,17 +29,15 @@ export const tourSteps: TourStep[] = [
     emoji: "🔔",
     sidebarSelector: "[data-tour-id='notifications']"
   },
-  
   {
-    id: "profile",
-    title: "Profile",
-    description: "Manage your personal information here! Click on your profile icon in the top-right corner to access your account settings, view your academy details, and sign out when needed.",
+    id: "courses-cohorts",
+    title: "Courses & Cohorts",
+    description: "Start with core academics: manage your course catalog, imports and drafts; then organize learners into cohorts to sync membership and schedules. These two sections form the backbone of your academy operations.",
     route: "/dashboard",
-    position: "center",
-    emoji: "👤",
-    sidebarSelector: "[data-tour-id='profile']"
+    position: "right",
+    emoji: "📚",
+    sidebarSelector: "[data-tour-id='services']"
   },
-  
   {
     id: "payments",
     title: "Payments",
@@ -49,7 +47,6 @@ export const tourSteps: TourStep[] = [
     emoji: "💳",
     sidebarSelector: "[data-tour-id='payments']"
   },
-  
   {
     id: "financials",
     title: "Financials",
@@ -58,16 +55,6 @@ export const tourSteps: TourStep[] = [
     position: "center",
     emoji: "💰",
     sidebarSelector: "[data-tour-id='financials']"
-  },
-  
-  {
-    id: "community",
-    title: "Community",
-    description: "Connect with the UniqBrio community! Get the latest updates in arts & sports, share insights, and learn from other academies. Click here to access our community platform.",
-    route: "https://dailybrio.uniqbrio.com/",
-    position: "center",
-    emoji: "🌐",
-    sidebarSelector: "[data-tour-id='community']"
   },
   
   {
@@ -116,5 +103,19 @@ export const setTourHidden = () => {
 
 export const isTourHidden = () => {
   if (typeof window === 'undefined') return false;
+  // Testing override: if `?showTour=1` is present or session flag set, always show
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const forceShow = params.has('showTour') || sessionStorage.getItem('tourForce') === 'true';
+    if (forceShow) return false;
+  } catch {}
   return localStorage.getItem('tourHidden') === 'true';
+};
+
+// Helper to force show the tour within current session (used for local testing)
+export const forceShowTour = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem('tourForce', 'true');
+  } catch {}
 };

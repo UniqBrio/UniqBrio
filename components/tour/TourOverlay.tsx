@@ -44,8 +44,37 @@ export function TourOverlay({
       (el as HTMLElement).style.cssText = '';
     });
 
-    // Find the sidebar item - target the actual link/anchor element
-    const sidebarItem = document.querySelector(`${step.sidebarSelector}`);
+    // If targeting Courses under Services, try expanding Services via its arrow toggle (not the link)
+    try {
+      const servicesItem = document.querySelector("[data-tour-id='services']");
+      if (servicesItem) {
+        const container = (servicesItem as HTMLElement).closest('li, div, nav') || servicesItem.parentElement as HTMLElement | null;
+        const toggleCandidates: (Element | null)[] = [
+          container ? container.querySelector("[data-tour-toggle='services']") : null,
+          container ? container.querySelector("[data-toggle='services']") : null,
+          container ? container.querySelector("button[aria-label*='expand']") : null,
+          container ? container.querySelector("button[aria-label*='toggle']") : null,
+          container ? container.querySelector("button.chevron, .chevron, .toggle") : null,
+          // Sibling chevron after the label
+          (servicesItem.nextElementSibling && servicesItem.nextElementSibling.matches('button,svg') ? servicesItem.nextElementSibling : null),
+        ];
+        const toggle = toggleCandidates.find(Boolean) as Element | null;
+        if (toggle) {
+          (toggle as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        }
+      }
+    } catch {}
+
+    // Do NOT click sidebar link items to avoid navigation; only highlight
+
+    // Find the sidebar item - target the actual link/anchor element with robust fallbacks
+    const candidates: (Element | null)[] = [
+      document.querySelector(`${step.sidebarSelector}`),
+      document.querySelector("[data-tour-id='services-courses']"),
+      document.querySelector("[data-tour-id='courses']"),
+      document.querySelector("a[href='/services/courses']"),
+    ];
+    const sidebarItem = candidates.find(Boolean) as Element | null;
     if (sidebarItem) {
       // Find the parent container (the flex div wrapper)
       const parentContainer = sidebarItem.closest('.flex.items-center') || sidebarItem.parentElement;
@@ -59,6 +88,7 @@ export function TourOverlay({
         transform: translateX(4px) !important;
         transition: all 0.3s ease !important;
         border-radius: 6px !important;
+        pointer-events: none !important;
       `;
 
       // Calculate position next to the sidebar item - use the actual element's position
@@ -132,6 +162,8 @@ export function TourOverlay({
 
   return (
     <>
+      {/* Backdrop to block interactions behind the tour */}
+      <div className="fixed inset-0 z-[9998] bg-black/5" aria-hidden="true"></div>
       {/* Tour card - positioned dynamically next to sidebar item */}
       <div 
         className="fixed w-96 z-[9999] transition-all duration-500 ease-in-out"
@@ -209,7 +241,7 @@ export function TourOverlay({
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Back
+                Previous
               </button>
 
               {isLastStep ? (
