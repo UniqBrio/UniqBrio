@@ -496,9 +496,9 @@ export default function LeaveSearchFilters({
           {/* Sort */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-                <ArrowUpDown className="mr-2 h-4 w-4" />
-                <span className="ml-1 text-xs text-gray-600 dark:text-white">
+              <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+                <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
+                <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">
                   {(() => {
                     const label = [
                       { value: 'date', label: 'Date' },
@@ -510,7 +510,7 @@ export default function LeaveSearchFilters({
                     return label || 'Sort';
                   })()}
                 </span>
-                {sortOrder === 'asc' ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+                {sortOrder === 'asc' ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

@@ -864,9 +864,9 @@ export default function StudentSearchFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-              <ArrowUpDown className="mr-2 h-4 w-4" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white">{(() => {
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
+              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{(() => {
                 const label = [
                   { value: "studentId", label: "Student ID" },
                   { value: "name", label: "Student Name" },
@@ -875,7 +875,7 @@ export default function StudentSearchFilters({
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
               })()}</span>
-              {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+              {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -911,11 +911,11 @@ export default function StudentSearchFilters({
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
-            className="rounded-r-none"
+            className={`rounded-r-none ${viewMode === 'list' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
             title="List View"
             aria-label="List View"
           >
-            <div className="flex flex-col gap-0.5 w-4 h-4">
+            <div className={`flex flex-col gap-0.5 w-4 h-4 ${viewMode === 'list' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
               <div className="bg-current h-0.5 rounded-sm" />
               <div className="bg-current h-0.5 rounded-sm" />
               <div className="bg-current h-0.5 rounded-sm" />
@@ -925,11 +925,11 @@ export default function StudentSearchFilters({
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('grid')}
-            className="rounded-l-none border-l"
+            className={`rounded-l-none border-l ${viewMode === 'grid' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
             title="Grid View"
             aria-label="Grid View"
           >
-            <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+            <div className={`grid grid-cols-2 gap-0.5 w-4 h-4 ${viewMode === 'grid' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
               <div className="bg-current rounded-sm" />
               <div className="bg-current rounded-sm" />
               <div className="bg-current rounded-sm" />
@@ -986,7 +986,7 @@ export default function StudentSearchFilters({
           Drafts ({draftCount})
         </Button>
 
-        <Button size="sm" title="Add Student" onClick={onAddStudent}> <Plus className="h-4 w-4 mr-2" /> Add Student </Button>
+        <Button size="sm" title="Add Student" onClick={onAddStudent} className="bg-purple-600 hover:bg-purple-700 text-white"> <Plus className="h-4 w-4 mr-2" /> Add Student </Button>
       </div>
       {/* End of top controls (search + actions) */}
       </div>

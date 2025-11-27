@@ -215,7 +215,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <span className="text-orange-600">??</span>
+                
                 <span className="text-orange-800">Top Course Performance</span>
               </CardTitle>
               <CardDescription className="text-sm text-orange-600">Loading course data...</CardDescription>
@@ -233,7 +233,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <span className="text-purple-600">??</span>
+                
                 <span className="text-purple-800">Top Cohort Performance</span>
               </CardTitle>
               <CardDescription className="text-sm text-purple-600">Loading cohort data...</CardDescription>
@@ -299,7 +299,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <span className="text-orange-600">??</span>
+                    
                     <span className="text-orange-800">Top Course Performance</span>
                   </CardTitle>
                   <CardDescription className="text-sm text-orange-600">Attendance rates by course (Top 3)</CardDescription>
@@ -374,7 +374,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <span className="text-purple-600">??</span>
+                    
                     <span className="text-purple-800">Top Cohort Performance</span>
                   </CardTitle>
                   <CardDescription className="text-sm text-purple-600">Attendance rates by cohort (Top 3)</CardDescription>
@@ -452,7 +452,7 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <span className="text-purple-600">??</span>
+                    
                     <span className="text-purple-800">Student Attendance Distribution</span>
                   </CardTitle>
                   <CardDescription className="text-sm text-purple-600">Attendance rate breakdown across all students</CardDescription>

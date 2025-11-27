@@ -975,16 +975,7 @@ export function AddAttendanceDialog({
                   <Save className="w-4 h-4" />
                   <span className="text-sm">{editingDraftId != null ? 'Update Draft' : 'Save Draft'}</span>
                 </Button>
-                <DialogClose asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 rounded-full hover:bg-gray-100"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogClose>
+                {/* Removed duplicate close button; `DialogContent` renders its own close icon */}
               </div>
             </div>
           </DialogHeader>

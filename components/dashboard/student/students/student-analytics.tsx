@@ -368,13 +368,13 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
         <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto gap-2">
           <TabsTrigger 
             value="distribution"
-            className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none shadow-sm"
+            className="text-[#DE7D14] bg-white dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-700 focus:outline-none shadow-sm"
           >
             Courses, Cohorts & Levels
           </TabsTrigger>
           <TabsTrigger 
             value="trends"
-            className="text-[#DE7D14] dark:text-orange-400 bg-background dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] dark:hover:from-orange-600 dark:hover:to-purple-700 focus:outline-none shadow-sm"
+            className="text-[#DE7D14] bg-white dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-700 focus:outline-none shadow-sm"
           >
             Enrollment & Demographics
           </TabsTrigger>

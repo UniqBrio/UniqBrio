@@ -677,28 +677,9 @@ export default function StudentsPage() {
                 <TabsTrigger 
                   key={tab.value}
                   value={tab.value}
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors"
-                  style={{
-                    borderColor: secondaryColor,
-                    color: secondaryColor,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
-                      e.currentTarget.style.backgroundColor = `${secondaryColor}15`;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
-                  }}
-                  data-active-style={{
-                    backgroundColor: primaryColor,
-                    color: 'white',
-                    borderColor: primaryColor
-                  }}
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors text-[#DE7D14] border-[#DE7D14] hover:bg-[#DE7D14]/10 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600"
                 >
-                  <tab.icon className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 text-current" />
                   {tab.label !== tab.shortLabel ? (
                     <><span className="hidden lg:inline">{tab.label}</span><span className="lg:hidden">{tab.shortLabel}</span></>
                   ) : (

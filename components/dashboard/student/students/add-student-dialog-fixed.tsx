@@ -1996,25 +1996,25 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
               <TabsList className="grid w-full grid-cols-4 mb-3 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger
                   value="student-info"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-primary text-primary-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-transparent data-[state=inactive]:border-secondary data-[state=inactive]:text-secondary hover:bg-primary/90 data-[state=inactive]:hover:bg-secondary/10"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
                 >
                   Student Information
                 </TabsTrigger>
                 <TabsTrigger
                   value="course-details"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-primary text-primary-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-transparent data-[state=inactive]:border-secondary data-[state=inactive]:text-secondary hover:bg-primary/90 data-[state=inactive]:hover:bg-secondary/10"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
                 >
                   Course Details
                 </TabsTrigger>
                 <TabsTrigger
                   value="communication"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-primary text-primary-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-transparent data-[state=inactive]:border-secondary data-[state=inactive]:text-secondary hover:bg-primary/90 data-[state=inactive]:hover:bg-secondary/10"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
                 >
                   Communication & Referral
                 </TabsTrigger>
                 <TabsTrigger
                   value="guardian-details"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent bg-primary text-primary-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-transparent data-[state=inactive]:border-secondary data-[state=inactive]:text-secondary hover:bg-primary/90 data-[state=inactive]:hover:bg-secondary/10"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
                 >
                   Guardian Details
                 </TabsTrigger>

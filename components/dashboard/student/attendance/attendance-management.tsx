@@ -565,7 +565,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
       />
 
       <div className="rounded-3xl border border-purple-100 bg-white p-6 shadow-sm">
-        <h2 className="text-3xl font-bold text-primary md:text-4xl">
+        <h2 className="text-3xl font-bold text-purple-600 md:text-4xl">
           Student Attendance Management
         </h2>
         <p className="mt-2 text-lg text-foreground/70">
