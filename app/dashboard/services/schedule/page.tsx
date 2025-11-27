@@ -2562,16 +2562,14 @@ export default function EnhancedSchedulePage() {
                     </div>
 
                     <div className="flex gap-2">
-                      {/* View Toggle - List/Grid/Calendar (List first) */}
-                      <div className="flex border rounded-md">
+                      {/* View Toggle - List/Grid/Calendar (List first, single active) */}
+                      <div className="flex border rounded-md overflow-hidden">
                         <Button
-                          variant={selectedView === "list" && listViewMode === "table" ? "default" : "ghost"}
+                          variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            setSelectedView("list")
-                            setListViewMode("table")
-                          }}
-                          className={`rounded-r-none ${selectedView === "list" && listViewMode === "table" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+                          aria-pressed={selectedView === "list" && listViewMode === "table"}
+                          onClick={() => { setSelectedView("list"); setListViewMode("table"); }}
+                          className={`rounded-none ${selectedView === "list" && listViewMode === "table" ? "bg-purple-600 text-white hover:bg-purple-700" : "hover:bg-gray-100"}`}
                           title="List View"
                         >
                           <div className="flex flex-col gap-0.5 w-4 h-4">
@@ -2581,13 +2579,11 @@ export default function EnhancedSchedulePage() {
                           </div>
                         </Button>
                         <Button
-                          variant={selectedView === "list" && listViewMode === "grid" ? "default" : "ghost"}
+                          variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            setSelectedView("list")
-                            setListViewMode("grid")
-                          }}
-                          className={`rounded-none border-l ${selectedView === "list" && listViewMode === "grid" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+                          aria-pressed={selectedView === "list" && listViewMode === "grid"}
+                          onClick={() => { setSelectedView("list"); setListViewMode("grid"); }}
+                          className={`rounded-none border-l ${selectedView === "list" && listViewMode === "grid" ? "bg-purple-600 text-white hover:bg-purple-700" : "hover:bg-gray-100"}`}
                           title="Grid View"
                         >
                           <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
@@ -2598,21 +2594,27 @@ export default function EnhancedSchedulePage() {
                           </div>
                         </Button>
                         <Button
-                          variant={selectedView === "calendar" ? "default" : "ghost"}
+                          variant="ghost"
                           size="sm"
+                          aria-pressed={selectedView === "calendar"}
                           onClick={() => setSelectedView("calendar")}
-                          className={`rounded-l-none border-l ${selectedView === "calendar" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+                          className={`rounded-none border-l ${selectedView === "calendar" ? "bg-purple-600 text-white hover:bg-purple-700" : "hover:bg-gray-100"}`}
                           title="Calendar View"
                         >
-                          <CalendarLucide className="h-4 w-4 mr-2" />
+                          <CalendarLucide className="h-4 w-4" />
                         </Button>
                       </div>
-
 
                       {/* Sort Dropdown */}
                       <DropdownMenu>
                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-9 flex items-center gap-1 group">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-9 flex items-center gap-1 group" 
+                            title="Sort" 
+                            aria-label="Sort sessions"
+                          >
                             <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
                             <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">
                               {sortBy === "date" ? "Date" : 
@@ -3851,14 +3853,6 @@ export default function EnhancedSchedulePage() {
                     <BookOpen className="h-5 w-5 text-purple-500" />
                     {selectedCohort.courseName || selectedCohort.title}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsCohortViewDialogOpen(false)}
-                    className="h-6 w-6 p-0 hover:bg-gray-100"
-                  >
-                   
-                  </Button>
                   {selectedCohort.isModified && (
                     <Badge 
                       variant="outline" 

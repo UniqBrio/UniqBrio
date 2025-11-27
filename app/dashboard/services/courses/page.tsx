@@ -128,7 +128,7 @@ export default function EnhancedCourseManagementPage() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [editCourseId, setEditCourseId] = useState<string | null>(null)
   // Currency now comes from global context - no local state needed
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
   const [filterAction, setFilterAction] = useState<string | null>(null)
   const [showCohortInfo, setShowCohortInfo] = useState(false)

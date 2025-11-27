@@ -168,15 +168,15 @@ export default function SearchAndFilters({
                                    </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-80 p-4 bg-white border border-gray-200 shadow-lg z-50" 
+            className="w-[34rem] p-4 bg-white border border-gray-200 shadow-lg z-50" 
             onCloseAutoFocus={(event) => {
               event.preventDefault();
             }}
             onEscapeKeyDown={() => setFilterDropdownOpen(false)}
             onInteractOutside={() => setFilterDropdownOpen(false)}
           >
-            <div className="space-y-4">
-              <div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <div className="mb-2 font-semibold text-sm">Filter by Type</div>
                 <FilterDropdownWithCheckboxes
                   options={courseTypeOptions.map(type => ({ value: type, label: type }))}
@@ -187,8 +187,7 @@ export default function SearchAndFilters({
                   showFooterActions={false}
                 />
               </div>
-
-              <div>
+              <div className="space-y-2">
                 <div className="mb-2 font-semibold text-sm">Filter by Level</div>
                 <FilterDropdownWithCheckboxes
                   options={availableLevels.map(level => ({ value: level, label: level }))}
@@ -199,8 +198,7 @@ export default function SearchAndFilters({
                   showFooterActions={false}
                 />
               </div>
-
-              <div>
+              <div className="space-y-2">
                 <div className="mb-2 font-semibold text-sm">Filter by Status</div>
                 <FilterDropdownWithCheckboxes
                   options={availableStatuses.map(status => ({ value: status, label: status }))}
@@ -211,8 +209,7 @@ export default function SearchAndFilters({
                   showFooterActions={false}
                 />
               </div>
-
-              <div>
+              <div className="space-y-2">
                 <div className="mb-2 font-semibold text-sm">Course Category</div>
                 <FilterDropdownWithCheckboxes
                   options={availableCategories.map(category => ({ value: category, label: category }))}
@@ -223,10 +220,9 @@ export default function SearchAndFilters({
                   showFooterActions={false}
                 />
               </div>
-
-              <div>
+              <div className="space-y-2 col-span-2">
                 <div className="mb-2 font-semibold text-sm">Price Range ({currency})</div>
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
                     min="0"
@@ -241,7 +237,6 @@ export default function SearchAndFilters({
                       }));
                     }}
                   />
-                  <span className="text-sm text-gray-500 dark:text-white">to</span>
                   <input
                     type="number"
                     min="0"
@@ -260,7 +255,7 @@ export default function SearchAndFilters({
               </div>
             </div>
 
-            <div className="flex gap-2 mt-6">
+            <div className="flex gap-2 mt-4">
               <Button
                 size="sm"
                 className="flex-1 text-white"

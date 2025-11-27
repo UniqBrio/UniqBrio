@@ -244,7 +244,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                         return (
                           <TableCell 
                             key={columnId} 
-                            className={columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''}
+                              className={`${columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''} min-w-[140px] break-words`}
                           >
                             {value}
                           </TableCell>
@@ -283,7 +283,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
           <Card>
           <CardContent className="p-0">
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <table className="w-full caption-bottom text-sm">
+            <table className="w-full caption-bottom text-sm table-fixed">
               <thead className="[&_tr]:border-b">
                 <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                   <TableHead className="w-12 sticky-table-header">
@@ -329,7 +329,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       return (
                         <TableCell 
                           key={columnId} 
-                          className={columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''}
+                            className={`${columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''} min-w-[140px] break-words`}
                         >
                           {value}
                         </TableCell>
