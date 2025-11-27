@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
 
 interface HeaderNotification {
@@ -192,9 +191,9 @@ export default function Header(props: HeaderProps) {
     return () => clearNotificationHoverTimeout()
   }, [])
 
-  const visibleNotifications = notificationsList.slice(0, 5)
-  const hasNotifications = visibleNotifications.length > 0
-  const shouldShowViewAllButton = notifications > 5
+  const unreadNotifications = notificationsList.filter((notification) => !notification?.read)
+  const hasUnreadNotifications = unreadNotifications.length > 0
+  const shouldShowViewAllButton = notificationsList.length > 0
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 h-16 sm:h-18 md:h-20 flex items-center justify-between px-1 sm:px-2 md:px-4 lg:px-6 relative z-30 min-w-0">
@@ -294,16 +293,21 @@ export default function Header(props: HeaderProps) {
               <div className="flex items-center justify-center py-6">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
               </div>
-            ) : hasNotifications ? (
-              <ScrollArea className="max-h-64">
+            ) : hasUnreadNotifications ? (
+              <div className="max-h-64 overflow-y-auto pr-1">
                 <div className="divide-y">
-                  {visibleNotifications.map((notification) => (
+                  {unreadNotifications.map((notification) => (
                     <div
                       key={notification.id}
                       className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
                         !notification.read ? 'bg-blue-50 dark:bg-blue-950' : ''
                       }`}
-                      onClick={() => !notification.read && markAsRead(notification.id)}
+                      onClick={() => {
+                        if (!notification.read) {
+                          markAsRead(notification.id)
+                        }
+                        router.push('/dashboard/notifications')
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="mt-1">{getNotificationIcon(notification.type)}</div>
@@ -327,11 +331,11 @@ export default function Header(props: HeaderProps) {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center px-4 py-6 text-center">
                 <Bell className="h-10 w-10 text-gray-300 mb-2" />
-                <p className="text-sm text-gray-500">No notifications</p>
+                <p className="text-sm text-gray-500">No unread notifications</p>
               </div>
             )}
             {shouldShowViewAllButton && (

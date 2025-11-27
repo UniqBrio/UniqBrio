@@ -19,7 +19,6 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { useCustomColors } from "@/lib/use-custom-colors"
-import { ScrollArea } from "@/components/dashboard/ui/scroll-area"
 import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
 
 interface HeaderProps {
@@ -181,6 +180,9 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
     return () => clearNotificationHoverTimeout()
   }, [])
 
+  const unreadNotifications = notificationsList.filter((notification) => !notification.read)
+  const hasUnreadNotifications = unreadNotifications.length > 0
+
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 h-20 flex items-center justify-between px-4 md:px-6">
       {/* Center section - Academy Logo, Name, Tagline */}
@@ -245,25 +247,30 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
                 </Button>
               )}
             </div>
-            <ScrollArea className={notificationsList.length === 0 ? "h-[120px]" : "h-[300px]"}>
+            <div className={hasUnreadNotifications ? "max-h-80 overflow-y-auto pr-1" : "h-[150px] flex items-center justify-center"}>
               {loadingNotifications ? (
-                <div className="flex items-center justify-center py-8">
+                <div className="flex items-center justify-center py-8 w-full">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600" />
                 </div>
-              ) : notificationsList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-6 text-center">
+              ) : !hasUnreadNotifications ? (
+                <div className="flex flex-col items-center justify-center py-6 text-center w-full">
                   <Bell className="h-10 w-10 text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-500">No notifications</p>
+                  <p className="text-sm text-gray-500">No unread notifications</p>
                 </div>
               ) : (
                 <div className="divide-y">
-                  {notificationsList.slice(0, 5).map((notification) => (
+                  {unreadNotifications.map((notification) => (
                     <div
                       key={notification.id}
                       className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
                         !notification.read ? "bg-blue-50 dark:bg-blue-900/20" : ""
                       }`}
-                      onClick={() => !notification.read && markAsRead(notification.id)}
+                      onClick={() => {
+                        if (!notification.read) {
+                          markAsRead(notification.id)
+                        }
+                        router.push("/dashboard/notifications")
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="mt-1">{getNotificationIcon(notification.type)}</div>
@@ -284,8 +291,8 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
                   ))}
                 </div>
               )}
-            </ScrollArea>
-            {notifications > 5 && (
+            </div>
+            {notificationsList.length > 0 && (
               <div className="border-t px-4 py-2 bg-white dark:bg-gray-900">
                 <Button
                   variant="ghost"
