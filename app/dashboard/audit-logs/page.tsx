@@ -734,6 +734,13 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
     setTimeout(() => setFilterAction(null), 2000)
   }
 
+  const filtersActive =
+    selectedAction.some((action) => action !== 'all') ||
+    selectedRole.some((role) => role !== 'all') ||
+    selectedModule.some((module) => module !== 'all') ||
+    Boolean(dateFilter) ||
+    Boolean(dateRange.from && dateRange.to)
+
   return (
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex flex-col space-y-4 sm:space-y-6">
@@ -1064,17 +1071,17 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                         >
                           <span className="relative inline-flex text-[color:var(--filter-icon-color)] transition-colors duration-200 group-hover:text-white">
                             <Filter className="h-3.5 w-3.5" />
-                            {filterAction === "applied" && (
-                              <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
-                                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
-                                  <Check className="w-2 h-2 text-white" />
+                            {filtersActive && (
+                              <span className="absolute -top-1 -right-1">
+                                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500 text-white shadow-sm ring-1 ring-white">
+                                  <Check className="w-2 h-2" />
                                 </span>
                               </span>
                             )}
-                            {filterAction === "cleared" && (
-                              <span className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4">
-                                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500">
-                                  <X className="w-2 h-2 text-white" />
+                            {!filtersActive && filterAction === 'cleared' && (
+                              <span className="absolute -top-1 -right-1">
+                                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500 text-white shadow-sm ring-1 ring-white">
+                                  <X className="w-2 h-2" />
                                 </span>
                               </span>
                             )}
