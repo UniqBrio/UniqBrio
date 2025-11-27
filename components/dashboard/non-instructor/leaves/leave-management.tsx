@@ -18,7 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Calendar } from "@/components/dashboard/ui/calendar"
 import type { DateRange } from "react-day-picker"
-import { Clock, AlertTriangle, Plus, Search, Download, Table, CalendarDays, ArrowUpDown, ArrowUp, ArrowDown, Upload, Grid2X2, Save, Pencil, Trash2, RefreshCw, ChevronDown } from "lucide-react"
+import { Clock, AlertTriangle, Plus, Search, Download, Table, CalendarDays, ArrowUpDown, ArrowUp, ArrowDown, Upload, Grid2X2, Save, Pencil, Trash2, RefreshCw, ChevronDown, Check } from "lucide-react"
 import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { LeaveRequest, Instructor } from "@/types/dashboard/staff/leave"
 import dynamic from "next/dynamic"
@@ -697,7 +697,10 @@ export default function LeaveManagement() {
                         }}
                         className={sortBy === (option.value as any) ? "bg-purple-50" : ""}
                       >
-                        {option.label}
+                        <span>{option.label}</span>
+                        {sortBy === option.value && (
+                          <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                        )}
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
@@ -714,7 +717,13 @@ export default function LeaveManagement() {
                         sortTooltipTimerRef.current = null
                       }, 3000)
                     }}>
-                      Ascending
+                      <span className="flex items-center gap-2">
+                        Ascending
+                        <ArrowUp className="h-4 w-4" />
+                      </span>
+                      {sortOrder === "asc" && (
+                        <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => {
                       setSortOrder("desc")
@@ -728,7 +737,13 @@ export default function LeaveManagement() {
                         sortTooltipTimerRef.current = null
                       }, 3000)
                     }}>
-                      Descending
+                      <span className="flex items-center gap-2">
+                        Descending
+                        <ArrowDown className="h-4 w-4" />
+                      </span>
+                      {sortOrder === "desc" && (
+                        <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                      )}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
