@@ -20,11 +20,27 @@ const config = {
     },
     extend: {
       colors: {
-        primary: "#fd9c2d",
+        primary: {
+          DEFAULT: "#fd9c2d",
+          foreground: "hsl(var(--primary-foreground))",
+        },
         "primary-dark": "#c26700",
-        secondary: "#d9d9d9",
-        accent: "#39006f",
-        muted: "#978e8e",
+        secondary: {
+          DEFAULT: "#d9d9d9",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        accent: {
+          DEFAULT: "#39006f",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        muted: {
+          DEFAULT: "#978e8e",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
         error: "#e33629",
         success: "#319f43",
         link: "#17109a",
