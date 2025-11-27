@@ -2562,8 +2562,24 @@ export default function EnhancedSchedulePage() {
                     </div>
 
                     <div className="flex gap-2">
-                      {/* View Toggle - Grid/List/Calendar */}
+                      {/* View Toggle - List/Grid/Calendar (List first) */}
                       <div className="flex border rounded-md">
+                        <Button
+                          variant={selectedView === "list" && listViewMode === "table" ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => {
+                            setSelectedView("list")
+                            setListViewMode("table")
+                          }}
+                          className={`rounded-r-none ${selectedView === "list" && listViewMode === "table" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+                          title="List View"
+                        >
+                          <div className="flex flex-col gap-0.5 w-4 h-4">
+                            <div className="bg-current h-0.5 rounded-sm"></div>
+                            <div className="bg-current h-0.5 rounded-sm"></div>
+                            <div className="bg-current h-0.5 rounded-sm"></div>
+                          </div>
+                        </Button>
                         <Button
                           variant={selectedView === "list" && listViewMode === "grid" ? "default" : "ghost"}
                           size="sm"
@@ -2571,7 +2587,7 @@ export default function EnhancedSchedulePage() {
                             setSelectedView("list")
                             setListViewMode("grid")
                           }}
-                          className={`rounded-r-none ${selectedView === "list" && listViewMode === "grid" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
+                          className={`rounded-none border-l ${selectedView === "list" && listViewMode === "grid" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
                           title="Grid View"
                         >
                           <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
@@ -2582,22 +2598,6 @@ export default function EnhancedSchedulePage() {
                           </div>
                         </Button>
                         <Button
-                          variant={selectedView === "list" && listViewMode === "table" ? "default" : "ghost"}
-                          size="sm"
-                          onClick={() => {
-                            setSelectedView("list")
-                            setListViewMode("table")
-                          }}
-                          className={`rounded-none border-l ${selectedView === "list" && listViewMode === "table" ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
-                          title="List View"
-                        >
-                          <div className="flex flex-col gap-0.5 w-4 h-4">
-                            <div className="bg-current h-0.5 rounded-sm"></div>
-                            <div className="bg-current h-0.5 rounded-sm"></div>
-                            <div className="bg-current h-0.5 rounded-sm"></div>
-                          </div>
-                        </Button>
-                        <Button
                           variant={selectedView === "calendar" ? "default" : "ghost"}
                           size="sm"
                           onClick={() => setSelectedView("calendar")}
@@ -2605,7 +2605,6 @@ export default function EnhancedSchedulePage() {
                           title="Calendar View"
                         >
                           <CalendarLucide className="h-4 w-4 mr-2" />
-                      
                         </Button>
                       </div>
 

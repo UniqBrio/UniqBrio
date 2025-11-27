@@ -72,7 +72,7 @@ export function FilterDropdownWithCheckboxes({
         {options.map((option) => (
           <DropdownMenuItem
             key={option.value}
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 focus:bg-gray-100 data-[highlighted]:bg-gray-100"
             onSelect={(e) => e.preventDefault()}
             onClick={() => {
               const isCurrentlySelected = pending.includes(option.value);

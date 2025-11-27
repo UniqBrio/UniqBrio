@@ -470,12 +470,25 @@ export default function AnalyticsDashboard({ events }: AnalyticsDashboardProps) 
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
-                      outerRadius={100}
+                      outerRadius={110}
                       fill="#8884d8"
-                      paddingAngle={2}
+                      paddingAngle={3}
                       dataKey="count"
-                      label={({ status, percentage }) => `${status}: ${percentage.toFixed(1)}%`}
+                      label={(props: any) => {
+                        const RADIAN = Math.PI / 180
+                        const radius = props.outerRadius + 24
+                        const x = props.cx + radius * Math.cos(-props.midAngle * RADIAN)
+                        const y = props.cy + radius * Math.sin(-props.midAngle * RADIAN)
+                        const textAnchor = x > props.cx ? 'start' : 'end'
+                        const label = `${props.status}: ${props.percentage.toFixed(1)}%`
+                        return (
+                          <text x={x} y={y} fill="#374151" textAnchor={textAnchor} dominantBaseline="central" fontSize={12}>
+                            {label}
+                          </text>
+                        )
+                      }}
                       labelLine={true}
+                      minAngle={5}
                     >
                       {sessionStatusData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
