@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { CSSProperties } from 'react';
+
+type CSSPropertiesWithVars = CSSProperties & Record<string, string>;
 import { Button } from '@/components/dashboard/ui/button';
 import { Input } from '@/components/dashboard/ui/input';
 import { useCustomColors } from '@/lib/use-custom-colors';
@@ -17,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/dashboard/ui/dropdown-menu';
-import { Search, Filter, Check, X, ArrowUpDown, Plus, Download, Upload, List, Grid } from 'lucide-react';
+import { Search, Filter, Check, X, ArrowUpDown, Plus, Download, Upload, List, Grid, FileText } from 'lucide-react';
 import MultiSelectDropdown from '@/components/dashboard/promotion/MultiSelectDropDown';
 
 interface Campaign {
@@ -52,6 +55,8 @@ interface CampaignFiltersProps {
   selectedCount?: number;
   onExportAll?: () => void;
   onExportSelected?: () => void;
+  draftCount?: number;
+  onOpenDrafts?: () => void;
 }
 
 export default function CampaignFilters({
@@ -70,6 +75,8 @@ export default function CampaignFilters({
   selectedCount = 0,
   onExportAll,
   onExportSelected,
+  draftCount,
+  onOpenDrafts,
 }: CampaignFiltersProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
@@ -77,16 +84,24 @@ export default function CampaignFilters({
     statuses: filterStatus === 'All' ? [] : [filterStatus],
     types: filterType === 'All' ? [] : [filterType],
   });
+  const [filterAction, setFilterAction] = useState<'applied' | 'cleared' | null>(null);
   const firstCheckboxRef = useRef<HTMLInputElement>(null);
 
   const statuses = ['Active', 'Scheduled', 'Completed', 'Draft'] as const;
   const types = ['Marketing', 'Contest', 'Certificate', 'Design', 'Media', 'Special'] as const;
+  const filtersActive = filterStatus !== 'All' || filterType !== 'All';
+  useEffect(() => {
+    if (!filterAction) return;
+    const timer = window.setTimeout(() => setFilterAction(null), 2000);
+    return () => window.clearTimeout(timer);
+  }, [filterAction]);
 
   const handleClearAll = () => {
     onStatusChange('All');
     onTypeChange('All');
     setPendingFilters({ statuses: [], types: [] });
     setFilterDropdownOpen(false);
+    setFilterAction('cleared');
   };
 
   const handleApplyFilters = () => {
@@ -101,6 +116,7 @@ export default function CampaignFilters({
       onTypeChange('All');
     }
     setFilterDropdownOpen(false);
+    setFilterAction('applied');
   };
 
   return (
@@ -124,16 +140,36 @@ export default function CampaignFilters({
             <Button
               variant="outline"
               size="sm"
-              className="h-9 flex items-center gap-1 relative group"
+              className="h-9 flex items-center gap-1 relative px-3 group border text-[color:var(--filter-icon-color)] hover:bg-[color:var(--filter-hover-bg)] hover:text-white"
               aria-label="Filter options"
               title="Advanced Filters"
               tabIndex={0}
+              style={{
+                borderColor: primaryColor,
+                color: primaryColor,
+                '--filter-icon-color': primaryColor,
+                '--filter-hover-bg': primaryColor,
+              } as CSSPropertiesWithVars}
+              aria-pressed={filtersActive}
             >
               <span
-                className="inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
-                style={{ "--filter-color": primaryColor } as React.CSSProperties}
+                className="inline-flex relative transition-colors duration-200 group-hover:text-white"
               >
                 <Filter className="h-3.5 w-3.5" />
+                {filtersActive && (
+                  <span className="absolute -top-1 -right-1">
+                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500 text-white shadow-sm ring-1 ring-white">
+                      <Check className="w-2 h-2" />
+                    </span>
+                  </span>
+                )}
+                {!filtersActive && filterAction === 'cleared' && (
+                  <span className="absolute -top-1 -right-1">
+                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500 text-white shadow-sm ring-1 ring-white">
+                      <X className="w-2 h-2" />
+                    </span>
+                  </span>
+                )}
               </span>
             </Button>
           </PopoverTrigger>
@@ -191,7 +227,14 @@ export default function CampaignFilters({
               variant="outline"
               title="Sort campaigns"
               size="sm"
-              className="h-9 flex items-center gap-1 whitespace-nowrap"
+              className="h-9 flex items-center gap-1 whitespace-nowrap border text-[color:var(--sort-icon-color)] hover:bg-[color:var(--sort-hover-bg)] hover:text-white"
+              style={{
+                borderColor: primaryColor,
+                color: primaryColor,
+                backgroundColor: `${primaryColor}15`,
+                '--sort-icon-color': primaryColor,
+                '--sort-hover-bg': primaryColor,
+              } as CSSPropertiesWithVars}
             >
               <ArrowUpDown className="h-4 w-4" />
               <span className="text-xs hidden sm:inline">
@@ -211,36 +254,14 @@ export default function CampaignFilters({
                 onClick={() => onSortChange(option.value as any)}
               >
                 {option.label}
-                {sortBy === option.value && <span className="ml-2">?</span>}
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Import Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9"
-          title="Upload Files"
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          Import
-        </Button>
-
-        {/* Export Button */}
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="h-9" 
-          title={selectedCount ? `Export ${selectedCount} selected` : 'Export all campaigns'}
-          onClick={() => selectedCount ? onExportSelected?.() : onExportAll?.()}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          {selectedCount ? `Export (${selectedCount})` : 'Export'}
-        </Button>
-
-        {/* View Mode Toggle */}
+ {/* View Mode Toggle */}
         <div className="flex border border-gray-300 rounded-md">
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -267,6 +288,47 @@ export default function CampaignFilters({
             <Grid className="h-4 w-4" />
           </Button>
         </div>
+        {/* Import Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9"
+          title="Upload Files"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Import
+        </Button>
+
+        {/* Export Button */}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-9" 
+          title={selectedCount ? `Export ${selectedCount} selected` : 'Export all campaigns'}
+          onClick={() => selectedCount ? onExportSelected?.() : onExportAll?.()}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          {selectedCount ? `Export (${selectedCount})` : 'Export'}
+        </Button>
+
+       
+       
+ {/* Drafts Button */}
+        {onOpenDrafts && (
+          <Button
+            variant={draftCount && draftCount > 0 ? "default" : "outline"}
+            size="sm"
+            className="h-9"
+            onClick={onOpenDrafts}
+            title={draftCount && draftCount > 0 ? `View ${draftCount} draft${draftCount > 1 ? 's' : ''}` : 'View campaign drafts'}
+            style={draftCount && draftCount > 0 ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => draftCount && draftCount > 0 ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => draftCount && draftCount > 0 ? e.currentTarget.style.backgroundColor = primaryColor : null}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Drafts{typeof draftCount === 'number' ? ` (${draftCount})` : ''}
+          </Button>
+        )}
 
         {/* New Campaign Button */}
         <Button 

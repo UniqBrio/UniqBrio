@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
 } from '@/components/dashboard/ui/select';
 import { Textarea } from '@/components/dashboard/ui/textarea';
 import { Label } from '@/components/dashboard/ui/label';
-import { FileText } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 interface Campaign {
   id: string;
   title: string;
@@ -43,7 +43,9 @@ interface CampaignModalProps {
   campaign?: Campaign;
   onSave: (campaign: Campaign) => void;
   isEditing?: boolean;
-  onSaveDraft?: () => Promise<void>;
+  onSaveDraft?: (campaign: Campaign, draftId?: string) => Promise<void> | void;
+  draftId?: string;
+  isSavingDraft?: boolean;
   onOpenDrafts?: () => void;
 }
 
@@ -56,27 +58,36 @@ export default function CampaignModal({
   onSave,
   isEditing = false,
   onSaveDraft,
+  draftId,
+  isSavingDraft = false,
   onOpenDrafts,
 }: CampaignModalProps) {
-  const [formData, setFormData] = useState<Campaign>(
-    campaign || {
-      id: generateId(),
-      title: '',
-      type: 'Marketing',
-      description: '',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      status: 'Draft',
-      reach: 0,
-      engagement: 0,
-      conversions: 0,
-      roi: 0,
-      featured: false,
-      createdAt: new Date().toISOString().split('T')[0],
-    }
-  );
+  const createDefaultCampaign = () => ({
+    id: generateId(),
+    title: '',
+    type: 'Marketing' as Campaign['type'],
+    description: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    status: 'Draft' as Campaign['status'],
+    reach: 0,
+    engagement: 0,
+    conversions: 0,
+    roi: 0,
+    featured: false,
+    createdAt: new Date().toISOString().split('T')[0],
+  });
+
+  const [formData, setFormData] = useState<Campaign>(campaign || createDefaultCampaign());
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (open) {
+      setFormData(campaign || createDefaultCampaign());
+      setErrors({});
+    }
+  }, [campaign, open]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -99,45 +110,19 @@ export default function CampaignModal({
     if (validateForm()) {
       onSave(formData);
       onOpenChange(false);
-      setFormData({
-        id: generateId(),
-        title: '',
-        type: 'Marketing',
-        description: '',
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'Draft',
-        reach: 0,
-        engagement: 0,
-        conversions: 0,
-        roi: 0,
-        featured: false,
-        createdAt: new Date().toISOString().split('T')[0],
-      });
-      setErrors({});
+      setFormData(createDefaultCampaign());
     }
   };
 
   const handleClose = () => {
     onOpenChange(false);
-    setFormData(
-      campaign || {
-        id: generateId(),
-        title: '',
-        type: 'Marketing',
-        description: '',
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'Draft',
-        reach: 0,
-        engagement: 0,
-        conversions: 0,
-        roi: 0,
-        featured: false,
-        createdAt: new Date().toISOString().split('T')[0],
-      }
-    );
+    setFormData(campaign || createDefaultCampaign());
     setErrors({});
+  };
+
+  const handleSaveDraft = async () => {
+    if (!onSaveDraft) return;
+    await onSaveDraft(formData, draftId);
   };
 
   return (
@@ -328,10 +313,12 @@ export default function CampaignModal({
           </Button>
           <Button
             variant="outline"
-            onClick={() => onSaveDraft?.()}
+            onClick={() => void handleSaveDraft()}
             title="Save as draft"
+            disabled={isSavingDraft}
           >
-            Save Draft
+            {isSavingDraft && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {draftId ? 'Update Draft' : 'Save Draft'}
           </Button>
           <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
             {isEditing ? 'Update Campaign' : 'Create Campaign'}

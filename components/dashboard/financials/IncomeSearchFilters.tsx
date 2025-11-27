@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, type CSSProperties } from "react";
 import { useCustomColors } from '@/lib/use-custom-colors';
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
-import { Search, Filter, ArrowUpDown, Upload, Download, Check, X, Plus, FileText } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, Upload, Download, Check, X, Plus, FileText } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/dashboard/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import type { Income } from "./types";
@@ -32,6 +32,8 @@ interface IncomeSearchFiltersProps {
   setShowIncomeDraftsDialog?: (show: boolean) => void;
   draftsCount?: number;
 }
+
+type CSSPropertiesWithVars = CSSProperties & Record<string, string>;
 
 // Options are now loaded from the backend options endpoint
 
@@ -570,7 +572,19 @@ export default function IncomeSearchFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
+            <Button
+              variant="outline"
+              title="Sort"
+              size="sm"
+              className="h-9 flex items-center gap-1 border text-[color:var(--sort-icon-color)] hover:bg-[color:var(--sort-hover-bg)] hover:text-white"
+              style={{
+                borderColor: primaryColor,
+                color: primaryColor,
+                backgroundColor: `${primaryColor}15`,
+                '--sort-icon-color': primaryColor,
+                '--sort-hover-bg': primaryColor,
+              } as CSSPropertiesWithVars}
+            >
               <ArrowUpDown className="mr-2 h-4 w-4" />
               {(() => {
                 // Mirror expense sort label mapping so the active sort field name shows in the button
@@ -581,9 +595,13 @@ export default function IncomeSearchFilters({
                   { value: "sourceType", label: "Source" },
                   { value: "paymentMode", label: "Payment Mode" },
                 ].find(o => o.value === sortBy)?.label;
-                return label ? <span className="ml-1 text-xs text-gray-600 dark:text-white">{label}</span> : null;
+                return label ? <span className="ml-1 text-xs">{label}</span> : null;
               })()}
-              <span className="ml-2 text-xs text-gray-500 dark:text-white">{sortOrder === "asc" ? "?" : "?"}</span>
+              {sortOrder === "asc" ? (
+                <ArrowUp className="ml-2 h-3.5 w-3.5" />
+              ) : (
+                <ArrowDown className="ml-2 h-3.5 w-3.5" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -596,14 +614,26 @@ export default function IncomeSearchFilters({
               { value: "paymentMode", label: "Payment Mode" },
             ].map(option => (
               <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
-                {option.label}
-                {sortBy === option.value && <span className="ml-2">?</span>}
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => setSortOrder("asc")}>Ascending ? {sortOrder === "asc" && <span className="ml-2">?</span>}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortOrder("desc")}>Descending ? {sortOrder === "desc" && <span className="ml-2">?</span>}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortOrder("asc")}>
+              <span>Ascending</span>
+              {sortOrder === "asc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortOrder("desc")}>
+              <span>Descending</span>
+              {sortOrder === "desc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         {/* Import/Export */}

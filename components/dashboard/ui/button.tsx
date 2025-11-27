@@ -45,6 +45,38 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const shouldApplyPrimaryHover = variant === 'outline' || variant === 'ghost'
 
+    const updateIconHoverColors = (target: HTMLButtonElement, color?: string) => {
+      const iconElements = target.querySelectorAll('svg')
+
+      iconElements.forEach((icon) => {
+        if (color) {
+          if (icon.dataset.primaryHoverIconColor === undefined) {
+            icon.dataset.primaryHoverIconColor = icon.style.color || ''
+          }
+          if (icon.dataset.primaryHoverIconStroke === undefined) {
+            icon.dataset.primaryHoverIconStroke = icon.style.stroke || ''
+          }
+          icon.style.color = color
+          icon.style.stroke = color
+          return
+        }
+
+        if (icon.dataset.primaryHoverIconColor !== undefined) {
+          icon.style.color = icon.dataset.primaryHoverIconColor
+          delete icon.dataset.primaryHoverIconColor
+        } else {
+          icon.style.color = ''
+        }
+
+        if (icon.dataset.primaryHoverIconStroke !== undefined) {
+          icon.style.stroke = icon.dataset.primaryHoverIconStroke
+          delete icon.dataset.primaryHoverIconStroke
+        } else {
+          icon.style.stroke = ''
+        }
+      })
+    }
+
     const applyPrimaryHoverStyles = (target: HTMLButtonElement) => {
       if (!shouldApplyPrimaryHover) return
 
@@ -64,6 +96,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         target.style.borderColor = 'hsl(var(--primary))'
       }
       target.style.color = 'hsl(var(--primary-foreground))'
+      updateIconHoverColors(target, 'hsl(var(--primary-foreground))')
     }
 
     const resetPrimaryHoverStyles = (target: HTMLButtonElement) => {
@@ -91,6 +124,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       } else {
         target.style.color = ''
       }
+
+      updateIconHoverColors(target)
     }
 
     const handleMouseEnter = (event: React.MouseEvent<HTMLButtonElement>) => {

@@ -12,12 +12,14 @@ interface CampaignDraftsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEditDraft: (draft: any, draftId: string) => void;
+  onDraftsChange?: (drafts: CampaignDraft[]) => void;
 }
 
 export function CampaignDraftsDialog({
   open,
   onOpenChange,
   onEditDraft,
+  onDraftsChange,
 }: CampaignDraftsDialogProps) {
   const [drafts, setDrafts] = useState<CampaignDraft[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,9 +32,11 @@ export function CampaignDraftsDialog({
     try {
       const draftsData = await CampaignDraftsAPI.getAllDrafts();
       setDrafts(draftsData);
+      onDraftsChange?.(draftsData);
     } catch (error) {
       console.error('Error loading campaign drafts:', error);
       setDrafts([]);
+      onDraftsChange?.([]);
     } finally {
       setLoading(false);
     }
@@ -56,9 +60,10 @@ export function CampaignDraftsDialog({
       await CampaignDraftsAPI.deleteDraft(draftToDelete.id);
       const updatedDrafts = drafts.filter(d => d.id !== draftToDelete.id);
       setDrafts(updatedDrafts);
+      onDraftsChange?.(updatedDrafts);
 
       toast({
-        title: "??? Draft Deleted",
+        title: "Draft Deleted",
         description: `Draft "${draftToDelete.name}" has been deleted successfully.`,
         duration: 3000,
       });
@@ -70,7 +75,7 @@ export function CampaignDraftsDialog({
     } catch (error) {
       console.error('Error deleting draft:', error);
       toast({
-        title: "? Delete Failed",
+        title: "Delete Failed",
         description: "Unable to delete draft. Please try again.",
         variant: "destructive",
         duration: 4000,

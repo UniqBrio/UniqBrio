@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useCallback, useEffect } from "react"
 import { useCustomColors } from "@/lib/use-custom-colors"
 import CampaignFilters from "@/components/dashboard/promotion/campaign-filters";
 import CampaignList from "@/components/dashboard/promotion/campaign-list";
@@ -69,6 +69,8 @@ import {
 } from "lucide-react"
 import { useToast } from "@/hooks/dashboard/use-toast"
 import AnalyticsDashboard from "@/components/dashboard/promotion/analytics-dashboard"
+import { CampaignDraftsDialog } from "@/components/dashboard/promotion/campaign-drafts-dialog"
+import { CampaignDraftsAPI, type CampaignDraft, type CampaignDraftData } from "@/lib/dashboard/campaign-drafts-api"
 import { format } from "date-fns"
 
 // Static Promotional Campaigns Data
@@ -308,14 +310,116 @@ export default function PromotionPage() {
   const [toolModalOpen, setToolModalOpen] = useState(false)
   const [toolChatMessages, setToolChatMessages] = useState<Array<{role: string, content: string}>>([])
   const [toolPromptInput, setToolPromptInput] = useState("")
+  const [draftDialogOpen, setDraftDialogOpen] = useState(false)
+  const [draftCount, setDraftCount] = useState(0)
+  const [campaignDraftId, setCampaignDraftId] = useState<string | null>(null)
+  const [draftFormData, setDraftFormData] = useState<Campaign | undefined>(undefined)
+  const [isSavingDraft, setIsSavingDraft] = useState(false)
+
+  const refreshDraftCount = useCallback(async () => {
+    try {
+      const drafts = await CampaignDraftsAPI.getAllDrafts()
+      setDraftCount(drafts.length)
+      return drafts
+    } catch (error) {
+      console.error('Failed to load campaign drafts:', error)
+      setDraftCount(0)
+      return []
+    }
+  }, [])
+
+  const resetDraftState = useCallback(() => {
+    setCampaignDraftId(null)
+    setDraftFormData(undefined)
+  }, [])
+
+  useEffect(() => {
+    refreshDraftCount()
+  }, [refreshDraftCount])
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      resetDraftState()
+    }
+  }, [isModalOpen, resetDraftState])
+
+  const handleDraftsChanged = useCallback((drafts: CampaignDraft[]) => {
+    setDraftCount(drafts.length)
+  }, [])
+
+  const toDraftPayload = useCallback((data: Campaign): CampaignDraftData => ({
+    ...data,
+    id: data.id,
+    createdAt: data.createdAt || new Date().toISOString(),
+  }), [])
+
+  const mapDraftDataToCampaign = useCallback((data: CampaignDraftData): Campaign => ({
+    id: data.id,
+    title: data.title,
+    type: data.type,
+    description: data.description,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    status: data.status,
+    reach: data.reach,
+    engagement: data.engagement,
+    conversions: data.conversions,
+    roi: data.roi,
+    featured: data.featured,
+    createdAt: data.createdAt,
+  }), [])
+
+  const handleSaveCampaignDraft = useCallback(async (data: Campaign, draftId?: string) => {
+    setIsSavingDraft(true)
+    try {
+      const payload = toDraftPayload(data)
+      const savedDraft = draftId
+        ? await CampaignDraftsAPI.updateDraft(draftId, payload)
+        : await CampaignDraftsAPI.createDraft(payload)
+
+      setCampaignDraftId(savedDraft.id)
+      setDraftFormData(mapDraftDataToCampaign(savedDraft.data))
+      toast({
+        title: draftId ? 'Draft updated' : 'Draft saved',
+        description: `Draft "${savedDraft.name}" is ready for future edits.`,
+        duration: 3000,
+      })
+
+      await refreshDraftCount()
+    } catch (error) {
+      console.error('Failed to save campaign draft:', error)
+      toast({
+        title: 'Failed to save draft',
+        description: error instanceof Error ? error.message : 'Unable to save draft right now.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSavingDraft(false)
+    }
+  }, [mapDraftDataToCampaign, refreshDraftCount, toast, toDraftPayload])
+
+  const handleDraftLoaded = useCallback((draftData: CampaignDraftData, draftId: string) => {
+    setDraftFormData(mapDraftDataToCampaign(draftData))
+    setCampaignDraftId(draftId)
+    setEditingCampaign(undefined)
+    setIsModalOpen(true)
+    setDraftDialogOpen(false)
+    toast({
+      title: 'Draft loaded',
+      description: `Draft "${draftData.title}" has been restored.`,
+      duration: 2500,
+    })
+  }, [mapDraftDataToCampaign, setDraftDialogOpen, toast])
 
   // CRUD Operations
   const handleAddCampaign = () => {
+    resetDraftState()
     setEditingCampaign(undefined)
     setIsModalOpen(true)
   }
 
   const handleEditCampaign = (campaign: Campaign) => {
+    resetDraftState()
     setEditingCampaign(campaign)
     setIsModalOpen(true)
   }
@@ -328,6 +432,7 @@ export default function PromotionPage() {
       // Create new campaign
       setCampaigns([...campaigns, campaignData])
     }
+    resetDraftState()
   }
 
   const handleDeleteClick = (campaignId: string) => {
@@ -555,6 +660,8 @@ export default function PromotionPage() {
     })
   }, [campaigns, searchTerm, filterStatus, filterType, sortBy])
 
+  const activeModalCampaign = draftFormData ?? editingCampaign
+
   return (
     <div className="w-full bg-background">
         <div className="space-y-6 p-6">
@@ -673,6 +780,8 @@ export default function PromotionPage() {
                     selectedCount={selectedIds.length}
                     onExportAll={handleExportAll}
                     onExportSelected={handleExportSelected}
+                    draftCount={draftCount}
+                    onOpenDrafts={() => setDraftDialogOpen(true)}
                   />
 
                   {/* New Campaign Button */}
@@ -853,9 +962,25 @@ export default function PromotionPage() {
           <CampaignModal
             open={isModalOpen}
             onOpenChange={setIsModalOpen}
-            campaign={editingCampaign}
+            campaign={activeModalCampaign}
             onSave={handleSaveCampaign}
             isEditing={!!editingCampaign}
+            onSaveDraft={(data) => handleSaveCampaignDraft(data, campaignDraftId ?? undefined)}
+            draftId={campaignDraftId ?? undefined}
+            isSavingDraft={isSavingDraft}
+            onOpenDrafts={() => setDraftDialogOpen(true)}
+          />
+
+          <CampaignDraftsDialog
+            open={draftDialogOpen}
+            onOpenChange={(open) => {
+              setDraftDialogOpen(open)
+              if (open) {
+                void refreshDraftCount()
+              }
+            }}
+            onEditDraft={(draft, draftId) => handleDraftLoaded(draft as CampaignDraftData, draftId)}
+            onDraftsChange={handleDraftsChanged}
           />
 
           {/* Delete Confirmation Dialog */}
