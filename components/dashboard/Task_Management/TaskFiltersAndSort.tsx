@@ -149,21 +149,21 @@ export function TaskFiltersAndSort({
 
   return (
     <div className="mb-6">
-      {/* Search and Controls Row */}
-      <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap mb-3">
-        {/* Search */}
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search by name or description..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
       <TooltipProvider delayDuration={200}>
-        <div className="flex items-center gap-2">
+        {/* Search and Controls Row */}
+        <div className="flex flex-wrap items-center gap-3 mb-3 w-full">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[260px]">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search by name or description..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          
           {/* Filters Popover */}
           <Popover 
             open={filterDropdownOpen} 
@@ -614,9 +614,9 @@ export function TaskFiltersAndSort({
 
           {/* Additional buttons (Draft, Create Task, etc.) */}
           {additionalButtons}
-        </div>
-      </TooltipProvider>
+        
       </div>
+      </TooltipProvider>
 
       {/* Task Count and Column Selector Row - Hidden in Calendar View */}
       {!isCalendarView && (

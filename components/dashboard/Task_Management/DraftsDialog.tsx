@@ -77,16 +77,7 @@ export function DraftsDialog<TData = any>({
             </DialogTitle>
             <div className="flex items-center gap-2">
               {refreshAction}
-              <DialogClose asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 hover:bg-gray-100 rounded-full"
-                  aria-label="Close dialog"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogClose>
+              
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-1">Manage your saved drafts. Click a draft to edit or delete.</p>

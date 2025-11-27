@@ -532,6 +532,7 @@ export default function TaskManagement() {
                   <Button 
                     size="sm"
                     className="text-white"
+                    title="Drafts"
                     style={{ backgroundColor: primaryColor, borderColor: primaryColor }}
                     onClick={() => setDraftsDialogOpen(true)}
                   >
@@ -544,6 +545,7 @@ export default function TaskManagement() {
                     <Button 
                       size="sm"
                       className="text-white"
+                      title="Create Task"
                       style={{ backgroundColor: primaryColor, borderColor: primaryColor }}
                       onClick={() => {
                         // Force fresh form when explicitly adding a new task
