@@ -29,14 +29,14 @@
     --background: 0 0% 100%; /* From your #ffffff */
     --foreground: 0 0% 3.9%; /* shadcn default, can be 0 0% 0% if pure black is preferred */
 
-    --primary: 271 81% 56%; /* Purple #8b5cf6 - can be overridden by user */
+    --primary: 272 97% 62%; /* Brand purple #8a3ffc */
     --primary-foreground: 0 0% 100%; /* White text on purple */
 
     --secondary: 25 95% 53%; /* Orange #fd9c2d - can be overridden by user */
     --secondary-foreground: 0 0% 0%; /* Black text on orange */
 
-    --accent: 277.1 100% 21.8%; /* From your #39006f */
-    --accent-foreground: 0 0% 100%; /* White text on dark purple */
+    --accent: 272 97% 62%; /* Match button purple */
+    --accent-foreground: 0 0% 100%; /* White text on purple */
 
     --destructive: 4.1 78.9% 54.5%; /* Mapped from your --error #e33629 */
     --destructive-foreground: 0 0% 100%; /* White text for high contrast on red */
@@ -63,7 +63,7 @@
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%; /* Default input border */
-    --ring: 271 81% 56%; /* Using purple primary color for focus rings */
+    --ring: 272 97% 62%; /* Using brand purple for focus rings */
 
     --radius: 0.5rem; /* Default shadcn radius - adjust if needed */
 
@@ -91,19 +91,19 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 271 81% 56%; /* Purple in dark mode */
+    --primary: 272 97% 62%; /* Purple in dark mode */
     --primary-foreground: 0 0% 100%; /* White text */
     --secondary: 25 95% 53%; /* Orange in dark mode */
     --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%; /* Default dark accent, adjust if custom dark needed */
-    --accent-foreground: 0 0% 98%;
+    --accent: 272 97% 62%; /* Match light mode accent */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 271 81% 56%; /* Purple focus ring in dark mode */
+    --ring: 272 97% 62%; /* Purple focus ring in dark mode */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

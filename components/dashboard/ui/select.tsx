@@ -120,20 +120,12 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:text-white hover:text-white data-[state=checked]:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-foreground outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-[hsl(var(--primary))] data-[highlighted]:text-[hsl(var(--primary-foreground))]",
+      "focus:bg-[hsl(var(--primary))] focus:text-[hsl(var(--primary-foreground))]",
+      "data-[state=checked]:font-semibold",
       className
     )}
-    style={{
-      '--select-hover-bg': 'hsl(var(--primary))' as any
-    } as React.CSSProperties}
-    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--primary))'}
-    onMouseLeave={(e) => {
-      if (!props['data-state']) e.currentTarget.style.backgroundColor = ''
-    }}
-    onFocus={(e) => e.currentTarget.style.backgroundColor = 'hsl(var(--primary))'}
-    onBlur={(e) => {
-      if (!props['data-state']) e.currentTarget.style.backgroundColor = ''
-    }}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

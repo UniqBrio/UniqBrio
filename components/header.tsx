@@ -394,16 +394,16 @@ export default function Header(props: HeaderProps) {
               <div className="text-sm font-semibold">{userName || "User"}</div>
               <div className="text-xs text-muted-foreground">{academyName || "Academy"}</div>
             </div>
-            <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuItem className="focus:bg-gray-100" onClick={() => router.push("/dashboard/settings?tab=profile")}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push("/dashboard/settings?tab=profile")}>
               <User className="w-4 h-4 mr-2" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-gray-100" onClick={() => router.push("/dashboard/settings?tab=academy-info")}>
+            <DropdownMenuItem onClick={() => router.push("/dashboard/settings?tab=academy-info")}>
               <SettingsIcon className="w-4 h-4 mr-2" />
               Account Settings
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-gray-200" />
+            <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="text-red-600 focus:bg-red-50 focus:text-red-600" 
               onClick={() => setLogoutDialogOpen(true)}
