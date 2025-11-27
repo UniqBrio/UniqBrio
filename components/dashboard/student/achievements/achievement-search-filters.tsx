@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/
 import { Progress } from "@/components/dashboard/ui/progress"
 import { useToast } from "@/components/dashboard/ui/use-toast"
 import type { Achievement } from "@/types/dashboard/achievement"
+import { useCustomColors } from "@/lib/use-custom-colors"
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style"
 
 type ViewMode = "list" | "grid"
 
@@ -48,6 +50,7 @@ export default function AchievementSearchFilters({
   disabled = false,
 }: AchievementSearchFiltersProps) {
   const { toast } = useToast()
+  const { primaryColor } = useCustomColors()
   const fileRef = useRef<HTMLInputElement | null>(null)
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], [])
   const [filterOpen, setFilterOpen] = useState(false)
@@ -292,28 +295,54 @@ export default function AchievementSearchFilters({
         {/* Sort */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-9 flex items-center gap-1" title="Sort" disabled={disabled}>
+            <Button
+              variant="outline"
+              size="sm"
+              className={sortButtonClass}
+              style={getSortButtonStyle(primaryColor)}
+              title="Sort"
+              disabled={disabled}
+            >
               <ArrowUpDown className="h-4 w-4" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white">{sortBy==='title'?'Title':sortBy==='type'?'Type':sortBy==='likes'?'Likes':sortBy==='shares'?'Shares':'Date'}</span>
-              {sortOrder==='asc' ? <ArrowUp className="ml-2 h-3 w-3" /> : <ArrowDown className="ml-2 h-3 w-3" />}
+              <span className="ml-1 text-xs">
+                {sortBy==='title'?'Title':sortBy==='type'?'Type':sortBy==='likes'?'Likes':sortBy==='shares'?'Shares':'Date'}
+              </span>
+              {sortOrder==='asc' ? (
+                <ArrowUp className="ml-2 h-3 w-3" />
+              ) : (
+                <ArrowDown className="ml-2 h-3 w-3" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>Sort By</DropdownMenuLabel>
             {[{value:'date',label:'Date'},{value:'title',label:'Title'},{value:'type',label:'Type'},{value:'likes',label:'Likes'},{value:'shares',label:'Shares'}].map(o=> (
-              <DropdownMenuItem key={o.value} onClick={()=>setSortBy(o.value)}>{o.label}</DropdownMenuItem>
+              <DropdownMenuItem key={o.value} onClick={()=>setSortBy(o.value)}>
+                <span>{o.label}</span>
+                {sortBy === o.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
+              </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
             <DropdownMenuItem onClick={()=>setSortOrder('asc')}>
-              Ascending
-              <ArrowUp className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder==='asc' && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={()=>setSortOrder('desc')}>
-              Descending
-              <ArrowDown className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder==='desc' && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

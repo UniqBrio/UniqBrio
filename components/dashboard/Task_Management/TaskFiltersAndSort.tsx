@@ -1,12 +1,13 @@
 import React, { useState } from "react"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style"
 import { Input } from "@/components/dashboard/ui/input"
 import { Button } from "@/components/dashboard/ui/button"
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
-import { Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Upload, Download } from "lucide-react"
+import { Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Upload, Download, Check } from "lucide-react"
 import { format } from "date-fns"
 import { SortBy, Task } from "./types"
 import { importTasksFromCSV, exportTasksToCSV, downloadCSV } from "./csv-utils"
@@ -470,7 +471,13 @@ export function TaskFiltersAndSort({
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9 flex items-center gap-1" aria-label="Sort">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={sortButtonClass}
+                    style={getSortButtonStyle(primaryColor)}
+                    aria-label="Sort"
+                  >
                     <ArrowUpDown className="h-4 w-4" />
                     <span className="text-xs">
                       {sortBy === "target-date-asc" && "Target Date"}
@@ -482,7 +489,11 @@ export function TaskFiltersAndSort({
                       {sortBy === "priority-asc" && "Priority"}
                       {sortBy === "priority-desc" && "Priority"}
                     </span>
-                    {sortBy.includes("asc") ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />}
+                    {sortBy.includes("asc") ? (
+                      <ArrowUp className="ml-1 h-3 w-3" />
+                    ) : (
+                      <ArrowDown className="ml-1 h-3 w-3" />
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -503,7 +514,10 @@ export function TaskFiltersAndSort({
                     backgroundColor: `${primaryColor}15`
                   } : {}}
                 >
-                  {option.label}
+                  <span>{option.label}</span>
+                  {sortBy.startsWith(option.value.split("-")[0]) && (
+                    <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                  )}
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
@@ -512,17 +526,25 @@ export function TaskFiltersAndSort({
                 const baseSortBy = sortBy.split("-").slice(0, -1).join("-")
                 setSortBy(`${baseSortBy}-asc` as SortBy)
               }}>
-                Ascending
-                <ArrowUp className="h-4 w-4 mr-2" />
-                
+                <span className="flex items-center gap-2">
+                  Ascending
+                  <ArrowUp className="h-4 w-4" />
+                </span>
+                {sortBy.endsWith("asc") && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => {
                 const baseSortBy = sortBy.split("-").slice(0, -1).join("-")
                 setSortBy(`${baseSortBy}-desc` as SortBy)
               }}>
-                Descending
-                <ArrowDown className="h-4 w-4 mr-2" />
-                
+                <span className="flex items-center gap-2">
+                  Descending
+                  <ArrowDown className="h-4 w-4" />
+                </span>
+                {sortBy.endsWith("desc") && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

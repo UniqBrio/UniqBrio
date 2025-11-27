@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState, useRef, useMemo, type CSSProperties } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { useCustomColors } from '@/lib/use-custom-colors';
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, Upload, Download, Check, X, Plus, FileText } from "lucide-react";
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/dashboard/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import type { Income } from "./types";
@@ -32,8 +33,6 @@ interface IncomeSearchFiltersProps {
   setShowIncomeDraftsDialog?: (show: boolean) => void;
   draftsCount?: number;
 }
-
-type CSSPropertiesWithVars = CSSProperties & Record<string, string>;
 
 // Options are now loaded from the backend options endpoint
 
@@ -576,14 +575,8 @@ export default function IncomeSearchFilters({
               variant="outline"
               title="Sort"
               size="sm"
-              className="h-9 flex items-center gap-1 border text-[color:var(--sort-icon-color)] hover:bg-[color:var(--sort-hover-bg)] hover:text-white"
-              style={{
-                borderColor: primaryColor,
-                color: primaryColor,
-                backgroundColor: `${primaryColor}15`,
-                '--sort-icon-color': primaryColor,
-                '--sort-hover-bg': primaryColor,
-              } as CSSPropertiesWithVars}
+              className={sortButtonClass}
+              style={getSortButtonStyle(primaryColor)}
             >
               <ArrowUpDown className="mr-2 h-4 w-4" />
               {(() => {

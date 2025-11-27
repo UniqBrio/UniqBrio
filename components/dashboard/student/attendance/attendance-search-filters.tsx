@@ -28,6 +28,8 @@ import {
   Check,
   X
 } from "lucide-react"
+import { useCustomColors } from "@/lib/use-custom-colors"
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style"
 import MultiSelectDropdown from "@/components/dashboard/student/students/MultiSelectDropDown"
 import { format as formatDateFns } from 'date-fns'
 import { ColumnSelectorModal } from "@/contexts/dashboard/ColumnSelectorModal"
@@ -123,6 +125,7 @@ export default function AttendanceSearchFilters({
   setDateWindow,
 }: AttendanceSearchFiltersProps) {
   const { toast } = useToast();
+  const { primaryColor } = useCustomColors();
   // Today's date in ISO (yyyy-MM-dd) to cap date pickers
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], []);
 
@@ -664,9 +667,15 @@ export default function AttendanceSearchFilters({
         {/* Sort (student-style dropdown) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
-              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">
+            <Button
+              variant="outline"
+              title="Sort"
+              size="sm"
+              className={sortButtonClass}
+              style={getSortButtonStyle(primaryColor)}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              <span className="ml-1 text-xs">
                 {(() => {
                   const label = [
                     { value: 'date', label: 'Date' },
@@ -678,7 +687,11 @@ export default function AttendanceSearchFilters({
                   return label || 'Sort';
                 })()}
               </span>
-              {sortOrder === 'asc' ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
+              {sortOrder === 'asc' ? (
+                <ArrowUp className="ml-2 h-3 w-3" />
+              ) : (
+                <ArrowDown className="ml-2 h-3 w-3" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -691,20 +704,31 @@ export default function AttendanceSearchFilters({
               { value: 'status', label: 'Status' },
             ].map(option => (
               <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
-                {option.label}
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => setSortOrder('asc')}>
-              Ascending
-              <ArrowUp className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder === 'asc' && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setSortOrder('desc')}>
-              Descending
-              <ArrowDown className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder === 'desc' && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

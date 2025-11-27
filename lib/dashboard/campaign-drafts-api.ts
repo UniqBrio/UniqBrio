@@ -19,6 +19,7 @@ export interface CampaignDraftData {
   createdAt: string;
 }
 
+
 export interface CampaignDraft {
   id: string;
   name: string;

@@ -5,7 +5,9 @@ import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu";
-import { ArrowUpDown, Check, Download, Filter, Search, X } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Check, Download, Filter, Search, X } from "lucide-react";
+import { useCustomColors } from "@/lib/use-custom-colors"; // Added custom colors hook
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style"; // Added shared styling helpers
 import MultiSelectDropdown from "@/components/dashboard/payments/multi-select-dropdown";
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input";
 import type { Payment } from "@/types/dashboard/payment";
@@ -74,6 +76,7 @@ export default function PaymentSearchFilters({
   toggleSelectAll,
 }: PaymentSearchFiltersProps) {
   const { currency } = useCurrency();
+  const { primaryColor } = useCustomColors();
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], []);
   const firstCheckboxRef = useRef<HTMLInputElement | null>(null);
 
@@ -400,19 +403,31 @@ export default function PaymentSearchFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
-              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{(() => {
-                const label = [
-                  { value: "studentId", label: "Student ID" },
-                  { value: "studentName", label: "Student Name" },
-                  { value: "course", label: "Course" },
-                  { value: "status", label: "Status" },
-                  { value: "paidDate", label: "Paid Date" },
-                ].find(o => o.value === sortBy)?.label;
-                return label || "Sort";
-              })()}</span>
-              <span className="ml-2 text-xs text-gray-500 dark:text-white group-hover:text-white">{sortOrder === "asc" ? "↑" : "↓"}</span>
+            <Button
+              variant="outline"
+              title="Sort"
+              size="sm"
+              className={sortButtonClass}
+              style={getSortButtonStyle(primaryColor)}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              <span className="ml-1 text-xs">
+                {(() => {
+                  const label = [
+                    { value: "studentId", label: "Student ID" },
+                    { value: "studentName", label: "Student Name" },
+                    { value: "course", label: "Course" },
+                    { value: "status", label: "Status" },
+                    { value: "paidDate", label: "Paid Date" },
+                  ].find(o => o.value === sortBy)?.label;
+                  return label || "Sort";
+                })()}
+              </span>
+              {sortOrder === "asc" ? (
+                <ArrowUp className="ml-2 h-3 w-3" />
+              ) : (
+                <ArrowDown className="ml-2 h-3 w-3" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -425,14 +440,32 @@ export default function PaymentSearchFilters({
               { value: "paidDate", label: "Paid Date" },
             ].map(option => (
               <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
-                {option.label}
-                {sortBy === option.value && <span className="ml-2">✔</span>}
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => setSortOrder("asc")}>Ascending ↑ {sortOrder === "asc" && <span className="ml-2">✔</span>}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortOrder("desc")}>Descending ↓ {sortOrder === "desc" && <span className="ml-2">✔</span>}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortOrder("asc")}>
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder === "asc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortOrder("desc")}>
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder === "desc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 

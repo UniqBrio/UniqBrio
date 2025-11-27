@@ -2,12 +2,13 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { useCustomColors } from "@/lib/use-custom-colors";
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style";
 import { useCurrency } from "@/contexts/currency-context";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu";
-import { ArrowUpDown, Check, Download, Filter, Search, X } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Check, Download, Filter, Search, X } from "lucide-react";
 
 import type { CoursePaymentSummary } from "@/types/dashboard/payment";
 import { format as formatDateFns } from 'date-fns';
@@ -54,26 +55,38 @@ type Filters = {
 };
 
 export default function CourseCohortFilters({
-  courseSummaries,
-  setFilteredCourseSummaries,
-  searchTerm,
-  setSearchTerm,
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder,
-  onExport,
-  displayedColumns,
-  setDisplayedColumns,
-  viewMode = 'list',
-  setViewMode,
-}: CourseCohortFiltersProps) {
-  const { currency } = useCurrency();
-  const { primaryColor, secondaryColor } = useCustomColors();
-  const firstCheckboxRef = useRef<HTMLInputElement | null>(null);
-
-  // Column management
-  const courseColumns = [
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              title="Sort"
+              size="sm"
+              className={sortButtonClass}
+              style={getSortButtonStyle(primaryColor)}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              <span className="ml-1 text-xs">
+                {(() => {
+                  const label = [
+                    { value: "courseId", label: "Course ID" },
+                    { value: "courseName", label: "Course Name" },
+                    { value: "totalStudents", label: "Students" },
+                    { value: "totalAmount", label: "Total Amount" },
+                    { value: "receivedAmount", label: "Received" },
+                    { value: "outstandingAmount", label: "Outstanding" },
+                    { value: "collectionRate", label: "Collection Rate" },
+                    { value: "status", label: "Status" },
+                  ].find(o => o.value === sortBy)?.label;
+                  return label || "Sort";
+                })()}
+              </span>
+              {sortOrder === "asc" ? (
+                <ArrowUp className="ml-2 h-3 w-3" />
+              ) : (
+                <ArrowDown className="ml-2 h-3 w-3" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
     'CourseID',
     'Course Name',
     'Students',
@@ -86,19 +99,33 @@ export default function CourseCohortFilters({
   const defaultDisplayedColumns = ['CourseID', 'Course Name', 'Students', `Total Amount (${currency})`, `Received (${currency})`, `Outstanding (${currency})`, 'Collection Rate', 'Status'];
   const currentDisplayedColumns = displayedColumns || defaultDisplayedColumns;
   const [showColumnSelector, setShowColumnSelector] = useState(false);
-
-  // Hydrate persisted column selections
-  React.useEffect(() => {
+              <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
     if (typeof window === 'undefined' || !setDisplayedColumns) return;
     try {
       const raw = localStorage.getItem('courseDisplayedColumns');
       if (raw) {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) {
-          const sanitized = arr.filter((c: string) => courseColumns.includes(c));
-          
-          // Always ensure fixed columns are included
-          const startFixed = ['CourseID', 'Course Name'];
+            <DropdownMenuItem onClick={() => setSortOrder("asc")}>
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder === "asc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortOrder("desc")}>
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder === "desc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
+            </DropdownMenuItem>
           
           [...startFixed].forEach(col => {
             if (!sanitized.includes(col) && courseColumns.includes(col)) {

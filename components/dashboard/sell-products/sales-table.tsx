@@ -22,13 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/dashboard/ui/table"
-import { FileText, Mail, Download, Upload, Search, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
+import { FileText, Mail, Download, Upload, Search, ArrowUp, ArrowDown, ArrowUpDown, Check } from 'lucide-react'
 import { SALES_TABLE_COLUMNS, type SalesColumnId } from "./sales-columns"
 import { ColumnSelectorModal } from "./column-selector"
 import { SalesFilterDropdown } from "./sales-filter-dropdown"
 import { GridListToggle } from "@/components/dashboard/GridListToggle"
 import GridIcon from "@/components/dashboard/icons/grid"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style"
 
 interface Sale {
   id: string
@@ -226,7 +227,12 @@ export function SalesTable({ sales }: SalesTableProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className={`${sortButtonClass} whitespace-nowrap`}
+                style={getSortButtonStyle(primaryColor)}
+              >
                 <span className="text-xs flex items-center gap-1">
                   <ArrowUpDown className="h-3.5 w-3.5" />
                   {sortBy === 'invoiceNumber' && 'Invoice'}
@@ -253,20 +259,28 @@ export function SalesTable({ sales }: SalesTableProps) {
                   <DropdownMenuItem
                     key={option.value}
                     onClick={() => setSortBy(option.value)}
-                    className={sortBy === option.value ? "" : ""}
                     style={sortBy === option.value ? { backgroundColor: `${primaryColor}10` } : undefined}
                   >
-                    {option.label}
+                    <span>{option.label}</span>
+                    {sortBy === option.value && (
+                      <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                    )}
                   </DropdownMenuItem>
                 ))}
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Order</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => setSortOrder('asc')}>
-                Ascending
+                <span>Ascending</span>
+                {sortOrder === 'asc' && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortOrder('desc')}>
-                Descending
+                <span>Descending</span>
+                {sortOrder === 'desc' && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

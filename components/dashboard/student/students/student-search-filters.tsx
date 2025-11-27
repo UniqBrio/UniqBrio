@@ -9,6 +9,7 @@ import { useCustomColors } from "@/lib/use-custom-colors";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { ArrowUpDown, ArrowUp, ArrowDown, Check, Download, Filter, Plus, Search, Upload, X } from "lucide-react";
+import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style";
 import { format as formatDateFns } from 'date-fns'
 import MultiSelectDropdown from "./MultiSelectDropDown";
 import type { Student } from "@/types/dashboard/student";
@@ -865,9 +866,16 @@ export default function StudentSearchFilters({
         {/* Sort Field Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
-              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{(() => {
+            <Button
+              variant="outline"
+              title="Sort"
+              size="sm"
+              className={sortButtonClass}
+              style={getSortButtonStyle(primaryColor)}
+            >
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              <span className="ml-1 text-xs">
+                {(() => {
                 const label = [
                   { value: "studentId", label: "Student ID" },
                   { value: "name", label: "Student Name" },
@@ -875,8 +883,13 @@ export default function StudentSearchFilters({
                   { value: "memberSince", label: "Registration Date" },
                 ].find(o => o.value === sortBy)?.label;
                 return label || "Sort";
-              })()}</span>
-              {sortOrder === "asc" ? <ArrowUp className="ml-2 h-3 w-3 group-hover:text-white" /> : <ArrowDown className="ml-2 h-3 w-3 group-hover:text-white" />}
+              })()}
+              </span>
+              {sortOrder === "asc" ? (
+                <ArrowUp className="ml-2 h-3 w-3" />
+              ) : (
+                <ArrowDown className="ml-2 h-3 w-3" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -888,20 +901,31 @@ export default function StudentSearchFilters({
               { value: "memberSince", label: "Registration Date" },
             ].map(option => (
               <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
-                {option.label}
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => setSortOrder("asc")}>
-              Ascending
-              <ArrowUp className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder === "asc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setSortOrder("desc")}>
-              Descending
-              <ArrowDown className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder === "desc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

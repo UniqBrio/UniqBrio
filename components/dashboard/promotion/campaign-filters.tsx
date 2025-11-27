@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/dashboard/ui/dropdown-menu';
 import { Search, Filter, Check, X, ArrowUpDown, Plus, Download, Upload, List, Grid, FileText } from 'lucide-react';
+import { sortButtonClass, getSortButtonStyle } from '@/lib/dashboard/sort-button-style';
 import MultiSelectDropdown from '@/components/dashboard/promotion/MultiSelectDropDown';
 
 interface Campaign {
@@ -227,14 +228,8 @@ export default function CampaignFilters({
               variant="outline"
               title="Sort campaigns"
               size="sm"
-              className="h-9 flex items-center gap-1 whitespace-nowrap border text-[color:var(--sort-icon-color)] hover:bg-[color:var(--sort-hover-bg)] hover:text-white"
-              style={{
-                borderColor: primaryColor,
-                color: primaryColor,
-                backgroundColor: `${primaryColor}15`,
-                '--sort-icon-color': primaryColor,
-                '--sort-hover-bg': primaryColor,
-              } as CSSPropertiesWithVars}
+              className={`${sortButtonClass} whitespace-nowrap`}
+              style={getSortButtonStyle(primaryColor)}
             >
               <ArrowUpDown className="h-4 w-4" />
               <span className="text-xs hidden sm:inline">
