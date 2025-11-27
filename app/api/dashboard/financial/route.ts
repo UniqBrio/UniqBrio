@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
 
     const id = searchParams.get("id");
     if (id) {
-      const doc = await Model.findById(id);
+      const doc = await Model.findOne({ _id: id, tenantId: session.tenantId });
       if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
       return NextResponse.json(doc);
     }
@@ -248,7 +248,7 @@ export async function PUT(req: NextRequest) {
       body.amount = amount;
     }
 
-    const updated = await Model.findByIdAndUpdate(id, body, { new: true });
+    const updated = await Model.findOneAndUpdate({ _id: id, tenantId: session.tenantId }, body, { new: true });
     if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     // Auto-add dropdown values to their respective collections
@@ -304,7 +304,7 @@ export async function DELETE(req: NextRequest) {
     const Model = getCollection(collection);
     if (!Model) return badRequest("Invalid collection");
 
-    const deleted = await Model.findByIdAndDelete(id);
+    const deleted = await Model.findOneAndDelete({ _id: id, tenantId: session.tenantId });
     if (!deleted) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (err: any) {

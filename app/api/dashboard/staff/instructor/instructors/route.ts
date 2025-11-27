@@ -126,9 +126,9 @@ export async function GET() {
     for (const it of items) {
       if (!it.externalId) {
         const newExternalId = pad(next++)
-        // Schedule DB update using findByIdAndUpdate to avoid creating new documents.
+        // Schedule DB update using findOneAndUpdate to avoid creating new documents.
         updates.push(
-          InstructorModel.findByIdAndUpdate(it._id, { externalId: newExternalId }, { new: true })
+          InstructorModel.findOneAndUpdate({ _id: it._id, tenantId: session.tenantId }, { externalId: newExternalId }, { new: true })
             .lean()
             .then(updated => {
               if (updated) Object.assign(it, { externalId: updated.externalId })
@@ -211,7 +211,7 @@ export async function GET() {
         if (needCourseIdsUpdate) $set.courseIds = nextCourseIds
         if (needCohortIdsUpdate) $set.cohortIds = nextCohortIds
         updates.push(
-          InstructorModel.findByIdAndUpdate(it._id, { $set }, { new: true })
+          InstructorModel.findOneAndUpdate({ _id: it._id, tenantId: session.tenantId }, { $set }, { new: true })
             .catch(() => {})
         )
       }
@@ -277,8 +277,8 @@ export async function POST(req: NextRequest) {
         .map(c => ((c as any)?.cohortId || '').trim())
         .filter(Boolean))).join(', ')
       if (courseAssigned || cohortName || courseIds || cohortIds) {
-        created = await InstructorModel.findByIdAndUpdate(
-          created._id,
+        created = await InstructorModel.findOneAndUpdate(
+          { _id: created._id, tenantId: session.tenantId },
           { $set: { courseAssigned, cohortName, courseIds, cohortIds } },
           { new: true }
         ) as any

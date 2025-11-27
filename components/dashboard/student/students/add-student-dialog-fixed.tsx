@@ -60,7 +60,7 @@ function GenderCombobox({ value, onChange, error }: GenderComboboxProps){
             value={query}
             onChange={e=> setQuery(e.target.value)}
             placeholder="Search or type new gender..."
-            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-52 overflow-y-auto text-sm pr-1">
             {filtered.map((opt, index)=> {
@@ -171,6 +171,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(courseDraftData),
       });
 
@@ -231,7 +232,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               onChange={e=> setQuery(e.target.value)}
               placeholder={loading? 'Loading courses...' : 'Search courses...'}
               disabled={loading}
-              className="flex h-10 flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+              className="flex h-10 flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
             />
             {onRefresh && (
               <Button
@@ -378,6 +379,7 @@ function StateSelect({ countryName, state, onChange, hasError }: { countryName?:
   const [query,setQuery]=useState('');
   useEffect(()=>{
     if(!countryName){ setStates([]); return; }
+    // countryName is the country code (ISO2) like "IN", "US" from newStudent.country
     let cancelled=false; setLoading(true); getCachedStates(countryName).then(s=>{ if(!cancelled) setStates(s); }).catch(e=>{ if(!cancelled) setError('Failed to load states'); }).finally(()=>{ if(!cancelled) setLoading(false); }); return ()=>{ cancelled=true; };
   },[countryName]);
   const norm=query.trim().toLowerCase();
@@ -477,7 +479,7 @@ function CohortSearchCombobox({ value, onChange, cohorts, loading, disabled }: C
             onChange={e=> setQuery(e.target.value)}
             placeholder={loading? 'Loading cohorts...' : 'Search cohorts...'}
             disabled={loading}
-            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-[180px] overflow-y-auto text-sm pr-1">
             {loading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading cohorts...</div>}
@@ -613,7 +615,7 @@ function ReferredByCombobox({ value, onChange }: ReferredByComboboxProps){
             value={query}
             onChange={e=> setQuery(e.target.value)}
             placeholder="Search or type new source..."
-            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-52 overflow-y-auto text-sm pr-1">
               {filtered.map((opt, index)=> {
@@ -716,7 +718,7 @@ function RelationshipCombobox({ value, onChange }: RelationshipComboboxProps){
             value={query}
             onChange={e=> setQuery(e.target.value)}
             placeholder="Search or type new relationship..."
-            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-52 overflow-y-auto text-sm pr-1">
               {filtered.map((opt, index)=> {
@@ -840,7 +842,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   useEffect(() => {
     if (!initialStudent && open) {
       // Fetch all students to determine next ID
-      fetch('/api/dashboard/student/students')
+      fetch('/api/dashboard/student/students', {
+        credentials: 'include',
+      })
         .then(res => res.json())
         .then(data => {
           const students = Array.isArray(data) ? data : [];
@@ -1137,7 +1141,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     (async () => {
       setStudentsLoading(true);
       try {
-        const response = await fetch('/api/dashboard/student/students');
+        const response = await fetch('/api/dashboard/student/students', {
+          credentials: 'include',
+        });
         if (response.ok) {
           const data = await response.json();
           if (!cancelled) {
@@ -2147,7 +2153,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                           <div>
                             <Label className="text-sm font-medium text-gray-700 dark:text-white">State/Province <span className="text-red-500">*</span></Label>
                             <StateSelect
-                              countryName={selectedCountryName}
+                              countryName={(newStudent as any).country}
                               state={(newStudent as any).stateProvince || ''}
                               onChange={(st)=> setNewStudent(p=> ({...p, stateProvince: st}))}
                               hasError={showFieldError('stateProvince')}

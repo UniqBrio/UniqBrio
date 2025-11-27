@@ -5,6 +5,8 @@ import PaymentTransaction from '@/models/dashboard/payments/PaymentTransaction';
 import { validateRecurringPayment } from '@/lib/dashboard/payments/subscription-validation';
 import { generateInvoiceNumber } from '@/lib/dashboard/payments/payment-processing-service';
 import { dbConnect } from '@/lib/mongodb';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * POST /api/payments/monthly-subscriptions/[id]/payments
@@ -14,6 +16,18 @@ export async function POST(
   request: NextRequest, 
   { params }: { params: { id: string } }
 ) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect();
     
@@ -77,15 +91,16 @@ export async function POST(
     }
     
     // Start transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    const mongoSession = await mongoose.startSession();
+    mongoSession.startTransaction();
     
     try {
       // Generate invoice number
       const invoiceNumber = await generateInvoiceNumber();
       
       // Create payment record
-      const paymentRecord = new PaymentTransaction({
+      const [savedPaymentRecord] = await PaymentTransaction.create([{
+        tenantId: session.tenantId,
         paymentId: new mongoose.Types.ObjectId(), // This should reference a Payment document if you have one
         monthlySubscriptionId: subscription._id,
         studentId: subscription.studentId,
@@ -113,9 +128,7 @@ export async function POST(
         invoiceNumber,
         invoiceGenerated: false, // Will be generated separately
         status: 'CONFIRMED',
-      });
-      
-      const savedPaymentRecord = await paymentRecord.save({ session });
+      }], { session: mongoSession });
       
       // Calculate next due date (30 days from payment date)
       const nextDueDate = new Date(data.paymentDate);
@@ -141,7 +154,7 @@ export async function POST(
             lastUpdatedBy: data.receivedBy
           }
         },
-        { session, new: true }
+        { session: mongoSession, new: true }
       );
       
       // Add audit log
@@ -158,7 +171,7 @@ export async function POST(
         `Month ${nextMonth} payment processed`
       );
       
-      await session.commitTransaction();
+      await mongoSession.commitTransaction();
       
       return NextResponse.json({
         success: true,
@@ -168,10 +181,10 @@ export async function POST(
       });
       
     } catch (error) {
-      await session.abortTransaction();
+      await mongoSession.abortTransaction();
       throw error;
     } finally {
-      session.endSession();
+      mongoSession.endSession();
     }
     
   } catch (error) {
@@ -183,4 +196,6 @@ export async function POST(
       { status: 500 }
     );
   }
+    }
+  );
 }

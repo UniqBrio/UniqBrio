@@ -49,7 +49,9 @@ export default function CoursePaymentFetcher() {
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/dashboard/payments/course-payment-details?courseId=${encodeURIComponent(courseId.trim())}`);
+      const response = await fetch(`/api/dashboard/payments/course-payment-details?courseId=${encodeURIComponent(courseId.trim())}`, {
+        credentials: 'include'
+      });
       const result = await response.json();
 
       if (!response.ok) {
@@ -85,6 +87,7 @@ export default function CoursePaymentFetcher() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           courseIds: sampleCourseIds
         }),

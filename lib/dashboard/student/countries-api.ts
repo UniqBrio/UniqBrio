@@ -46,13 +46,21 @@ export interface CountryDetails {
  */
 export async function fetchCountries(): Promise<Country[]> {
   try {
-    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
+    const response = await fetch('/api/countries', {
+      credentials: 'include',
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch countries: ${response.statusText}`);
     }
-    const data: Country[] = await response.json();
-    // Sort alphabetically by common name
-    return data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+    const result = await response.json();
+    if (!result.success || !Array.isArray(result.data)) {
+      throw new Error('Invalid response from countries API');
+    }
+    // Map the API response to Country format
+    return result.data.map((item: any) => ({
+      name: { common: item.label, official: item.label },
+      cca2: item.value
+    }));
   } catch (error) {
     console.error('Error fetching countries:', error);
     throw error;
@@ -61,46 +69,48 @@ export async function fetchCountries(): Promise<Country[]> {
 
 /**
  * Fetch states/provinces for a specific country
- * @param countryName - The full country name (e.g., "India", "United States")
+ * @param countryCode - The ISO2 country code (e.g., "IN", "US")
  */
-export async function fetchStates(countryName: string): Promise<State[]> {
+export async function fetchStates(countryCode: string): Promise<State[]> {
   try {
-    const response = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        country: countryName,
-      }),
+    const response = await fetch(`/api/countries/states?country=${encodeURIComponent(countryCode)}`, {
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+      credentials: 'include',
     });
 
-    // Handle 404 or other errors gracefully - some countries may not have states
     if (!response.ok) {
-      if (response.status === 404 || response.status === 400) {
-        console.warn(`No states data available for country: ${countryName} (${response.status})`);
-        return [];
-      }
-      // Only throw for server errors (500+) or unexpected errors
-      throw new Error(`Failed to fetch states: ${response.statusText}`);
+      console.warn(`Failed to fetch states for country code: ${countryCode} (${response.status})`);
+      return [];
     }
 
-    const data = await response.json();
+    const result = await response.json();
     
-    // Check if the API returned an error in the response body
-    if (data.error) {
-      console.warn(`API error for country ${countryName}:`, data.msg || data.error);
+    if (!result.success) {
+      console.warn(`API error for country ${countryCode}:`, result.error);
       return [];
     }
     
-    if (data.data && data.data.states) {
-      return data.data.states.sort((a: State, b: State) => a.name.localeCompare(b.name));
+    if (result.data && Array.isArray(result.data)) {
+      return result.data.map((item: any) => ({
+        name: item.label || item.value,
+        state_code: item.value
+      }));
     }
     
-    console.warn(`No states found for country: ${countryName}`);
     return [];
   } catch (error) {
-    console.error('Error fetching states:', error);
+    // Handle timeout, network errors, and other fetch failures gracefully
+    if (error instanceof Error) {
+      if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+        console.warn(`Timeout fetching states for ${countryCode}`);
+      } else if (error.message.includes('fetch')) {
+        console.warn(`Network error fetching states for ${countryCode}:`, error.message);
+      } else {
+        console.warn(`Error fetching states for ${countryCode}:`, error.message);
+      }
+    } else {
+      console.warn(`Unknown error fetching states for ${countryCode}`);
+    }
     return [];
   }
 }
@@ -159,19 +169,20 @@ export async function getCachedCountries(): Promise<Country[]> {
 }
 
 /**
- * Cache for states by country name
+ * Cache for states by country code
  */
 const statesCache = new Map<string, State[]>();
 
 /**
  * Get states with caching
+ * @param countryCode - The ISO2 country code (e.g., "IN", "US")
  */
-export async function getCachedStates(countryName: string): Promise<State[]> {
-  if (statesCache.has(countryName)) {
-    return statesCache.get(countryName)!;
+export async function getCachedStates(countryCode: string): Promise<State[]> {
+  if (statesCache.has(countryCode)) {
+    return statesCache.get(countryCode)!;
   }
-  const states = await fetchStates(countryName);
-  statesCache.set(countryName, states);
+  const states = await fetchStates(countryCode);
+  statesCache.set(countryCode, states);
   return states;
 }
 

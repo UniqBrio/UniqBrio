@@ -244,7 +244,6 @@ const scheduleSchema = new Schema<ISchedule>({
   },
   sessionId: {
     type: String,
-    unique: true,
     sparse: true, // Allow null values but ensure uniqueness when present
     index: true
   },
@@ -626,6 +625,9 @@ scheduleSchema.post('save', function(this: ISchedule) {
 
 // Apply tenant plugin for multi-tenant isolation
 scheduleSchema.plugin(tenantPlugin);
+
+// Tenant-scoped indexes
+scheduleSchema.index({ tenantId: 1, sessionId: 1 }, { unique: true, sparse: true });
 
 // Create and export the model
 const Schedule: Model<ISchedule> = mongoose.models.Schedule || mongoose.model<ISchedule>('Schedule', scheduleSchema);

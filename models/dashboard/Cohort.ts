@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // Cohort Interface - Inherits schedule from Course, adds specific timing
 export interface ICohort extends Document {
@@ -40,7 +41,6 @@ const cohortSchema = new Schema<ICohort>({
   cohortId: {
     type: String,
     required: true,
-    unique: true,
     trim: true
   },
   name: {
@@ -129,7 +129,7 @@ const cohortSchema = new Schema<ICohort>({
   isDeleted: {
     type: Boolean,
     default: false,
-    index: true
+    // Index removed - using separate index definition below
   },
   deletedAt: {
     type: Date,
@@ -155,7 +155,13 @@ const cohortSchema = new Schema<ICohort>({
   timestamps: true
 });
 
+// Apply tenant plugin for multi-tenancy support
+cohortSchema.plugin(tenantPlugin);
+
 // Indexes for efficient querying
+cohortSchema.index({ tenantId: 1, cohortId: 1 }, { unique: true });
+cohortSchema.index({ tenantId: 1, courseId: 1 });
+cohortSchema.index({ tenantId: 1, status: 1 });
 cohortSchema.index({ courseId: 1 });
 cohortSchema.index({ status: 1 });
 cohortSchema.index({ daysOfWeek: 1 });
@@ -163,6 +169,7 @@ cohortSchema.index({ 'timeSlot.startTime': 1 });
 cohortSchema.index({ instructor: 1 });
 cohortSchema.index({ registrationOpen: 1 });
 cohortSchema.index({ createdAt: -1 });
+cohortSchema.index({ isDeleted: 1 });
 
 // Virtual to check if cohort is full
 cohortSchema.virtual('isFull').get(function() {

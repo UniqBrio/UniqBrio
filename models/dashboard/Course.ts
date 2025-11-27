@@ -329,8 +329,6 @@ courseSchema.index({ priceINR: 1 });
 courseSchema.index({ "schedulePeriod.startDate": 1 });
 courseSchema.index({ "schedulePeriod.endDate": 1 });
 courseSchema.index({ createdAt: -1 });
-// Important: Index for courseId uniqueness and fast lookups
-courseSchema.index({ courseId: 1 }, { unique: true, sparse: true });
 // Index for soft delete queries
 courseSchema.index({ isDeleted: 1 });
 // Compound index for efficient active course queries

@@ -306,8 +306,8 @@ export function ManualPaymentDialog({
     const fetchPeople = async () => {
       try {
         const [instructorsRes, nonInstructorsRes] = await Promise.all([
-          fetch('/api/dashboard/payments/instructors'),
-          fetch('/api/dashboard/payments/non-instructors')
+          fetch('/api/dashboard/payments/instructors', { credentials: 'include' }),
+          fetch('/api/dashboard/payments/non-instructors', { credentials: 'include' })
         ]);
 
         if (instructorsRes.ok && nonInstructorsRes.ok) {
@@ -343,7 +343,10 @@ export function ManualPaymentDialog({
       try {
         // Try PaymentRecord first (new system)
         let response = await fetch(
-          `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=asc`
+          `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=asc`,
+          {
+            credentials: 'include'
+          }
         );
 
         if (response.ok) {
@@ -356,7 +359,9 @@ export function ManualPaymentDialog({
         }
 
         // Fallback to PaymentTransaction (current system)
-        response = await fetch(`/api/dashboard/payments/manual?paymentId=${payment.id}`);
+        response = await fetch(`/api/dashboard/payments/manual?paymentId=${payment.id}`, {
+          credentials: 'include'
+        });
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.transactions && data.transactions.length > 0) {
@@ -395,7 +400,7 @@ export function ManualPaymentDialog({
         
         // Prepare parallel fetch calls based on what data we need
         const fetchPromises: Promise<any>[] = [
-          fetch(`/api/dashboard/payments/student-details?studentId=${payment.studentId}`).then(r => r.json())
+          fetch(`/api/dashboard/payments/student-details?studentId=${payment.studentId}`, { credentials: 'include' }).then(r => r.json())
         ];
         
         // If payment already has course and cohort info, we can fetch those in parallel
@@ -410,7 +415,7 @@ export function ManualPaymentDialog({
         
         if (cohortId) {
           fetchPromises.push(
-            fetch(`/api/dashboard/payments/cohort-dates?cohortId=${cohortId}`).then(r => r.json())
+            fetch(`/api/dashboard/payments/cohort-dates?cohortId=${cohortId}`, { credentials: 'include' }).then(r => r.json())
           );
         }
         
@@ -646,7 +651,9 @@ export function ManualPaymentDialog({
       
       try {
         console.log('Fetching cohort dates from payment record for cohortId:', payment.cohortId);
-        const response = await fetch(`/api/dashboard/payments/cohort-dates?cohortId=${payment.cohortId}`);
+        const response = await fetch(`/api/dashboard/payments/cohort-dates?cohortId=${payment.cohortId}`, {
+          credentials: 'include'
+        });
         const data = await response.json();
         
         if (!response.ok) {
@@ -1307,6 +1314,7 @@ export function ManualPaymentDialog({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           paymentId: payment.id,
           studentId: payment.studentId,

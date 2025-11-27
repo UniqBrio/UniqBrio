@@ -49,7 +49,9 @@ export default function SettingsPage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const response = await fetch("/api/user-profile")
+        const response = await fetch("/api/user-profile", {
+          credentials: 'include',
+        })
         if (!response.ok) throw new Error("Failed to fetch profile")
         const data = await response.json()
         if (data.success) {
@@ -85,7 +87,9 @@ export default function SettingsPage() {
       const data = await response.json()
       if (data.success) {
         // Refresh profile data
-        const refreshResponse = await fetch("/api/user-profile")
+        const refreshResponse = await fetch("/api/user-profile", {
+          credentials: 'include',
+        })
         const refreshData = await refreshResponse.json()
         if (refreshData.success) {
           setProfileData(refreshData.user)

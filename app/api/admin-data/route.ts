@@ -6,19 +6,25 @@ import KycSubmissionModel from "@/models/KycSubmission";
 import KycReviewModel from "@/models/KycReview";
 import { dbConnect } from "@/lib/mongodb";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret-change-in-production');
 
 async function verifyAdminToken(request: NextRequest) {
   try {
     const adminSession = request.cookies.get("admin_session")?.value;
-    if (!adminSession) return false;
+    if (!adminSession) {
+      console.log("[admin-data] No admin session cookie found");
+      return false;
+    }
 
-    await jwtVerify(adminSession, JWT_SECRET, {
+    const verified = await jwtVerify(adminSession, JWT_SECRET, {
       issuer: "urn:uniqbrio:admin:issuer",
       audience: "urn:uniqbrio:admin:audience"
     });
+    
+    console.log("[admin-data] Admin token verified successfully");
     return true;
-  } catch {
+  } catch (error) {
+    console.error("[admin-data] Token verification failed:", error);
     return false;
   }
 }

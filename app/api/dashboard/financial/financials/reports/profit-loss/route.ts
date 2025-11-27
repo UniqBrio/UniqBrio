@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { IncomeModel, ExpenseModel } from '@/lib/dashboard/models';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Compute date range from timeframe string and optional custom dates
 function getDateRange(timeframe: string, start?: string, end?: string) {
@@ -44,6 +46,18 @@ function toISODate(d?: Date | string | null) {
 }
 
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -62,7 +76,8 @@ export async function GET(req: NextRequest) {
       if (timeframe === 'custom') exclusiveEnd.setDate(exclusiveEnd.getDate() + 1);
       dateFilter.$lt = exclusiveEnd;
     }
-    const match = Object.keys(dateFilter).length ? { date: dateFilter } : {};
+    const match: any = Object.keys(dateFilter).length ? { date: dateFilter } : {};
+    match.tenantId = session.tenantId;
 
     // Fetch all incomes and expenses in range
     const [incomes, expenses] = await Promise.all([
@@ -139,6 +154,8 @@ export async function GET(req: NextRequest) {
     console.error('Profit-Loss API error', e);
     return NextResponse.json({ error: 'Failed to build profit & loss report' }, { status: 500 });
   }
+    }
+  );
 }
 
 export const revalidate = 0;

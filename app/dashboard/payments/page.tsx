@@ -87,10 +87,10 @@ export default function PaymentsPage() {
     try {
       // Fetch analytics, all students with payments, course summaries, and cohort dates in parallel
       const [analyticsRes, paymentsRes, courseSummariesRes, cohortDatesRes] = await Promise.all([
-        fetch("/api/dashboard/payments/analytics", { signal: controller.signal }),
-        fetch("/api/dashboard/payments/all-students", { signal: controller.signal }),
-        fetch("/api/dashboard/payments/course-summary", { signal: controller.signal }),
-        fetch("/api/dashboard/payments/cohort-dates-all", { signal: controller.signal }),
+        fetch("/api/dashboard/payments/analytics", { signal: controller.signal, credentials: 'include' }),
+        fetch("/api/dashboard/payments/all-students", { signal: controller.signal, credentials: 'include' }),
+        fetch("/api/dashboard/payments/course-summary", { signal: controller.signal, credentials: 'include' }),
+        fetch("/api/dashboard/payments/cohort-dates-all", { signal: controller.signal, credentials: 'include' }),
       ]);
 
       // Check each response and provide specific error messages
@@ -323,7 +323,7 @@ export default function PaymentsPage() {
       {/* Header */}
       <div className="responsive-dashboard-container mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className={`text-3xl font-bold ${primaryColor.text} flex items-center gap-2`}>Payment Management</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2" style={{ color: primaryColor }}>Payment Management</h1>
           <p className="text-gray-600 dark:text-white text-sm">
             Track student payments, send reminders, and manage financial records
           </p>
@@ -344,28 +344,44 @@ export default function PaymentsPage() {
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-transparent p-0 h-auto gap-1 sm:gap-2 lg:gap-3">
           <TabsTrigger
             value="analytics"
-            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
+            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            style={{
+              borderColor: secondaryColor,
+              color: secondaryColor,
+            }}
           >
             <LayoutDashboard className="h-5 w-5 mr-2" />
             Analytics
           </TabsTrigger>
           <TabsTrigger
             value="student-wise"
-            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
+            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            style={{
+              borderColor: secondaryColor,
+              color: secondaryColor,
+            }}
           >
             <CreditCard className="h-5 w-5 mr-2" />
             Student-wise
           </TabsTrigger>
           <TabsTrigger
             value="course-cohort"
-            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
+            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            style={{
+              borderColor: secondaryColor,
+              color: secondaryColor,
+            }}
           >
             <BookOpen className="h-5 w-5 mr-2" />
             Course & Cohort
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className={`bg-white dark:bg-gray-900 border-2 ${secondaryColor.border} ${secondaryColor.text} rounded-lg px-6 py-3 font-semibold data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:${primaryColor.border} ${secondaryColor.hoverBg} transition-all`}
+            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            style={{
+              borderColor: secondaryColor,
+              color: secondaryColor,
+            }}
           >
             <Settings className="h-5 w-5 mr-2" />
             Settings
@@ -378,19 +394,19 @@ export default function PaymentsPage() {
             <>
               {/* First Row - Revenue Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className={`bg-gradient-to-br ${primaryColor.bgLight} border-0 shadow-sm`}>
+                <Card className="border-0 shadow-sm" style={{ backgroundImage: `linear-gradient(to bottom right, ${primaryColor}15, ${primaryColor}25)` }}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className={`text-sm font-medium ${primaryColor.text} mb-1`}>
+                        <p className="text-sm font-medium mb-1" style={{ color: primaryColor }}>
                           Total Received
                         </p>
-                        <p className={`text-3xl font-bold ${primaryColor.textDark}`}>
+                        <p className="text-3xl font-bold" style={{ color: primaryColor }}>
                           {currency} {(analytics.totalReceived || 0).toLocaleString()}
                         </p>
-                        <p className={`text-xs ${primaryColor.text} mt-1`}>All time</p>
+                        <p className="text-xs mt-1" style={{ color: primaryColor }}>All time</p>
                       </div>
-                      <div className={`${primaryColor.text} ${primaryColor.iconBg} p-3 rounded-lg`}>
+                      <div className="p-3 rounded-lg" style={{ color: primaryColor, backgroundColor: `${primaryColor}20` }}>
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>

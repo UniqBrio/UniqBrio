@@ -12,7 +12,9 @@ export default function AttendancePage() {
     // Load attendance data immediately when component mounts
     const loadAttendanceData = async () => {
       try {
-        const response = await fetch('/api/dashboard/student/attendance');
+        const response = await fetch('/api/dashboard/student/attendance', {
+          credentials: 'include',
+        });
         if (response.ok) {
           const result = await response.json();
           if (result.success) {

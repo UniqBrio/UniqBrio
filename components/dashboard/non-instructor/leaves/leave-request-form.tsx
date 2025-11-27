@@ -366,6 +366,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
             fetch('/api/dashboard/staff/non-instructor/attendance', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({
                 instructorId: requestInstructorId,
                 instructorName: bestName,

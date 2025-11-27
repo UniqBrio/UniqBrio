@@ -105,7 +105,9 @@ function AttendanceManagementInner() {
   const fetchAttendanceData = async () => {
     try {
       setLoading(true);
-  const response = await fetch('/api/dashboard/staff/non-instructor/attendance');
+  const response = await fetch('/api/dashboard/staff/non-instructor/attendance', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -164,6 +166,7 @@ function AttendanceManagementInner() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -197,6 +200,7 @@ function AttendanceManagementInner() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -265,6 +269,7 @@ function AttendanceManagementInner() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -293,6 +298,7 @@ function AttendanceManagementInner() {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -648,6 +654,7 @@ function AttendanceManagementInner() {
                   try {
                     const response = await fetch(`/api/dashboard/staff/non-instructor/attendance/${recordToDelete.id}`, {
                       method: 'DELETE',
+                      credentials: 'include'
                     });
 
                     if (response.ok) {

@@ -1,23 +1,101 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SignJWT, jwtVerify } from "jose";
+import { verifyPassword } from "@/lib/auth";
+import { dbConnect } from "@/lib/mongodb";
+import UserModel from "@/models/User";
 
-const ADMIN_EMAIL = "admin@uniqbrio.com";
-const ADMIN_PASSWORD = "Integrity@2025";
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret-change-in-production');
+const ADMIN_EMAIL = process.env.UBADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.UBADMIN_PASSWORD;
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
-    // Validate admin credentials
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+    // Validate input
+    if (!email || !password) {
       return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
+        { error: "Email and password are required" },
+        { status: 400 }
       );
     }
 
-    // Create admin session token
+    // Check if environment variables are set
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+      console.error("[admin-auth] UBADMIN_EMAIL or UBADMIN_PASSWORD not set in environment variables");
+      return NextResponse.json(
+        { error: "Admin authentication not properly configured" },
+        { status: 500 }
+      );
+    }
+
+    // Validate admin credentials against environment variables
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      // Also check against database for super_admin users as a fallback
+      try {
+        await dbConnect();
+        const user = await UserModel.findOne({ 
+          email: email.toLowerCase().trim(),
+          role: 'super_admin'
+        });
+
+        if (!user || !user.password) {
+          return NextResponse.json(
+            { error: "Invalid credentials" },
+            { status: 401 }
+          );
+        }
+
+        // Verify password using the existing auth library
+        const isValidPassword = await verifyPassword(password, user.password);
+        
+        if (!isValidPassword) {
+          return NextResponse.json(
+            { error: "Invalid credentials" },
+            { status: 401 }
+          );
+        }
+
+        // Valid super_admin user from database
+        const token = await new SignJWT({
+          email: user.email,
+          role: "uniqbrio_admin",
+          type: "admin",
+          userId: user.id || user._id?.toString(),
+          iat: Math.floor(Date.now() / 1000),
+        })
+          .setProtectedHeader({ alg: "HS256" })
+          .setIssuedAt()
+          .setExpirationTime("24h")
+          .setIssuer("urn:uniqbrio:admin:issuer")
+          .setAudience("urn:uniqbrio:admin:audience")
+          .sign(JWT_SECRET);
+
+        const response = NextResponse.json({
+          success: true,
+          message: "Admin login successful"
+        });
+
+        response.cookies.set("admin_session", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 24 * 60 * 60, // 24 hours
+          path: "/",
+          sameSite: "strict"
+        });
+
+        return response;
+
+      } catch (dbError) {
+        console.error("[admin-auth] Database check failed:", dbError);
+        return NextResponse.json(
+          { error: "Invalid credentials" },
+          { status: 401 }
+        );
+      }
+    }
+
+    // Valid credentials from environment variables
     const token = await new SignJWT({
       email: ADMIN_EMAIL,
       role: "uniqbrio_admin",

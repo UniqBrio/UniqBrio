@@ -119,7 +119,7 @@ export function HomeMetrics() {
 
   useEffect(() => {
     // Fetch students - Using the correct endpoint
-    fetch("/api/dashboard/student/students")
+    fetch("/api/dashboard/student/students", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         const normalizedStudents = Array.isArray(data)
@@ -147,7 +147,7 @@ export function HomeMetrics() {
       });
 
     // Fetch courses
-    fetch("/api/dashboard/services/courses")
+    fetch("/api/dashboard/services/courses", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -168,6 +168,7 @@ export function HomeMetrics() {
     });
     fetch(`/api/dashboard/financial/financials/metrics?${params.toString()}`, {
       cache: 'no-store',
+      credentials: 'include',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -186,7 +187,7 @@ export function HomeMetrics() {
       });
 
     // Fetch instructors
-    fetch("/api/dashboard/payments/instructors")
+    fetch("/api/dashboard/payments/instructors", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -199,7 +200,7 @@ export function HomeMetrics() {
       });
 
     // Fetch non-instructors
-    fetch("/api/dashboard/payments/non-instructors")
+    fetch("/api/dashboard/payments/non-instructors", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

@@ -40,6 +40,7 @@ function getEventStatus(startDate: string, endDate: string): "Upcoming" | "Ongoi
 // Upcoming Events component - Card based view
 function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[]; onDeleteEvent?: (eventId: string) => void; onEditEvent?: () => void }) {
   const { toast } = useToast()
+  const { primaryColor, secondaryColor } = useCustomColors()
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -201,7 +202,7 @@ function UpcomingEvents({ events, onDeleteEvent, onEditEvent }: { events: Event[
               <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
                 {event.type}
               </Badge>
-              <Badge variant="outline" className={`${primaryColor.bg} ${primaryColor.text} ${primaryColor.border}`}>
+              <Badge variant="outline" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor, borderColor: `${primaryColor}50` }}>
                 {event.skillLevel}
               </Badge>
             </div>
@@ -762,7 +763,8 @@ export default function EventsPage() {
                 {/* Analytics tab */}
                 <TabsTrigger 
                   value="dashboard" 
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Analytics</span>
@@ -771,7 +773,8 @@ export default function EventsPage() {
                 {/* Ongoing Events tab */}
                 <TabsTrigger 
                   value="events" 
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Ongoing</span>
@@ -779,7 +782,8 @@ export default function EventsPage() {
                 {/* Upcoming Events tab */}
                 <TabsTrigger 
                   value="upcoming" 
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Upcoming</span>
@@ -788,7 +792,8 @@ export default function EventsPage() {
                 {/* Completed Events tab */}
                 <TabsTrigger 
                   value="completed" 
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 ${secondaryColor.border} bg-transparent ${secondaryColor.text} font-medium data-[state=active]:${primaryColor.bg} data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:${secondaryColor.border} data-[state=inactive]:${secondaryColor.text} ${secondaryColor.hoverBg} data-[state=active]:${primaryColor.hoverBg} whitespace-nowrap flex-shrink-0`}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
+                  style={{ borderColor: secondaryColor, color: secondaryColor }}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Completed</span>

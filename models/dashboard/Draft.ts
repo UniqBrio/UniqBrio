@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // Draft Interface (simplified course structure for drafts)
 export interface IDraft extends Document {
@@ -34,7 +35,6 @@ export interface IDraft extends Document {
 const draftSchema = new Schema<IDraft>({
   courseId: {
     type: String,
-    unique: true,
     sparse: true, // Allow multiple null values but unique non-null values
     trim: true
   },
@@ -121,7 +121,11 @@ const draftSchema = new Schema<IDraft>({
   timestamps: true
 });
 
+// Apply tenant plugin
+draftSchema.plugin(tenantPlugin);
+
 // Indexes
+draftSchema.index({ tenantId: 1, courseId: 1 }, { unique: true, sparse: true });
 draftSchema.index({ instructor: 1 });
 draftSchema.index({ status: 1 });
 draftSchema.index({ level: 1 });

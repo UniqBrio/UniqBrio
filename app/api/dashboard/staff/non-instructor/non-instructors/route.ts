@@ -3,6 +3,8 @@ import { dbConnect } from "@/lib/mongodb"
 import NonInstructorModel from "@/models/dashboard/staff/NonInstructor"
 import { getUserSession } from "@/lib/tenant/api-helpers"
 import { runWithTenantContext } from "@/lib/tenant/tenant-context"
+import { logEntityCreate, getClientIp, getUserAgent } from "@/lib/audit-logger"
+import { AuditModule } from "@/models/AuditLog"
 
 // Route segment config for optimal performance
 export const dynamic = 'force-dynamic' // Always fetch fresh data for staff changes
@@ -49,7 +51,7 @@ export async function GET() {
       if (!it.externalId) {
         const newExternalId = pad(next++, currentWidth)
         updates.push(
-          NonInstructorModel.findByIdAndUpdate(it._id, { externalId: newExternalId }, { new: true })
+          NonInstructorModel.findOneAndUpdate({ _id: it._id, tenantId: session.tenantId }, { externalId: newExternalId }, { new: true })
             .lean()
             .then(updated => { if (updated) Object.assign(it, { externalId: updated.externalId }) })
             .catch(() => {})
@@ -92,7 +94,37 @@ export async function POST(req: NextRequest) {
         if (typeof body.email === 'string' && body.email.trim() === '') {
           delete body.email
         }
-        const created = await NonInstructorModel.create(body)
+        
+        // Generate tenant-scoped non-instructor ID
+        const { generateNonInstructorId } = await import('@/lib/dashboard/id-generators')
+        const nonInstructorId = await generateNonInstructorId(session.tenantId)
+        
+        const created = await NonInstructorModel.create({
+          ...body,
+          externalId: nonInstructorId // Assign generated ID
+        })
+        
+        // Audit log
+        await logEntityCreate({
+          module: AuditModule.STAFF,
+          entityType: 'non_instructor',
+          entityId: created._id.toString(),
+          entityName: created.name || 'Unnamed Non-Instructor',
+          data: {
+            externalId: created.externalId,
+            name: created.name,
+            email: created.email,
+            phone: created.phone,
+            role: created.role
+          },
+          userId: session.userId,
+          userEmail: session.email,
+          userRole: 'super_admin',
+          tenantId: session.tenantId,
+          ipAddress: getClientIp(req.headers),
+          userAgent: getUserAgent(req.headers)
+        })
+        
         return NextResponse.json(created, { status: 201 })
       } catch (e: any) {
         return NextResponse.json({ message: e.message }, { status: 400 })

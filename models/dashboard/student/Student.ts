@@ -21,12 +21,12 @@ const CommunicationPreferencesSchema = new mongoose.Schema(
 
 const StudentSchema = new mongoose.Schema(
   {
-    studentId: { type: String, required: true, unique: true },
+    studentId: { type: String, required: true },
     name: { type: String, required: true },
     firstName: { type: String },
     middleName: { type: String },
     lastName: { type: String },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true },
     mobile: { type: String },
     countryCode: { type: String }, // Mobile country code
   country: { type: String }, // Country (ISO2 or name)

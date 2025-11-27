@@ -102,7 +102,7 @@ export default function IncomeSearchFilters({
           setLoadingOptions(false);
           return;
         }
-        const res = await fetch('/api/dashboard/financial/financials/options');
+        const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (!cancelled) {
@@ -314,7 +314,9 @@ export default function IncomeSearchFilters({
           const chunk = valid.slice(i, i+CHUNK);
           try {
             const res = await fetch('/api/dashboard/financial/financials/bulk', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ collection: 'incomes', items: chunk })
             });
             if (res.ok) {

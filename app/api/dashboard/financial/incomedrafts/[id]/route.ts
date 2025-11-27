@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     await dbConnect("uniqbrio");
     
-    const draft = await IncomeDraftModel.findById(params.id);
+    const draft = await IncomeDraftModel.findOne({ _id: params.id, tenantId: session.tenantId });
     
     if (!draft) {
       return NextResponse.json(
@@ -76,8 +76,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       );
     }
     
-    const updatedDraft = await IncomeDraftModel.findByIdAndUpdate(
-      params.id,
+    const updatedDraft = await IncomeDraftModel.findOneAndUpdate(
+      { _id: params.id, tenantId: session.tenantId },
       {
         name,
         category: category || data.incomeCategory || 'Uncategorized',
@@ -131,7 +131,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     await dbConnect("uniqbrio");
     
-    const deletedDraft = await IncomeDraftModel.findByIdAndDelete(params.id);
+    const deletedDraft = await IncomeDraftModel.findOneAndDelete({ _id: params.id, tenantId: session.tenantId });
     
     if (!deletedDraft) {
       return NextResponse.json(

@@ -69,7 +69,10 @@ export function InvoiceDialog({
       try {
         // Try new PaymentRecord system first
         let response = await fetch(
-          `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=asc`
+          `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=asc`,
+          {
+            credentials: 'include'
+          }
         );
         
         console.log('PaymentRecord Response status:', response.status);
@@ -86,7 +89,10 @@ export function InvoiceDialog({
         // Fallback to PaymentTransaction (current system)
         console.log('Trying PaymentTransaction fallback...');
         response = await fetch(
-          `/api/dashboard/payments/manual?paymentId=${payment.id}`
+          `/api/dashboard/payments/manual?paymentId=${payment.id}`,
+          {
+            credentials: 'include'
+          }
         );
         
         console.log('PaymentTransaction Response status:', response.status);
@@ -136,7 +142,10 @@ export function InvoiceDialog({
         
         // Try PaymentRecord system first
         let response = await fetch(
-          `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=desc`
+          `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=desc`,
+          {
+            credentials: 'include'
+          }
         );
         
         if (response.ok) {
@@ -152,7 +161,9 @@ export function InvoiceDialog({
         
         // If not found, try PaymentTransaction system
         if (!existingInvoiceNumber) {
-          response = await fetch(`/api/dashboard/payments/manual?paymentId=${payment.id}`);
+          response = await fetch(`/api/dashboard/payments/manual?paymentId=${payment.id}`, {
+            credentials: 'include'
+          });
           
           if (response.ok) {
             const data = await response.json();

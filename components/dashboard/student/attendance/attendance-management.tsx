@@ -239,7 +239,9 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
   const enrichWithCohortNames = async (records: StudentAttendanceRecord[]) => {
     try {
       // Fetch all cohorts
-      const cohortResponse = await fetch('/api/dashboard/student/cohorts');
+      const cohortResponse = await fetch('/api/dashboard/student/cohorts', {
+        credentials: 'include',
+      });
       if (!cohortResponse.ok) return records;
       
       const cohorts = await cohortResponse.json();
@@ -312,7 +314,9 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
   const fetchAttendanceData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/dashboard/student/attendance');
+      const response = await fetch('/api/dashboard/student/attendance', {
+        credentials: 'include',
+      });
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -358,6 +362,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -392,6 +397,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -468,6 +474,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -496,6 +503,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(recordData),
         });
 
@@ -812,6 +820,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                   try {
                     const response = await fetch(`/api/dashboard/student/attendance/${recordToDelete.id}`, {
                       method: 'DELETE',
+                      credentials: 'include',
                     });
 
                     if (response.ok) {

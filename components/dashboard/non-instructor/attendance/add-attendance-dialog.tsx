@@ -161,7 +161,7 @@ function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", is
         <button
           type="button"
           onClick={() => setShowTimePicker(!showTimePicker)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white hover:text-gray-600 dark:text-white"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white hover:text-gray-600"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10"/>
@@ -400,7 +400,9 @@ export function AddAttendanceDialog({
       setStudentsLoading(true);
 
       try {
-        const res = await fetch('/api/dashboard/staff/non-instructor/non-instructors');
+        const res = await fetch('/api/dashboard/staff/non-instructor/non-instructors', {
+          credentials: 'include'
+        });
         if (res.ok) {
           const json = await res.json();
           // Support multiple API shapes: [], { data: [] }, { items: [] }, { result: [] }
@@ -504,7 +506,9 @@ export function AddAttendanceDialog({
     (async () => {
       try {
         setCohortResolving(true);
-        const res = await fetch('/api/dashboard/staff/instructor/cohorts');
+        const res = await fetch('/api/dashboard/staff/instructor/cohorts', {
+          credentials: 'include'
+        });
         if (!res.ok) return;
         const cohorts = await res.json();
         if (cancelled || !Array.isArray(cohorts)) return;
@@ -769,7 +773,7 @@ export function AddAttendanceDialog({
                           onChange={(e) => setStudentQuery(e.target.value)}
                           placeholder={studentsLoading ? 'Loading non-instructors...' : 'Search non-instructors...'}
                           disabled={studentsLoading}
-                          className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
+                          className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
                         />
                         <div className="max-h-[200px] overflow-y-auto text-sm pr-1 touch-pan-y" data-remove-scroll-allow>
                           {studentsLoading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
@@ -796,7 +800,9 @@ export function AddAttendanceDialog({
                                   } else if (cohortName) {
                                     // If no existing timing but we have a cohort, fetch cohort details immediately
                                     try {
-                                      const res = await fetch('/api/dashboard/staff/instructor/cohorts');
+                                      const res = await fetch('/api/dashboard/staff/instructor/cohorts', {
+                                        credentials: 'include',
+                                      });
                                       if (res.ok) {
                                         const cohorts = await res.json();
                                         if (Array.isArray(cohorts)) {

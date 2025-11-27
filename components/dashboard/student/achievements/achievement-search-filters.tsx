@@ -191,7 +191,7 @@ export default function AchievementSearchFilters({
         const inserted: Achievement[] = []
         for (let i=0;i<items.length;i++) {
           try {
-            const res = await fetch('/api/dashboard/student/achievements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(items[i]) })
+            const res = await fetch('/api/dashboard/student/achievements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(items[i]) })
             if (res.ok) { inserted.push(await res.json()) }
           } catch {}
           setStats({ processed: i+1, total: items.length })

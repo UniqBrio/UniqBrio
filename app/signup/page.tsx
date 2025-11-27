@@ -195,8 +195,9 @@ export default function SignupPage() {
             id="name"
             type="text"
             placeholder="Enter your full name"
-            className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}`}
+            className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}}`}
             {...register("name")}
+            autoFocus
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
         </div>

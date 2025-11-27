@@ -270,6 +270,7 @@ export default function CohortManagement({
         const response = await fetch('/api/dashboard/services/cohorts', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(cohortData)
         });
 
@@ -671,6 +672,7 @@ export default function CohortManagement({
           const response = await fetch('/api/dashboard/services/cohorts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(cohort),
           });
           
@@ -783,7 +785,7 @@ export default function CohortManagement({
   const refreshStudents = async () => {
     setStudentsLoading(true);
     try {
-      const res = await fetch('/api/dashboard/services/user-management/students');
+      const res = await fetch('/api/dashboard/services/user-management/students', { credentials: 'include' });
       const data = await res.json();
       console.log('Refreshed students data:', data);
       setStudents(Array.isArray(data.students) ? data.students : []);
@@ -799,7 +801,7 @@ export default function CohortManagement({
       setStudentsLoading(true);
       try {
         console.log('?? [CohortManagement] Fetching students from API...');
-        const res = await fetch('/api/dashboard/services/user-management/students');
+        const res = await fetch('/api/dashboard/services/user-management/students', { credentials: 'include' });
         
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -840,7 +842,7 @@ export default function CohortManagement({
     async function fetchInstructors() {
       setInstructorsLoading(true);
       try {
-        const res = await fetch('/api/dashboard/services/user-management/instructors?fields=minimal');
+        const res = await fetch('/api/dashboard/services/user-management/instructors?fields=minimal', { credentials: 'include' });
         const data = await res.json();
         if (data.success && Array.isArray(data.instructors)) {
           setInstructors(data.instructors);
@@ -939,7 +941,7 @@ export default function CohortManagement({
   const fetchLocations = async () => {
     try {
       console.log('?? [Cohort] Fetching locations from API...')
-      const response = await fetch('/api/dashboard/services/courses?locations=true')
+      const response = await fetch('/api/dashboard/services/courses?locations=true', { credentials: 'include' })
       const data = await response.json()
       console.log('?? [Cohort] Locations API response:', data)
       if (data.success) {
@@ -976,6 +978,7 @@ export default function CohortManagement({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'add-location', name: locationName }),
       })
       const data = await response.json()
@@ -1501,6 +1504,7 @@ export default function CohortManagement({
                                 const response = await fetch('/api/dashboard/services/cohorts', {
                                   method: 'DELETE',
                                   headers: { 'Content-Type': 'application/json' },
+                                  credentials: 'include',
                                   body: JSON.stringify({ id: cohort.id }),
                                 });
 
@@ -1622,6 +1626,7 @@ export default function CohortManagement({
                                           const response = await fetch('/api/dashboard/services/cohorts', {
                                             method: 'DELETE',
                                             headers: { 'Content-Type': 'application/json' },
+                                            credentials: 'include',
                                             body: JSON.stringify({ id: cohort.id }),
                                           });
 
@@ -2264,7 +2269,7 @@ export default function CohortManagement({
                 size="sm"
                 onClick={refreshLocations}
                 disabled={locationsLoading}
-                className="h-5 w-5 p-0 text-gray-500 dark:text-white hover:text-gray-700 dark:text-white"
+                className="h-5 w-5 p-0 text-gray-500 dark:text-white hover:text-gray-700"
                 title="Refresh location list"
               >
                 <RotateCcw className={`h-3 w-3 ${locationsLoading ? 'animate-spin' : ''}`} />
@@ -2746,6 +2751,7 @@ export default function CohortManagement({
                     response = await fetch('/api/dashboard/services/cohorts', {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
                       body: JSON.stringify(cohortData),
                     });
                   } else {
@@ -2753,6 +2759,7 @@ export default function CohortManagement({
                     response = await fetch('/api/dashboard/services/cohorts', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
                       body: JSON.stringify(cohortData),
                     });
                   }
@@ -2761,7 +2768,8 @@ export default function CohortManagement({
                   console.log('Cohort API response:', result);
 
                   if (!response.ok || !result.success) {
-                    throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`);
+                    const errorMsg = result.error || result.message || `HTTP ${response.status}: ${response.statusText}`;
+                    throw new Error(errorMsg);
                   }
 
                   // Only update frontend state if backend call was successful
@@ -2970,6 +2978,7 @@ export default function CohortManagement({
                         await fetch('/api/dashboard/services/cohorts', {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
+                          credentials: 'include',
                           body: JSON.stringify(updatedCohort),
                         });
                         setCohorts(prev => prev.map(c => c.id === addMembersCohortId ? updatedCohort : c));
@@ -3094,6 +3103,7 @@ export default function CohortManagement({
                                     await fetch('/api/dashboard/services/cohorts', {
                                       method: 'PUT',
                                       headers: { 'Content-Type': 'application/json' },
+                                      credentials: 'include',
                                       body: JSON.stringify(updatedCohort),
                                     });
                                     setCohorts((prev: Cohort[]) => 
@@ -3273,6 +3283,7 @@ export default function CohortManagement({
                                   const response = await fetch('/api/dashboard/services/cohorts', {
                                     method: 'DELETE',
                                     headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'include',
                                     body: JSON.stringify({ id: cohort.id }),
                                   });
 
@@ -3556,6 +3567,7 @@ export default function CohortManagement({
                                   const response = await fetch('/api/dashboard/services/cohorts', {
                                     method: 'DELETE',
                                     headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'include',
                                     body: JSON.stringify({ id: cohort.id }),
                                   });
 

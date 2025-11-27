@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define Cohort schema
 const cohortSchema = new mongoose.Schema({
@@ -14,6 +16,18 @@ const cohortSchema = new mongoose.Schema({
 const Cohort = mongoose.models.Cohort || mongoose.model('Cohort', cohortSchema);
 
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -29,7 +43,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const cohort = await Cohort.findOne({ cohortId })
+    const cohort = await Cohort.findOne({ cohortId, tenantId: session.tenantId })
       .select('cohortId name inheritedStartDate inheritedEndDate')
       .lean()
       .exec();
@@ -87,4 +101,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

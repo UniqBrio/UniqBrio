@@ -4,6 +4,8 @@ import { addStudentToCohort, removeStudentFromCohort, getStudentWithCohorts } fr
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import Student from '@/models/dashboard/student/Student';
+import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
+import { AuditModule } from '@/models/AuditLog';
  
 export async function GET() {
   const session = await getUserSession();
@@ -92,6 +94,13 @@ export async function GET() {
  
 export async function POST(request: Request) {
   try {
+    const session = await getUserSession();
+    const headers = request.headers;
+    
+    if (!session?.tenantId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     const body = await request.json();
     const { action, studentId, cohortId } = body;
  
@@ -107,10 +116,56 @@ export async function POST(request: Request) {
     switch (action) {
       case 'add-to-cohort':
         result = await addStudentToCohort(cohortId, studentId);
+        if (result.success) {
+          // Get student details for logging
+          const student = await getStudentWithCohorts(studentId);
+          await logEntityUpdate(
+            AuditModule.STUDENTS,
+            studentId,
+            {
+              studentId,
+              name: student?.name,
+              email: student?.email,
+              cohortId,
+              action: 'add-to-cohort'
+            },
+            {
+              userId: session.userId,
+              email: session.email,
+              role: 'super_admin',
+              tenantId: session.tenantId,
+              ip: getClientIp(headers),
+              userAgent: getUserAgent(headers)
+            }
+          );
+        }
         break;
        
       case 'remove-from-cohort':
         result = await removeStudentFromCohort(cohortId, studentId);
+        if (result.success) {
+          // Get student details for logging
+          const student = await getStudentWithCohorts(studentId);
+          await logEntityUpdate(
+            AuditModule.STUDENTS,
+            studentId,
+            {
+              studentId,
+              name: student?.name,
+              email: student?.email,
+              cohortId,
+              action: 'remove-from-cohort'
+            },
+            {
+              userId: session.userId,
+              email: session.email,
+              role: 'super_admin',
+              tenantId: session.tenantId,
+              ip: getClientIp(headers),
+              userAgent: getUserAgent(headers)
+            }
+          );
+        }
         break;
        
       default:

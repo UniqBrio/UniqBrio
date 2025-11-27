@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import MonthlySubscription from '@/models/dashboard/payments/MonthlySubscription';
 import { validateSubscriptionStatusUpdate } from '@/lib/dashboard/payments/subscription-validation';
 import { dbConnect } from '@/lib/mongodb';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
+import { AuditModule } from '@/models/AuditLog';
 
 /**
  * GET /api/payments/monthly-subscriptions/[id]
@@ -127,6 +130,42 @@ export async function PATCH(
       
       await session.commitTransaction();
       
+      // Get session for audit logging
+      const userSession = await getUserSession();
+      
+      // Log subscription update to audit logger
+      await logEntityUpdate({
+        module: AuditModule.PAYMENTS,
+        action: 'UPDATE_SUBSCRIPTION_STATUS',
+        entityType: 'MonthlySubscription',
+        entityId: params.id,
+        entityName: `${updatedSubscription?.studentName} - ${updatedSubscription?.courseName}`,
+        changes: {
+          status: {
+            old: currentStatus,
+            new: data.status
+          },
+          reason: data.reason
+        },
+        details: {
+          subscriptionId: params.id,
+          studentId: subscription.studentId,
+          courseId: subscription.courseId,
+          oldStatus: currentStatus,
+          newStatus: data.status,
+          reason: data.reason,
+          updatedBy: data.updatedBy
+        },
+        performedBy: {
+          userId: userSession?.userId || 'system',
+          email: userSession?.email || 'system@uniqbrio.com',
+          role: 'super_admin',
+          tenantId: userSession?.tenantId || subscription.tenantId
+        },
+        ipAddress: getClientIp(request.headers),
+        userAgent: getUserAgent(request.headers)
+      });
+      
       return NextResponse.json({
         success: true,
         subscription: updatedSubscription,
@@ -209,6 +248,38 @@ export async function DELETE(
       );
       
       await session.commitTransaction();
+      
+      // Get session for audit logging
+      const userSession = await getUserSession();
+      
+      // Log subscription deletion to audit logger
+      await logEntityDelete({
+        module: AuditModule.PAYMENTS,
+        action: 'DELETE_SUBSCRIPTION',
+        entityType: 'MonthlySubscription',
+        entityId: params.id,
+        entityName: `${updatedSubscription?.studentName} - ${updatedSubscription?.courseName}`,
+        details: {
+          subscriptionId: params.id,
+          studentId: subscription.studentId,
+          courseId: subscription.courseId,
+          cohortId: subscription.cohortId,
+          courseFee: subscription.courseFee,
+          totalPaidAmount: subscription.totalPaidAmount,
+          currentMonth: subscription.currentMonth,
+          reason,
+          cancelledAt: new Date(),
+          cancelledBy: updatedBy
+        },
+        performedBy: {
+          userId: userSession?.userId || 'system',
+          email: userSession?.email || 'system@uniqbrio.com',
+          role: 'super_admin',
+          tenantId: userSession?.tenantId || subscription.tenantId
+        },
+        ipAddress: getClientIp(request.headers),
+        userAgent: getUserAgent(request.headers)
+      });
       
       return NextResponse.json({
         success: true,

@@ -11,15 +11,13 @@ type Option = { value: string; label: string }
 
 async function fetchCountries(): Promise<Option[]> {
   try {
-    const res = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2", { cache: "force-cache" });
+    const res = await fetch("/api/countries", { 
+      credentials: 'include',
+      cache: "force-cache" 
+    });
     if (!res.ok) throw new Error("Failed to fetch countries");
     const data = await res.json();
-    return data
-      .map((country: any) => ({
-        value: country.cca2,
-        label: country.name.common,
-      }))
-      .sort((a: Option, b: Option) => a.label.localeCompare(b.label));
+    return data.success ? data.data : [];
   } catch {
     return [];
   }
@@ -28,20 +26,12 @@ async function fetchCountries(): Promise<Option[]> {
 async function fetchStates(countryCode: string): Promise<Option[]> {
   if (!countryCode) return [];
   try {
-    const countryRes = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
-    if (!countryRes.ok) throw new Error("Failed to fetch country");
-    const countryData = await countryRes.json();
-    const countryName = countryData[0]?.name?.common;
-    if (!countryName) return [];
-    const res = await fetch("https://countriesnow.space/api/v0.1/countries/states", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ country: countryName })
+    const res = await fetch(`/api/countries/states?country=${encodeURIComponent(countryCode)}`, {
+      credentials: 'include',
     });
     if (!res.ok) throw new Error("Failed to fetch states");
     const data = await res.json();
-    if (!data.data || !Array.isArray(data.data.states)) return [];
-    return data.data.states.map((s: any) => ({ value: s.name, label: s.name }));
+    return data.success ? data.data : [];
   } catch {
     return [];
   }

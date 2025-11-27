@@ -184,6 +184,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         setIsFetching(true)
         const response = await fetch("/api/dashboard/academy-info", {
           cache: 'no-store',
+          credentials: 'include',
           headers: {
             'Cache-Control': 'no-cache'
           }
@@ -534,6 +535,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       await fetch("/api/dashboard/academy-info", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ businessInfo }),
       })
 
@@ -543,6 +545,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         const conversionResponse = await fetch("/api/dashboard/convert-currency", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include',
           body: JSON.stringify({ 
             fromCurrency: oldCurrency, 
             toCurrency: newCurrency 
@@ -634,6 +637,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       const response = await fetch("/api/dashboard/academy-info", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ businessInfo }),
       })
 

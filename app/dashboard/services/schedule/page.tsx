@@ -190,7 +190,9 @@ const currentWeek = getCurrentWeekDates()
 // API functions to fetch data from backend
 const fetchCourses = async () => {
   try {
-    const response = await fetch('/api/dashboard/services/courses')
+    const response = await fetch('/api/dashboard/services/courses', {
+      credentials: 'include',
+    })
     if (!response.ok) {
       const errorText = await response.text()
       console.error(`Failed to fetch courses - Status: ${response.status}, Error: ${errorText}`)
@@ -208,7 +210,9 @@ const fetchCourses = async () => {
 
 const fetchCohorts = async () => {
   try {
-    const response = await fetch('/api/dashboard/services/cohorts')
+    const response = await fetch('/api/dashboard/services/cohorts', {
+      credentials: 'include',
+    })
     if (!response.ok) {
       const errorText = await response.text()
       console.error(`Failed to fetch cohorts - Status: ${response.status}, Error: ${errorText}`)
@@ -225,7 +229,9 @@ const fetchCohorts = async () => {
 
 const fetchReassignments = async () => {
   try {
-    const response = await fetch('/api/dashboard/services/session-management/instructor-reassignments')
+    const response = await fetch('/api/dashboard/services/session-management/instructor-reassignments', {
+      credentials: 'include',
+    })
     if (!response.ok) {
       console.error(`Failed to fetch reassignments - Status: ${response.status}`)
       return []
@@ -241,7 +247,9 @@ const fetchReassignments = async () => {
 
 const fetchCancellations = async () => {
   try {
-    const response = await fetch('/api/dashboard/services/session-management/session-cancellations')
+    const response = await fetch('/api/dashboard/services/session-management/session-cancellations', {
+      credentials: 'include',
+    })
     if (!response.ok) {
       console.error(`Failed to fetch cancellations - Status: ${response.status}`)
       return []
@@ -257,7 +265,9 @@ const fetchCancellations = async () => {
 
 const fetchReschedules = async () => {
   try {
-    const response = await fetch('/api/dashboard/services/session-management/session-reschedules')
+    const response = await fetch('/api/dashboard/services/session-management/session-reschedules', {
+      credentials: 'include',
+    })
     if (!response.ok) {
       console.error(`Failed to fetch reschedules - Status: ${response.status}`)
       return []
@@ -278,7 +288,9 @@ const fetchModifiedSessionsOnly = async () => {
     // We'll fetch schedules that have modifications
     // Since we can't directly query for "has modifications" in MongoDB,
     // we'll need to check each type separately or use an aggregation
-    const response = await fetch('/api/dashboard/services/schedules/modified')
+    const response = await fetch('/api/dashboard/services/schedules/modified', {
+      credentials: 'include',
+    })
     if (!response.ok) {
       // Fallback: if the endpoint doesn't exist, return empty
       console.warn('Modified sessions endpoint not available, using fallback')
@@ -1667,21 +1679,27 @@ export default function EnhancedSchedulePage() {
     setLoadingOptions(true)
     try {
       // Fetch courses
-      const coursesResponse = await fetch('/api/dashboard/services/courses')
+      const coursesResponse = await fetch('/api/dashboard/services/courses', {
+        credentials: 'include',
+      })
       if (coursesResponse.ok) {
         const coursesData = await coursesResponse.json()
         setAvailableCourses(coursesData.courses || [])
       }
 
       // Fetch cohorts
-      const cohortsResponse = await fetch('/api/dashboard/services/cohorts')
+      const cohortsResponse = await fetch('/api/dashboard/services/cohorts', {
+        credentials: 'include',
+      })
       if (cohortsResponse.ok) {
         const cohortsData = await cohortsResponse.json()
         setAvailableCohorts(cohortsData.cohorts || [])
       }
 
       // Fetch instructors
-      const instructorsResponse = await fetch('/api/dashboard/services/user-management/instructors')
+      const instructorsResponse = await fetch('/api/dashboard/services/user-management/instructors', {
+        credentials: 'include',
+      })
       if (instructorsResponse.ok) {
         const instructorsData = await instructorsResponse.json()
         setAvailableInstructors(instructorsData.instructors || [])

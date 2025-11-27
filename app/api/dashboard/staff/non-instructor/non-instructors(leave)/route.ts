@@ -24,7 +24,7 @@ export async function GET() {
         await dbConnect("uniqbrio")
 
         const [nonInstructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
-      NonInstructor.find({}, {
+      NonInstructor.find({ tenantId: session.tenantId }, {
         id: 1,
         name: 1,
         firstName: 1,
@@ -38,8 +38,8 @@ export async function GET() {
         roleType: 1,
         contractType: 1,
       }).lean(),
-      NonInstructorLeaveRequest.find({}).sort({ createdAt: -1 }).lean(),
-      NonInstructorLeaveDraft.find({}).sort({ createdAt: -1 }).lean(),
+      NonInstructorLeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
+      NonInstructorLeaveDraft.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
       NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
     ])
 

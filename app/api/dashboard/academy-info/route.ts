@@ -150,6 +150,10 @@ export async function PUT(req: NextRequest) {
       { new: true }
     );
 
+    if (!updatedRegistration) {
+      return NextResponse.json({ error: "Registration not found" }, { status: 404 })
+    }
+
     return NextResponse.json({
       success: true,
       businessInfo: updatedRegistration.businessInfo,

@@ -91,7 +91,8 @@ export async function GET(req: NextRequest) {
     const activity = searchParams.get('activity');
     const query: Record<string, any> = {
       // Mirror services endpoint behaviour so soft-deleted cohorts never leak into student views
-      isDeleted: { $ne: true }
+      isDeleted: { $ne: true },
+      tenantId: session.tenantId
     };
     if (courseId) {
       // Primary new filter
@@ -198,7 +199,7 @@ export async function PUT(req: NextRequest) {
     console.log(`PUT /api/cohorts - ${action}ing ${studentIds.length} student(s) to/from cohort ${cohortId}`);
     
     // Find the cohort
-    const cohort = await Cohort.findOne({ id: cohortId });
+    const cohort = await Cohort.findOne({ id: cohortId, tenantId: session.tenantId });
     if (!cohort) {
       return NextResponse.json({ error: 'Cohort not found' }, { status: 404 });
     }
@@ -232,7 +233,7 @@ export async function PUT(req: NextRequest) {
       
       // Update cohort
       await Cohort.updateOne(
-        { id: cohortId },
+        { id: cohortId, tenantId: session.tenantId },
         { 
           $set: { 
             enrolledStudents: currentEnrolled,
@@ -249,7 +250,7 @@ export async function PUT(req: NextRequest) {
       for (const studentId of newStudents) {
         try {
           const updateResult = await Student.findOneAndUpdate(
-            { studentId: studentId },
+            { studentId: studentId, tenantId: session.tenantId },
             { $set: { batch: cohortId } },
             { new: true }
           );
@@ -283,7 +284,7 @@ export async function PUT(req: NextRequest) {
       
       // Update cohort
       await Cohort.updateOne(
-        { id: cohortId },
+        { id: cohortId, tenantId: session.tenantId },
         { 
           $set: { 
             enrolledStudents: currentEnrolled,
@@ -300,7 +301,7 @@ export async function PUT(req: NextRequest) {
       for (const studentId of studentsToRemove) {
         try {
           const updateResult = await Student.findOneAndUpdate(
-            { studentId: studentId },
+            { studentId: studentId, tenantId: session.tenantId },
             { $set: { batch: '' } }, // Clear the batch field
             { new: true }
           );
@@ -335,13 +336,25 @@ export async function PUT(req: NextRequest) {
 // This is a utility endpoint to fix existing data where students are in cohorts
 // but their batch field wasn't updated
 export async function PATCH(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
     console.log('PATCH /api/cohorts - Starting bidirectional sync...');
     
-    // Get all cohorts
-    const cohorts = await Cohort.find({}).lean();
+    // Get all cohorts for this tenant
+    const cohorts = await Cohort.find({ tenantId: session.tenantId }).lean();
     
     let syncCount = 0;
     let errorCount = 0;
@@ -362,7 +375,7 @@ export async function PATCH(req: NextRequest) {
       
       for (const studentId of enrolledStudents) {
         try {
-          const student = await Student.findOne({ studentId: studentId });
+          const student = await Student.findOne({ studentId: studentId, tenantId: session.tenantId });
           
           if (!student) {
             console.warn(`⚠️ Student ${studentId} not found (enrolled in cohort ${cohortId})`);
@@ -373,7 +386,7 @@ export async function PATCH(req: NextRequest) {
           // Only update if batch is different
           if (student.batch !== cohortId) {
             await Student.updateOne(
-              { studentId: studentId },
+              { studentId: studentId, tenantId: session.tenantId },
               { $set: { batch: cohortId } }
             );
             console.log(`✅ Updated student ${studentId} batch: "${student.batch}" → "${cohortId}"`);
@@ -398,4 +411,6 @@ export async function PATCH(req: NextRequest) {
     console.error('PATCH /api/cohorts - Error:', error);
     return NextResponse.json({ error: 'Failed to sync cohort enrollments' }, { status: 500 });
   }
+    }
+  );
 }

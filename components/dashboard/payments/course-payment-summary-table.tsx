@@ -85,7 +85,9 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
   const handleCohortClick = async (cohortId: string, cohortName: string, courseId: string) => {
     // Fetch full cohort details
     try {
-      const response = await fetch(`/api/dashboard/cohorts?courseId=${courseId}`);
+      const response = await fetch(`/api/dashboard/cohorts?courseId=${courseId}`, {
+        credentials: 'include'
+      });
       if (response.ok) {
         const cohorts = await response.json();
         const cohort = cohorts.find((c: Cohort) => c.id === cohortId);

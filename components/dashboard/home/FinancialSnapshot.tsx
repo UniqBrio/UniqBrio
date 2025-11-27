@@ -89,6 +89,7 @@ export function FinancialSnapshot({
         });
         const res = await fetch(`/api/dashboard/financial/financials/metrics?${params.toString()}`, { 
           cache: 'no-store',
+          credentials: 'include',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
@@ -132,6 +133,7 @@ export function FinancialSnapshot({
 
         const res = await fetch(`/api/dashboard/financial/financials/charts?${params}`, {
           cache: 'no-store',
+          credentials: 'include',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',

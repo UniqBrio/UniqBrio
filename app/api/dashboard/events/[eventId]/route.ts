@@ -4,6 +4,8 @@ import Event from '@/models/dashboard/events/Event';
 import mongoose from 'mongoose';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
+import { logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
+import { AuditModule } from '@/models/AuditLog';
 
 /**
  * GET /api/events/[eventId]
@@ -130,6 +132,9 @@ export async function PATCH(
     
     console.log('Update query:', updateQuery)
     
+    // Get the old event for change tracking
+    const oldEvent = await Event.findOne(updateQuery).lean();
+    
     const updatedEvent = await Event.findOneAndUpdate(
       updateQuery,
       { $set: body },
@@ -142,6 +147,40 @@ export async function PATCH(
       return NextResponse.json(
         { success: false, error: 'Event not found' },
         { status: 404 }
+      );
+    }
+
+    // Track field changes
+    const fieldChanges: Array<{ field: string; oldValue: string; newValue: string }> = [];
+    if (oldEvent) {
+      const oldEventObj = oldEvent as any;
+      const updatedEventObj = updatedEvent.toObject ? updatedEvent.toObject() : updatedEvent;
+      const fieldsToTrack = ['name', 'sport', 'type', 'startDate', 'endDate', 'venue', 'isPublished', 'maxParticipants', 'entryFee'];
+      for (const field of fieldsToTrack) {
+        if (body[field] !== undefined && String(oldEventObj[field]) !== String((updatedEventObj as any)[field])) {
+          fieldChanges.push({
+            field,
+            oldValue: String(oldEventObj[field] || ''),
+            newValue: String((updatedEventObj as any)[field] || '')
+          });
+        }
+      }
+    }
+
+    // Log entity update
+    if (fieldChanges.length > 0) {
+      const headers = new Headers(request.headers);
+      await logEntityUpdate(
+        AuditModule.EVENTS,
+        String(updatedEvent._id),
+        updatedEvent.name || updatedEvent.eventId || 'Unnamed Event',
+        fieldChanges,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers)
       );
     }
 
@@ -214,6 +253,30 @@ export async function DELETE(
           { status: 404 }
         )
       }
+      
+      // Log permanent deletion
+      const headers = new Headers(request.headers);
+      await logEntityDelete(
+        AuditModule.EVENTS,
+        String(deletedEvent._id),
+        deletedEvent.name || deletedEvent.eventId || 'Unnamed Event',
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers),
+        {
+          eventId: deletedEvent.eventId,
+          name: deletedEvent.name,
+          sport: deletedEvent.sport,
+          type: deletedEvent.type,
+          startDate: deletedEvent.startDate,
+          endDate: deletedEvent.endDate,
+          permanent: true,
+        }
+      );
+      
       return NextResponse.json({ success: true, message: 'Event permanently deleted', data: deletedEvent }, { status: 200 })
     }
 
@@ -228,7 +291,30 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Event not found' }, { status: 404 })
     }
 
-        return NextResponse.json({ success: true, message: 'Event soft-deleted', data: softDeleted }, { status: 200 })
+    // Log soft deletion
+    const headers = new Headers(request.headers);
+    await logEntityDelete(
+      AuditModule.EVENTS,
+      String(softDeleted._id),
+      softDeleted.name || softDeleted.eventId || 'Unnamed Event',
+      session.userId,
+      session.email,
+      'super_admin',
+      session.tenantId,
+      getClientIp(headers),
+      getUserAgent(headers),
+      {
+        eventId: softDeleted.eventId,
+        name: softDeleted.name,
+        sport: softDeleted.sport,
+        type: softDeleted.type,
+        startDate: softDeleted.startDate,
+        endDate: softDeleted.endDate,
+        permanent: false,
+      }
+    );
+
+    return NextResponse.json({ success: true, message: 'Event soft deleted', data: softDeleted }, { status: 200 })
       } catch (error: any) {
         console.error('Error deleting event:', error);
         console.error('Error details:', error.message);

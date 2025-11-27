@@ -53,7 +53,9 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
   const fetchDrafts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/dashboard/student/attendance-drafts');
+      const response = await fetch('/api/dashboard/student/attendance-drafts', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -129,6 +131,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
       try {
         const response = await fetch(`/api/attendance-drafts/${id}`, {
           method: 'DELETE',
+          credentials: 'include',
         });
         
         if (response.ok) {
@@ -280,6 +283,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                 try {
                   const response = await fetch(`/api/attendance-drafts/${draftToDelete.id}`, {
                     method: 'DELETE',
+                    credentials: 'include',
                   });
                   
                   if (response.ok) {

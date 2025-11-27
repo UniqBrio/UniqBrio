@@ -251,7 +251,8 @@ export default function CohortSearchAndFilters({
             await fetch('/api/dashboard/services/cohorts', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(cohort)
+              body: JSON.stringify(cohort),
+              credentials: 'include'
             });
           } catch (error) {
             console.error('Failed to save cohort:', error);

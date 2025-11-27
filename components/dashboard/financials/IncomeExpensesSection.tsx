@@ -111,7 +111,7 @@ export function IncomeExpensesSection({
     if (show) {
       // Immediately fetch and update count when dialog opens
       try {
-        const response = await fetch('/api/dashboard/financial/incomedrafts');
+        const response = await fetch('/api/dashboard/financial/incomedrafts', { credentials: 'include' });
         if (response.ok) {
           const drafts = await response.json();
           setIncomeDraftsCount(drafts.length);
@@ -127,7 +127,7 @@ export function IncomeExpensesSection({
     if (show) {
       // Immediately fetch and update count when dialog opens
       try {
-        const response = await fetch('/api/dashboard/financial/expensedrafts');
+        const response = await fetch('/api/dashboard/financial/expensedrafts', { credentials: 'include' });
         if (response.ok) {
           const drafts = await response.json();
           setExpenseDraftsCount(drafts.length);
@@ -249,7 +249,7 @@ export function IncomeExpensesSection({
       // @ts-ignore id exists on our data
       const id = deleteDialog.item._id || deleteDialog.item.id;
       if (id) {
-        await fetch(`/api/dashboard/financial?collection=${collection}&id=${id}`, { method: 'DELETE' });
+        await fetch(`/api/dashboard/financial?collection=${collection}&id=${id}`, { method: 'DELETE', credentials: 'include' });
       }
 
       if (deleteDialog.type === 'income') {
@@ -329,14 +329,14 @@ export function IncomeExpensesSection({
     const loadDraftCounts = async () => {
       try {
         // Load income drafts count
-        const incomeRes = await fetch('/api/dashboard/financial/incomedrafts');
+        const incomeRes = await fetch('/api/dashboard/financial/incomedrafts', { credentials: 'include' });
         if (incomeRes.ok) {
           const incomeData = await incomeRes.json();
           setIncomeDraftsCount(incomeData.length);
         }
 
         // Load expense drafts count
-        const expenseRes = await fetch('/api/dashboard/financial/expensedrafts');
+        const expenseRes = await fetch('/api/dashboard/financial/expensedrafts', { credentials: 'include' });
         if (expenseRes.ok) {
           const expenseData = await expenseRes.json();
           setExpenseDraftsCount(expenseData.length);

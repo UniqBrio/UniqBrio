@@ -3,6 +3,8 @@ import { dbConnect } from '@/lib/mongodb';
 import Event from '@/models/dashboard/events/Event';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
+import { logEntityCreate, getClientIp, getUserAgent } from '@/lib/audit-logger';
+import { AuditModule } from '@/models/AuditLog';
 
 // Helper: generate next event ID like EVT0001
 async function generateNextEventId(tenantId: string): Promise<string> {
@@ -221,6 +223,28 @@ export async function POST(request: NextRequest) {
     allowed.status = computeStatus(allowed.startDate as Date, allowed.endDate as Date)
 
     const newEvent = await Event.create({ ...allowed, tenantId: session.tenantId })
+
+    // Log entity creation
+    const headers = new Headers(request.headers);
+    await logEntityCreate(
+      AuditModule.EVENTS,
+      String(newEvent._id),
+      newEvent.name || newEvent.eventId || 'Unnamed Event',
+      session.userId,
+      session.email,
+      'super_admin',
+      session.tenantId,
+      getClientIp(headers),
+      getUserAgent(headers),
+      {
+        eventId: newEvent.eventId,
+        name: newEvent.name,
+        sport: newEvent.sport,
+        type: newEvent.type,
+        startDate: newEvent.startDate,
+        endDate: newEvent.endDate,
+      }
+    );
 
     const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d)
     const s = (newEvent as any).toObject()

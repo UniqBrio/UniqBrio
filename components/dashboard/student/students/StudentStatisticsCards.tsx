@@ -34,9 +34,9 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
       try {
         // Fetch student stats
         const [studentsResponse, coursesResponse, cohortsResponse] = await Promise.all([
-          fetch('/api/dashboard/services/user-management/students'),
-          fetch('/api/dashboard/services/courses?stats=true'),
-          fetch('/api/dashboard/services/cohorts?stats=true')
+          fetch('/api/dashboard/services/user-management/students', { credentials: 'include' }),
+          fetch('/api/dashboard/services/courses?stats=true', { credentials: 'include' }),
+          fetch('/api/dashboard/services/cohorts?stats=true', { credentials: 'include' })
         ]);
 
         const [studentsData, coursesData, cohortsData] = await Promise.all([

@@ -50,7 +50,7 @@ export default async function StudentDashboardPage() {
     <div className="p-6 bg-gray-50 min-h-screen"> {/* Added some basic styling */}
       <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Student Dashboard</h1>
       <p className="mb-6 text-lg text-gray-600 dark:text-white">
-        Welcome back, <span className="font-semibold">{session.name || session.email}</span>!
+        Welcome, <span className="font-semibold">{session.name || session.email}</span>!
       </p>
 
       {/* Example Dashboard Widgets */}

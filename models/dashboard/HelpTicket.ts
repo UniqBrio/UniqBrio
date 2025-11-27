@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // HelpTicket Interface
 export interface IHelpTicket extends Document {
@@ -28,7 +29,6 @@ const helpTicketSchema = new Schema<IHelpTicket>({
   ticketId: {
     type: String,
     required: true,
-    unique: true,
     trim: true
   },
   customerEmail: {
@@ -118,8 +118,11 @@ const helpTicketSchema = new Schema<IHelpTicket>({
   timestamps: true
 });
 
+// Apply tenant plugin
+helpTicketSchema.plugin(tenantPlugin);
+
 // Indexes for efficient querying
-// Note: ticketId index is created by unique: true constraint
+helpTicketSchema.index({ tenantId: 1, ticketId: 1 }, { unique: true });
 helpTicketSchema.index({ customerEmail: 1 });
 helpTicketSchema.index({ status: 1 });
 helpTicketSchema.index({ priority: -1 });

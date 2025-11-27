@@ -7,6 +7,8 @@ import { generateInvoiceNumber } from '@/lib/dashboard/payments/payment-processi
 import { dbConnect } from '@/lib/mongodb';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
+import { logEntityCreate, getClientIp, getUserAgent } from '@/lib/audit-logger';
+import { AuditModule } from '@/models/AuditLog';
 
 /**
  * POST /api/payments/monthly-subscriptions
@@ -59,12 +61,13 @@ export async function POST(request: NextRequest) {
       (discountedMonthlyAmount || data.originalMonthlyAmount);
     
     // Start transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    const mongoSession = await mongoose.startSession();
+    mongoSession.startTransaction();
     
     try {
       // Create monthly subscription
-      const subscription = new MonthlySubscription({
+      const [savedSubscription] = await MonthlySubscription.create([{
+        tenantId: session.tenantId,
         studentId: data.studentId,
         studentName: 'Student Name', // This should be fetched from student data
         courseId: data.courseId,
@@ -85,15 +88,14 @@ export async function POST(request: NextRequest) {
         reminderDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000), // 25 days from now
         totalPaidAmount: firstPaymentAmount,
         createdBy: data.receivedBy,
-      });
-      
-      const savedSubscription = await subscription.save({ session });
+      }], { session: mongoSession });
       
       // Generate invoice number
       const invoiceNumber = await generateInvoiceNumber();
       
       // Create payment record
-      const paymentRecord = new PaymentTransaction({
+      const [savedPaymentRecord] = await PaymentTransaction.create([{
+        tenantId: session.tenantId,
         paymentId: new mongoose.Types.ObjectId(), // This should reference a Payment document if you have one
         monthlySubscriptionId: savedSubscription._id,
         studentId: data.studentId,
@@ -119,9 +121,7 @@ export async function POST(request: NextRequest) {
         invoiceNumber,
         invoiceGenerated: false, // Will be generated separately
         status: 'CONFIRMED',
-      });
-      
-      const savedPaymentRecord = await paymentRecord.save({ session });
+      }], { session: mongoSession });
       
       // Update subscription with payment record reference
       await MonthlySubscription.findByIdAndUpdate(
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
           $push: { paymentRecords: savedPaymentRecord._id },
           $set: { lastPaymentDate: data.paymentDate }
         },
-        { session }
+        { session: mongoSession }
       );
       
       // Add audit log
@@ -146,7 +146,63 @@ export async function POST(request: NextRequest) {
         'Monthly subscription created with first payment'
       );
       
-      await session.commitTransaction();
+      await mongoSession.commitTransaction();
+      
+      // Log subscription creation to audit logger
+      const headers = new Headers(request.headers);
+      await logEntityCreate(
+        AuditModule.PAYMENTS,
+        savedSubscription._id.toString(),
+        `${savedSubscription.studentName} - ${savedSubscription.courseName}`,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers),
+        {
+          subscriptionId: savedSubscription._id.toString(),
+          studentId: data.studentId,
+          courseId: data.courseId,
+          cohortId: data.cohortId,
+          subscriptionType: data.subscriptionType,
+          amount: firstPaymentAmount,
+          courseFee: data.courseFee,
+          registrationFee: data.registrationFee,
+          originalMonthlyAmount: data.originalMonthlyAmount,
+          discountedMonthlyAmount,
+          commitmentPeriod: data.commitmentPeriod,
+          paymentMethod: data.paymentMethod,
+          status: 'ACTIVE'
+        }
+      );
+      
+      // Log payment transaction creation to audit logger
+      await logEntityCreate(
+        AuditModule.PAYMENTS,
+        savedPaymentRecord._id.toString(),
+        `Payment for ${savedSubscription.studentName} - Month 1`,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers),
+        {
+          paymentId: savedPaymentRecord._id.toString(),
+          subscriptionId: savedSubscription._id.toString(),
+          studentId: data.studentId,
+          amount: firstPaymentAmount,
+          paymentMode: savedPaymentRecord.paymentMode,
+          paymentOption: savedPaymentRecord.paymentOption,
+          paymentSubType: savedPaymentRecord.paymentSubType,
+          subscriptionMonth: 1,
+          transactionId: data.transactionId,
+          invoiceNumber,
+          status: 'CONFIRMED',
+          isFirstPayment: true
+        }
+      );
       
       return NextResponse.json({
         success: true,
@@ -156,10 +212,10 @@ export async function POST(request: NextRequest) {
       });
       
     } catch (error) {
-      await session.abortTransaction();
+      await mongoSession.abortTransaction();
       throw error;
     } finally {
-      session.endSession();
+      mongoSession.endSession();
     }
     
   } catch (error) {

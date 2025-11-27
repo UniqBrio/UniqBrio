@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { PaymentTransactionModel, IncomeModel } from "@/lib/dashboard/models";
 import { processDropdownValues } from "@/lib/dashboard/dropdown-utils";
+import { getUserSession } from "@/lib/tenant/api-helpers";
+import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
 function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
@@ -41,19 +43,31 @@ async function createIncomeFromPayment(paymentData: any) {
 
 // GET /api/payments - Get all payment transactions
 export async function GET(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
     
     const id = searchParams.get("id");
     if (id) {
-      const doc = await PaymentTransactionModel.findById(id);
+      const doc = await PaymentTransactionModel.findOne({ _id: id, tenantId: session.tenantId });
       if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
       return NextResponse.json(doc);
     }
 
     // Optional filters
-    const q: any = {};
+    const q: any = { tenantId: session.tenantId };
     const start = searchParams.get("start");
     const end = searchParams.get("end");
     if (start || end) {
@@ -82,10 +96,24 @@ export async function GET(req: NextRequest) {
     console.error("GET /api/payments error", err);
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }
 
 // POST /api/payments - Create payment transaction and corresponding income record
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const body = await req.json();
@@ -158,10 +186,24 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }
 
 // PUT /api/payments?id= - Update payment transaction
 export async function PUT(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
@@ -191,7 +233,7 @@ export async function PUT(req: NextRequest) {
       body.amount = amount;
     }
 
-    const updated = await PaymentTransactionModel.findByIdAndUpdate(id, body, { new: true });
+    const updated = await PaymentTransactionModel.findOneAndUpdate({ _id: id, tenantId: session.tenantId }, body, { new: true });
     if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     return NextResponse.json(updated);
@@ -211,21 +253,37 @@ export async function PUT(req: NextRequest) {
     
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }
 
 // DELETE /api/payments?id= - Delete payment transaction
 export async function DELETE(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) return badRequest("Missing id");
 
-    const deleted = await PaymentTransactionModel.findByIdAndDelete(id);
+    const deleted = await PaymentTransactionModel.findOneAndDelete({ _id: id, tenantId: session.tenantId });
     if (!deleted) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error("DELETE /api/payments error", err);
     return NextResponse.json({ error: "Server error", details: err?.message }, { status: 500 });
   }
+    }
+  );
 }

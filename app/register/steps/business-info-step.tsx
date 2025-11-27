@@ -136,7 +136,9 @@ const fetchLanguages = async (): Promise<Option[]> => {
 // Countries will be fetched from our API route
 const fetchCountries = async (): Promise<Option[]> => {
   try {
-    const response = await fetch('/api/countries');
+    const response = await fetch('/api/countries', {
+      credentials: 'include',
+    });
     if (!response.ok) throw new Error('Failed to fetch countries');
     const data = await response.json();
     return data.success ? data.data : [];
@@ -151,7 +153,9 @@ const fetchStates = async (countryCode: string): Promise<Option[]> => {
   if (!countryCode) return [];
   try {
     console.log('[fetchStates] Fetching for country code:', countryCode);
-    const response = await fetch(`/api/countries/states?country=${countryCode}`);
+    const response = await fetch(`/api/countries/states?country=${countryCode}`, {
+      credentials: 'include',
+    });
     if (!response.ok) throw new Error('Failed to fetch states');
     const data = await response.json();
     console.log('[fetchStates] States fetched:', data.success ? data.data.length : 0);

@@ -22,18 +22,18 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       </div>
 
       {/* Content wrapper with z-index */}
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Logo and Tagline Section - Top Left Corner */}
-        <div className="absolute top-0 left-2 z-15 animate-fadeIn">
+      <div className="relative z-8 flex flex-col min-h-screen">
+        {/* Logo and Tagline Section - Centered at Top */}
+        <div className="flex flex-col items-center justify-center pt-0 pb-2 z-14 animate-fadeIn">
           <Image
             src="/UniqBrio%20Logo%20Transparent.png" // URL-encoded space in filename
             alt="UniqBrio Logo"
-            width={180} // Smaller size for corner placement
+            width={180}
             height={80}
             priority
-            className="drop-shadow-lg left-2"
+            className="drop-shadow-lg"
           />
-          <p className="text-gray-700 dark:text-white left-2 text-sm -mt-8 italic font-medium">Mentoring Businesses, Nurturing Learners</p>
+          <p className="text-gray-700 dark:text-white text-base -mt-12 italic font-medium text-center">Mentoring Businesses, Nurturing Learners</p>
         </div>
 
       {/* Wrapper for Left and Right Panels - This will be a flex row */}

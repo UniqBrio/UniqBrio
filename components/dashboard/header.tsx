@@ -149,7 +149,10 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
   const handleLogout = async () => {
     try {
       // Call logout API
-      await fetch("/api/auth/logout", { method: "POST" })
+      await fetch("/api/auth/logout", { 
+        method: "POST",
+        credentials: 'include',
+      })
       // Redirect to login page
       router.push("/login")
     } catch (error) {

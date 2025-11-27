@@ -36,6 +36,7 @@ export interface IUser extends Document {
   registrationComplete: boolean;
   kycStatus: KycStatus;
   kycSubmissionDate?: Date;
+  lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +71,7 @@ const userSchema = new Schema<IUser>(
       default: KycStatus.pending 
     },
     kycSubmissionDate: { type: Date },
+    lastLoginAt: { type: Date },
   },
   {
     timestamps: true,

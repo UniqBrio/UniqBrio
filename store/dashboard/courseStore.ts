@@ -297,7 +297,9 @@ export const useCourseStore = create<CourseState>()(
             
             // Fetch academy currency from settings
             try {
-              const academyResponse = await fetch("/api/dashboard/academy-info");
+              const academyResponse = await fetch("/api/dashboard/academy-info", {
+                credentials: 'include',
+              });
               if (academyResponse.ok) {
                 const academyData = await academyResponse.json();
                 if (academyData.businessInfo?.currency) {
@@ -309,7 +311,9 @@ export const useCourseStore = create<CourseState>()(
               // Continue with default currency if fetch fails
             }
             
-            const response = await fetch("/api/dashboard/services/courses");
+            const response = await fetch("/api/dashboard/services/courses", {
+              credentials: 'include',
+            });
             const data = await response.json();
             
             if (data.success && data.courses) {
@@ -327,7 +331,9 @@ export const useCourseStore = create<CourseState>()(
         
         fetchDrafts: async () => {
           try {
-            const response = await fetch("/api/dashboard/services/courses/drafts");
+            const response = await fetch("/api/dashboard/services/courses/drafts", {
+              credentials: 'include',
+            });
             const data = await response.json();
             
             if (data.success && data.drafts) {
@@ -345,7 +351,9 @@ export const useCourseStore = create<CourseState>()(
         
         fetchCohorts: async () => {
           try {
-            const response = await fetch('/api/dashboard/services/cohorts');
+            const response = await fetch('/api/dashboard/services/cohorts', {
+              credentials: 'include',
+            });
             const data = await response.json();
             
             if (data.success && data.cohorts) {

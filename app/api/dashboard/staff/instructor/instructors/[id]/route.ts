@@ -3,29 +3,61 @@ import { dbConnect } from "@/lib/mongodb"
 import InstructorModel from "@/models/dashboard/staff/Instructor"
 import CourseModel from "@/models/dashboard/staff/Course"
 import CohortModel from "@/models/dashboard/staff/Cohort"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  await dbConnect("uniqbrio")
-  const item = await InstructorModel.findById(id).lean()
-  if (!item) return NextResponse.json({ message: "Not found" }, { status: 404 })
-  return NextResponse.json(item)
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      await dbConnect("uniqbrio")
+      const item = await InstructorModel.findOne({ _id: id, tenantId: session.tenantId }).lean()
+      if (!item) return NextResponse.json({ message: "Not found" }, { status: 404 })
+      return NextResponse.json(item)
+    }
+  )
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    await dbConnect("uniqbrio")
-    const body = await req.json()
-    let updated = await InstructorModel.findByIdAndUpdate(id, body, { new: true })
+    const session = await getUserSession()
+    
+    if (!session?.tenantId) {
+      return NextResponse.json(
+        { error: 'Unauthorized: No tenant context' },
+        { status: 401 }
+      )
+    }
+    
+    return runWithTenantContext(
+      { tenantId: session.tenantId },
+      async () => {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
+        let updated = await InstructorModel.findOneAndUpdate(
+          { _id: id, tenantId: session.tenantId },
+          { $set: { ...body, tenantId: session.tenantId } },
+          { new: true }
+        )
     // Also compute denormalized fields post-update
     try {
       const toKey = (s?: string) => (s || '').trim().toLowerCase()
       const fullName = [updated?.firstName, updated?.middleName, updated?.lastName].filter(Boolean).join(' ').trim()
       const key = toKey(fullName)
       const [courses, cohorts] = await Promise.all([
-        CourseModel.find({}).lean().catch(() => [] as any[]),
-        CohortModel.find({}).lean().catch(() => [] as any[]),
+        CourseModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
+        CohortModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
       ])
       const courseAssigned = Array.from(new Set((courses as any[])
         .filter(c => toKey(c?.instructor) === key)
@@ -44,12 +76,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         .map(c => (c?.cohortId || '').trim())
         .filter(Boolean))).join(', ')
       if ((courseAssigned && courseAssigned !== (updated as any)?.courseAssigned) || (cohortName && cohortName !== (updated as any)?.cohortName) || (courseIds && courseIds !== (updated as any)?.courseIds) || (cohortIds && cohortIds !== (updated as any)?.cohortIds)) {
-        const refreshed = await InstructorModel.findByIdAndUpdate(id, { $set: { courseAssigned, cohortName, courseIds, cohortIds } }, { new: true })
+        const refreshed = await InstructorModel.findOneAndUpdate(
+          { _id: id, tenantId: session.tenantId },
+          { $set: { courseAssigned, cohortName, courseIds, cohortIds } },
+          { new: true }
+        )
         updated = refreshed ?? updated
       }
     } catch {}
-    if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
-    return NextResponse.json(updated)
+        if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
+        return NextResponse.json(updated)
+      }
+    )
   } catch (e: any) {
     return NextResponse.json({ message: e.message }, { status: 400 })
   }
@@ -57,8 +95,26 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  await dbConnect("uniqbrio")
-  const res = await InstructorModel.findByIdAndUpdate(id, { $set: { status: "Inactive" } }, { new: true })
-  if (!res) return NextResponse.json({ message: "Not found" }, { status: 404 })
-  return NextResponse.json({ ok: true })
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      await dbConnect("uniqbrio")
+      const res = await InstructorModel.findOneAndUpdate(
+        { _id: id, tenantId: session.tenantId },
+        { $set: { status: "Inactive" } },
+        { new: true }
+      )
+      if (!res) return NextResponse.json({ message: "Not found" }, { status: 404 })
+      return NextResponse.json({ ok: true })
+    }
+  )
 }

@@ -161,7 +161,7 @@ function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", is
         <button
           type="button"
           onClick={() => setShowTimePicker(!showTimePicker)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white hover:text-gray-600 dark:text-white"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white hover:text-gray-600"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10"/>
@@ -400,7 +400,9 @@ export function AddAttendanceDialog({
       setStudentsLoading(true);
 
       try {
-        const res = await fetch('/api/dashboard/staff/instructor/instructors');
+        const res = await fetch('/api/dashboard/staff/instructor/instructors', {
+          credentials: 'include'
+        });
         if (res.ok) {
           const json = await res.json();
           // Support multiple API shapes: [], { data: [] }, { items: [] }, { result: [] }
@@ -504,7 +506,9 @@ export function AddAttendanceDialog({
     (async () => {
       try {
         setCohortResolving(true);
-        const res = await fetch('/api/dashboard/staff/instructor/cohorts');
+        const res = await fetch('/api/dashboard/staff/instructor/cohorts', {
+          credentials: 'include'
+        });
         if (!res.ok) return;
         const cohorts = await res.json();
         if (cancelled || !Array.isArray(cohorts)) return;
@@ -796,7 +800,9 @@ export function AddAttendanceDialog({
                                   } else if (cohortName) {
                                     // If no existing timing but we have a cohort, fetch cohort details immediately
                                     try {
-                                      const res = await fetch('/api/dashboard/staff/instructor/cohorts');
+                                      const res = await fetch('/api/dashboard/staff/instructor/cohorts', {
+                                        credentials: 'include',
+                                      });
                                       if (res.ok) {
                                         const cohorts = await res.json();
                                         if (Array.isArray(cohorts)) {

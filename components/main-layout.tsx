@@ -54,7 +54,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     async function fetchInfo() {
       try {
-        const res = await fetch("/api/user-academy-info");
+        const res = await fetch("/api/user-academy-info", {
+          credentials: 'include',
+        });
         if (res.ok) {
           const data = await res.json();
           setAcademyName(data.academyName || "");

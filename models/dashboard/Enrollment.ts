@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 /**
  * @deprecated This Enrollment model is being phased out in favor of bidirectional
@@ -500,6 +501,9 @@ const enrollmentSchema = new Schema<IEnrollment>({
   timestamps: true
 });
 
+// Apply tenant plugin
+enrollmentSchema.plugin(tenantPlugin);
+
 // Indexes
 enrollmentSchema.index({ studentId: 1 });
 enrollmentSchema.index({ courseId: 1 });
@@ -507,7 +511,7 @@ enrollmentSchema.index({ instructorId: 1 });
 enrollmentSchema.index({ status: 1 });
 enrollmentSchema.index({ enrollmentDate: 1 });
 enrollmentSchema.index({ paymentStatus: 1 });
-enrollmentSchema.index({ studentId: 1, courseId: 1 }, { unique: true });
+enrollmentSchema.index({ tenantId: 1, studentId: 1, courseId: 1 }, { unique: true });
 
 // Virtual fields
 enrollmentSchema.virtual('isCompleted').get(function(this: IEnrollment) {

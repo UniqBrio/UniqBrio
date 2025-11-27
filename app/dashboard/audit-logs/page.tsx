@@ -426,11 +426,64 @@ export default function AuditLogsPage() {
     }
   }, [filterDropdownOpen, selectedAction, selectedRole, selectedModule, dateFilter])
 
-  // Generate mock data only on client side to avoid hydration mismatch
+  // Fetch real audit logs from API
   useEffect(() => {
-    const mockLogs = generateMockAuditLogs(50000)
-    setAuditLogs(mockLogs)
-    setFilteredLogs(mockLogs)
+    const fetchAuditLogs = async () => {
+      try {
+        const params = new URLSearchParams();
+        params.set('page', '1');
+        params.set('limit', '50000'); // Fetch large amount for client-side filtering
+        
+        const response = await fetch(`/api/audit-logs?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies for authentication
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[AuditLogs] Failed to fetch:', response.status, errorText);
+          // Fall back to empty array if API fails
+          setAuditLogs([]);
+          setFilteredLogs([]);
+          return;
+        }
+        
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data)) {
+          // Transform API data to match expected format
+          const transformedLogs = result.data.map((log: any, index: number) => ({
+            id: index + 1,
+            module: log.module,
+            action: log.action,
+            timestamp: new Date(log.timestamp),
+            previousValue: log.previousValue,
+            currentValue: log.currentValue,
+            changedBy: log.changedBy,
+            role: log.role,
+            ipAddress: log.ipAddress || 'N/A',
+            userAgent: log.userAgent || '',
+            details: log.details || {},
+          }));
+          setAuditLogs(transformedLogs);
+          setFilteredLogs(transformedLogs);
+        } else {
+          console.error('[AuditLogs] Invalid response format:', result);
+          // Fall back to empty array if API fails
+          setAuditLogs([]);
+          setFilteredLogs([]);
+        }
+      } catch (error) {
+        console.error('[AuditLogs] Error fetching audit logs:', error);
+        // Fall back to empty array on error
+        setAuditLogs([]);
+        setFilteredLogs([]);
+      }
+    };
+
+    fetchAuditLogs();
   }, [])
 
   // Set today's date only on client side to avoid hydration mismatch

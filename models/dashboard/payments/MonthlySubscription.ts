@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 /**
  * MonthlySubscription Schema - Manages recurring monthly subscription payments
@@ -317,6 +318,9 @@ MonthlySubscriptionSchema.pre('save', function(this: any, next) {
   
   next();
 });
+
+// Apply tenant plugin
+MonthlySubscriptionSchema.plugin(tenantPlugin);
 
 // Export the model
 const MonthlySubscription = mongoose.models.MonthlySubscription || 

@@ -85,6 +85,7 @@ export function OverviewTab() {
         // Load all chart data in parallel
         const chartsRes = await fetch(url, { 
           cache: 'no-store',
+          credentials: 'include',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',

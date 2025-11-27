@@ -27,7 +27,7 @@ import { formatDateForDisplay } from '@/lib/dashboard/student/utils'
 import type { LeaveRecord } from "./types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Label } from "@/components/dashboard/ui/label"
-import { Dialog, DialogContent } from "@/components/dashboard/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/dashboard/ui/dialog"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { useCustomColors } from "@/lib/use-custom-colors"
 
@@ -654,7 +654,7 @@ export default function LeaveSearchFilters({
         <DialogContent className="max-w-2xl">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-lg font-semibold">New Leave Request</h2>
+              <DialogTitle className="text-lg font-semibold">New Leave Request</DialogTitle>
               <p className="text-xs text-muted-foreground">Submit a leave request for a student</p>
             </div>
             <span

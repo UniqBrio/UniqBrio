@@ -89,7 +89,9 @@ export default function UserManagementPage() {
         // Helper function to safely fetch and parse JSON
         const safeFetch = async (url: string, fallback: any) => {
           try {
-            const res = await fetch(url)
+            const res = await fetch(url, {
+              credentials: 'include',
+            })
             if (!res.ok) {
               console.warn(`API ${url} returned status ${res.status}`)
               return fallback

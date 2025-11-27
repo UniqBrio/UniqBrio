@@ -28,7 +28,7 @@ export async function GET() {
       try {
         await dbConnect("uniqbrio");
 
-        const cohorts = await Cohort.find({})
+        const cohorts = await Cohort.find({ tenantId: session.tenantId })
           .select('cohortId name inheritedStartDate inheritedEndDate')
           .lean();
 

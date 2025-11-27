@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     
     // Fetch specific chat by ID
     if (chatId) {
-      const chat = await HelpChat.findOne({ chatId }).lean();
+      const chat = await HelpChat.findOne({ chatId, tenantId: session.tenantId }).lean();
       if (!chat) {
         return NextResponse.json({
           success: false,
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     }
     
     // Build query
-    let query: any = {};
+    let query: any = { tenantId: session.tenantId };
     if (userId) {
       query.userId = userId;
     }
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
     
     // If chatId is provided, add message to existing chat
     if (body.chatId) {
-      const chat = await HelpChat.findOne({ chatId: body.chatId });
+      const chat = await HelpChat.findOne({ chatId: body.chatId, tenantId: session.tenantId });
       
       if (!chat) {
         return NextResponse.json({
@@ -227,7 +227,7 @@ export async function PUT(request: Request) {
     if (body.userId !== undefined) updateData.userId = body.userId;
     
     const updatedChat = await HelpChat.findOneAndUpdate(
-      { chatId: body.chatId },
+      { chatId: body.chatId, tenantId: session.tenantId },
       { $set: updateData },
       { new: true, runValidators: true }
     );

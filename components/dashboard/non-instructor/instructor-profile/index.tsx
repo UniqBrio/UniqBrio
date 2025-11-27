@@ -104,7 +104,9 @@ export default function InstructorProfile({
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch('/api/dashboard/staff/instructor/courses')
+        const response = await fetch('/api/dashboard/staff/instructor/courses', {
+          credentials: 'include'
+        })
         if (response.ok) {
           const coursesData = await response.json()
           setCourses(coursesData)
@@ -121,7 +123,9 @@ export default function InstructorProfile({
   useEffect(() => {
     const fetchCohorts = async () => {
       try {
-        const response = await fetch('/api/dashboard/staff/instructor/cohorts')
+        const response = await fetch('/api/dashboard/staff/instructor/cohorts', {
+          credentials: 'include'
+        })
         if (response.ok) {
           const data = await response.json()
           setCohorts(data)

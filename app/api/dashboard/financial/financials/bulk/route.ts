@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import { IncomeModel, ExpenseModel } from '@/lib/dashboard/models';
 import { processBulkDropdownValues } from '@/lib/dashboard/dropdown-utils';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import crypto from 'crypto';
 
 function bad(message: string, status = 400) { return NextResponse.json({ error: message }, { status }); }
@@ -44,6 +46,18 @@ function validate(doc: any, collection: string): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     const body = await req.json();
@@ -71,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch existing hashes to avoid duplicates
     const hashes = prepped.map(p => p.doc.__hash);
-    const existing = await Model.find({ __hash: { $in: hashes } }, { __hash: 1 }).lean();
+    const existing = await Model.find({ __hash: { $in: hashes }, tenantId: session.tenantId }, { __hash: 1 }).lean();
     const existingSet = new Set(existing.map((e: any) => e.__hash));
 
     const toInsert = prepped.filter(p => !existingSet.has(p.doc.__hash));
@@ -121,6 +135,8 @@ export async function POST(req: NextRequest) {
     console.error('Bulk import error', e);
     return bad(e.message || 'Bulk import failed', 500);
   }
+    }
+  );
 }
 
 export const revalidate = 0;

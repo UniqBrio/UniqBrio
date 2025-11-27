@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { IncomeDraftModel } from "@/lib/dashboard/models";
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // POST /api/incomedrafts/[id]/convert - Convert draft to income record
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
-    const draft = await IncomeDraftModel.findById(params.id);
+    const draft = await IncomeDraftModel.findOne({ _id: params.id, tenantId: session.tenantId });
     
     if (!draft) {
       return NextResponse.json(
@@ -19,7 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const draftData = draft.data;
     
     // Delete the draft after retrieving data
-    await IncomeDraftModel.findByIdAndDelete(params.id);
+    await IncomeDraftModel.findOneAndDelete({ _id: params.id, tenantId: session.tenantId });
     
     return NextResponse.json(draftData);
   } catch (error) {
@@ -29,4 +43,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       { status: 500 }
     );
   }
+    }
+  );
 }

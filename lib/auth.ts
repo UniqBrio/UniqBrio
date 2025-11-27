@@ -10,8 +10,8 @@ import { COOKIE_NAMES, COOKIE_EXPIRY } from "./cookies"; // Import cookie consta
 // Ensure JWT_SECRET is defined and store it securely
 const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
 const JWT_SECRET_UINT8: Uint8Array = new TextEncoder().encode(JWT_SECRET || 'fallback-secret-for-encoding'); // Encode secret for jose
-const JWT_ISSUER = 'urn:uniqbrio:issuer'; // Define an issuer for your tokens
-const JWT_AUDIENCE = 'urn:uniqbrio:audience'; // Define an audience for your tokens
+const JWT_ISSUER = process.env.JWT_ISSUER || 'urn:uniqbrio:issuer'; // Define an issuer for your tokens
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'urn:uniqbrio:audience'; // Define an audience for your tokens
 
 // Check if the original secret was actually set
 if (!JWT_SECRET) {

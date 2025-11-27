@@ -6,6 +6,8 @@ import mongoose from "mongoose";
 import { syncCohortStudents } from "@/lib/dashboard/studentCohortSync";
 import { getUserSession } from "@/lib/tenant/api-helpers";
 import { runWithTenantContext } from "@/lib/tenant/tenant-context";
+import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger";
+import { AuditModule } from "@/models/AuditLog";
 
 export async function GET(request: Request) {
   const session = await getUserSession();
@@ -158,7 +160,7 @@ export async function POST(request: Request) {
     // If cohortId exists, update existing cohort
     if (body.cohortId || body.id) {
       const cohortId = body.cohortId || body.id;
-      const existingCohort = await Cohort.findOne({ cohortId });
+      const existingCohort = await Cohort.findOne({ cohortId, tenantId: session.tenantId });
       
       if (existingCohort) {
         // Update existing cohort - map frontend data to database structure
@@ -214,11 +216,13 @@ export async function POST(request: Request) {
     
     // Create new cohort
     // Validate that the course exists
-    const queryConditions: Array<{ courseId?: string; _id?: string }> = [{ courseId: body.courseId }];
+    const queryConditions: Array<{ courseId?: string; _id?: string; tenantId: string }> = [
+      { courseId: body.courseId, tenantId: session.tenantId }
+    ];
     
     // Only add _id query if body.courseId is a valid ObjectId
     if (mongoose.Types.ObjectId.isValid(body.courseId)) {
-      queryConditions.push({ _id: body.courseId });
+      queryConditions.push({ _id: body.courseId, tenantId: session.tenantId });
     }
     
     const course = await Course.findOne({
@@ -236,30 +240,12 @@ export async function POST(request: Request) {
     let cohortId = body.cohortId || body.id;
     
     if (!cohortId) {
-      // Auto-generate ID if not provided
-      let prefix = (course.name || '').replace(/\s/g, '').toUpperCase().slice(0, 4);
-      if (prefix.length < 4) prefix = prefix.padEnd(4, 'X');
-      
-      // Find existing cohorts with this prefix to determine next sequence number
-      const existingCohorts = await Cohort.find({
-        isDeleted: { $ne: true },
-        cohortId: { $regex: `^${prefix}\\d{4}$` }
-      }).lean();
-      
-      let maxSeq = 0;
-      existingCohorts.forEach(cohort => {
-        const match = cohort.cohortId?.match(new RegExp(`^${prefix}(\\d{4})$`));
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxSeq) maxSeq = num;
-        }
-      });
-      
-      const nextSeq = (maxSeq + 1).toString().padStart(4, '0');
-      cohortId = `${prefix}${nextSeq}`;
+      // Use centralized tenant-scoped ID generator
+      const { generateCohortId } = await import('@/lib/dashboard/id-generators')
+      cohortId = await generateCohortId(session.tenantId, course.name || 'COURSE')
     } else {
-      // Validate that the provided ID is unique
-      const existingCohort = await Cohort.findOne({ cohortId });
+      // Validate that the provided ID is unique within this tenant
+      const existingCohort = await Cohort.findOne({ cohortId, tenantId: session.tenantId });
       if (existingCohort) {
         return NextResponse.json({ 
           success: false, 
@@ -270,7 +256,8 @@ export async function POST(request: Request) {
     
     // Create new cohort with course schedule inheritance
     // Map frontend data structure to database structure
-    const newCohort = new Cohort({
+    const newCohort = await Cohort.create({
+      tenantId: session.tenantId,
       cohortId,
       name: body.name,
       courseId: body.courseId,
@@ -292,8 +279,6 @@ export async function POST(request: Request) {
       inheritedStartDate: course.schedulePeriod?.startDate,
       inheritedEndDate: course.schedulePeriod?.endDate,
     });
-        
-        await newCohort.save();
     
     // Sync students bidirectionally if there are any students
     if (newCohort.currentStudents && newCohort.currentStudents.length > 0) {
@@ -302,6 +287,26 @@ export async function POST(request: Request) {
         console.warn(`Failed to sync students for cohort ${newCohort.cohortId}:`, syncResult.error);
       }
     }
+    
+    // Log cohort creation
+    const headers = new Headers(request.headers);
+    await logEntityCreate(
+      AuditModule.COURSES,
+      String(newCohort._id),
+      newCohort.name || newCohort.cohortId || 'Unnamed Cohort',
+      session.userId,
+      session.email,
+      'super_admin',
+      session.tenantId,
+      getClientIp(headers),
+      getUserAgent(headers),
+      {
+        cohortId: newCohort.cohortId,
+        name: newCohort.name,
+        courseId: newCohort.courseId,
+        instructor: newCohort.instructor
+      }
+    );
     
     const cohortObj = newCohort.toObject();
     return NextResponse.json({ 
@@ -384,13 +389,43 @@ export async function PUT(request: Request) {
     if (body.registrationOpen !== undefined) updateData.registrationOpen = body.registrationOpen;
     
     const updatedCohort = await Cohort.findOneAndUpdate(
-      { cohortId },
+      { cohortId, tenantId: session.tenantId },
       { $set: updateData },
       { new: true, runValidators: true }
     );
     
+    if (!updatedCohort) {
+      return NextResponse.json({
+        success: false,
+        error: "Cohort not found"
+      }, { status: 404 });
+    }
+    
+    // Log cohort update
+    const fieldChanges = Object.keys(updateData).map(key => ({
+      field: key,
+      oldValue: '',
+      newValue: String(updateData[key] || '')
+    }));
+    
+    if (fieldChanges.length > 0) {
+      const headers = new Headers(request.headers);
+      await logEntityUpdate(
+        AuditModule.COURSES,
+        String(updatedCohort._id),
+        updatedCohort.name || updatedCohort.cohortId || 'Unnamed Cohort',
+        fieldChanges,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers)
+      );
+    }
+    
     // Sync students bidirectionally if student list was updated
-    if (updatedCohort && newStudents) {
+    if (newStudents) {
       const syncResult = await syncCohortStudents(updatedCohort.cohortId, newStudents);
       if (!syncResult.success) {
         console.warn(`Failed to sync students for cohort ${updatedCohort.cohortId}:`, syncResult.error);
@@ -465,8 +500,18 @@ export async function DELETE(request: Request) {
     const cohortId = body.cohortId || body.id;
     console.log("Attempting to soft delete cohort with ID:", cohortId);
     
+    // Get cohort details before deletion for audit log
+    const cohort = await Cohort.findOne({ cohortId, tenantId: session.tenantId });
+    if (!cohort) {
+      console.log("Cohort not found for deletion:", cohortId);
+      return NextResponse.json({
+        success: false,
+        error: "Cohort not found"
+      }, { status: 404 });
+    }
+    
     const result = await Cohort.updateOne(
-      { cohortId }, 
+      { cohortId, tenantId: session.tenantId }, 
       { 
         isDeleted: true, 
         deletedAt: new Date() 
@@ -480,6 +525,25 @@ export async function DELETE(request: Request) {
         error: "Cohort not found"
       }, { status: 404 });
     }
+    
+    // Log cohort deletion
+    const headers = new Headers(request.headers);
+    await logEntityDelete(
+      AuditModule.COURSES,
+      String(cohort._id),
+      cohort.name || cohort.cohortId || 'Unnamed Cohort',
+      session.userId,
+      session.email,
+      'super_admin',
+      session.tenantId,
+      getClientIp(headers),
+      getUserAgent(headers),
+      {
+        cohortId: cohort.cohortId,
+        name: cohort.name,
+        courseId: cohort.courseId
+      }
+    );
     
     console.log("Successfully soft deleted cohort:", cohortId);
     return NextResponse.json({

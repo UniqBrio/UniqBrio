@@ -141,7 +141,9 @@ export const attendanceDraftsAPI = {
       });
     }
     
-    const response = await fetch(`/api/dashboard/student/attendance-drafts?${searchParams}`);
+    const response = await fetch(`/api/dashboard/student/attendance-drafts?${searchParams}`, {
+      credentials: 'include'
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch attendance drafts');
     }
@@ -150,7 +152,9 @@ export const attendanceDraftsAPI = {
 
   // Get single draft
   async getById(id: string) {
-    const response = await fetch(`/api/dashboard/student/attendance-drafts/${id}`);
+    const response = await fetch(`/api/dashboard/student/attendance-drafts/${id}`, {
+      credentials: 'include'
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch attendance draft');
     }
@@ -164,6 +168,7 @@ export const attendanceDraftsAPI = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -180,6 +185,7 @@ export const attendanceDraftsAPI = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -193,6 +199,7 @@ export const attendanceDraftsAPI = {
   async delete(id: string) {
     const response = await fetch(`/api/dashboard/student/attendance-drafts/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
     if (!response.ok) {
       const error = await response.json();
@@ -205,6 +212,7 @@ export const attendanceDraftsAPI = {
   async deleteAll() {
     const response = await fetch('/api/dashboard/student/attendance-drafts?deleteAll=true', {
       method: 'DELETE',
+      credentials: 'include',
     });
     if (!response.ok) {
       const error = await response.json();

@@ -48,7 +48,7 @@ export interface INonInstructor extends Document {
 }
 
 const NonInstructorSchema = new Schema<INonInstructor>({
-  externalId: { type: String, index: true, unique: true, sparse: true },
+  externalId: { type: String, index: true, sparse: true },
   firstName: { type: String, required: true },
   middleName: String,
   lastName: { type: String, required: true },
@@ -96,13 +96,13 @@ const NonInstructorSchema = new Schema<INonInstructor>({
 // Apply tenant plugin for multi-tenancy support
 NonInstructorSchema.plugin(tenantPlugin);
 
-// Unique email when non-empty (same behavior as Instructor)
-NonInstructorSchema.index({ email: 1 }, {
-  unique: true,
-  partialFilterExpression: { email: { $exists: true, $type: "string", $ne: "" } },
-})
+// Tenant-scoped unique indexes
 NonInstructorSchema.index({ tenantId: 1, externalId: 1 }, { unique: true, sparse: true });
-NonInstructorSchema.index({ tenantId: 1, email: 1 }, { sparse: true });
+NonInstructorSchema.index({ tenantId: 1, email: 1 }, { 
+  unique: true, 
+  sparse: true,
+  partialFilterExpression: { email: { $exists: true, $type: "string", $ne: "" } } 
+});
 
 let NonInstructorModel: Model<INonInstructor>
 try {

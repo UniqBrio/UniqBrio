@@ -53,7 +53,7 @@ export function PerformanceAnalytics() {
 
   useEffect(() => {
     // Fetch students
-    fetch("/api/dashboard/student/students")
+    fetch("/api/dashboard/student/students", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -63,7 +63,7 @@ export function PerformanceAnalytics() {
       .catch((err) => console.error("Error fetching students:", err));
 
     // Fetch cohorts
-    fetch("/api/dashboard/cohorts/cohorts")
+    fetch("/api/dashboard/cohorts/cohorts", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

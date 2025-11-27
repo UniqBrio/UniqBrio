@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 
 // Define the Course schema to access course fees
@@ -42,6 +44,18 @@ const Course: mongoose.Model<CourseDocument> = mongoose.models.CoursePayment ||
  * GET /api/payments/course-fee?courseId=COURSE0001
  */
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -56,7 +70,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find course by courseId
-    const course = await Course.findOne({ courseId }).lean();
+    const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
 
     if (!course) {
       return NextResponse.json(
@@ -81,6 +95,8 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 /**
@@ -88,11 +104,23 @@ export async function GET(request: NextRequest) {
  * GET /api/payments/course-fees
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
     // Fetch all courses with fees
-    const courses = await Course.find({}).lean();
+    const courses = await Course.find({ tenantId: session.tenantId }).lean();
 
     const courseFees = courses.map((course: any) => ({
       courseId: course.courseId,
@@ -112,4 +140,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

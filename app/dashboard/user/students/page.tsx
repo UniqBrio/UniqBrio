@@ -335,7 +335,9 @@ export default function StudentsPage() {
     try {
       console.log('🔄 Loading students data...');
       // Force reconciliation on backend so any cohort membership updates are applied
-      const res = await fetch('/api/dashboard/student/students?reconcile');
+      const res = await fetch('/api/dashboard/student/students?reconcile', {
+        credentials: 'include',
+      });
       console.log('📡 Students API Response status:', res.status);
       
       if (res.ok) {
@@ -407,7 +409,9 @@ export default function StudentsPage() {
       try {
         console.log('🔄 Loading attendance data...');
         setAttendanceLoading(true);
-        const response = await fetch('/api/dashboard/student/attendance');
+        const response = await fetch('/api/dashboard/student/attendance', {
+          credentials: 'include',
+        });
         console.log('📡 Attendance API Response status:', response.status);
         
         if (response.ok) {

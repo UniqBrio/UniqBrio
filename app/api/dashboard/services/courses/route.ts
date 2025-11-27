@@ -6,6 +6,9 @@ import { CourseIdManager } from "@/lib/dashboard/courseIdManager"
 import { getAllEnrollments, getCourseEnrollments } from "@/lib/dashboard/studentCohortSync"
 import { getUserSession } from "@/lib/tenant/api-helpers"
 import { runWithTenantContext } from "@/lib/tenant/tenant-context"
+import mongoose from "mongoose"
+import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger"
+import { AuditModule } from "@/models/AuditLog"
 
 export async function POST(request: Request) {
       const session = await getUserSession();
@@ -114,25 +117,22 @@ export async function POST(request: Request) {
             await Course.updateMany(
           { _id: { $ne: courseWithOptions._id } },
           { $set: { [config.field]: updatedOptions } }
-            )
-            } else {
-            // If no courses exist, create a system course just for storing dropdown options
-            const systemCourse = new Course({
-          name: 'System Options Storage',
-          status: 'Draft',
-          instructor: 'System',
-          maxStudents: 1,
-          type: 'Online',
-          courseCategory: 'Regular',
-          priceINR: 0,
-          isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
-          [config.field]: [...config.defaults, trimmedValue].sort()
-            })
-        
-            await systemCourse.save()
-            }
-      
-            return NextResponse.json({ 
+          )
+          } else {
+          // If no courses exist, create a system course just for storing dropdown options
+          await Course.create({
+            name: 'System Options Storage',
+            status: 'Draft',
+            instructor: 'System',
+            maxStudents: 1,
+            type: 'Online',
+            courseCategory: 'Regular',
+            priceINR: 0,
+            isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
+            [config.field]: [...config.defaults, trimmedValue].sort(),
+            tenantId: session.tenantId
+          })
+          }            return NextResponse.json({ 
             success: true, 
             message: 'Option added successfully',
             value: trimmedValue,
@@ -209,25 +209,22 @@ export async function POST(request: Request) {
             await Course.updateMany(
           { _id: { $ne: courseWithLocations._id } },
           { $set: { availableLocations: updatedLocations } }
-            )
-            } else {
-            // If no courses exist, create a system course just for storing locations
-            const systemCourse = new Course({
-          name: 'System Options Storage - Locations',
-          status: 'Draft',
-          instructor: 'System',
-          maxStudents: 1,
-          type: 'Online',
-          courseCategory: 'Regular',
-          priceINR: 0,
-          isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
-          availableLocations: [...DEFAULT_LOCATIONS, locationName].sort()
-            })
-        
-            await systemCourse.save()
-            }
-      
-            return NextResponse.json({ 
+          )
+          } else {
+          // If no courses exist, create a system course just for storing locations
+          await Course.create({
+            name: 'System Options Storage - Locations',
+            status: 'Draft',
+            instructor: 'System',
+            maxStudents: 1,
+            type: 'Online',
+            courseCategory: 'Regular',
+            priceINR: 0,
+            isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
+            availableLocations: [...DEFAULT_LOCATIONS, locationName].sort(),
+            tenantId: session.tenantId
+          })
+          }            return NextResponse.json({ 
             success: true, 
             location: locationName,
             message: 'Location added successfully'
@@ -293,7 +290,7 @@ export async function POST(request: Request) {
             if (body.instructorId) {
             try {
           const { User } = await import('@/models/dashboard')
-          const instructor = await User.findById(body.instructorId).select('name')
+          const instructor = await User.findOne({ _id: body.instructorId, tenantId: session.tenantId }).select('name')
           if (instructor) {
             return instructor.name
           }
@@ -367,21 +364,49 @@ export async function POST(request: Request) {
             console.error(`❌ CourseId ${body.courseId} already exists! Generating new sequential ID...`);
             // Generate a new sequential ID instead of random fallback
             try {
-            body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
-            console.log(`🔄 Using new sequential courseId: ${body.courseId}`);
-            } catch (error) {
-            console.error('❌ Error generating replacement courseId:', error);
-            body.courseId = `COURSE${String(Date.now()).slice(-4)}_${Math.random().toString(36).substr(2, 3)}`;
-            }
+          body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
+          console.log(`🔄 Using new sequential courseId: ${body.courseId}`);
+          } catch (error) {
+          console.error('❌ Error generating replacement courseId:', error);
+          body.courseId = `COURSE${String(Date.now()).slice(-4)}_${Math.random().toString(36).substr(2, 3)}`;
           }
-    
-          const course = new Course(body)
-          await course.save()
-    
-          // Update draft previews after creating new course
-          await CourseIdManager.updateDraftPreviews();
-    
-          const transformedCourse = {
+        }
+  
+        const course = await Course.create({ 
+          _id: new mongoose.Types.ObjectId(),
+          ...body, 
+          tenantId: session.tenantId 
+        })
+  
+        // Update draft previews after creating new course (within tenant context)
+        await runWithTenantContext(
+          { tenantId: session.tenantId },
+          async () => {
+            await CourseIdManager.updateDraftPreviews();
+          }
+        );
+        
+        // Log course creation
+        const headers = new Headers(request.headers);
+        await logEntityCreate(
+          AuditModule.COURSES,
+          course._id.toString(),
+          course.name || course.title || course.courseId || 'Unnamed Course',
+          session.userId,
+          session.email,
+          'super_admin',
+          session.tenantId,
+          getClientIp(headers),
+          getUserAgent(headers),
+          {
+            courseId: course.courseId,
+            name: course.name,
+            type: course.type,
+            status: course.status
+          }
+        );
+        
+        const transformedCourse = {
             ...course.toObject(),
             id: course.courseId || course._id?.toString?.() || String(course._id),
             name: course.name,
@@ -861,6 +886,31 @@ export async function PUT(request: Request) {
       }, { status: 500 })
     }
     
+    // Log course update with field changes
+    const fieldChanges = Object.keys(updateData)
+      .filter(key => currentCourse[key] !== updateData[key])
+      .map(key => ({
+        field: key,
+        oldValue: String(currentCourse[key] || ''),
+        newValue: String(updateData[key] || '')
+      }));
+    
+    if (fieldChanges.length > 0) {
+      const headers = new Headers(request.headers);
+      await logEntityUpdate(
+        AuditModule.COURSES,
+        course._id.toString(),
+        course.name || course.title || course.courseId || 'Unnamed Course',
+        fieldChanges,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers)
+      );
+    }
+    
     // If course status changed to inactive/cancelled, update associated cohorts
     if (updateData.status && updateData.status !== currentCourse.status) {
       const inactiveStatuses = ['Inactive', 'Cancelled', 'Suspended', 'Archived']
@@ -978,6 +1028,26 @@ export async function DELETE(request: Request) {
       const success = await CourseIdManager.softDeleteCourse(course.courseId);
       
       if (success) {
+        // Log course deletion
+        const headers = new Headers(request.headers);
+        await logEntityDelete(
+          AuditModule.COURSES,
+          course._id.toString(),
+          course.name || course.title || course.courseId || 'Unnamed Course',
+          session.userId,
+          session.email,
+          'super_admin',
+          session.tenantId,
+          getClientIp(headers),
+          getUserAgent(headers),
+          {
+            courseId: course.courseId,
+            name: course.name,
+            type: course.type,
+            deletionType: 'soft'
+          }
+        );
+        
         console.log(`✅ Successfully soft deleted course: ${course.courseId}`)
         return NextResponse.json({ 
           success: true, 

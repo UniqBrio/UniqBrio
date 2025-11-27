@@ -63,9 +63,9 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
           }
         };
         const [chartsRes, categoryRes, vendorRes] = await Promise.all([
-          fetch(`/api/dashboard/financial/financials/charts?${params}`, cacheHeaders),
-          fetch(`/api/dashboard/financial/financials/charts/expense-categories?${params}`, cacheHeaders),
-          fetch(`/api/dashboard/financial/financials/charts/expense-vendors?${params}`, cacheHeaders)
+          fetch(`/api/dashboard/financial/financials/charts?${params}`, { ...cacheHeaders, credentials: 'include' }),
+          fetch(`/api/dashboard/financial/financials/charts/expense-categories?${params}`, { ...cacheHeaders, credentials: 'include' }),
+          fetch(`/api/dashboard/financial/financials/charts/expense-vendors?${params}`, { ...cacheHeaders, credentials: 'include' })
         ])
         
         console.log('ExpensesTab: API responses:', {

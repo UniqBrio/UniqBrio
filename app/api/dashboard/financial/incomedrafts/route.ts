@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       try {
         await dbConnect("uniqbrio");
         
-        const drafts = await IncomeDraftModel.find({}).sort({ lastUpdated: -1 });
+        const drafts = await IncomeDraftModel.find({ tenantId: session.tenantId }).sort({ lastUpdated: -1 });
     
         // Convert MongoDB _id to string id
         const formattedDrafts = drafts.map((draft: any) => ({

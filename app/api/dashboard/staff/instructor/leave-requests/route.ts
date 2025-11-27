@@ -32,14 +32,14 @@ export async function GET() {
     async () => {
       try {
         await dbConnect("uniqbrio")
-        const list = await LeaveRequest.find({}).sort({ createdAt: 1 }).lean()
+        const list = await LeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: 1 }).lean()
 
     // Recompute ALL allocation metadata so every row for an instructor shares the SAME aggregate usage + total.
     // Simpler interpretation: used = total approved leave days (all time) for that instructor; total = current job level allocation.
   const policy = await loadPolicy()
     const allocs = policy?.allocations || { junior: 12, senior: 16, managers: 24 }
   const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
-    const instructors = await Instructor.find({}).lean()
+    const instructors = await Instructor.find({ tenantId: session.tenantId }).lean()
     const instMap: Record<string, any> = {}
     instructors.forEach(i => { instMap[i.id] = i })
 
@@ -55,8 +55,8 @@ export async function GET() {
       const updates: Promise<any>[] = []
       // Fallback computation if instructor doc lacks denormalized fields
       const [courses, cohorts] = await Promise.all([
-        CourseModel.find({}).lean().catch(() => [] as any[]),
-        CohortModel.find({}).lean().catch(() => [] as any[]),
+        CourseModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
+        CohortModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
       ])
       const toKey = (s?: string) => (s || '').trim().toLowerCase()
       const courseByInstr = new Map<string, Set<string>>()
@@ -114,7 +114,7 @@ export async function GET() {
         if (!courseId && courseName) {
           const parts = courseName.split(',').map((s: string) => toKey(s)).filter(Boolean)
           const ids = new Set<string>()
-          for (const p of parts) for (const v of (courseIdsByCourseName.get(p)?.values() || [])) ids.add(v)
+          for (const p of parts) for (const v of Array.from(courseIdsByCourseName.get(p)?.values() || [])) ids.add(v)
           if (ids.size) courseId = Array.from(ids.values()).join(', ')
         }
         if (!cohortId && cohortName) {
@@ -175,7 +175,7 @@ export async function GET() {
 
     const updates: Promise<any>[] = []
     // Helper to derive period key based on policy quotaType
-    function derivePeriodKey(dateStr?: string) {
+    const derivePeriodKey = (dateStr?: string) => {
       if (!dateStr) return 'unknown'
       const [y,m] = dateStr.split('-').map(Number)
       if (!y || !m) return 'unknown'
@@ -349,8 +349,8 @@ export async function POST(req: Request) {
       const fullName = [inst?.firstName, inst?.middleName, inst?.lastName].filter(Boolean).join(' ').trim()
       const key = toKey(fullName)
       const [courses, cohorts] = await Promise.all([
-        CourseModel.find({}).lean().catch(() => [] as any[]),
-        CohortModel.find({}).lean().catch(() => [] as any[]),
+        CourseModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
+        CohortModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
       ])
       const courseByInstr = new Map<string, Set<string>>()
       const cohortByInstr = new Map<string, Set<string>>()
@@ -396,7 +396,7 @@ export async function POST(req: Request) {
       if (!courseId && courseName) {
         const parts = courseName.split(',').map((s: string) => toKey(s)).filter(Boolean)
         const ids = new Set<string>()
-        for (const p of parts) for (const v of (courseIdsByCourseName.get(p)?.values() || [])) ids.add(v)
+        for (const p of parts) for (const v of Array.from(courseIdsByCourseName.get(p)?.values() || [])) ids.add(v)
         if (ids.size) courseId = Array.from(ids.values()).join(', ')
       }
       if (!cohortId && cohortName) {
@@ -522,8 +522,8 @@ export async function PUT(req: Request) {
       const fullName = [inst?.firstName, inst?.middleName, inst?.lastName].filter(Boolean).join(' ').trim()
       const key = toKey(fullName)
       const [courses, cohorts] = await Promise.all([
-        CourseModel.find({}).lean().catch(() => [] as any[]),
-        CohortModel.find({}).lean().catch(() => [] as any[]),
+        CourseModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
+        CohortModel.find({ tenantId: session.tenantId }).lean().catch(() => [] as any[]),
       ])
       const courseByInstr = new Map<string, Set<string>>()
       const cohortByInstr = new Map<string, Set<string>>()
@@ -566,7 +566,7 @@ export async function PUT(req: Request) {
       if (!courseId && courseName) {
         const parts = (courseName || '').split(',').map((s: string) => toKey(s)).filter(Boolean)
         const ids = new Set<string>()
-        for (const p of parts) for (const v of (courseIdsByCourseName.get(p)?.values() || [])) ids.add(v)
+        for (const p of parts) for (const v of Array.from(courseIdsByCourseName.get(p)?.values() || [])) ids.add(v)
         if (ids.size) courseId = Array.from(ids.values()).join(', ')
       }
       if (!cohortId && cohortName) {

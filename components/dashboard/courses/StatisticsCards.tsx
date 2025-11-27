@@ -34,8 +34,8 @@ export default function StatisticsCards({ stats: propStats }: StatisticsCardsPro
       try {
         // Fetch course stats and students count in parallel
         const [courseResponse, studentsResponse] = await Promise.all([
-          fetch('/api/dashboard/services/courses?stats=true'),
-          fetch('/api/dashboard/services/user-management/students')
+          fetch('/api/dashboard/services/courses?stats=true', { credentials: 'include' }),
+          fetch('/api/dashboard/services/user-management/students', { credentials: 'include' })
         ]);
 
         const [courseData, studentsData] = await Promise.all([

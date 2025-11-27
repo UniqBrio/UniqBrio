@@ -31,18 +31,32 @@ const Dashboard = () => {
     const checkKycStatusImmediately = async () => {
       try {
         console.log("[Dashboard] Fetching KYC status from /api/kyc-status");
-        const response = await fetch("/api/kyc-status");
+        const response = await fetch("/api/kyc-status", {
+          credentials: 'include',
+        });
         console.log("[Dashboard] KYC status response:", response.status, response.statusText);
         
         if (response.ok) {
           const data = await response.json();
           console.log("KYC Status API Response:", data);
           
+          // Track previous KYC status to detect status changes
+          const previousKycStatus = sessionStorage.getItem('previousKycStatus');
+          
           // If KYC is expired, immediately redirect without showing dashboard
           if (data.status === "expired") {
             window.location.href = "/kyc-blocked";
             return; // Don't set loading to false, keep showing loading until redirect
           }
+          
+          // Check if KYC just got verified (status changed from non-verified to verified)
+          if (data.status === "verified" && previousKycStatus && previousKycStatus !== "verified") {
+            console.log("[Dashboard] KYC status changed to verified, setting flag");
+            sessionStorage.setItem('kycJustVerified', '1');
+          }
+          
+          // Store current status for next comparison
+          sessionStorage.setItem('previousKycStatus', data.status);
           
           // Set KYC status and days left from API response (accurate calculation)
           setKycStatus(data.status);
@@ -75,7 +89,9 @@ const Dashboard = () => {
     const fetchAcademyInfo = async () => {
       try {
         console.log("[Dashboard] Fetching academy info from /api/user-academy-info");
-        const response = await fetch("/api/user-academy-info");
+        const response = await fetch("/api/user-academy-info", {
+          credentials: 'include',
+        });
         console.log("[Dashboard] Academy info response:", response.status, response.statusText);
         
         if (response.ok) {
@@ -114,7 +130,9 @@ const Dashboard = () => {
     const fetchDashboardSummary = async () => {
       try {
         console.log("[Dashboard] Fetching dashboard summary from /api/dashboard/summary");
-        const res = await fetch("/api/dashboard/summary");
+        const res = await fetch("/api/dashboard/summary", {
+          credentials: 'include',
+        });
         console.log("[Dashboard] Dashboard summary response:", res.status, res.statusText);
         if (res.ok) {
           const data = await res.json();
@@ -148,21 +166,26 @@ const Dashboard = () => {
       setShowKycPopup(false);
       setShowKycRejectedPopup(false);
       setShowKycForm(false);
-      const kycVerifiedShown = localStorage.getItem('kycVerifiedShown');
-      console.log("KYC Status is verified. kycVerifiedShown:", kycVerifiedShown);
       
-      if (!kycVerifiedShown) {
-        console.log("Showing congratulations banner for first time (no success toast for verified status)");
-        setShowKycVerifiedBanner(true); // Show banner only once
-        localStorage.setItem('kycVerifiedShown', '1');
+      // Check if we should show the verification banner
+      // Show only if the user just logged in after verification (not on every page load)
+      const kycJustVerified = sessionStorage.getItem('kycJustVerified');
+      const kycVerifiedShownThisSession = sessionStorage.getItem('kycVerifiedShownThisSession');
+      
+      console.log("KYC Status is verified. kycJustVerified:", kycJustVerified, "kycVerifiedShownThisSession:", kycVerifiedShownThisSession);
+      
+      if (kycJustVerified === '1' && !kycVerifiedShownThisSession) {
+        console.log("Showing congratulations banner for just-verified KYC");
+        setShowKycVerifiedBanner(true);
+        sessionStorage.setItem('kycVerifiedShownThisSession', '1');
+        sessionStorage.removeItem('kycJustVerified'); // Clear the flag
         
-        // Auto-hide the banner after 8 seconds (longer than popup for better UX)
+        // Auto-hide the banner after 8 seconds
         setTimeout(() => {
           setShowKycVerifiedBanner(false);
         }, 8000);
       } else {
-        console.log("KYC verification congratulations already shown, not showing banner");
-        // Don't show banner if already shown before
+        console.log("KYC verification congratulations already shown this session, not showing banner");
         setShowKycVerifiedBanner(false);
       }
     } else if (kycStatus === 'submitted') {
@@ -297,7 +320,7 @@ const Dashboard = () => {
             {/* Close Button */}
             <button
               onClick={() => setShowKycPopup(false)}
-              className="absolute top-4 right-4 text-gray-500 dark:text-white hover:text-gray-700 dark:text-white dark:hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-colors"
               aria-label="Close"
             >
               <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
@@ -404,7 +427,7 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 responsive-text-xl">
-              Welcome back{userName && userName !== "User" ? `, ${userName}` : ''}!
+              Welcome{userName && userName !== "User" ? `, ${userName}` : ''}!
             </h1>
             {academyName && academyName !== "Academy" && academyName !== "Academy Setup Required" && (
               <div className="flex items-center gap-2">

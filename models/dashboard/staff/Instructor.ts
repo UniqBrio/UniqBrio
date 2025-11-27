@@ -56,8 +56,8 @@ export interface IInstructor extends Document {
 
 const InstructorSchema = new Schema<IInstructor>({
   // Persist both fields; instructorId mirrors externalId on create/update via schema middleware
-  externalId: { type: String, index: true, unique: true, sparse: true },
-  instructorId: { type: String, index: true, unique: true, sparse: true },
+  externalId: { type: String, index: true, sparse: true },
+  instructorId: { type: String, index: true, sparse: true },
   firstName: { type: String, required: true },
   middleName: String,
   lastName: { type: String, required: true },
@@ -109,14 +109,14 @@ const InstructorSchema = new Schema<IInstructor>({
 // Apply tenant plugin for multi-tenancy support
 InstructorSchema.plugin(tenantPlugin);
 
-// Enforce unique externalId (already inline), and make email unique only when non-empty
-// This allows multiple documents with missing or empty email, while preventing true duplicates
-InstructorSchema.index({ email: 1 }, {
-  unique: true,
-  partialFilterExpression: { email: { $exists: true, $type: "string", $ne: "" } },
-})
+// Tenant-scoped unique indexes
 InstructorSchema.index({ tenantId: 1, externalId: 1 }, { unique: true, sparse: true });
-InstructorSchema.index({ tenantId: 1, email: 1 }, { sparse: true });
+InstructorSchema.index({ tenantId: 1, instructorId: 1 }, { unique: true, sparse: true });
+InstructorSchema.index({ tenantId: 1, email: 1 }, { 
+  unique: true, 
+  sparse: true,
+  partialFilterExpression: { email: { $exists: true, $type: "string", $ne: "" } } 
+});
 
 // Keep instructorId in sync with externalId on inserts/updates without touching callers
 InstructorSchema.pre('save', function(next) {

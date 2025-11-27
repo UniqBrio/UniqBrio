@@ -61,7 +61,9 @@ export function CohortDetailDialog({
       setLoading(true);
       try {
         // Fetch students filtered by cohortId
-        const studentsResponse = await fetch(`/api/students`);
+        const studentsResponse = await fetch(`/api/students`, {
+          credentials: 'include'
+        });
         if (studentsResponse.ok) {
           const allStudents = await studentsResponse.json();
           
@@ -79,7 +81,9 @@ export function CohortDetailDialog({
 
           // Fetch payment data for these students
           if (cohortStudents.length > 0) {
-            const paymentsResponse = await fetch(`/api/dashboard/payments/all-students`);
+            const paymentsResponse = await fetch(`/api/dashboard/payments/all-students`, {
+              credentials: 'include'
+            });
             if (paymentsResponse.ok) {
               const allPayments = await paymentsResponse.json();
               const cohortPayments = Array.isArray(allPayments)

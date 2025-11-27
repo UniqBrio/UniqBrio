@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 const EventSchema = new mongoose.Schema(
   {
-    eventId: { type: String, required: true, unique: true, index: true },
+    eventId: { type: String, required: true },
     name: { type: String, required: true },
     sport: {
       type: String,
@@ -59,7 +60,11 @@ const EventSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Apply tenant plugin
+EventSchema.plugin(tenantPlugin);
+
 // Indexes for performance
+EventSchema.index({ tenantId: 1, eventId: 1 }, { unique: true });
 EventSchema.index({ sport: 1 });
 EventSchema.index({ status: 1 });
 EventSchema.index({ startDate: 1 });

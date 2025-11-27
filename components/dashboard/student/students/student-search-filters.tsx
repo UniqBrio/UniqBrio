@@ -588,7 +588,8 @@ export default function StudentSearchFilters({
       try {
         const res = await fetch('/api/student]\/students', { 
           method: 'POST', 
-          headers: { 'Content-Type': 'application/json' }, 
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(it) 
         });
         

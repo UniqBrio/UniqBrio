@@ -50,10 +50,10 @@ export async function GET(request: NextRequest) {
         const payments = await Payment.find({ tenantId: session.tenantId }).lean().exec();
     
     // Get all cohorts to fetch course IDs and cohort names
-    const allCohortIds = [...new Set([
+    const allCohortIds = Array.from(new Set([
       ...students.map((s: any) => s.cohortId).filter(Boolean),
       ...payments.map((p: any) => p.cohortId).filter(Boolean)
-    ])];
+    ]));
     const Cohort = mongoose.connection.collection('cohorts');
     
     // Try different ways to match cohorts since data structure might vary
@@ -99,10 +99,10 @@ export async function GET(request: NextRequest) {
     });
     
     // Get all courses to fetch fees
-    const courseIds = [...new Set([
+    const courseIds = Array.from(new Set([
       ...students.map((s: any) => s.enrolledCourse || s.courseOfInterestId).filter(Boolean),
       ...Array.from(cohortToCourseMap.values())
-    ])];
+    ]));
     const courses = await Course.find({ courseId: { $in: courseIds }, tenantId: session.tenantId }).lean();
     const courseFeeMap = new Map(
       courses.map((c: any) => [c.courseId, { 
@@ -185,7 +185,7 @@ export async function GET(request: NextRequest) {
       )
       .filter((courseId: string) => courseId && courseId.trim() !== '');
     
-    const uniquePaymentCourseIds = [...new Set([...paymentCourseIds, ...studentCourseIds])];
+    const uniquePaymentCourseIds = Array.from(new Set([...paymentCourseIds, ...studentCourseIds]));
     
     let courseDetailsMap = new Map();
     if (uniquePaymentCourseIds.length > 0) {

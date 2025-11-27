@@ -119,7 +119,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
           setLoadingOptions(false);
           return;
         }
-        const res = await fetch('/api/dashboard/financial/financials/options');
+        const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (!cancelled) {
@@ -469,7 +469,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                             </DropdownMenuItem>
                           ))}
                         {categorySearchTerm && !((options.incomeCategories || []).find((cat: string) => cat.toLowerCase() === categorySearchTerm.toLowerCase())) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-current text-[15px] add-new-option" onSelect={async () => { const newVal = categorySearchTerm; handleIncomeChange('incomeCategory', newVal); setCategorySearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeCategories', value: newVal }) }); setOptions(prev => ({ ...prev, incomeCategories: Array.from(new Set([...(prev.incomeCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-current text-[15px] add-new-option" onSelect={async () => { const newVal = categorySearchTerm; handleIncomeChange('incomeCategory', newVal); setCategorySearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeCategories', value: newVal }) }); setOptions(prev => ({ ...prev, incomeCategories: Array.from(new Set([...(prev.incomeCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
                             Add "{categorySearchTerm}" as new category
                           </DropdownMenuItem>
                         )}
@@ -509,7 +509,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                             </DropdownMenuItem>
                           ))}
                         {sourceSearchTerm && !((options.incomeSources || []) as string[]).find((source: string) => source.toLowerCase() === sourceSearchTerm.toLowerCase()) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-current text-[15px] add-new-option" onSelect={async () => { const newVal = sourceSearchTerm; handleIncomeChange('sourceType', newVal); setSourceSearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeSources', value: newVal }) }); setOptions(prev => ({ ...prev, incomeSources: Array.from(new Set([...(prev.incomeSources || []), newVal])) })); } catch (e) { console.error('Failed to persist new source', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-current text-[15px] add-new-option" onSelect={async () => { const newVal = sourceSearchTerm; handleIncomeChange('sourceType', newVal); setSourceSearchTerm(''); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'incomeSources', value: newVal }) }); setOptions(prev => ({ ...prev, incomeSources: Array.from(new Set([...(prev.incomeSources || []), newVal])) })); } catch (e) { console.error('Failed to persist new source', e); } }}>
                             Add "{sourceSearchTerm}" as new source
                           </DropdownMenuItem>
                         )}

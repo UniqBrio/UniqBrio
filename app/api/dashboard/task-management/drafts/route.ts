@@ -172,8 +172,7 @@ export async function POST(request: NextRequest) {
     const previewCourseId = await CourseIdManager.initializeDraftWithPreview()
     draftData.courseId = previewCourseId
     
-    const draft = new Draft(draftData)
-    await draft.save()
+    const draft = await Draft.create({ ...draftData, tenantId: session.tenantId })
 
     // Transform the response to match frontend expectations
     const transformedDraft = {

@@ -228,6 +228,14 @@ export async function login(formData: FormData) {
     console.log("[AuthAction] login: Resetting failed attempts for user:", user.email);
     await resetFailedAttempts(user.email)
 
+    // Update last login timestamp
+    const isFirstLogin = !user.lastLoginAt;
+    console.log("[AuthAction] login: Updating lastLoginAt for user:", user.email, "isFirstLogin:", isFirstLogin);
+    await UserModel.updateOne(
+      { _id: user._id },
+      { $set: { lastLoginAt: new Date() } }
+    );
+
     // Create session
     console.log("[AuthAction] login: Creating session token for user:", user.email);
     console.log("[AuthAction] login: User academyId:", user.academyId);

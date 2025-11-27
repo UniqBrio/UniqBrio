@@ -48,9 +48,9 @@ export function useCourseManagement() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/dashboard/services/courses").then(res => res.json()),
-      fetch("/api/dashboard/services/courses/drafts").then(res => res.json()).catch(() => []),
-      fetch('/api/dashboard/services/cohorts').then(res => res.json()).catch(() => [])
+      fetch("/api/dashboard/services/courses", { credentials: 'include' }).then(res => res.json()),
+      fetch("/api/dashboard/services/courses/drafts", { credentials: 'include' }).then(res => res.json()).catch(() => []),
+      fetch('/api/dashboard/services/cohorts', { credentials: 'include' }).then(res => res.json()).catch(() => [])
     ]).then(([coursesData, draftsData, cohortsData]) => {
       // Handle courses data
       if (coursesData.success && coursesData.courses) {
@@ -110,7 +110,9 @@ export function useCourseManagement() {
 
   // Fetch student count
   useEffect(() => {
-    fetch("/api/dashboard/services/user-management/students")
+    fetch("/api/dashboard/services/user-management/students", {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.count !== undefined) {
@@ -205,7 +207,9 @@ export function useCourseManagement() {
 
   const refetchDrafts = useCallback(async () => {
     try {
-      const response = await fetch("/api/dashboard/services/courses/drafts");
+      const response = await fetch("/api/dashboard/services/courses/drafts", {
+        credentials: 'include',
+      });
       const draftsData = await response.json();
 
       if (draftsData.success && draftsData.drafts) {

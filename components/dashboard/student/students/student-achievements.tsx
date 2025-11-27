@@ -221,7 +221,7 @@ export function StudentAchievements({ achievements = [], onAchievementAction, di
               <div className="mt-2 flex gap-2">
                 <Button size="sm" variant="outline" disabled={disabled} onClick={()=> { setEditing(achievement); setShowAchievementDialog(true) }}>Edit</Button>
                 <Button size="sm" variant="destructive" disabled={disabled} onClick={async ()=>{
-                  await fetch('/api/dashboard/student/achievements', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: achievement.id }) })
+                  await fetch('/api/dashboard/student/achievements', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: achievement.id }) })
                   // Optimistic removal
                   setAll(list => list.filter(a => a.id !== achievement.id))
                   setFiltered(list => list.filter(a => a.id !== achievement.id))
@@ -263,7 +263,7 @@ export function StudentAchievements({ achievements = [], onAchievementAction, di
                 <div className="mt-2 flex gap-2">
                   <Button size="sm" variant="outline" disabled={disabled} onClick={()=> { setEditing(achievement); setShowAchievementDialog(true) }}>Edit</Button>
                   <Button size="sm" variant="destructive" disabled={disabled} onClick={async ()=>{
-                    await fetch('/api/dashboard/student/achievements', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: achievement.id }) })
+                    await fetch('/api/dashboard/student/achievements', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: achievement.id }) })
                     setAll(list => list.filter(a => a.id !== achievement.id))
                     setFiltered(list => list.filter(a => a.id !== achievement.id))
                   }}>Delete</Button>
@@ -290,7 +290,7 @@ export function StudentAchievements({ achievements = [], onAchievementAction, di
           const payload: any = { type: data.type, title: data.title, description: data.description }
           if (editing) {
             // Update existing
-            const res = await fetch('/api/dashboard/student/achievements', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editing.id, ...payload }) })
+            const res = await fetch('/api/dashboard/student/achievements', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: editing.id, ...payload }) })
             if (res.ok) {
               const updated = await res.json()
               const mapped: Achievement = {
@@ -310,7 +310,7 @@ export function StudentAchievements({ achievements = [], onAchievementAction, di
             }
           } else {
             // Create new
-            const res = await fetch('/api/dashboard/student/achievements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+            const res = await fetch('/api/dashboard/student/achievements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) })
             if (res.ok) {
               const created = await res.json()
               const mapped: Achievement = {

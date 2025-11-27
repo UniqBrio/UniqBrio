@@ -93,7 +93,9 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
   useEffect(() => {
     const loadCoursesCount = async () => {
       try {
-        const response = await fetch('/api/dashboard/services/courses?page=1&limit=1');
+        const response = await fetch('/api/dashboard/services/courses?page=1&limit=1', {
+          credentials: 'include',
+        });
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.pagination) {

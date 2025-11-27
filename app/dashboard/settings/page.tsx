@@ -56,7 +56,9 @@ export default function SettingsPage() {
     const loadUserData = async () => {
       try {
         // Fetch actual profile data from API
-        const response = await fetch("/api/user-profile")
+        const response = await fetch("/api/user-profile", {
+          credentials: 'include',
+        })
         if (response.ok) {
           const data = await response.json()
           if (data.success && data.user) {
@@ -88,7 +90,9 @@ export default function SettingsPage() {
       if (!response.ok) throw new Error("Failed to update profile")
 
       // Refresh profile data after update
-      const refreshResponse = await fetch("/api/user-profile")
+      const refreshResponse = await fetch("/api/user-profile", {
+        credentials: 'include',
+      })
       if (refreshResponse.ok) {
         const data = await refreshResponse.json()
         if (data.success && data.user) {

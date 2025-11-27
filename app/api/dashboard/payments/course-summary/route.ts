@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         await dbConnect("uniqbrio");
 
         // Fetch payments with only required fields for better performance
-        const payments = await Payment.find({}).select('enrolledCourse enrolledCourseName cohortId cohortName courseFee courseRegistrationFee studentRegistrationFee receivedAmount outstandingAmount').lean().exec();
+        const payments = await Payment.find({ tenantId: session.tenantId }).select('enrolledCourse enrolledCourseName cohortId cohortName courseFee courseRegistrationFee studentRegistrationFee receivedAmount outstandingAmount').lean().exec();
 
     // Group by course
     const courseMap = new Map<string, CourseData>();

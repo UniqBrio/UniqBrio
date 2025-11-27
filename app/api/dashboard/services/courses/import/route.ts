@@ -3,6 +3,8 @@ import { dbConnect } from "@/lib/mongodb";
 import { Course } from "@/models/dashboard";
 import Draft from "@/models/dashboard/Draft";
 import mongoose from "mongoose";
+import { getUserSession } from "@/lib/tenant/api-helpers";
+import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
 // Helper function to parse CSV
 function parseCSV(csvText: string): string[][] {
@@ -66,6 +68,18 @@ async function generateCourseId(): Promise<string> {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -164,10 +178,9 @@ export async function POST(request: NextRequest) {
           courseData.status = 'Draft';
           
           // Create draft in database
-          const draft = new Draft(courseData);
-          await draft.save();
+          await Draft.create({ ...courseData, tenantId: session.tenantId });
           
-          console.log(`Draft saved successfully: ${draft._id}`);
+          console.log(`Draft saved successfully`);
         } else {
           // Save as active course to Course collection
           console.log(`Saving course ${courseData.name} as active course`);
@@ -181,10 +194,9 @@ export async function POST(request: NextRequest) {
           }
 
           // Create course in database
-          const course = new Course(courseData);
-          await course.save();
+          await Course.create({ ...courseData, tenantId: session.tenantId });
           
-          console.log(`Course saved successfully: ${course._id}`);
+          console.log(`Course saved successfully`);
         }
         
         results.imported++;
@@ -212,4 +224,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

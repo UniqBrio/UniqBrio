@@ -13,8 +13,8 @@ if (!JWT_SECRET && typeof window === 'undefined' && process.env.NODE_ENV !== 'pr
 }
 
 const JWT_SECRET_UINT8: Uint8Array = new TextEncoder().encode(JWT_SECRET || 'fallback-secret-for-encoding'); // Encode secret for jose
-const JWT_ISSUER = 'urn:uniqbrio:issuer'; // Define an issuer for your tokens
-const JWT_AUDIENCE = 'urn:uniqbrio:audience'; // Define an audience for your tokens
+const JWT_ISSUER = process.env.JWT_ISSUER || 'urn:uniqbrio:issuer'; // Define an issuer for your tokens
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'urn:uniqbrio:audience'; // Define an audience for your tokens
 
 // Verify a JWT token. Returns the payload if valid, otherwise null.
 // Renamed slightly to avoid potential naming conflicts if imported alongside server funcs

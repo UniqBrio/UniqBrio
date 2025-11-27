@@ -88,7 +88,7 @@ export function ReportsSection({
       if (customStartDate) params.set('start', customStartDate);
       if (customEndDate) params.set('end', customEndDate);
     }
-    const res = await fetch(`/api/dashboard/financial/financials/reports/profit-loss?${params.toString()}`, { cache: 'no-store' });
+    const res = await fetch(`/api/dashboard/financial/financials/reports/profit-loss?${params.toString()}`, { cache: 'no-store', credentials: 'include' });
     if (!res.ok) throw new Error('Failed to load report');
     const data = await res.json();
     setReportItems(data.items || []);

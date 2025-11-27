@@ -3,6 +3,8 @@ import { dbConnect } from "@/lib/mongodb"
 import { Course } from "@/models/dashboard"
 import { cache } from "@/lib/dashboard/redis"
 import { createRateLimit, DatabaseOptimizer, formatApiResponse } from "@/lib/dashboard/optimizations"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 // Create rate limiter for this endpoint
 const checkRateLimit = createRateLimit(200, 60000); // 200 requests per minute
@@ -91,6 +93,18 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      formatApiResponse(false, null, 'Unauthorized: No tenant context'),
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     // Apply stricter rate limiting for write operations
     const writeRateLimit = createRateLimit(50, 60000);
@@ -124,8 +138,7 @@ export async function POST(request: Request) {
       return NextResponse.json(formatApiResponse(true, { course: result, updated: true }));
     } else {
       // Create new course
-      const course = new Course(body);
-      result = await course.save();
+      result = await Course.create({ ...body, tenantId: session.tenantId });
       
       // Cache new course
       await cache.set(`course:${result._id}`, result, 3600);
@@ -147,4 +160,6 @@ export async function POST(request: Request) {
     
     return NextResponse.json(formatApiResponse(false, null, message), { status });
   }
+    }
+  );
 }

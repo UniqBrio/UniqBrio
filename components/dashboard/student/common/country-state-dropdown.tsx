@@ -64,7 +64,7 @@ function SearchableList<T>(props: SearchableListProps<T>){
             onChange={e=> setQuery(e.target.value)}
             placeholder={loading? 'Loading...' : 'Search...'}
             disabled={loading}
-            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+            className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
           <div className="max-h-60 overflow-y-auto text-sm pr-1">
             {loading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
@@ -132,7 +132,7 @@ export const CountryStateDropdown: React.FC<CountryStateDropdownProps> = ({
     }
     
     let cancelled=false; setStatesLoading(true); setStatesError('');
-    getCachedStates(selectedCountry.name.common)
+    getCachedStates(countryCode)
       .then(s=> { 
         if(!cancelled) {
           setStates(s);

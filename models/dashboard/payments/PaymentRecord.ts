@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 /**
  * PaymentTransaction Schema - Comprehensive payment tracking system
@@ -226,9 +227,7 @@ const PaymentRecordSchema = new mongoose.Schema(
     // Invoice generation
     invoiceNumber: {
       type: String,
-      unique: true,
       sparse: true,
-      index: true,
       validate: {
         validator: function(v: string) {
           // Don't allow empty strings - use null/undefined instead
@@ -254,9 +253,7 @@ const PaymentRecordSchema = new mongoose.Schema(
     // Receipt tracking
     receiptNumber: {
       type: String,
-      unique: true,
       sparse: true,
-      index: true,
     },
     
     receiptUrl: {
@@ -320,7 +317,7 @@ const PaymentRecordSchema = new mongoose.Schema(
     isDeleted: {
       type: Boolean,
       default: false,
-      index: true,
+      // Index removed - using compound index (isDeleted, createdAt) instead
     },
     
     deletedAt: {
@@ -338,6 +335,13 @@ const PaymentRecordSchema = new mongoose.Schema(
 );
 
 // Compound indexes for performance
+// Apply tenant plugin
+PaymentRecordSchema.plugin(tenantPlugin);
+
+// Compound indexes for multi-tenant uniqueness
+PaymentRecordSchema.index({ tenantId: 1, invoiceNumber: 1 }, { unique: true, sparse: true });
+PaymentRecordSchema.index({ tenantId: 1, receiptNumber: 1 }, { unique: true, sparse: true });
+
 PaymentRecordSchema.index({ paymentId: 1, paidDate: -1 });
 PaymentRecordSchema.index({ studentId: 1, paidDate: -1 });
 PaymentRecordSchema.index({ enrollmentId: 1, paidDate: -1 });

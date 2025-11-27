@@ -94,6 +94,15 @@ export async function GET(request: NextRequest) {
 
 // POST /api/drafts - Create a new draft
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio")
     
@@ -169,8 +178,7 @@ export async function POST(request: NextRequest) {
     const previewCourseId = await CourseIdManager.initializeDraftWithPreview()
     draftData.courseId = previewCourseId
     
-    const draft = new Draft(draftData)
-    await draft.save()
+    const draft = await Draft.create({ ...draftData, tenantId: session.tenantId })
 
     // Transform the response to match frontend expectations
     const transformedDraft = {
@@ -196,6 +204,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+    }
+  );
 }
 
 // PUT /api/drafts - Update a draft

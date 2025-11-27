@@ -111,7 +111,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
           setLoadingOptions(false);
           return;
         }
-        const res = await fetch('/api/dashboard/financial/financials/options');
+        const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (!cancelled) {
@@ -526,7 +526,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                             </DropdownMenuItem>
                           ))}
                         {expenseCategorySearchTerm && !((options.expenseCategories || []).find((cat: string) => cat.toLowerCase() === expenseCategorySearchTerm.toLowerCase())) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = expenseCategorySearchTerm; setExpenseCategorySearchTerm(''); handleExpenseChange('expenseCategory', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'expenseCategories', value: newVal }) }); setOptions(prev => ({ ...prev, expenseCategories: Array.from(new Set([...(prev.expenseCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = expenseCategorySearchTerm; setExpenseCategorySearchTerm(''); handleExpenseChange('expenseCategory', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'expenseCategories', value: newVal }) }); setOptions(prev => ({ ...prev, expenseCategories: Array.from(new Set([...(prev.expenseCategories || []), newVal])) })); } catch (e) { console.error('Failed to persist new category', e); } }}>
                             Add "{expenseCategorySearchTerm}" as new category
                           </DropdownMenuItem>
                         )}
@@ -569,7 +569,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                             </DropdownMenuItem>
                           ))}
                         {vendorNameSearchTerm && !((options.vendorNames || []) as string[]).find((vendor: string) => vendor.toLowerCase() === vendorNameSearchTerm.toLowerCase()) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = vendorNameSearchTerm; setVendorNameSearchTerm(''); handleExpenseChange('vendorName', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorNames', value: newVal }) }); setOptions(prev => ({ ...prev, vendorNames: Array.from(new Set([...(prev.vendorNames || []), newVal])) })); } catch (e) { console.error('Failed to persist new vendor', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = vendorNameSearchTerm; setVendorNameSearchTerm(''); handleExpenseChange('vendorName', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorNames', value: newVal }) }); setOptions(prev => ({ ...prev, vendorNames: Array.from(new Set([...(prev.vendorNames || []), newVal])) })); } catch (e) { console.error('Failed to persist new vendor', e); } }}>
                             Add "{vendorNameSearchTerm}" as new vendor
                           </DropdownMenuItem>
                         )}
@@ -612,7 +612,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                             </DropdownMenuItem>
                           ))}
                         {vendorTypeSearchTerm && !((options.vendorTypes || []) as string[]).find((type: string) => type.toLowerCase() === vendorTypeSearchTerm.toLowerCase()) && (
-                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = vendorTypeSearchTerm; setVendorTypeSearchTerm(''); handleExpenseChange('vendorType', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorTypes', value: newVal }) }); setOptions(prev => ({ ...prev, vendorTypes: Array.from(new Set([...(prev.vendorTypes || []), newVal])) })); } catch (e) { console.error('Failed to persist new type', e); } }}>
+                          <DropdownMenuItem className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-[15px]" onSelect={async () => { const newVal = vendorTypeSearchTerm; setVendorTypeSearchTerm(''); handleExpenseChange('vendorType', newVal); try { await fetch('/api/dashboard/financial/financials/options/add', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'vendorTypes', value: newVal }) }); setOptions(prev => ({ ...prev, vendorTypes: Array.from(new Set([...(prev.vendorTypes || []), newVal])) })); } catch (e) { console.error('Failed to persist new type', e); } }}>
                             Add "{vendorTypeSearchTerm}" as new type
                           </DropdownMenuItem>
                         )}

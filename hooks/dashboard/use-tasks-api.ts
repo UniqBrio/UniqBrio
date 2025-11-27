@@ -13,7 +13,10 @@ export function useTasksApi() {
   const load = useCallback(async () => {
     setState({ loading: true, error: null })
     try {
-      const res = await fetch("/api/dashboard/task-management/tasks", { cache: "no-store" })
+      const res = await fetch("/api/dashboard/task-management/tasks", { 
+        cache: "no-store",
+        credentials: 'include',
+      })
       const json = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message || "Failed to load tasks")
       setTasks(json.data)

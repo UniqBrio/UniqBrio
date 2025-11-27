@@ -6,6 +6,7 @@ import Cohort from '@/models/dashboard/student/Cohort';
 import { enrollStudentInCohort, removeStudentFromCohort } from '@/lib/dashboard/studentCohortSync';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
+import { logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
 
 // Helper: generate the next available (gap-filling) student ID like STU0003.
 // Strategy:
@@ -14,6 +15,7 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 // 3. Return the lowest missing number >= 1; if no gaps, return max+1.
 // 4. Race condition protection: re-check chosen ID before returning; if taken, loop a few times.
 async function generateNextStudentId(tenantId: string): Promise<string> {
+      console.log(`[generateNextStudentId] Starting ID generation for tenantId: ${tenantId}`);
       let attempts = 0;
       const maxAttempts = 5;
       while (attempts < maxAttempts) {
@@ -21,6 +23,11 @@ async function generateNextStudentId(tenantId: string): Promise<string> {
       { studentId: { $regex: /^STU\d{4}$/ }, tenantId },
       { studentId: 1, _id: 0 }
     ).lean();
+
+    console.log(`[generateNextStudentId] Found ${existing.length} existing students for tenant ${tenantId}`);
+    if (existing.length > 0) {
+      console.log(`[generateNextStudentId] Sample existing IDs:`, existing.slice(0, 5).map(s => s.studentId));
+    }
 
     const numbers: number[] = [];
     for (const s of existing) {
@@ -40,8 +47,10 @@ async function generateNextStudentId(tenantId: string): Promise<string> {
       }
     }
     const candidateId = `STU${String(candidateNum).padStart(4, '0')}`;
+    console.log(`[generateNextStudentId] Generated candidate ID: ${candidateId} for tenant ${tenantId}`);
     const collision = await Student.findOne({ studentId: candidateId, tenantId });
     if (!collision) {
+      console.log(`[generateNextStudentId] ID ${candidateId} is unique for tenant ${tenantId}`);
       return candidateId;
     }
     attempts++;
@@ -255,8 +264,21 @@ export async function POST(req: NextRequest) {
       if (!data.enrolledCourseName && data.program) data.enrolledCourseName = data.program;
 
     // Generate sequential student ID if not provided or if it's a temp ID
+    console.log('POST /api/students - Initial studentId:', data.studentId, 'Initial id:', data.id);
     if (!data.studentId || !data.id || data.studentId.startsWith('TEMP_') || data.id.startsWith('TEMP_')) {
-      data.studentId = await generateNextStudentId();
+      // Generate new ID and check for conflicts
+      let attempts = 0;
+      let newStudentId = '';
+      while (attempts < 3) {
+        newStudentId = await generateNextStudentId(session.tenantId);
+        const existingById = await Student.findOne({ studentId: newStudentId, tenantId: session.tenantId });
+        if (!existingById) {
+          break; // Found a unique ID
+        }
+        console.warn(`POST /api/students - Generated ID ${newStudentId} already exists, retrying...`);
+        attempts++;
+      }
+      data.studentId = newStudentId;
       console.log('POST /api/students - Generated sequential student ID:', data.studentId);
     } else if (!data.studentId && data.id) {
       data.studentId = data.id;
@@ -305,21 +327,12 @@ export async function POST(req: NextRequest) {
     // Normalize email: trim whitespace and convert to lowercase for consistent storage
     const normalizedEmail = data.email?.trim().toLowerCase();
     console.log('POST /api/students - Normalizing email:', normalizedEmail, '(original:', data.email, ')');
-    data.email = normalizedEmail;
+    allowed.email = normalizedEmail; // Update the allowed object with normalized email
     
-    // Ensure studentId uniqueness - if it already exists, regenerate it sequentially
-    let finalStudentId = data.studentId;
-    const existingById = await Student.findOne({ studentId: finalStudentId, tenantId: session.tenantId });
-    if (existingById) {
-      // If studentId conflicts, generate the next sequential ID
-      finalStudentId = await generateNextStudentId(session.tenantId);
-      data.studentId = finalStudentId;
-      console.log('POST /api/students - Generated new sequential student ID due to conflict:', finalStudentId);
-    }
-    
-    console.log('POST /api/students - Final student ID:', finalStudentId);
+    console.log('POST /api/students - Final student ID:', data.studentId);
     console.log('POST /api/students - Student cohortId field:', allowed.cohortId);
-    const student = await Student.create({ ...allowed });
+    console.log('POST /api/students - Creating student with tenantId:', session.tenantId);
+    const student = await Student.create({ ...allowed, tenantId: session.tenantId });
     console.log('POST /api/students - Created student with cohortId:', student.cohortId);
 
     // Bidirectional sync: If student was assigned to a cohort, update the cohort's currentStudents array
@@ -370,6 +383,34 @@ export async function POST(req: NextRequest) {
       communicationPreferences: s.communicationPreferences,
       cohortId: s.cohortId,
     } as any;
+    
+    // Create audit log for student creation
+    try {
+      const ipAddress = getClientIp(req.headers);
+      const userAgent = getUserAgent(req.headers);
+      const { logEntityCreate } = await import('@/lib/audit-logger');
+      await logEntityCreate(
+        'Students',
+        String(student._id),
+        `${student.name} (${student.studentId})`,
+        String(session.userId),
+        String(session.email),
+        String(session.role),
+        session.tenantId,
+        ipAddress,
+        userAgent,
+        {
+          studentId: student.studentId,
+          name: student.name,
+          email: student.email,
+          cohort: student.cohortId,
+          registrationDate: student.registrationDate
+        }
+      );
+    } catch (auditError) {
+      console.error('Failed to create audit log for student creation:', auditError);
+    }
+    
     console.log('POST /api/students - Successfully created student:', pick.name);
             return NextResponse.json(pick, { status: 201 });
       } catch (error: any) {
@@ -512,6 +553,52 @@ export async function PUT(req: NextRequest) {
       console.error('PUT /api/students - Student not found with ID:', studentId);
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
+    
+    // Track field changes for audit log
+    const fieldChanges = [];
+    if (oldStudent) {
+      const compareFields = [
+        { field: 'name', old: oldStudent.name, new: updated.name },
+        { field: 'email', old: oldStudent.email, new: updated.email },
+        { field: 'mobile', old: oldStudent.mobile, new: updated.mobile },
+        { field: 'cohortId', old: oldStudent.cohortId, new: updated.cohortId },
+        { field: 'enrolledCourseName', old: oldStudent.enrolledCourseName, new: updated.enrolledCourseName },
+      ];
+      
+      for (const { field, old: oldVal, new: newVal } of compareFields) {
+        if (oldVal !== newVal) {
+          fieldChanges.push({
+            field,
+            oldValue: String(oldVal || ''),
+            newValue: String(newVal || '')
+          });
+        }
+      }
+    }
+    
+    // Create audit log for student update
+    if (fieldChanges.length > 0) {
+      try {
+        const ipAddress = getClientIp(req.headers);
+        const userAgent = getUserAgent(req.headers);
+        const { logEntityUpdate } = await import('@/lib/audit-logger');
+        await logEntityUpdate(
+          'Students',
+          String(updated._id),
+          `${updated.name} (${updated.studentId})`,
+          fieldChanges,
+          String(session.userId),
+          String(session.email),
+          String(session.role),
+          session.tenantId,
+          ipAddress,
+          userAgent
+        );
+      } catch (auditError) {
+        console.error('Failed to create audit log for student update:', auditError);
+      }
+    }
+    
             const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
     const s = updated.toObject();
     const pick = {
@@ -586,6 +673,33 @@ export async function DELETE(req: NextRequest) {
       if (!student) {
         return NextResponse.json({ error: 'Student not found' }, { status: 404 });
       }
+      
+      // Create audit log for hard delete
+      try {
+        const ipAddress = getClientIp(req.headers);
+        const userAgent = getUserAgent(req.headers);
+        await logEntityDelete(
+          'Students',
+          String(student._id),
+          `${student.name} (${student.studentId})`,
+          String(session.userId),
+          String(session.email),
+          String(session.role),
+          session.tenantId,
+          ipAddress,
+          userAgent,
+          {
+            studentId: student.studentId,
+            name: student.name,
+            email: student.email,
+            cohort: student.cohort,
+            deleteType: 'hard'
+          }
+        );
+      } catch (auditError) {
+        console.error('Failed to create audit log for hard delete:', auditError);
+      }
+      
       // Optionally, delete related achievements
       await Achievement.deleteMany({ 
         $or: [{ student: student._id }, { studentId: student.studentId }],
@@ -604,6 +718,32 @@ export async function DELETE(req: NextRequest) {
     student.isDeleted = true;
     student.deletedAt = new Date();
     await student.save();
+    
+    // Create audit log for soft delete
+    try {
+      const ipAddress = getClientIp(req.headers);
+      const userAgent = getUserAgent(req.headers);
+      await logEntityDelete(
+        'Students',
+        String(student._id),
+        `${student.name} (${student.studentId})`,
+        String(session.userId),
+        String(session.email),
+        String(session.role),
+        session.tenantId,
+        ipAddress,
+        userAgent,
+        {
+          studentId: student.studentId,
+          name: student.name,
+          email: student.email,
+          cohort: student.cohort,
+          deleteType: 'soft'
+        }
+      );
+    } catch (auditError) {
+      console.error('Failed to create audit log for soft delete:', auditError);
+    }
     
             return NextResponse.json({ 
       success: true, 

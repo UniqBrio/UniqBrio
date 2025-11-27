@@ -3,29 +3,44 @@ import { verifyToken } from "@/lib/auth";
 import UserModel from "@/models/User";
 import RegistrationModel from "@/models/Registration";
 import { dbConnect } from "@/lib/mongodb";
+import { getUserSession } from "@/lib/tenant/api-helpers";
+import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
 export async function PUT(request: NextRequest) {
-  try {
-    // Get session token from cookies
-    const sessionToken = request.cookies.get("session")?.value;
-    
-    if (!sessionToken) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        // Get session token from cookies
+        const sessionToken = request.cookies.get("session")?.value;
+        
+        if (!sessionToken) {
+          return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+        }
 
-    // Verify the session token
-    const decoded = await verifyToken(sessionToken);
-    
-    if (!decoded || !decoded.email) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-    }
+        // Verify the session token
+        const decoded = await verifyToken(sessionToken);
+        
+        if (!decoded || !decoded.email) {
+          return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+        }
 
-    await dbConnect();
+        await dbConnect();
 
-    // Find user by email from the token
-    const user = await UserModel.findOne({ 
-      email: decoded.email as string
-    }).select('userId academyId email');
+        // Find user by email from the token
+        const user = await UserModel.findOne({ 
+          email: decoded.email as string,
+          tenantId: session.tenantId
+        }).select('userId academyId email');
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -41,7 +56,10 @@ export async function PUT(request: NextRequest) {
       if (user.academyId) whereConditions.push({ academyId: user.academyId });
       
       const registration = await RegistrationModel.findOne({
-        $or: whereConditions
+        $and: [
+          { $or: whereConditions },
+          { tenantId: session.tenantId }
+        ]
       });
 
       if (registration) {
@@ -66,7 +84,8 @@ export async function PUT(request: NextRequest) {
       } else {
         // If no registration found, try to find by email in adminInfo
         const registrationByEmail = await RegistrationModel.findOne({
-          'adminInfo.email': decoded.email
+          'adminInfo.email': decoded.email,
+          tenantId: session.tenantId
         });
 
         if (registrationByEmail) {
@@ -91,16 +110,18 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Appearance settings updated successfully"
-    });
+        return NextResponse.json({
+          success: true,
+          message: "Appearance settings updated successfully"
+        });
 
-  } catch (error) {
-    console.error("[appearance-settings] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to update appearance settings" },
-      { status: 500 }
-    );
-  }
+      } catch (error) {
+        console.error("[appearance-settings] Error:", error);
+        return NextResponse.json(
+          { error: "Failed to update appearance settings" },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

@@ -184,7 +184,9 @@ export function LeaveManagement() {
   const enrichWithCohortNames = async (records: LeaveRecord[]) => {
     try {
       // Fetch all cohorts
-      const cohortResponse = await fetch('/api/dashboard/student/cohorts');
+      const cohortResponse = await fetch('/api/dashboard/student/cohorts', {
+        credentials: 'include',
+      });
       if (!cohortResponse.ok) return records;
       
       const cohorts = await cohortResponse.json();
@@ -231,7 +233,9 @@ export function LeaveManagement() {
   const fetchLeaveData = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/dashboard/student/attendance");
+      const response = await fetch("/api/dashboard/student/attendance", {
+        credentials: 'include',
+      });
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -315,7 +319,8 @@ export function LeaveManagement() {
       const targetId = recordToDelete.id;
       console.debug('[LeaveManagement] Deleting attendance (leave) record id:', targetId);
       const response = await fetch(`/api/dashboard/student/attendance/${targetId}` , {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {

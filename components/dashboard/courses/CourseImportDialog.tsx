@@ -123,7 +123,8 @@ export default function CourseImportDialog({
 
       const response = await fetch('/api/dashboard/services/courses/import', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       })
 
       const result = await response.json()

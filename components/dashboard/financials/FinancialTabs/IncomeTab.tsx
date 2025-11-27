@@ -40,9 +40,9 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
           }
         };
         const [chartsRes, categoryRes, sourceRes] = await Promise.all([
-          fetch(`/api/dashboard/financial/financials/charts?${params}`, cacheHeaders),
-          fetch(`/api/dashboard/financial/financials/charts/income-categories?${params}`, cacheHeaders),
-          fetch(`/api/dashboard/financial/financials/charts/income-sources?${params}`, cacheHeaders)
+          fetch(`/api/dashboard/financial/financials/charts?${params}`, { ...cacheHeaders, credentials: 'include' }),
+          fetch(`/api/dashboard/financial/financials/charts/income-categories?${params}`, { ...cacheHeaders, credentials: 'include' }),
+          fetch(`/api/dashboard/financial/financials/charts/income-sources?${params}`, { ...cacheHeaders, credentials: 'include' })
         ]);
         console.log('IncomeTab: API responses:', {
           charts: chartsRes.status,

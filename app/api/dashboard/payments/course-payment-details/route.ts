@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 // Define Course schema for payment details
 const courseSchema = new mongoose.Schema({
@@ -43,6 +45,18 @@ const Course = mongoose.models.CoursePaymentDetails ||
  * GET /api/payments/course-payment-details?courseId=COURSE0001
  */
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -59,7 +73,7 @@ export async function GET(request: NextRequest) {
     console.log('[course-payment-details] Fetching payment details for courseId:', courseId);
 
     // Find course by courseId
-    const course = await Course.findOne({ courseId })
+    const course = await Course.findOne({ courseId, tenantId: session.tenantId })
       .select('courseId name courseName courseCategory paymentCategory type courseType priceINR registrationFee level duration status')
       .lean()
       .exec();
@@ -68,7 +82,7 @@ export async function GET(request: NextRequest) {
       console.log('[course-payment-details] Course not found for courseId:', courseId);
       
       // Log available courses for debugging
-      const sampleCourses = await Course.find({})
+      const sampleCourses = await Course.find({ tenantId: session.tenantId })
         .select('courseId name courseName courseCategory type')
         .limit(5)
         .lean();
@@ -122,6 +136,8 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }
 
 /**
@@ -130,6 +146,18 @@ export async function GET(request: NextRequest) {
  * Body: { courseIds: string[] }
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -147,7 +175,8 @@ export async function POST(request: NextRequest) {
 
     // Find courses by courseIds
     const courses = await Course.find({ 
-      courseId: { $in: courseIds } 
+      courseId: { $in: courseIds },
+      tenantId: session.tenantId
     })
       .select('courseId name courseName courseCategory paymentCategory type courseType priceINR registrationFee level duration status')
       .lean()
@@ -197,4 +226,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+    }
+  );
 }

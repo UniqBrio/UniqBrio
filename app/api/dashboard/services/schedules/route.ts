@@ -4,6 +4,8 @@ import { Schedule } from "@/models/dashboard"
 import type { ISchedule } from "@/models/dashboard"
 import { getUserSession } from "@/lib/tenant/api-helpers"
 import { runWithTenantContext } from "@/lib/tenant/tenant-context"
+import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger"
+import { AuditModule } from "@/models/AuditLog"
 
 export async function POST(request: Request) {
   const session = await getUserSession();
@@ -112,9 +114,40 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate tenant-scoped session ID
+    const { generateSessionId } = await import('@/lib/dashboard/id-generators')
+    const sessionId = await generateSessionId(session.tenantId)
+
     // Create new schedule
-    const schedule = new Schedule(body)
-    await schedule.save()
+    const schedule = await Schedule.create({ 
+      ...body, 
+      tenantId: session.tenantId,
+      sessionId // Assign generated session ID
+    })
+    
+    // Log audit event for schedule creation
+    const headers = new Headers(request.headers);
+    await logEntityCreate(
+      AuditModule.COURSES,
+      schedule._id.toString(),
+      schedule.sessionId || schedule._id.toString(),
+      session.userId,
+      session.email,
+      'super_admin',
+      session.tenantId,
+      getClientIp(headers),
+      getUserAgent(headers),
+      {
+        scheduleId: schedule._id.toString(),
+        sessionId: schedule.sessionId,
+        courseId: body.courseId,
+        instructor: body.instructor,
+        date: body.date,
+        startTime: body.startTime,
+        endTime: body.endTime,
+        status: body.status
+      }
+    );
     
     return NextResponse.json({ 
       success: true, 
@@ -328,6 +361,16 @@ export async function PUT(request: Request) {
       }, { status: 400 })
     }
     
+    // Get original schedule for change tracking
+    const originalSchedule = await Schedule.findById(_id).lean();
+    
+    if (!originalSchedule) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Schedule not found" 
+      }, { status: 404 })
+    }
+    
     // Check for conflicts if updating schedule details
     if (updateData.instructor && updateData.date && updateData.startTime && updateData.endTime) {
       const conflicts = await Schedule.find({
@@ -363,6 +406,38 @@ export async function PUT(request: Request) {
         success: false, 
         error: "Schedule not found" 
       }, { status: 404 })
+    }
+    
+    // Track field changes for audit log
+    const fieldChanges: Array<{ field: string; oldValue: string; newValue: string }> = [];
+    const fieldsToTrack = ['sessionId', 'courseId', 'instructor', 'date', 'startTime', 'endTime', 'status', 'mode', 'type', 'location', 'maxCapacity'];
+    const originalScheduleObj = originalSchedule.toObject ? originalSchedule.toObject() : originalSchedule;
+    
+    for (const field of fieldsToTrack) {
+      if (updateData.hasOwnProperty(field) && (originalScheduleObj as any)[field] !== updateData[field]) {
+        fieldChanges.push({
+          field,
+          oldValue: String((originalScheduleObj as any)[field] || ''),
+          newValue: String(updateData[field] || '')
+        });
+      }
+    }
+    
+    // Log audit event for schedule update
+    if (fieldChanges.length > 0) {
+      const headers = new Headers(request.headers);
+      await logEntityUpdate(
+        AuditModule.COURSES,
+        _id.toString(),
+        schedule.sessionId || _id.toString(),
+        fieldChanges,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(headers),
+        getUserAgent(headers)
+      );
     }
     
     return NextResponse.json({ 
@@ -425,6 +500,30 @@ export async function DELETE(request: Request) {
         error: "Schedule not found" 
       }, { status: 404 })
     }
+    
+    // Log audit event for schedule deletion
+    const headers = new Headers(request.headers);
+    await logEntityDelete(
+      AuditModule.COURSES,
+      scheduleId.toString(),
+      schedule.sessionId || scheduleId.toString(),
+      session.userId,
+      session.email,
+      'super_admin',
+      session.tenantId,
+      getClientIp(headers),
+      getUserAgent(headers),
+      {
+        scheduleId: scheduleId.toString(),
+        sessionId: schedule.sessionId,
+        courseId: schedule.courseId,
+        instructor: schedule.instructor,
+        date: schedule.date,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+        status: schedule.status
+      }
+    );
     
     return NextResponse.json({ 
       success: true, 

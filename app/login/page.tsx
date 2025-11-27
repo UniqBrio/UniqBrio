@@ -260,9 +260,10 @@ export default function LoginPage() {
             id="emailOrPhone"
             type="text"
             placeholder="abc@abc.com or phone number"
-            className={`w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.emailOrPhone ? "border-red-500" : "border-[#fd9c2d]"}`}
+            className={`w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.emailOrPhone ? "border-red-500" : "border-[#fd9c2d]"}}`}
             {...register("emailOrPhone")}
             autoComplete="username"
+            autoFocus
           />
           {errors.emailOrPhone && <p className="text-red-500 text-sm">{errors.emailOrPhone.message}</p>}
         </div>

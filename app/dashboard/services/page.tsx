@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useCustomColors } from "@/lib/use-custom-colors"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -65,7 +64,6 @@ interface RecentActivity {
 
 export default function ServicesOverviewPage() {
   const router = useRouter()
-  const { primaryColor, secondaryColor } = useCustomColors()
   const [scheduleStats, setScheduleStats] = useState<ScheduleStats>({
     totalSessions: 0,
     upcomingSessions: 0,
@@ -95,9 +93,9 @@ export default function ServicesOverviewPage() {
         
         // Fetch data from all APIs in parallel
         const [coursesRes, cohortsRes, studentsRes] = await Promise.all([
-          fetch('/api/dashboard/services/courses').catch(() => ({ json: () => ({ courses: [], success: false }) })),
-          fetch('/api/dashboard/services/cohorts').catch(() => ({ json: () => ({ cohorts: [], success: false }) })),
-          fetch('/api/dashboard/services/user-management/students').catch(() => ({ json: () => ({ students: [], count: 0 }) }))
+          fetch('/api/dashboard/services/courses', { credentials: 'include' }).catch(() => ({ json: () => ({ courses: [], success: false }) })),
+          fetch('/api/dashboard/services/cohorts', { credentials: 'include' }).catch(() => ({ json: () => ({ cohorts: [], success: false }) })),
+          fetch('/api/dashboard/services/user-management/students', { credentials: 'include' }).catch(() => ({ json: () => ({ students: [], count: 0 }) }))
         ])
 
         const coursesData = await coursesRes.json()
@@ -331,259 +329,251 @@ export default function ServicesOverviewPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-        <div className="responsive-dashboard-container flex flex-col space-y-4 sm:space-y-6">
+    <div className="container mx-auto py-6 px-4">
+      <div className="responsive-dashboard-container flex flex-col space-y-6">
         {/* Header */}
-        <div className="flex flex-col items-start gap-3 sm:gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2 responsive-text-xl" style={{ color: primaryColor }}>
-              <Activity className="h-8 w-8" />
-              Services Overview
-            </h1>
-            <p className="text-gray-500 dark:text-white">
-              Comprehensive service management dashboard with real-time insights and advanced analytics
-            </p>
-          </div>
+        <div className="flex flex-col items-start gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-purple-600 flex items-center gap-2">
+            <Activity className="h-7 w-7" />
+            Services Overview
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Comprehensive service management dashboard with real-time insights and advanced analytics
+          </p>
         </div>
 
-        {/* Stats Overview - Matching Schedule Page Theme */}
-        <div className="responsive-card-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+        {/* Stats Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Today's Sessions */}
+          <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-gray-900">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-orange-600">Today's Sessions</p>
-                  <p className="text-2xl font-bold text-orange-900">{scheduleStats.todaySessions}</p>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-orange-600 dark:text-orange-400 mb-1">Today's Sessions</p>
+                  <p className="text-3xl font-bold text-orange-900 dark:text-orange-300">{scheduleStats.todaySessions}</p>
                 </div>
-                <Clock className="h-8 w-8 text-orange-500" />
+                <Clock className="h-10 w-10 text-orange-400 opacity-80" />
               </div>
-              <p className="text-xs text-orange-600 mt-1">
+              <p className="text-xs text-orange-600 dark:text-orange-500">
                 {scheduleStats.thisWeekSessions} this week
               </p>
             </CardContent>
           </Card>
 
-          {/* Course Stats */}
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-500">
+          {/* Active Courses */}
+          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white dark:from-green-950/20 dark:to-gray-900">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-green-600">Active Courses</p>
-                  <p className="text-2xl font-bold text-green-900">{courseStats.activeCourses}</p>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">Active Courses</p>
+                  <p className="text-3xl font-bold text-green-900 dark:text-green-300">{courseStats.activeCourses}</p>
                 </div>
-                <BookOpen className="h-8 w-8 text-green-500" />
+                <BookOpen className="h-10 w-10 text-green-400 opacity-80" />
               </div>
-              <p className="text-xs text-green-600 mt-1">
+              <p className="text-xs text-green-600 dark:text-green-500">
                 of {courseStats.totalCourses} total
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-500">
+          {/* Enrollments */}
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-gray-900">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-600">Enrollments</p>
-                  <p className="text-2xl font-bold text-blue-900">{courseStats.totalEnrollments}</p>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Enrollments</p>
+                  <p className="text-3xl font-bold text-blue-900 dark:text-blue-300">{courseStats.totalEnrollments}</p>
                 </div>
-                <Users className="h-8 w-8 text-blue-500" />
+                <Users className="h-10 w-10 text-blue-400 opacity-80" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Cohort Stats */}
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">  
+          {/* Active Cohorts */}
+          <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-gray-900">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-purple-600">Active Cohorts</p>
-                  <p className="text-2xl font-bold text-purple-900">{cohortStats.activeCohorts}</p>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">Active Cohorts</p>
+                  <p className="text-3xl font-bold text-purple-900 dark:text-purple-300">{cohortStats.activeCohorts}</p>
                 </div>
-                <Users2 className="h-8 w-8 text-purple-500" />
+                <Users2 className="h-10 w-10 text-purple-400 opacity-80" />
               </div>
-              <p className="text-xs text-purple-600 mt-1">
+              <p className="text-xs text-purple-600 dark:text-purple-500">
                 of {cohortStats.totalCohorts} total
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
+          {/* Total Students */}
+          <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-gray-900">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-orange-600">Total Students</p>
-                  <p className="text-2xl font-bold text-orange-900">{cohortStats.totalStudents}</p>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-orange-600 dark:text-orange-400 mb-1">Total Students</p>
+                  <p className="text-3xl font-bold text-orange-900 dark:text-orange-300">{cohortStats.totalStudents}</p>
                 </div>
-                <UserCheck className="h-8 w-8 text-orange-500" />
+                <UserCheck className="h-10 w-10 text-orange-400 opacity-80" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="service-areas" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
-            <TabsTrigger
-              value="dashboard"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-              style={{
-                borderColor: secondaryColor,
-                color: secondaryColor,
-                backgroundColor: 'transparent'
-              }}
-              data-primary={primaryColor}
-              data-secondary={secondaryColor}
-            >
-              <BarChart3 className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger
-              value="service-areas"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 text-white font-medium data-[state=active]:text-white data-[state=inactive]:bg-transparent"
-              style={{
-                backgroundColor: primaryColor,
-                borderColor: 'transparent'
-              }}
-              data-primary={primaryColor}
-              data-secondary={secondaryColor}
-            >
-              <Users className="h-4 w-4" />
-              Service Areas
-            </TabsTrigger>
-          </TabsList>
+        {/* Tab Navigation */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            className="h-12 border-2 border-orange-300 bg-white dark:bg-gray-900 hover:bg-orange-50 dark:hover:bg-orange-950/30 text-orange-600 dark:text-orange-400 font-semibold"
+            onClick={() => {
+              const analyticsSection = document.getElementById('analytics-section')
+              analyticsSection?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          >
+            <BarChart3 className="mr-2 h-5 w-5" />
+            Analytics
+          </Button>
+          <Button
+            className="h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-md"
+            onClick={() => {
+              const serviceAreasSection = document.getElementById('service-areas-section')
+              serviceAreasSection?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          >
+            <Users className="mr-2 h-5 w-5" />
+            Service Areas
+          </Button>
+        </div>
 
-          <TabsContent value="dashboard" className="space-y-4">
-            <ServicesDashboardCharts
-              scheduleStats={scheduleStats}
-              courseStats={courseStats}
-              cohortStats={cohortStats}
-              recentActivities={recentActivities}
-            />
-          </TabsContent>
-
-
-
-          <TabsContent value="service-areas" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Schedule Overview */}
-              <Card className="border" style={{ borderColor: `${primaryColor}33`, background: `linear-gradient(to bottom right, ${primaryColor}0D, ${primaryColor}1A)` }}>
-                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${primaryColor}33` }}>
-                  <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
-                    <Calendar className="h-5 w-5" style={{ color: primaryColor }} />
-                    Schedule Management
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-white">
-                    Manage events, sessions, and scheduling
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span style={{ color: primaryColor }}>This Week's Sessions</span>
-                      <span style={{ color: primaryColor }}>{scheduleStats.thisWeekSessions}</span>
-                    </div>
-                    <Progress value={(scheduleStats.thisWeekSessions / 20) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
+        {/* Service Areas Section */}
+        <div id="service-areas-section" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Schedule Management Card */}
+            <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <CardTitle className="text-lg text-purple-700 dark:text-purple-300">Schedule Management</CardTitle>
+                </div>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                  Manage events, sessions, and scheduling
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">This Week's Sessions</span>
+                    <span className="text-lg font-bold text-purple-900 dark:text-purple-200">{scheduleStats.thisWeekSessions}</span>
                   </div>
+                  <Progress value={100} className="h-2 bg-purple-100 dark:bg-purple-900/50 [&>div]:bg-purple-500" />
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span style={{ color: primaryColor }}>Today's Sessions</span>
-                      <span style={{ color: primaryColor }}>{scheduleStats.todaySessions} sessions</span>
-                    </div>
-                    <Progress value={(scheduleStats.todaySessions / 8) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Today's Sessions</span>
+                    <span className="text-lg font-bold text-purple-900 dark:text-purple-200">{scheduleStats.todaySessions} sessions</span>
                   </div>
+                  <Progress value={(scheduleStats.todaySessions / Math.max(scheduleStats.thisWeekSessions, 1)) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/50 [&>div]:bg-purple-500" />
+                </div>
 
-                  <Button
-                    className="w-full text-white"
-                    style={{ backgroundColor: primaryColor }}
-                    onClick={() => router.push("/dashboard/services/schedule")}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Manage Schedule
-                  </Button>
-                </CardContent>
-              </Card>
+                <Button
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium mt-2"
+                  onClick={() => router.push("/dashboard/services/schedule")}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Manage Schedule
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Courses Overview */}
-              <Card className="border" style={{ borderColor: `${secondaryColor}33`, background: `linear-gradient(to bottom right, ${secondaryColor}0D, ${secondaryColor}1A)` }}>
-                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${secondaryColor}33` }}>
-                  <CardTitle className="flex items-center gap-2" style={{ color: secondaryColor }}>
-                    <BookOpen className="h-5 w-5" style={{ color: secondaryColor }} />
-                    Course Management
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-white">
-                    Manage courses, enrollments, and cohorts
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span style={{ color: secondaryColor }}>Active Courses</span>
-                      <span style={{ color: secondaryColor }}>{courseStats.activeCourses}/{courseStats.totalCourses}</span>
-                    </div>
-                    <Progress value={(courseStats.activeCourses / courseStats.totalCourses) * 100} className="h-2" style={{ backgroundColor: `${secondaryColor}1A` }} />
+            {/* Course Management Card */}
+            <Card className="border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <BookOpen className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  <CardTitle className="text-lg text-orange-700 dark:text-orange-300">Course Management</CardTitle>
+                </div>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                  Manage courses, enrollments, and cohorts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-orange-100 dark:border-orange-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Active Courses</span>
+                    <span className="text-lg font-bold text-orange-900 dark:text-orange-200">{courseStats.activeCourses}/{courseStats.totalCourses}</span>
                   </div>
+                  <Progress value={(courseStats.activeCourses / Math.max(courseStats.totalCourses, 1)) * 100} className="h-2 bg-orange-100 dark:bg-orange-900/50 [&>div]:bg-orange-500" />
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span style={{ color: secondaryColor }}>Enrollment Capacity</span>
-                      <span style={{ color: secondaryColor }}>{Math.round((courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100)}%</span>
-                    </div>
-                    <Progress value={(courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100} className="h-2" style={{ backgroundColor: `${secondaryColor}1A` }} />
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-orange-100 dark:border-orange-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Enrollment Capacity</span>
+                    <span className="text-lg font-bold text-orange-900 dark:text-orange-200">
+                      {courseStats.activeCourses > 0 ? Math.min(Math.round((courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100), 100) : 5}%
+                    </span>
                   </div>
+                  <Progress value={courseStats.activeCourses > 0 ? Math.min((courseStats.totalEnrollments / (courseStats.activeCourses * 25)) * 100, 100) : 5} className="h-2 bg-orange-100 dark:bg-orange-900/50 [&>div]:bg-orange-500" />
+                </div>
 
-                  <Button
-                    className="w-full text-white"
-                    style={{ backgroundColor: secondaryColor }}
-                    onClick={() => router.push("/dashboard/services/courses")}
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Manage Courses
-                  </Button>
-                </CardContent>
-              </Card>
+                <Button
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium mt-2"
+                  onClick={() => router.push("/dashboard/services/courses")}
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Manage Courses
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Cohort Overview */}
-              <Card className="border" style={{ borderColor: `${primaryColor}33`, background: `linear-gradient(to bottom right, ${primaryColor}0D, ${primaryColor}1A)` }}>
-                <CardHeader className="pb-2 border-b bg-white dark:bg-gray-900 rounded-t-lg" style={{ borderColor: `${primaryColor}33` }}>
-                  <CardTitle className="flex items-center gap-2" style={{ color: primaryColor }}>
-                    <Users2 className="h-5 w-5" style={{ color: primaryColor }} />
-                    Cohort Management
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-white">
-                    Organize students into groups and track progress
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span style={{ color: primaryColor }}>Active Cohorts</span>
-                      <span style={{ color: primaryColor }}>{cohortStats.activeCohorts}/{cohortStats.totalCohorts}</span>
-                    </div>
-                    <Progress value={(cohortStats.activeCohorts / cohortStats.totalCohorts) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
+            {/* Cohort Management Card */}
+            <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Users2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <CardTitle className="text-lg text-purple-700 dark:text-purple-300">Cohort Management</CardTitle>
+                </div>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                  Organize students into groups and track progress
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Active Cohorts</span>
+                    <span className="text-lg font-bold text-purple-900 dark:text-purple-200">{cohortStats.activeCohorts}/{cohortStats.totalCohorts}</span>
                   </div>
+                  <Progress value={(cohortStats.activeCohorts / Math.max(cohortStats.totalCohorts, 1)) * 100} className="h-2 bg-purple-100 dark:bg-purple-900/50 [&>div]:bg-purple-500" />
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-medium">
-                      <span style={{ color: primaryColor }}>Student Enrollment</span>
-                      <span style={{ color: primaryColor }}>{cohortStats.totalStudents} students</span>
-                    </div>
-                    <Progress value={(cohortStats.totalStudents / (cohortStats.activeCohorts * cohortStats.averageCohortSize)) * 100} className="h-2" style={{ backgroundColor: `${primaryColor}1A` }} />
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Student Enrollment</span>
+                    <span className="text-lg font-bold text-purple-900 dark:text-purple-200">{cohortStats.totalStudents} students</span>
                   </div>
+                  <Progress value={cohortStats.activeCohorts > 0 ? Math.min((cohortStats.totalStudents / (cohortStats.activeCohorts * Math.max(cohortStats.averageCohortSize, 1))) * 100, 100) : 0} className="h-2 bg-purple-100 dark:bg-purple-900/50 [&>div]:bg-purple-500" />
+                </div>
 
-                  <Button
-                    className="w-full text-white"
-                    style={{ backgroundColor: primaryColor }}
-                    onClick={() => router.push("/dashboard/services/cohorts")}
-                  >
-                    <Users2 className="mr-2 h-4 w-4" />
-                    Manage Cohorts
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+                <Button
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium mt-2"
+                  onClick={() => router.push("/dashboard/services/cohorts")}
+                >
+                  <Users2 className="mr-2 h-4 w-4" />
+                  Manage Cohorts
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Analytics Section */}
+        <div id="analytics-section" className="space-y-4">
+          <ServicesDashboardCharts
+            scheduleStats={scheduleStats}
+            courseStats={courseStats}
+            cohortStats={cohortStats}
+            recentActivities={recentActivities}
+          />
+        </div>
       </div>
     </div>
   )

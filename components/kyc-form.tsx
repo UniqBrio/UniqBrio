@@ -62,7 +62,9 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
     async function fetchUserAcademyInfo() {
       try {
         console.log("[KYC] Fetching user academy info...");
-        const res = await fetch("/api/user-academy-info");
+        const res = await fetch("/api/user-academy-info", {
+          credentials: 'include',
+        });
         const data = await res.json();
         console.log("[KYC] User academy info response:", data);
         
@@ -93,7 +95,9 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
   const testAuthentication = async () => {
     try {
       console.log("[KYC] Testing authentication...");
-      const res = await fetch("/api/test-kyc-auth");
+      const res = await fetch("/api/test-kyc-auth", {
+        credentials: 'include',
+      });
       const data = await res.json();
       console.log("[KYC] Auth test result:", data);
       return data.authenticated;

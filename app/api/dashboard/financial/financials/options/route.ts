@@ -48,15 +48,15 @@ export async function GET(_req: NextRequest) {
           vendorTypesRaw,
           expenseAccountsRaw,
         ] = await Promise.all([
-          IncomeModel.distinct("incomeCategory"),
-          IncomeModel.distinct("sourceType"),
-          IncomeModel.distinct("paymentMode"),
-          IncomeModel.distinct("addToAccount"),
-          ExpenseModel.distinct("paymentMode"),
-          ExpenseModel.distinct("expenseCategory"),
-          ExpenseModel.distinct("vendorName"),
-          ExpenseModel.distinct("vendorType"),
-          ExpenseModel.distinct("addFromAccount"),
+          IncomeModel.distinct("incomeCategory", { tenantId: session.tenantId }),
+          IncomeModel.distinct("sourceType", { tenantId: session.tenantId }),
+          IncomeModel.distinct("paymentMode", { tenantId: session.tenantId }),
+          IncomeModel.distinct("addToAccount", { tenantId: session.tenantId }),
+          ExpenseModel.distinct("paymentMode", { tenantId: session.tenantId }),
+          ExpenseModel.distinct("expenseCategory", { tenantId: session.tenantId }),
+          ExpenseModel.distinct("vendorName", { tenantId: session.tenantId }),
+          ExpenseModel.distinct("vendorType", { tenantId: session.tenantId }),
+          ExpenseModel.distinct("addFromAccount", { tenantId: session.tenantId }),
         ]);
 
         // Combine payment modes from both income and expense records
@@ -66,7 +66,7 @@ export async function GET(_req: NextRequest) {
         ]));
 
         // Bank accounts -> use a friendly display label
-        const bankAccounts = await BankAccountModel.find({}, "bankName accountNumber holderName").lean();
+        const bankAccounts = await BankAccountModel.find({ tenantId: session.tenantId }, "bankName accountNumber holderName").lean();
         const accountLabelsFromBanks = bankAccounts.map((b: any) => {
           const parts = [b.bankName, b.accountNumber].filter(Boolean).join(" • ");
           return parts || b.holderName || "Account";

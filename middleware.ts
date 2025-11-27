@@ -123,13 +123,14 @@ export async function middleware(request: NextRequest) {
       // Use API route instead of direct Prisma in middleware (edge environment)
       // Add timeout to prevent middleware hanging
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
       const userInfoResponse = await fetch(`${request.nextUrl.origin}/api/user-registration-status`, {
         headers: {
           'Authorization': `Bearer ${sessionCookieValue}`,
           'Content-Type': 'application/json'
         },
+        cache: 'no-store',
         signal: controller.signal
       });
 
@@ -246,12 +247,23 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(userDashboard, request.url));
     }
   }
-  // 2. Handle shared authenticated paths
+  // 2. Handle audit logs - super admin only
+  else if (path.startsWith('/dashboard/audit-logs')) {
+    if (userRole === "super_admin") {
+      console.log(`[Middleware] Allowing super_admin access to audit logs ${path}.`);
+      isAllowed = true;
+    } else {
+      console.log(`[Middleware] Denying non-super_admin (${userRole}) access to audit logs. Redirecting to their dashboard.`);
+      const userDashboard = getDefaultDashboard(userRole);
+      return NextResponse.redirect(new URL(userDashboard, request.url));
+    }
+  }
+  // 3. Handle shared authenticated paths
   else if (sharedAuthenticatedPaths.some((p) => path.startsWith(p))) {
     console.log(`[Middleware] Allowing any authenticated user (${userRole}) access to shared path ${path}.`);
     isAllowed = true;
   }
-  // 3. Handle standard role-protected paths
+  // 4. Handle standard role-protected paths
   else {
     const allowedPaths = (() => {
       switch (userRole) {
@@ -269,7 +281,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 4. If not allowed by any rule, redirect
+  // 5. If not allowed by any rule, redirect
   if (!isAllowed) {
     console.log(`[Middleware] Role (${userRole}) access DENIED for path ${path}. Redirecting to default dashboard.`);
     const userDashboard = getDefaultDashboard(userRole);

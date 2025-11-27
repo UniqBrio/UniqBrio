@@ -22,7 +22,9 @@ export default function KYCBlockedPage() {
     const fetchUserInfoAndKycStatus = async () => {
       try {
         // Fetch user info
-        const userResponse = await fetch("/api/user-academy-info")
+        const userResponse = await fetch("/api/user-academy-info", {
+          credentials: 'include',
+        })
         if (userResponse.ok) {
           const userData = await userResponse.json()
           setUserInfo({
@@ -33,7 +35,9 @@ export default function KYCBlockedPage() {
         }
 
         // Check if user has already submitted KYC (for blocked users)
-        const kycResponse = await fetch("/api/kyc-status")
+        const kycResponse = await fetch("/api/kyc-status", {
+          credentials: 'include',
+        })
         if (kycResponse.ok) {
           const kycData = await kycResponse.json()
           console.log("KYC Status for blocked user:", kycData.status)
@@ -61,7 +65,9 @@ export default function KYCBlockedPage() {
     // Poll KYC status every 30 seconds to check for approval
     const pollInterval = setInterval(async () => {
       try {
-        const kycResponse = await fetch("/api/kyc-status")
+        const kycResponse = await fetch("/api/kyc-status", {
+          credentials: 'include',
+        })
         if (kycResponse.ok) {
           const kycData = await kycResponse.json()
           if (kycData.status === "verified") {

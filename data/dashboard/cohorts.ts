@@ -26,6 +26,7 @@ export async function fetchCohorts(activityId?: string): Promise<Cohort[]> {
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
+      credentials: 'include',
       cache: 'no-store'
     });
     console.log('Status:', response.status);

@@ -203,7 +203,9 @@ export function getLatestModificationType(schedule: any): string | null {
  */
 export async function fetchAllSchedulesWithModifications(): Promise<ScheduleEvent[]> {
   try {
-    const response = await fetch('/api/dashboard/services/schedules')
+    const response = await fetch('/api/dashboard/services/schedules', {
+      credentials: 'include',
+    })
     
     if (!response.ok) {
       throw new Error('Failed to fetch schedules')

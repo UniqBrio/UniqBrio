@@ -293,7 +293,9 @@ export default function CourseFormDialog({
         const getNextCourseId = async () => {
           try {
             // Make API call to get the proper next course ID
-            const response = await fetch('/api/dashboard/services/courses');
+            const response = await fetch('/api/dashboard/services/courses', {
+              credentials: 'include'
+            });
             const data = await response.json();
             
             let maxCourseNumber = 0;
@@ -549,12 +551,14 @@ export default function CourseFormDialog({
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(courseDataWithoutId),
+            credentials: 'include'
           })
           const createResult = await createResponse.json()
           if (createResult.success) {
             // Delete the draft
             const deleteResponse = await fetch(`/api/dashboard/services/courses/drafts?id=${editCourseId}`, {
               method: 'DELETE',
+              credentials: 'include'
             })
             const deleteResult = await deleteResponse.json()
             
@@ -591,6 +595,7 @@ export default function CourseFormDialog({
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ _id: mongoId, ...courseData }),
+            credentials: 'include'
           });
           const updateResult = await updateResponse.json();
           if (updateResult.success) {
@@ -618,6 +623,7 @@ export default function CourseFormDialog({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(courseData),
+          credentials: 'include'
         })
         const result = await response.json()
         if (result.success) {
@@ -702,6 +708,7 @@ export default function CourseFormDialog({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ id: editCourseId, ...draftData }),
+          credentials: 'include'
         })
       } else {
         // Create new draft
@@ -711,6 +718,7 @@ export default function CourseFormDialog({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(draftData),
+          credentials: 'include'
         })
       }
 
@@ -901,19 +909,19 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="content" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 dark:text-white inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
               >
                 Content <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 dark:text-white inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
               >
                 Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
               <TabsTrigger 
                 value="marketing" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 dark:text-white inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
               >
                 Marketing <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
