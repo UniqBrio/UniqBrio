@@ -30,10 +30,7 @@ const initialForm: InstructorFormData = {
   phone: "",
   phoneCountryCode: "+91",
   maritalStatus: "",
-  bloodGroup: "",
   dob: "",
-  temporaryPassword: "",
-  permissionsLevel: "",
   joiningDate: __today,
   contractType: "",
   contractTypeOther: "", // additional contract type information for custom option
@@ -44,14 +41,7 @@ const initialForm: InstructorFormData = {
   address: "",
   country: "IN",
   state: "",
-  branch: "",
-  department: "",
-  reportingManager: "",
   yearsOfExperience: "",
-  certifications: [""],
-  specializations: [""],
-  awards: [""],
-  careerGoals: "",
   paymentInfo: {
     classCount: "",
     frequency: "",
@@ -74,10 +64,6 @@ const initialForm: InstructorFormData = {
     upiProvider: "",
     upiId: "",
   },
-  upcomingClasses: [{ title: "", date: "", time: "", location: "" }],
-  branches: [""],
-  shifts: { primary: [{ start: "", end: "" }], secondary: [{ start: "", end: "" }] },
-  employmentHistory: [{ position: "", institution: "", startDate: "", endDate: "", responsibilities: "" }],
 }
 
 // Utility function to check if form data has changed
@@ -146,9 +132,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         !!form.state
       )
     }
-    if (addTab === "employment") {
-      return !!form.temporaryPassword && !!form.permissionsLevel
-    }
+    // Employment tab validation removed - fields not in type
     return true
   }
 
@@ -304,11 +288,11 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
           </DialogHeader>
 
           <UITabs value={addTab} onValueChange={setAddTab} className="w-full">
-            <UITabsList className="flex justify-between gap-1 mb-6 w-full">
-              <UITabsTrigger value="basic" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Basic Info</UITabsTrigger>
-              <UITabsTrigger value="payment" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Payment Setup</UITabsTrigger>
-              <UITabsTrigger value="professional" className="border-2 border-purple-300 text-purple-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-400 hover:bg-gray-300 hover:text-white hover:border-gray-300 focus:outline-none">Branch Assignment</UITabsTrigger>
-              <UITabsTrigger value="employment" className="border-2 border-purple-300 text-purple-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-400 hover:bg-gray-300 hover:text-white hover:border-gray-300 focus:outline-none">System Access</UITabsTrigger>
+            <UITabsList className="flex justify-between gap-1 mb-6 w-full bg-transparent">
+              <UITabsTrigger value="basic" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-transparent transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Basic Info</UITabsTrigger>
+              <UITabsTrigger value="payment" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-transparent transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Payment Setup</UITabsTrigger>
+              <UITabsTrigger value="professional" className="border-2 border-gray-400 text-gray-500 bg-transparent transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-400 focus:outline-none">Branch Assignment</UITabsTrigger>
+              <UITabsTrigger value="employment" className="border-2 border-gray-400 text-gray-500 bg-transparent transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-400 focus:outline-none">System Access</UITabsTrigger>
             </UITabsList>
 
             {/* Prevent implicit form submission via Enter key causing duplicate onSave */}

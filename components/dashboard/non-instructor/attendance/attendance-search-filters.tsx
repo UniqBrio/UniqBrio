@@ -694,7 +694,7 @@ export default function AttendanceSearchFilters({
         {/* Sort (student-style dropdown) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 hover:text-white [&:hover_svg]:text-white [&:hover_span]:text-white">
               <ArrowUpDown className="mr-2 h-4 w-4" />
               <span className="ml-1 text-xs text-gray-600 dark:text-white">
                 {(() => {
@@ -755,10 +755,10 @@ export default function AttendanceSearchFilters({
         {/* View toggle (moved next to Sort) */}
         <div className="flex border rounded-md">
           <Button
-            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            variant="ghost"
             size="sm"
             onClick={() => setViewMode('list')}
-            className="rounded-r-none"
+            className={`rounded-r-none ${viewMode === 'list' ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-transparent hover:bg-gray-100 text-gray-600'}`}
             title="List View"
             aria-label="List View"
           >
@@ -769,10 +769,10 @@ export default function AttendanceSearchFilters({
             </div>
           </Button>
           <Button
-            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            variant="ghost"
             size="sm"
             onClick={() => setViewMode('grid')}
-            className="rounded-l-none border-l"
+            className={`rounded-l-none border-l ${viewMode === 'grid' ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-transparent hover:bg-gray-100 text-gray-600'}`}
             title="Grid View"
             aria-label="Grid View"
           >

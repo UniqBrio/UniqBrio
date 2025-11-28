@@ -381,8 +381,10 @@ function AttendanceManagementInner() {
         <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 w-full gap-2 bg-transparent h-auto p-0">
           <TabsTrigger
             value="analytics"
-            className="hexagon-tab bg-transparent transition-all duration-150 font-semibold px-4 py-2 focus:outline-none"
-            style={activeTab === 'analytics' ? { background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`, color: 'white' } : { color: secondaryColor }}
+            className="rounded-lg bg-transparent transition-all duration-150 font-semibold px-4 py-2 focus:outline-none border-2"
+            style={activeTab === 'analytics' ? { background: 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)', color: 'white', borderColor: 'transparent' } : { color: '#DE7D14', borderColor: '#DE7D14' }}
+            onMouseEnter={(e) => { if (activeTab !== 'analytics') { e.currentTarget.style.background = 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'transparent' } }}
+            onMouseLeave={(e) => { if (activeTab !== 'analytics') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#DE7D14'; e.currentTarget.style.borderColor = '#DE7D14' } }}
           >
             <LayoutDashboard className="w-4 h-4 mr-2 inline-block" />
             Analytics
@@ -390,8 +392,10 @@ function AttendanceManagementInner() {
           
           <TabsTrigger
             value="table"
-            className="hexagon-tab bg-transparent transition-all duration-150 font-semibold px-4 py-2 focus:outline-none"
-            style={activeTab === 'table' ? { background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`, color: 'white' } : { color: secondaryColor }}
+            className="rounded-lg bg-transparent transition-all duration-150 font-semibold px-4 py-2 focus:outline-none border-2"
+            style={activeTab === 'table' ? { background: 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)', color: 'white', borderColor: 'transparent' } : { color: '#DE7D14', borderColor: '#DE7D14' }}
+            onMouseEnter={(e) => { if (activeTab !== 'table') { e.currentTarget.style.background = 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'transparent' } }}
+            onMouseLeave={(e) => { if (activeTab !== 'table') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#DE7D14'; e.currentTarget.style.borderColor = '#DE7D14' } }}
           >
             <Table2 className="w-4 h-4 mr-2 inline-block" />
             Attendance Table
@@ -400,12 +404,7 @@ function AttendanceManagementInner() {
           
           <TabsTrigger
             value="gamification"
-            className={
-              `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
-              data-[state=active]:bg-gray-400 data-[state=active]:text-white
-              data-[state=active]:border-gray-600
-              bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700`
-            }
+            className="rounded-lg bg-transparent border-2 border-gray-400 text-gray-500 px-4 py-2 text-sm font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-transparent focus:outline-none"
           >
             <Trophy className="w-4 h-4 mr-2 inline-block" />
             <span className="inline-flex items-center gap-1">Gamification <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
@@ -413,12 +412,7 @@ function AttendanceManagementInner() {
 
           <TabsTrigger
             value="settings"
-            className={
-              `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
-              data-[state=active]:bg-gray-400 data-[state=active]:text-white
-              data-[state=active]:border-gray-600
-              bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700`
-            }
+            className="rounded-lg bg-transparent border-2 border-gray-400 text-gray-500 px-4 py-2 text-sm font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-transparent focus:outline-none"
           >
             <Bell className="w-4 h-4 mr-2 inline-block" />
             <span className="inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>

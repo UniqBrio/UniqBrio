@@ -136,7 +136,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
                 <YAxis 
                   stroke="#888" 
                   fontSize={12}
-                  label={{ value: 'Revenue (?)', angle: -90, position: 'insideLeft', style: { fill: '#666', fontWeight: 500 } }}
+                  label={{ value: `Revenue (${currency})`, angle: -90, position: 'insideLeft', style: { fill: '#666', fontWeight: 500 } }}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -145,7 +145,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
                     borderRadius: '8px',
                     padding: '8px'
                   }}
-                  formatter={(value: number) => [`?${value.toLocaleString()}`, 'Revenue']}
+                  formatter={(value: number) => [`${value.toLocaleString()}`, 'Revenue']}
                 />
                 <Bar dataKey="revenue" fill={primaryColor} radius={[8, 8, 0, 0]} />
               </BarChart>
@@ -179,7 +179,7 @@ export function AnalyticsDashboard({ onExport }: AnalyticsDashboardProps) {
                     borderRadius: '8px',
                     padding: '8px'
                   }}
-                  formatter={(value: number) => [`${value} units`, '']}
+                  formatter={(value: number) => [`${value} units`]}
                 />
                 <Legend 
                   verticalAlign="bottom" 

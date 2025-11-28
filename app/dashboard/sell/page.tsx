@@ -45,6 +45,7 @@ interface Sale {
 
 export default function ProductsServicesPage() {
   const { currency } = useCurrency();
+  const { primaryColor, secondaryColor } = useCustomColors();
   const [currentView, setCurrentView] = useState<"products" | "sales" | "analytics">("analytics")
   
   const [showAddProductDialog, setShowAddProductDialog] = useState(false)

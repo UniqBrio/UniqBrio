@@ -31,10 +31,13 @@ export default function LeaveHubHeader({ activeTab, onTabChange }: Props) {
             className="w-full"
           >
             <div className="flex flex-col gap-2">
-              <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1">
+              <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1 bg-transparent">
                 <TabsTrigger
                   value="dashboard"
-                  className="hexagon-tab text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+                  className="rounded-lg bg-transparent transition-all duration-150 font-semibold px-4 py-2 border-2 border-[#DE7D14] text-[#DE7D14] data-[state=active]:text-white data-[state=active]:border-transparent hover:text-white hover:border-transparent focus:outline-none"
+                  style={activeTab === 'dashboard' ? { background: 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)' } : undefined}
+                  onMouseEnter={(e) => { if (activeTab !== 'dashboard') e.currentTarget.style.background = 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)' }}
+                  onMouseLeave={(e) => { if (activeTab !== 'dashboard') e.currentTarget.style.background = 'transparent' }}
                 >
                   <span className="flex items-center gap-2">
                     <LayoutDashboard className="h-4 w-4" />
@@ -43,7 +46,10 @@ export default function LeaveHubHeader({ activeTab, onTabChange }: Props) {
                 </TabsTrigger>
                 <TabsTrigger
                   value="leave-request"
-                  className="hexagon-tab text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+                  className="rounded-lg bg-transparent transition-all duration-150 font-semibold px-4 py-2 border-2 border-[#DE7D14] text-[#DE7D14] data-[state=active]:text-white data-[state=active]:border-transparent hover:text-white hover:border-transparent focus:outline-none"
+                  style={activeTab === 'leave-request' ? { background: 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)' } : undefined}
+                  onMouseEnter={(e) => { if (activeTab !== 'leave-request') e.currentTarget.style.background = 'linear-gradient(90deg, #DE7D14 0%, #8B5CF6 100%)' }}
+                  onMouseLeave={(e) => { if (activeTab !== 'leave-request') e.currentTarget.style.background = 'transparent' }}
                 >
                   <span className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
@@ -53,13 +59,13 @@ export default function LeaveHubHeader({ activeTab, onTabChange }: Props) {
                 
                 <TabsTrigger
                   value="smart-notifications"
-                  // Inactive: white with purple text. Active: grey pill with white text.
+                  // Inactive: grey border with grey text. Active: grey pill with white text.
                   className={cn(
-                    "text-xs font-semibold rounded-lg px-4 py-2 select-none transition-colors focus:outline-none",
+                    "rounded-lg bg-transparent transition-all duration-150 font-semibold px-4 py-2 select-none focus:outline-none",
                     // Base (inactive)
-                    "border border-gray-300 bg-white text-purple-600",
+                    "border-2 border-gray-400 text-gray-500",
                     // Active overrides
-                    "data-[state=active]:bg-[#7F898E] data-[state=active]:border-gray-500 data-[state=active]:text-white"
+                    "data-[state=active]:bg-[#7F898E] data-[state=active]:border-transparent data-[state=active]:text-white"
                   )}
                 >
                   <span className="flex items-center gap-2">
