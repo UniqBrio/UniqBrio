@@ -20,17 +20,18 @@ export async function GET() {
     async () => {
       try {
         await dbConnect("uniqbrio")
-        let policy: any = await NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
-    if (!policy) {
-      policy = (await NonInstructorLeavePolicy.create({
-        key: 'default',
-        quotaType: 'Monthly Quota',
-        autoReject: false,
-        allocations: { junior: 12, senior: 16, managers: 24 },
-        carryForward: true,
-        workingDays: [1,2,3,4,5,6],
-      })).toObject() as any
-    }
+        let policy: any = await NonInstructorLeavePolicy.findOne({ key: 'default', tenantId: session.tenantId }).lean()
+        if (!policy) {
+          policy = (await NonInstructorLeavePolicy.create({
+            key: 'default',
+            tenantId: session.tenantId,
+            quotaType: 'Monthly Quota',
+            autoReject: false,
+            allocations: { junior: 12, senior: 16, managers: 24 },
+            carryForward: true,
+            workingDays: [1,2,3,4,5,6],
+          })).toObject() as any
+        }
     return NextResponse.json({ ok: true, data: policy })
   } catch (err: any) {
     console.error('/api/non-instructor-leave-policies GET error', err)
@@ -76,8 +77,8 @@ export async function PUT(req: Request) {
     if (Array.isArray(workingDays)) update.workingDays = workingDays.filter((d: any)=> Number.isInteger(d) && d>=0 && d<=6)
 
     const policy = await NonInstructorLeavePolicy.findOneAndUpdate(
-      { key: 'default' },
-      Object.keys(atomicSet).length ? { $set: { ...update, ...atomicSet } } : { $set: update },
+      { key: 'default', tenantId: session.tenantId },
+      Object.keys(atomicSet).length ? { $set: { ...update, ...atomicSet, tenantId: session.tenantId } } : { $set: { ...update, tenantId: session.tenantId } },
       { upsert: true, new: true, strict: false }
     ).lean()
 

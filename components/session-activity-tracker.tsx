@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { updateLastActivity, isSessionActive, SESSION_TIMEOUT } from "@/lib/cookies"
 import { logout } from "@/app/actions/auth-actions"
+import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
 
 export default function SessionActivityTracker() {
   const router = useRouter()
@@ -20,6 +21,9 @@ export default function SessionActivityTracker() {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
       timeoutRef.current = setTimeout(async () => {
+        // Broadcast logout to other tabs
+        clearTabSession()
+        broadcastSessionChange("LOGOUT")
         await logout()
         router.push("/?session=expired")
       }, SESSION_TIMEOUT)
@@ -32,6 +36,8 @@ export default function SessionActivityTracker() {
     if (!isSessionActive()) {
       // Graceful session expiry
       setTimeout(() => {
+        clearTabSession()
+        broadcastSessionChange("LOGOUT")
         logout().then(() => router.push("/?session=expired"))
       }, 5000)
       return

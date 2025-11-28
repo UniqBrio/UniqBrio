@@ -14,7 +14,9 @@ export class StudentDraftsAPI {
 
   static async getAllDrafts(): Promise<StudentDraft[]> {
     try {
-      const response = await fetch(this.baseUrl);
+      const response = await fetch(this.baseUrl, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -37,6 +39,7 @@ export class StudentDraftsAPI {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(draftData),
       });
 
@@ -66,6 +69,7 @@ export class StudentDraftsAPI {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ id, ...draftData }),
       });
 
@@ -87,6 +91,7 @@ export class StudentDraftsAPI {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ id }),
       });
 

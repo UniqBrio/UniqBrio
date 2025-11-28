@@ -9,6 +9,7 @@ import type { MonthlySubscriptionRecord } from '@/lib/dashboard/payments/monthly
 // Define the Cohort schema to access course IDs
 const cohortSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
+  tenantId: String,
   cohortId: String,
   cohortName: String,
   courseId: String,
@@ -23,6 +24,7 @@ const Cohort = mongoose.models.CohortForManualPayment ||
 // Define the Course schema to access course fees
 const courseSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
+  tenantId: String,
   name: String,
   courseId: String,
   priceINR: Number,
@@ -61,22 +63,41 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
  * Record a manual payment for any plan type
  */
 export async function POST(request: NextRequest) {
-  const session = await getUserSession();
+  console.log('[Manual Payment API] Request received');
   
-  if (!session?.tenantId) {
-    return NextResponse.json(
-      { error: 'Unauthorized: No tenant context' },
-      { status: 401 }
-    );
-  }
-  
-  return runWithTenantContext(
-    { tenantId: session.tenantId },
-    async () => {
   try {
-    await dbConnect("uniqbrio");
+    const session = await getUserSession();
+    console.log('[Manual Payment API] Session:', { 
+      hasSession: !!session, 
+      tenantId: session?.tenantId,
+      userId: session?.userId 
+    });
+    
+    if (!session?.tenantId) {
+      console.log('[Manual Payment API] No tenant context, returning 401');
+      return NextResponse.json(
+        { error: 'Unauthorized: No tenant context' },
+        { status: 401 }
+      );
+    }
+    
+    return await runWithTenantContext(
+      { tenantId: session.tenantId },
+      async () => {
+    try {
+      console.log('[Manual Payment API] Inside runWithTenantContext');
+      await dbConnect("uniqbrio");
+      console.log('[Manual Payment API] Database connected');
 
     const body = await request.json();
+    console.log('[Manual Payment API] Request body parsed:', {
+      paymentId: body.paymentId,
+      studentId: body.studentId,
+      amount: body.amount,
+      planType: body.planType,
+      paymentMode: body.paymentMode,
+    });
+    
     const {
       paymentId,
       studentId,
@@ -119,31 +140,48 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!paymentId || !studentId || !amount || !paymentMode || !paymentDate || !planType || !receivedBy) {
+      console.log('[Manual Payment API] Missing required fields:', { paymentId, studentId, amount, paymentMode, paymentDate, planType, receivedBy });
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields', details: { paymentId: !!paymentId, studentId: !!studentId, amount: !!amount, paymentMode: !!paymentMode, paymentDate: !!paymentDate, planType: !!planType, receivedBy: !!receivedBy } },
         { status: 400 }
       );
     }
 
-    // Validate plan type
-    const validPlanTypes = ['ONE_TIME', 'MONTHLY_SUBSCRIPTION', 'EMI', 'CUSTOM'];
+    // Validate and normalize plan type
+    // Map UI plan types to database-compatible values
+    // Note: "One Time With Installments" is EMI for non-ongoing courses
+    const planTypeMapping: Record<string, string> = {
+      'ONE_TIME': 'ONE_TIME',
+      'ONE_TIME_WITH_INSTALLMENTS': 'EMI', // This IS the EMI option for Short-term/Workshop/Event courses
+      'MONTHLY_SUBSCRIPTION': 'MONTHLY_SUBSCRIPTION',
+      'MONTHLY_WITH_DISCOUNTS': 'MONTHLY_SUBSCRIPTION', // Maps to MONTHLY_SUBSCRIPTION with discount
+      'EMI': 'EMI',
+      'CUSTOM': 'CUSTOM',
+    };
+    
+    const validPlanTypes = Object.keys(planTypeMapping);
     if (!validPlanTypes.includes(planType)) {
       return NextResponse.json(
         { error: `Invalid plan type. Must be one of: ${validPlanTypes.join(', ')}` },
         { status: 400 }
       );
     }
+    
+    // Normalize planType for database storage
+    const normalizedPlanType = planTypeMapping[planType];
+    const isInstallmentPlan = planType === 'ONE_TIME_WITH_INSTALLMENTS' || planType === 'EMI';
+    const isDiscountedSubscription = planType === 'MONTHLY_WITH_DISCOUNTS' || isDiscountedPlan;
 
-    // Validate EMI index for EMI plan
-    if (planType === 'EMI' && (emiIndex === undefined || emiIndex === null)) {
+    // Validate EMI index/installment number for EMI/Installment plans
+    if (isInstallmentPlan && (emiIndex === undefined || emiIndex === null) && (installmentNumber === undefined || installmentNumber === null)) {
       return NextResponse.json(
-        { error: 'EMI index is required for EMI plan type' },
+        { error: 'EMI index or installment number is required for EMI/Installment plan type' },
         { status: 400 }
       );
     }
 
     // Fetch student first (needed for both payment creation and email)
-    const student = await Student.findOne({ studentId });
+    const student = await Student.findOne({ studentId, tenantId: session.tenantId });
     if (!student) {
       return NextResponse.json(
         { error: 'Student not found' },
@@ -153,12 +191,60 @@ export async function POST(request: NextRequest) {
 
     // Fetch payment record - handle both MongoDB ObjectId and studentId
     let payment;
+    console.log('[Manual Payment API] Looking for payment with paymentId:', paymentId, 'studentId:', studentId, 'tenantId:', session.tenantId);
+    
     if (mongoose.Types.ObjectId.isValid(paymentId) && paymentId.length === 24) {
-      // paymentId is a valid MongoDB ObjectId
-      payment = await Payment.findById(paymentId);
+      // paymentId is a valid MongoDB ObjectId - still need tenant check
+      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId });
+      console.log('[Manual Payment API] Found by _id:', !!payment);
     } else {
       // paymentId is actually a studentId - find by studentId
-      payment = await Payment.findOne({ studentId: paymentId });
+      payment = await Payment.findOne({ studentId: paymentId, tenantId: session.tenantId });
+      console.log('[Manual Payment API] Found by paymentId as studentId:', !!payment);
+    }
+    
+    // Also try to find payment by studentId if not found above
+    if (!payment) {
+      payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
+      console.log('[Manual Payment API] Found by studentId:', !!payment);
+    }
+    
+    // Check for legacy payments without tenantId using native MongoDB driver (bypasses tenant plugin)
+    // This is a migration helper - updates legacy records with the correct tenantId
+    if (!payment) {
+      try {
+        const db = mongoose.connection.db;
+        if (!db) {
+          console.warn('[Manual Payment API] MongoDB connection db not available for legacy check');
+        } else {
+          const paymentsCollection = db.collection('payments');
+          const legacyPayment = await paymentsCollection.findOne({
+            studentId,
+            $or: [
+              { tenantId: { $exists: false } },
+              { tenantId: null },
+              { tenantId: '' }
+            ]
+          });
+          
+          if (legacyPayment) {
+            console.log('[Manual Payment API] Found legacy payment without tenantId - migrating...');
+            // Update the legacy payment with the correct tenantId
+            await paymentsCollection.updateOne(
+              { _id: legacyPayment._id },
+              { $set: { tenantId: session.tenantId } }
+            );
+            console.log('[Manual Payment API] Legacy payment migrated with tenantId:', session.tenantId);
+            
+            // Now fetch through Mongoose with tenant context
+            payment = await Payment.findOne({ _id: legacyPayment._id, tenantId: session.tenantId });
+            console.log('[Manual Payment API] Payment retrieved after migration:', !!payment);
+          }
+        }
+      } catch (migrationError) {
+        console.error('[Manual Payment API] Error checking/migrating legacy payment:', migrationError);
+        // Continue - will create new payment if needed
+      }
     }
     
     // If payment record doesn't exist, create it from student data
@@ -178,7 +264,7 @@ export async function POST(request: NextRequest) {
       if (!courseId && student.cohortId) {
         console.log(`Student has no enrolledCourse, fetching from cohort: ${student.cohortId}`);
         try {
-          const cohort = await Cohort.findOne({ cohortId: student.cohortId }).lean();
+          const cohort = await Cohort.findOne({ cohortId: student.cohortId, tenantId: session.tenantId }).lean();
           if (cohort && (cohort as any).courseId) {
             courseId = (cohort as any).courseId;
             console.log(`Found courseId from cohort: ${courseId}`);
@@ -192,7 +278,7 @@ export async function POST(request: NextRequest) {
       
       if (courseId) {
         try {
-          const course = await Course.findOne({ courseId }).lean();
+          const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
           if (course && (course as any).priceINR) {
             courseFee = (course as any).priceINR;
             console.log(`Fetched course fee for ${courseId}: ${courseFee}`);
@@ -211,6 +297,7 @@ export async function POST(request: NextRequest) {
       }
       
       payment = await Payment.create({
+        tenantId: session.tenantId,
         studentId: student.studentId,
         studentName: student.name,
         studentCategory: student.category || 'N/A',
@@ -227,7 +314,8 @@ export async function POST(request: NextRequest) {
         outstandingAmount: courseRegistrationFee + studentRegistrationFee + courseFee,
         collectionRate: 0,
         status: 'Pending',
-        planType: planType || 'MONTHLY_SUBSCRIPTION',
+        planType: normalizedPlanType || 'MONTHLY_SUBSCRIPTION',
+        paymentOption: paymentOption || (planType === 'ONE_TIME' ? 'One Time' : planType === 'ONE_TIME_WITH_INSTALLMENTS' ? 'One Time With Installments' : isDiscountedSubscription ? 'Monthly With Discounts' : 'Monthly'),
         paymentStatus: 'PENDING',
       });
       
@@ -253,7 +341,7 @@ export async function POST(request: NextRequest) {
       if (!courseId && student.cohortId) {
         console.log(`Payment has no courseId, fetching from cohort: ${student.cohortId}`);
         try {
-          const cohort = await Cohort.findOne({ cohortId: student.cohortId }).lean();
+          const cohort = await Cohort.findOne({ cohortId: student.cohortId, tenantId: session.tenantId }).lean();
           if (cohort && (cohort as any).courseId) {
             courseId = (cohort as any).courseId;
             console.log(`Found courseId from cohort: ${courseId}`);
@@ -265,7 +353,7 @@ export async function POST(request: NextRequest) {
       
       if (courseId) {
         try {
-          const course = await Course.findOne({ courseId }).lean();
+          const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
           if (course && (course as any).priceINR) {
             courseFee = (course as any).priceINR;
             console.log(`Fetched course fee for ${courseId}: ${courseFee}`);
@@ -374,10 +462,18 @@ export async function POST(request: NextRequest) {
     const totalAfterPayment = (payment.receivedAmount || 0) + amount;
     const willBeFullyPaid = totalAfterPayment >= calculatedTotalFees;
     
-    // Determine correct payment subtype for One-Time payments
+    // Determine correct payment subtype based on plan type
     let finalPaymentSubType = paymentSubType;
-    if (planType === 'ONE_TIME' && !paymentSubType) {
-      finalPaymentSubType = willBeFullyPaid ? 'Full Payment' : 'Partial Payment';
+    if (!paymentSubType) {
+      if (isInstallmentPlan) {
+        // EMI / One Time With Installments - use installment/EMI number
+        const emiNum = installmentNumber || (emiIndex !== undefined ? emiIndex + 1 : 1);
+        finalPaymentSubType = `EMI ${emiNum}`;
+      } else if (planType === 'ONE_TIME') {
+        // Pure one-time payment
+        finalPaymentSubType = willBeFullyPaid ? 'Full Payment' : 'Partial Payment';
+      }
+      // Monthly subscriptions don't need a subtype
     }
 
     // Determine selected types (what this payment is covering)
@@ -389,11 +485,13 @@ export async function POST(request: NextRequest) {
 
     // Generate unique sequential invoice number BEFORE creating PaymentTransaction
     // Each payment gets a unique invoice number in format INV-yyyymm-0001
-    const invoiceNumber = await generateInvoiceNumber();
+    // Invoice numbers are unique per tenant per month
+    const invoiceNumber = await generateInvoiceNumber(session.tenantId);
 
     // Fetch previous payment records for history (for EMI and installments)
     const previousRecords = await PaymentTransaction.find({
-      paymentId: payment._id
+      paymentId: payment._id,
+      tenantId: session.tenantId
     })
     .sort({ paidDate: 1 }) // Oldest first
     .lean();
@@ -402,6 +500,7 @@ export async function POST(request: NextRequest) {
 
     // Create PaymentTransaction for comprehensive history tracking with invoice number
     const paymentRecord = await PaymentTransaction.create({
+      tenantId: session.tenantId, // Explicit tenant isolation
       paymentId: payment._id.toString(),
       studentId,
       studentName: payment.studentName,
@@ -416,7 +515,7 @@ export async function POST(request: NextRequest) {
       notes,
       payerType,
       payerName: payerName || payment.studentName,
-      paymentOption: paymentOption || (planType === 'ONE_TIME' ? 'One Time' : 'Monthly'),
+      paymentOption: paymentOption || (planType === 'ONE_TIME' ? 'One Time' : planType === 'ONE_TIME_WITH_INSTALLMENTS' ? 'One Time With Installments' : isDiscountedSubscription ? 'Monthly With Discounts' : 'Monthly'),
       paymentSubType: finalPaymentSubType,
       installmentNumber: paymentOption === 'One Time With Installments' ? installmentNumber : undefined,
       emiNumber: planType === 'EMI' ? (emiIndex + 1) : undefined,
@@ -483,6 +582,7 @@ export async function POST(request: NextRequest) {
     console.log(`PaymentRecord updated with invoice URL: ${invoiceNumber} (Payment ${paymentSequence} for student ${studentId})`);
 
     // Determine if reminders should be auto-enabled for partial One-Time payments
+    // Note: 'One Time With Installments' is EMI, not one-time - it has its own schedule
     const isOneTimePayment = planType === 'ONE_TIME' || paymentOption === 'One Time';
     const totalFeesForReminder = (payment.courseFee || 0) + 
                       (payment.studentRegistrationFee || 0) + 
@@ -733,11 +833,33 @@ export async function POST(request: NextRequest) {
     });
 
     // Update payment record using the actual MongoDB _id
-    const updatedPayment = await Payment.findByIdAndUpdate(
-      payment._id,
+    // First try with tenant check, then fall back to without if needed (for legacy records)
+    let updatedPayment = await Payment.findOneAndUpdate(
+      { _id: payment._id, tenantId: session.tenantId },
       { $set: updates },
       { new: true }
     );
+
+    // If not found with tenant filter, try updating by _id only and set tenantId
+    if (!updatedPayment) {
+      console.log('[Manual Payment API] Payment not found with tenant filter, trying without tenant and setting tenantId');
+      updatedPayment = await Payment.findByIdAndUpdate(
+        payment._id,
+        { $set: { ...updates, tenantId: session.tenantId } },
+        { new: true }
+      );
+    }
+
+    if (!updatedPayment) {
+      console.error('Failed to update payment record - payment not found:', {
+        paymentId: payment._id,
+        tenantId: session.tenantId
+      });
+      return NextResponse.json(
+        { error: 'Failed to update payment record. Payment not found.' },
+        { status: 404 }
+      );
+    }
 
     console.log('Payment updated in database. Verifying saved data:', {
       _id: updatedPayment._id,
@@ -834,16 +956,64 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('Error recording manual payment:', error);
-    return NextResponse.json(
-      {
+    console.error('[Manual Payment API] Error recording payment:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
+    // Handle MongoDB duplicate key error
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'A payment record already exists for this student',
+          details: 'Please use the existing payment record or contact support if you believe this is an error.',
+          errorName: 'DuplicatePaymentError',
+        }),
+        { 
+          status: 409, // Conflict
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+    }
+    
+    return new NextResponse(
+      JSON.stringify({
         error: 'Failed to record manual payment',
         details: error.message,
-      },
-      { status: 500 }
+        errorName: error.name,
+      }),
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     );
   }
-  });
+    });
+  } catch (outerError: any) {
+    console.error('[Manual Payment API] Outer error:', {
+      message: outerError.message,
+      stack: outerError.stack,
+      name: outerError.name
+    });
+    return new NextResponse(
+      JSON.stringify({
+        error: 'Unexpected error in payment processing',
+        details: outerError.message,
+        errorName: outerError.name,
+      }),
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+  }
 }
 
 /**
@@ -877,7 +1047,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const query: any = {};
+    const query: any = { tenantId: session.tenantId };
     if (paymentId) query.paymentId = paymentId;
     if (studentId) query.studentId = studentId;
 

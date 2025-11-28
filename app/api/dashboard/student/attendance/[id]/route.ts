@@ -261,8 +261,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       notes
     } = body;
 
-    // Find existing record
-    const existingRecord = await StudentAttendance.findById(params.id);
+    // Find existing record (tenant-scoped)
+    const existingRecord = await StudentAttendance.findOne({ _id: params.id, tenantId: session.tenantId });
     if (!existingRecord) {
       return NextResponse.json(
         { success: false, error: 'Attendance record not found' },
@@ -330,9 +330,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Update the record
-    const updatedRecord = await StudentAttendance.findByIdAndUpdate(
-      params.id,
+    // Update the record (tenant-scoped)
+    const updatedRecord = await StudentAttendance.findOneAndUpdate(
+      { _id: params.id, tenantId: session.tenantId },
       {
         ...(studentId && { studentId }),
         ...(finalStudentName && { studentName: finalStudentName }),
@@ -387,7 +387,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       try {
         await dbConnect("uniqbrio");
 
-        const deletedRecord = await StudentAttendance.findByIdAndDelete(params.id);
+        const deletedRecord = await StudentAttendance.findOneAndDelete({ _id: params.id, tenantId: session.tenantId });
     
     if (!deletedRecord) {
       return NextResponse.json(

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { useCustomColors } from '@/lib/use-custom-colors';
 import { format } from "date-fns"
+import { cn } from "@/lib/dashboard/utils"
 import { Button } from "@/components/dashboard/ui/button"
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "@/components/dashboard/ui/dialog"
 import { Input } from "@/components/dashboard/ui/input"
@@ -2502,34 +2503,31 @@ export default function CohortManagement({
             <div className="space-y-2">
               <Label className="text-xs">Schedule Days <span style={{ color: 'red' }}>*</span></Label>
               <div className="flex flex-wrap gap-2">
-                {daysOfWeek.map((day) => (
-                  <label key={day.value} className="flex items-center gap-1 text-xs cursor-pointer">
-                    <Checkbox
-                      checked={selectedDays.includes(day.value)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedDays(prev => [...prev, day.value].sort())
+                {daysOfWeek.map((day) => {
+                  const isSelected = selectedDays.includes(day.value);
+                  return (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedDays(prev => prev.filter(d => d !== day.value));
                         } else {
-                          setSelectedDays(prev => prev.filter(d => d !== day.value))
+                          setSelectedDays(prev => [...prev, day.value].sort());
                         }
                       }}
-                      style={{
-                        '--checkbox-checked-bg': primaryColor,
-                        '--checkbox-checked-border': primaryColor
-                      } as React.CSSProperties}
-                      className="h-3 w-3"
-                    />
-                    <span className="px-2 py-1 rounded text-xs"
-                      style={{
-                        backgroundColor: selectedDays.includes(day.value) ? `${primaryColor}20` : '#f3f4f6',
-                        color: selectedDays.includes(day.value) ? primaryColor : '#4b5563',
-                        fontWeight: selectedDays.includes(day.value) ? '500' : 'normal'
-                      }}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border",
+                        isSelected 
+                          ? "border-transparent text-white" 
+                          : "border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      )}
+                      style={isSelected ? { backgroundColor: primaryColor } : undefined}
                     >
                       {day.label}
-                    </span>
-                  </label>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
               <div className="text-xs text-gray-500 dark:text-white">
                 Select the days when this cohort will have sessions

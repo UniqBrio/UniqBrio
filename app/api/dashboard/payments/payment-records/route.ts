@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add payment record
-    const result = await addPaymentRecord(body);
+    // Add payment record with explicit tenantId
+    const result = await addPaymentRecord(body, session.tenantId);
 
     if (!result.success) {
       return NextResponse.json(
@@ -107,9 +107,9 @@ export async function GET(request: NextRequest) {
     const studentId = searchParams.get('studentId');
     const action = searchParams.get('action');
 
-    // Get single record by ID
+    // Get single record by ID with explicit tenantId
     if (recordId) {
-      const record = await getPaymentRecordById(recordId);
+      const record = await getPaymentRecordById(recordId, session.tenantId);
       
       if (!record) {
         return NextResponse.json(
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         sortOrder,
         limit,
         skip,
-      });
+      }, session.tenantId);
 
       return NextResponse.json({
         success: true,
@@ -148,9 +148,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Calculate remaining balance
+    // Calculate remaining balance with explicit tenantId
     if (paymentId && action === 'balance') {
-      const balance = await calculateRemainingBalance(paymentId);
+      const balance = await calculateRemainingBalance(paymentId, session.tenantId);
 
       return NextResponse.json({
         success: true,
@@ -158,9 +158,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Generate invoice breakdown
+    // Generate invoice breakdown with explicit tenantId
     if (paymentId && action === 'invoice') {
-      const invoice = await generateInvoiceBreakdown(paymentId);
+      const invoice = await generateInvoiceBreakdown(paymentId, session.tenantId);
 
       if (!invoice) {
         return NextResponse.json(
@@ -178,9 +178,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get student payment summary
+    // Get student payment summary with explicit tenantId
     if (studentId && action === 'summary') {
-      const summary = await getStudentPaymentSummary(studentId);
+      const summary = await getStudentPaymentSummary(studentId, session.tenantId);
 
       return NextResponse.json({
         success: true,

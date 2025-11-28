@@ -1369,10 +1369,34 @@ export function ManualPaymentDialog({
         }),
       });
 
-      const result = await response.json();
+      let result;
+      const responseText = await response.text();
+      
+      try {
+        result = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        console.error('Failed to parse API response:', responseText);
+        throw new Error(`Invalid API response: ${responseText.substring(0, 200)}`);
+      }
+      
+      console.log('Manual payment API response:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        result
+      });
 
       if (!response.ok) {
-        throw new Error(result.error || result.details || 'Failed to record payment');
+        const errorMessage = result.error || result.details || result.message || `Failed to record payment (HTTP ${response.status})`;
+        console.error('Payment API error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: result.error,
+          details: result.details,
+          errorName: result.errorName,
+          fullResult: result
+        });
+        throw new Error(errorMessage);
       }
 
       toast({

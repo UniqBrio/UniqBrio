@@ -51,8 +51,8 @@ export async function POST(
 
     const data = validation.data;
     
-    // Get subscription
-    const subscription = await MonthlySubscription.findById(subscriptionId);
+    // Get subscription with tenant isolation
+    const subscription = await MonthlySubscription.findOne({ _id: subscriptionId, tenantId: session.tenantId });
     if (!subscription) {
       return NextResponse.json(
         { error: 'Subscription not found' },
@@ -95,8 +95,8 @@ export async function POST(
     mongoSession.startTransaction();
     
     try {
-      // Generate invoice number
-      const invoiceNumber = await generateInvoiceNumber();
+      // Generate invoice number (tenant-specific)
+      const invoiceNumber = await generateInvoiceNumber(session.tenantId);
       
       // Create payment record
       const [savedPaymentRecord] = await PaymentTransaction.create([{

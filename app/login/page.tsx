@@ -13,6 +13,7 @@ import { login } from "../actions/auth-actions" // Ensure this path is correct
 import { toast } from "@/components/ui/use-toast"
 import AuthLayout from "@/components/auth-layout" // Import AuthLayout
 import { useSearchParams, useRouter } from "next/navigation"
+import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
 
 const loginSchema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone number is required"),
@@ -179,6 +180,10 @@ export default function LoginPage() {
       if (result?.success && typeof result.redirect === 'string' && result.redirect.length > 0) {
         console.log(`[LoginPage] onSubmit: Success! Attempting redirect via router.push to: ${result.redirect}`);
         try {
+          // Clear any previous tab session and broadcast session change to other tabs
+          clearTabSession();
+          broadcastSessionChange("SESSION_CHANGED");
+          
           // Set items in localStorage upon successful login
           const currentTime = Date.now().toString();
           localStorage.setItem('userLoginTime', currentTime);

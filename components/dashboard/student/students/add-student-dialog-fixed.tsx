@@ -18,7 +18,7 @@ import { cn } from '@/lib/dashboard/student/utils';
 import { useToast } from '@/hooks/dashboard/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/dashboard/ui/tabs';
 import { type Student, type Parent } from '@/types/dashboard/student';
-import { CountryStateDropdown } from '@/components/dashboard/student/common/country-state-dropdown';
+import { CountryStateDropdown as StaffCountryStateDropdown } from '@/components/dashboard/ui/staff/country-state-dropdown';
 import { getPhoneCodeByCountry, getCountryByPhoneCode, initializePhoneCodeMapping, getCachedCountries, getCachedStates } from '@/lib/dashboard/student/countries-api';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import type { CountryCode } from 'libphonenumber-js';
@@ -2124,11 +2124,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             </div>
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-700 dark:text-white">Country <span className="text-red-500">*</span></Label>
-                            <CountrySelect
+                            <StaffCountryStateDropdown
                               country={(newStudent as any).country || ''}
-                              onChange={(code, name) => handleCountryChange(code, name)}
-                              hasError={showFieldError('country')}
+                              state={(newStudent as any).stateProvince || ''}
+                              onCountryChange={(code) => handleCountryChange(code)}
+                              onStateChange={(st)=> setNewStudent(p=> ({...p, stateProvince: st}))}
+                              mode="country"
                             />
                             {showFieldError('country') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.country}</p>}
                           </div>
@@ -2151,12 +2152,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             {showFieldError('mobile') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.mobile}</p>}
                           </div>
                           <div>
-                            <Label className="text-sm font-medium text-gray-700 dark:text-white">State/Province <span className="text-red-500">*</span></Label>
-                            <StateSelect
-                              countryName={(newStudent as any).country}
+                            <StaffCountryStateDropdown
+                              country={(newStudent as any).country || ''}
                               state={(newStudent as any).stateProvince || ''}
-                              onChange={(st)=> setNewStudent(p=> ({...p, stateProvince: st}))}
-                              hasError={showFieldError('stateProvince')}
+                              onCountryChange={(code) => handleCountryChange(code)}
+                              onStateChange={(st)=> setNewStudent(p=> ({...p, stateProvince: st}))}
+                              mode="state"
                             />
                             {showFieldError('stateProvince') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.stateProvince}</p>}
                           </div>

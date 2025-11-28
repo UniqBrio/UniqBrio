@@ -59,9 +59,10 @@ export async function GET() {
             // Upsert without overwriting existing records (set on insert only)
             ops.push({
               updateOne: {
-                filter: { instructorId: r.instructorId, date: ymd },
+                filter: { tenantId: session.tenantId, instructorId: r.instructorId, date: ymd },
                 update: {
                   $setOnInsert: {
+                    tenantId: session.tenantId,
                     instructorId: r.instructorId,
                     instructorName: r.instructorName,
                     date: ymd,
@@ -129,6 +130,7 @@ export async function POST(req: Request) {
     const normalizedStatus = rawStatus === 'absent' ? 'absent' : rawStatus === 'planned' ? 'planned' : 'present'
 
     const toSave = {
+      tenantId: session.tenantId,
       instructorId,
       instructorName,
       date,

@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface ICourse extends Document {
+  tenantId: string
   name: string
   status?: string
   instructor?: string
@@ -77,5 +79,8 @@ const CourseSchema = new Schema<ICourse>({
     frequency: String,
   },
 }, { timestamps: true })
+
+// Apply tenant plugin for multi-tenancy support
+CourseSchema.plugin(tenantPlugin)
 
 export default (mongoose.models.Course as Model<ICourse>) || mongoose.model<ICourse>("Course", CourseSchema)

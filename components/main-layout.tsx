@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Sidebar from "./sidebar"
 import Header from "./header"
-import GlobalFooter from "./global-footer"
+import Footer from "./dashboard/footer"
 import { TourButton } from "./tour/TourButton"
 import { Toaster as DashboardToaster } from "@/components/dashboard/ui/toaster"
 import "../styles/responsive-dashboard.css"
@@ -142,7 +142,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   </div>
                 </ErrorBoundary>
               </main>
-              <GlobalFooter />
+              <Footer />
             </div>
           </div>
         )
@@ -180,7 +180,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   {children}
                 </ErrorBoundary>
               </main>
-              <GlobalFooter />
+              <Footer />
             </div>
             <Sidebar position={position} collapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
           </div>

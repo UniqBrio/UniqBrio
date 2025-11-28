@@ -2,10 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 
-;
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Button } from "@/components/dashboard/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Users,
   Award,
@@ -26,6 +27,9 @@ import {
   Handshake,
   BarChart3,
   Send,
+  Bell,
+  Rocket,
+  CheckCircle2,
 } from "lucide-react";
 
 // Note: metadata export removed - not compatible with "use client"
@@ -141,6 +145,63 @@ const alumniFeatures = [
 ];
 
 export default function AlumniPage() {
+  const [notified, setNotified] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+
+  // Check subscription status on mount
+  useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      try {
+        const response = await fetch("/api/feature-notifications?feature=alumni-management&checkStatus=true")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.isSubscribed) {
+            setNotified(true)
+          }
+        }
+      } catch (error) {
+        // Silently fail - user can still subscribe
+      }
+    }
+    checkSubscriptionStatus()
+  }, [])
+
+  const handleNotifyMe = async () => {
+    if (notified || isLoading) return
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/feature-notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feature: "alumni-management" }),
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setNotified(true)
+        if (data.alreadySubscribed) {
+          toast({
+            title: "Already Subscribed",
+            description: "You've already signed up for Alumni Management updates.",
+          })
+        } else {
+          toast({
+            title: "🎉 You're on the list!",
+            description: "We'll notify you as soon as the new Alumni Management features are ready.",
+          })
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 relative overflow-hidden">
         {/* Decorative Elements */}
@@ -184,6 +245,46 @@ export default function AlumniPage() {
               <Sparkles className="h-4 w-4 mr-2" />
               Alumni Network Features
             </Badge>
+          </div>
+
+          {/* Coming Soon Banner */}
+          <div className="max-w-4xl mx-auto relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 p-[2px]">
+            <div className="relative rounded-[10px] bg-white dark:bg-gray-900 p-5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 p-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
+                    <Rocket className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      🎓 Your Alumni Network Hub Is Coming Soon
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      Connect with graduates, track achievements, organize reunions, and build a thriving alumni community.
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      We're crafting something special for your alumni!
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleNotifyMe}
+                  disabled={notified || isLoading}
+                  className={`flex-shrink-0 ${
+                    notified
+                      ? "bg-green-500 hover:bg-green-500 cursor-default"
+                      : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  } text-white`}
+                >
+                  {notified ? (
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Bell className="h-4 w-4 mr-2" />
+                  )}
+                  {isLoading ? "..." : notified ? "Subscribed!" : "Notify Me"}
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Features Grid */}

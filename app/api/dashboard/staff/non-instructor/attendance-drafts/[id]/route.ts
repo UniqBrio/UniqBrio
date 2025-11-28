@@ -51,12 +51,26 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
-  try {
-    await dbConnect("uniqbrio")
-    const res = await NonInstructorAttendanceDraftModel.deleteOne({ _id: params.id as any })
-    if (!res.deletedCount) return NextResponse.json({ success: false, error: 'Draft not found' }, { status: 404 })
-    return NextResponse.json({ success: true })
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message || 'Failed to delete draft' }, { status: 500 })
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    )
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const res = await NonInstructorAttendanceDraftModel.deleteOne({ _id: params.id as any, tenantId: session.tenantId })
+        if (!res.deletedCount) return NextResponse.json({ success: false, error: 'Draft not found' }, { status: 404 })
+        return NextResponse.json({ success: true })
+      } catch (e: any) {
+        return NextResponse.json({ success: false, error: e.message || 'Failed to delete draft' }, { status: 500 })
+      }
+    }
+  )
 }

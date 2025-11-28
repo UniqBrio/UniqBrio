@@ -39,6 +39,8 @@ import {
   Palette, 
   Video,
   Sparkles,
+  Bell,
+  Rocket,
   Calendar,
   QrCode,
   FileText,
@@ -68,6 +70,7 @@ import {
   MessageCircle
 } from "lucide-react"
 import { useToast } from "@/hooks/dashboard/use-toast"
+import { useToast as useGlobalToast } from "@/hooks/use-toast"
 import AnalyticsDashboard from "@/components/dashboard/promotion/analytics-dashboard"
 import { CampaignDraftsDialog } from "@/components/dashboard/promotion/campaign-drafts-dialog"
 import { CampaignDraftsAPI, type CampaignDraft, type CampaignDraftData } from "@/lib/dashboard/campaign-drafts-api"
@@ -290,7 +293,63 @@ const promotionTools: PromotionTool[] = [
 
 export default function PromotionPage() {
   const { toast } = useToast()
+  const { toast: globalToast } = useGlobalToast()
   const { primaryColor, secondaryColor } = useCustomColors()
+  const [notified, setNotified] = useState(false)
+  const [isNotifyLoading, setIsNotifyLoading] = useState(false)
+
+  // Check subscription status on mount
+  useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      try {
+        const response = await fetch("/api/feature-notifications?feature=promotions&checkStatus=true")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.isSubscribed) {
+            setNotified(true)
+          }
+        }
+      } catch (error) {
+        // Silently fail - user can still subscribe
+      }
+    }
+    checkSubscriptionStatus()
+  }, [])
+
+  const handleNotifyMe = async () => {
+    if (notified || isNotifyLoading) return
+    setIsNotifyLoading(true)
+    try {
+      const response = await fetch("/api/feature-notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feature: "promotions" }),
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setNotified(true)
+        if (data.alreadySubscribed) {
+          globalToast({
+            title: "Already Subscribed",
+            description: "You've already signed up for Marketing updates.",
+          })
+        } else {
+          globalToast({
+            title: "🎉 You're on the list!",
+            description: "We'll notify you as soon as the new Marketing features are ready.",
+          })
+        }
+      }
+    } catch (error) {
+      globalToast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsNotifyLoading(false)
+    }
+  }
   
   // Campaign State Management
   const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns)
@@ -672,6 +731,46 @@ export default function PromotionPage() {
               <h1 className="text-3xl font-bold text-foreground">Promotion & Marketing</h1>
             </div>
             <p className="text-sm text-muted-foreground">Manage campaigns, certifications, and promotional initiatives</p>
+          </div>
+
+          {/* Coming Soon Banner */}
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 p-[2px]">
+            <div className="relative rounded-[10px] bg-white dark:bg-gray-900 p-5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 p-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500">
+                    <Rocket className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      🚀 Your Marketing Powerhouse Is Coming Soon
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      Plan campaigns, track reach, analyze engagement, and measure ROI — a complete promotion suite is on the way!
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      We're perfecting the experience for you!
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleNotifyMe}
+                  disabled={notified || isNotifyLoading}
+                  className={`flex-shrink-0 ${
+                    notified
+                      ? "bg-green-500 hover:bg-green-500 cursor-default"
+                      : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  } text-white`}
+                >
+                  {notified ? (
+                    <Check className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Bell className="h-4 w-4 mr-2" />
+                  )}
+                  {isNotifyLoading ? "..." : notified ? "Subscribed!" : "Notify Me"}
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Statistics Grid */}

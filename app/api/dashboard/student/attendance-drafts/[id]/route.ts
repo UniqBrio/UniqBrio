@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         await dbConnect("uniqbrio");
         const { id } = await params;
 
-    const draft = await StudentAttendanceDraft.findById(id);
+    const draft = await StudentAttendanceDraft.findOne({ _id: id, tenantId: session.tenantId });
     
     if (!draft) {
       return NextResponse.json(
@@ -89,9 +89,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       notes
     } = body;
 
-    // Update the draft with new savedAt timestamp
-    const updatedDraft = await StudentAttendanceDraft.findByIdAndUpdate(
-      id,
+    // Update the draft with new savedAt timestamp (tenant-scoped)
+    const updatedDraft = await StudentAttendanceDraft.findOneAndUpdate(
+      { _id: id, tenantId: session.tenantId },
       {
         ...(studentId !== undefined && { studentId: studentId || '(unspecified)' }),
         ...(studentName !== undefined && { studentName: studentName || '(unspecified)' }),
@@ -155,7 +155,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         await dbConnect("uniqbrio");
     const { id } = await params;
 
-    const deletedDraft = await StudentAttendanceDraft.findByIdAndDelete(id);
+    const deletedDraft = await StudentAttendanceDraft.findOneAndDelete({ _id: id, tenantId: session.tenantId });
     
     if (!deletedDraft) {
       return NextResponse.json(

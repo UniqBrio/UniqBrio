@@ -89,7 +89,7 @@ export async function PUT(req: Request) {
         }
 
         const updated = await InstructorLeaveDraft.findOneAndUpdate(
-          { id }, 
+          { id, tenantId: session.tenantId }, 
           { $set: updates }, 
           { new: true }
         )
@@ -127,7 +127,7 @@ export async function DELETE(req: Request) {
           return NextResponse.json({ ok: false, error: "Draft ID is required" }, { status: 400 })
         }
         
-        const result = await InstructorLeaveDraft.deleteOne({ id })
+        const result = await InstructorLeaveDraft.deleteOne({ id, tenantId: session.tenantId })
         
         if (result.deletedCount === 0) {
           return NextResponse.json({ ok: false, error: 'Draft not found' }, { status: 404 })

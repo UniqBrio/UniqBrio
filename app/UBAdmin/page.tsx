@@ -21,7 +21,15 @@ import {
   XCircle,
   Eye,
   Download,
-  LogOut
+  LogOut,
+  Bell,
+  Sparkles,
+  Megaphone,
+  Plus,
+  Edit2,
+  Trash2,
+  Trophy,
+  Info
 } from "lucide-react"
 
 export default function UBAdminPage() {
@@ -249,7 +257,7 @@ export default function UBAdminPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="bg-white rounded-2xl shadow-lg p-2 border-0">
-            <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14">
+            <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14">
               <TabsTrigger 
                 value="dashboard" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
@@ -267,6 +275,12 @@ export default function UBAdminPage() {
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
               >
                 Academies
+              </TabsTrigger>
+              <TabsTrigger 
+                value="announcements"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
+              >
+                Announcements
               </TabsTrigger>
               <TabsTrigger 
                 value="analytics"
@@ -289,6 +303,10 @@ export default function UBAdminPage() {
             <AcademyManagement academies={academies} />
           </TabsContent>
 
+          <TabsContent value="announcements">
+            <AnnouncementsManagement />
+          </TabsContent>
+
           <TabsContent value="analytics">
             <AdminAnalytics stats={dashboardStats} />
           </TabsContent>
@@ -299,6 +317,35 @@ export default function UBAdminPage() {
 }
 
 function AdminDashboard({ stats }: { stats: any }) {
+  const [featureNotifications, setFeatureNotifications] = useState<any>(null)
+  const [loadingNotifications, setLoadingNotifications] = useState(true)
+
+  useEffect(() => {
+    fetchFeatureNotifications()
+  }, [])
+
+  const fetchFeatureNotifications = async () => {
+    try {
+      const response = await fetch("/api/feature-notifications")
+      if (response.ok) {
+        const data = await response.json()
+        setFeatureNotifications(data.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch feature notifications:", error)
+    } finally {
+      setLoadingNotifications(false)
+    }
+  }
+
+  const featureLabels: Record<string, { label: string; gradient: string; icon: string }> = {
+    "crm": { label: "CRM System", gradient: "from-purple-500 to-pink-500", icon: "💬" },
+    "sell-products": { label: "Sales & Inventory", gradient: "from-emerald-500 to-teal-500", icon: "🚀" },
+    "promotions": { label: "Promotions & Marketing", gradient: "from-orange-500 to-red-500", icon: "📣" },
+    "parent-management": { label: "Parent Portal", gradient: "from-blue-500 to-indigo-500", icon: "👨‍👩‍👧" },
+    "alumni-management": { label: "Alumni Network", gradient: "from-purple-500 to-orange-500", icon: "🎓" },
+  }
+
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
@@ -400,6 +447,59 @@ function AdminDashboard({ stats }: { stats: any }) {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Feature Interest Tracking */}
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50">
+        <CardHeader className="pb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-500 rounded-xl flex items-center justify-center">
+                <Bell className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">
+                  Feature Interest Tracking
+                </CardTitle>
+                <CardDescription className="text-gray-600">
+                  Users interested in upcoming features (Coming Soon pages)
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 text-lg">
+                <Sparkles className="w-4 h-4 mr-2" />
+                {featureNotifications?.totalSubscribers || 0} Total
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingNotifications ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {Object.entries(featureLabels).map(([key, { label, gradient, icon }]) => (
+                <div
+                  key={key}
+                  className="relative overflow-hidden rounded-xl p-4 bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all"
+                >
+                  <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${gradient}`}></div>
+                  <div className="flex flex-col items-center text-center pt-2">
+                    <span className="text-3xl mb-2">{icon}</span>
+                    <div className="text-2xl font-bold text-gray-800 mb-1">
+                      {featureNotifications?.featureCounts?.[key] || 0}
+                    </div>
+                    <div className="text-xs font-medium text-gray-600">{label}</div>
+                    <div className="text-xs text-gray-400 mt-1">interested users</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -1160,6 +1260,331 @@ function AdminAnalytics({ stats }: { stats: any }) {
               <div className="text-sm text-gray-600 dark:text-white">Monthly Growth</div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function AnnouncementsManagement() {
+  const [announcements, setAnnouncements] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null)
+  const [formData, setFormData] = useState({
+    type: "info",
+    title: "",
+    message: "",
+    link: "",
+    priority: "medium",
+    isActive: true,
+  })
+
+  useEffect(() => {
+    fetchAnnouncements()
+  }, [])
+
+  const fetchAnnouncements = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch("/api/announcements?admin=true")
+      if (response.ok) {
+        const data = await response.json()
+        setAnnouncements(data.data || [])
+      }
+    } catch (error) {
+      console.error("Failed to fetch announcements:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const method = editingAnnouncement ? "PUT" : "POST"
+      const body = editingAnnouncement 
+        ? { id: editingAnnouncement._id, ...formData }
+        : formData
+
+      const response = await fetch("/api/announcements", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (response.ok) {
+        fetchAnnouncements()
+        resetForm()
+        alert(editingAnnouncement ? "Announcement updated!" : "Announcement created!")
+      }
+    } catch (error) {
+      alert("Failed to save announcement")
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this announcement?")) return
+
+    try {
+      const response = await fetch(`/api/announcements?id=${id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        fetchAnnouncements()
+        alert("Announcement deleted!")
+      }
+    } catch (error) {
+      alert("Failed to delete announcement")
+    }
+  }
+
+  const handleEdit = (announcement: any) => {
+    setEditingAnnouncement(announcement)
+    setFormData({
+      type: announcement.type,
+      title: announcement.title,
+      message: announcement.message,
+      link: announcement.link || "",
+      priority: announcement.priority,
+      isActive: announcement.isActive,
+    })
+    setShowForm(true)
+  }
+
+  const resetForm = () => {
+    setShowForm(false)
+    setEditingAnnouncement(null)
+    setFormData({
+      type: "info",
+      title: "",
+      message: "",
+      link: "",
+      priority: "medium",
+      isActive: true,
+    })
+  }
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "update": return <Sparkles className="w-4 h-4" />
+      case "achievement": return <Trophy className="w-4 h-4" />
+      case "alert": return <AlertCircle className="w-4 h-4" />
+      default: return <Info className="w-4 h-4" />
+    }
+  }
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "update": return "bg-purple-100 text-purple-700 border-purple-200"
+      case "achievement": return "bg-green-100 text-green-700 border-green-200"
+      case "alert": return "bg-red-100 text-red-700 border-red-200"
+      default: return "bg-blue-100 text-blue-700 border-blue-200"
+    }
+  }
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case "high": return <Badge className="bg-red-500 text-white">High</Badge>
+      case "medium": return <Badge className="bg-yellow-500 text-white">Medium</Badge>
+      default: return <Badge className="bg-gray-500 text-white">Low</Badge>
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-orange-500 rounded-xl flex items-center justify-center">
+                <Megaphone className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">
+                  Announcements Management
+                </CardTitle>
+                <CardDescription>Create and manage announcements shown on academy dashboards</CardDescription>
+              </div>
+            </div>
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {showForm ? "Cancel" : "New Announcement"}
+            </Button>
+          </div>
+        </CardHeader>
+
+        {/* Create/Edit Form */}
+        {showForm && (
+          <CardContent className="border-t">
+            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="type">Type</Label>
+                  <select
+                    id="type"
+                    value={formData.type}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    className="w-full h-10 px-3 rounded-md border border-gray-200 focus:border-purple-400 focus:ring-purple-400"
+                  >
+                    <option value="info">Info</option>
+                    <option value="update">Update</option>
+                    <option value="achievement">Achievement</option>
+                    <option value="alert">Alert</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="priority">Priority</Label>
+                  <select
+                    id="priority"
+                    value={formData.priority}
+                    onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                    className="w-full h-10 px-3 rounded-md border border-gray-200 focus:border-purple-400 focus:ring-purple-400"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Announcement title"
+                  required
+                  className="border-gray-200 focus:border-purple-400"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="message">Message</Label>
+                <textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  placeholder="Announcement message"
+                  required
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-md border border-gray-200 focus:border-purple-400 focus:ring-purple-400"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="link">Link (optional)</Label>
+                <Input
+                  id="link"
+                  value={formData.link}
+                  onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                  placeholder="https://..."
+                  className="border-gray-200 focus:border-purple-400"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="isActive">Active (visible to users)</Label>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button type="submit" className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white">
+                  {editingAnnouncement ? "Update Announcement" : "Create Announcement"}
+                </Button>
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Announcements List */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-lg">All Announcements ({announcements.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : announcements.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p className="font-medium">No announcements yet</p>
+              <p className="text-sm">Create your first announcement to display on academy dashboards</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {announcements.map((announcement) => (
+                <div
+                  key={announcement._id}
+                  className={`p-4 rounded-lg border ${announcement.isActive ? "bg-white" : "bg-gray-50 opacity-60"}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className={`p-2 rounded-lg ${getTypeColor(announcement.type)}`}>
+                        {getTypeIcon(announcement.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                          {getPriorityBadge(announcement.priority)}
+                          {!announcement.isActive && (
+                            <Badge variant="outline" className="text-gray-500">Inactive</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{announcement.message}</p>
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>Created: {new Date(announcement.createdAt).toLocaleDateString()}</span>
+                          {announcement.link && /^https?:\/\//i.test(announcement.link) && (
+                            <a href={announcement.link} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
+                              View Link
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(announcement)}
+                        className="h-8"
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDelete(announcement._id)}
+                        className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3 h-3 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

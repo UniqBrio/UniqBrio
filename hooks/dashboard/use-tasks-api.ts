@@ -35,6 +35,7 @@ export function useTasksApi() {
       const res = await fetch("/api/dashboard/task-management/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify(task),
       })
       const json = await res.json()
@@ -57,6 +58,7 @@ export function useTasksApi() {
       const res = await fetch(`/api/dashboard/task-management/tasks/${task.id}` , {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify(task),
       })
       const json = await res.json()
@@ -79,7 +81,10 @@ export function useTasksApi() {
     setState(s => ({ ...s, loading: true }))
     
     try {
-      const res = await fetch(`/api/dashboard/task-management/tasks/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/dashboard/task-management/tasks/${id}`, { 
+        method: "DELETE",
+        credentials: 'include',
+      })
       const json = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message || "Delete failed")
       setTasks(prev => prev.filter(t => t.id !== id))

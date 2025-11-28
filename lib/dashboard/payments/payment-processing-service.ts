@@ -111,21 +111,32 @@ export function updateEmiStatus(
 
 /**
  * Generate sequential invoice number in format INV-yyyymm-0001
+ * Invoice numbers are unique per tenant per month
+ * Includes a random suffix to handle legacy data conflicts during transition
  */
-export async function generateInvoiceNumber(): Promise<string> {
+export async function generateInvoiceNumber(tenantId?: string): Promise<string> {
   const { default: CounterModel } = await import('@/models/dashboard/payments/Counter');
+  const { getTenantContext } = await import('@/lib/tenant/tenant-context');
+  
+  // Get tenantId from parameter or context
+  const effectiveTenantId = tenantId || getTenantContext()?.tenantId || 'default';
   
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const yearMonth = `${year}${month}`;
   
-  // Get next sequence number for this year-month
-  const counterName = `invoice_${yearMonth}`;
+  // Get next sequence number for this tenant and year-month
+  // This ensures each tenant has their own invoice sequence
+  const counterName = `invoice_${effectiveTenantId}_${yearMonth}`;
   const sequenceNumber = await CounterModel.getNextSequence(counterName);
   
-  // Format: INV-yyyymm-0001
-  return `INV-${yearMonth}-${String(sequenceNumber).padStart(4, '0')}`;
+  // Add a short random suffix to handle legacy data conflicts
+  // This ensures uniqueness even if old records exist with same sequence
+  const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
+  
+  // Format: INV-yyyymm-0001-ABC
+  return `INV-${yearMonth}-${String(sequenceNumber).padStart(4, '0')}-${randomSuffix}`;
 }
 
 /**

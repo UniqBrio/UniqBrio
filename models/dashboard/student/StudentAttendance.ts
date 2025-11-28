@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 const StudentAttendanceSchema = new mongoose.Schema(
   {
@@ -57,10 +58,13 @@ const StudentAttendanceSchema = new mongoose.Schema(
   }
 );
 
-// Compound indexes for common queries
-StudentAttendanceSchema.index({ studentId: 1, date: -1 });
-StudentAttendanceSchema.index({ cohortId: 1, date: -1 });
-StudentAttendanceSchema.index({ date: -1 });
-StudentAttendanceSchema.index({ status: 1 });
+// Apply tenant plugin for multi-tenancy support
+StudentAttendanceSchema.plugin(tenantPlugin);
+
+// Compound indexes for common queries (tenant-scoped)
+StudentAttendanceSchema.index({ tenantId: 1, studentId: 1, date: -1 });
+StudentAttendanceSchema.index({ tenantId: 1, cohortId: 1, date: -1 });
+StudentAttendanceSchema.index({ tenantId: 1, date: -1 });
+StudentAttendanceSchema.index({ tenantId: 1, status: 1 });
 
 export default mongoose.models.StudentAttendance || mongoose.model('StudentAttendance', StudentAttendanceSchema);

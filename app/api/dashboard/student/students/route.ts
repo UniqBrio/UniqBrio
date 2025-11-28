@@ -15,7 +15,6 @@ import { logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
 // 3. Return the lowest missing number >= 1; if no gaps, return max+1.
 // 4. Race condition protection: re-check chosen ID before returning; if taken, loop a few times.
 async function generateNextStudentId(tenantId: string): Promise<string> {
-      console.log(`[generateNextStudentId] Starting ID generation for tenantId: ${tenantId}`);
       let attempts = 0;
       const maxAttempts = 5;
       while (attempts < maxAttempts) {
@@ -23,11 +22,6 @@ async function generateNextStudentId(tenantId: string): Promise<string> {
       { studentId: { $regex: /^STU\d{4}$/ }, tenantId },
       { studentId: 1, _id: 0 }
     ).lean();
-
-    console.log(`[generateNextStudentId] Found ${existing.length} existing students for tenant ${tenantId}`);
-    if (existing.length > 0) {
-      console.log(`[generateNextStudentId] Sample existing IDs:`, existing.slice(0, 5).map(s => s.studentId));
-    }
 
     const numbers: number[] = [];
     for (const s of existing) {
@@ -47,14 +41,11 @@ async function generateNextStudentId(tenantId: string): Promise<string> {
       }
     }
     const candidateId = `STU${String(candidateNum).padStart(4, '0')}`;
-    console.log(`[generateNextStudentId] Generated candidate ID: ${candidateId} for tenant ${tenantId}`);
-    const collision = await Student.findOne({ studentId: candidateId, tenantId });
+    const collision = await Student.findOne({ studentId: candidateId, tenantId }).lean();
     if (!collision) {
-      console.log(`[generateNextStudentId] ID ${candidateId} is unique for tenant ${tenantId}`);
       return candidateId;
     }
     attempts++;
-    console.warn(`generateNextStudentId collision on ${candidateId}, retrying (attempt ${attempts})`);
       }
       // Fallback if persistent collisions (should be rare)
       return `STU${String(Date.now() % 10000).padStart(4, '0')}`;
@@ -86,7 +77,9 @@ export async function GET(req: NextRequest) {
         const filter = includeDeleted 
           ? { tenantId: session.tenantId } 
           : { isDeleted: { $ne: true }, tenantId: session.tenantId };
-        const students = await Student.find(filter);
+        
+        // Use lean() for better performance - returns plain JS objects
+        const students = await Student.find(filter).lean();
 
             // Index students by both studentId and _id for flexible matching
             const studentByStudentId = new Map<string, any>();
@@ -96,7 +89,11 @@ export async function GET(req: NextRequest) {
       if (s._id) studentByMongoId.set(String(s._id), s);
     });
 
-              const cohorts = await Cohort.find({ tenantId: session.tenantId }, { id: 1, cohortId: 1, enrolledStudents: 1, members: 1, currentStudents: 1 }).lean();
+              // Only fetch minimal cohort data needed for membership lookup
+              const cohorts = await Cohort.find(
+                { tenantId: session.tenantId }, 
+                { id: 1, cohortId: 1, enrolledStudents: 1, members: 1, currentStudents: 1 }
+              ).lean();
             const cohortMembershipMap = new Map<string, string>(); // studentId -> cohortId
 
             const normalizeEntry = (entry: any): string | null => {
@@ -149,10 +146,9 @@ export async function GET(req: NextRequest) {
             const reconcilePromises: Promise<any>[] = [];
             const toIso = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
 
-            const result = students.map((doc: any) => {
-      const s = doc.toObject();
-      
-      // Migration: Handle legacy field names
+            // Using lean() returns plain JS objects, no need for toObject()
+            const result = students.map((s: any) => {
+      // Migration: Handle legacy field names (mutate in place since s is already a plain object)
       if (s.batch && !s.cohortId) {
         s.cohortId = s.batch;
       }
@@ -252,7 +248,6 @@ export async function POST(req: NextRequest) {
       await dbConnect("uniqbrio");
       try {
     const data = await req.json();
-    console.log('POST /api/students - Received data:', JSON.stringify(data, null, 2));
 
       // Normalize some known field name differences (legacy support)
       if (!data.mobile && data.phone) data.mobile = data.phone;
@@ -264,22 +259,19 @@ export async function POST(req: NextRequest) {
       if (!data.enrolledCourseName && data.program) data.enrolledCourseName = data.program;
 
     // Generate sequential student ID if not provided or if it's a temp ID
-    console.log('POST /api/students - Initial studentId:', data.studentId, 'Initial id:', data.id);
     if (!data.studentId || !data.id || data.studentId.startsWith('TEMP_') || data.id.startsWith('TEMP_')) {
       // Generate new ID and check for conflicts
       let attempts = 0;
       let newStudentId = '';
       while (attempts < 3) {
         newStudentId = await generateNextStudentId(session.tenantId);
-        const existingById = await Student.findOne({ studentId: newStudentId, tenantId: session.tenantId });
+        const existingById = await Student.findOne({ studentId: newStudentId, tenantId: session.tenantId }).lean();
         if (!existingById) {
           break; // Found a unique ID
         }
-        console.warn(`POST /api/students - Generated ID ${newStudentId} already exists, retrying...`);
         attempts++;
       }
       data.studentId = newStudentId;
-      console.log('POST /api/students - Generated sequential student ID:', data.studentId);
     } else if (!data.studentId && data.id) {
       data.studentId = data.id;
     }
@@ -326,12 +318,8 @@ export async function POST(req: NextRequest) {
 
     // Normalize email: trim whitespace and convert to lowercase for consistent storage
     const normalizedEmail = data.email?.trim().toLowerCase();
-    console.log('POST /api/students - Normalizing email:', normalizedEmail, '(original:', data.email, ')');
     allowed.email = normalizedEmail; // Update the allowed object with normalized email
     
-    console.log('POST /api/students - Final student ID:', data.studentId);
-    console.log('POST /api/students - Student cohortId field:', allowed.cohortId);
-    console.log('POST /api/students - Creating student with tenantId:', session.tenantId);
     const student = await Student.create({ ...allowed, tenantId: session.tenantId });
     console.log('POST /api/students - Created student with cohortId:', student.cohortId);
 

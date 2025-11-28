@@ -6,6 +6,8 @@ import {
   deletePaymentRecord,
   verifyPaymentRecord,
 } from '@/lib/dashboard/payments/payment-record-service';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * GET /api/payments/payment-records/[id]
@@ -13,14 +15,26 @@ import {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
-    const { id } = params;
+    const { id } = await params;
 
-    const record = await getPaymentRecordById(id);
+    const record = await getPaymentRecordById(id, session.tenantId);
 
     if (!record) {
       return NextResponse.json(
@@ -46,6 +60,7 @@ export async function GET(
       { status: 500 }
     );
   }
+  });
 }
 
 /**
@@ -54,15 +69,27 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
-    const result = await updatePaymentRecord(id, body);
+    const result = await updatePaymentRecord(id, body, session.tenantId);
 
     if (!result.success) {
       return NextResponse.json(
@@ -89,6 +116,7 @@ export async function PATCH(
       { status: 500 }
     );
   }
+  });
 }
 
 /**
@@ -97,16 +125,28 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const deletedBy = searchParams.get('deletedBy') || 'system';
+    const deletedBy = searchParams.get('deletedBy') || session.userId || 'system';
 
-    const result = await deletePaymentRecord(id, deletedBy);
+    const result = await deletePaymentRecord(id, deletedBy, session.tenantId);
 
     if (!result.success) {
       return NextResponse.json(
@@ -132,6 +172,7 @@ export async function DELETE(
       { status: 500 }
     );
   }
+  });
 }
 
 /**
@@ -140,20 +181,32 @@ export async function DELETE(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
     if (action === 'verify') {
       const body = await request.json();
-      const verifiedBy = body.verifiedBy || 'system';
+      const verifiedBy = body.verifiedBy || session.userId || 'system';
 
-      const result = await verifyPaymentRecord(id, verifiedBy);
+      const result = await verifyPaymentRecord(id, verifiedBy, session.tenantId);
 
       if (!result.success) {
         return NextResponse.json(
@@ -188,4 +241,5 @@ export async function POST(
       { status: 500 }
     );
   }
+  });
 }

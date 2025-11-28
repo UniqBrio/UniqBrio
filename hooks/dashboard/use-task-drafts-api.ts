@@ -18,7 +18,10 @@ export function useTaskDraftsApi(type: string = "task") {
   const load = useCallback(async () => {
     setLoading(true); setError(null)
     try {
-      const res = await fetch(`/api/dashboard/task-management/task-drafts?type=${encodeURIComponent(type)}`, { cache: "no-store" })
+      const res = await fetch(`/api/dashboard/task-management/task-drafts?type=${encodeURIComponent(type)}`, { 
+        cache: "no-store",
+        credentials: 'include',
+      })
       const json = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message || "Failed to load drafts")
       setDrafts(json.data)
@@ -38,6 +41,7 @@ export function useTaskDraftsApi(type: string = "task") {
         const res = await fetch(`/api/dashboard/task-management/task-drafts/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include',
           body: JSON.stringify({ title, data, type }),
         })
         const json = await res.json()
@@ -51,6 +55,7 @@ export function useTaskDraftsApi(type: string = "task") {
         const res = await fetch(`/api/dashboard/task-management/task-drafts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include',
           body: JSON.stringify({ title, data, type }),
         })
         const json = await res.json()
@@ -81,7 +86,10 @@ export function useTaskDraftsApi(type: string = "task") {
     const draftTitle = draftToDelete?.title || "Draft"
     
     try {
-      const res = await fetch(`/api/dashboard/task-management/task-drafts/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/dashboard/task-management/task-drafts/${id}`, { 
+        method: "DELETE",
+        credentials: 'include',
+      })
       const json = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message || "Failed to delete draft")
       setDrafts(prev => prev.filter(d => d.id !== id))

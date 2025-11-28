@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
+import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
 
 interface HeaderNotification {
   id: string
@@ -159,6 +160,10 @@ export default function Header(props: HeaderProps) {
 
   const handleLogout = async () => {
     try {
+      // Broadcast logout to other tabs before logging out
+      clearTabSession()
+      broadcastSessionChange("LOGOUT")
+      
       // Call logout API
       await fetch("/api/auth/logout", { 
         method: "POST",

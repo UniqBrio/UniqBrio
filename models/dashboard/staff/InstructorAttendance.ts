@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface IInstructorAttendance extends Document {
   instructorId: string
@@ -27,8 +28,11 @@ const InstructorAttendanceSchema = new Schema<IInstructorAttendance>({
   notes: String,
 }, { timestamps: true, collection: 'instructor attendance' })
 
-// Prevent duplicates (same instructor, same date)
-InstructorAttendanceSchema.index({ instructorId: 1, date: 1 }, { unique: true, name: 'uniq_instructor_date' })
+// Apply tenant plugin for multi-tenancy support
+InstructorAttendanceSchema.plugin(tenantPlugin);
+
+// Prevent duplicates (same instructor, same date, same tenant)
+InstructorAttendanceSchema.index({ tenantId: 1, instructorId: 1, date: 1 }, { unique: true, name: 'uniq_tenant_instructor_date' })
 
 export default (mongoose.models.InstructorAttendance as Model<IInstructorAttendance>)
   || mongoose.model<IInstructorAttendance>('InstructorAttendance', InstructorAttendanceSchema)

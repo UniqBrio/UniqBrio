@@ -53,58 +53,40 @@ export async function GET() {
       try {
         await dbConnect("uniqbrio");
 
-        // Fetch courses
-        console.log('Fetching courses...');
-        const courses = await Course.find({ tenantId: session.tenantId }).lean();
+        // Fetch courses with only needed fields for performance
+        const courses = await Course.find(
+          { tenantId: session.tenantId },
+          { courseId: 1, name: 1, description: 1, courseCategory: 1, type: 1, duration: 1, level: 1, prerequisites: 1, outcomes: 1, status: 1 }
+        ).lean();
     
     if (!courses || courses.length === 0) {
-      console.log('No courses found in database');
       return NextResponse.json([]);
-    }
-
-    console.log(`Found ${courses.length} raw courses from database`);
-    
-    // Log first course to verify field names
-    if (courses[0]) {
-      console.log('Sample course data:', {
-        _id: courses[0]._id,
-        courseId: courses[0].courseId,
-        name: courses[0].name,
-        courseCategory: courses[0].courseCategory,
-        type: courses[0].type,
-        level: courses[0].level
-      });
     }
 
     // Map to include a stable id property for the frontend (prefer courseId)
     const mapped: any[] = [];
     for (const c of courses) {
-      try {
-        const id = c.courseId || (c._id ? String(c._id) : undefined);
-        if (!id) continue; // skip malformed docs
-        mapped.push({
-          id,
-          name: c.name || '',
-          description: c.description || '',
-          category: c.courseCategory || '',
-          type: c.type || '',
-          duration: c.duration || '',
-          level: c.level || '',
-          prerequisites: Array.isArray(c.prerequisites) ? c.prerequisites : [],
-          outcomes: Array.isArray(c.outcomes) ? c.outcomes : [],
-          status: c.status || 'Active',
-          courseId: c.courseId || undefined,
-        });
-      } catch (e) {
-        console.warn('Skipping malformed course document', e);
-      }
+      const id = c.courseId || (c._id ? String(c._id) : undefined);
+      if (!id) continue; // skip malformed docs
+      mapped.push({
+        id,
+        name: c.name || '',
+        description: c.description || '',
+        category: c.courseCategory || '',
+        type: c.type || '',
+        duration: c.duration || '',
+        level: c.level || '',
+        prerequisites: Array.isArray(c.prerequisites) ? c.prerequisites : [],
+        outcomes: Array.isArray(c.outcomes) ? c.outcomes : [],
+        status: c.status || 'Active',
+        courseId: c.courseId || undefined,
+      });
     }
 
-        console.log(`Successfully found ${mapped.length} courses`);
         return NextResponse.json(mapped);
 
       } catch (error: any) {
-        console.error('Error in GET /api/courses:', error);
+        console.error('Error fetching courses:', error.message);
         return NextResponse.json({
           error: 'Failed to fetch courses',
           details: error.message

@@ -501,6 +501,7 @@ export async function POST(request: NextRequest) {
 
     // Create new attendance record
     const attendanceRecord = new StudentAttendance({
+      tenantId: session.tenantId,
       studentId,
       studentName: finalStudentName || studentId,
       cohortId,

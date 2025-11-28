@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface IInstructorDraft extends Document {
   externalId?: string // stable id used by UI
@@ -19,5 +20,11 @@ const InstructorDraftSchema = new Schema<IInstructorDraft>({
   lastUpdated: { type: String, required: true },
   formData: Schema.Types.Mixed,
 }, { timestamps: true, collection: 'instructor_drafts' })
+
+// Apply tenant plugin for multi-tenancy support
+InstructorDraftSchema.plugin(tenantPlugin);
+
+// Tenant-scoped unique index
+InstructorDraftSchema.index({ tenantId: 1, externalId: 1 }, { unique: true, sparse: true });
 
 export default (mongoose.models.InstructorDraft as Model<IInstructorDraft>) || mongoose.model<IInstructorDraft>('InstructorDraft', InstructorDraftSchema)

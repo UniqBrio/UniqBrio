@@ -1010,6 +1010,7 @@ export function EventFormModal({
   skillLevels: string[]
   formats: string[]
 }) {
+  const { primaryColor, secondaryColor } = useCustomColors();
   // Create local form state to prevent re-renders from parent affecting input fields
   const [formData, setFormData] = useState<Partial<Event>>(initialFormData)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})

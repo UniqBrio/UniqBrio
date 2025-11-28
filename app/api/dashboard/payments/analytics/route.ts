@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
       try {
         await dbConnect("uniqbrio");
 
-        // Fetch only required fields for analytics (much faster)
-        const payments = await Payment.find({}).select('enrolledCourse enrolledCourseName receivedAmount outstandingAmount collectionRate paymentOption lastPaymentDate').lean().exec();
+        // Fetch only required fields for analytics (much faster) - tenant-scoped
+        const payments = await Payment.find({ tenantId: session.tenantId }).select('enrolledCourse enrolledCourseName receivedAmount outstandingAmount collectionRate paymentOption lastPaymentDate courseFee courseRegistrationFee studentRegistrationFee').lean().exec();
 
         // Calculate analytics
         const totalStudents = payments.length;

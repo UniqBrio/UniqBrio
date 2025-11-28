@@ -42,6 +42,7 @@ export async function fetchEvents(options?: {
 
     const response = await fetch(`${API_BASE}?${params.toString()}`, {
       method: 'GET',
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -65,6 +66,7 @@ export async function fetchEventById(eventId: string): Promise<EventResponse> {
   try {
     const response = await fetch(`${API_BASE}/${eventId}`, {
       method: 'GET',
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -91,6 +93,7 @@ export async function createEvent(eventData: any): Promise<EventResponse> {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(eventData),
     });
 
@@ -139,6 +142,7 @@ export async function updateEvent(
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(cleanData),
     });
 
@@ -170,6 +174,7 @@ export async function deleteEvent(eventId: string): Promise<EventResponse> {
     
     const response = await fetch(url, {
       method: 'DELETE',
+      credentials: 'include',
     });
 
     console.log('Delete response status:', response.status);
@@ -203,6 +208,7 @@ export async function publishEvent(eventId: string): Promise<EventResponse> {
   try {
     const response = await fetch(`${API_BASE}/${eventId}/publish`, {
       method: 'POST',
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -230,6 +236,7 @@ export async function bulkDeleteEvents(eventIds: string[]): Promise<EventRespons
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ eventIds }),
     });
 
@@ -256,6 +263,7 @@ export async function updateParticipants(eventId: string, action: 'inc' | 'dec',
     const response = await fetch(`${API_BASE}/${eventId}/participants`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ action, amount }),
     })
 
@@ -278,6 +286,7 @@ export async function fetchEventStats(): Promise<EventResponse> {
   try {
     const response = await fetch(`${API_BASE}/stats/overview`, {
       method: 'GET',
+      credentials: 'include',
     });
 
     if (!response.ok) {

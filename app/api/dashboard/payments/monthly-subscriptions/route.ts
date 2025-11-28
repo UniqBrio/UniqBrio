@@ -90,8 +90,8 @@ export async function POST(request: NextRequest) {
         createdBy: data.receivedBy,
       }], { session: mongoSession });
       
-      // Generate invoice number
-      const invoiceNumber = await generateInvoiceNumber();
+      // Generate invoice number (tenant-specific)
+      const invoiceNumber = await generateInvoiceNumber(session.tenantId);
       
       // Create payment record
       const [savedPaymentRecord] = await PaymentTransaction.create([{

@@ -83,14 +83,33 @@ export async function GET(_req: NextRequest) {
         const normalize = (arr: any[]) =>
           Array.from(new Set((arr || []).map((s) => String(s || "").trim()).filter(Boolean)));
 
+        // Default options for new tenants with no existing records
+        const defaultIncomeCategories = ['Course Fee', 'Registration Fee', 'Coaching Fee', 'Equipment Sale', 'Event Fee', 'Sponsorship', 'Donation', 'Membership Fee', 'Merchandise', 'Other'];
+        const defaultIncomeSources = ['Student', 'Parent', 'Corporate', 'Government Grant', 'Sponsorship', 'Event', 'Online', 'Walk-in', 'Referral', 'Other'];
+        const defaultPaymentModes = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit Card', 'Cheque', 'Net Banking', 'Wallet'];
+        const defaultExpenseCategories = ['Salaries', 'Rent', 'Utilities', 'Equipment', 'Maintenance', 'Marketing', 'Travel', 'Supplies', 'Insurance', 'Other'];
+        const defaultVendorTypes = ['Supplier', 'Service Provider', 'Contractor', 'Utility', 'Government', 'Other'];
+
+        // Merge existing records with defaults (existing values take priority, defaults fill in gaps)
+        const mergeWithDefaults = (existing: any[], defaults: string[]) => {
+          const normalized = normalize(existing);
+          if (normalized.length === 0) {
+            return defaults;
+          }
+          // Return existing values plus any defaults not already present
+          const existingLower = normalized.map(s => s.toLowerCase());
+          const additionalDefaults = defaults.filter(d => !existingLower.includes(d.toLowerCase()));
+          return [...normalized, ...additionalDefaults];
+        };
+
         const data = {
-          incomeCategories: normalize(incomeCategoriesRaw),
-          incomeSources: normalize(incomeSourcesRaw),
-          paymentModes: normalize(paymentModes),
-          accounts: normalize(allAccounts),
-          expenseCategories: normalize(expenseCategoriesRaw),
-          vendorNames: normalize(vendorNamesRaw),
-          vendorTypes: normalize(vendorTypesRaw),
+          incomeCategories: mergeWithDefaults(incomeCategoriesRaw, defaultIncomeCategories),
+          incomeSources: mergeWithDefaults(incomeSourcesRaw, defaultIncomeSources),
+          paymentModes: mergeWithDefaults(paymentModes, defaultPaymentModes),
+          accounts: normalize(allAccounts), // No defaults for accounts - they should come from bank setup
+          expenseCategories: mergeWithDefaults(expenseCategoriesRaw, defaultExpenseCategories),
+          vendorNames: normalize(vendorNamesRaw), // No defaults for vendor names
+          vendorTypes: mergeWithDefaults(vendorTypesRaw, defaultVendorTypes),
         };
 
         return NextResponse.json(data);

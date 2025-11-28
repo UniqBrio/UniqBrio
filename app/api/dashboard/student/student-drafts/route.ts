@@ -80,7 +80,8 @@ export async function POST(request: NextRequest) {
       name,
       instructor: instructor || 'No Course Selected',
       level: level || 'Beginner',
-      data
+      data,
+      tenantId: session.tenantId
     });
 
     const savedDraft = await newDraft.save();
@@ -106,88 +107,118 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update an existing student draft
 export async function PUT(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
-
-    const body = await request.json();
-    const { id, name, instructor, level, data } = body;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Draft ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const updatedDraft = await StudentDraft.findByIdAndUpdate(
-      id,
-      {
-        name,
-        instructor: instructor || 'No Course Selected',
-        level: level || 'Beginner',
-        data,
-        lastUpdated: new Date()
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedDraft) {
-      return NextResponse.json(
-        { error: 'Student draft not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      id: updatedDraft._id.toString(),
-      name: updatedDraft.name,
-      instructor: updatedDraft.instructor,
-      level: updatedDraft.level,
-      lastUpdated: formatDateForDisplay(new Date(updatedDraft.lastUpdated).toISOString().slice(0,10)),
-      data: updatedDraft.data
-    });
-  } catch (error) {
-    console.error('Error updating student draft:', error);
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
     return NextResponse.json(
-      { error: 'Failed to update student draft' },
-      { status: 500 }
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
     );
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+
+        const body = await request.json();
+        const { id, name, instructor, level, data } = body;
+
+        if (!id) {
+          return NextResponse.json(
+            { error: 'Draft ID is required' },
+            { status: 400 }
+          );
+        }
+
+        // Find and update only within tenant context
+        const updatedDraft = await StudentDraft.findOneAndUpdate(
+          { _id: id, tenantId: session.tenantId },
+          {
+            name,
+            instructor: instructor || 'No Course Selected',
+            level: level || 'Beginner',
+            data,
+            lastUpdated: new Date()
+          },
+          { new: true, runValidators: true }
+        );
+
+        if (!updatedDraft) {
+          return NextResponse.json(
+            { error: 'Student draft not found' },
+            { status: 404 }
+          );
+        }
+
+        return NextResponse.json({
+          id: updatedDraft._id.toString(),
+          name: updatedDraft.name,
+          instructor: updatedDraft.instructor,
+          level: updatedDraft.level,
+          lastUpdated: formatDateForDisplay(new Date(updatedDraft.lastUpdated).toISOString().slice(0,10)),
+          data: updatedDraft.data
+        });
+      } catch (error) {
+        console.error('Error updating student draft:', error);
+        return NextResponse.json(
+          { error: 'Failed to update student draft' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }
 
 // DELETE - Delete a student draft
 export async function DELETE(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio");
-
-    const body = await request.json();
-    const { id } = body;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Draft ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const deletedDraft = await StudentDraft.findByIdAndDelete(id);
-
-    if (!deletedDraft) {
-      return NextResponse.json(
-        { error: 'Student draft not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      message: 'Student draft deleted successfully',
-      id: deletedDraft._id.toString()
-    });
-  } catch (error) {
-    console.error('Error deleting student draft:', error);
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
     return NextResponse.json(
-      { error: 'Failed to delete student draft' },
-      { status: 500 }
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
     );
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio");
+
+        const body = await request.json();
+        const { id } = body;
+
+        if (!id) {
+          return NextResponse.json(
+            { error: 'Draft ID is required' },
+            { status: 400 }
+          );
+        }
+
+        // Find and delete only within tenant context
+        const deletedDraft = await StudentDraft.findOneAndDelete({ _id: id, tenantId: session.tenantId });
+
+        if (!deletedDraft) {
+          return NextResponse.json(
+            { error: 'Student draft not found' },
+            { status: 404 }
+          );
+        }
+
+        return NextResponse.json({
+          message: 'Student draft deleted successfully',
+          id: deletedDraft._id.toString()
+        });
+      } catch (error) {
+        console.error('Error deleting student draft:', error);
+        return NextResponse.json(
+          { error: 'Failed to delete student draft' },
+          { status: 500 }
+        );
+      }
+    }
+  );
 }

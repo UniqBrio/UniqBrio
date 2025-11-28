@@ -40,7 +40,7 @@ export async function GET() {
       }).lean(),
       NonInstructorLeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
       NonInstructorLeaveDraft.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
-      NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
+      NonInstructorLeavePolicy.findOne({ key: 'default', tenantId: session.tenantId }).lean()
     ])
 
     const nonInstructors = nonInstructorList.map((raw: any) => {

@@ -1,32 +1,55 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import DraftModel from "@/models/dashboard/staff/Draft"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  await dbConnect("uniqbrio")
-  const item = await DraftModel.findById(id).lean()
-  if (!item) return NextResponse.json({ message: "Not found" }, { status: 404 })
-  return NextResponse.json(item)
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    const { id } = await params
+    await dbConnect("uniqbrio")
+    const item = await DraftModel.findOne({ _id: id, tenantId: session.tenantId }).lean()
+    if (!item) return NextResponse.json({ message: "Not found" }, { status: 404 })
+    return NextResponse.json(item)
+  })
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params
-    await dbConnect("uniqbrio")
-    const body = await req.json()
-    const updated = await DraftModel.findByIdAndUpdate(id, body, { new: true })
-    if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
-    return NextResponse.json(updated)
-  } catch (e: any) {
-    return NextResponse.json({ message: e.message }, { status: 400 })
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    try {
+      const { id } = await params
+      await dbConnect("uniqbrio")
+      const body = await req.json()
+      const updated = await DraftModel.findOneAndUpdate({ _id: id, tenantId: session.tenantId }, body, { new: true })
+      if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
+      return NextResponse.json(updated)
+    } catch (e: any) {
+      return NextResponse.json({ message: e.message }, { status: 400 })
+    }
+  })
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  await dbConnect("uniqbrio")
-  const res = await DraftModel.findByIdAndDelete(id)
-  if (!res) return NextResponse.json({ message: "Not found" }, { status: 404 })
-  return NextResponse.json({ ok: true })
+  const session = await getUserSession()
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  return runWithTenantContext({ tenantId: session.tenantId }, async () => {
+    const { id } = await params
+    await dbConnect("uniqbrio")
+    const res = await DraftModel.findOneAndDelete({ _id: id, tenantId: session.tenantId })
+    if (!res) return NextResponse.json({ message: "Not found" }, { status: 404 })
+    return NextResponse.json({ ok: true })
+  })
 }

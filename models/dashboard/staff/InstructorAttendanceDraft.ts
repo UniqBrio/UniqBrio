@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface IInstructorAttendanceDraft extends Document {
   instructorId?: string
@@ -31,6 +32,9 @@ const InstructorAttendanceDraftSchema = new Schema<IInstructorAttendanceDraft>({
   notes: String,
   savedAt: String,
 }, { timestamps: true, collection: 'instructor attendance draft' })
+
+// Apply tenant plugin for multi-tenancy support
+InstructorAttendanceDraftSchema.plugin(tenantPlugin);
 
 export default (mongoose.models.InstructorAttendanceDraft as Model<IInstructorAttendanceDraft>)
   || mongoose.model<IInstructorAttendanceDraft>('InstructorAttendanceDraft', InstructorAttendanceDraftSchema)

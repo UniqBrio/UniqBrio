@@ -180,8 +180,6 @@ export async function PUT(req: NextRequest) {
     await dbConnect("uniqbrio");
     const data = await req.json();
     
-    console.log('PUT /api/cohorts - Received data:', JSON.stringify(data, null, 2));
-    
     const { cohortId, action, studentIds } = data;
     
     if (!cohortId) {
@@ -195,8 +193,6 @@ export async function PUT(req: NextRequest) {
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
       return NextResponse.json({ error: 'Student IDs array required' }, { status: 400 });
     }
-    
-    console.log(`PUT /api/cohorts - ${action}ing ${studentIds.length} student(s) to/from cohort ${cohortId}`);
     
     // Find the cohort
     const cohort = await Cohort.findOne({ id: cohortId, tenantId: session.tenantId });

@@ -43,7 +43,7 @@ export function FinancialSnapshot({
 }: FinancialSnapshotProps) {
   const { currency } = useCurrency();
   const [data, setData] = useState<FinancialData | null>(null);
-  const [chartData, setChartData] = useState<Array<{ name: string; income: number; expense: number; profit: number }>>([]);
+  const [chartData, setChartData] = useState<Array<{ id: string; name: string; income: number; expense: number; profit: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const { screenSize } = useResponsiveBreakpoints();
@@ -189,8 +189,11 @@ export function FinancialSnapshot({
           return cmp;
         });
 
-        // Take the last 6 entries after filtering
-        const last6Months = filtered.slice(-6);
+        // Take the last 6 entries after filtering and add unique IDs
+        const last6Months = filtered.slice(-6).map((item: any, index: number) => ({
+          ...item,
+          id: `${item.name || 'month'}-${index}`
+        }));
         setChartData(last6Months);
       } catch (error) {
         console.error("Error fetching chart data:", error);
@@ -394,18 +397,21 @@ export function FinancialSnapshot({
                     iconSize={screenSize === "mobile" ? 12 : 14}
                   />
                   <Bar 
+                    key="income-bar"
                     dataKey="income" 
                     fill="#8b5cf6" 
                     name="Income"
                     radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
                   />
                   <Bar 
+                    key="expense-bar"
                     dataKey="expense" 
                     fill="#f97316" 
                     name="Expenses"
                     radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
                   />
                   <Line 
+                    key="profit-line"
                     type="monotone" 
                     dataKey="profit" 
                     stroke="#10b981" 

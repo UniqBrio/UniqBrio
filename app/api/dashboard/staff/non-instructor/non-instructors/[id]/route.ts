@@ -46,11 +46,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         await dbConnect("uniqbrio")
         const body = await req.json()
         
-        // Get existing record for audit trail
-        const existing = await NonInstructorModel.findById(id).lean()
+        // Get existing record for audit trail with tenant isolation
+        const existing = await NonInstructorModel.findOne({ _id: id, tenantId: session.tenantId }).lean()
         if (!existing) return NextResponse.json({ message: "Not found" }, { status: 404 })
         
-        const updated = await NonInstructorModel.findByIdAndUpdate(id, body, { new: true })
+        const updated = await NonInstructorModel.findOneAndUpdate({ _id: id, tenantId: session.tenantId }, body, { new: true })
         if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
         
         // Track field changes

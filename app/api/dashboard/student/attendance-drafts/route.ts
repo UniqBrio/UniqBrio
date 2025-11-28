@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
       query.studentId = studentId;
     }
 
-    // Build query with sorting (newest first)
-    let queryBuilder = StudentAttendanceDraft.find(query).sort({ savedAt: -1 });
+    // Build query with sorting (newest first) and lean() for performance
+    let queryBuilder = StudentAttendanceDraft.find(query).sort({ savedAt: -1 }).lean();
 
     // Add pagination if specified
     if (offset) {
@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
 
     // Create new attendance draft
     const attendanceDraft = new StudentAttendanceDraft({
+      tenantId: session.tenantId,
       studentId: studentId || '(unspecified)',
       studentName: studentName || '(unspecified)',
       cohortId,
@@ -173,8 +174,8 @@ export async function DELETE(request: NextRequest) {
     const deleteAll = searchParams.get('deleteAll') === 'true';
 
     if (deleteAll) {
-      // Delete all drafts
-      const result = await StudentAttendanceDraft.deleteMany({});
+      // Delete all drafts for this tenant only
+      const result = await StudentAttendanceDraft.deleteMany({ tenantId: session.tenantId });
       return NextResponse.json({
         success: true,
         message: `Deleted ${result.deletedCount} attendance drafts`,

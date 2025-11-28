@@ -371,7 +371,7 @@ export function LeaveManagement() {
           style={{ borderColor: `${primaryColor}20` }}
         >
           <div className="flex flex-col gap-2">
-            <h2 className="text-3xl font-bold text-primary md:text-4xl">
+            <h2 className="text-3xl font-bold text-[#8B5CF6] md:text-4xl">
               Student Leave Management
             </h2>
             <p className="text-lg text-foreground/70">

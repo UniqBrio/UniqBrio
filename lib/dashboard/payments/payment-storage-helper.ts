@@ -8,6 +8,7 @@
 
 import Payment from '@/models/dashboard/payments/Payment';
 import PaymentTransaction from '@/models/dashboard/payments/PaymentTransaction';
+import { getTenantContext } from '@/lib/tenant/tenant-context';
 
 interface PaymentData {
   studentId: string;
@@ -23,6 +24,7 @@ interface PaymentData {
   mode: string;
   receivedBy: string;
   notes?: string;
+  tenantId?: string; // Optional - will use context if not provided
 }
 
 /**
@@ -64,17 +66,25 @@ export async function createPaymentTransaction(
     console.log('  - Student ID:', transactionData.studentId);
     console.log('  - Amount:', transactionData.amount);
     
+    // Get tenantId from data, payment, or context
+    const tenantId = transactionData.tenantId || payment.tenantId || getTenantContext()?.tenantId;
+    if (!tenantId) {
+      throw new Error('Tenant ID is required for creating payment transaction');
+    }
+    
     const transaction = await PaymentTransaction.create({
+      tenantId, // Explicit tenant isolation
       paymentId: payment._id,
       studentId: transactionData.studentId,
       studentName: transactionData.studentName,
-      amount: transactionData.amount,
+      paidAmount: transactionData.amount, // Use correct field name
       paymentOption: transactionData.paymentOption,
       selectedTypes: transactionData.selectedTypes,
-      paymentDate: transactionData.paymentDate,
-      mode: transactionData.mode,
+      paidDate: transactionData.paymentDate, // Use correct field name
+      paymentMode: transactionData.mode, // Use correct field name
       receivedBy: transactionData.receivedBy,
       notes: transactionData.notes,
+      status: 'CONFIRMED',
     });
     
     console.log('✓ Transaction created successfully');
@@ -91,11 +101,19 @@ export async function createPaymentTransaction(
 
 /**
  * Verifies that a payment and its transactions exist
+ * @param studentId Student ID
+ * @param tenantId Optional tenant ID (uses context if not provided)
  */
-export async function verifyPaymentRecords(studentId: string) {
+export async function verifyPaymentRecords(studentId: string, tenantId?: string) {
   try {
-    const payment = await Payment.findOne({ studentId });
-    const transactions = await PaymentTransaction.find({ studentId });
+    // Get tenantId from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      throw new Error('Tenant ID is required for verifying payment records');
+    }
+    
+    const payment = await Payment.findOne({ studentId, tenantId: effectiveTenantId });
+    const transactions = await PaymentTransaction.find({ studentId, tenantId: effectiveTenantId });
     
     return {
       paymentExists: !!payment,
@@ -112,11 +130,18 @@ export async function verifyPaymentRecords(studentId: string) {
 
 /**
  * Gets a summary of payment storage status
+ * @param tenantId Optional tenant ID (uses context if not provided)
  */
-export async function getPaymentStorageStatus() {
+export async function getPaymentStorageStatus(tenantId?: string) {
   try {
-    const paymentCount = await Payment.countDocuments();
-    const transactionCount = await PaymentTransaction.countDocuments();
+    // Get tenantId from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      throw new Error('Tenant ID is required for getting payment storage status');
+    }
+    
+    const paymentCount = await Payment.countDocuments({ tenantId: effectiveTenantId });
+    const transactionCount = await PaymentTransaction.countDocuments({ tenantId: effectiveTenantId });
     
     return {
       collections: {

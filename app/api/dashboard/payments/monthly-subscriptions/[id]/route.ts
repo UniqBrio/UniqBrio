@@ -4,6 +4,7 @@ import MonthlySubscription from '@/models/dashboard/payments/MonthlySubscription
 import { validateSubscriptionStatusUpdate } from '@/lib/dashboard/payments/subscription-validation';
 import { dbConnect } from '@/lib/mongodb';
 import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
 import { AuditModule } from '@/models/AuditLog';
 
@@ -15,10 +16,22 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect();
     
-    const subscription = await MonthlySubscription.findById(params.id)
+    const subscription = await MonthlySubscription.findOne({ _id: params.id, tenantId: session.tenantId })
       .populate('paymentRecords');
     
     if (!subscription) {
@@ -42,6 +55,8 @@ export async function GET(
       { status: 500 }
     );
   }
+  }
+  );
 }
 
 /**
@@ -52,6 +67,18 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const userSession = await getUserSession();
+  
+  if (!userSession?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: userSession.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -73,8 +100,8 @@ export async function PATCH(
 
     const data = validation.data;
     
-    // Get current subscription
-    const subscription = await MonthlySubscription.findById(params.id);
+    // Get current subscription with tenant isolation
+    const subscription = await MonthlySubscription.findOne({ _id: params.id, tenantId: userSession.tenantId });
     if (!subscription) {
       return NextResponse.json(
         { error: 'Subscription not found' },
@@ -106,9 +133,9 @@ export async function PATCH(
     session.startTransaction();
     
     try {
-      // Update subscription status
-      const updatedSubscription = await MonthlySubscription.findByIdAndUpdate(
-        params.id,
+      // Update subscription status with tenant isolation
+      const updatedSubscription = await MonthlySubscription.findOneAndUpdate(
+        { _id: params.id, tenantId: userSession.tenantId },
         { 
           status: data.status,
           lastUpdatedBy: data.updatedBy
@@ -188,6 +215,8 @@ export async function PATCH(
       { status: 500 }
     );
   }
+  }
+  );
 }
 
 /**
@@ -198,6 +227,18 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const userSession = await getUserSession();
+  
+  if (!userSession?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: userSession.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
     
@@ -205,8 +246,8 @@ export async function DELETE(
     const updatedBy = searchParams.get('updatedBy') || 'system';
     const reason = searchParams.get('reason') || 'Subscription cancelled';
     
-    // Get current subscription
-    const subscription = await MonthlySubscription.findById(params.id);
+    // Get current subscription with tenant isolation
+    const subscription = await MonthlySubscription.findOne({ _id: params.id, tenantId: userSession.tenantId });
     if (!subscription) {
       return NextResponse.json(
         { error: 'Subscription not found' },
@@ -226,9 +267,9 @@ export async function DELETE(
     session.startTransaction();
     
     try {
-      // Update subscription to cancelled
-      const updatedSubscription = await MonthlySubscription.findByIdAndUpdate(
-        params.id,
+      // Update subscription to cancelled with tenant isolation
+      const updatedSubscription = await MonthlySubscription.findOneAndUpdate(
+        { _id: params.id, tenantId: userSession.tenantId },
         { 
           status: 'CANCELLED',
           lastUpdatedBy: updatedBy
@@ -248,9 +289,6 @@ export async function DELETE(
       );
       
       await session.commitTransaction();
-      
-      // Get session for audit logging
-      const userSession = await getUserSession();
       
       // Log subscription deletion to audit logger
       await logEntityDelete({
@@ -303,4 +341,6 @@ export async function DELETE(
       { status: 500 }
     );
   }
+  }
+  );
 }

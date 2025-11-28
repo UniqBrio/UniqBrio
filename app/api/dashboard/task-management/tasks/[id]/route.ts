@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import Task from "@/models/dashboard/Task"
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     const { id } = await params
     const body = await req.json()
@@ -21,8 +35,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.completedAt !== undefined && { completedAt: body.completedAt ? new Date(body.completedAt) : undefined }),
     }
     console.log('Update data being sent to MongoDB:', updateData)
-    const updated = await Task.findByIdAndUpdate(
-      id,
+    // Include tenantId in query for proper tenant isolation
+    const updated = await Task.findOneAndUpdate(
+      { _id: id, tenantId: session.tenantId },
       updateData,
       { new: true }
     )
@@ -48,16 +63,33 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message || "Failed to update task" }, { status: 400 })
   }
+    }
+  );
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     const { id } = await params
     await dbConnect("uniqbrio")
-    const res = await Task.findByIdAndDelete(id)
+    // Include tenantId in query for proper tenant isolation
+    const res = await Task.findOneAndDelete({ _id: id, tenantId: session.tenantId })
     if (!res) return NextResponse.json({ success: false, message: "Task not found" }, { status: 404 })
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message || "Failed to delete task" }, { status: 400 })
   }
+    }
+  );
 }

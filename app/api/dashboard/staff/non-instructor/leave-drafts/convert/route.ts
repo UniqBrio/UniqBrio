@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { NonInstructorLeaveDraft, NonInstructorLeaveRequest, NonInstructor, NonInstructorLeavePolicy } from "@/lib/dashboard/staff/models"
+import { getUserSession } from "@/lib/tenant/api-helpers"
+import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -15,9 +17,9 @@ function formatNiceDate(d: Date) {
   return `${day}${suffix(day)} ${monthNames[d.getMonth()]} ${d.getFullYear()}`
 }
 
-async function loadPolicy() {
+async function loadPolicy(tenantId: string) {
   try {
-    return await NonInstructorLeavePolicy.findOne({ key: 'default' }).lean()
+    return await NonInstructorLeavePolicy.findOne({ key: 'default', tenantId }).lean()
   } catch {
     return null
   }
@@ -44,20 +46,29 @@ function countWorkingDaysInclusive(start: string, end: string, workingDays = [1,
 
 // POST - Convert NI draft to NI leave request (submit/approve)
 export async function POST(req: Request) {
-  try {
-    await dbConnect("uniqbrio")
-    const body = await req.json()
-    const { draftId, status = 'PENDING' } = body
-    
-    if (!draftId) {
-      return NextResponse.json({ ok: false, error: "Draft ID is required" }, { status: 400 })
-    }
+  const session = await getUserSession()
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        const body = await req.json()
+        const { draftId, status = 'PENDING' } = body
+        
+        if (!draftId) {
+          return NextResponse.json({ ok: false, error: "Draft ID is required" }, { status: 400 })
+        }
 
-    // Find the draft
-    const draft = await NonInstructorLeaveDraft.findOne({ id: draftId }).lean()
-    if (!draft) {
-      return NextResponse.json({ ok: false, error: 'Draft not found' }, { status: 404 })
-    }
+        // Find the draft
+        const draft = await NonInstructorLeaveDraft.findOne({ id: draftId, tenantId: session.tenantId }).lean()
+        if (!draft) {
+          return NextResponse.json({ ok: false, error: 'Draft not found' }, { status: 404 })
+        }
 
     // Validate required fields for submission
     const required = ['instructorId', 'instructorName', 'leaveType', 'startDate', 'endDate', 'reason']
@@ -72,41 +83,45 @@ export async function POST(req: Request) {
     // Generate new leave request ID
     const leaveRequestId = `l${Date.now()}`
     
-    // Create leave request data from draft
-    const leaveRequestData: any = {
-      id: leaveRequestId,
-      instructorId: (draft as any).instructorId,
-      instructorName: (draft as any).instructorName,
-      status: String(status).toUpperCase(),
-      leaveType: (draft as any).leaveType,
-      startDate: (draft as any).startDate,
-      endDate: (draft as any).endDate,
-      reason: (draft as any).reason,
-      jobLevel: (draft as any).jobLevel,
-      comments: (draft as any).comments,
-      substituteId: (draft as any).substituteId,
-      substituteConfirmed: (draft as any).substituteConfirmed,
-      documents: (draft as any).documents || [],
-      carriedOver: (draft as any).carriedOver,
-      title: (draft as any).title,
-      submittedAt: new Date().toISOString()
-    }
+        // Create leave request data from draft
+        const leaveRequestData: any = {
+          id: leaveRequestId,
+          tenantId: session.tenantId,
+          instructorId: (draft as any).instructorId,
+          instructorName: (draft as any).instructorName,
+          status: String(status).toUpperCase(),
+          leaveType: (draft as any).leaveType,
+          startDate: (draft as any).startDate,
+          endDate: (draft as any).endDate,
+          reason: (draft as any).reason,
+          jobLevel: (draft as any).jobLevel,
+          comments: (draft as any).comments,
+          substituteId: (draft as any).substituteId,
+          substituteConfirmed: (draft as any).substituteConfirmed,
+          documents: (draft as any).documents || [],
+          carriedOver: (draft as any).carriedOver,
+          title: (draft as any).title,
+          submittedAt: new Date().toISOString()
+        }
 
-    // If approving directly, add approval data
-    if (String(status).toUpperCase() === 'APPROVED') {
-      ;(leaveRequestData as any).approvedAt = new Date().toISOString()
-      ;(leaveRequestData as any).registeredDate = formatNiceDate(new Date())
-    }
+        // If approving directly, add approval data
+        if (String(status).toUpperCase() === 'APPROVED') {
+          ;(leaveRequestData as any).approvedAt = new Date().toISOString()
+          ;(leaveRequestData as any).registeredDate = formatNiceDate(new Date())
+        }
 
-    try {
-      // Get non-instructor and policy for quota calculations
-      const inst = await NonInstructor.findOne({ $or: [ { externalId: (draft as any).instructorId }, { _id: (draft as any).instructorId }, { id: (draft as any).instructorId } ] }).lean()
-      const jobLevelRaw = (inst as any)?.jobLevel || (draft as any).jobLevel
-      if (jobLevelRaw) (leaveRequestData as any).jobLevel = jobLevelRaw
+        try {
+          // Get non-instructor and policy for quota calculations
+          const inst = await NonInstructor.findOne({ 
+            tenantId: session.tenantId,
+            $or: [ { externalId: (draft as any).instructorId }, { _id: (draft as any).instructorId }, { id: (draft as any).instructorId } ] 
+          }).lean()
+          const jobLevelRaw = (inst as any)?.jobLevel || (draft as any).jobLevel
+          if (jobLevelRaw) (leaveRequestData as any).jobLevel = jobLevelRaw
 
-      const policy = await loadPolicy()
-      const allocation = allocationFromPolicy(jobLevelRaw, policy)
-      const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
+          const policy = await loadPolicy(session.tenantId)
+          const allocation = allocationFromPolicy(jobLevelRaw, policy)
+          const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
 
       if (allocation !== undefined && (draft as any).startDate && (draft as any).endDate) {
         const [y, m] = String((draft as any).startDate).split('-')
@@ -125,39 +140,42 @@ export async function POST(req: Request) {
           regex = `^${y}-${m}`
         }
 
-        // Calculate existing approved leave for the period
-        const existing = await NonInstructorLeaveRequest.find({ 
-          instructorId: (draft as any).instructorId, 
-          startDate: { $regex: regex }, 
-          status: 'APPROVED' 
-        }).lean()
-        
-        const priorUsed = existing.reduce((sum, r: any) => 
-          sum + (r.days || countWorkingDaysInclusive(r.startDate, r.endDate, workingDaysArr)), 0)
-        
-        const thisDays = countWorkingDaysInclusive((draft as any).startDate, (draft as any).endDate, workingDaysArr)
-        const usedAfter = priorUsed + thisDays
-        const remainingAfter = Math.max(0, allocation - usedAfter)
+          // Calculate existing approved leave for the period
+          const existing = await NonInstructorLeaveRequest.find({ 
+            instructorId: (draft as any).instructorId, 
+            startDate: { $regex: regex }, 
+            status: 'APPROVED',
+            tenantId: session.tenantId
+          }).lean()
+          
+          const priorUsed = existing.reduce((sum, r: any) => 
+            sum + (r.days || countWorkingDaysInclusive(r.startDate, r.endDate, workingDaysArr)), 0)
+          
+          const thisDays = countWorkingDaysInclusive((draft as any).startDate, (draft as any).endDate, workingDaysArr)
+          const usedAfter = priorUsed + thisDays
+          const remainingAfter = Math.max(0, allocation - usedAfter)
 
-        ;(leaveRequestData as any).days = thisDays
-        ;(leaveRequestData as any).balance = remainingAfter
-        ;(leaveRequestData as any).limitReached = remainingAfter === 0
-        ;(leaveRequestData as any).allocationTotal = allocation
-        ;(leaveRequestData as any).allocationUsed = usedAfter
+          ;(leaveRequestData as any).days = thisDays
+          ;(leaveRequestData as any).balance = remainingAfter
+          ;(leaveRequestData as any).limitReached = remainingAfter === 0
+          ;(leaveRequestData as any).allocationTotal = allocation
+          ;(leaveRequestData as any).allocationUsed = usedAfter
+        }
+      } catch (e) {
+        console.warn('NI draft conversion quota enrichment failed', e)
       }
-    } catch (e) {
-      console.warn('NI draft conversion quota enrichment failed', e)
+
+      // Create the NI leave request
+      const leaveRequest = await NonInstructorLeaveRequest.create(leaveRequestData)
+      
+      // Delete the draft after successful conversion
+      await NonInstructorLeaveDraft.deleteOne({ id: draftId, tenantId: session.tenantId })
+
+      return NextResponse.json({ ok: true, data: leaveRequest })
+    } catch (err: any) {
+      console.error("/api/non-instructor-leave-drafts/convert POST error", err)
+      return NextResponse.json({ ok: false, error: err?.message || "Failed to convert NI draft" }, { status: 500 })
     }
-
-    // Create the NI leave request
-    const leaveRequest = await NonInstructorLeaveRequest.create(leaveRequestData)
-    
-    // Delete the draft after successful conversion
-    await NonInstructorLeaveDraft.deleteOne({ id: draftId })
-
-    return NextResponse.json({ ok: true, data: leaveRequest })
-  } catch (err: any) {
-    console.error("/api/non-instructor-leave-drafts/convert POST error", err)
-    return NextResponse.json({ ok: false, error: err?.message || "Failed to convert NI draft" }, { status: 500 })
   }
+);
 }

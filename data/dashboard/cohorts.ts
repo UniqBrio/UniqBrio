@@ -21,28 +21,22 @@ export interface Cohort {
 export async function fetchCohorts(activityId?: string): Promise<Cohort[]> {
   const url = activityId ? `/api/dashboard/student/cohorts?activity=${encodeURIComponent(activityId)}` : '/api/dashboard/student/cohorts';
   try {
-    console.groupCollapsed('[fetchCohorts] Request');
-    console.log('URL:', url);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
       credentials: 'include',
       cache: 'no-store'
     });
-    console.log('Status:', response.status);
     let json: any = null;
     try {
       json = await response.json();
     } catch (parseErr) {
-      console.error('[fetchCohorts] Failed to parse JSON', parseErr);
       throw new Error('Invalid cohorts response');
     }
     if (!response.ok) {
-      console.error('[fetchCohorts] Error payload:', json);
       throw new Error(json?.error || 'Failed to fetch cohorts');
     }
     if (!Array.isArray(json)) {
-      console.error('[fetchCohorts] Expected array, received:', json);
       return [];
     }
     const mapped: Cohort[] = [];
@@ -67,16 +61,13 @@ export async function fetchCohorts(activityId?: string): Promise<Cohort[]> {
           status: c.status || '',
           endDate: c.endDate || undefined,
         });
-      } catch (inner) {
-        console.warn('[fetchCohorts] Skipping malformed cohort doc', inner, c);
+      } catch {
+        // Skip malformed cohort doc
       }
     }
-    console.log('[fetchCohorts] mapped length:', mapped.length);
-    console.groupEnd();
     return mapped;
   } catch (error: any) {
-    console.error('[fetchCohorts] Fatal error:', error?.message || error, error);
-    console.groupEnd?.();
+    console.error('Error fetching cohorts:', error?.message);
     return [];
   }
 }

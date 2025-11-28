@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface INonInstructorAttendance extends Document {
+  tenantId: string
   instructorId: string
   instructorName: string
   date: string // yyyy-MM-dd
@@ -22,7 +24,11 @@ const NonInstructorAttendanceSchema = new Schema<INonInstructorAttendance>({
   notes: { type: String, default: null },
 }, { timestamps: true, collection: 'non_instructor attendance' })
 
-NonInstructorAttendanceSchema.index({ instructorId: 1, date: 1 }, { unique: true, name: 'uniq_non_instructor_date' })
+// Apply tenant plugin for multi-tenancy support
+NonInstructorAttendanceSchema.plugin(tenantPlugin)
+
+// Prevent duplicates (same instructor, same date, same tenant)
+NonInstructorAttendanceSchema.index({ tenantId: 1, instructorId: 1, date: 1 }, { unique: true, name: 'uniq_tenant_non_instructor_date' })
 
 export default (mongoose.models.NonInstructorAttendance as Model<INonInstructorAttendance>)
   || mongoose.model<INonInstructorAttendance>('NonInstructorAttendance', NonInstructorAttendanceSchema)

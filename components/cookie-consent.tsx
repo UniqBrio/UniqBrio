@@ -21,12 +21,16 @@ export default function CookieConsent() {
   useEffect(() => {
     // Only proceed if the authentication status is determined
     if (status === "authenticated") {
-      // User is logged in, now check if they've already given consent
+      // Check if user has already given consent (via cookie)
       const hasConsent = getCookieConsent()
-      if (!hasConsent) {
+      
+      // Also check localStorage for consent preference (persists across sessions)
+      const hasStoredPreference = typeof window !== 'undefined' && localStorage.getItem('cookieConsentGiven') === 'true'
+      
+      if (!hasConsent && !hasStoredPreference) {
         setShowConsent(true) // Show consent banner if logged in and no consent given
       } else {
-        setShowConsent(false) // Hide if logged in but consent already given
+        setShowConsent(false) // Hide if consent already given
       }
     } else {
       // If user is not authenticated (or session is loading),
@@ -37,6 +41,10 @@ export default function CookieConsent() {
 
   const acceptAll = () => {
     setCookieConsent("all")
+    // Store in localStorage so it persists even if cookie is cleared
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cookieConsentGiven', 'true')
+    }
     setShowConsent(false)
     setShowPreferences(false)
   }
@@ -44,6 +52,10 @@ export default function CookieConsent() {
   const savePreferences = () => {
     const consentType = preferences.analytics ? "all" : "essential"
     setCookieConsent(consentType)
+    // Store in localStorage so it persists even if cookie is cleared
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cookieConsentGiven', 'true')
+    }
     setShowConsent(false)
     setShowPreferences(false)
   }

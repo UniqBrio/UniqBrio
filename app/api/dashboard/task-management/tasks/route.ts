@@ -39,7 +39,8 @@ export async function GET() {
     async () => {
   try {
     await dbConnect("uniqbrio")
-    const tasks = await Task.find().sort({ targetDate: 1, createdAt: -1 }).lean()
+    // Explicit tenantId filter for proper tenant isolation
+    const tasks = await Task.find({ tenantId: session.tenantId }).sort({ targetDate: 1, createdAt: -1 }).lean()
 
     // Normalize for client
     const data = tasks.map((t: any) => ({
@@ -80,7 +81,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     await dbConnect("uniqbrio")
-    const doc = await Task.create(toDoc(body))
+    // Include tenantId for proper tenant isolation
+    const doc = await Task.create({ ...toDoc(body), tenantId: session.tenantId })
     return NextResponse.json({ success: true, id: doc._id.toString() }, { status: 201 })
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message || "Failed to create task" }, { status: 400 })

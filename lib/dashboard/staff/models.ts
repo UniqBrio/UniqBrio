@@ -1,4 +1,5 @@
 ﻿import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 // Re-export existing models from the models directory
 export { default as Instructor } from "@/models/dashboard/staff/Instructor"
@@ -47,7 +48,7 @@ export interface ILeaveRequest extends Document {
 }
 
 const LeaveRequestSchema = new Schema<ILeaveRequest>({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true },
   instructorId: { type: String, required: true, index: true },
   instructorName: { type: String, required: true },
   status: { type: String, enum: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'], required: true },
@@ -75,6 +76,12 @@ const LeaveRequestSchema = new Schema<ILeaveRequest>({
   allocationTotal: Number,
   allocationUsed: Number,
 }, { timestamps: true })
+
+// Apply tenant plugin for multi-tenancy support
+LeaveRequestSchema.plugin(tenantPlugin);
+
+// Tenant-scoped unique index for leave request id
+LeaveRequestSchema.index({ tenantId: 1, id: 1 }, { unique: true });
 
 // In Next.js dev/hot-reload, a previously-compiled model may not include newly-added
 // schema paths (e.g., courseName/cohortName). When that happens, Mongoose will
@@ -114,7 +121,7 @@ export interface IInstructorLeaveDraft extends Document {
 }
 
 const InstructorLeaveDraftSchema = new Schema<IInstructorLeaveDraft>({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true },
   instructorId: { type: String, required: true, index: true },
   instructorName: { type: String, required: true },
   leaveType: String,
@@ -132,6 +139,12 @@ const InstructorLeaveDraftSchema = new Schema<IInstructorLeaveDraft>({
   title: String,
 }, { timestamps: true })
 
+// Apply tenant plugin for multi-tenancy support
+InstructorLeaveDraftSchema.plugin(tenantPlugin);
+
+// Tenant-scoped unique index for leave draft id
+InstructorLeaveDraftSchema.index({ tenantId: 1, id: 1 }, { unique: true });
+
 export interface ILeavePolicy extends Document {
   key: string
   quotaType: 'Monthly Quota' | 'Quarterly Quota' | 'Yearly Quota'
@@ -147,7 +160,7 @@ export interface ILeavePolicy extends Document {
 }
 
 const LeavePolicySchema = new Schema<ILeavePolicy>({
-  key: { type: String, required: true, unique: true },
+  key: { type: String, required: true },
   quotaType: { 
     type: String, 
     enum: ['Monthly Quota', 'Quarterly Quota', 'Yearly Quota'],
@@ -161,6 +174,12 @@ const LeavePolicySchema = new Schema<ILeavePolicy>({
   carryForward: { type: Boolean, default: true },
   workingDays: { type: [Number], default: [1, 2, 3, 4, 5, 6] },
 }, { timestamps: true })
+
+// Apply tenant plugin for multi-tenancy support
+LeavePolicySchema.plugin(tenantPlugin);
+
+// Tenant-scoped unique index for leave policy key
+LeavePolicySchema.index({ tenantId: 1, key: 1 }, { unique: true });
 
 export const LeaveRequest = ensurePaths<ILeaveRequest>(
   "LeaveRequest",

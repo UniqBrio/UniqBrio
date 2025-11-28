@@ -36,7 +36,7 @@ export async function GET() {
 
     // Recompute ALL allocation metadata so every row for an instructor shares the SAME aggregate usage + total.
     // Simpler interpretation: used = total approved leave days (all time) for that instructor; total = current job level allocation.
-  const policy = await loadPolicy()
+  const policy = await loadPolicy(session.tenantId)
     const allocs = policy?.allocations || { junior: 12, senior: 16, managers: 24 }
   const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
     const instructors = await Instructor.find({ tenantId: session.tenantId }).lean()
@@ -230,9 +230,9 @@ export async function GET() {
 }
 
 // Fetch policy fresh each call (small collection, inexpensive). Avoid stale quotaType after edits.
-async function loadPolicy() {
+async function loadPolicy(tenantId: string) {
   try {
-    return await LeavePolicy.findOne({ key: 'default' }).lean()
+    return await LeavePolicy.findOne({ key: 'default', tenantId }).lean()
   } catch {
     return null
   }
@@ -290,12 +290,12 @@ export async function POST(req: Request) {
       }
       try {
         const { startDate: start, endDate: end, instructorId } = body
-        const inst = await Instructor.findOne({ id: instructorId }).lean()
+        const inst = await Instructor.findOne({ id: instructorId, tenantId: session.tenantId }).lean()
     const jobLevelRaw: string | undefined = inst?.jobLevel || body.jobLevel || body.selectedJobLevel
         if (!body.jobLevel && jobLevelRaw) body.jobLevel = jobLevelRaw
-  const policy = await loadPolicy()
+  const policy = await loadPolicy(session.tenantId)
   const allocation = allocationFromPolicy(jobLevelRaw, policy)
-  const policyDoc = await loadPolicy()
+  const policyDoc = await loadPolicy(session.tenantId)
   const workingDaysArr = Array.isArray(policyDoc?.workingDays) && policyDoc!.workingDays.length ? policyDoc!.workingDays : [1,2,3,4,5,6]
         if (allocation !== undefined && start && end) {
           const [y, m] = start.split('-')
@@ -314,7 +314,7 @@ export async function POST(req: Request) {
           } else { // Monthly
             regex = `^${y}-${m}`
           }
-          const existing = await LeaveRequest.find({ instructorId, startDate: { $regex: regex }, status: 'APPROVED' }).lean()
+          const existing = await LeaveRequest.find({ instructorId, startDate: { $regex: regex }, status: 'APPROVED', tenantId: session.tenantId }).lean()
           const priorUsed = existing.reduce((sum, r:any) => sum + (r.days || countWorkingDaysInclusive(r.startDate, r.endDate, workingDaysArr)), 0)
           const thisDays = body.days || countWorkingDaysInclusive(start, end, workingDaysArr)
           const usedAfter = priorUsed + thisDays
@@ -339,7 +339,7 @@ export async function POST(req: Request) {
 
     // Enrich with course/cohort names and IDs based on instructor data using safe, constrained logic
     try {
-      const inst = await Instructor.findOne({ $or: [ { id: body.instructorId }, { externalId: body.instructorId } ] }).lean()
+      const inst = await Instructor.findOne({ $or: [ { id: body.instructorId, tenantId: session.tenantId }, { externalId: body.instructorId, tenantId: session.tenantId } ] }).lean()
       let courseName = (inst as any)?.courseAssigned || ''
       let cohortName = (inst as any)?.cohortName || ''
       let courseId = ''
@@ -417,6 +417,8 @@ export async function POST(req: Request) {
       if (cohortId) body.cohortId = cohortId
     } catch {}
 
+    // Ensure tenantId is set on the body
+    body.tenantId = session.tenantId
     const created = await LeaveRequest.create(body)
     return NextResponse.json({ ok: true, data: created })
   } catch (err: any) {
@@ -443,7 +445,7 @@ export async function PUT(req: Request) {
     if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
 
     // Fetch existing to know current status
-    const existing = await LeaveRequest.findOne({ id }).lean()
+    const existing = await LeaveRequest.findOne({ id, tenantId: session.tenantId }).lean()
     if (!existing) return NextResponse.json({ ok: false, error: 'Leave request not found' }, { status: 404 })
 
     const nextStatus = updates?.status || existing.status
@@ -463,12 +465,12 @@ export async function PUT(req: Request) {
         }
       }
       try {
-        const inst = await Instructor.findOne({ id: merged.instructorId }).lean()
+        const inst = await Instructor.findOne({ id: merged.instructorId, tenantId: session.tenantId }).lean()
   const jobLevelRaw: string | undefined = inst?.jobLevel || merged.jobLevel || updates?.selectedJobLevel
         if (!updates.jobLevel && jobLevelRaw) updates.jobLevel = jobLevelRaw
-        const policy = await loadPolicy()
+        const policy = await loadPolicy(session.tenantId)
   const allocation = allocationFromPolicy(jobLevelRaw, policy)
-  const policyDoc = await loadPolicy()
+  const policyDoc = await loadPolicy(session.tenantId)
   const workingDaysArr = Array.isArray(policyDoc?.workingDays) && policyDoc!.workingDays.length ? policyDoc!.workingDays : [1,2,3,4,5,6]
         if (allocation !== undefined && merged.startDate && merged.endDate) {
           const [y,m] = merged.startDate.split('-')
@@ -486,7 +488,7 @@ export async function PUT(req: Request) {
           } else { // Monthly
             regex = `^${y}-${m}`
           }
-          const already = await LeaveRequest.find({ instructorId: merged.instructorId, startDate: { $regex: regex }, status: 'APPROVED', id: { $ne: existing.id } }).lean()
+          const already = await LeaveRequest.find({ instructorId: merged.instructorId, startDate: { $regex: regex }, status: 'APPROVED', id: { $ne: existing.id }, tenantId: session.tenantId }).lean()
           const priorUsed = already.reduce((sum, r:any) => sum + (r.days || countWorkingDaysInclusive(r.startDate, r.endDate, workingDaysArr)), 0)
           const thisDays = merged.days || countWorkingDaysInclusive(merged.startDate, merged.endDate, workingDaysArr)
           const usedAfter = priorUsed + thisDays
@@ -513,7 +515,7 @@ export async function PUT(req: Request) {
 
     // Enrich updates with course/cohort names and IDs using the same safe, constrained logic
     try {
-      const inst = await Instructor.findOne({ $or: [ { id: existing.instructorId }, { externalId: existing.instructorId } ] }).lean()
+      const inst = await Instructor.findOne({ $or: [ { id: existing.instructorId, tenantId: session.tenantId }, { externalId: existing.instructorId, tenantId: session.tenantId } ] }).lean()
       let courseName = updates.courseName || (inst as any)?.courseAssigned || ''
       let cohortName = updates.cohortName || (inst as any)?.cohortName || ''
       let courseId = updates.courseId || ''
@@ -612,19 +614,20 @@ export async function DELETE(req: Request) {
         const id = searchParams.get("id")
         if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 })
         // Find the leave first to cascade delete planned attendance in the same date range
-        const leave = await LeaveRequest.findOne({ id }).lean()
+        const leave = await LeaveRequest.findOne({ id, tenantId: session.tenantId }).lean()
         if (leave) {
           try {
             await InstructorAttendanceModel.deleteMany({
               instructorId: leave.instructorId,
               date: { $gte: leave.startDate, $lte: leave.endDate },
               status: 'planned',
+              tenantId: session.tenantId,
             })
           } catch (e) {
             console.warn('Failed to cascade delete instructor planned attendance for leave', id, e)
           }
         }
-        await LeaveRequest.deleteOne({ id })
+        await LeaveRequest.deleteOne({ id, tenantId: session.tenantId })
         return NextResponse.json({ ok: true })
       } catch (err: any) {
         console.error("/api/leave-requests DELETE error", err)

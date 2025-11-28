@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
         const cohortId = searchParams.get('cohortId');
         const status = searchParams.get('status');
 
-        // Build query
-        const query: any = {};
+        // Build query with tenant isolation
+        const query: any = { tenantId: session.tenantId };
         if (studentId) query.studentId = studentId;
         if (courseId) query.enrolledCourse = courseId;
         if (cohortId) query.cohortId = cohortId;
@@ -123,8 +123,8 @@ export async function POST(request: NextRequest) {
       receivedAmount = 0,
     } = body;
 
-    // Fetch student details
-    const student = await Student.findOne({ studentId }).lean();
+    // Fetch student details with tenant isolation
+    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
     if (!student) {
       return NextResponse.json(
         { error: 'Student not found' },
@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if payment record already exists
-    const existingPayment = await Payment.findOne({ studentId });
+    // Check if payment record already exists with tenant isolation
+    const existingPayment = await Payment.findOne({ studentId, tenantId: session.tenantId });
     if (existingPayment) {
       return NextResponse.json(
         { error: 'Payment record already exists for this student' },
@@ -141,18 +141,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get course info from cohort
+    // Get course info from cohort with tenant isolation
     let courseId = (student as any).enrolledCourse || (student as any).courseOfInterestId;
     let courseFee = 0;
     let courseName = (student as any).enrolledCourseName;
     
     if ((student as any).cohortId) {
       const Cohort = mongoose.connection.collection('cohorts');
-      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId });
+      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId });
       if (cohort?.courseId) {
         courseId = cohort.courseId;
         const Course = mongoose.connection.collection('courses');
-        const course = await Course.findOne({ courseId: cohort.courseId });
+        const course = await Course.findOne({ courseId: cohort.courseId, tenantId: session.tenantId });
         if (course) {
           courseFee = course.priceINR || 0;
           courseName = course.name || courseName;
@@ -160,8 +160,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create new payment record
+    // Create new payment record with explicit tenant isolation
     const payment = await Payment.create({
+      tenantId: session.tenantId,
       studentId: (student as any).studentId,
       studentName: (student as any).name,
       studentCategory: (student as any).category,
@@ -214,8 +215,8 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const payment = await Payment.findByIdAndUpdate(
-      id,
+    const payment = await Payment.findOneAndUpdate(
+      { _id: id, tenantId: session.tenantId },
       { 
         receivedAmount,
         lastPaymentDate: new Date(),

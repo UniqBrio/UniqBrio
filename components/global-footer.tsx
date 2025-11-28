@@ -1,8 +1,17 @@
 "use client"
 
-import Link from "next/link"
 import { useState } from "react"
 import dynamic from "next/dynamic"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { TermsContent } from "@/components/legal/terms-content"
+import { PrivacyContent } from "@/components/legal/privacy-content"
+import { CookiesContent } from "@/components/legal/cookies-content"
 
 const CookiePreferencesModal = dynamic(() => import("@/components/cookie-preferences-modal"), { ssr: false })
 
@@ -19,26 +28,50 @@ export default function GlobalFooter() {
               © {new Date().getFullYear()} UniqBrio. All rights reserved.
             </div>
 
-            {/* Legal Links */}
+            {/* Legal Links as Dialogs */}
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-              <Link 
-                href="/legal/terms" 
-                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
-              >
-                Our Promise to You
-              </Link>
-              <Link 
-                href="/legal/privacy" 
-                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
-              >
-                How We Protect Your Academy
-              </Link>
-              <Link 
-                href="/legal/cookies" 
-                className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"
-              >
-                Cookie Policy
-              </Link>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors">
+                    Our Promise to You
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Terms of Service</DialogTitle>
+                  </DialogHeader>
+                  <TermsContent />
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors">
+                    How We Protect Your Academy
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Privacy Policy</DialogTitle>
+                  </DialogHeader>
+                  <PrivacyContent />
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors">
+                    Cookie Policy
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Cookie Policy</DialogTitle>
+                  </DialogHeader>
+                  <CookiesContent />
+                </DialogContent>
+              </Dialog>
+
               <button
                 onClick={() => setShowCookieModal(true)}
                 className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors"

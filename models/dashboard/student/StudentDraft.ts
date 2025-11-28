@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 interface IStudentDraft extends mongoose.Document {
   id: string;
@@ -9,6 +10,7 @@ interface IStudentDraft extends mongoose.Document {
   createdAt: Date;
   data: Record<string, any>;
   userId?: string; // For multi-user support in future
+  tenantId?: string;
 }
 
 const StudentDraftSchema = new mongoose.Schema({
@@ -43,6 +45,12 @@ const StudentDraftSchema = new mongoose.Schema({
   timestamps: true,
   collection: 'student_drafts'
 });
+
+// Apply tenant plugin for multi-tenancy support
+StudentDraftSchema.plugin(tenantPlugin);
+
+// Add tenant-specific index
+StudentDraftSchema.index({ tenantId: 1, createdAt: -1 });
 
 // Update lastUpdated on save
 StudentDraftSchema.pre('save', function(next) {

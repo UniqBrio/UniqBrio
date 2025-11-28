@@ -333,26 +333,22 @@ export default function StudentsPage() {
     setStudentsLoading(true);
     setLoading(true);
     try {
-      console.log('🔄 Loading students data...');
-      // Force reconciliation on backend so any cohort membership updates are applied
-      const res = await fetch('/api/dashboard/student/students?reconcile', {
+      // Only use reconcile when explicitly needed, not on regular loads
+      const res = await fetch('/api/dashboard/student/students', {
         credentials: 'include',
       });
-      console.log('📡 Students API Response status:', res.status);
       
       if (res.ok) {
         const data = await res.json();
-        console.log('📊 Students API Response data:', data);
         
         const mappedStudents = data.map((s: any) => ({
           ...s,
           id: s.id || s.studentId,
         }));
         
-        console.log('✅ Mapped students data:', mappedStudents.length, 'students');
         setStudentList(mappedStudents);
       } else {
-        console.warn('❌ refreshStudents: backend returned non-ok status', res.status);
+        console.warn('refreshStudents: backend returned non-ok status', res.status);
       }
     } catch (error) {
       console.error('Failed to refresh students:', error);
@@ -396,27 +392,23 @@ export default function StudentsPage() {
     refreshStudents();
     fetchAchievements()
       .then((data) => {
-        console.log('✅ Loaded achievements:', data.length, 'achievements');
         setAchievements(data);
       })
       .catch((error) => {
-        console.error('❌ Failed to load achievements:', error);
+        console.error('Failed to load achievements:', error);
         setAchievements([]);
       });
     
     // Preload attendance data in the background
     const loadAttendanceData = async () => {
       try {
-        console.log('🔄 Loading attendance data...');
         setAttendanceLoading(true);
         const response = await fetch('/api/dashboard/student/attendance', {
           credentials: 'include',
         });
-        console.log('📡 Attendance API Response status:', response.status);
         
         if (response.ok) {
           const result = await response.json();
-          console.log('📊 Attendance API Response data:', result);
           
           if (result.success) {
             // Map MongoDB _id to id for frontend compatibility
@@ -424,13 +416,8 @@ export default function StudentsPage() {
               ...record,
               id: record._id
             }));
-            console.log('✅ Mapped attendance data:', mappedData.length, 'records');
             setAttendanceData(mappedData);
-          } else {
-            console.warn('⚠️ Attendance API returned success: false');
           }
-        } else {
-          console.error('❌ Attendance API request failed:', response.status);
         }
       } catch (error) {
         console.error('Error preloading attendance data:', error);

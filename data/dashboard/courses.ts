@@ -17,34 +17,27 @@ export interface Course {
 // Function to fetch courses from the API
 export async function fetchCourses(): Promise<Course[]> {
   try {
-    const start = performance.now?.() || Date.now();
-    console.groupCollapsed('[fetchCourses] start');
-    console.log('Fetching courses from API...');
     const response = await fetch('/api/dashboard/student/courses', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       cache: 'no-store', // Disable cache to ensure fresh data
-      next: { revalidate: 0 } // Disable Next.js cache
     });
-
-    console.log('API Response status:', response.status);
     
     const data = await response.json();
     
     if (!response.ok) {
-      console.error('API Error:', data);
       throw new Error(data.details || data.error || 'Failed to fetch courses');
     }
 
     if (!Array.isArray(data)) {
-      console.error('Unexpected courses data format:', data);
       throw new Error('Invalid courses data received');
     }
 
-    const mapped = data.map((c: any) => ({
+    return data.map((c: any) => ({
       id: c.id,
       name: c.name,
       description: c.description,
@@ -57,17 +50,8 @@ export async function fetchCourses(): Promise<Course[]> {
       status: c.status,
       courseId: c.courseId,
     }));
-    const duration = (performance.now?.() || Date.now()) - start;
-    console.log('Successfully fetched courses:', mapped.length, 'in', duration.toFixed(1), 'ms');
-    console.groupEnd();
-    return mapped;
   } catch (error: any) {
-    console.error('Error in fetchCourses:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
-    console.groupEnd?.();
+    console.error('Error fetching courses:', error.message);
     throw error;
   }
 }

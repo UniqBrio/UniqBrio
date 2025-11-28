@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
-import { Megaphone, Trophy, AlertCircle, Info, Sparkles, X, Bell, BellRing } from "lucide-react";
+import { Megaphone, Trophy, AlertCircle, Info, Sparkles, X, Bell, BellRing, Loader2 } from "lucide-react";
 import { useCustomColors } from "@/lib/use-custom-colors";
 
 interface Announcement {
@@ -27,40 +27,51 @@ export function Announcements({
   const { primaryColor, secondaryColor } = useCustomColors();
   const [isHovered, setIsHovered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>([
-    {
-      id: "1",
-      type: "achievement",
-      title: "New Milestone Reached!",
-      message: "Our academy has successfully enrolled 500+ students this semester!",
-      timestamp: new Date(Date.now() - 2 * 60 * 60000),
-      isRead: false,
-      priority: "high",
-    },
-    {
-      id: "2",
-      type: "update",
-      title: "Platform Update v2.5",
-      message:
-        "New features added: Enhanced scheduling, improved attendance tracking, and financial analytics dashboard.",
-      timestamp: new Date(Date.now() - 24 * 60 * 60000),
-      isRead: false,
-      priority: "medium",
-    },
-    {
-      id: "3",
-      type: "alert",
-      title: "System Maintenance Notice",
-      message:
-        "Scheduled maintenance on Sunday, Nov 24 from 2:00 AM - 4:00 AM. Some services may be temporarily unavailable.",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60000),
-      isRead: true,
-      priority: "high",
-    },
-  ]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  // Fetch announcements from API
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/announcements");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setAnnouncements(
+              data.data.map((ann: any) => ({
+                ...ann,
+                timestamp: new Date(ann.timestamp),
+                isRead: false,
+              }))
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch announcements:", error);
+        // Fallback to default announcements if API fails
+        setAnnouncements([
+          {
+            id: "1",
+            type: "info",
+            title: "Welcome to UniqBrio",
+            message: "Stay tuned for the latest updates and announcements from your academy.",
+            timestamp: new Date(),
+            isRead: false,
+            priority: "medium",
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
 
   const getAnnouncementIcon = (type: Announcement["type"]) => {
     const iconMap = {

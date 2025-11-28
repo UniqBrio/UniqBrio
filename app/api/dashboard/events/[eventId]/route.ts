@@ -40,8 +40,11 @@ export async function GET(
     }
 
     // Build query that only tries to match _id when eventId is a valid ObjectId
+    // Include tenantId for proper tenant isolation
     const isObjectId = mongoose.isValidObjectId(eventId)
-    const findQuery: any = isObjectId ? { $or: [{ eventId }, { _id: eventId }] } : { eventId }
+    const findQuery: any = isObjectId 
+      ? { tenantId: session.tenantId, $or: [{ eventId }, { _id: eventId }] } 
+      : { tenantId: session.tenantId, eventId }
     const event = await Event.findOne(findQuery);
 
     // don't return soft-deleted events
@@ -127,8 +130,11 @@ export async function PATCH(
 
     console.log('Update data after date conversion:', JSON.stringify(body, null, 2))
 
+    // Include tenantId for proper tenant isolation
     const isObjectId2 = mongoose.isValidObjectId(eventId)
-    const updateQuery: any = isObjectId2 ? { $or: [{ eventId }, { _id: eventId }] } : { eventId }
+    const updateQuery: any = isObjectId2 
+      ? { tenantId: session.tenantId, $or: [{ eventId }, { _id: eventId }] } 
+      : { tenantId: session.tenantId, eventId }
     
     console.log('Update query:', updateQuery)
     
@@ -245,7 +251,10 @@ export async function DELETE(
     const force = url.searchParams.get('force') === 'true'
 
     if (force) {
-      const delQuery: any = mongoose.isValidObjectId(eventId) ? { $or: [{ eventId }, { _id: eventId }] } : { eventId }
+      // Include tenantId for proper tenant isolation
+      const delQuery: any = mongoose.isValidObjectId(eventId) 
+        ? { tenantId: session.tenantId, $or: [{ eventId }, { _id: eventId }] } 
+        : { tenantId: session.tenantId, eventId }
       const deletedEvent = await Event.findOneAndDelete(delQuery)
       if (!deletedEvent) {
         return NextResponse.json(
@@ -280,7 +289,10 @@ export async function DELETE(
       return NextResponse.json({ success: true, message: 'Event permanently deleted', data: deletedEvent }, { status: 200 })
     }
 
-    const softQuery: any = mongoose.isValidObjectId(eventId) ? { $or: [{ eventId }, { _id: eventId }] } : { eventId }
+    // Include tenantId for proper tenant isolation
+    const softQuery: any = mongoose.isValidObjectId(eventId) 
+      ? { tenantId: session.tenantId, $or: [{ eventId }, { _id: eventId }] } 
+      : { tenantId: session.tenantId, eventId }
     const softDeleted = await Event.findOneAndUpdate(
       softQuery,
       { $set: { isDeleted: true, deletedAt: new Date() } },

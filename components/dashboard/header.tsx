@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { useCustomColors } from "@/lib/use-custom-colors"
 import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
+import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
 
 interface HeaderProps {
   
@@ -148,6 +149,10 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
 
   const handleLogout = async () => {
     try {
+      // Broadcast logout to other tabs before logging out
+      clearTabSession()
+      broadcastSessionChange("LOGOUT")
+      
       // Call logout API
       await fetch("/api/auth/logout", { 
         method: "POST",

@@ -1,6 +1,7 @@
 ﻿import PaymentRecordModel from '@/models/dashboard/payments/PaymentRecord';
 import Payment from '@/models/dashboard/payments/Payment';
 import mongoose from 'mongoose';
+import { getTenantContext, requireTenantId } from '@/lib/tenant/tenant-context';
 import {
   PaymentRecord,
   PaymentBalance,
@@ -104,14 +105,25 @@ export function validatePaymentRecord(
 /**
  * Add a new payment record
  * @param data Payment record data
+ * @param tenantId Optional tenant ID (uses context if not provided)
  * @returns Created payment record
  */
 export async function addPaymentRecord(
-  data: AddPaymentRecordData
+  data: AddPaymentRecordData,
+  tenantId?: string
 ): Promise<{ success: boolean; record?: PaymentRecord; error?: string }> {
   try {
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      return {
+        success: false,
+        error: 'Tenant context required for payment operations',
+      };
+    }
+
     // Validate payment data
-    const currentBalance = await calculateRemainingBalance(data.paymentId);
+    const currentBalance = await calculateRemainingBalance(data.paymentId, effectiveTenantId);
     const validation = validatePaymentRecord(data, currentBalance);
 
     if (!validation.isValid) {
@@ -121,8 +133,9 @@ export async function addPaymentRecord(
       };
     }
 
-    // Create payment record
+    // Create payment record with tenant isolation
     const recordData: any = {
+      tenantId: effectiveTenantId,
       paymentId: new mongoose.Types.ObjectId(data.paymentId),
       studentId: data.studentId,
       studentName: data.studentName,
@@ -168,7 +181,7 @@ export async function addPaymentRecord(
     }
 
     // Update main payment document
-    await updatePaymentTotals(data.paymentId);
+    await updatePaymentTotals(data.paymentId, effectiveTenantId);
 
     return {
       success: true,
@@ -191,6 +204,7 @@ export async function addPaymentRecord(
  * Get payment history for a specific payment
  * @param paymentId Payment ID
  * @param options Query options
+ * @param tenantId Optional tenant ID (uses context if not provided)
  * @returns Array of payment records
  */
 export async function getPaymentHistory(
@@ -201,11 +215,20 @@ export async function getPaymentHistory(
     limit?: number;
     skip?: number;
     includeDeleted?: boolean;
-  }
+  },
+  tenantId?: string
 ): Promise<PaymentRecord[]> {
   try {
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      console.error('Tenant context required for getPaymentHistory');
+      return [];
+    }
+
     const query: any = {
       paymentId: new mongoose.Types.ObjectId(paymentId),
+      tenantId: effectiveTenantId,
     };
 
     if (!options?.includeDeleted) {
@@ -235,24 +258,33 @@ export async function getPaymentHistory(
 /**
  * Calculate remaining balance for a payment
  * @param paymentId Payment ID
+ * @param tenantId Optional tenant ID (uses context if not provided)
  * @returns Payment balance details
  */
 export async function calculateRemainingBalance(
-  paymentId: string
+  paymentId: string,
+  tenantId?: string
 ): Promise<PaymentBalance> {
   try {
-    // Get payment document
-    const payment = await Payment.findById(paymentId);
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      throw new Error('Tenant context required for payment operations');
+    }
+    
+    // Get payment document with tenant isolation
+    const payment = await Payment.findOne({ _id: paymentId, tenantId: effectiveTenantId });
     
     if (!payment) {
       throw new Error('Payment not found');
     }
 
-    // Calculate total paid from payment records
+    // Calculate total paid from payment records with tenant isolation
     const totalPaidResult = await PaymentRecordModel.aggregate([
       {
         $match: {
           paymentId: new mongoose.Types.ObjectId(paymentId),
+          tenantId: effectiveTenantId,
           isDeleted: false,
           status: { $in: ['VERIFIED', 'CONFIRMED'] },
         },
@@ -287,9 +319,10 @@ export async function calculateRemainingBalance(
       status = 'PARTIAL';
     }
 
-    // Get last payment date
+    // Get last payment date with tenant isolation
     const lastPayment = await PaymentRecordModel.findOne({
       paymentId: new mongoose.Types.ObjectId(paymentId),
+      tenantId: effectiveTenantId,
       isDeleted: false,
     })
       .sort({ paidDate: -1 })
@@ -313,25 +346,35 @@ export async function calculateRemainingBalance(
 /**
  * Update payment totals in the main Payment document
  * @param paymentId Payment ID
+ * @param tenantId Tenant ID for isolation
  */
-async function updatePaymentTotals(paymentId: string): Promise<void> {
+async function updatePaymentTotals(paymentId: string, tenantId?: string): Promise<void> {
   try {
-    const balance = await calculateRemainingBalance(paymentId);
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      throw new Error('Tenant context required for updatePaymentTotals');
+    }
 
-    // Update payment document
-    await Payment.findByIdAndUpdate(paymentId, {
-      receivedAmount: balance.totalPaid,
-      outstandingAmount: balance.remainingAmount,
-      collectionRate: balance.collectionRate,
-      lastPaymentDate: balance.lastPaymentDate,
-      paymentStatus: balance.status,
-      status:
-        balance.status === 'PAID' || balance.status === 'OVERPAID'
-          ? 'Completed'
-          : balance.status === 'PARTIAL'
-          ? 'Partial'
-          : 'Pending',
-    });
+    const balance = await calculateRemainingBalance(paymentId, effectiveTenantId);
+
+    // Update payment document with tenant isolation
+    await Payment.findOneAndUpdate(
+      { _id: paymentId, tenantId: effectiveTenantId },
+      {
+        receivedAmount: balance.totalPaid,
+        outstandingAmount: balance.remainingAmount,
+        collectionRate: balance.collectionRate,
+        lastPaymentDate: balance.lastPaymentDate,
+        paymentStatus: balance.status,
+        status:
+          balance.status === 'PAID' || balance.status === 'OVERPAID'
+            ? 'Completed'
+            : balance.status === 'PARTIAL'
+            ? 'Partial'
+            : 'Pending',
+      }
+    );
   } catch (error) {
     console.error('Error updating payment totals:', error);
     throw error;
@@ -344,21 +387,28 @@ async function updatePaymentTotals(paymentId: string): Promise<void> {
  * @returns Invoice breakdown details
  */
 export async function generateInvoiceBreakdown(
-  paymentId: string
+  paymentId: string,
+  tenantId?: string
 ): Promise<InvoiceBreakdown | null> {
   try {
-    // Get payment document
-    const payment = await Payment.findById(paymentId);
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      throw new Error('Tenant context required for payment operations');
+    }
+    
+    // Get payment document with tenant isolation
+    const payment = await Payment.findOne({ _id: paymentId, tenantId: effectiveTenantId });
     
     if (!payment) {
       throw new Error('Payment not found');
     }
 
-    // Get payment history
+    // Get payment history with tenant isolation
     const paymentRecords = await getPaymentHistory(paymentId, {
       sortBy: 'paidDate',
       sortOrder: 'asc',
-    });
+    }, effectiveTenantId);
 
     // Calculate totals
     const totalPaid = paymentRecords.reduce((sum, record) => sum + record.paidAmount, 0);
@@ -426,10 +476,17 @@ export async function generateInvoiceBreakdown(
  * @returns Payment record
  */
 export async function getPaymentRecordById(
-  recordId: string
+  recordId: string,
+  tenantId?: string
 ): Promise<PaymentRecord | null> {
   try {
-    const record = await PaymentRecordModel.findById(recordId).lean();
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      throw new Error('Tenant context required for payment operations');
+    }
+    
+    const record = await PaymentRecordModel.findOne({ _id: recordId, tenantId: effectiveTenantId }).lean();
     if (!record) return null;
     return {
       ...record,
@@ -450,14 +507,24 @@ export async function getPaymentRecordById(
  */
 export async function updatePaymentRecord(
   recordId: string,
-  updates: Partial<PaymentRecord>
+  updates: Partial<PaymentRecord>,
+  tenantId?: string
 ): Promise<{ success: boolean; record?: PaymentRecord; error?: string }> {
   try {
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      return {
+        success: false,
+        error: 'Tenant context required for payment operations',
+      };
+    }
+    
     // Prevent updating critical fields
     const { _id, paymentId, studentId, createdAt, ...allowedUpdates } = updates;
 
-    const record = await PaymentRecordModel.findByIdAndUpdate(
-      recordId,
+    const record = await PaymentRecordModel.findOneAndUpdate(
+      { _id: recordId, tenantId: effectiveTenantId },
       { $set: allowedUpdates },
       { new: true, runValidators: true }
     ).lean();
@@ -469,9 +536,9 @@ export async function updatePaymentRecord(
       };
     }
 
-    // Update payment totals if amount changed
+    // Update payment totals if amount changed with tenant isolation
     if (updates.paidAmount) {
-      await updatePaymentTotals(record.paymentId.toString());
+      await updatePaymentTotals(record.paymentId.toString(), effectiveTenantId);
     }
 
     return {
@@ -495,15 +562,26 @@ export async function updatePaymentRecord(
  * Soft delete payment record
  * @param recordId Payment record ID
  * @param deletedBy User who deleted the record
+ * @param tenantId Optional tenant ID (uses context if not provided)
  * @returns Success status
  */
 export async function deletePaymentRecord(
   recordId: string,
-  deletedBy: string
+  deletedBy: string,
+  tenantId?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const record = await PaymentRecordModel.findByIdAndUpdate(
-      recordId,
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      return {
+        success: false,
+        error: 'Tenant context required for payment operations',
+      };
+    }
+
+    const record = await PaymentRecordModel.findOneAndUpdate(
+      { _id: recordId, tenantId: effectiveTenantId },
       {
         $set: {
           isDeleted: true,
@@ -521,8 +599,8 @@ export async function deletePaymentRecord(
       };
     }
 
-    // Update payment totals
-    await updatePaymentTotals(record.paymentId.toString());
+    // Update payment totals with tenant isolation
+    await updatePaymentTotals(record.paymentId.toString(), effectiveTenantId);
 
     return { success: true };
   } catch (error: any) {
@@ -537,14 +615,23 @@ export async function deletePaymentRecord(
 /**
  * Get payment summary for a student
  * @param studentId Student ID
+ * @param tenantId Optional tenant ID (uses context if not provided)
  * @returns Array of payment summaries
  */
-export async function getStudentPaymentSummary(studentId: string) {
+export async function getStudentPaymentSummary(studentId: string, tenantId?: string) {
   try {
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      console.error('Tenant context required for getStudentPaymentSummary');
+      return [];
+    }
+
     return await PaymentRecordModel.aggregate([
       {
         $match: {
           studentId,
+          tenantId: effectiveTenantId,
           isDeleted: false,
           status: { $in: ['VERIFIED', 'CONFIRMED'] },
         },
@@ -572,15 +659,26 @@ export async function getStudentPaymentSummary(studentId: string) {
  * Verify payment record
  * @param recordId Payment record ID
  * @param verifiedBy User who verified the record
+ * @param tenantId Optional tenant ID (uses context if not provided)
  * @returns Success status
  */
 export async function verifyPaymentRecord(
   recordId: string,
-  verifiedBy: string
+  verifiedBy: string,
+  tenantId?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const record = await PaymentRecordModel.findByIdAndUpdate(
-      recordId,
+    // Get tenant ID from parameter or context
+    const effectiveTenantId = tenantId || getTenantContext()?.tenantId;
+    if (!effectiveTenantId) {
+      return {
+        success: false,
+        error: 'Tenant context required for payment operations',
+      };
+    }
+
+    const record = await PaymentRecordModel.findOneAndUpdate(
+      { _id: recordId, tenantId: effectiveTenantId },
       {
         $set: {
           status: 'VERIFIED',

@@ -165,8 +165,8 @@ export async function GET(request: NextRequest) {
       await Payment.bulkWrite(bulkUpdates);
       console.log(`Updated ${bulkUpdates.length} partial payment reminder dates (${partialPaymentsNeedingUpdate.map(p => p.studentId).join(', ')})`);
       
-      // Refresh payments data to reflect the updates
-      const updatedPayments = await Payment.find({}).lean().exec();
+      // Refresh payments data to reflect the updates with tenant isolation
+      const updatedPayments = await Payment.find({ tenantId: session.tenantId }).lean().exec();
       payments.length = 0;
       payments.push(...updatedPayments);
     }

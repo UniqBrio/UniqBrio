@@ -55,8 +55,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if payment record already exists
-    const existingPayment = await Payment.findOne({ studentId });
+    // Check if payment record already exists with tenant isolation
+    const existingPayment = await Payment.findOne({ studentId, tenantId: session.tenantId });
     if (existingPayment) {
       return NextResponse.json(
         { 
@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch student details
-    const student = await Student.findOne({ studentId }).lean();
+    // Fetch student details with tenant isolation
+    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
     if (!student) {
       return NextResponse.json(
         { error: 'Student not found' },
@@ -87,18 +87,18 @@ export async function POST(request: NextRequest) {
     let courseName = (student as any).enrolledCourseName;
     
     try {
-      // Try to get courseId from cohort
+      // Try to get courseId from cohort with tenant isolation
       if ((student as any).cohortId) {
         const Cohort = mongoose.connection.collection('cohorts');
-        const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId });
+        const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId });
         if (cohort?.courseId) {
           courseId = cohort.courseId;
         }
       }
       
-      // Fetch course details
+      // Fetch course details with tenant isolation
       if (courseId) {
-        const course = await Course.findOne({ courseId }).lean();
+        const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
         if (course) {
           courseFee = (course as any).priceINR || 0;
           courseType = (course as any).type || 'Individual';
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       // Continue with default values if fetch fails
     }
 
-    // Create payment record
+    // Create payment record with tenantId
     const paymentData = {
       studentId: (student as any).studentId,
       studentName: (student as any).name,
@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
       courseFee,
       receivedAmount: 0,
       reminderEnabled: false,
+      tenantId: session.tenantId,
     };
 
     const payment = await Payment.create(paymentData);

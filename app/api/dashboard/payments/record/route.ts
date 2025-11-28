@@ -91,13 +91,13 @@ export async function POST(request: NextRequest) {
     // Find or create the payment record
     console.log('Step 4: Finding payment record...');
     console.log('  - Looking for student ID:', studentId);
-    let payment = await Payment.findOne({ studentId: studentId });
+    let payment = await Payment.findOne({ studentId: studentId, tenantId: session.tenantId });
     
     if (!payment) {
       console.log('Step 4: Payment not found, creating new record...');
       
       // Fetch student data to create payment record
-      const student = await Student.findOne({ studentId: studentId });
+      const student = await Student.findOne({ studentId: studentId, tenantId: session.tenantId });
       if (!student) {
         console.error('Step 4: Student not found ✗');
         return NextResponse.json(
@@ -114,11 +114,11 @@ export async function POST(request: NextRequest) {
       
       if (student.cohortId) {
         const Cohort = mongoose.connection.collection('cohorts');
-        const cohort = await Cohort.findOne({ cohortId: student.cohortId });
+        const cohort = await Cohort.findOne({ cohortId: student.cohortId, tenantId: session.tenantId });
         if (cohort?.courseId) {
           courseId = cohort.courseId;
           const Course = mongoose.connection.collection('courses');
-          const course = await Course.findOne({ courseId: cohort.courseId });
+          const course = await Course.findOne({ courseId: cohort.courseId, tenantId: session.tenantId });
           if (course) {
             fetchedCourseFee = course.priceINR || courseFee || 0;
             fetchedCourseRegFee = course.registrationFee || courseRegistrationFee || 1000;
@@ -129,6 +129,7 @@ export async function POST(request: NextRequest) {
       
       // Create new payment record
       payment = await Payment.create({
+        tenantId: session.tenantId, // Explicit tenant isolation
         studentId: student.studentId,
         studentName: student.name,
         studentCategory: student.category,
@@ -353,6 +354,7 @@ export async function POST(request: NextRequest) {
     let transaction;
     try {
       transaction = await createPaymentTransaction(savedPayment, {
+        tenantId: session.tenantId, // Explicit tenant isolation
         studentId: savedPayment.studentId,
         studentName: savedPayment.studentName,
         amount,

@@ -2,12 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
 import { sendPaymentReminderEmail } from '@/lib/dashboard/email-service';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * POST /api/payments/reminders/manual
  * Send a manual reminder for a payment
  */
 export async function POST(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
@@ -21,12 +35,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find payment record
+    // Find payment record with tenant isolation
     let payment;
     if (paymentId) {
-      payment = await Payment.findById(paymentId);
+      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId });
     } else {
-      payment = await Payment.findOne({ studentId });
+      payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
     }
 
     if (!payment) {
@@ -90,4 +104,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  }
+  );
 }
