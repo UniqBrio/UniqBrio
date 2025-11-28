@@ -542,7 +542,7 @@ export function IncomeExpensesSection({
                       </tr>
                     ) : (
                       filteredIncomes.map((income) => (
-                        <tr key={income.id} className="border-b border-gray-200 dark:border-gray-700 group cursor-pointer transition-colors" style={{ ':hover': { backgroundColor: `${primaryColor}10` } }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''} onClick={() => handleViewIncome(income)}>
+                        <tr key={income.id} className="border-b border-gray-200 dark:border-gray-700 group cursor-pointer transition-colors" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''} onClick={() => handleViewIncome(income)}>
                           {/* Selection checkbox cell */}
                           <td className="px-4 py-3 align-middle" onClick={(e) => e.stopPropagation()}>
                             <input

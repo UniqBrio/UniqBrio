@@ -343,7 +343,7 @@ export default function ServicesOverviewPage() {
         </div>
 
         {/* Stats Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1">
           {/* Today's Sessions */}
           <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-gray-900">
             <CardContent className="p-4">

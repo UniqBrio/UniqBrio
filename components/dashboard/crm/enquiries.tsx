@@ -206,15 +206,15 @@ export default function EnquiriesPage() {
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Label htmlFor="fullName">Full Name <span className="text-red-500">*</span></Label>
                     <Input id="fullName" placeholder="Enter full name" />
                   </div>
                   <div>
-                    <Label htmlFor="contactNumber">Contact Number *</Label>
+                    <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
                     <Input id="contactNumber" placeholder="+91 XXXXXXXXXX" />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email ID *</Label>
+                    <Label htmlFor="email">Email ID <span className="text-red-500">*</span></Label>
                     <Input id="email" type="email" placeholder="email@example.com" />
                   </div>
                   <div>

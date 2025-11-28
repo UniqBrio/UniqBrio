@@ -1,10 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import { useCustomColors } from '@/lib/use-custom-colors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/dashboard/ui/card';
 import { Badge } from '@/components/dashboard/ui/badge';
 import { Button } from '@/components/dashboard/ui/button';
 import { Checkbox } from '@/components/dashboard/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/dashboard/ui/dialog';
 import {
   Table,
   TableBody,
@@ -28,6 +36,10 @@ import {
   Trash2,
   BarChart3,
   Star,
+  Calendar,
+  Users,
+  Target,
+  X,
 } from 'lucide-react';
 
 interface Campaign {
@@ -66,6 +78,8 @@ export default function CampaignList({
   onSelectChange,
 }: CampaignListProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
+  const [viewingCampaign, setViewingCampaign] = useState<Campaign | null>(null);
+
   const getStatusColor = (status: Campaign['status']) => {
     switch (status) {
       case 'Active':
@@ -195,6 +209,7 @@ export default function CampaignList({
                   size="sm" 
                   className="flex-1"
                   title="View campaign details"
+                  onClick={() => setViewingCampaign(campaign)}
                 >
                   <Eye className="h-3.5 w-3.5 mr-1" />
                   View
@@ -334,6 +349,7 @@ export default function CampaignList({
                       variant="ghost"
                       size="sm"
                       title="View campaign"
+                      onClick={() => setViewingCampaign(campaign)}
                     >
                       <Eye className="h-4 w-4 text-blue-600" />
                     </Button>
@@ -362,6 +378,115 @@ export default function CampaignList({
       </Table>
         </div>
       </div>
+
+      {/* View Campaign Dialog */}
+      <Dialog open={viewingCampaign !== null} onOpenChange={(open) => !open && setViewingCampaign(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                {viewingCampaign && getTypeIcon(viewingCampaign.type)}
+              </div>
+              <div>
+                <span className="text-xl">{viewingCampaign?.title}</span>
+                {viewingCampaign?.featured && (
+                  <Star className="inline-block ml-2 h-5 w-5 fill-yellow-400 text-yellow-400" />
+                )}
+              </div>
+            </DialogTitle>
+            <DialogDescription>{viewingCampaign?.description}</DialogDescription>
+          </DialogHeader>
+
+          {viewingCampaign && (
+            <div className="space-y-6 py-4">
+              {/* Status and Type */}
+              <div className="flex flex-wrap gap-3">
+                <Badge className={getStatusColor(viewingCampaign.status)}>
+                  {viewingCampaign.status}
+                </Badge>
+                <Badge variant="outline">{viewingCampaign.type}</Badge>
+              </div>
+
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="rounded-lg p-4 text-center" style={{ backgroundColor: `${primaryColor}15` }}>
+                  <Users className="h-5 w-5 mx-auto mb-2" style={{ color: primaryColor }} />
+                  <p className="text-2xl font-bold" style={{ color: primaryColor }}>
+                    {viewingCampaign.reach.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Reach</p>
+                </div>
+                <div className="rounded-lg p-4 text-center bg-blue-50">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-2 text-blue-600" />
+                  <p className="text-2xl font-bold text-blue-900">
+                    {viewingCampaign.engagement.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Engagement</p>
+                </div>
+                <div className="rounded-lg p-4 text-center bg-indigo-50">
+                  <Target className="h-5 w-5 mx-auto mb-2 text-indigo-600" />
+                  <p className="text-2xl font-bold text-indigo-900">
+                    {viewingCampaign.conversions}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Conversions</p>
+                </div>
+                <div className="rounded-lg p-4 text-center bg-amber-50">
+                  <BarChart3 className="h-5 w-5 mx-auto mb-2 text-amber-600" />
+                  <p className="text-2xl font-bold text-amber-900">
+                    {viewingCampaign.roi}%
+                  </p>
+                  <p className="text-xs text-muted-foreground">ROI</p>
+                </div>
+              </div>
+
+              {/* Duration */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Campaign Duration
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Start Date</p>
+                    <p className="font-medium">{new Date(viewingCampaign.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">End Date</p>
+                    <p className="font-medium">{new Date(viewingCampaign.endDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Created At */}
+              <div className="text-sm text-muted-foreground">
+                Created on {new Date(viewingCampaign.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setViewingCampaign(null)}
+                >
+                  Close
+                </Button>
+                <Button
+                  className="flex-1 text-white"
+                  style={{ backgroundColor: primaryColor }}
+                  onClick={() => {
+                    onEdit(viewingCampaign);
+                    setViewingCampaign(null);
+                  }}
+                >
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Edit Campaign
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

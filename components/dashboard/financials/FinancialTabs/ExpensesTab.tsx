@@ -206,19 +206,16 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
       <CardContent className="space-y-6">
 
         {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded">{error}</div>}
-        {loading && <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded">Loading expense data...</div>}
         
-        {/* Debug info */}
-        {!loading && !error && (
-          <div className="text-xs text-gray-500 dark:text-white p-2 bg-gray-50 rounded">
-            Debug: Chart data: {data.length} | Categories: {categoryData.length} | Vendors: {vendorData.length} | Top cats: {topSpenders.topCategories.length} | Top vendors: {topSpenders.topVendors.length}
-          </div>
-        )}
         
         {/* Main Expense Trend Chart */}
         <Card className="p-4">
           <h3 className="text-lg font-semibold mb-4">Expense Trend Analysis</h3>
-          {data.length === 0 ? (
+          {loading ? (
+            <div className="h-80 flex items-center justify-center bg-gray-50 rounded">
+              <p className="text-gray-500 dark:text-white">Loading expense data...</p>
+            </div>
+          ) : data.length === 0 ? (
             <div className="h-80 flex items-center justify-center bg-gray-50 rounded">
               <p className="text-gray-500 dark:text-white">No expense data available for {selectedYear}</p>
             </div>

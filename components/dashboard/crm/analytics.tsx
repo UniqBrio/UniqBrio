@@ -400,17 +400,17 @@ export default function AnalyticsPage() {
                       color: "#f97316",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[280px] w-full"
                 >
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analyticsData.sourcePerformance}>
+                    <BarChart data={analyticsData.sourcePerformance} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="source" />
-                      <YAxis />
+                      <XAxis dataKey="source" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Legend />
-                      <Bar dataKey="leads" fill="var(--color-leads)" name="Total Leads" />
-                      <Bar dataKey="conversions" fill="var(--color-conversions)" name="Conversions" />
+                      <Legend wrapperStyle={{ paddingTop: 10 }} />
+                      <Bar dataKey="leads" fill="var(--color-leads)" name="Total Leads" maxBarSize={40} />
+                      <Bar dataKey="conversions" fill="var(--color-conversions)" name="Conversions" maxBarSize={40} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
@@ -446,13 +446,28 @@ export default function AnalyticsPage() {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="enquiries"
+                        nameKey="course"
                         label={({ course, enquiries }) => `${course}: ${enquiries}`}
                       >
                         {analyticsData.coursePopularity.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartTooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-3">
+                                <p className="font-semibold text-gray-900 dark:text-white">{data.course}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">Enquiries: {data.enquiries}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">Enrollments: {data.enrollments}</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </ChartContainer>

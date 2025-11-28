@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCustomColors } from '@/lib/use-custom-colors';
 import Image from 'next/image';
 import {
@@ -92,38 +92,62 @@ export default function EnhancedCampaignModal({
   isEditing = false,
 }: EnhancedCampaignModalProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
-  const [formData, setFormData] = useState<Campaign>(
-    campaign || {
-      id: generateId(),
-      title: '',
-      type: 'Marketing',
-      description: '',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      status: 'Draft',
-      reach: 0,
-      engagement: 0,
-      conversions: 0,
-      roi: 0,
-      featured: false,
-      createdAt: new Date().toISOString().split('T')[0],
-      budget: 0,
-      budget_spent: 0,
-      impressions: 0,
-      clicks: 0,
-      conversions_count: 0,
-      targetAudience: {
-        ageGroups: [],
-        gender: [],
-        courses: [],
-        locations: [],
-      },
-      venues: [],
-      channels: [],
-    }
-  );
+  
+  const createDefaultCampaign = (): Campaign => ({
+    id: generateId(),
+    title: '',
+    type: 'Marketing',
+    description: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    status: 'Draft',
+    reach: 0,
+    engagement: 0,
+    conversions: 0,
+    roi: 0,
+    featured: false,
+    createdAt: new Date().toISOString().split('T')[0],
+    budget: 0,
+    budget_spent: 0,
+    impressions: 0,
+    clicks: 0,
+    conversions_count: 0,
+    targetAudience: {
+      ageGroups: [],
+      gender: [],
+      courses: [],
+      locations: [],
+    },
+    venues: [],
+    channels: [],
+  });
+
+  const [formData, setFormData] = useState<Campaign>(() => campaign || createDefaultCampaign());
+  const [initialData, setInitialData] = useState<Campaign | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Check if form has been modified
+  const hasChanges = initialData ? JSON.stringify(formData) !== JSON.stringify(initialData) : true;
+
+  // Reset form when campaign prop changes (for editing different campaigns)
+  useEffect(() => {
+    if (campaign) {
+      setFormData(campaign);
+      setInitialData(JSON.parse(JSON.stringify(campaign)));
+      setErrors({});
+    }
+  }, [campaign]);
+
+  // Reset form when dialog opens for new campaign
+  useEffect(() => {
+    if (open && !campaign) {
+      const data = createDefaultCampaign();
+      setFormData(data);
+      setInitialData(JSON.parse(JSON.stringify(data)));
+      setErrors({});
+    }
+  }, [open]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -606,8 +630,8 @@ export default function EnhancedCampaignModal({
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
-            {isEditing ? 'Update Campaign' : 'Create Campaign'}
+          <Button onClick={handleSave} className="bg-primary hover:bg-primary/90" disabled={!hasChanges}>
+            {isEditing ? 'Save Changes' : 'Create Campaign'}
           </Button>
         </DialogFooter>
       </DialogContent>

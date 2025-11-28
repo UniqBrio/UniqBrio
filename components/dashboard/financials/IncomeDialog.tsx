@@ -385,7 +385,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 <Detail label="Received From" value={incomeForm.receivedFrom || '-'} />
                 <Detail label="Receipt / Transaction No." value={incomeForm.receiptNumber || '-'} />
                 <Detail label="To Account" value={incomeForm.addToAccount || '-'} />
-                <Detail label="Attachment" value={(initialIncome?.attachments || incomeForm.attachments) ? 'Attached' : '�'} />
+                <Detail label="Attachment" value={(initialIncome?.attachments || incomeForm.attachments) ? 'Attached' : '-'} />
               </div>
               {incomeForm.description && (
                 <div className="text-sm">

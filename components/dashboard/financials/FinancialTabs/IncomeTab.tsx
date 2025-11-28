@@ -5,7 +5,7 @@ import { useCurrency } from '@/contexts/currency-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/dashboard/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/dashboard/ui/select';
 import { Label } from '@/components/dashboard/ui/label';
-import { AreaChart, Area, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
+import { ComposedChart, Area, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { formatMonthLabel } from '@/lib/dashboard/utils';
 
 interface IncomeTabProps { incomeFilter: string; setIncomeFilter: (value: string) => void }
@@ -128,41 +128,36 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
       </CardHeader>
       <CardContent className="p-3 sm:p-6 space-y-3 sm:space-y-4 lg:space-y-6">
         {error && <div className="text-red-600 text-xs sm:text-sm p-2 sm:p-3 bg-red-50 rounded">{error}</div>}
-        {loading && <div className="text-xs sm:text-sm text-muted-foreground p-2 sm:p-3 bg-gray-50 rounded">Loading income data...</div>}
         
-        {/* Debug info */}
-        {!loading && !error && (
-          <div className="text-[10px] sm:text-xs text-gray-500 dark:text-white p-2 sm:p-3 bg-gray-50 rounded overflow-hidden">
-            <div className="break-all">
-              Debug: Chart data: {data.length} | Categories: {categoryData.length} | Sources: {sourceData.length} | Top cats: {topPerformers.topCategories.length} | Top sources: {topPerformers.topSources.length}
-            </div>
-          </div>
-        )}
+       
         
         <Card className="p-3 sm:p-4 lg:p-6 w-full overflow-hidden">
           <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-3 sm:mb-4 break-words">Income Trend Analysis</h3>
-          {data.length === 0 ? (
+          {loading ? (
+            <div className="h-60 sm:h-80 flex items-center justify-center bg-gray-50 rounded">
+              <p className="text-gray-500 dark:text-white text-sm sm:text-base text-center px-4">Loading income data...</p>
+            </div>
+          ) : data.length === 0 ? (
             <div className="h-60 sm:h-80 flex items-center justify-center bg-gray-50 rounded">
               <p className="text-gray-500 dark:text-white text-sm sm:text-base text-center px-4">No income data available for {selectedYear}</p>
             </div>
           ) : (
             <div className="h-60 sm:h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart 
+                <ComposedChart 
                   data={data} 
                   margin={{ 
-                    top: 15, 
-                    right: 15, 
-                    bottom: 40, 
-                    left: 40 
+                    top: 25, 
+                    right: 20, 
+                    bottom: 80, 
+                    left: 70 
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="name"
                     tickFormatter={formatMonthLabel}
-                    tick={{ fontSize: 11 }}
-                    className="text-xs"
+                    label={{ value: 'Period', position: 'insideBottom', offset: -40 }}
                   />
                   <YAxis
                     domain={[0, (dataMax: number) => {
@@ -172,20 +167,12 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
                       const magnitude = Math.pow(10, Math.floor(Math.log10(maxWithBuffer)));
                       return Math.ceil(maxWithBuffer / magnitude) * magnitude;
                     }]}
-                    tick={{ fontSize: 11 }}
-                    className="text-xs"
-                    width={35}
+                    label={{ value: 'Income', angle: -90, position: 'insideLeft', offset: -30 }}
                   />
                   <RechartsTooltip 
-                    formatter={(value: number) => [`${currency} ${value.toLocaleString()}`, 'Income']}
-                    contentStyle={{
-                      fontSize: '12px',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
-                      border: '1px solid hsl(var(--border))',
-                      backgroundColor: 'hsl(var(--background))'
-                    }}
+                    formatter={(value: number) => `${currency} ${value.toLocaleString()}`}
                   />
+                  <Legend />
                   <Area 
                     type="monotone" 
                     dataKey="income" 
@@ -193,9 +180,17 @@ export function IncomeTab({ incomeFilter, setIncomeFilter }: IncomeTabProps) {
                     fill="#8b5cf6" 
                     fillOpacity={0.3} 
                     name="Income"
-                    strokeWidth={2}
                   />
-                </AreaChart>
+                  <Line 
+                    type="monotone" 
+                    dataKey="income" 
+                    stroke="#7c3aed" 
+                    strokeWidth={3}
+                    dot={{ fill: '#7c3aed', r: 4 }}
+                    name="Income Trend"
+                    label={{ position: 'top', offset: 5, fill: '#7c3aed', fontSize: 12 }}
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           )}

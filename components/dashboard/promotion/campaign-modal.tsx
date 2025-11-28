@@ -78,16 +78,32 @@ export default function CampaignModal({
     createdAt: new Date().toISOString().split('T')[0],
   });
 
-  const [formData, setFormData] = useState<Campaign>(campaign || createDefaultCampaign());
+  const [formData, setFormData] = useState<Campaign>(() => campaign || createDefaultCampaign());
+  const [initialData, setInitialData] = useState<Campaign | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Check if form has been modified
+  const hasChanges = initialData ? JSON.stringify(formData) !== JSON.stringify(initialData) : true;
+
+  // Reset form when campaign prop changes (for editing different campaigns)
   useEffect(() => {
-    if (open) {
-      setFormData(campaign || createDefaultCampaign());
+    if (campaign) {
+      setFormData(campaign);
+      setInitialData(JSON.parse(JSON.stringify(campaign)));
       setErrors({});
     }
-  }, [campaign, open]);
+  }, [campaign]);
+
+  // Reset form when dialog opens for new campaign
+  useEffect(() => {
+    if (open && !campaign) {
+      const data = createDefaultCampaign();
+      setFormData(data);
+      setInitialData(JSON.parse(JSON.stringify(data)));
+      setErrors({});
+    }
+  }, [open]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -315,13 +331,13 @@ export default function CampaignModal({
             variant="outline"
             onClick={() => void handleSaveDraft()}
             title="Save as draft"
-            disabled={isSavingDraft}
+            disabled={isSavingDraft || !hasChanges}
           >
             {isSavingDraft && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             {draftId ? 'Update Draft' : 'Save Draft'}
           </Button>
-          <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
-            {isEditing ? 'Update Campaign' : 'Create Campaign'}
+          <Button onClick={handleSave} className="bg-primary hover:bg-primary/90" disabled={!hasChanges}>
+            {isEditing ? 'Save Changes' : 'Create Campaign'}
           </Button>
         </DialogFooter>
       </DialogContent>
