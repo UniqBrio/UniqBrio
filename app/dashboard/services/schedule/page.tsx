@@ -3325,7 +3325,7 @@ export default function EnhancedSchedulePage() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-4 border-b dark:border-gray-700">
             <DialogTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-purple-500" />
+              
               Add New Session
             </DialogTitle>
             <DialogDescription>

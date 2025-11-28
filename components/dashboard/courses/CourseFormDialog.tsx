@@ -781,7 +781,7 @@ export default function CourseFormDialog({
               {(isEditMode && !isEditingDraft) ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {(isEditMode && !isEditingDraft) ? 'Edit Course' : 'Create New Course'}
             </DialogTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mr-6">
               {(!isEditMode || isEditingDraft) && (
                 <Button
                   variant="outline"
@@ -801,15 +801,6 @@ export default function CourseFormDialog({
                   {isEditingDraft ? 'Update Draft' : 'Save Draft'}
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={handleDialogClose}
-                title="Close"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
           </div>
           <DialogDescription className="text-xs mb-1">
@@ -909,19 +900,19 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="content" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 inline-flex items-center gap-1"
               >
                 Content <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 inline-flex items-center gap-1"
               >
                 Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>
               <TabsTrigger 
                 value="marketing" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-transparent text-gray-400 dark:text-white font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent data-[state=inactive]:border-gray-300 data-[state=inactive]:text-gray-400 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 inline-flex items-center gap-1"
               >
                 Marketing <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
               </TabsTrigger>

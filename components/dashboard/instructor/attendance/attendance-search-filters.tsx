@@ -758,38 +758,44 @@ export default function AttendanceSearchFilters({
         </DropdownMenu>
 
         {/* View toggle (moved next to Sort) */}
-        <div className="flex border rounded-md">
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'ghost'}
-            size="sm"
+        <div className="flex border rounded-md overflow-hidden">
+          <button
+            type="button"
             onClick={() => setViewMode('list')}
-            className="rounded-r-none"
+            className="flex items-center justify-center w-9 h-9 transition-colors rounded-l-md focus:outline-none"
+            style={{
+              backgroundColor: viewMode === 'list' ? '#8B5CF6' : 'white',
+              color: viewMode === 'list' ? 'white' : 'black'
+            }}
             title="List View"
             aria-label="List View"
-            style={viewMode === 'list' ? { backgroundColor: '#8B5CF6' } : {}}
+            aria-pressed={viewMode === 'list'}
           >
-            <div className="flex flex-col gap-0.5 w-4 h-4">
-              <div className="bg-current h-0.5 rounded-sm" />
-              <div className="bg-current h-0.5 rounded-sm" />
-              <div className="bg-current h-0.5 rounded-sm" />
+            <div className="flex flex-col gap-0.5 w-4 h-4 justify-center">
+              <div className="bg-current h-0.5 w-full rounded-sm" />
+              <div className="bg-current h-0.5 w-full rounded-sm" />
+              <div className="bg-current h-0.5 w-full rounded-sm" />
             </div>
-          </Button>
-          <Button
-            variant={viewMode === 'grid' ? 'default' : 'ghost'}
-            size="sm"
+          </button>
+          <button
+            type="button"
             onClick={() => setViewMode('grid')}
-            className="rounded-l-none border-l"
+            className="flex items-center justify-center w-9 h-9 transition-colors rounded-r-md border-l focus:outline-none"
+            style={{
+              backgroundColor: viewMode === 'grid' ? '#8B5CF6' : 'white',
+              color: viewMode === 'grid' ? 'white' : 'black'
+            }}
             title="Grid View"
             aria-label="Grid View"
-            style={viewMode === 'grid' ? { backgroundColor: '#8B5CF6' } : {}}
+            aria-pressed={viewMode === 'grid'}
           >
-            <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-              <div className="bg-current rounded-sm" />
-              <div className="bg-current rounded-sm" />
-              <div className="bg-current rounded-sm" />
-              <div className="bg-current rounded-sm" />
+            <div className="grid grid-cols-2 gap-1 w-4 h-4">
+              <div className="bg-current rounded-sm w-1.5 h-1.5" />
+              <div className="bg-current rounded-sm w-1.5 h-1.5" />
+              <div className="bg-current rounded-sm w-1.5 h-1.5" />
+              <div className="bg-current rounded-sm w-1.5 h-1.5" />
             </div>
-          </Button>
+          </button>
         </div>
 
         {/* Import */}
