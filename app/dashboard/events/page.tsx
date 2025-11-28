@@ -403,20 +403,22 @@ function EventDashboard({ events, currency }: { events: Event[]; currency: strin
           {revenueByEvent.length > 0 ? (
             <div className="h-60 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={revenueByEvent} margin={{ top: 10, right: 10, left: -20, bottom: 60 }}>
+                <BarChart data={revenueByEvent} margin={{ top: 10, right: 10, left: 0, bottom: 80 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="name" 
                     angle={-45} 
                     textAnchor="end" 
-                    height={70}
+                    height={80}
                     style={{ fontSize: '9px' }}
                     interval={0}
                     tick={{ fontSize: 9 }}
+                    label={{ value: 'Events', position: 'insideBottom', offset: -10, style: { fontSize: '11px', fill: '#666' } }}
                   />
                   <YAxis 
                     tick={{ fontSize: 9 }}
-                    width={40}
+                    width={50}
+                    label={{ value: 'Revenue', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '11px', fill: '#666' } }}
                   />
                   <RechartsTooltip 
                     formatter={(value) => `${currency} ${(value as number).toLocaleString()}`}
@@ -443,7 +445,7 @@ function EventDashboard({ events, currency }: { events: Event[]; currency: strin
           {eventsByMonth.length > 0 ? (
             <div className="h-60 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={eventsByMonth} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
+                <LineChart data={eventsByMonth} margin={{ top: 10, right: 10, left: 0, bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="month" 
@@ -451,11 +453,13 @@ function EventDashboard({ events, currency }: { events: Event[]; currency: strin
                     tick={{ fontSize: 9 }}
                     angle={-45}
                     textAnchor="end"
-                    height={50}
+                    height={60}
+                    label={{ value: 'Month', position: 'insideBottom', offset: -5, style: { fontSize: '11px', fill: '#666' } }}
                   />
                   <YAxis 
                     tick={{ fontSize: 9 }}
-                    width={30}
+                    width={50}
+                    label={{ value: 'Events', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '11px', fill: '#666' } }}
                   />
                   <RechartsTooltip 
                     formatter={(value) => `${value} events`}
@@ -490,7 +494,7 @@ export default function EventsPage() {
   const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [defaultTab, setDefaultTab] = useState("dashboard")
+  const [activeTab, setActiveTab] = useState("dashboard")
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const [searchTerm, setSearchTerm] = useState("")
   const [showCreateEventModal, setShowCreateEventModal] = useState(false)
@@ -757,14 +761,18 @@ export default function EventsPage() {
           />
 
           {/* Navigation Tabs */}
-          <Tabs defaultValue={defaultTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="pb-2">
               <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-transparent p-0 h-auto w-full">
                 {/* Analytics tab */}
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 font-medium rounded-md transition-colors whitespace-nowrap flex-shrink-0"
+                  style={{ 
+                    backgroundColor: activeTab === "dashboard" ? primaryColor : "transparent",
+                    borderColor: activeTab === "dashboard" ? primaryColor : secondaryColor,
+                    color: activeTab === "dashboard" ? "white" : secondaryColor
+                  }}
                 >
                   <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Analytics</span>
@@ -773,8 +781,12 @@ export default function EventsPage() {
                 {/* Ongoing Events tab */}
                 <TabsTrigger 
                   value="events" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 font-medium rounded-md transition-colors whitespace-nowrap flex-shrink-0"
+                  style={{ 
+                    backgroundColor: activeTab === "events" ? primaryColor : "transparent",
+                    borderColor: activeTab === "events" ? primaryColor : secondaryColor,
+                    color: activeTab === "events" ? "white" : secondaryColor
+                  }}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Ongoing</span>
@@ -782,8 +794,12 @@ export default function EventsPage() {
                 {/* Upcoming Events tab */}
                 <TabsTrigger 
                   value="upcoming" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 font-medium rounded-md transition-colors whitespace-nowrap flex-shrink-0"
+                  style={{ 
+                    backgroundColor: activeTab === "upcoming" ? primaryColor : "transparent",
+                    borderColor: activeTab === "upcoming" ? primaryColor : secondaryColor,
+                    color: activeTab === "upcoming" ? "white" : secondaryColor
+                  }}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Upcoming</span>
@@ -792,8 +808,12 @@ export default function EventsPage() {
                 {/* Completed Events tab */}
                 <TabsTrigger 
                   value="completed" 
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent whitespace-nowrap flex-shrink-0"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 font-medium rounded-md transition-colors whitespace-nowrap flex-shrink-0"
+                  style={{ 
+                    backgroundColor: activeTab === "completed" ? primaryColor : "transparent",
+                    borderColor: activeTab === "completed" ? primaryColor : secondaryColor,
+                    color: activeTab === "completed" ? "white" : secondaryColor
+                  }}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Completed</span>
@@ -909,7 +929,10 @@ export default function EventsPage() {
                                 onClick={() => setSortBy(option.value)}
                                 className={sortBy === option.value ? "bg-purple-50" : ""}
                               >
-                                {option.label}
+                                <span>{option.label}</span>
+                                {sortBy === option.value && (
+                                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                                )}
                               </DropdownMenuItem>
                             ))}
                             <DropdownMenuSeparator />
@@ -918,13 +941,25 @@ export default function EventsPage() {
                               onClick={() => setSortOrder("asc")}
                               className={sortOrder === "asc" ? "bg-purple-50" : ""}
                             >
-                              Ascending
+                              <span className="flex items-center gap-2">
+                                Ascending
+                                <ArrowUp className="h-4 w-4" />
+                              </span>
+                              {sortOrder === "asc" && (
+                                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                              )}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setSortOrder("desc")}
                               className={sortOrder === "desc" ? "bg-purple-50" : ""}
                             >
-                              Descending
+                              <span className="flex items-center gap-2">
+                                Descending
+                                <ArrowDown className="h-4 w-4" />
+                              </span>
+                              {sortOrder === "desc" && (
+                                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                              )}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1106,7 +1141,10 @@ export default function EventsPage() {
                                 onClick={() => setSortBy(option.value)}
                                 className={sortBy === option.value ? "bg-purple-50" : ""}
                               >
-                                {option.label}
+                                <span>{option.label}</span>
+                                {sortBy === option.value && (
+                                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                                )}
                               </DropdownMenuItem>
                             ))}
                             <DropdownMenuSeparator />
@@ -1115,13 +1153,25 @@ export default function EventsPage() {
                               onClick={() => setSortOrder("asc")}
                               className={sortOrder === "asc" ? "bg-purple-50" : ""}
                             >
-                              Ascending
+                              <span className="flex items-center gap-2">
+                                Ascending
+                                <ArrowUp className="h-4 w-4" />
+                              </span>
+                              {sortOrder === "asc" && (
+                                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                              )}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setSortOrder("desc")}
                               className={sortOrder === "desc" ? "bg-purple-50" : ""}
                             >
-                              Descending
+                              <span className="flex items-center gap-2">
+                                Descending
+                                <ArrowDown className="h-4 w-4" />
+                              </span>
+                              {sortOrder === "desc" && (
+                                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                              )}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1304,7 +1354,10 @@ export default function EventsPage() {
                                 onClick={() => setSortBy(option.value)}
                                 className={sortBy === option.value ? "bg-purple-50" : ""}
                               >
-                                {option.label}
+                                <span>{option.label}</span>
+                                {sortBy === option.value && (
+                                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                                )}
                               </DropdownMenuItem>
                             ))}
                             <DropdownMenuSeparator />
@@ -1313,13 +1366,25 @@ export default function EventsPage() {
                               onClick={() => setSortOrder("asc")}
                               className={sortOrder === "asc" ? "bg-purple-50" : ""}
                             >
-                              Ascending
+                              <span className="flex items-center gap-2">
+                                Ascending
+                                <ArrowUp className="h-4 w-4" />
+                              </span>
+                              {sortOrder === "asc" && (
+                                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                              )}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setSortOrder("desc")}
                               className={sortOrder === "desc" ? "bg-purple-50" : ""}
                             >
-                              Descending
+                              <span className="flex items-center gap-2">
+                                Descending
+                                <ArrowDown className="h-4 w-4" />
+                              </span>
+                              {sortOrder === "desc" && (
+                                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                              )}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

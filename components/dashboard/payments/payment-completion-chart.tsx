@@ -183,11 +183,10 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
                     // Handle no data case
                     if (data.category === "No Payment Data") {
                       return [
-                        <div key="tooltip" className="space-y-1">
-                          <div className="font-semibold text-gray-600 dark:text-white">No Data Available</div>
-                          <div className="text-xs text-gray-500 dark:text-white">
-                            <div>Students may not have</div>
-                            <div>payment categories assigned yet</div>
+                        <div key="tooltip" className="space-y-0.5">
+                          <div className="text-xs font-semibold text-gray-600 dark:text-white">No Data</div>
+                          <div className="text-[10px] text-gray-500 dark:text-white">
+                            No categories assigned
                           </div>
                         </div>,
                         ''
@@ -198,9 +197,9 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
                       ((data.totalPaid / data.totalToBePaid) * 100).toFixed(1) : '0.0';
                     
                     return [
-                      <div key="tooltip" className="space-y-1">
-                        <div className="font-semibold">{value} Student{value !== 1 ? 's' : ''}</div>
-                        <div className="text-sm space-y-1">
+                      <div key="tooltip" className="space-y-0.5">
+                        <div className="text-xs font-semibold">{value} Student{value !== 1 ? 's' : ''}</div>
+                        <div className="text-[10px] space-y-0.5">
                           <div>Total Due: {formatCurrency(data.totalToBePaid || 0)}</div>
                           <div>Total Paid: {formatCurrency(data.totalPaid || 0)}</div>
                           <div className={`font-medium ${parseFloat(completionRate) >= 100 ? 'text-green-600' : parseFloat(completionRate) >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -215,11 +214,11 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
                 }}
                 contentStyle={{
                   backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                  padding: '12px',
-                  minWidth: '280px',
+                  border: '1px solid #D1D5DB',
+                  borderRadius: '6px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  padding: '8px',
+                  minWidth: '130px',
                 }}
               />
               <Bar dataKey="students" fill="url(#completionGradient)" radius={[8, 8, 0, 0]}>
@@ -239,6 +238,43 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
             </BarChart>
           </ResponsiveContainer>
         </div>
+        
+        {/* Category Details Section */}
+        {displayData.length > 0 && (
+          <div className="border-t pt-4 mt-2">
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-3 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Category Details
+            </h4>
+            <div className="grid grid-cols-1 gap-2">
+              {displayData.map((item) => {
+                const completionRate = item.totalToBePaid > 0 
+                  ? ((item.totalPaid / item.totalToBePaid) * 100).toFixed(1) 
+                  : '0.0';
+                return (
+                  <div key={item.category} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs px-2 py-1 rounded font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                        {item.students} {item.students === 1 ? 'student' : 'students'}
+                      </span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-white">
+                        {item.category}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Paid: {formatCurrency(item.totalPaid)}
+                      </span>
+                      <span className={`font-semibold ${parseFloat(completionRate) >= 100 ? 'text-green-600' : parseFloat(completionRate) >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {completionRate}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
         
         {displayData.length === 0 && (
           <div className="text-center text-gray-500 dark:text-white py-8">

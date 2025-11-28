@@ -81,6 +81,7 @@ export default function StaffManagementPage() {
   })
 
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("analytics")
 
   // Helper function to calculate staff distribution metrics
   const getDistributionMetrics = () => {
@@ -279,26 +280,30 @@ export default function StaffManagementPage() {
         </div>
 
         {/* Detailed Views */}
-        <Tabs defaultValue="analytics" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
             <TabsTrigger
               value="analytics"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium rounded-md transition-colors"
               style={{
-                borderColor: secondaryColor,
-                color: secondaryColor
+                backgroundColor: activeTab === "analytics" ? primaryColor : "transparent",
+                borderColor: activeTab === "analytics" ? primaryColor : secondaryColor,
+                color: activeTab === "analytics" ? "white" : secondaryColor
               }}
+              onClick={() => setActiveTab("analytics")}
             >
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
             <TabsTrigger
               value="staff-areas"
-              className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium rounded-md transition-colors"
               style={{
-                borderColor: secondaryColor,
-                color: secondaryColor
+                backgroundColor: activeTab === "staff-areas" ? primaryColor : "transparent",
+                borderColor: activeTab === "staff-areas" ? primaryColor : secondaryColor,
+                color: activeTab === "staff-areas" ? "white" : secondaryColor
               }}
+              onClick={() => setActiveTab("staff-areas")}
             >
               <Users className="h-4 w-4" />
               Staff Areas
@@ -353,6 +358,8 @@ export default function StaffManagementPage() {
                   <Button
                     className="w-full text-white"
                     style={{ backgroundColor: secondaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${secondaryColor}dd`}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = secondaryColor}
                     onClick={() => router.push("/dashboard/user/staff/instructor")}
                   >
                     <GraduationCap className="mr-2 h-4 w-4" />
@@ -407,6 +414,8 @@ export default function StaffManagementPage() {
                   <Button
                     className="w-full text-white"
                     style={{ backgroundColor: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                     onClick={() => router.push("/dashboard/user/staff/non-instructor")}
                   >
                     <UserCog className="mr-2 h-4 w-4" />
@@ -821,115 +830,106 @@ export default function StaffManagementPage() {
                 </CardContent>
               </Card>
 
-              {/* Department Performance Radar */}
+              {/* Staff Performance Donut Chart */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5" style={{ color: secondaryColor }} />
-                    Performance Overview Radar
+                    <PieChart className="h-5 w-5" style={{ color: secondaryColor }} />
+                    Staff Performance Overview
                   </CardTitle>
                   <CardDescription>
-                    Multi-dimensional analysis based on live attendance data ({overallStats.overallAttendanceRate}% baseline)
+                    Attendance and activity breakdown by staff type
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {/* Enhanced Performance radar with data labels */}
-                    <div className="relative h-48 flex items-center justify-center">
-                      <div className="relative w-40 h-40">
-                        {/* Hexagon grid background with value markers */}
-                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 200">
-                          {/* Grid lines with percentage markers */}
-                          <g stroke="#e5e7eb" strokeWidth="1" fill="none">
-                            <polygon points="100,20 160,60 160,140 100,180 40,140 40,60" opacity="0.3"/>
-                            <polygon points="100,40 140,70 140,130 100,160 60,130 60,70" opacity="0.3"/>
-                            <polygon points="100,60 120,80 120,120 100,140 80,120 80,80" opacity="0.3"/>
-                            <line x1="100" y1="20" x2="100" y2="180"/>
-                            <line x1="40" y1="60" x2="160" y2="140"/>
-                            <line x1="40" y1="140" x2="160" y2="60"/>
-                          </g>
-                          
-                          {/* Percentage markers */}
-                          <g fill="#9ca3af" fontSize="8" textAnchor="middle">
-                            <text x="100" y="35" opacity="0.7">100%</text>
-                            <text x="100" y="55" opacity="0.7">75%</text>
-                            <text x="100" y="75" opacity="0.7">50%</text>
-                            <text x="100" y="95" opacity="0.7">25%</text>
-                          </g>
-                          
-                          {/* Performance data polygon with real calculations */}
-                          <polygon 
-                            points={`100,${200 - (instructorStats.attendanceRate * 1.6)} ${40 + (instructorStats.attendanceRate * 1.2)},${60 + (instructorStats.attendanceRate * 0.8)} ${40 + (nonInstructorStats.attendanceRate * 1.2)},${140 - (nonInstructorStats.attendanceRate * 0.8)} 100,${40 + (overallStats.overallAttendanceRate * 1.4)} ${160 - (instructorStats.attendanceRate * 1.2)},${140 - (instructorStats.attendanceRate * 0.8)} ${160 - (nonInstructorStats.attendanceRate * 1.2)},${60 + (nonInstructorStats.attendanceRate * 0.8)}`}
-                            fill="url(#performanceGradient)" 
-                            fillOpacity="0.3" 
-                            stroke="url(#performanceStroke)" 
-                            strokeWidth="2"
-                          />
-                          
-                          {/* Data point indicators */}
-                          <circle cx="100" cy={`${200 - (instructorStats.attendanceRate * 1.6)}`} r="3" fill="#ea580c"/>
-                          <circle cx={`${40 + (instructorStats.attendanceRate * 1.2)}`} cy={`${60 + (instructorStats.attendanceRate * 0.8)}`} r="3" fill="#7c3aed"/>
-                          <circle cx={`${40 + (nonInstructorStats.attendanceRate * 1.2)}`} cy={`${140 - (nonInstructorStats.attendanceRate * 0.8)}`} r="3" fill="#fb923c"/>
-                          
-                          <defs>
-                            <linearGradient id="performanceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#a855f7" />
-                              <stop offset="100%" stopColor="#fb923c" />
-                            </linearGradient>
-                            <linearGradient id="performanceStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#7c3aed" />
-                              <stop offset="100%" stopColor="#ea580c" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
+                    {/* Donut Chart */}
+                    <div className="relative h-56 flex items-center justify-center">
+                      <svg className="w-48 h-48" viewBox="0 0 100 100">
+                        {/* Background circle */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke="#e5e7eb"
+                          strokeWidth="12"
+                        />
                         
-                        {/* Enhanced Performance labels with values */}
-                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-center">
-                          <div className="text-xs font-medium text-gray-700 dark:text-white">Attendance</div>
-                          <div className="text-xs font-bold text-orange-600">{instructorStats.attendanceRate}%</div>
-                        </div>
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center">
-                          <div className="text-xs font-medium text-gray-700 dark:text-white">Overall</div>
-                          <div className="text-xs font-bold text-purple-600">{overallStats.overallAttendanceRate}%</div>
-                        </div>
-                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -rotate-90 text-center">
-                          <div className="text-xs font-medium text-gray-700 dark:text-white">Active Rate</div>
-                          <div className="text-xs font-bold text-green-600">{Math.round((overallStats.activeStaff / overallStats.totalStaff) * 100)}%</div>
-                        </div>
-                        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 rotate-90 text-center">
-                          <div className="text-xs font-medium text-gray-700 dark:text-white">Coverage</div>
-                          <div className="text-xs font-bold text-blue-600">{Math.round(((overallStats.totalStaff - overallStats.totalOnLeave) / overallStats.totalStaff) * 100)}%</div>
-                        </div>
+                        {/* Instructor segment */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke={secondaryColor}
+                          strokeWidth="12"
+                          strokeDasharray={`${(instructorStats.totalInstructors / overallStats.totalStaff) * 251.2} 251.2`}
+                          strokeDashoffset="0"
+                          transform="rotate(-90 50 50)"
+                          className="transition-all duration-500"
+                        />
+                        
+                        {/* Non-Instructor segment */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke={primaryColor}
+                          strokeWidth="12"
+                          strokeDasharray={`${(nonInstructorStats.totalNonInstructors / overallStats.totalStaff) * 251.2} 251.2`}
+                          strokeDashoffset={`-${(instructorStats.totalInstructors / overallStats.totalStaff) * 251.2}`}
+                          transform="rotate(-90 50 50)"
+                          className="transition-all duration-500"
+                        />
+                        
+                        {/* Center text */}
+                        <text x="50" y="46" textAnchor="middle" className="text-2xl font-bold fill-gray-800 dark:fill-white" fontSize="14">
+                          {overallStats.totalStaff}
+                        </text>
+                        <text x="50" y="58" textAnchor="middle" className="fill-gray-500 dark:fill-gray-400" fontSize="6">
+                          Total Staff
+                        </text>
+                      </svg>
+                    </div>
+                    
+                    {/* Legend */}
+                    <div className="flex justify-center gap-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: secondaryColor }}></div>
+                        <span className="text-sm text-gray-600 dark:text-gray-300">Instructors ({instructorStats.totalInstructors})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+                        <span className="text-sm text-gray-600 dark:text-gray-300">Non-Instructors ({nonInstructorStats.totalNonInstructors})</span>
                       </div>
                     </div>
                     
-                    {/* Enhanced Performance metrics with context */}
+                    {/* Performance metrics */}
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-center">
                         <div className="p-4 rounded-lg border" style={{ backgroundImage: `linear-gradient(to bottom right, ${secondaryColor}10, ${secondaryColor}30)`, borderColor: secondaryColor }}>
                           <div className="text-2xl font-bold" style={{ color: secondaryColor }}>{instructorStats.attendanceRate}%</div>
-                          <div className="text-xs mb-1" style={{ color: secondaryColor }}>Instructor Average</div>
+                          <div className="text-xs mb-1" style={{ color: secondaryColor }}>Instructor Attendance</div>
                           <div className="text-xs" style={{ color: secondaryColor }}>{instructorStats.activeInstructors} of {instructorStats.totalInstructors} active</div>
                         </div>
                         <div className="p-4 rounded-lg border" style={{ backgroundImage: `linear-gradient(to bottom right, ${primaryColor}10, ${primaryColor}30)`, borderColor: primaryColor }}>
                           <div className="text-2xl font-bold" style={{ color: primaryColor }}>{nonInstructorStats.attendanceRate}%</div>
-                          <div className="text-xs mb-1" style={{ color: primaryColor }}>Non-Instructor Average</div>
+                          <div className="text-xs mb-1" style={{ color: primaryColor }}>Non-Instructor Attendance</div>
                           <div className="text-xs" style={{ color: primaryColor }}>{nonInstructorStats.activeNonInstructors} of {nonInstructorStats.totalNonInstructors} active</div>
                         </div>
                       </div>
                       
-                      {/* Performance Gap Analysis */}
-                      <div className="text-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border">
+                      {/* Overall Attendance */}
+                      <div className="text-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-lg border">
                         <div className="text-sm font-medium text-gray-700 dark:text-white">
-                          Performance Gap: <span className="text-lg font-bold text-gray-900 dark:text-white">
-                            {Math.abs(instructorStats.attendanceRate - nonInstructorStats.attendanceRate)}%
+                          Overall Attendance Rate: <span className="text-lg font-bold" style={{ color: primaryColor }}>
+                            {overallStats.overallAttendanceRate}%
                           </span>
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-white mt-1">
-                          {instructorStats.attendanceRate > nonInstructorStats.attendanceRate 
-                            ? 'Instructors outperforming by ' + (instructorStats.attendanceRate - nonInstructorStats.attendanceRate) + '%'
-                            : 'Non-instructors outperforming by ' + (nonInstructorStats.attendanceRate - instructorStats.attendanceRate) + '%'
-                          }
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                          {overallStats.activeStaff} active • {overallStats.totalOnLeave} on leave today
                         </div>
                       </div>
                     </div>

@@ -6,8 +6,7 @@ import { Input } from "@/components/dashboard/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu";
 import { ArrowUpDown, ArrowUp, ArrowDown, Check, Download, Filter, Search, X } from "lucide-react";
-import { useCustomColors } from "@/lib/use-custom-colors"; // Added custom colors hook
-import { sortButtonClass, getSortButtonStyle } from "@/lib/dashboard/sort-button-style"; // Added shared styling helpers
+import { useCustomColors } from "@/lib/use-custom-colors";
 import MultiSelectDropdown from "@/components/dashboard/payments/multi-select-dropdown";
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input";
 import type { Payment } from "@/types/dashboard/payment";
@@ -407,11 +406,10 @@ export default function PaymentSearchFilters({
               variant="outline"
               title="Sort"
               size="sm"
-              className={sortButtonClass}
-              style={getSortButtonStyle(primaryColor)}
+              className="h-9 flex items-center gap-1"
             >
-              <ArrowUpDown className="mr-2 h-4 w-4" />
-              <span className="ml-1 text-xs">
+              <ArrowUpDown className="h-3.5 w-3.5" />
+              <span className="text-xs">
                 {(() => {
                   const label = [
                     { value: "studentId", label: "Student ID" },
@@ -424,9 +422,9 @@ export default function PaymentSearchFilters({
                 })()}
               </span>
               {sortOrder === "asc" ? (
-                <ArrowUp className="ml-2 h-3 w-3" />
+                <ArrowUp className="h-3 w-3" />
               ) : (
-                <ArrowDown className="ml-2 h-3 w-3" />
+                <ArrowDown className="h-3 w-3" />
               )}
             </Button>
           </DropdownMenuTrigger>

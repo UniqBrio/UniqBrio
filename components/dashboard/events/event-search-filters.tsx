@@ -5,6 +5,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { Filter, X } from "lucide-react"
 import MultiSelectDropdown from "./MultiSelectDropDown"
+import { useCustomColors } from "@/lib/use-custom-colors"
 
 interface EventFilters {
   statuses: string[]
@@ -27,6 +28,7 @@ export default function EventSearchFilters({
   onFiltersChange,
   onApply,
 }: EventSearchFiltersProps) {
+  const { primaryColor } = useCustomColors()
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
   const [permanentFilterIcon, setPermanentFilterIcon] = useState<"apply" | "clear" | null>(null)
   const [pendingFilters, setPendingFilters] = useState<EventFilters>({
@@ -238,7 +240,8 @@ export default function EventSearchFilters({
             <Button
               size="sm"
               variant="default"
-              className="flex-1"
+              className="flex-1 text-white hover:opacity-90"
+              style={{ backgroundColor: primaryColor }}
               onClick={handleApplyFilters}
             >
               Apply Filters

@@ -78,6 +78,7 @@ export default function UserManagementPage() {
     alumni: { total: 0, active: 0, engaged: 0 }
   })
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([])
+  const [hoveredSlice, setHoveredSlice] = useState<{ label: string; count: number; percent: number; x: number; y: number } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Load real data from backend APIs
@@ -298,19 +299,16 @@ export default function UserManagementPage() {
 
           {/* Stats Overview - Matching Services & Staff Page Theme */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <Card className="bg-gradient-to-br border" style={{ 
-              backgroundImage: `linear-gradient(to bottom right, ${primaryColor}15, ${primaryColor}25)`,
-              borderColor: `${primaryColor}50`
-            }}>
+            <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-300">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium" style={{ color: primaryColor }}>Total Users</p>
-                    <p className="text-2xl font-bold" style={{ color: primaryColor }}>{totalUsers}</p>
+                    <p className="text-sm font-medium text-indigo-600">Total Users</p>
+                    <p className="text-2xl font-bold text-indigo-800">{totalUsers}</p>
                   </div>
-                  <Users className="h-8 w-8" style={{ color: primaryColor }} />
+                  <Users className="h-8 w-8 text-indigo-500" />
                 </div>
-                <p className="text-xs mt-1" style={{ color: primaryColor }}>
+                <p className="text-xs mt-1 text-indigo-600">
                   students & staff
                 </p>
               </CardContent>
@@ -387,10 +385,37 @@ export default function UserManagementPage() {
             <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
               <TabsTrigger
                 value="analytics"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium transition-colors data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                 style={{
                   borderColor: secondaryColor,
                   color: secondaryColor
+                }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
+                    e.currentTarget.style.backgroundColor = primaryColor
+                    e.currentTarget.style.color = 'white'
+                    e.currentTarget.style.borderColor = 'transparent'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = secondaryColor
+                    e.currentTarget.style.borderColor = secondaryColor
+                  }
+                }}
+                onClick={(e) => {
+                  // Set this tab as active (purple filled)
+                  e.currentTarget.style.backgroundColor = primaryColor
+                  e.currentTarget.style.color = 'white'
+                  e.currentTarget.style.borderColor = 'transparent'
+                  // Reset the other tab to orange outline style
+                  const sibling = e.currentTarget.nextElementSibling as HTMLElement
+                  if (sibling) {
+                    sibling.style.backgroundColor = 'transparent'
+                    sibling.style.color = secondaryColor
+                    sibling.style.borderColor = secondaryColor
+                  }
                 }}
               >
                 <BarChart3 className="h-4 w-4" />
@@ -398,9 +423,38 @@ export default function UserManagementPage() {
               </TabsTrigger>
               <TabsTrigger
                 value="user-areas"
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-transparent text-white font-medium"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 font-medium transition-colors data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                 style={{
-                  backgroundColor: primaryColor
+                  backgroundColor: primaryColor,
+                  color: 'white',
+                  borderColor: 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
+                    e.currentTarget.style.backgroundColor = primaryColor
+                    e.currentTarget.style.color = 'white'
+                    e.currentTarget.style.borderColor = 'transparent'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.getAttribute('data-state')?.includes('active')) {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = secondaryColor
+                    e.currentTarget.style.borderColor = secondaryColor
+                  }
+                }}
+                onClick={(e) => {
+                  // Set this tab as active (purple filled)
+                  e.currentTarget.style.backgroundColor = primaryColor
+                  e.currentTarget.style.color = 'white'
+                  e.currentTarget.style.borderColor = 'transparent'
+                  // Reset the other tab to outline style
+                  const sibling = e.currentTarget.previousElementSibling as HTMLElement
+                  if (sibling) {
+                    sibling.style.backgroundColor = 'transparent'
+                    sibling.style.color = secondaryColor
+                    sibling.style.borderColor = secondaryColor
+                  }
                 }}
               >
                 <Users className="h-4 w-4" />
@@ -436,6 +490,8 @@ export default function UserManagementPage() {
                     <Button
                       className="w-full text-white"
                       style={{ backgroundColor: primaryColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
                       onClick={() => router.push("/dashboard/user/students")}
                     >
                       <GraduationCap className="mr-2 h-4 w-4" />
@@ -482,10 +538,6 @@ export default function UserManagementPage() {
                         <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total}</div>
                       </div>
                       <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
-                        <div style={{ color: secondaryColor }}>{`Total Staff`}</div>
-                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total}</div>
-                      </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
                         <div style={{ color: secondaryColor }}>{`On Leave Today`}</div>
                         <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.onLeave}</div>
                       </div>
@@ -521,11 +573,15 @@ export default function UserManagementPage() {
                         <span style={{ color: primaryColor }}>{`Active Instructors`}</span>
                         <span style={{ color: `${primaryColor}dd` }}>{userStats.staff.instructors - userStats.staff.instructorsOnLeave}/{userStats.staff.instructors}</span>
                       </div>
-                      <Progress 
-                        value={userStats.staff.instructors > 0 ? ((userStats.staff.instructors - userStats.staff.instructorsOnLeave) / userStats.staff.instructors) * 100 : 0} 
-                        className="h-2"
-                        style={{ '--progress-background': `${primaryColor}20`, '--progress-foreground': primaryColor } as React.CSSProperties}
-                      />
+                      <div className="relative h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
+                        <div 
+                          className="h-full transition-all" 
+                          style={{ 
+                            backgroundColor: primaryColor,
+                            width: `${userStats.staff.instructors > 0 ? ((userStats.staff.instructors - userStats.staff.instructorsOnLeave) / userStats.staff.instructors) * 100 : 0}%`
+                          }} 
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
@@ -606,6 +662,7 @@ export default function UserManagementPage() {
                     <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
                       <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       Parent Management
+                      <span title="Coming Soon"> 🔜</span>
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-white">
                       Guardian and family account management
@@ -705,6 +762,24 @@ export default function UserManagementPage() {
                   <CardContent>
                     <div className="flex items-center justify-center">
                       <div className="relative w-full h-64">
+                        {/* Tooltip */}
+                        {hoveredSlice && (
+                          <div 
+                            className="absolute z-10 bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg text-sm pointer-events-none transform -translate-x-1/2 -translate-y-full"
+                            style={{ 
+                              left: `${(hoveredSlice.x / 300) * 100}%`, 
+                              top: `${(hoveredSlice.y / 200) * 100}%`,
+                              marginTop: '-8px'
+                            }}
+                          >
+                            <div className="font-semibold">{hoveredSlice.label}</div>
+                            <div>{hoveredSlice.count} users</div>
+                            <div className="text-gray-300">{hoveredSlice.percent.toFixed(1)}% of total</div>
+                            <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-full">
+                              <div className="border-8 border-transparent border-t-white"></div>
+                            </div>
+                          </div>
+                        )}
                         <svg className="w-full h-64" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
                           <defs>
                             <linearGradient id="studentsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -772,7 +847,29 @@ export default function UserManagementPage() {
                                         fill={`url(#${slice.gradient})`}
                                         stroke="white"
                                         strokeWidth="2"
-                                        className="transition-all duration-500 hover:opacity-80 cursor-pointer"
+                                        className="transition-all duration-300 cursor-pointer"
+                                        style={{ 
+                                          opacity: hoveredSlice ? (hoveredSlice.label === slice.label ? 1 : 0.6) : 1,
+                                          transform: hoveredSlice?.label === slice.label ? 'scale(1.02)' : 'scale(1)',
+                                          transformOrigin: `${centerX}px ${centerY}px`
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          const rect = e.currentTarget.ownerSVGElement?.getBoundingClientRect()
+                                          if (rect) {
+                                            // Calculate tooltip position at the middle of the slice arc
+                                            const tooltipRadius = radius * 0.85
+                                            const tooltipX = centerX + tooltipRadius * Math.cos((midAngle - 90) * Math.PI / 180)
+                                            const tooltipY = centerY + tooltipRadius * Math.sin((midAngle - 90) * Math.PI / 180)
+                                            setHoveredSlice({
+                                              label: slice.label,
+                                              count: slice.count,
+                                              percent: slice.percent,
+                                              x: tooltipX,
+                                              y: tooltipY
+                                            })
+                                          }
+                                        }}
+                                        onMouseLeave={() => setHoveredSlice(null)}
                                       />
                                       {slice.count > 0 && (
                                         <text

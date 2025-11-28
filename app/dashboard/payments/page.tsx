@@ -344,10 +344,11 @@ export default function PaymentsPage() {
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-transparent p-0 h-auto gap-1 sm:gap-2 lg:gap-3">
           <TabsTrigger
             value="analytics"
-            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            className="border-2 rounded-lg px-6 py-3 font-semibold transition-all"
             style={{
-              borderColor: secondaryColor,
-              color: secondaryColor,
+              backgroundColor: activeTab === "analytics" ? primaryColor : "white",
+              borderColor: activeTab === "analytics" ? primaryColor : secondaryColor,
+              color: activeTab === "analytics" ? "white" : secondaryColor,
             }}
           >
             <LayoutDashboard className="h-5 w-5 mr-2" />
@@ -355,10 +356,11 @@ export default function PaymentsPage() {
           </TabsTrigger>
           <TabsTrigger
             value="student-wise"
-            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            className="border-2 rounded-lg px-6 py-3 font-semibold transition-all"
             style={{
-              borderColor: secondaryColor,
-              color: secondaryColor,
+              backgroundColor: activeTab === "student-wise" ? primaryColor : "white",
+              borderColor: activeTab === "student-wise" ? primaryColor : secondaryColor,
+              color: activeTab === "student-wise" ? "white" : secondaryColor,
             }}
           >
             <CreditCard className="h-5 w-5 mr-2" />
@@ -366,10 +368,11 @@ export default function PaymentsPage() {
           </TabsTrigger>
           <TabsTrigger
             value="course-cohort"
-            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            className="border-2 rounded-lg px-6 py-3 font-semibold transition-all"
             style={{
-              borderColor: secondaryColor,
-              color: secondaryColor,
+              backgroundColor: activeTab === "course-cohort" ? primaryColor : "white",
+              borderColor: activeTab === "course-cohort" ? primaryColor : secondaryColor,
+              color: activeTab === "course-cohort" ? "white" : secondaryColor,
             }}
           >
             <BookOpen className="h-5 w-5 mr-2" />
@@ -377,10 +380,11 @@ export default function PaymentsPage() {
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="bg-white dark:bg-gray-900 border-2 rounded-lg px-6 py-3 font-semibold data-[state=active]:text-white transition-all"
+            className="border-2 rounded-lg px-6 py-3 font-semibold transition-all"
             style={{
-              borderColor: secondaryColor,
-              color: secondaryColor,
+              backgroundColor: activeTab === "settings" ? primaryColor : "white",
+              borderColor: activeTab === "settings" ? primaryColor : secondaryColor,
+              color: activeTab === "settings" ? "white" : secondaryColor,
             }}
           >
             <Settings className="h-5 w-5 mr-2" />

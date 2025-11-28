@@ -724,21 +724,21 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
                       />
                     </div>
                   </th>
-                  {visibleColumns.includes('name') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Event Name</th>}
-                  {visibleColumns.includes('sport') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Sport</th>}
-                  {visibleColumns.includes('type') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Type</th>}
-                  {visibleColumns.includes('staff') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Staff</th>}
-                  {visibleColumns.includes('venue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Venue</th>}
-                  {(visibleColumns.includes('startDate') || visibleColumns.includes('endDate')) && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Dates</th>}
-                  {visibleColumns.includes('participants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Participants</th>}
-                  {visibleColumns.includes('maxParticipants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Max Participants</th>}
-                  {visibleColumns.includes('skillLevel') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Skill Level</th>}
-                  {visibleColumns.includes('format') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Format</th>}
-                  {visibleColumns.includes('ageGroup') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Age Group</th>}
-                  {visibleColumns.includes('entryFee') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Entry Fee</th>}
-                  {visibleColumns.includes('revenue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Revenue</th>}
-                  {visibleColumns.includes('status') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider">Status</th>}
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white uppercase tracking-wider"></th>
+                  {visibleColumns.includes('name') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Event Name</th>}
+                  {visibleColumns.includes('sport') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Sport</th>}
+                  {visibleColumns.includes('type') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Type</th>}
+                  {visibleColumns.includes('staff') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Staff</th>}
+                  {visibleColumns.includes('venue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Venue</th>}
+                  {(visibleColumns.includes('startDate') || visibleColumns.includes('endDate')) && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Dates</th>}
+                  {visibleColumns.includes('participants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Participants</th>}
+                  {visibleColumns.includes('maxParticipants') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Max Participants</th>}
+                  {visibleColumns.includes('skillLevel') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Skill Level</th>}
+                  {visibleColumns.includes('format') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Format</th>}
+                  {visibleColumns.includes('ageGroup') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Age Group</th>}
+                  {visibleColumns.includes('entryFee') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Entry Fee</th>}
+                  {visibleColumns.includes('revenue') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Revenue</th>}
+                  {visibleColumns.includes('status') && <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider">Status</th>}
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-white tracking-wider"></th>
                 </tr>
               </thead>
               <tbody>
