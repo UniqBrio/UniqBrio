@@ -11,6 +11,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/dashboard/ui/a
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/dashboard/ui/command"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/dashboard/ui/alert-dialog"
 import { User, Mail, Phone, MapPin, Calendar, Camera, Save, Check, ChevronDown, Pencil, X } from "lucide-react"
 import { toast } from "@/components/dashboard/ui/use-toast"
 import { isPossiblePhoneNumber } from "libphonenumber-js"
@@ -27,6 +37,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const { primaryColor } = useCustomColors()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [showRemovePhotoDialog, setShowRemovePhotoDialog] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null)
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -151,12 +162,6 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   }
 
   const handleRemovePhoto = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to remove your profile picture?"
-    )
-    
-    if (!confirmed) return
-
     try {
       // Clear local state
       setAvatarPreview(null)
@@ -198,6 +203,8 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         description: "Failed to remove profile picture. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setShowRemovePhotoDialog(false)
     }
   }
 
@@ -326,7 +333,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 </div>
                 <button
                   type="button"
-                  onClick={handleRemovePhoto}
+                  onClick={() => setShowRemovePhotoDialog(true)}
                   className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md transition-colors opacity-0 group-hover:opacity-100"
                   title="Remove profile picture"
                 >
@@ -585,6 +592,27 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Remove Photo Confirmation Dialog */}
+      <AlertDialog open={showRemovePhotoDialog} onOpenChange={setShowRemovePhotoDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Profile Picture</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove your profile picture? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRemovePhoto}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

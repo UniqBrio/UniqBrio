@@ -7,6 +7,16 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/dashboard/ui/alert-dialog"
 import { Palette, Globe, Save, X, ArrowUp, ArrowDown, RotateCcw } from "lucide-react"
 import { toast } from "@/components/dashboard/ui/use-toast"
 import { useApp } from "@/contexts/dashboard/app-context"
@@ -38,6 +48,7 @@ interface TimeZoneInfo {
 export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettingsProps) {
   const { theme, toggleTheme, customColors, setCustomColors, applyCustomColors, resetToDefaultColors: resetColors } = useApp()
   const [isSaving, setIsSaving] = useState(false)
+  const [showResetThemeDialog, setShowResetThemeDialog] = useState(false)
   const [isLoadingFormats, setIsLoadingFormats] = useState(true)
   const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true)
   const DEFAULT_COLORS = ["#8b5cf6", "#DE7D14"]
@@ -338,14 +349,9 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   }
 
   const resetToDefaultColors = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to reset the theme colors to default (Purple and Orange)? This action cannot be undone."
-    )
-    
-    if (!confirmed) return
-    
     setSelectedColors([...DEFAULT_COLORS])
     resetColors() // Call the context function to reset globally
+    setShowResetThemeDialog(false)
     toast({
       title: "Colors Reset",
       description: "Theme colors have been reset to default (Purple and Orange).",
@@ -507,7 +513,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={resetToDefaultColors}
+                    onClick={() => setShowResetThemeDialog(true)}
                     className="gap-2 flex-1 sm:flex-initial"
                   >
                     <RotateCcw className="h-4 w-4" />
@@ -676,6 +682,27 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
           </Button>
         </CardContent>
       </Card>
+
+      {/* Reset Theme Confirmation Dialog */}
+      <AlertDialog open={showResetThemeDialog} onOpenChange={setShowResetThemeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset Theme Colors</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reset the theme colors to default (Purple and Orange)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={resetToDefaultColors}
+              style={{ backgroundColor: 'var(--custom-color-1)' }}
+            >
+              Reset Theme
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
   )
