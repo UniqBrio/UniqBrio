@@ -37,7 +37,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
   const [vendorTypeSearchTerm, setVendorTypeSearchTerm] = useState("");
   const [vendorNameSearchTerm, setVendorNameSearchTerm] = useState("");
   const [expenseCategorySearchTerm, setExpenseCategorySearchTerm] = useState("");
-  const [options, setOptions] = useState<{ expenseCategories: string[]; vendorNames: string[]; vendorTypes: string[]; paymentModes: string[]; accounts: string[] }>({ expenseCategories: [], vendorNames: [], vendorTypes: [], paymentModes: [], accounts: [] });
+  const [options, setOptions] = useState<{ expenseCategories: string[]; vendorNames: string[]; vendorTypes: string[]; paymentModes: string[]; accounts: string[]; primaryAccount: string }>({ expenseCategories: [], vendorNames: [], vendorTypes: [], paymentModes: [], accounts: [], primaryAccount: "" });
   const [loadingOptions, setLoadingOptions] = useState(false);
   
   // Dropdown open states for Alt+Down keyboard handling
@@ -97,34 +97,45 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
     (async () => {
       try {
         setLoadingOptions(true);
+        let data: any = null;
+        
         // Check session cache first
         const cached = sessionStorage.getItem('expense-options');
         if (cached) {
-          const data = JSON.parse(cached);
+          data = JSON.parse(cached);
           if (!cancelled) setOptions({
             expenseCategories: data.expenseCategories || [],
             vendorNames: data.vendorNames || [],
             vendorTypes: data.vendorTypes || [],
             paymentModes: data.paymentModes || [],
             accounts: data.accounts || [],
+            primaryAccount: data.primaryAccount || "",
           });
-          setLoadingOptions(false);
-          return;
-        }
-        const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          if (!cancelled) {
-            setOptions({
-              expenseCategories: data.expenseCategories || [],
-              vendorNames: data.vendorNames || [],
-              vendorTypes: data.vendorTypes || [],
-              paymentModes: data.paymentModes || [],
-              accounts: data.accounts || [],
-            });
-            // Cache for session
-            sessionStorage.setItem('expense-options', JSON.stringify(data));
+        } else {
+          const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
+          if (res.ok) {
+            data = await res.json();
+            if (!cancelled) {
+              setOptions({
+                expenseCategories: data.expenseCategories || [],
+                vendorNames: data.vendorNames || [],
+                vendorTypes: data.vendorTypes || [],
+                paymentModes: data.paymentModes || [],
+                accounts: data.accounts || [],
+                primaryAccount: data.primaryAccount || "",
+              });
+              // Cache for session
+              sessionStorage.setItem('expense-options', JSON.stringify(data));
+            }
           }
+        }
+        
+        // Set primary account as default for new entries (not editing existing)
+        if (!cancelled && data?.primaryAccount && !initialExpense) {
+          setExpenseForm(prev => ({
+            ...prev,
+            addFromAccount: prev.addFromAccount || data.primaryAccount
+          }));
         }
       } catch (e) {
         console.error('Failed to fetch dropdown options', e);

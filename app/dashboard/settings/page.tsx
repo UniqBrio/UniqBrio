@@ -22,6 +22,7 @@ import {
   Lock,
   Server,
   GraduationCap,
+  Landmark,
 } from "lucide-react"
 
 import { ProfileSettings } from "@/components/dashboard/settings/profile-settings"
@@ -32,6 +33,7 @@ import { AdminSecuritySettings } from "@/components/dashboard/settings/admin-sec
 import { AdminSystemConfig } from "@/components/dashboard/settings/admin-system-config"
 import { AcademyInfoSettings } from "@/components/dashboard/settings/academy-info-settings"
 import { NotificationSettings } from "@/components/dashboard/settings/notification-settings"
+import { BankAccountSettings } from "@/components/dashboard/settings/bank-account-settings"
 import { useApp } from "@/contexts/dashboard/app-context"
 
 export default function SettingsPage() {
@@ -45,7 +47,7 @@ export default function SettingsPage() {
   // Update active tab when URL changes
   useEffect(() => {
     const tab = searchParams.get("tab")
-    if (tab && ["profile", "academy-info", "appearance", "system-config", "notifications"].includes(tab)) {
+    if (tab && ["profile", "academy-info", "appearance", "system-config", "notifications", "bank-accounts"].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
@@ -224,7 +226,7 @@ export default function SettingsPage() {
           {/* Settings Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-              <TabsList className="inline-flex lg:grid w-full lg:grid-cols-5 gap-2 bg-transparent p-0 h-auto min-w-max lg:min-w-0">
+              <TabsList className="inline-flex lg:grid w-full lg:grid-cols-6 gap-2 bg-transparent p-0 h-auto min-w-max lg:min-w-0">
                 
 
                 <TabsTrigger
@@ -340,6 +342,29 @@ export default function SettingsPage() {
                   <Bell className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
                 </TabsTrigger>
+
+                <TabsTrigger
+                  value="bank-accounts"
+                  className="text-xs sm:text-sm border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 focus:outline-none whitespace-nowrap flex-shrink-0"
+                  style={{
+                    borderColor: activeTab === 'bank-accounts' ? primaryColor : secondaryColor,
+                    color: activeTab === 'bank-accounts' ? 'white' : secondaryColor,
+                    backgroundColor: activeTab === 'bank-accounts' ? primaryColor : undefined,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'bank-accounts') {
+                      e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'bank-accounts') {
+                      e.currentTarget.style.backgroundColor = ''
+                    }
+                  }}
+                >
+                  <Landmark className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Bank Accounts</span>
+                </TabsTrigger>
                   
               </TabsList>
             </div>
@@ -375,6 +400,10 @@ export default function SettingsPage() {
 
             <TabsContent value="notifications" className="space-y-4">
               <NotificationSettings onUpdate={handleNotificationUpdate} />
+            </TabsContent>
+
+            <TabsContent value="bank-accounts" className="space-y-4">
+              <BankAccountSettings />
             </TabsContent>
               
           </Tabs>

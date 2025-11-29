@@ -1,0 +1,7 @@
+id,courseId,name,instructor,location,type,level,priceINR,status,courseCategory,maxStudents,duration
+COURSE0002,COURSE0002,Chess,John Doe,Chess Room,Offline,Beginner,29796,Active,Regular,20,
+COURSE0003,COURSE0003,Badminton,six Alex six,Badminton Court,Offline,Beginner,29796,Active,Regular,30,
+COURSE0004,COURSE0004,Basket Ball,Michael James,Basketball Court,Offline,Advanced,29796,Active,Regular,30,
+COURSE0005,COURSE0005,Cricket,Ryan Fernandes,Cricket Stadium,Offline,Advanced,2922,Active,Ongoing Training,30,
+COURSE0008,COURSE0008,Hockey,Emily  Carter,Cricket Stadium,Offline,Beginner,0,Active,Regular,12,
+COURSE0010,COURSE0010,Karate,Ryan Fernandes,Karate Studio,Offline,Beginner,5019,Active,Ongoing Training,30,

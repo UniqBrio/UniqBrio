@@ -43,7 +43,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
   const [showUnsavedAlert, setShowUnsavedAlert] = useState(false);
   const [sourceSearchTerm, setSourceSearchTerm] = useState("");
   const [categorySearchTerm, setCategorySearchTerm] = useState("");
-  const [options, setOptions] = useState<{ incomeCategories: string[]; incomeSources: string[]; paymentModes: string[]; accounts: string[]; }>({ incomeCategories: [], incomeSources: [], paymentModes: [], accounts: [] });
+  const [options, setOptions] = useState<{ incomeCategories: string[]; incomeSources: string[]; paymentModes: string[]; accounts: string[]; primaryAccount: string; }>({ incomeCategories: [], incomeSources: [], paymentModes: [], accounts: [], primaryAccount: "" });
   const [loadingOptions, setLoadingOptions] = useState(false);
   
   // Dropdown open states for Alt+Down keyboard handling
@@ -106,32 +106,43 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
     (async () => {
       try {
         setLoadingOptions(true);
+        let data: any = null;
+        
         // Check session cache first
         const cached = sessionStorage.getItem('income-options');
         if (cached) {
-          const data = JSON.parse(cached);
+          data = JSON.parse(cached);
           if (!cancelled) setOptions({
             incomeCategories: data.incomeCategories || [],
             incomeSources: data.incomeSources || [],
             paymentModes: data.paymentModes || [],
             accounts: data.accounts || [],
+            primaryAccount: data.primaryAccount || "",
           });
-          setLoadingOptions(false);
-          return;
-        }
-        const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          if (!cancelled) {
-            setOptions({
-              incomeCategories: data.incomeCategories || [],
-              incomeSources: data.incomeSources || [],
-              paymentModes: data.paymentModes || [],
-              accounts: data.accounts || [],
-            });
-            // Cache for session
-            sessionStorage.setItem('income-options', JSON.stringify(data));
+        } else {
+          const res = await fetch('/api/dashboard/financial/financials/options', { credentials: 'include' });
+          if (res.ok) {
+            data = await res.json();
+            if (!cancelled) {
+              setOptions({
+                incomeCategories: data.incomeCategories || [],
+                incomeSources: data.incomeSources || [],
+                paymentModes: data.paymentModes || [],
+                accounts: data.accounts || [],
+                primaryAccount: data.primaryAccount || "",
+              });
+              // Cache for session
+              sessionStorage.setItem('income-options', JSON.stringify(data));
+            }
           }
+        }
+        
+        // Set primary account as default for new entries (not editing existing)
+        if (!cancelled && data?.primaryAccount && !initialIncome) {
+          setIncomeForm(prev => ({
+            ...prev,
+            addToAccount: prev.addToAccount || data.primaryAccount
+          }));
         }
       } catch (e) {
         console.error('Failed to fetch dropdown options', e);

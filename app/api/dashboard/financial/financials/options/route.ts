@@ -66,7 +66,16 @@ export async function GET(_req: NextRequest) {
         ]));
 
         // Bank accounts -> use a friendly display label
-        const bankAccounts = await BankAccountModel.find({ tenantId: session.tenantId }, "bankName accountNumber holderName").lean();
+        const bankAccounts = await BankAccountModel.find({ tenantId: session.tenantId }, "bankName accountNumber holderName isPrimary").lean();
+        
+        // Find primary account label
+        const primaryBankAccount = bankAccounts.find((b: any) => b.isPrimary);
+        let primaryAccountLabel = "";
+        if (primaryBankAccount) {
+          const parts = [primaryBankAccount.bankName, primaryBankAccount.accountNumber].filter(Boolean).join(" • ");
+          primaryAccountLabel = parts || primaryBankAccount.holderName || "Account";
+        }
+        
         const accountLabelsFromBanks = bankAccounts.map((b: any) => {
           const parts = [b.bankName, b.accountNumber].filter(Boolean).join(" • ");
           return parts || b.holderName || "Account";
@@ -107,6 +116,7 @@ export async function GET(_req: NextRequest) {
           incomeSources: mergeWithDefaults(incomeSourcesRaw, defaultIncomeSources),
           paymentModes: mergeWithDefaults(paymentModes, defaultPaymentModes),
           accounts: normalize(allAccounts), // No defaults for accounts - they should come from bank setup
+          primaryAccount: primaryAccountLabel, // The primary bank account label for default selection
           expenseCategories: mergeWithDefaults(expenseCategoriesRaw, defaultExpenseCategories),
           vendorNames: normalize(vendorNamesRaw), // No defaults for vendor names
           vendorTypes: mergeWithDefaults(vendorTypesRaw, defaultVendorTypes),
