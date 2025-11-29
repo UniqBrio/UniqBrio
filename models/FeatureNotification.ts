@@ -35,8 +35,8 @@ const FeatureNotificationSchema = new Schema<IFeatureNotification>(
   }
 );
 
-// Ensure indexes
-FeatureNotificationSchema.index({ feature: 1 });
+// Note: The 'feature' field already has 'unique: true' which creates an index
+// No need for additional index declaration
 
 const FeatureNotificationModel: Model<IFeatureNotification> =
   mongoose.models.FeatureNotification ||

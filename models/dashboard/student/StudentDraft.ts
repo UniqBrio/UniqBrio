@@ -47,10 +47,8 @@ const StudentDraftSchema = new mongoose.Schema({
 });
 
 // Apply tenant plugin for multi-tenancy support
+// Note: tenantPlugin already adds { tenantId: 1, createdAt: -1 } index
 StudentDraftSchema.plugin(tenantPlugin);
-
-// Add tenant-specific index
-StudentDraftSchema.index({ tenantId: 1, createdAt: -1 });
 
 // Update lastUpdated on save
 StudentDraftSchema.pre('save', function(next) {
