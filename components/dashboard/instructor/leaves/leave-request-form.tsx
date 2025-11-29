@@ -25,7 +25,7 @@ import { cn } from "@/lib/dashboard/staff/utils"
 import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { LeaveRequest } from "@/types/dashboard/staff/leave"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
-import { convertDraftToLeaveRequest, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft } from "@/lib/dashboard/staff/api"
+import { convertDraftToLeaveRequest, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft, createLeaveRequest } from "@/lib/dashboard/staff/api"
 import { useCustomLeaveTypes } from "@/hooks/dashboard/staff/use-custom-leave-types"
 
 // Normalize backend job level variations into standardized option labels
@@ -300,12 +300,20 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
       // Then convert the draft to an approved leave request
       try {
         const result = await convertDraftToLeaveRequest(draft.id, 'APPROVED')
-        if (result.ok) {
+        if (result.ok && result.data) {
           crudSuccess('leave request', 'created from draft')
-          // Refresh both drafts and leave requests to reflect server truth
+          
+          // Add the newly created leave request to state immediately
+          dispatch({ type: 'ADD_LEAVE_REQUEST', payload: result.data })
+          
+          // Remove the draft from state
+          dispatch({ type: 'DELETE_DRAFT', payload: { id: draft.id } })
+          
+          // Also refresh from server to ensure consistency
           const [draftsRes, requestsRes] = await Promise.all([fetchDrafts(), fetchLeaveRequests()])
           if (draftsRes.ok) dispatch({ type: 'SET_DRAFTS', payload: draftsRes.data })
           if (requestsRes.ok) dispatch({ type: 'SET_LEAVE_REQUESTS', payload: requestsRes.data })
+          
           // If there are still drafts remaining after this conversion, mark to reopen the drafts dialog
           try {
             const remaining = draftsRes && (draftsRes as any).data ? (draftsRes as any).data.length : 0
@@ -342,9 +350,24 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         prorated: 'Full',
         limitReached,
       }
-      dispatch({ type: 'ADD_LEAVE_REQUEST', payload: newRequest })
-      crudSuccess('leave request', 'created')
-      requestInstructorId = newRequest.instructorId
+      
+      // Call API first and only dispatch on success
+      try {
+        const result = await createLeaveRequest(newRequest)
+        if (result.ok && result.data) {
+          // Use the server-returned data to ensure consistency
+          dispatch({ type: 'ADD_LEAVE_REQUEST', payload: result.data })
+          crudSuccess('leave request', 'created')
+          requestInstructorId = newRequest.instructorId
+        } else {
+          alert('Failed to create leave request: ' + (result.error || 'Unknown error'))
+          return
+        }
+      } catch (err) {
+        console.error('Error creating leave request:', err)
+        alert('Failed to create leave request')
+        return
+      }
     }
     const inst2 = state.instructors.find(i => i.id === requestInstructorId)
     if (inst2 && selectedJobLevel && inst2.jobLevel !== selectedJobLevel) {

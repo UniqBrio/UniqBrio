@@ -5,25 +5,7 @@ function SidebarPositionSelector({ primaryColor }: { primaryColor: string }) {
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 p-2">
       <div className="flex gap-1">
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex-1 flex items-center justify-center"
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            className="text-xs text-white font-semibold rounded-md px-2 py-1"
-            style={{ backgroundColor: primaryColor }}
-          >
-            {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          </TooltipContent>
-        </Tooltip>
+      
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" title="Sidebar position selector" className="flex-1 flex items-center justify-center">
@@ -59,6 +41,27 @@ function SidebarPositionSelector({ primaryColor }: { primaryColor: string }) {
             </div>
           </PopoverContent>
         </Popover>
+          <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <Button
+            disabled={true}
+            title="Dark theme "
+              variant="ghost"
+              size="icon"
+              className="flex-1 flex items-center justify-center"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            className="text-xs text-white font-semibold rounded-md px-2 py-1"
+            style={{ backgroundColor: primaryColor }}
+          >
+            {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   )

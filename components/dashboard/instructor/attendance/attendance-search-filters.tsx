@@ -307,7 +307,10 @@ export default function AttendanceSearchFilters({
         if (
           prev[i].status !== filtered[i].status ||
           prev[i].date !== filtered[i].date ||
-          prev[i].studentName !== filtered[i].studentName
+          prev[i].studentName !== filtered[i].studentName ||
+          prev[i].notes !== filtered[i].notes ||
+          prev[i].startTime !== filtered[i].startTime ||
+          prev[i].endTime !== filtered[i].endTime
         ) {
           return filtered;
         }

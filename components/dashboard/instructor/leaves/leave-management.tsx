@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard
 import { Button } from "@/components/dashboard/ui/button"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
 import { importLeaveRequestsFromCSV } from "@/lib/dashboard/staff/csv-import"
+import { createLeaveRequest } from "@/lib/dashboard/staff/api"
 import { Input } from "@/components/dashboard/ui/input"
 import CSVColumnMappingDialog from "./csv-column-mapping-dialog"
 // Tabs removed for policies/analytics
@@ -745,18 +746,29 @@ export default function LeaveManagement() {
                     dispatch({ type: "ADD_INSTRUCTOR", payload: instructor })
                   })
                   
-                  // Add leave requests to context
-                  result.leaveRequests.forEach((leaveRequest) => {
-                    dispatch({ type: "ADD_LEAVE_REQUEST", payload: leaveRequest })
-                  })
+                  // Persist leave requests to database first, then add to context
+                  const persistedRequests: any[] = []
+                  for (const leaveRequest of result.leaveRequests) {
+                    try {
+                      const apiResult = await createLeaveRequest(leaveRequest)
+                      if (apiResult.ok && apiResult.data) {
+                        persistedRequests.push(apiResult.data)
+                        dispatch({ type: "ADD_LEAVE_REQUEST", payload: apiResult.data })
+                      } else {
+                        console.error('Failed to persist leave request:', apiResult.error)
+                      }
+                    } catch (err) {
+                      console.error('Error persisting leave request:', err)
+                    }
+                  }
                   
-                  if (result.leaveRequests.length > 0) {
+                  if (persistedRequests.length > 0) {
                     crudSuccess('leave requests', 'imported', { 
-                      description: `${result.leaveRequests.length} leave request(s) and ${result.newInstructors.length} instructor(s) added.` 
+                      description: `${persistedRequests.length} leave request(s) and ${result.newInstructors.length} instructor(s) added.` 
                     })
-                    alert(`Successfully imported ${result.leaveRequests.length} leave requests from CSV.`)
+                    alert(`Successfully imported ${persistedRequests.length} leave requests from CSV.`)
                   } else {
-                    alert("No valid leave requests found in CSV.")
+                    alert("No valid leave requests found in CSV or failed to persist to database.")
                   }
                 } catch (err) {
                   console.error("CSV Import Error:", err)

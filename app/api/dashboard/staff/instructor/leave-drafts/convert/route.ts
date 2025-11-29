@@ -80,6 +80,43 @@ export async function POST(req: Request) {
           }, { status: 400 })
         }
 
+        // Check for duplicate leave request (same instructor, same date range, same reason)
+        const duplicateCheck = await LeaveRequest.findOne({
+          instructorId: draft.instructorId,
+          startDate: draft.startDate,
+          endDate: draft.endDate,
+          reason: draft.reason,
+          tenantId: session.tenantId,
+        }).lean()
+        if (duplicateCheck) {
+          return NextResponse.json({ 
+            ok: false, 
+            error: 'A leave request with the same dates and reason already exists for this instructor.' 
+          }, { status: 409 })
+        }
+
+        // Validate that the instructor exists in the database
+        const instructorExists = await Instructor.findOne({ 
+          $or: [
+            { id: draft.instructorId, tenantId: session.tenantId },
+            { externalId: draft.instructorId, tenantId: session.tenantId }
+          ],
+          $and: [
+            {
+              $or: [
+                { isDeleted: { $exists: false } },
+                { isDeleted: false }
+              ]
+            }
+          ]
+        }).lean()
+        if (!instructorExists) {
+          return NextResponse.json({ 
+            ok: false, 
+            error: 'The selected instructor does not exist or has been deleted. Please select a valid instructor.' 
+          }, { status: 400 })
+        }
+
         // Generate new leave request ID
         const leaveRequestId = `l${Date.now()}`
         

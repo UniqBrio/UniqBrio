@@ -347,6 +347,28 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                   inputMode="tel"
                   placeholder="555 987 6543"
                   value={form.phone}
+                  onKeyDown={(e) => {
+                    const k = e.key
+                    const isControl =
+                      e.ctrlKey || e.metaKey || e.altKey ||
+                      ["Backspace","Delete","Tab","Enter","Escape","ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"].includes(k)
+                    if (isControl) return
+                    // Only allow digits (0-9)
+                    if (k.length === 1 && !/[0-9]/.test(k)) {
+                      e.preventDefault()
+                    }
+                  }}
+                  onPaste={(e) => {
+                    const text = e.clipboardData?.getData("text") ?? ""
+                    const digits = text.replace(/\D/g, "")
+                    if (digits !== text) {
+                      e.preventDefault()
+                      if (digits.length > 0) {
+                        setForm(f => ({ ...f, phone: digits }))
+                        validatePhone(digits, form.country, form.phoneCountryCode)
+                      }
+                    }
+                  }}
                   onChange={e => {
                     const val = e.target.value.replace(/[^0-9]/g,'')
                     setForm(f => ({ ...f, phone: val }))

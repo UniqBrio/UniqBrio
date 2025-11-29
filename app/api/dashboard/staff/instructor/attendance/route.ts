@@ -9,6 +9,7 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 function toUi(doc: any) {
   return {
     ...doc,
+    _id: doc._id || doc.id, // Ensure _id is always present
     studentId: doc.studentId || doc.instructorId,
     studentName: doc.studentName || doc.instructorName,
   }
@@ -23,6 +24,25 @@ export async function GET() {
   return runWithTenantContext({ tenantId: session.tenantId }, async () => {
     try {
       await dbConnect("uniqbrio")
+      
+      // One-time cleanup: Add tenantId to any records missing it (legacy data)
+      // This ensures the unique index works properly
+      try {
+        const recordsWithoutTenant = await InstructorAttendanceModel.countDocuments({ 
+          tenantId: { $exists: false } 
+        })
+        
+        if (recordsWithoutTenant > 0) {
+          console.log(`Found ${recordsWithoutTenant} attendance records without tenantId, cleaning up...`)
+          // For safety, we'll delete records without tenantId rather than assigning them
+          // to avoid data leakage between tenants
+          await InstructorAttendanceModel.deleteMany({ tenantId: { $exists: false } })
+          console.log(`Deleted ${recordsWithoutTenant} orphaned attendance records`)
+        }
+      } catch (cleanupError) {
+        console.warn('Attendance cleanup failed:', cleanupError)
+      }
+      
       // Sync planned attendance from approved instructor leave requests for today and future
     try {
       const toYmd = (d: Date) => {
@@ -120,6 +140,21 @@ export async function POST(req: Request) {
         status: normalizedStatus,
         cohortTiming: body.cohortTiming ?? null,
         notes: body.notes ?? null,
+      }
+
+      // Check if record already exists for this tenant/instructor/date
+      const existing = await InstructorAttendanceModel.findOne({
+        tenantId: session.tenantId,
+        instructorId,
+        date
+      }).lean()
+
+      if (existing) {
+        return NextResponse.json({ 
+          success: false, 
+          error: `Attendance record already exists for ${instructorName} on ${date}. Please edit the existing record instead.`,
+          existingRecord: toUi(existing)
+        }, { status: 409 })
       }
 
       const created = await InstructorAttendanceModel.create(toSave as any)

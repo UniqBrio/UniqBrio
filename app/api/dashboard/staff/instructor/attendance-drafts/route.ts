@@ -22,6 +22,22 @@ export async function GET() {
   return runWithTenantContext({ tenantId: session.tenantId }, async () => {
     try {
       await dbConnect("uniqbrio")
+      
+      // One-time cleanup: Remove orphaned drafts without tenantId
+      try {
+        const orphaned = await InstructorAttendanceDraftModel.countDocuments({ 
+          tenantId: { $exists: false } 
+        })
+        
+        if (orphaned > 0) {
+          console.log(`Found ${orphaned} orphaned attendance drafts without tenantId, cleaning up...`)
+          await InstructorAttendanceDraftModel.deleteMany({ tenantId: { $exists: false } })
+          console.log(`Deleted ${orphaned} orphaned drafts`)
+        }
+      } catch (cleanupError) {
+        console.warn('Draft cleanup failed:', cleanupError)
+      }
+      
       const items = await InstructorAttendanceDraftModel.find({ tenantId: session.tenantId }).sort({ updatedAt: -1 }).lean()
       return NextResponse.json({ success: true, data: items.map(toUi) })
     } catch (e: any) {

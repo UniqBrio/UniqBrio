@@ -288,6 +288,44 @@ export async function POST(req: Request) {
       if (missing.length) {
         return NextResponse.json({ ok: false, error: `Missing required fields for submission: ${missing.join(', ')}` }, { status: 400 })
       }
+
+      // Check for duplicate leave request (same instructor, same date range, same reason)
+      const duplicateCheck = await LeaveRequest.findOne({
+        instructorId: body.instructorId,
+        startDate: body.startDate,
+        endDate: body.endDate,
+        reason: body.reason,
+        tenantId: session.tenantId,
+      }).lean()
+      if (duplicateCheck) {
+        return NextResponse.json({ 
+          ok: false, 
+          error: 'A leave request with the same dates and reason already exists for this instructor.' 
+        }, { status: 409 })
+      }
+
+      // Validate that the instructor exists in the database
+      const instructorExists = await Instructor.findOne({ 
+        $or: [
+          { id: body.instructorId, tenantId: session.tenantId },
+          { externalId: body.instructorId, tenantId: session.tenantId }
+        ],
+        $and: [
+          {
+            $or: [
+              { isDeleted: { $exists: false } },
+              { isDeleted: false }
+            ]
+          }
+        ]
+      }).lean()
+      if (!instructorExists) {
+        return NextResponse.json({ 
+          ok: false, 
+          error: 'The selected instructor does not exist or has been deleted. Please refresh and select a valid instructor.' 
+        }, { status: 400 })
+      }
+
       try {
         const { startDate: start, endDate: end, instructorId } = body
         const inst = await Instructor.findOne({ id: instructorId, tenantId: session.tenantId }).lean()
@@ -452,6 +490,50 @@ export async function PUT(req: Request) {
   const promotingDraft = existing.status === 'DRAFT' && nextStatus !== 'DRAFT'
   // Normalize status to uppercase for consistency
   if (updates?.status) updates.status = String(updates.status).toUpperCase()
+
+    // Check for duplicate when promoting from draft or when dates/reason change
+    if (promotingDraft || updates?.startDate || updates?.endDate || updates?.reason) {
+      const merged = { ...existing, ...updates }
+      const duplicateCheck = await LeaveRequest.findOne({
+        instructorId: merged.instructorId,
+        startDate: merged.startDate,
+        endDate: merged.endDate,
+        reason: merged.reason,
+        id: { $ne: existing.id }, // Exclude the current record
+        tenantId: session.tenantId,
+      }).lean()
+      if (duplicateCheck) {
+        return NextResponse.json({ 
+          ok: false, 
+          error: 'A leave request with the same dates and reason already exists for this instructor.' 
+        }, { status: 409 })
+      }
+    }
+
+    // Validate that the instructor exists when promoting from draft or changing instructor
+    if (promotingDraft || updates?.instructorId) {
+      const instructorIdToCheck = updates?.instructorId || existing.instructorId
+      const instructorExists = await Instructor.findOne({ 
+        $or: [
+          { id: instructorIdToCheck, tenantId: session.tenantId },
+          { externalId: instructorIdToCheck, tenantId: session.tenantId }
+        ],
+        $and: [
+          {
+            $or: [
+              { isDeleted: { $exists: false } },
+              { isDeleted: false }
+            ]
+          }
+        ]
+      }).lean()
+      if (!instructorExists) {
+        return NextResponse.json({ 
+          ok: false, 
+          error: 'The selected instructor does not exist or has been deleted. Please select a valid instructor.' 
+        }, { status: 400 })
+      }
+    }
 
     const shouldRecompute = promotingDraft || nextStatus === 'APPROVED' || updates?.startDate || updates?.endDate
     if (shouldRecompute) {

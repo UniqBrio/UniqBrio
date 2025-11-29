@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
-import { InstructorLeaveDraft, LeaveRequest } from "@/lib/dashboard/staff/models"
+import { InstructorLeaveDraft, LeaveRequest, Instructor } from "@/lib/dashboard/staff/models"
 import { getUserSession } from "@/lib/tenant/api-helpers"
 import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
@@ -58,6 +58,28 @@ export async function POST(req: Request) {
           return NextResponse.json({ ok: false, error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
         }
 
+        // Validate that the instructor exists in the database
+        const instructorExists = await Instructor.findOne({ 
+          $or: [
+            { id: body.instructorId, tenantId: session.tenantId },
+            { externalId: body.instructorId, tenantId: session.tenantId }
+          ],
+          $and: [
+            {
+              $or: [
+                { isDeleted: { $exists: false } },
+                { isDeleted: false }
+              ]
+            }
+          ]
+        }).lean()
+        if (!instructorExists) {
+          return NextResponse.json({ 
+            ok: false, 
+            error: 'The selected instructor does not exist or has been deleted. Please refresh and select a valid instructor.' 
+          }, { status: 400 })
+        }
+
         const created = await InstructorLeaveDraft.create(body)
         return NextResponse.json({ ok: true, data: created })
       } catch (err: any) {
@@ -86,6 +108,30 @@ export async function PUT(req: Request) {
         
         if (!id) {
           return NextResponse.json({ ok: false, error: "Draft ID is required" }, { status: 400 })
+        }
+
+        // Validate that the instructor exists if instructorId is being updated
+        if (updates.instructorId) {
+          const instructorExists = await Instructor.findOne({ 
+            $or: [
+              { id: updates.instructorId, tenantId: session.tenantId },
+              { externalId: updates.instructorId, tenantId: session.tenantId }
+            ],
+            $and: [
+              {
+                $or: [
+                  { isDeleted: { $exists: false } },
+                  { isDeleted: false }
+                ]
+              }
+            ]
+          }).lean()
+          if (!instructorExists) {
+            return NextResponse.json({ 
+              ok: false, 
+              error: 'The selected instructor does not exist or has been deleted. Please refresh and select a valid instructor.' 
+            }, { status: 400 })
+          }
         }
 
         const updated = await InstructorLeaveDraft.findOneAndUpdate(

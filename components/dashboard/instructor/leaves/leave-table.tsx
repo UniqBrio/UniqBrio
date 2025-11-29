@@ -708,7 +708,7 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
                     if (id === "courseId") {
                       const src = (request as any)?.courseId || (instructor as any)?.courseIds || ''
                       const f = formatListWithEllipsis(src)
-                      return <TableCell key={id} className="whitespace-nowrap" title={f.title}>{f.display}</TableCell>
+                      return <TableCell key={id} className="whitespace-nowrap">{f.display}</TableCell>
                     }
                     if (id === "cohortName") {
                       const src = request.cohortName || (instructor as any)?.cohortName || ''
@@ -718,7 +718,7 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
                     if (id === "cohortId") {
                       const src = (request as any)?.cohortId || (instructor as any)?.cohortIds || ''
                       const f = formatListWithEllipsis(src)
-                      return <TableCell key={id} className="whitespace-nowrap" title={f.title}>{f.display}</TableCell>
+                      return <TableCell key={id} className="whitespace-nowrap">{f.display}</TableCell>
                     }
                     if (id === "leaveType") return <TableCell key={id}>{request.leaveType || '�'}</TableCell>
                     if (id === "startDate") return <TableCell key={id} className="whitespace-nowrap">{request.startDate ? formatDisplayDate(request.startDate) : '�'}</TableCell>

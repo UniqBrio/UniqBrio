@@ -250,13 +250,13 @@ function leaveReducer(state: LeaveState, action: LeaveAction): LeaveState {
     case "SET_CURRENT_USER":
       return { ...state, currentUser: action.payload }
     case "ADD_LEAVE_REQUEST":
-      // Persist to backend and optimistically update UI
-      try { createLeaveRequest(action.payload).catch(() => {}) } catch {}
+      // API call is now handled in the component before dispatch
       return {
         ...state,
         leaveRequests: [...state.leaveRequests, action.payload],
       }
     case "UPDATE_LEAVE_REQUEST":
+      // API call should be handled in the component before dispatch
       try { updateLeaveRequest(action.payload.id, action.payload.updates).catch(() => {}) } catch {}
       return {
         ...state,
