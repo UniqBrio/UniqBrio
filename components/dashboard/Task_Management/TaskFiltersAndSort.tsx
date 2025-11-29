@@ -642,10 +642,16 @@ export function TaskFiltersAndSort({
 
       {/* Task Count and Column Selector Row - Hidden in Calendar View */}
       {!isCalendarView && (
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-            ? Showing {visibleTasks.length} Task{visibleTasks.length !== 1 ? 's' : ''}
-          </span>
+        <div className="flex items-center justify-between rounded-lg px-4 py-2" style={{ backgroundColor: `${primaryColor}15` }}>
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+            <span className="font-medium text-sm" style={{ color: `${primaryColor}dd` }}>
+              {visibleTasks.length}
+            </span>
+            <span className="text-sm" style={{ color: `${primaryColor}dd` }}>
+              task{visibleTasks.length !== 1 ? 's' : ''} found
+            </span>
+          </div>
           <TaskColumnSelector 
             value={displayedColumns}
             onChange={onDisplayedColumnsChange}

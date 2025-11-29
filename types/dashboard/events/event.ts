@@ -4,8 +4,8 @@ export interface Event {
   sport: string
   // UI-friendly alias for sport category; stored in DB as `sport`
   category?: string
-  // optional on frontend; backend defaults to 'Other' when omitted
-  type?: "Tournament" | "Workshop" | "Coaching Session" | "Friendly Match" | "Training Camp" | "Championship" | "Seminar" | "Tryout" | "Other"
+  // optional on frontend; backend defaults to 'Other' when omitted; allows custom event types
+  type?: string
   description?: string
   startDate: string
   startTime: string

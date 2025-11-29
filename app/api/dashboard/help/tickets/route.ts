@@ -6,7 +6,7 @@ import { sendTicketCreationEmail } from "@/lib/dashboard/email-service";
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
-import { AuditModule } from '@/models/AuditLog';
+import { AuditModule, IFieldChange } from '@/models/AuditLog';
 
 // GET - Fetch all help tickets or filter by status/email
 export async function GET(request: Request) {
@@ -111,37 +111,77 @@ export async function POST(request: Request) {
     const urgency = body.urgency || 2;
     const priority = impact + urgency;
     
-    // Generate tenant-scoped ticket ID
+    // Generate tenant-scoped ticket ID with retry logic for duplicate handling
     const { generateTicketId } = await import('@/lib/dashboard/id-generators')
-    const ticketId = await generateTicketId(session.tenantId)
+    let newTicket: any;
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    // Create new ticket
-    const newTicket = await HelpTicket.create({
-      tenantId: session.tenantId,
-      ticketId,
-      customerEmail: body.customerEmail,
-      contactType: body.contactType || 'Email',
-      title: body.title,
-      description: body.description,
-      impact,
-      urgency,
-      priority,
-      attachments: body.attachments || [],
-      status: body.status || 'Open',
-      assignedTo: body.assignedTo
-    });
+    while (retryCount < maxRetries) {
+      try {
+        // Generate new ticket ID for each attempt
+        console.log(`🎫 Generating ticket ID (attempt ${retryCount + 1}/${maxRetries}) for tenant: ${session.tenantId}`);
+        const ticketId = await generateTicketId(session.tenantId);
+        console.log(`🆔 Generated ticket ID: ${ticketId}`);
+        
+        // Create new ticket
+        newTicket = await HelpTicket.create({
+          tenantId: session.tenantId,
+          ticketId,
+          customerEmail: body.customerEmail,
+          contactType: body.contactType || 'Email',
+          title: body.title,
+          description: body.description,
+          impact,
+          urgency,
+          priority,
+          attachments: body.attachments || [],
+          status: body.status || 'Open',
+          assignedTo: body.assignedTo
+        });
+        
+        console.log(`✅ Created new help ticket: ${ticketId}`);
+        break; // Success, exit retry loop
+        
+      } catch (createError: any) {
+        console.error(`❌ Error creating ticket (attempt ${retryCount + 1}/${maxRetries}):`, {
+          code: createError.code,
+          message: createError.message,
+          keyPattern: createError.keyPattern,
+          keyValue: createError.keyValue
+        });
+        
+        if (createError.code === 11000 && retryCount < maxRetries - 1) {
+          // Duplicate key error, retry with new ID
+          retryCount++;
+          console.warn(`⚠️ Duplicate ticket ID detected, retrying (${retryCount}/${maxRetries})...`);
+          await new Promise(resolve => setTimeout(resolve, 100 * retryCount)); // Small delay
+          continue;
+        } else {
+          // Other error or max retries exceeded
+          console.error(`🚫 Failed to create ticket after ${retryCount + 1} attempts`);
+          throw createError;
+        }
+      }
+    }
     
-    console.log(`Created new help ticket: ${ticketId}`);
+    if (!newTicket) {
+      throw new Error('Failed to create ticket after multiple attempts');
+    }
     
     // Audit log: ticket creation
     try {
-      await logEntityCreate({
-        module: AuditModule.COMMUNITY,
-        action: 'ticket_create',
-        entityType: 'help_ticket',
-        entityId: newTicket.ticketId,
-        entityName: newTicket.title,
-        details: {
+      await logEntityCreate(
+        AuditModule.COMMUNITY,
+        newTicket.ticketId,
+        newTicket.title,
+        session.userId,
+        session.email,
+        'super_admin',
+        session.tenantId,
+        getClientIp(request.headers),
+        getUserAgent(request.headers),
+        {
           ticketId: newTicket.ticketId,
           subject: newTicket.title,
           status: newTicket.status,
@@ -150,20 +190,16 @@ export async function POST(request: Request) {
           contactType: newTicket.contactType,
           impact,
           urgency
-        },
-        userId: session.userId,
-        userEmail: session.email,
-        userRole: 'super_admin',
-        tenantId: session.tenantId,
-        ipAddress: getClientIp(request.headers),
-        userAgent: getUserAgent(request.headers)
-      });
+        }
+      );
     } catch (auditError) {
       console.error('Audit logging error:', auditError);
     }
     
     // Send confirmation email to customer
     try {
+      console.log(`📧 Attempting to send ticket creation email to: ${body.customerEmail}`);
+      
       const priorityLabel = priority <= 2 ? 'Critical' : priority <= 4 ? 'High' : priority <= 6 ? 'Medium' : 'Low';
       
       const emailSent = await sendTicketCreationEmail(
@@ -179,13 +215,19 @@ export async function POST(request: Request) {
       );
       
       if (emailSent) {
-        console.log(`✅ Confirmation email sent to ${body.customerEmail} for ticket ${ticketId}`);
+        console.log(`✅ Confirmation email sent successfully to ${body.customerEmail} for ticket ${newTicket.ticketId}`);
       } else {
-        console.warn(`⚠️ Failed to send confirmation email to ${body.customerEmail} for ticket ${ticketId}`);
+        console.warn(`⚠️ Failed to send confirmation email to ${body.customerEmail} for ticket ${newTicket.ticketId}`);
+        console.warn('⚠️ This could be due to missing SMTP configuration. Check SMTP_PASS environment variable.');
       }
-    } catch (emailError) {
+    } catch (emailError: any) {
       // Log email error but don't fail the ticket creation
-      console.error('Email sending error:', emailError);
+      console.error('❌ Email sending error:', emailError);
+      console.error('❌ Error details:', {
+        message: emailError.message,
+        code: emailError.code,
+        command: emailError.command
+      });
     }
     
         return NextResponse.json({
@@ -242,43 +284,43 @@ export async function PUT(request: Request) {
     
     // Prepare update data and track changes
     const updateData: any = {};
-    const changes: Record<string, { oldValue: any; newValue: any }> = {};
+    const changes: IFieldChange[] = [];
     
     if (body.customerEmail && body.customerEmail !== existingTicket.customerEmail) {
       updateData.customerEmail = body.customerEmail;
-      changes.customerEmail = { oldValue: existingTicket.customerEmail, newValue: body.customerEmail };
+      changes.push({ field: 'customerEmail', oldValue: existingTicket.customerEmail || '', newValue: body.customerEmail });
     }
     if (body.contactType && body.contactType !== existingTicket.contactType) {
       updateData.contactType = body.contactType;
-      changes.contactType = { oldValue: existingTicket.contactType, newValue: body.contactType };
+      changes.push({ field: 'contactType', oldValue: existingTicket.contactType || '', newValue: body.contactType });
     }
     if (body.title && body.title !== existingTicket.title) {
       updateData.title = body.title;
-      changes.title = { oldValue: existingTicket.title, newValue: body.title };
+      changes.push({ field: 'title', oldValue: existingTicket.title || '', newValue: body.title });
     }
     if (body.description && body.description !== existingTicket.description) {
       updateData.description = body.description;
-      changes.description = { oldValue: existingTicket.description, newValue: body.description };
+      changes.push({ field: 'description', oldValue: existingTicket.description || '', newValue: body.description });
     }
     if (body.impact !== undefined && body.impact !== existingTicket.impact) {
       updateData.impact = body.impact;
-      changes.impact = { oldValue: existingTicket.impact, newValue: body.impact };
+      changes.push({ field: 'impact', oldValue: String(existingTicket.impact), newValue: String(body.impact) });
     }
     if (body.urgency !== undefined && body.urgency !== existingTicket.urgency) {
       updateData.urgency = body.urgency;
-      changes.urgency = { oldValue: existingTicket.urgency, newValue: body.urgency };
+      changes.push({ field: 'urgency', oldValue: String(existingTicket.urgency), newValue: String(body.urgency) });
     }
     if (body.attachments !== undefined) {
       updateData.attachments = body.attachments;
-      changes.attachments = { oldValue: existingTicket.attachments, newValue: body.attachments };
+      changes.push({ field: 'attachments', oldValue: JSON.stringify(existingTicket.attachments), newValue: JSON.stringify(body.attachments) });
     }
     if (body.status && body.status !== existingTicket.status) {
       updateData.status = body.status;
-      changes.status = { oldValue: existingTicket.status, newValue: body.status };
+      changes.push({ field: 'status', oldValue: existingTicket.status || '', newValue: body.status });
     }
     if (body.assignedTo !== undefined && body.assignedTo !== existingTicket.assignedTo) {
       updateData.assignedTo = body.assignedTo;
-      changes.assignedTo = { oldValue: existingTicket.assignedTo, newValue: body.assignedTo };
+      changes.push({ field: 'assignedTo', oldValue: existingTicket.assignedTo || '', newValue: body.assignedTo || '' });
     }
     
     // Recalculate priority if impact or urgency changed
@@ -288,7 +330,7 @@ export async function PUT(request: Request) {
       const newPriority = newImpact + newUrgency;
       if (newPriority !== existingTicket.priority) {
         updateData.priority = newPriority;
-        changes.priority = { oldValue: existingTicket.priority, newValue: newPriority };
+        changes.push({ field: 'priority', oldValue: String(existingTicket.priority), newValue: String(newPriority) });
       }
     }
     
@@ -314,26 +356,18 @@ export async function PUT(request: Request) {
         
         // Audit log: ticket update
         try {
-          await logEntityUpdate({
-            module: AuditModule.COMMUNITY,
-            action: 'ticket_update',
-            entityType: 'help_ticket',
-            entityId: updatedTicket.ticketId,
-            entityName: updatedTicket.title,
+          await logEntityUpdate(
+            AuditModule.COMMUNITY,
+            updatedTicket.ticketId,
+            updatedTicket.title,
             changes,
-            details: {
-              ticketId: updatedTicket.ticketId,
-              subject: updatedTicket.title,
-              status: updatedTicket.status,
-              priority: updatedTicket.priority
-            },
-            userId: session.userId,
-            userEmail: session.email,
-            userRole: 'super_admin',
-            tenantId: session.tenantId,
-            ipAddress: getClientIp(request.headers),
-            userAgent: getUserAgent(request.headers)
-          });
+            session.userId,
+            session.email || 'Unknown User',
+            'super_admin',
+            session.tenantId,
+            getClientIp(request.headers),
+            getUserAgent(request.headers)
+          );
         } catch (auditError) {
           console.error('Audit logging error:', auditError);
         }
@@ -403,26 +437,24 @@ export async function DELETE(request: Request) {
         
         // Audit log: ticket deletion
         try {
-          await logEntityDelete({
-            module: AuditModule.COMMUNITY,
-            action: 'ticket_delete',
-            entityType: 'help_ticket',
-            entityId: ticketToDelete.ticketId,
-            entityName: ticketToDelete.title,
-            details: {
+          await logEntityDelete(
+            AuditModule.COMMUNITY,
+            ticketToDelete.ticketId,
+            ticketToDelete.title,
+            session.userId,
+            session.email || 'Unknown User',
+            'super_admin',
+            session.tenantId,
+            getClientIp(request.headers),
+            getUserAgent(request.headers),
+            {
               ticketId: ticketToDelete.ticketId,
               subject: ticketToDelete.title,
               status: ticketToDelete.status,
               priority: ticketToDelete.priority,
               customerEmail: ticketToDelete.customerEmail
-            },
-            userId: session.userId,
-            userEmail: session.email,
-            userRole: 'super_admin',
-            tenantId: session.tenantId,
-            ipAddress: getClientIp(request.headers),
-            userAgent: getUserAgent(request.headers)
-          });
+            }
+          );
         } catch (auditError) {
           console.error('Audit logging error:', auditError);
         }

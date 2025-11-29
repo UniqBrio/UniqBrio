@@ -36,10 +36,38 @@ export async function GET() {
     const count = students.length;
     console.log('✅ [Students API] Students found in students collection:', { count });
    
+    // Calculate accurate statistics
+    // Active students are those who are enrolled in at least one cohort and not deleted
+    const activeStudents = students.filter((s: any) => 
+      !s.isDeleted && (
+        (Array.isArray(s.cohorts) && s.cohorts.length > 0) || 
+        (Array.isArray(s.enrolledCohorts) && s.enrolledCohorts.length > 0) ||
+        s.cohortId
+      )
+    ).length;
+    
+    // Enrolled students are those with cohort assignments
+    const enrolledStudents = students.filter((s: any) => 
+      (Array.isArray(s.cohorts) && s.cohorts.length > 0) || 
+      (Array.isArray(s.enrolledCohorts) && s.enrolledCohorts.length > 0) ||
+      s.cohortId
+    ).length;
+    
+    // Check for students on leave today
+    // Note: If you have a StudentLeaveRequest collection, query it here
+    // For now, we'll use a field on the student document if it exists
+    const onLeaveToday = students.filter((s: any) => s.onLeave === true || s.leaveStatus === 'APPROVED').length;
+    
+    console.log('📊 [Students API] Statistics:', {
+      total: count,
+      active: activeStudents,
+      enrolled: enrolledStudents,
+      onLeave: onLeaveToday
+    });
+   
     // Log the first student record to see all available fields
     if (students.length > 0) {
       console.log('🔍 [Students API] Sample student record fields:', Object.keys(students[0]));
-      console.log('🔍 [Students API] First student record:', JSON.stringify(students[0], null, 2));
     }
    
     // Map students from the correct students collection
@@ -72,10 +100,13 @@ export async function GET() {
    
     console.log('📝 [Students API] First 3 student records:', result.slice(0, 3));
    
-        console.log('🚀 [Students API] Returning response:', { count, studentsLength: result.length });
+        console.log('🚀 [Students API] Returning response:', { count, active: activeStudents, enrolled: enrolledStudents, onLeave: onLeaveToday });
         return NextResponse.json({
           success: true,
           count,
+          active: activeStudents,
+          enrolled: enrolledStudents,
+          onLeave: onLeaveToday,
           students: result
         });
       } catch (e) {

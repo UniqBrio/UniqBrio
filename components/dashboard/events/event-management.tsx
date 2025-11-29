@@ -19,7 +19,9 @@ import {
   Trophy,
   Target,
   Zap,
-  Send
+  Send,
+  Check,
+  ChevronDown
 } from "lucide-react"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
@@ -29,6 +31,10 @@ import { createEvent, updateEvent, deleteEvent, fetchEvents, updateParticipants 
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { format } from "date-fns"
 import { fetchCourses, Course } from "@/data/dashboard/courses"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/dashboard/ui/command"
+import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/dashboard/ui/scroll-area"
 
 import type { Event } from '@/types/dashboard/events/event'
 import type { EventColumnId } from './EventColumnSelector'
@@ -986,6 +992,240 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
   )
 }
 
+// Event Type Combobox with search and "add custom" behavior
+function EventTypeCombobox({ 
+  value, 
+  onChange, 
+  eventTypes 
+}: { 
+  value: string
+  onChange: (v: string) => void
+  eventTypes: string[]
+}) {
+  const { primaryColor } = useCustomColors()
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [allEventTypes, setAllEventTypes] = useState<string[]>(eventTypes)
+
+  // Update event types when props change
+  useEffect(() => {
+    setAllEventTypes(eventTypes)
+  }, [eventTypes])
+
+  const filtered = allEventTypes.filter(type => 
+    type.toLowerCase().includes(query.toLowerCase())
+  )
+  const exists = allEventTypes.some(type => 
+    type.toLowerCase() === query.trim().toLowerCase()
+  )
+
+  const handleAddCustom = (customType: string) => {
+    const trimmed = customType.trim()
+    if (trimmed && !exists) {
+      setAllEventTypes(prev => [...prev, trimmed])
+      onChange(trimmed)
+      setOpen(false)
+      setQuery("")
+    }
+  }
+
+  return (
+    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setQuery("") }}>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open} 
+          className="w-full justify-between"
+        >
+          <span className="truncate">
+            {value || "Select event type"}
+          </span>
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
+          <CommandInput 
+            placeholder="Search or add event type..." 
+            value={query} 
+            onValueChange={setQuery}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              const q = query.trim()
+              if (e.key === 'Enter' && q && !exists) {
+                handleAddCustom(q)
+              }
+            }}
+            className="h-9"
+          />
+          <ScrollArea type="always" className="max-h-[260px]">
+            <CommandList className="max-h-[260px]" style={{ scrollBehavior: 'smooth' }}>
+              <CommandEmpty>No event type found.</CommandEmpty>
+              {/* Inline add new */}
+              {(() => {
+                const q = query.trim()
+                if (!q || exists) return null
+                return (
+                  <CommandItem
+                    onSelect={() => handleAddCustom(q)}
+                    className="font-medium"
+                    style={{ color: primaryColor }}
+                  >
+                    <div 
+                      className="mr-2 h-4 w-4 rounded border-2 flex items-center justify-center text-xs"
+                      style={{ borderColor: primaryColor }}
+                    >
+                      +
+                    </div>
+                    Add "{q}" as new event type
+                  </CommandItem>
+                )
+              })()}
+              <CommandGroup>
+                {filtered.map(type => (
+                  <CommandItem 
+                    key={type} 
+                    value={type} 
+                    onSelect={() => { 
+                      onChange(type)
+                      setOpen(false) 
+                    }}
+                  >
+                    <Check 
+                      className={cn(
+                        "mr-2 h-4 w-4", 
+                        value === type ? "opacity-100" : "opacity-0"
+                      )} 
+                    />
+                    <span className="flex-1">{type}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </ScrollArea>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+// Category Combobox with search and "add custom" behavior
+function CategoryCombobox({ 
+  value, 
+  onChange, 
+  categories 
+}: { 
+  value: string
+  onChange: (v: string) => void
+  categories: string[]
+}) {
+  const { primaryColor } = useCustomColors()
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [allCategories, setAllCategories] = useState<string[]>(categories)
+
+  // Update categories when props change
+  useEffect(() => {
+    setAllCategories(categories)
+  }, [categories])
+
+  const filtered = allCategories.filter(cat => 
+    cat.toLowerCase().includes(query.toLowerCase())
+  )
+  const exists = allCategories.some(cat => 
+    cat.toLowerCase() === query.trim().toLowerCase()
+  )
+
+  const handleAddCustom = (customCategory: string) => {
+    const trimmed = customCategory.trim()
+    if (trimmed && !exists) {
+      setAllCategories(prev => [...prev, trimmed])
+      onChange(trimmed)
+      setOpen(false)
+      setQuery("")
+    }
+  }
+
+  return (
+    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setQuery("") }}>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open} 
+          className="w-full justify-between"
+        >
+          <span className="truncate">
+            {value || "Select category (arts or sports)"}
+          </span>
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
+          <CommandInput 
+            placeholder="Search or add category..." 
+            value={query} 
+            onValueChange={setQuery}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              const q = query.trim()
+              if (e.key === 'Enter' && q && !exists) {
+                handleAddCustom(q)
+              }
+            }}
+            className="h-9"
+          />
+          <ScrollArea type="always" className="max-h-[260px]">
+            <CommandList className="max-h-[260px]" style={{ scrollBehavior: 'smooth' }}>
+              <CommandEmpty>No category found.</CommandEmpty>
+              {/* Inline add new */}
+              {(() => {
+                const q = query.trim()
+                if (!q || exists) return null
+                return (
+                  <CommandItem
+                    onSelect={() => handleAddCustom(q)}
+                    className="font-medium"
+                    style={{ color: primaryColor }}
+                  >
+                    <div 
+                      className="mr-2 h-4 w-4 rounded border-2 flex items-center justify-center text-xs"
+                      style={{ borderColor: primaryColor }}
+                    >
+                      +
+                    </div>
+                    Add "{q}" as new category
+                  </CommandItem>
+                )
+              })()}
+              <CommandGroup>
+                {filtered.map(cat => (
+                  <CommandItem 
+                    key={cat} 
+                    value={cat} 
+                    onSelect={() => { 
+                      onChange(cat)
+                      setOpen(false) 
+                    }}
+                  >
+                    <Check 
+                      className={cn(
+                        "mr-2 h-4 w-4", 
+                        value === cat ? "opacity-100" : "opacity-0"
+                      )} 
+                    />
+                    <span className="flex-1">{cat}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </ScrollArea>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // Enhanced Event Form Modal with all sports academy fields
 export function EventFormModal({
   event,
@@ -1176,34 +1416,25 @@ export function EventFormModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Category <span className="text-red-500">*</span></label>
-                <select
+                <CategoryCombobox
                   value={formData.sport || ""}
-                  onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${validationErrors.sport ? 'border-red-500' : 'border-gray-300'}`}
-                >
-                  <option value="">Select category (arts or sports)</option>
-                  {(() => {
+                  onChange={(value) => setFormData({ ...formData, sport: value })}
+                  categories={(() => {
                     const courseNames = courses.map(c => c.name).filter(Boolean)
-                    const combined = Array.from(new Set([...categoryList, ...courseNames]))
-                    return combined.map(cat => <option key={cat} value={cat}>{cat}</option>)
+                    return Array.from(new Set([...categoryList, ...courseNames]))
                   })()}
-                </select>
+                />
                 {validationErrors.sport && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.sport}</p>
                 )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Event Type</label>
-                <select
+                <EventTypeCombobox
                   value={formData.type || ""}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as Event["type"] })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${validationErrors.type ? 'border-red-500' : 'border-gray-300'}`}
-                >
-                  <option value="">Select event type</option>
-                  {eventTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+                  onChange={(value) => setFormData({ ...formData, type: value })}
+                  eventTypes={eventTypes}
+                />
                 {validationErrors.type && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.type}</p>
                 )}

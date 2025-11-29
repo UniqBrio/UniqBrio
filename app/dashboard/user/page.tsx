@@ -120,20 +120,31 @@ export default function UserManagementPage() {
         ])
 
         console.log('User Management Data loaded:', { 
-          studentsCount: studentsData.count || studentsData.students?.length || 0,
+          studentsCount: studentsData.count || 0,
+          studentsActive: studentsData.active || 0,
+          studentsEnrolled: studentsData.enrolled || 0,
+          studentsOnLeave: studentsData.onLeave || 0,
           instructorsCount: instructorsData.total || 0,
+          instructorsActive: instructorsData.active || 0,
+          instructorsOnLeave: instructorsData.onLeave || 0,
           nonInstructorsCount: nonInstructorsData.total || 0,
+          nonInstructorsActive: nonInstructorsData.active || 0,
+          nonInstructorsOnLeave: nonInstructorsData.onLeave || 0,
           parentsCount: parentsData.total || 0,
-          alumniCount: alumniData.total || 0
+          parentsActive: parentsData.active || 0,
+          parentsVerified: parentsData.verified || 0,
+          alumniCount: alumniData.total || 0,
+          alumniActive: alumniData.active || 0,
+          alumniEngaged: alumniData.engaged || 0
         })
 
-        // Set calculated statistics
+        // Set statistics from actual API data - NO FALLBACK CALCULATIONS
         setUserStats({
           students: {
-            total: studentsData.count || studentsData.students?.length || 0,
-            active: studentsData.active || Math.round((studentsData.count || 0) * 0.85),
-            enrolled: studentsData.enrolled || Math.round((studentsData.count || 0) * 0.92),
-            onLeave: studentsData.onLeave || Math.round((studentsData.count || 0) * 0.08)
+            total: studentsData.count || 0,
+            active: studentsData.active || 0,
+            enrolled: studentsData.enrolled || 0,
+            onLeave: studentsData.onLeave || 0
           },
           staff: {
             total: (instructorsData.total || 0) + (nonInstructorsData.total || 0),
@@ -145,13 +156,13 @@ export default function UserManagementPage() {
           },
           parents: {
             total: parentsData.total || 0,
-            active: parentsData.active || Math.round((parentsData.total || 0) * 0.75),
-            verified: parentsData.verified || Math.round((parentsData.total || 0) * 0.90)
+            active: parentsData.active || 0,
+            verified: parentsData.verified || 0
           },
           alumni: {
             total: alumniData.total || 0,
-            active: alumniData.active || Math.round((alumniData.total || 0) * 0.45),
-            engaged: alumniData.engaged || Math.round((alumniData.total || 0) * 0.30)
+            active: alumniData.active || 0,
+            engaged: alumniData.engaged || 0
           }
         })
 
@@ -159,56 +170,63 @@ export default function UserManagementPage() {
         const activities: RecentActivity[] = []
         let activityId = 1
 
-        // Add student activities
+        // Add student activities - use actual data
         if (studentsData.count > 0) {
+          const activeCount = studentsData.active || 0
+          const enrolledCount = studentsData.enrolled || 0
+          const onLeaveCount = studentsData.onLeave || 0
+          
           activities.push({
             id: String(activityId++),
             type: "student",
             title: "Student Enrollment Update",
-            description: `${studentsData.count} students enrolled across all programs. ${Math.round((studentsData.count || 0) * 0.92)} active enrollments with ${Math.round((studentsData.count || 0) * 0.08)} students on leave.`,
+            description: `${studentsData.count} students enrolled across all programs. ${activeCount} active students, ${enrolledCount} enrolled in cohorts, ${onLeaveCount} students on leave.`,
             timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
             status: "success"
           })
         }
 
-        // Add staff activities
+        // Add staff activities - use actual data
         const totalStaff = (instructorsData.total || 0) + (nonInstructorsData.total || 0)
         if (totalStaff > 0) {
+          const totalOnLeave = (instructorsData.onLeave || 0) + (nonInstructorsData.onLeave || 0)
+          const totalActive = (instructorsData.active || 0) + (nonInstructorsData.active || 0)
+          
           activities.push({
             id: String(activityId++),
             type: "staff",
             title: "Staff Attendance Summary",
-            description: `${totalStaff} total staff members: ${instructorsData.total || 0} instructors and ${nonInstructorsData.total || 0} non-instructors. ${(instructorsData.onLeave || 0) + (nonInstructorsData.onLeave || 0)} currently on leave.`,
+            description: `${totalStaff} total staff members: ${instructorsData.total || 0} instructors (${instructorsData.active || 0} active) and ${nonInstructorsData.total || 0} non-instructors (${nonInstructorsData.active || 0} active). ${totalOnLeave} currently on leave.`,
             timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
             status: "info"
           })
         }
 
-        // Add parent activities
+        // Add parent activities - use actual data
         if (parentsData.total > 0) {
           activities.push({
             id: String(activityId++),
             type: "parent",
             title: "Parent Engagement Metrics",
-            description: `${parentsData.total} registered parents with ${Math.round((parentsData.total || 0) * 0.90)} verified accounts. Active engagement rate: ${Math.round(((parentsData.total || 0) * 0.75 / (parentsData.total || 1)) * 100)}%.`,
+            description: `${parentsData.total} registered parents with ${parentsData.verified || 0} verified accounts. ${parentsData.active || 0} parents actively engaged.`,
             timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
             status: "success"
           })
         }
 
-        // Add alumni activities
+        // Add alumni activities - use actual data
         if (alumniData.total > 0) {
           activities.push({
             id: String(activityId++),
             type: "alumni",
             title: "Alumni Network Growth",
-            description: `${alumniData.total} alumni registered with ${Math.round((alumniData.total || 0) * 0.45)} active members. Recent engagement: ${Math.round((alumniData.total || 0) * 0.30)} alumni participated in events.`,
+            description: `${alumniData.total} alumni registered with ${alumniData.active || 0} active members. ${alumniData.engaged || 0} alumni participated in recent events.`,
             timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
             status: "info"
           })
         }
 
-        // Add system-wide activity
+        // Add system-wide activity - use actual data
         const totalUsers = (studentsData.count || 0) + totalStaff + (parentsData.total || 0) + (alumniData.total || 0)
         activities.push({
           id: String(activityId++),
@@ -512,36 +530,21 @@ export default function UserManagementPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span style={{ color: secondaryColor }}>Instructors</span>
-                        <span style={{ color: secondaryColor, opacity: 0.9 }}>{userStats.staff.instructors}</span>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div className="text-xs mb-1" style={{ color: secondaryColor }}>Instructors</div>
+                        <div className="text-2xl " style={{ color: `${secondaryColor}dd` }}>{userStats.staff.instructors}</div>
                       </div>
-                      <Progress 
-                        value={(userStats.staff.instructors / userStats.staff.total) * 100} 
-                        className="h-2"
-                        style={{ backgroundColor: `${secondaryColor}20`, ['--progress-background' as any]: secondaryColor }}
-                      />
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div className="text-xs mb-1" style={{ color: secondaryColor }}>Non-Instructors</div>
+                        <div className="text-2xl " style={{ color: `${secondaryColor}dd` }}>{userStats.staff.nonInstructors}</div>
+                      </div>
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
+                        <div className="text-xs mb-1" style={{ color: secondaryColor }}>Total Staff</div>
+                        <div className="text-2xl " style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total}</div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span style={{ color: secondaryColor }}>Non-Instructors</span>
-                        <span style={{ color: secondaryColor, opacity: 0.9 }}>{userStats.staff.nonInstructors}</span>
-                      </div>
-                      <Progress value={(userStats.staff.nonInstructors / userStats.staff.total) * 100} className="h-2" style={{ backgroundColor: `${secondaryColor}20`, ['--progress-background' as any]: secondaryColor }} />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
-                        <div style={{ color: secondaryColor }}>{`Total Staff`}</div>
-                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.total}</div>
-                      </div>
-                      <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
-                        <div style={{ color: secondaryColor }}>{`On Leave Today`}</div>
-                        <div className="font-semibold" style={{ color: `${secondaryColor}dd` }}>{userStats.staff.onLeave}</div>
-                      </div>
-                    </div>
 
                     <Button
                       className="w-full text-white"
@@ -568,21 +571,7 @@ export default function UserManagementPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span style={{ color: primaryColor }}>{`Active Instructors`}</span>
-                        <span style={{ color: `${primaryColor}dd` }}>{userStats.staff.instructors - userStats.staff.instructorsOnLeave}/{userStats.staff.instructors}</span>
-                      </div>
-                      <div className="relative h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
-                        <div 
-                          className="h-full transition-all" 
-                          style={{ 
-                            backgroundColor: primaryColor,
-                            width: `${userStats.staff.instructors > 0 ? ((userStats.staff.instructors - userStats.staff.instructorsOnLeave) / userStats.staff.instructors) * 100 : 0}%`
-                          }} 
-                        />
-                      </div>
-                    </div>
+                    
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${primaryColor}50` }}>
@@ -620,17 +609,7 @@ export default function UserManagementPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span style={{ color: secondaryColor }}>{`Active Non-Instructors`}</span>
-                        <span style={{ color: `${secondaryColor}dd` }}>{userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave}/{userStats.staff.nonInstructors}</span>
-                      </div>
-                      <Progress 
-                        value={userStats.staff.nonInstructors > 0 ? ((userStats.staff.nonInstructors - userStats.staff.nonInstructorsOnLeave) / userStats.staff.nonInstructors) * 100 : 0} 
-                        className="h-2"
-                        style={{ '--progress-background': `${secondaryColor}20`, '--progress-foreground': secondaryColor } as React.CSSProperties}
-                      />
-                    </div>
+                    
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded" style={{ borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
@@ -703,24 +682,9 @@ export default function UserManagementPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-green-700 dark:text-green-400">Active Alumni</span>
-                        <span className="text-green-900 dark:text-green-300">-</span>
-                      </div>
-                      <Progress 
-                        value={0} 
-                        className="h-2 bg-green-100 dark:bg-green-900/30 [&>div]:bg-green-500 dark:[&>div]:bg-green-600" 
-                      />
-                    </div>
+                   
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-green-700 dark:text-green-400">Engagement Rate</span>
-                        <span className="text-green-900 dark:text-green-300">-</span>
-                      </div>
-                      <Progress value={0} className="h-2 bg-green-100 dark:bg-green-900/30 [&>div]:bg-green-500 dark:[&>div]:bg-green-600" />
-                    </div>
+                    
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded border border-green-200 dark:border-green-700">
@@ -791,12 +755,12 @@ export default function UserManagementPage() {
                               <stop offset="100%" stopColor={secondaryColor} stopOpacity="1" />
                             </linearGradient>
                             <linearGradient id="parentsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor={primaryColor} stopOpacity="0.8" />
-                              <stop offset="100%" stopColor={primaryColor} stopOpacity="1" />
+                              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+                              <stop offset="100%" stopColor="#2563eb" stopOpacity="1" />
                             </linearGradient>
                             <linearGradient id="alumniGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor={secondaryColor} stopOpacity="0.8" />
-                              <stop offset="100%" stopColor={secondaryColor} stopOpacity="1" />
+                              <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
+                              <stop offset="100%" stopColor="#059669" stopOpacity="1" />
                             </linearGradient>
                           </defs>
                           
@@ -910,18 +874,18 @@ export default function UserManagementPage() {
                           <div className="text-xs" style={{ color: secondaryColor }}>{Math.round((userStats.staff.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${primaryColor}20`, borderWidth: '1px', borderColor: `${primaryColor}50` }}>
-                        <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${primaryColor}cc, ${primaryColor})` }}></div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#3b82f620', borderWidth: '1px', borderColor: '#3b82f650' }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: 'linear-gradient(to bottom right, #3b82f6cc, #2563eb)' }}></div>
                         <div>
-                          <div className="font-medium text-sm" style={{ color: `${primaryColor}dd` }}>{userStats.parents.total} Parents</div>
-                          <div className="text-xs" style={{ color: primaryColor }}>{Math.round((userStats.parents.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-sm" style={{ color: '#2563eb' }}>{userStats.parents.total} Parents</div>
+                          <div className="text-xs" style={{ color: '#3b82f6' }}>{Math.round((userStats.parents.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: `${secondaryColor}20`, borderWidth: '1px', borderColor: `${secondaryColor}50` }}>
-                        <div className="w-4 h-4 rounded-full" style={{ background: `linear-gradient(to bottom right, ${secondaryColor}cc, ${secondaryColor})` }}></div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#10b98120', borderWidth: '1px', borderColor: '#10b98150' }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: 'linear-gradient(to bottom right, #10b981cc, #059669)' }}></div>
                         <div>
-                          <div className="font-medium text-sm" style={{ color: `${secondaryColor}dd` }}>{userStats.alumni.total} Alumni</div>
-                          <div className="text-xs" style={{ color: secondaryColor }}>{Math.round((userStats.alumni.total / totalUsers) * 100)}% of total</div>
+                          <div className="font-medium text-sm" style={{ color: '#059669' }}>{userStats.alumni.total} Alumni</div>
+                          <div className="text-xs" style={{ color: '#10b981' }}>{Math.round((userStats.alumni.total / totalUsers) * 100)}% of total</div>
                         </div>
                       </div>
                     </div>

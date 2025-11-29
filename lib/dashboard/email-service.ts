@@ -42,6 +42,14 @@ export interface EmailOptions {
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
+    // Check if SMTP credentials are configured
+    if (!SMTP_CONFIG.auth.pass) {
+      console.error('❌ SMTP password not configured. Please set SMTP_PASS environment variable.');
+      console.log('Email would have been sent to:', options.to);
+      console.log('Subject:', options.subject);
+      return false;
+    }
+
     const mailOptions = {
       from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
       to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
@@ -54,7 +62,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     const transport = getTransporter();
     const info = await transport.sendMail(mailOptions);
 
-    console.log('Email sent successfully:', {
+    console.log('✅ Email sent successfully:', {
       messageId: info.messageId,
       to: options.to,
       subject: options.subject,
@@ -62,8 +70,10 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
     return true;
   } catch (error: any) {
-    console.error('Error sending email:', {
+    console.error('❌ Error sending email:', {
       error: error.message,
+      code: error.code,
+      command: error.command,
       to: options.to,
       subject: options.subject,
     });

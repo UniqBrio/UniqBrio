@@ -51,7 +51,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const [showResetThemeDialog, setShowResetThemeDialog] = useState(false)
   const [isLoadingFormats, setIsLoadingFormats] = useState(true)
   const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true)
-  const DEFAULT_COLORS = ["#8b5cf6", "#DE7D14"]
+  const DEFAULT_COLORS = ["#6708c0", "#DE7D14"]
   const [selectedColors, setSelectedColors] = useState<string[]>(
     customColors || DEFAULT_COLORS
   )
@@ -70,7 +70,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const [settings, setSettings] = useState({
     dateFormat: preferences?.dateFormat || "dd-MMM-yyyy",
     timeFormat: preferences?.timeFormat || "12h",
-    currency: preferences?.currency || "USD",
+    currency: preferences?.currency || "INR",
     country: preferences?.country || "",
     timeZone: preferences?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
   })

@@ -20,11 +20,12 @@ import {
   DialogTitle,
 } from "@/components/dashboard/ui/dialog"
 import { useToast } from "@/hooks/dashboard/use-toast"
+import { getSession } from "@/app/actions/auth-actions"
 
 export default function HelpPage() {
   const { primaryColor, secondaryColor } = useCustomColors()
   const { toast } = useToast()
-  const [customerEmail, setCustomerEmail] = useState("")
+  const [userEmail, setUserEmail] = useState("")
   const [ticketTitle, setTicketTitle] = useState("")
   const [ticketDescription, setTicketDescription] = useState("")
   const [attachments, setAttachments] = useState<File[]>([])
@@ -94,6 +95,17 @@ export default function HelpPage() {
   const [tickets, setTickets] = useState<any[]>([])
   const [isLoadingTickets, setIsLoadingTickets] = useState(false)
   const [isLoadingChats, setIsLoadingChats] = useState(false)
+
+  // Fetch user session
+  useEffect(() => {
+    const fetchUserSession = async () => {
+      const session = await getSession()
+      if (session?.email) {
+        setUserEmail(session.email)
+      }
+    }
+    fetchUserSession()
+  }, [])
 
   // Fetch tickets from backend on component mount
   useEffect(() => {
@@ -243,6 +255,54 @@ export default function HelpPage() {
   const handleSubmitTicket = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validate required fields
+    if (!userEmail) {
+      toast({
+        title: "❌ Email Required",
+        description: "Unable to fetch your email. Please refresh the page and try again.",
+        duration: 5000,
+      })
+      return
+    }
+
+    if (!ticketTitle.trim()) {
+      toast({
+        title: "❌ Title Required",
+        description: "Please enter a ticket title.",
+        duration: 5000,
+      })
+      return
+    }
+
+    if (!ticketDescription.trim()) {
+      toast({
+        title: "❌ Description Required",
+        description: "Please enter a ticket description.",
+        duration: 5000,
+      })
+      return
+    }
+
+    if (ticketTitle.trim().length < 3) {
+      toast({
+        title: "❌ Title Too Short",
+        description: "Ticket title must be at least 3 characters.",
+        duration: 5000,
+      })
+      return
+    }
+
+    if (ticketDescription.trim().length < 5) {
+      toast({
+        title: "❌ Description Too Short",
+        description: "Ticket description must be at least 5 characters.",
+        duration: 5000,
+      })
+      return
+    }
+
+    setCreatingTicket(true)
+    
     try {
       // Prepare attachments data (file metadata)
       const attachmentsData = attachments.map(file => ({
@@ -257,7 +317,7 @@ export default function HelpPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          customerEmail,
+          customerEmail: userEmail,
           title: ticketTitle,
           description: ticketDescription,
           attachments: attachmentsData
@@ -288,7 +348,6 @@ export default function HelpPage() {
         }, 3000)
         
         // Reset form
-        setCustomerEmail("")
         setTicketTitle("")
         setTicketDescription("")
         setAttachments([])
@@ -301,6 +360,7 @@ export default function HelpPage() {
           variant: "destructive",
           duration: 5000,
         })
+        setCreatingTicket(false)
       }
     } catch (error) {
       console.error('Error submitting ticket:', error)
@@ -310,6 +370,7 @@ export default function HelpPage() {
         variant: "destructive",
         duration: 5000,
       })
+      setCreatingTicket(false)
     }
   }
 
@@ -720,8 +781,14 @@ export default function HelpPage() {
                           <ArrowLeft className="h-4 w-4" />
                         </Button>
                       )}
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: primaryColor }}>
-                        <Sparkles className="h-6 w-6 text-white" />
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg">
+                        <Image 
+                          src="/help chatbot image.jpg" 
+                          alt="AI Assistant" 
+                          width={56}
+                          height={56}
+                          className="object-cover"
+                        />
                       </div>
                       <div>
                         <CardTitle style={{ color: primaryColor }}>
@@ -1086,17 +1153,6 @@ export default function HelpPage() {
           </DialogHeader>
           <form onSubmit={handleSubmitTicket} className="space-y-4 py-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Customer Email <span className="text-red-600">*</span></label>
-              <Input
-                type="email"
-                placeholder="customer@example.com"
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-medium mb-2">Title <span className="text-red-600">*</span></label>
               <Input
                 placeholder="Brief description of the issue"
@@ -1214,10 +1270,6 @@ export default function HelpPage() {
               <div>
                 <label className="text-sm font-semibold text-gray-700 dark:text-white">Title</label>
                 <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.title}</p>
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-gray-700 dark:text-white">Customer Email</label>
-                <p className="text-sm text-gray-900 dark:text-white mt-1">{viewingTicket.customerEmail}</p>
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 dark:text-white">Contact Type</label>

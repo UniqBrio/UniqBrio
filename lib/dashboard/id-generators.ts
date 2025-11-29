@@ -27,6 +27,9 @@ async function generateSequentialId<T>(
   while (attempts < maxAttempts) {
     // Get all existing IDs for this tenant with the pattern PREFIX####
     const regexPattern = new RegExp(`^${prefix}\\d{4}$`);
+    
+    console.log(`🔍 Searching for existing ${prefix} IDs for tenant: ${tenantId}`);
+    
     const existing = await Model.find(
       { 
         [idField]: { $regex: regexPattern },
@@ -34,6 +37,8 @@ async function generateSequentialId<T>(
       },
       { [idField]: 1, _id: 0 }
     ).lean();
+
+    console.log(`📋 Found ${existing.length} existing ${prefix} IDs:`, existing.map((doc: any) => doc[idField]).join(', '));
 
     // Extract numbers from existing IDs
     const numbers: number[] = [];
@@ -62,12 +67,14 @@ async function generateSequentialId<T>(
     }
 
     const candidateId = `${prefix}${String(candidateNum).padStart(4, '0')}`;
+    
+    console.log(`🎯 Candidate ID: ${candidateId}`);
 
-    // Check for collision
+    // Check for collision with explicit query
     const collision = await Model.findOne({ 
       [idField]: candidateId,
       tenantId 
-    });
+    }).lean();
 
     if (!collision) {
       console.log(`✅ Generated ${candidateId} for tenant ${tenantId}`);
@@ -75,7 +82,7 @@ async function generateSequentialId<T>(
     }
 
     attempts++;
-    console.warn(`⚠️ ID collision on ${candidateId}, retrying (attempt ${attempts}/${maxAttempts})`);
+    console.warn(`⚠️ ID collision on ${candidateId}, retrying (attempt ${attempts}/${maxAttempts})`, collision);
   }
 
   // Fallback to timestamp-based ID if max attempts exceeded
@@ -151,7 +158,7 @@ export async function generateEventId(tenantId: string): Promise<string> {
  * Format: TKT0001, TKT0002, etc.
  */
 export async function generateTicketId(tenantId: string): Promise<string> {
-  return generateSequentialId(HelpTicket, 'TKT', 'ticketId', tenantId);
+  return generateSequentialId(HelpTicket, 'TKT', 'ticketId', tenantId, 10);
 }
 
 /**

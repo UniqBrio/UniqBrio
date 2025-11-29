@@ -60,7 +60,7 @@ const helpTicketSchema = new Schema<IHelpTicket>({
     type: String,
     required: true,
     trim: true,
-    minlength: 10,
+    minlength: 5,
     maxlength: 5000
   },
   impact: {
