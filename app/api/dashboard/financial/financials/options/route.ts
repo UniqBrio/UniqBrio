@@ -93,11 +93,12 @@ export async function GET(_req: NextRequest) {
           Array.from(new Set((arr || []).map((s) => String(s || "").trim()).filter(Boolean)));
 
         // Default options for new tenants with no existing records
-        const defaultIncomeCategories = ['Course Fee', 'Registration Fee', 'Coaching Fee', 'Equipment Sale', 'Event Fee', 'Sponsorship', 'Donation', 'Membership Fee', 'Merchandise', 'Other'];
-        const defaultIncomeSources = ['Student', 'Parent', 'Corporate', 'Government Grant', 'Sponsorship', 'Event', 'Online', 'Walk-in', 'Referral', 'Other'];
-        const defaultPaymentModes = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit Card', 'Cheque', 'Net Banking', 'Wallet'];
-        const defaultExpenseCategories = ['Salaries', 'Rent', 'Utilities', 'Equipment', 'Maintenance', 'Marketing', 'Travel', 'Supplies', 'Insurance', 'Other'];
-        const defaultVendorTypes = ['Supplier', 'Service Provider', 'Contractor', 'Utility', 'Government', 'Other'];
+        const defaultIncomeCategories = ['Course Fee', 'Registration Fee', 'Coaching Fee', 'Event Fee', 'Other'];
+        const defaultIncomeSources = ['Student', 'Parent', 'Corporate', 'Online', 'Other'];
+        const defaultPaymentModes = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Cheque'];
+        const defaultExpenseCategories = ['Salaries', 'Rent', 'Utilities', 'Equipment', 'Other'];
+        const defaultVendorNames = ['Local Supplier', 'Service Provider', 'Utility Company', 'Landlord', 'Other'];
+        const defaultVendorTypes = ['Supplier', 'Service Provider', 'Contractor', 'Employee', 'Other'];
 
         // Merge existing records with defaults (existing values take priority, defaults fill in gaps)
         const mergeWithDefaults = (existing: any[], defaults: string[]) => {
@@ -118,7 +119,7 @@ export async function GET(_req: NextRequest) {
           accounts: normalize(allAccounts), // No defaults for accounts - they should come from bank setup
           primaryAccount: primaryAccountLabel, // The primary bank account label for default selection
           expenseCategories: mergeWithDefaults(expenseCategoriesRaw, defaultExpenseCategories),
-          vendorNames: normalize(vendorNamesRaw), // No defaults for vendor names
+          vendorNames: mergeWithDefaults(vendorNamesRaw, defaultVendorNames), // Default vendor names for new users
           vendorTypes: mergeWithDefaults(vendorTypesRaw, defaultVendorTypes),
         };
 

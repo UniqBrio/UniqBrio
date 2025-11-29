@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/dashboard/ui/a
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/dashboard/ui/command"
-import { User, Mail, Phone, MapPin, Calendar, Camera, Save, Check, ChevronDown, Pencil } from "lucide-react"
+import { User, Mail, Phone, MapPin, Calendar, Camera, Save, Check, ChevronDown, Pencil, X } from "lucide-react"
 import { toast } from "@/components/dashboard/ui/use-toast"
 import { isPossiblePhoneNumber } from "libphonenumber-js"
 import { useCountryCodes } from "@/hooks/dashboard/staff/use-country-codes"
@@ -150,6 +150,57 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     reader.readAsDataURL(file)
   }
 
+  const handleRemovePhoto = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to remove your profile picture?"
+    )
+    
+    if (!confirmed) return
+
+    try {
+      // Clear local state
+      setAvatarPreview(null)
+      setProfilePictureUrl(null)
+      setFormData(prev => ({ ...prev, avatar: "" }))
+
+      // Update user profile with empty avatar
+      await onUpdate({ ...formData, avatar: "" })
+
+      // Also update profile picture in academy info
+      const academyResponse = await fetch('/api/dashboard/academy-info')
+      if (academyResponse.ok) {
+        const academyData = await academyResponse.json()
+        const businessInfo = academyData.businessInfo || {}
+
+        await fetch('/api/dashboard/academy-info', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessInfo: {
+              ...businessInfo,
+              profilePicture: null
+            }
+          })
+        })
+      }
+
+      // Emit event to refresh header immediately
+      window.dispatchEvent(new CustomEvent('profileImageUpdated'))
+
+      toast({
+        title: "Profile Picture Removed",
+        description: "Your profile picture has been removed successfully.",
+      })
+    } catch (error) {
+      console.error('Error removing profile picture:', error)
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const validatePhone = (raw: string, countryIso?: string, dial?: string) => {
     const digits = raw.replace(/[^0-9]/g, "")
     if (!digits) {
@@ -256,6 +307,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 <Avatar
                   className="h-20 w-20 sm:h-24 sm:w-24 cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
+                  title="Click to change photo (PNG/JPG, max 2MB)"
                 >
                   <AvatarImage src={avatarPreview || user?.avatar} alt={user?.name} />
                   <AvatarFallback
@@ -268,9 +320,18 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 <div
                   className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
+                  title="Click to change photo (PNG/JPG, max 2MB)"
                 >
                
                 </div>
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md transition-colors opacity-0 group-hover:opacity-100"
+                  title="Remove profile picture"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </>
             ) : (
               <div
@@ -279,6 +340,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 style={{ borderColor: `${primaryColor}40` }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${primaryColor}80`)}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = `${primaryColor}40`)}
+                title="Click to upload photo (PNG/JPG, max 2MB)"
               >
                 <Camera className="h-8 w-8 text-gray-400 dark:text-gray-500" style={{ color: `${primaryColor}80` }} />
               </div>

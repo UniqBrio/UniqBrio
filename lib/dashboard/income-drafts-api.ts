@@ -21,6 +21,7 @@ export class IncomeDraftsAPI {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(draftData),
     });
 
@@ -33,7 +34,9 @@ export class IncomeDraftsAPI {
 
   // Get all income drafts
   static async getAllDrafts(): Promise<IncomeDraft[]> {
-    const response = await fetch(this.BASE_URL);
+    const response = await fetch(this.BASE_URL, {
+      credentials: 'include',
+    });
 
     if (!response.ok) {
       throw new Error(`Failed to fetch income drafts: ${response.statusText}`);
@@ -49,6 +52,7 @@ export class IncomeDraftsAPI {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(draftData),
     });
 
@@ -63,6 +67,7 @@ export class IncomeDraftsAPI {
   static async deleteDraft(id: string): Promise<void> {
     const response = await fetch(`${this.BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
 
     if (!response.ok) {

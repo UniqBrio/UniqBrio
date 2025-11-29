@@ -338,6 +338,12 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   }
 
   const resetToDefaultColors = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to reset the theme colors to default (Purple and Orange)? This action cannot be undone."
+    )
+    
+    if (!confirmed) return
+    
     setSelectedColors([...DEFAULT_COLORS])
     resetColors() // Call the context function to reset globally
     toast({
@@ -635,7 +641,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
                       </span>
                     </div>
                     <div className="rounded-xl border border-dashed p-3">
-                      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Palette Chips</p>
+                      <p className="text-xs tracking-wide text-gray-500 dark:text-gray-400 mb-2">Palette Chips</p>
                       <div className="flex gap-3 flex-wrap">
                         {selectedColors.map((color, index) => (
                           <div key={`${color}-${index}`} className="flex items-center gap-2">

@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
           category: category || data.expenseCategory || 'Uncategorized',
           amount: amount || data.amount || '0',
           data,
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
+          tenantId: session.tenantId
         };
         
         const result = await ExpenseDraftModel.create(newDraft);

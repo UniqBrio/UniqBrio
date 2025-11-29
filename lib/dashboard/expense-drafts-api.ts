@@ -21,6 +21,7 @@ export class ExpenseDraftsAPI {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(draftData),
     });
 
@@ -33,7 +34,9 @@ export class ExpenseDraftsAPI {
 
   // Get all expense drafts
   static async getAllDrafts(): Promise<ExpenseDraft[]> {
-    const response = await fetch(this.BASE_URL);
+    const response = await fetch(this.BASE_URL, {
+      credentials: 'include',
+    });
 
     if (!response.ok) {
       throw new Error(`Failed to fetch expense drafts: ${response.statusText}`);
@@ -49,6 +52,7 @@ export class ExpenseDraftsAPI {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(draftData),
     });
 
@@ -63,6 +67,7 @@ export class ExpenseDraftsAPI {
   static async deleteDraft(id: string): Promise<void> {
     const response = await fetch(`${this.BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
 
     if (!response.ok) {

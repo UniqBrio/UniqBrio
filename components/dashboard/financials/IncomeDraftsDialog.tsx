@@ -232,11 +232,9 @@ export function IncomeDraftsDialog({
                         <h3 className="font-medium text-gray-900 dark:text-white mb-1">
                           {draft.name}
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-white mb-2">
-                                                <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-gray-600 dark:text-white mb-2">
                           {draft.category} {draft.amount && draft.amount !== '0' && `${currency} ${draft.amount}`}
                         </div>
-                        </p>
                         <div className="flex items-center gap-2 mb-2">
                           <Badge 
                             variant="outline" 

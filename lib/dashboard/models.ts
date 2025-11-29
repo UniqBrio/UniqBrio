@@ -59,6 +59,7 @@ const BankAccountSchema = new Schema(
     ifsc: { type: String, required: true },
     branch: { type: String, required: true },
     micr: { type: String },
+    isPrimary: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
