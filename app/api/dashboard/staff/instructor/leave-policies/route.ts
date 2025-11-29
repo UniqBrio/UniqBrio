@@ -20,17 +20,19 @@ export async function GET() {
     async () => {
       try {
         await dbConnect("uniqbrio")
-        let policy = await LeavePolicy.findOne({ key: 'default' }).lean()
+        // Query with explicit tenantId for tenant isolation
+        let policy = await LeavePolicy.findOne({ key: 'default', tenantId: session.tenantId }).lean()
     if (!policy) {
       const newPolicy = await LeavePolicy.create({
         key: 'default',
+        tenantId: session.tenantId,
         quotaType: 'Monthly Quota',
         autoReject: false,
         allocations: { junior: 12, senior: 16, managers: 24 },
         carryForward: true,
         workingDays: [1,2,3,4,5,6],
       })
-        policy = await LeavePolicy.findOne({ key: 'default' }).lean()
+        policy = await LeavePolicy.findOne({ key: 'default', tenantId: session.tenantId }).lean()
       }
       return NextResponse.json({ ok: true, data: policy })
     } catch (err: any) {
@@ -60,12 +62,20 @@ export async function PUT(req: Request) {
     if (quotaType && !quotaValues.includes(quotaType)) {
       return NextResponse.json({ ok: false, error: 'Invalid quotaType' }, { status: 400 })
     }
-    const update: any = {}
-    if (quotaType) update.quotaType = quotaType
-    if (typeof autoReject === 'boolean') update.autoReject = autoReject
-    // We'll collect atomic $set operations for allocations.<role>
-    const atomicSet: Record<string, any> = {}
+    
+    const setOperations: Record<string, any> = {}
+    
+    // Add tenantId to ensure it's always set
+    setOperations.tenantId = session.tenantId
+    
+    if (quotaType) setOperations.quotaType = quotaType
+    if (typeof autoReject === 'boolean') setOperations.autoReject = autoReject
+    if (typeof carryForward === 'boolean') setOperations.carryForward = carryForward
+    if (Array.isArray(workingDays)) setOperations.workingDays = workingDays.filter((d: any)=> Number.isInteger(d) && d>=0 && d<=6)
+    
+    // Handle allocations - set the entire object
     if (allocations && typeof allocations === 'object') {
+      const validAllocations: Record<string, number> = {}
       Object.entries(allocations).forEach(([k, v]) => {
         const key = String(k).trim()
         const num = Number(v)
@@ -73,15 +83,17 @@ export async function PUT(req: Request) {
         if (!Number.isFinite(num) || num < 0) return
         // Mongo keys cannot contain dots or $; simple guard
         if (key.includes('.') || key.includes('$')) return
-        atomicSet[`allocations.${key}`] = num
+        validAllocations[key] = num
       })
+      if (Object.keys(validAllocations).length > 0) {
+        setOperations.allocations = validAllocations
+      }
     }
-    if (typeof carryForward === 'boolean') update.carryForward = carryForward
-    if (Array.isArray(workingDays)) update.workingDays = workingDays.filter((d: any)=> Number.isInteger(d) && d>=0 && d<=6)
 
+    // Update with explicit tenantId for tenant isolation
     const policy = await LeavePolicy.findOneAndUpdate(
-      { key: 'default' },
-      Object.keys(atomicSet).length ? { $set: { ...update, ...atomicSet } } : { $set: update },
+      { key: 'default', tenantId: session.tenantId },
+      { $set: setOperations },
       { upsert: true, new: true, strict: false }
     ).lean()
 

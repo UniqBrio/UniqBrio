@@ -50,7 +50,10 @@ export default function DeleteConfirmationDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>
+          <AlertDialogCancel 
+            onClick={onCancel}
+            className="hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+          >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction 

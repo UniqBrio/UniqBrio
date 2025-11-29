@@ -7,8 +7,7 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 function toUi(doc: any) {
   return {
     ...doc,
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
+    id: String(doc._id || doc.id),
   }
 }
 
@@ -26,21 +25,19 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         await dbConnect("uniqbrio")
         const patch = await req.json()
 
-        // Normalize incoming fields
-        if (patch.instructorId == null && patch.studentId) patch.instructorId = patch.studentId
-        if (patch.instructorName == null && patch.studentName) patch.instructorName = patch.studentName
-        // Do not persist student* fields in DB
-        if ('studentId' in patch) delete patch.studentId
-        if ('studentName' in patch) delete patch.studentName
-        // Also drop course/cohort ids & names from the persisted payload per requirement
+        // Drop course/cohort ids & names from the persisted payload per requirement
         if ('courseId' in patch) delete patch.courseId
         if ('courseName' in patch) delete patch.courseName
         if ('cohortId' in patch) delete patch.cohortId
         if ('cohortName' in patch) delete patch.cohortName
+        
+        // Ensure tenantId is not being overridden
+        if ('tenantId' in patch) delete patch.tenantId
 
+        // Explicitly include tenantId in both the filter and update
         const updated = await InstructorAttendanceModel.findOneAndUpdate(
           { _id: params.id, tenantId: session.tenantId },
-          { $set: { ...patch } },
+          { $set: { ...patch, tenantId: session.tenantId } },
           { new: true }
         ).lean()
 
@@ -49,6 +46,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         }
         return NextResponse.json({ success: true, data: toUi(updated) })
       } catch (e: any) {
+        console.error('PUT /attendance/[id] error:', e);
         return NextResponse.json({ success: false, error: e.message || 'Failed to update attendance' }, { status: 500 })
       }
     }
@@ -67,12 +65,17 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
     async () => {
       try {
         await dbConnect("uniqbrio")
-        const res = await InstructorAttendanceModel.deleteOne({ _id: params.id, tenantId: session.tenantId })
+        // Explicitly include tenantId in the query
+        const res = await InstructorAttendanceModel.deleteOne({ 
+          _id: params.id, 
+          tenantId: session.tenantId 
+        })
         if (!res.deletedCount) {
           return NextResponse.json({ success: false, error: 'Record not found' }, { status: 404 })
         }
         return NextResponse.json({ success: true })
       } catch (e: any) {
+        console.error('DELETE /attendance/[id] error:', e);
         return NextResponse.json({ success: false, error: e.message || 'Failed to delete attendance' }, { status: 500 })
       }
     }

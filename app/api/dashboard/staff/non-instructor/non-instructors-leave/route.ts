@@ -27,7 +27,14 @@ export async function GET() {
     console.log('[Non-Instructor Leave] Fetching data for tenantId:', session.tenantId);
     
     const [nonInstructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
-      NonInstructor.find({ tenantId: session.tenantId }, {
+      NonInstructor.find({ 
+        tenantId: session.tenantId,
+        $or: [
+          { isDeleted: { $exists: false } },
+          { isDeleted: false }
+        ],
+        status: { $ne: 'Inactive' }
+      }, {
         id: 1,
         name: 1,
         firstName: 1,
@@ -40,6 +47,7 @@ export async function GET() {
         employmentType: 1,
         roleType: 1,
         contractType: 1,
+        status: 1,
       }).lean(),
       NonInstructorLeaveRequest.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),
       NonInstructorLeaveDraft.find({ tenantId: session.tenantId }).sort({ createdAt: -1 }).lean(),

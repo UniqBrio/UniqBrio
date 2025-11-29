@@ -26,7 +26,13 @@ export async function GET() {
     
     // Fetch all leave-related data in parallel
     const [instructorList, leaveRequests, leaveDrafts, leavePolicy] = await Promise.all([
-      Instructor.find({ tenantId: session.tenantId }, {
+      Instructor.find({ 
+        tenantId: session.tenantId,
+        $or: [
+          { isDeleted: { $exists: false } },
+          { isDeleted: false }
+        ]
+      }, {
         id: 1,
         name: 1,
         firstName: 1,

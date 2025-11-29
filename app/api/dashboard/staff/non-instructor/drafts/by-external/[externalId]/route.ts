@@ -62,9 +62,10 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ ext
     async () => {
       const { externalId } = await params
       await dbConnect("uniqbrio")
-      const res = await NonInstructorDraftModel.findOneAndDelete({ externalId, tenantId: session.tenantId })
-      if (!res) return NextResponse.json({ message: "Not found" }, { status: 404 })
-      return NextResponse.json({ ok: true })
+      // Delete all drafts with this externalId for this tenant (handles duplicates)
+      const res = await NonInstructorDraftModel.deleteMany({ externalId, tenantId: session.tenantId })
+      if (res.deletedCount === 0) return NextResponse.json({ message: "Not found" }, { status: 404 })
+      return NextResponse.json({ ok: true, deletedCount: res.deletedCount })
     }
   )
 }

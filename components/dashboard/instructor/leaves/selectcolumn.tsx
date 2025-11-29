@@ -205,7 +205,7 @@ Select Columns to Display
           <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
             <div className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Keyboard Shortcuts:</div>
             <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
-              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border rounded text-gray-700 dark:text-white">Shift+??</kbd> Multi-select</div>
+              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
               <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
               <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
               <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>

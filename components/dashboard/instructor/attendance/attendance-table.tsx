@@ -6,10 +6,10 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Pencil, Trash2, Users } from "lucide-react"
 import { useCustomColors } from "@/lib/use-custom-colors"
 
-interface StudentAttendanceRecord {
+interface InstructorAttendanceRecord {
   id: number;
-  studentId: string;
-  studentName: string;
+  instructorId: string;
+  instructorName: string;
   cohortId?: string;
   cohortName?: string;
   cohortInstructor?: string;
@@ -24,14 +24,14 @@ interface StudentAttendanceRecord {
 }
 
 interface AttendanceTableProps {
-  attendanceData: StudentAttendanceRecord[];
+  attendanceData: InstructorAttendanceRecord[];
   selectedIds?: string[];
   onToggleSelect?: (id: string, checked: boolean) => void;
   onToggleSelectAll?: (checked: boolean) => void;
   displayedColumns?: string[]; // If provided, render only these columns (except selection)
-  onEditRecord?: (record: StudentAttendanceRecord) => void;
-  onDeleteRecord?: (record: StudentAttendanceRecord) => void;
-  onSelectRecord?: (record: StudentAttendanceRecord) => void;
+  onEditRecord?: (record: InstructorAttendanceRecord) => void;
+  onDeleteRecord?: (record: InstructorAttendanceRecord) => void;
+  onSelectRecord?: (record: InstructorAttendanceRecord) => void;
 }
 
 // Mock data for demonstration
@@ -72,14 +72,14 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
   const allVisibleIds = useMemo(() => data.map(r => r.id.toString()), [data]);
   const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.includes(id));
 
-  const renderCell = (row: StudentAttendanceRecord, column: string) => {
+  const renderCell = (row: InstructorAttendanceRecord, column: string) => {
     const vStatus = (row.status || '').toString().toLowerCase()
     const isPlanned = vStatus === 'planned'
     switch (column) {
       case 'Instructor ID':
-        return row.studentId || `STU-${row.id}`;
+        return row.instructorId || `INS-${row.id}`;
       case 'Instructor Name':
-        return row.studentName || '-';
+        return row.instructorName || '-';
       case 'Date':
         return formatDisplayDate(row.date);
       case 'Start Time':

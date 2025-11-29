@@ -25,7 +25,7 @@ import { cn } from "@/lib/dashboard/staff/utils"
 import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { LeaveRequest } from "@/types/dashboard/staff/leave"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
-import { convertDraftToLeaveRequest, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft } from "@/lib/dashboard/staff/api"
+import { convertDraftToLeaveRequest, createLeaveRequest, createDraft, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft } from "@/lib/dashboard/staff/api"
 import { useCustomLeaveTypes } from "@/hooks/dashboard/staff/use-custom-leave-types"
 
 // Normalize backend job level variations into standardized option labels
@@ -111,7 +111,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     onClose()
   }
 
-  const saveDraft = () => {
+  const saveDraft = async () => {
     const toYmd = (d?: Date) => (d ? format(d, "yyyy-MM-dd") : undefined)
     const draftData = {
       id: draft?.id || `draft_${Date.now()}`,
@@ -127,13 +127,36 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
       createdAt: draft?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
-    if (draft?.id) {
-      dispatch({ type: 'UPDATE_DRAFT', payload: { id: draft.id, updates: draftData } })
-      crudSuccess('draft leave request', 'updated')
-    } else {
-      dispatch({ type: 'ADD_DRAFT', payload: draftData })
-      crudSuccess('draft leave request', 'created')
+    
+    try {
+      if (draft?.id) {
+        // Update existing draft
+        const result = await updateDraft(draftData)
+        if (result.ok) {
+          dispatch({ type: 'UPDATE_DRAFT', payload: { id: draft.id, updates: draftData } })
+          crudSuccess('draft leave request', 'updated')
+        } else {
+          alert('Failed to update draft: ' + (result.error || 'Unknown error'))
+          return
+        }
+      } else {
+        // Create new draft
+        const result = await createDraft(draftData)
+        if (result.ok) {
+          // Use server-returned data to ensure we have the correct ID
+          dispatch({ type: 'ADD_DRAFT', payload: result.data || draftData })
+          crudSuccess('draft leave request', 'created')
+        } else {
+          alert('Failed to create draft: ' + (result.error || 'Unknown error'))
+          return
+        }
+      }
+    } catch (err) {
+      console.error('Error saving draft:', err)
+      alert('Failed to save draft')
+      return
     }
+    
     setUnsavedOpen(false)
     onClose()
   }
@@ -289,10 +312,15 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
       }
       try {
         // Persist update and wait for completion to ensure convert uses latest
-        await updateDraft(updatedDraftData)
+        const updateResult = await updateDraft(updatedDraftData)
+        if (!updateResult.ok) {
+          console.error('Failed to update draft before conversion', updateResult.error)
+          alert('Failed to update draft before conversion: ' + (updateResult.error || 'Unknown error'))
+          return
+        }
       } catch (err) {
         console.error('Failed to update draft before conversion', err)
-        alert('Failed to update draft before conversion')
+        alert('Failed to update draft before conversion: ' + (err instanceof Error ? err.message : 'Unknown error'))
         return
       }
 
@@ -342,8 +370,24 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         prorated: 'Full',
         limitReached,
       }
-      dispatch({ type: 'ADD_LEAVE_REQUEST', payload: newRequest })
-      crudSuccess('leave request', 'created')
+      
+      // Persist to backend first, then update local state
+      try {
+        const result = await createLeaveRequest(newRequest)
+        if (result.ok) {
+          // Use the server-created data (includes computed fields like days, balance)
+          dispatch({ type: 'ADD_LEAVE_REQUEST', payload: result.data })
+          crudSuccess('leave request', 'created')
+        } else {
+          alert('Failed to create leave request: ' + (result.error || 'Unknown error'))
+          return
+        }
+      } catch (err) {
+        console.error('Error creating leave request:', err)
+        alert('Failed to create leave request')
+        return
+      }
+      
       requestInstructorId = newRequest.instructorId
     }
     const inst2 = state.instructors.find(i => i.id === requestInstructorId)

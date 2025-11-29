@@ -9,9 +9,8 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 function toUi(doc: any) {
   return {
     ...doc,
-    _id: doc._id || doc.id, // Ensure _id is always present
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
+    id: String(doc._id || doc.id),
+    _id: doc._id || doc.id,
   }
 }
 
@@ -118,9 +117,8 @@ export async function POST(req: Request) {
       await dbConnect("uniqbrio")
       const body = await req.json()
 
-      // UI compatibility: accept either instructor* or student* fields, but store only instructor*
-      const instructorId = String(body.instructorId ?? body.studentId ?? '')
-      const instructorName = String(body.instructorName ?? body.studentName ?? '')
+      const instructorId = String(body.instructorId ?? '')
+      const instructorName = String(body.instructorName ?? '')
       const date = String(body.date ?? '')
 
       if (!instructorId || !instructorName || !date) {

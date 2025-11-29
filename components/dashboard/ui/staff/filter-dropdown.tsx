@@ -126,7 +126,8 @@ export function FilterDropdown({
                   const next = prev.includes(option.value)
                     ? prev.filter((x) => x !== option.value)
                     : [...prev, option.value]
-                  onChange(next)
+                  // Defer onChange to avoid updating parent during render
+                  setTimeout(() => onChange(next), 0)
                   return next
                 })
               }
@@ -134,7 +135,10 @@ export function FilterDropdown({
               return (
                 <DropdownMenuItem
                   key={option.value}
-                  className="flex items-center gap-2 cursor-pointer px-3 py-2"
+                  className={cn(
+                    "flex items-center gap-2 cursor-pointer px-3 py-2",
+                    isChecked && "hover:bg-transparent hover:text-current"
+                  )}
                   onSelect={(e) => e.preventDefault()}
                   onClick={toggle}
                   onKeyDown={(e) => {
@@ -148,6 +152,10 @@ export function FilterDropdown({
                     checked={isChecked}
                     onCheckedChange={() => toggle()}
                     onClick={(e) => e.stopPropagation()}
+                    style={{
+                      borderColor: isChecked ? primaryColor : undefined,
+                      backgroundColor: isChecked ? primaryColor : undefined,
+                    }}
                   />
                   <span className="text-sm flex-1">{option.label || option.value}</span>
                 </DropdownMenuItem>

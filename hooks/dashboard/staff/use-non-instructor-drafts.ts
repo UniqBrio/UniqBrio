@@ -133,19 +133,23 @@ export const useNonInstructorDrafts = () => {
       formData: { ...formData },
     }
 
-  setDrafts(prev => [newDraft, ...prev])
-  // Optimistically notify other consumers with the new draft so counts update instantly
-  broadcastDraftsChanged('add', newDraft)
+    // Optimistically update local state
+    setDrafts(prev => [newDraft, ...prev])
+    broadcastDraftsChanged('add', newDraft)
 
     try {
-      await apiPut(`/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`, { externalId: draftId, ...newDraft })
+      // Use PUT with upsert to handle both create and update cases
+      await apiPut(
+        `/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`, 
+        { externalId: draftId, ...newDraft }
+      )
+      console.log('Draft saved successfully:', draftId)
     } catch (error) {
-      console.error('Failed to save non-instructor draft via PUT:', error)
-      try {
-        await apiPost('/api/dashboard/staff/non-instructor/drafts', { externalId: draftId, ...newDraft })
-      } catch (secondError) {
-        console.error('Failed to save non-instructor draft via POST as well:', secondError)
-      }
+      console.error('Failed to save non-instructor draft:', error)
+      // Revert optimistic update on failure
+      setDrafts(prev => prev.filter(d => d.id !== draftId))
+      broadcastDraftsChanged('delete', { id: draftId })
+      throw error
     }
 
     return draftId
@@ -156,48 +160,85 @@ export const useNonInstructorDrafts = () => {
     const draftName = customName || instructorName
     const level = generateDraftLevel(formData)
 
-    setDrafts(prev => prev.map(d => d.id === draftId ? {
-      ...d,
+    const updatedDraft = {
       name: draftName,
       instructorName,
       role: formData.role || 'Not specified',
       level,
       lastUpdated: new Date().toISOString(),
       formData: { ...formData },
+    }
+
+    setDrafts(prev => prev.map(d => d.id === draftId ? {
+      ...d,
+      ...updatedDraft,
     } : d))
-    broadcastDraftsChanged('update', { id: draftId, name: draftName, instructorName, role: formData.role || 'Not specified', level })
-    apiPut(`/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`, { externalId: draftId, name: draftName, instructorName, role: formData.role || 'Not specified', level, lastUpdated: new Date().toISOString(), formData: { ...formData } }).catch((error) => {
+    
+    broadcastDraftsChanged('update', { id: draftId, ...updatedDraft })
+    
+    apiPut(
+      `/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`, 
+      { externalId: draftId, ...updatedDraft }
+    ).then(() => {
+      console.log('Draft updated successfully:', draftId)
+    }).catch((error) => {
       console.error('Failed to update non-instructor draft in backend:', error)
     })
+    
     return true
   }, [broadcastDraftsChanged])
 
   const deleteDraft = useCallback(async (draftId: string): Promise<boolean> => {
+    // Optimistically remove from local state
     setDrafts(prev => prev.filter(d => d.id !== draftId))
+    
     try {
+      // Primary deletion method using externalId
       await apiDelete(`/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`)
       broadcastDraftsChanged('delete', { id: draftId })
+      console.log('Draft deleted successfully:', draftId)
+      return true
     } catch (error: any) {
+      console.error('Failed to delete non-instructor draft via externalId:', error)
+      // Fallback to _id deletion
       try {
         await apiDelete(`/api/dashboard/staff/non-instructor/drafts/${encodeURIComponent(draftId)}`)
         broadcastDraftsChanged('delete', { id: draftId })
+        console.log('Draft deleted successfully via fallback method:', draftId)
+        return true
       } catch (secondError: any) {
-        console.log('Backend deletion failed for non-instructor draft with both methods:', error?.message, secondError?.message)
+        console.error('Failed to delete non-instructor draft with both methods:', error?.message, secondError?.message)
+        // Revert optimistic deletion on complete failure
+        await loadDrafts()
+        return false
       }
     }
-    return true
-  }, [broadcastDraftsChanged])
+  }, [broadcastDraftsChanged, loadDrafts])
 
   const getDraft = useCallback((draftId: string): NonInstructorDraft | undefined => {
     return drafts.find(d => d.id === draftId)
   }, [drafts])
 
   const updateDraftName = useCallback((draftId: string, newName: string): boolean => {
-  setDrafts(prev => prev.map(d => d.id === draftId ? { ...d, name: newName, lastUpdated: new Date().toISOString() } : d))
-  broadcastDraftsChanged('update', { id: draftId, name: newName })
-    apiPut(`/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`, { externalId: draftId, name: newName }).catch((error) => {
+    const updatedTime = new Date().toISOString()
+    
+    setDrafts(prev => prev.map(d => d.id === draftId ? { 
+      ...d, 
+      name: newName, 
+      lastUpdated: updatedTime 
+    } : d))
+    
+    broadcastDraftsChanged('update', { id: draftId, name: newName })
+    
+    apiPut(
+      `/api/dashboard/staff/non-instructor/drafts/by-external/${encodeURIComponent(draftId)}`, 
+      { externalId: draftId, name: newName, lastUpdated: updatedTime }
+    ).then(() => {
+      console.log('Draft name updated successfully:', draftId)
+    }).catch((error) => {
       console.error('Failed to update non-instructor draft name in backend:', error)
     })
+    
     return true
   }, [broadcastDraftsChanged])
 

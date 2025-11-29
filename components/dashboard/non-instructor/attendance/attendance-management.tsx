@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from "react"
-import { AddAttendanceDialog, StudentAttendanceRecord } from "./add-attendance-dialog"
+import { AddAttendanceDialog, NonInstructorAttendanceRecord } from "./add-attendance-dialog"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { AttendanceTable } from "./attendance-table"
@@ -35,11 +35,11 @@ function AttendanceManagementInner() {
   const [isSelfieModalOpen, setIsSelfieModalOpen] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<number | null>(null);
   const [editingDraftId, setEditingDraftId] = useState<number | null>(null);
-  const [editingDraft, setEditingDraft] = useState<Partial<StudentAttendanceRecord> | null>(null);
+  const [editingDraft, setEditingDraft] = useState<Partial<NonInstructorAttendanceRecord> | null>(null);
 
   // Move attendance data and filter state here
   const [searchTerm, setSearchTerm] = useState("");
-  const [attendanceData, setAttendanceData] = useState<StudentAttendanceRecord[]>([]);
+  const [attendanceData, setAttendanceData] = useState<NonInstructorAttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   // New search filter states
@@ -52,9 +52,9 @@ function AttendanceManagementInner() {
   const draftsRef = React.useRef<AttendanceDraftsHandle | null>(null);
   const [draftsCount, setDraftsCount] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [recordToDelete, setRecordToDelete] = useState<StudentAttendanceRecord | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<NonInstructorAttendanceRecord | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [recordToView, setRecordToView] = useState<StudentAttendanceRecord | null>(null);
+  const [recordToView, setRecordToView] = useState<NonInstructorAttendanceRecord | null>(null);
 
   // Fetch attendance data on component mount
   React.useEffect(() => {
@@ -155,7 +155,7 @@ function AttendanceManagementInner() {
     }
   };
 
-  const handleSaveAttendance = async (recordData: Partial<StudentAttendanceRecord>) => {
+  const handleSaveAttendance = async (recordData: Partial<NonInstructorAttendanceRecord>) => {
     // Track whether to auto-reopen drafts after save (when converting from a draft)
     let reopenAfterClose = false;
     try {
@@ -174,7 +174,7 @@ function AttendanceManagementInner() {
           const result = await response.json();
           if (result.success) {
             // Update local state
-            setAttendanceData((prev: StudentAttendanceRecord[]) => {
+            setAttendanceData((prev: NonInstructorAttendanceRecord[]) => {
               return prev.map(r => {
                 if (r.id !== editingRecordId) return r;
                 return {
@@ -255,12 +255,12 @@ function AttendanceManagementInner() {
     try { if (reopenAfterClose && typeof window !== 'undefined') window.dispatchEvent(new Event('non-instructor-attendance-drafts:open')); } catch {}
   };
 
-  const openEditAttendance = (record: StudentAttendanceRecord) => {
+  const openEditAttendance = (record: NonInstructorAttendanceRecord) => {
     setIsAttendanceModalOpen(true);
     setEditingRecordId(record.id);
   };
 
-  const handleSaveDraft = async (recordData: Partial<StudentAttendanceRecord>) => {
+  const handleSaveDraft = async (recordData: Partial<NonInstructorAttendanceRecord>) => {
     try {
       if (editingDraftId != null) {
         // Update existing draft
@@ -444,9 +444,9 @@ function AttendanceManagementInner() {
                 setViewMode={setViewMode}
                 onAddAttendance={() => setIsAttendanceModalOpen(true)}
                 onImport={(items) => {
-                  setAttendanceData((prev: StudentAttendanceRecord[]) => {
+                  setAttendanceData((prev: NonInstructorAttendanceRecord[]) => {
                     const maxId = prev.reduce((m, r) => Math.max(m, r.id), 0);
-                    const normalized: StudentAttendanceRecord[] = items.map((it, idx) => ({
+                    const normalized: NonInstructorAttendanceRecord[] = items.map((it, idx) => ({
                       ...it,
                       id: maxId + idx + 1,
                     }));
@@ -553,10 +553,10 @@ function AttendanceManagementInner() {
                 <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="relative z-10 flex flex-col gap-3">
-                  <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-sm">{recordToView.studentName}</h2>
+                  <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-sm">{recordToView.instructorName}</h2>
                   <div className="flex flex-wrap items-center gap-2 text-white/90">
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs backdrop-blur-sm">
-                      <Hash className="h-4 w-4" /> ID: {recordToView.studentId}
+                      <Hash className="h-4 w-4" /> ID: {recordToView.instructorId}
                     </span>
                     {recordToView.status && (
                       <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs backdrop-blur-sm">
@@ -633,7 +633,7 @@ function AttendanceManagementInner() {
             <p className="text-sm text-gray-600 dark:text-white mb-3">Are you sure you want to delete this attendance record? This action can't be undone.</p>
             {recordToDelete && (
               <div className="text-sm bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded p-3">
-                <div><span className="text-gray-500 dark:text-white">Non-Instructor:</span> <span className="font-medium">{recordToDelete.studentName} ({recordToDelete.studentId})</span></div>
+                <div><span className="text-gray-500 dark:text-white">Non-Instructor:</span> <span className="font-medium">{recordToDelete.instructorName} ({recordToDelete.instructorId})</span></div>
                 <div><span className="text-gray-500 dark:text-white">Date:</span> <span className="font-medium">{new Date(recordToDelete.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</span></div>
                 {/* Removed Course and Cohort details from delete confirmation */}
               </div>

@@ -14,8 +14,8 @@ import { FormattedDateInput } from "@/components/dashboard/common/formatted-date
 // CSV export helper
 const exportAttendanceCSV = (attendanceData: any[]) => {
   const headers = [
-    "Student ID",
-    "Student Name", 
+    "Instructor ID",
+    "Instructor Name", 
     "Cohort Instructor",
     "Cohort Timing",
     "Date",
@@ -25,8 +25,8 @@ const exportAttendanceCSV = (attendanceData: any[]) => {
     "Notes"
   ];
   const rows = attendanceData.map(row => [
-    row.studentId,
-    row.studentName,
+    row.instructorId,
+    row.instructorName,
     row.cohortInstructor,
     row.cohortTiming,
     row.date,
@@ -200,16 +200,18 @@ export function AttendanceFilters({
                       id="status-present"
                       checked={attendanceStatus.includes("present")}
                       onCheckedChange={() => handleStatusChange("present")}
+                      className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                     />
-                    <Label htmlFor="status-present">Present</Label>
+                    <Label htmlFor="status-present" className="cursor-pointer">Present</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="status-absent"
                       checked={attendanceStatus.includes("absent")}
                       onCheckedChange={() => handleStatusChange("absent")}
+                      className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                     />
-                    <Label htmlFor="status-absent">Absent</Label>
+                    <Label htmlFor="status-absent" className="cursor-pointer">Absent</Label>
                   </div>
                   
 
@@ -222,7 +224,7 @@ export function AttendanceFilters({
                     <Button
                       variant="default"
                       size="sm"
-                      className="h-9 flex-1"
+                      className="h-9 flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                       aria-label="Apply filters"
                       onClick={() => {
                         onApplyFilter();

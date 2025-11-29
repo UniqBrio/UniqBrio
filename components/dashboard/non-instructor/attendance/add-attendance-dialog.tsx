@@ -265,10 +265,10 @@ function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", is
 }
 
 // Unified attendance record type (mirrors search filters + table expectations)
-export interface StudentAttendanceRecord {
+export interface NonInstructorAttendanceRecord {
   id: number;
-  studentId: string;
-  studentName: string;
+  instructorId: string;
+  instructorName: string;
   cohortId?: string;
   cohortName?: string;
   cohortInstructor?: string;
@@ -286,12 +286,12 @@ export interface StudentAttendanceRecord {
 interface AddAttendanceDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  editingRecord?: StudentAttendanceRecord | null;
+  editingRecord?: NonInstructorAttendanceRecord | null;
   editingDraftId?: number | null;
-  editingDraft?: Partial<StudentAttendanceRecord> | null;
-  attendanceData: StudentAttendanceRecord[];
-  onSaveAttendance: (record: Partial<StudentAttendanceRecord>) => void;
-  onSaveDraft: (record: Partial<StudentAttendanceRecord>) => void;
+  editingDraft?: Partial<NonInstructorAttendanceRecord> | null;
+  attendanceData: NonInstructorAttendanceRecord[];
+  onSaveAttendance: (record: Partial<NonInstructorAttendanceRecord>) => void;
+  onSaveDraft: (record: Partial<NonInstructorAttendanceRecord>) => void;
 }
 
 export function AddAttendanceDialog({
@@ -311,7 +311,7 @@ export function AddAttendanceDialog({
   const dialogContentRef = useRef<HTMLDivElement | null>(null);
 
   // Form state
-  const [newStudentId, setNewStudentId] = useState("");
+  const [newInstructorId, setnewInstructorId] = useState("");
   const [newDate, setNewDate] = useState(new Date().toISOString().slice(0,10));
   const [newStart, setNewStart] = useState("");
   const [newEnd, setNewEnd] = useState("");
@@ -335,16 +335,16 @@ export function AddAttendanceDialog({
   const [newCohortTiming, setNewCohortTiming] = useState("");
   
   // Student search state
-  const [studentSearchOpen, setStudentSearchOpen] = useState(false);
-  const [studentQuery, setStudentQuery] = useState("");
-  const [studentsList, setStudentsList] = useState<{ id: string; name: string; cohortName?: string; instructor?: string; timing?: string }[]>([]);
-  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [instructorSearchOpen, setinstructorSearchOpen] = useState(false);
+  const [instructorQuery, setinstructorQuery] = useState("");
+  const [instructorsList, setinstructorsList] = useState<{ id: string; name: string; cohortName?: string; instructor?: string; timing?: string }[]>([]);
+  const [instructorsLoading, setinstructorsLoading] = useState(false);
   const [cohortResolvedFor, setCohortResolvedFor] = useState<string>("");
   const [cohortResolving, setCohortResolving] = useState(false);
 
   // Track initial snapshot to detect dirty state
   const initialSnapshotRef = useRef({
-    studentId: "",
+    instructorId: "",
     date: new Date().toISOString().slice(0,10),
     start: "",
     end: "",
@@ -358,7 +358,7 @@ export function AddAttendanceDialog({
   const isDirty = useMemo(() => {
     const s = initialSnapshotRef.current;
     return (
-      (newStudentId || "") !== (s.studentId || "") ||
+      (newInstructorId || "") !== (s.instructorId || "") ||
       (newDate || "") !== (s.date || "") ||
       (newStart || "") !== (s.start || "") ||
       (newEnd || "") !== (s.end || "") ||
@@ -368,19 +368,19 @@ export function AddAttendanceDialog({
       (newCohortInstructor || "") !== (s.cohortInstructor || "") ||
       (newCohortTiming || "") !== (s.cohortTiming || "")
     );
-  }, [newStudentId, newDate, newStart, newEnd, newStatus, newNotes, newCohortName, newCohortInstructor, newCohortTiming]);
+  }, [newInstructorId, newDate, newStart, newEnd, newStatus, newNotes, newCohortName, newCohortInstructor, newCohortTiming]);
 
   // Detect potential duplicate records (only for new records, not when editing)
   const potentialDuplicate = useMemo(() => {
-    if (editingRecord || !newStudentId || !newDate) return null;
+    if (editingRecord || !newInstructorId || !newDate) return null;
     
     return attendanceData.find(
-      record => record.studentId === newStudentId && record.date === newDate
+      record => record.instructorId === newInstructorId && record.date === newDate
     );
-  }, [attendanceData, newStudentId, newDate, editingRecord]);
+  }, [attendanceData, newInstructorId, newDate, editingRecord]);
 
   function resetFormToInitial() {
-    setNewStudentId("");
+    setnewInstructorId("");
     setNewStart("");
     setNewEnd("");
     setNewStatus("present");
@@ -397,7 +397,7 @@ export function AddAttendanceDialog({
     if (!isOpen) return;
     let cancelled = false;
     (async () => {
-      setStudentsLoading(true);
+      setinstructorsLoading(true);
 
       try {
         const res = await fetch('/api/dashboard/staff/non-instructor/non-instructors', {
@@ -419,7 +419,7 @@ export function AddAttendanceDialog({
           if (!cancelled) {
             if (Array.isArray(arr) && arr.length > 0) {
               const mapped = arr.map((s: any) => {
-              const id = s.externalId || s.id || s._id || s.instructorId || s.studentId || s.code;
+              const id = s.externalId || s.id || s._id || s.instructorId || s.code;
               const name = s.name || [s.firstName, s.middleName, s.lastName].filter(Boolean).join(" ") || s.fullName || id;
               return {
                 id,
@@ -429,28 +429,28 @@ export function AddAttendanceDialog({
                 timing: s.timing || undefined,
               };
               });
-              setStudentsList(mapped.filter(s => s.id));
+              setinstructorsList(mapped.filter(s => s.id));
             } else {
               // Fallback to current attendance dataset unique non-instructors
               const unique: Record<string, string> = {};
-              attendanceData.forEach(r => { if (!unique[r.studentId]) unique[r.studentId] = r.studentName; });
-              setStudentsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
+              attendanceData.forEach(r => { if (!unique[r.instructorId]) unique[r.instructorId] = r.instructorName; });
+              setinstructorsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
             }
           }
         } else if (!cancelled) {
           // fallback to current attendance dataset unique non-instructors
           const unique: Record<string, string> = {};
-          attendanceData.forEach(r => { if (!unique[r.studentId]) unique[r.studentId] = r.studentName; });
-          setStudentsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
+          attendanceData.forEach(r => { if (!unique[r.instructorId]) unique[r.instructorId] = r.instructorName; });
+          setinstructorsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
         }
       } catch {
         if (!cancelled) {
           const unique: Record<string, string> = {};
-          attendanceData.forEach(r => { if (!unique[r.studentId]) unique[r.studentId] = r.studentName; });
-          setStudentsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
+          attendanceData.forEach(r => { if (!unique[r.instructorId]) unique[r.instructorId] = r.instructorName; });
+          setinstructorsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
         }
       } finally {
-        if (!cancelled) setStudentsLoading(false);
+        if (!cancelled) setinstructorsLoading(false);
       }
     })();
     return () => { cancelled = true; };
@@ -535,19 +535,19 @@ export function AddAttendanceDialog({
   }, [newCohortName, newCohortTiming, newCohortInstructor, newStart, newEnd, cohortResolvedFor]);
 
   const filteredStudents = useMemo(() => {
-    const q = studentQuery.trim().toLowerCase();
-    if (!q) return studentsList;
-    return studentsList.filter(s =>
+    const q = instructorQuery.trim().toLowerCase();
+    if (!q) return instructorsList;
+    return instructorsList.filter(s =>
       s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)
     );
-  }, [studentsList, studentQuery]);
+  }, [instructorsList, instructorQuery]);
 
   // Initialize form when editing record or draft
   useEffect(() => {
     if (isOpen) {
       const dataToLoad = editingRecord || editingDraft;
       if (dataToLoad) {
-        setNewStudentId(dataToLoad.studentId || '');
+        setnewInstructorId(dataToLoad.instructorId || '');
         setNewDate(dataToLoad.date || new Date().toISOString().slice(0,10));
         setNewStart(dataToLoad.startTime || '');
         setNewEnd(dataToLoad.endTime || '');
@@ -559,7 +559,7 @@ export function AddAttendanceDialog({
         
         // set initial snapshot for edit mode
         initialSnapshotRef.current = {
-          studentId: dataToLoad.studentId || "",
+          instructorId: dataToLoad.instructorId || "",
           date: dataToLoad.date || new Date().toISOString().slice(0,10),
           start: dataToLoad.startTime || "",
           end: dataToLoad.endTime || "",
@@ -583,7 +583,7 @@ export function AddAttendanceDialog({
         resetFormToInitial();
         setNewDate(new Date().toISOString().slice(0,10));
         initialSnapshotRef.current = {
-          studentId: "",
+          instructorId: "",
           date: new Date().toISOString().slice(0,10),
           start: "",
           end: "",
@@ -601,7 +601,7 @@ export function AddAttendanceDialog({
   }, [editingRecord, editingDraft, isOpen]);
 
   const handleSaveAttendance = () => {
-    if (!newStudentId) {
+    if (!newInstructorId) {
       onOpenChange(false);
       return;
     }
@@ -609,13 +609,13 @@ export function AddAttendanceDialog({
     // Check for duplicate records (only for new records, not when editing)
     if (!editingRecord) {
       const existingRecord = attendanceData.find(
-        record => record.studentId === newStudentId && record.date === newDate
+        record => record.instructorId === newInstructorId && record.date === newDate
       );
       
       if (existingRecord) {
         toast({
           title: 'Duplicate Record',
-          description: `Attendance record already exists for ${newStudentId} on ${newDate}. Please edit the existing record or choose a different date.`,
+          description: `Attendance record already exists for ${newInstructorId} on ${newDate}. Please edit the existing record or choose a different date.`,
           variant: 'destructive'
         });
         return;
@@ -623,10 +623,10 @@ export function AddAttendanceDialog({
     }
 
     const recordData = {
-      studentId: newStudentId,
-      studentName: studentsList.find(s => s.id === newStudentId)?.name || 
-                   attendanceData.find(r => r.studentId === newStudentId)?.studentName || 
-                   newStudentId,
+      instructorId: newInstructorId,
+      instructorName: instructorsList.find(s => s.id === newInstructorId)?.name || 
+                   attendanceData.find(r => r.instructorId === newInstructorId)?.instructorName || 
+                   newInstructorId,
       cohortName: newCohortName,
       cohortInstructor: newCohortInstructor,
       cohortTiming: newCohortTiming,
@@ -645,7 +645,7 @@ export function AddAttendanceDialog({
     
     // Reset initial snapshot
     initialSnapshotRef.current = {
-      studentId: "",
+      instructorId: "",
       date: new Date().toISOString().slice(0,10),
       start: "",
       end: "",
@@ -659,17 +659,17 @@ export function AddAttendanceDialog({
     const actionType = editingRecord ? 'updated' : 'added';
     toast({
       title: editingRecord ? 'Changes Saved' : 'Attendance Added',
-      description: `Attendance ${actionType} for ${newStudentId}.`,
+      description: `Attendance ${actionType} for ${newInstructorId}.`,
     });
   };
 
   const handleSaveDraft = () => {
     const recordData = {
       id: editingDraftId ?? Date.now(),
-      studentId: newStudentId || '-',
-      studentName: studentsList.find(s => s.id === newStudentId)?.name || 
-                   attendanceData.find(r => r.studentId === newStudentId)?.studentName || 
-                   (newStudentId || '-'),
+      instructorId: newInstructorId || '-',
+      instructorName: instructorsList.find(s => s.id === newInstructorId)?.name || 
+                   attendanceData.find(r => r.instructorId === newInstructorId)?.instructorName || 
+                   (newInstructorId || '-'),
       cohortName: newCohortName || undefined,
       cohortInstructor: newCohortInstructor || undefined,
       cohortTiming: newCohortTiming || undefined,
@@ -687,7 +687,7 @@ export function AddAttendanceDialog({
     onOpenChange(false);
     
     // Toast success
-    const labelName = recordData.studentName || recordData.studentId || 'Untitled Attendance';
+    const labelName = recordData.instructorName || recordData.instructorId || 'Untitled Attendance';
     toast({
       title: editingDraftId != null ? 'Draft Updated' : 'Draft Saved',
       description: editingDraftId != null
@@ -698,7 +698,7 @@ export function AddAttendanceDialog({
     // reset state after saving draft
     resetFormToInitial();
     initialSnapshotRef.current = {
-      studentId: "",
+      instructorId: "",
       date: new Date().toISOString().slice(0,10),
       start: "",
       end: "",
@@ -751,16 +751,16 @@ export function AddAttendanceDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Non-Instructor <span className="text-red-500">*</span></label>
-                  <Popover open={studentSearchOpen} onOpenChange={(o) => { setStudentSearchOpen(o); if (o) setStudentQuery(""); }}>
+                  <Popover open={instructorSearchOpen} onOpenChange={(o) => { setinstructorSearchOpen(o); if (o) setinstructorQuery(""); }}>
                     <PopoverTrigger asChild>
                       <button
                         type="button"
                         className="w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
                         aria-haspopup="listbox"
-                        aria-expanded={studentSearchOpen}
+                        aria-expanded={instructorSearchOpen}
                       >
                         <span className="truncate">
-                          {newStudentId ? `${newStudentId} - ${(studentsList.find(s => s.id === newStudentId)?.name) || ''}` : 'Select Non-Instructor'}
+                          {newInstructorId ? `${newInstructorId} - ${(instructorsList.find(s => s.id === newInstructorId)?.name) || ''}` : 'Select Non-Instructor'}
                         </span>
                         <ChevronDown className="h-4 w-4 opacity-60" />
                       </button>
@@ -769,23 +769,23 @@ export function AddAttendanceDialog({
                       <div className="flex flex-col gap-2">
                         <input
                           autoFocus
-                          value={studentQuery}
-                          onChange={(e) => setStudentQuery(e.target.value)}
-                          placeholder={studentsLoading ? 'Loading non-instructors...' : 'Search non-instructors...'}
-                          disabled={studentsLoading}
+                          value={instructorQuery}
+                          onChange={(e) => setinstructorQuery(e.target.value)}
+                          placeholder={instructorsLoading ? 'Loading non-instructors...' : 'Search non-instructors...'}
+                          disabled={instructorsLoading}
                           className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
                         />
                         <div className="max-h-[200px] overflow-y-auto text-sm pr-1 touch-pan-y" data-remove-scroll-allow>
-                          {studentsLoading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
-                          {!studentsLoading && filteredStudents.map(s => {
-                            const active = s.id === newStudentId;
+                          {instructorsLoading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
+                          {!instructorsLoading && filteredStudents.map(s => {
+                            const active = s.id === newInstructorId;
                             return (
                               <div
                                 key={s.id}
                                 onClick={async () => {
-                                  setNewStudentId(s.id);
+                                  setnewInstructorId(s.id);
                                   // Attempt to derive cohort data from existing records first
-                                  const existing = attendanceData.find(r => r.studentId === s.id);
+                                  const existing = attendanceData.find(r => r.instructorId === s.id);
                                   const cohortName = existing?.cohortName || s.cohortName || "";
                                   
                                   setNewCohortName(cohortName);
@@ -830,7 +830,7 @@ export function AddAttendanceDialog({
 
                                   }
                                   
-                                  setStudentSearchOpen(false);
+                                  setinstructorSearchOpen(false);
                                 }}
                                 className={`cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100 flex flex-col ${active ? 'bg-purple-50 border border-purple-300' : ''}`}
                               >
@@ -839,7 +839,7 @@ export function AddAttendanceDialog({
                               </div>
                             );
                           })}
-                          { !studentsLoading && filteredStudents.length === 0 && (
+                          { !instructorsLoading && filteredStudents.length === 0 && (
                             <div className="text-center text-xs text-gray-500 dark:text-white py-3">No non-instructors found</div>
                           )}
                         </div>
@@ -894,7 +894,7 @@ export function AddAttendanceDialog({
                       <span className="text-white text-xs font-bold">!</span>
                     </div>
                     <div className="text-sm text-amber-800">
-                      <span className="font-medium">Duplicate Detected:</span> Attendance record already exists for {newStudentId} on {newDate}. 
+                      <span className="font-medium">Duplicate Detected:</span> Attendance record already exists for {newInstructorId} on {newDate}. 
                       Please choose a different date or edit the existing record.
                     </div>
                   </div>
@@ -902,7 +902,7 @@ export function AddAttendanceDialog({
               )}
 
               {/* Auto-Populated Cohort Information */}
-              {newStudentId && (newCohortName || newCohortInstructor || newCohortTiming) && (
+              {newInstructorId && (newCohortName || newCohortInstructor || newCohortTiming) && (
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-medium mb-1">Cohort</label>
@@ -1001,7 +1001,7 @@ export function AddAttendanceDialog({
                   const noChanges = !!editingRecord && !isDirty;
                   const invalidRange = !!(newStart && newEnd && isTimeAfter(newStart, newEnd));
                   const duplicateAdd = !editingRecord && !!potentialDuplicate;
-                  const requiredMissing = !newStudentId || !newDate || !newStatus || (newStatus === 'absent' && !newNotes.trim());
+                  const requiredMissing = !newInstructorId || !newDate || !newStatus || (newStatus === 'absent' && !newNotes.trim());
                   const invalidDate = !!dateError;
                   const disabled = noChanges || invalidRange || duplicateAdd || requiredMissing || invalidDate;
                   const tip = requiredMissing

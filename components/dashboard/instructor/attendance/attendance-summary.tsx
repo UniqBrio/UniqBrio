@@ -8,8 +8,8 @@ import { parseToYMDFlexible, toYMDLocal } from "@/lib/dashboard/staff/date-utils
 interface AttendanceSummaryProps {
   attendanceData?: Array<{
     id: number;
-    studentId: string;
-    studentName: string;
+    instructorId: string;
+    instructorName: string;
     cohortId?: string;
     cohortName?: string;
     courseId?: string;

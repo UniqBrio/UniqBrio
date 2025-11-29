@@ -1,26 +1,54 @@
 ﻿// Small client-side helpers for calling our API endpoints safely
 export async function apiGet<T>(url: string): Promise<T> {
-  const res = await fetch(url, { cache: "no-store", credentials: 'include' })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
+  try {
+    const res = await fetch(url, { cache: "no-store", credentials: 'include' })
+    const data = await res.json()
+    if (!res.ok) {
+      return { ok: false, error: data.error || data.message || 'Request failed' } as T
+    }
+    return data
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Network error' } as T
+  }
 }
 
 export async function apiPost<T>(url: string, body: any): Promise<T> {
-  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: 'include', body: JSON.stringify(body) })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
+  try {
+    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: 'include', body: JSON.stringify(body) })
+    const data = await res.json()
+    if (!res.ok) {
+      return { ok: false, error: data.error || data.message || 'Request failed' } as T
+    }
+    return data
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Network error' } as T
+  }
 }
 
 export async function apiPut<T>(url: string, body: any): Promise<T> {
-  const res = await fetch(url, { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: 'include', body: JSON.stringify(body) })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
+  try {
+    const res = await fetch(url, { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: 'include', body: JSON.stringify(body) })
+    const data = await res.json()
+    if (!res.ok) {
+      return { ok: false, error: data.error || data.message || 'Request failed' } as T
+    }
+    return data
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Network error' } as T
+  }
 }
 
 export async function apiDelete<T>(url: string): Promise<T> {
-  const res = await fetch(url, { method: "DELETE", credentials: 'include' })
-  if (!res.ok) throw new Error(await res.text())
-  return res.json()
+  try {
+    const res = await fetch(url, { method: "DELETE", credentials: 'include' })
+    const data = await res.json()
+    if (!res.ok) {
+      return { ok: false, error: data.error || data.message || 'Request failed' } as T
+    }
+    return data
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Network error' } as T
+  }
 }
 
 // API Response Type

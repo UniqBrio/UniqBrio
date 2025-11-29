@@ -118,9 +118,12 @@ export const useInstructorDrafts = () => {
       formData: { ...formData }
     }
 
-  setDrafts(prev => [newDraft, ...prev])
-  // Let other consumers update immediately
-  broadcastDraftsChanged()
+    setDrafts(prev => {
+      const updated = [newDraft, ...prev]
+      // Broadcast immediately after state update is queued
+      setTimeout(() => broadcastDraftsChanged(), 0)
+      return updated
+    })
     
     // Persist to instructor_drafts collection - ensure it's saved properly
     try {
@@ -144,18 +147,20 @@ export const useInstructorDrafts = () => {
     const draftName = customName || instructorName
     const level = generateDraftLevel(formData)
 
-    setDrafts(prev => prev.map(draft => draft.id === draftId ? {
-      ...draft,
-      name: draftName,
-      instructorName,
-      role: formData.role || 'Not specified',
-      level,
-      lastUpdated: new Date().toISOString(),
-      formData: { ...formData }
-    } : draft))
-
-    // Notify other consumers
-    broadcastDraftsChanged()
+    setDrafts(prev => {
+      const updated = prev.map(draft => draft.id === draftId ? {
+        ...draft,
+        name: draftName,
+        instructorName,
+        role: formData.role || 'Not specified',
+        level,
+        lastUpdated: new Date().toISOString(),
+        formData: { ...formData }
+      } : draft)
+      // Broadcast immediately after state update is queued
+      setTimeout(() => broadcastDraftsChanged(), 0)
+      return updated
+    })
 
     apiPut(`/api/dashboard/staff/instructor/instructor_drafts/by-external/${encodeURIComponent(draftId)}`, { externalId: draftId, name: draftName, instructorName, role: formData.role || 'Not specified', level, lastUpdated: new Date().toISOString(), formData: { ...formData } }).catch((error) => {
       console.error('Failed to update draft in backend:', error)
@@ -167,20 +172,21 @@ export const useInstructorDrafts = () => {
   // Delete draft
   const deleteDraft = useCallback(async (draftId: string): Promise<boolean> => {
     // Remove from UI immediately
-  setDrafts(prev => prev.filter(draft => draft.id !== draftId))
+    setDrafts(prev => {
+      const updated = prev.filter(draft => draft.id !== draftId)
+      // Broadcast immediately after state update is queued
+      setTimeout(() => broadcastDraftsChanged(), 0)
+      return updated
+    })
     
     // Delete from backend - try both by ID and by externalId
     try {
       // First try by externalId (current approach)
       await apiDelete(`/api/dashboard/staff/instructor/instructor_drafts/by-external/${encodeURIComponent(draftId)}`)
-      // Now that backend confirms, notify other consumers
-      broadcastDraftsChanged()
     } catch (error: any) {
       try {
         // If that fails, try direct ID deletion (in case it's stored differently)
         await apiDelete(`/api/dashboard/staff/instructor/instructor_drafts/${encodeURIComponent(draftId)}`)
-        // Backend confirmed via alternative path
-        broadcastDraftsChanged()
       } catch (secondError: any) {
         console.log('Backend deletion failed with both methods:', error?.message, secondError?.message)
         // Draft removed from UI anyway, which is the main goal
@@ -197,8 +203,13 @@ export const useInstructorDrafts = () => {
 
   // Update draft name
   const updateDraftName = useCallback((draftId: string, newName: string): boolean => {
-  setDrafts(prev => prev.map(draft => draft.id === draftId ? { ...draft, name: newName, lastUpdated: new Date().toISOString() } : draft))
-  broadcastDraftsChanged()
+    setDrafts(prev => {
+      const updated = prev.map(draft => draft.id === draftId ? { ...draft, name: newName, lastUpdated: new Date().toISOString() } : draft)
+      // Broadcast immediately after state update is queued
+      setTimeout(() => broadcastDraftsChanged(), 0)
+      return updated
+    })
+    
     apiPut(`/api/dashboard/staff/instructor/instructor_drafts/by-external/${encodeURIComponent(draftId)}`, { externalId: draftId, name: newName }).catch((error) => {
       console.error('Failed to update draft name in backend:', error)
     })

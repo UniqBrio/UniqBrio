@@ -194,40 +194,35 @@ export default function InstructorPage() {
               <TabsList className="grid w-full grid-cols-5 gap-1 h-auto p-1">
                 <TabsTrigger
                   value="dashboard"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
                 >
                   <GraduationCap className="h-4 w-4 mr-2" />
                   Instructors
                 </TabsTrigger>
                 <TabsTrigger
                   value="leave"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
                 >
                   <CalendarDays className="h-4 w-4 mr-2" />
                   Leave Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="attendance"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
                 >
                   <ClipboardCheck className="h-4 w-4 mr-2" />
                   Attendance Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="settings"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
                 >
                   <SettingsIcon className="h-4 w-4 mr-2" />
                   Settings

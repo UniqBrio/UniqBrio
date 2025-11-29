@@ -39,7 +39,13 @@ export async function GET() {
   const policy = await loadPolicy(session.tenantId)
     const allocs = policy?.allocations || { junior: 12, senior: 16, managers: 24 }
   const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
-    const instructors = await Instructor.find({ tenantId: session.tenantId }).lean()
+    const instructors = await Instructor.find({ 
+      tenantId: session.tenantId,
+      $or: [
+        { isDeleted: { $exists: false } },
+        { isDeleted: false }
+      ]
+    }).lean()
     const instMap: Record<string, any> = {}
     instructors.forEach(i => { instMap[i.id] = i })
 

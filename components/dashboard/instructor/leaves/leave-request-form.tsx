@@ -426,7 +426,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Job Level <span className="text-red-500">*</span></Label>
-              <Input value={selectedJobLevel || ''} readOnly disabled className="bg-muted/40" />
+              <Input value={selectedJobLevel || 'N/A'} readOnly disabled className="bg-muted/40" />
             </div>
             <div className="space-y-2">
               <Label>Employee Type <span className="text-red-500">*</span></Label>

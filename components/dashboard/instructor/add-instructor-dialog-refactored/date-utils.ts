@@ -1,4 +1,4 @@
-// Date utility functions for dd-mmm-yy format and conversions
+// Date utility functions for dd-mmm-yyyy format and conversions
 export const formatDateToDisplay = (dateString: string): string => {
   if (!dateString) return '';
   const date = new Date(dateString);
@@ -6,7 +6,7 @@ export const formatDateToDisplay = (dateString: string): string => {
   const day = String(date.getDate()).padStart(2, '0');
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const month = months[date.getMonth()];
-  const year = String(date.getFullYear()).slice(-2);
+  const year = String(date.getFullYear());
   return `${day}-${month}-${year}`;
 };
 

@@ -206,11 +206,11 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
   // Truncate comma-separated lists to 2 items with an ellipsis, keep full list in title
   const formatListWithEllipsis = (value?: string | null) => {
     const raw = (value || '').trim()
-    if (!raw) return { display: '�', title: '' }
+    if (!raw) return { display: '-', title: '' }
     const parts = raw.split(',').map(s => s.trim()).filter(Boolean)
     if (parts.length <= 2) {
       const joined = parts.join(', ')
-      return { display: joined || '�', title: joined }
+      return { display: joined || '-', title: joined }
     }
     const shown = parts.slice(0, 2).join(', ')
     return { display: `${shown}, ...`, title: parts.join(', ') }
@@ -572,7 +572,7 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
     { id: "jobLevel", label: "Job Level", width: "w-[140px]" },
     { id: "contractType", label: "Contract Type", width: "w-[140px]" },
   { id: "courseId", label: "Course ID", width: "w-[170px]" },
-  { id: "courseName", label: "Course", width: "w-[170px]" },
+  { id: "courseName", label: "Course Assigned", width: "w-[170px]" },
   { id: "cohortName", label: "Cohort", width: "w-[170px]" },
   { id: "cohortId", label: "Cohort ID", width: "w-[170px]" },
     { id: "leaveType", label: "Leave Type", width: "w-[160px]" },

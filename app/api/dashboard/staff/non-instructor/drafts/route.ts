@@ -12,8 +12,20 @@ export async function GET() {
 
   return runWithTenantContext({ tenantId: session.tenantId }, async () => {
     await dbConnect("uniqbrio")
+    // Get all drafts for this tenant
     const items = await NonInstructorDraftModel.find({ tenantId: session.tenantId }).lean()
-    return NextResponse.json(items)
+    
+    // Deduplicate by externalId (keep most recent)
+    const uniqueMap = new Map()
+    for (const item of items) {
+      const key = item.externalId || item._id.toString()
+      const existing = uniqueMap.get(key)
+      if (!existing || new Date(item.lastUpdated) > new Date(existing.lastUpdated)) {
+        uniqueMap.set(key, item)
+      }
+    }
+    
+    return NextResponse.json(Array.from(uniqueMap.values()))
   })
 }
 

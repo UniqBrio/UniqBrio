@@ -161,7 +161,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <Label>Instructor ID</Label>
           <div className="border-2 border-purple-400 rounded-lg px-3 py-2 text-gray-700 dark:text-white bg-white select-text cursor-default" title={currentId ? "Existing ID (unchanged)" : "Auto-generated on save"}>{displayId}</div>
@@ -231,7 +231,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             />
             {!dobFocused && (
               <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.dob ? 'text-gray-900' : 'text-gray-500 dark:text-white'} z-0`}>
-                {form.dob ? formatDateToDisplay(form.dob) : 'dd-mmm-yy'}
+                {form.dob ? formatDateToDisplay(form.dob) : 'dd-mmm-yyyy'}
               </div>
             )}
           </div>
@@ -316,7 +316,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
 
         {/* Country / State and Address */}
         <div className="col-span-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
             {/* Phone (swapped into country position) */}
             <div>
               <Label>Phone <span className="text-red-500">*</span></Label>
@@ -816,7 +816,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             />
             {!joiningDateFocused && (
               <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.joiningDate ? 'text-gray-900' : 'text-gray-500 dark:text-white'}`}>
-                {form.joiningDate ? formatDateToDisplay(form.joiningDate) : 'dd-mmm-yy'}
+                {form.joiningDate ? formatDateToDisplay(form.joiningDate) : 'dd-mmm-yyyy'}
               </div>
             )}
           </div>

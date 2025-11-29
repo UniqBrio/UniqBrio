@@ -30,6 +30,39 @@ export default function LeavePolicyDialog({ open, onOpenChange, policy, onSave }
   const [draft, setDraft] = useState<LeavePolicy>(policy)
   const { state, dispatch } = useLeave()
   const [workingDraft, setWorkingDraft] = useState<number[]>(state.workingDays)
+  
+  // Track if there are any changes
+  const hasChanges = useMemo(() => {
+    // Check if quotaType changed
+    if (draft.quotaType !== policy.quotaType) return true
+    
+    // Check if autoReject changed
+    if (draft.autoReject !== policy.autoReject) return true
+    
+    // Check if carryForward changed
+    if (draft.carryForward !== policy.carryForward) return true
+    
+    // Check if allocations changed
+    const draftAllocs = draft.allocations || {}
+    const policyAllocs = policy.allocations || {}
+    const draftKeys = Object.keys(draftAllocs)
+    const policyKeys = Object.keys(policyAllocs)
+    
+    if (draftKeys.length !== policyKeys.length) return true
+    
+    for (const key of draftKeys) {
+      if (draftAllocs[key] !== policyAllocs[key]) return true
+    }
+    
+    // Check if working days changed
+    if (workingDraft.length !== state.workingDays.length) return true
+    const sortedDraft = [...workingDraft].sort()
+    const sortedOriginal = [...state.workingDays].sort()
+    if (sortedDraft.some((day, idx) => day !== sortedOriginal[idx])) return true
+    
+    return false
+  }, [draft, policy, workingDraft, state.workingDays])
+  
   // Dynamic role list from instructors collection
   const jobLevelOptions = useMemo(() => {
     const raws = (state.instructors || [])
@@ -94,7 +127,8 @@ export default function LeavePolicyDialog({ open, onOpenChange, policy, onSave }
           <p className="text-sm text-muted-foreground">Configure advanced leave policies and rules</p>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+          {/* Quota Type */}
           <div className="space-y-2">
             <Label>Quota Type</Label>
             <Select
@@ -111,98 +145,107 @@ export default function LeavePolicyDialog({ open, onOpenChange, policy, onSave }
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2 opacity-60 cursor-not-allowed select-none" title="Coming soon">
-            <Label className="flex items-center gap-1">Auto-Reject Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /><span className="text-[10px] font-semibold uppercase tracking-wide text-purple-600"></span></Label>
-            <div className="flex items-center gap-3 rounded-md border p-2 bg-muted/40">
-              <Switch disabled checked={true} className="opacity-50" />
-              <span className="text-sm">Automatic rejection rules coming soon</span>
+
+          {/* Role-Based Allocations */}
+          <div className="space-y-3">
+            <h3 className="font-medium">Role-Based Allocations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+              <div className="space-y-1 md:col-span-2">
+                <Label>Select Job Level</Label>
+                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobLevelOptions.map((lvl) => (
+                      <SelectItem key={lvl} value={lvl}>{lvl}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Allocation</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={(() => {
+                    // dynamic allocations map: if exact label exists, use it; else use default bucket
+                    const direct: any = (draft as any).allocations?.[selectedLevel as any]
+                    if (typeof direct === 'number') return direct
+                    const key = mapLevelKey(selectedLevel)
+                    if (key) return (draft as any).allocations?.[key] ?? 0
+                    return 0
+                  })()}
+                  onChange={(e) => {
+                    const value = Math.max(0, Number(e.target.value || 0))
+                    // Persist directly under allocations[selectedLevel]
+                    setDraft((p) => ({
+                      ...p,
+                      allocations: { ...(p as any).allocations, [selectedLevel]: value } as any
+                    }))
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
+                      e.preventDefault()
+                    }
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">This value will be saved under allocations["{selectedLevel || '?'}"].</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Working Days Configuration */}
+          <div className="space-y-2">
+            <h3 className="font-medium">Working Days Configuration</h3>
+            <p className="text-xs text-muted-foreground">Select which weekdays count as working days for leave calculations (applies globally).</p>
+            <div className="grid grid-cols-7 gap-2 mt-2">
+              {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((label, idx) => {
+                const active = workingDraft.includes(idx)
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setWorkingDraft(prev => prev.includes(idx) ? prev.filter(d=>d!==idx) : [...prev, idx].sort())}
+                    className={cn(
+                      'h-9 rounded-md border text-xs flex items-center justify-center transition',
+                      active ? 'bg-purple-600 text-white border-purple-600' : 'bg-background text-muted-foreground hover:border-purple-400'
+                    )}
+                  >{label}</button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Coming Soon Features */}
+          <div className="space-y-3 pt-4 border-t">
+            <h3 className="font-medium text-muted-foreground">Upcoming Features</h3>
+            
+            <div className="space-y-2 opacity-60 cursor-not-allowed select-none" title="Coming soon">
+              <Label className="flex items-center gap-1">Auto-Reject Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></Label>
+              <div className="flex items-center gap-3 rounded-md border p-2 bg-muted/40">
+                <Switch disabled checked={true} className="opacity-50" />
+                <span className="text-sm">Automatic rejection rules coming soon</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 opacity-60 cursor-not-allowed select-none" title="Coming soon">
+              <Label className="flex items-center gap-1">Carry-Forward Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></Label>
+              <div className="flex items-center gap-3 rounded-md border p-2 bg-muted/40">
+                <Switch disabled checked={true} className="opacity-50" />
+                <span className="text-sm">Carry-forward configuration coming soon</span>
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="space-y-3 mt-2">
-          <h3 className="font-medium">Role-Based Allocations</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <div className="space-y-1 md:col-span-2">
-              <Label>Select Job Level</Label>
-              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jobLevelOptions.map((lvl) => (
-                    <SelectItem key={lvl} value={lvl}>{lvl}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label>Allocation</Label>
-              <Input
-                type="number"
-                min="0"
-                step="1"
-                value={(() => {
-                  // dynamic allocations map: if exact label exists, use it; else use default bucket
-                  const direct: any = (draft as any).allocations?.[selectedLevel as any]
-                  if (typeof direct === 'number') return direct
-                  const key = mapLevelKey(selectedLevel)
-                  if (key) return (draft as any).allocations?.[key] ?? 0
-                  return 0
-                })()}
-                onChange={(e) => {
-                  const value = Math.max(0, Number(e.target.value || 0))
-                  // Persist directly under allocations[selectedLevel]
-                  setDraft((p) => ({
-                    ...p,
-                    allocations: { ...(p as any).allocations, [selectedLevel]: value } as any
-                  }))
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '.') {
-                    e.preventDefault()
-                  }
-                }}
-              />
-              <p className="text-xs text-muted-foreground">This value will be saved under allocations["{selectedLevel || '?'}"].</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2 mt-2 opacity-60 cursor-not-allowed select-none" title="Coming soon">
-          <h3 className="font-medium flex items-center gap-1">Carry-Forward Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /><span className="text-[10px] font-semibold uppercase tracking-wide text-purple-600"></span></h3>
-          <div className="flex items-center gap-3 rounded-md border p-2 bg-muted/40">
-            <Switch disabled checked={true} className="opacity-50" />
-            <span className="text-sm">Carry-forward configuration coming soon</span>
-          </div>
-        </div>
-
-        <div className="space-y-2 mt-4">
-          <h3 className="font-medium">Working Days Configuration</h3>
-          <p className="text-xs text-muted-foreground">Select which weekdays count as working days for leave calculations (applies globally).</p>
-          <div className="grid grid-cols-7 gap-2 mt-2">
-            {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((label, idx) => {
-              const active = workingDraft.includes(idx)
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setWorkingDraft(prev => prev.includes(idx) ? prev.filter(d=>d!==idx) : [...prev, idx].sort())}
-                  className={cn(
-                    'h-9 rounded-md border text-xs flex items-center justify-center transition',
-                    active ? 'bg-purple-600 text-white border-purple-600' : 'bg-background text-muted-foreground hover:border-purple-400'
-                  )}
-                >{label}</button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Carry-forward tester removed (feature deferred) */}
 
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => {
+          <Button 
+            className="bg-purple-600 hover:bg-purple-700" 
+            disabled={!hasChanges}
+            onClick={() => {
             // First update context so rest of app reflects immediately
             dispatch({ type: 'SET_WORKING_DAYS', payload: workingDraft })
             // Pass workingDays explicitly so parent persists correct array without relying on asynchronous state

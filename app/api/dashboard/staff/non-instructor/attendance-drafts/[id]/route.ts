@@ -8,8 +8,6 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 function toUi(doc: any) {
   return {
     ...doc,
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
   }
 }
 
@@ -31,10 +29,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         const patch = await req.json()
         const _id = new mongoose.Types.ObjectId(params.id)
 
-        if (patch.instructorId == null && patch.studentId) patch.instructorId = patch.studentId
-        if (patch.instructorName == null && patch.studentName) patch.instructorName = patch.studentName
-        if ('studentId' in patch) delete patch.studentId
-        if ('studentName' in patch) delete patch.studentName
+        // No student field conversion needed - using instructorId/instructorName directly
 
         const updated = await NonInstructorAttendanceDraftModel.findOneAndUpdate(
           { _id, tenantId: session.tenantId },

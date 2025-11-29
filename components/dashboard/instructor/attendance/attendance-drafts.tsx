@@ -10,8 +10,8 @@ import { format as formatDateFns } from "date-fns";
 
 export type AttendanceDraft = {
   id: number;
-  studentId: string;
-  studentName: string;
+  instructorId: string;
+  instructorName: string;
   cohortId?: string;
   cohortName?: string;
   cohortInstructor?: string;
@@ -205,7 +205,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="text-base font-semibold truncate">{d.studentName} <span className="text-gray-500 dark:text-white font-normal">({d.studentId})</span></div>
+                      <div className="text-base font-semibold truncate">{d.instructorName} <span className="text-gray-500 dark:text-white font-normal">({d.instructorId})</span></div>
                       {/* Removed Cohort Name from drafts list per requirement */}
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-600 dark:text-white">
                         <span className="inline-flex items-center gap-1">
@@ -250,7 +250,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
           <AlertDialogTitle>Delete Draft</AlertDialogTitle>
           <AlertDialogDescription>
             {draftToDelete ? (
-              <>Are you sure you want to delete the draft for <span className="font-medium">{draftToDelete.studentName}</span> ({draftToDelete.studentId})? This action cannot be undone.</>
+              <>Are you sure you want to delete the draft for <span className="font-medium">{draftToDelete.instructorName}</span> ({draftToDelete.instructorId})? This action cannot be undone.</>
             ) : (
               <>Are you sure you want to delete this draft? This action cannot be undone.</>
             )}
@@ -279,7 +279,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                         }
                         return next;
                       });
-                      const labelName = draftToDelete.studentName || draftToDelete.studentId || 'Draft';
+                      const labelName = draftToDelete.instructorName || draftToDelete.instructorId || 'Draft';
                       toast({
                         title: 'Draft Deleted',
                         description: `Attendance draft "${labelName}" has been deleted.`,

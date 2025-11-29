@@ -85,6 +85,13 @@ export default function LeaveManagement() {
       }
     }
   }, [])
+
+  // Auto-close drafts dialog when no drafts remain
+  useEffect(() => {
+    if (draftsOpen && state.drafts.length === 0) {
+      setDraftsOpen(false)
+    }
+  }, [draftsOpen, state.drafts.length])
   const [csvMappingData, setCsvMappingData] = useState<{ detectedHeaders: string[] }>({ detectedHeaders: [] })
   const [pendingCSVFile, setPendingCSVFile] = useState<File | null>(null)
   const [policy, setPolicy] = useState<LeavePolicy>({
@@ -288,6 +295,13 @@ export default function LeaveManagement() {
       const d = parseLocalDate(s)
       if (isNaN(d.getTime())) return s
           return formatDateFns(d, "dd-MMM-yyyy")
+    } catch { return s }
+  }
+  const formatExportDate = (s: string) => {
+    try {
+      const d = parseLocalDate(s)
+      if (isNaN(d.getTime())) return s
+      return formatDateFns(d, "dd-MMM-yyyy")
     } catch { return s }
   }
   const computeWorkingDays = (start: string, end: string) => {
@@ -781,6 +795,7 @@ export default function LeaveManagement() {
                 <Button
                   variant="outline"
                   size="sm"
+                  disabled
                   onClick={() => document.getElementById("import-leave-csv-input")?.click()}
                   title="Import CSV"
                 >
@@ -844,8 +859,8 @@ export default function LeaveManagement() {
                     limit = (r as any).allocationTotal
                   }
                   const remaining = limit !== undefined ? Math.max(0, limit - used) : r.balance
-                  // Use the same display format as the table (dd-MMM-yyyy)
-                  const fmtDisp = (d?: string) => (d ? formatDisplayDate(d) : '')
+                  // Export dates with full 4-digit year format (dd-MMM-yyyy)
+                  const fmtDisp = (d?: string) => (d ? formatExportDate(d) : '')
                   
                   // Improved contract type mapping: prefer contractType, then employmentType
                   const contractType = inst?.contractType || inst?.employmentType || 'N/A'
@@ -1030,7 +1045,7 @@ export default function LeaveManagement() {
                     <div className="font-semibold text-lg">{d.title || 'Untitled Draft'}</div>
                     <div className="text-muted-foreground">{d.instructorName || d.instructorId}</div>
                     <div className="text-muted-foreground mt-1">
-                      {(d.startDate && d.endDate) ? `${d.startDate} ? ${d.endDate}` : 'Dates not set'}
+                      {(d.startDate && d.endDate) ? `${d.startDate} - ${d.endDate}` : 'Dates not set'}
                     </div>
                     {d.jobLevel && (<span className="inline-block mt-2 rounded-full bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5">{d.jobLevel}</span>)}
                     <div className="text-xs text-muted-foreground mt-2">Last updated: {d.updatedAt ? formatDateFns(new Date(d.updatedAt), 'dd-MMM-yyyy') : '�'}</div>
@@ -1047,9 +1062,6 @@ export default function LeaveManagement() {
               ))
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDraftsOpen(false)}>Close</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

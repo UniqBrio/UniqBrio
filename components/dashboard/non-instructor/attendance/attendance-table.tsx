@@ -5,10 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Pencil, Trash2, Users } from "lucide-react"
 
-interface StudentAttendanceRecord {
+interface NonInstructorAttendanceRecord {
   id: number;
-  studentId: string;
-  studentName: string;
+  instructorId: string;
+  instructorName: string;
   cohortId?: string;
   cohortName?: string;
   cohortInstructor?: string;
@@ -23,14 +23,14 @@ interface StudentAttendanceRecord {
 }
 
 interface AttendanceTableProps {
-  attendanceData: StudentAttendanceRecord[];
+  attendanceData: NonInstructorAttendanceRecord[];
   selectedIds?: string[];
   onToggleSelect?: (id: string, checked: boolean) => void;
   onToggleSelectAll?: (checked: boolean) => void;
   displayedColumns?: string[]; // If provided, render only these columns (except selection)
-  onEditRecord?: (record: StudentAttendanceRecord) => void;
-  onDeleteRecord?: (record: StudentAttendanceRecord) => void;
-  onSelectRecord?: (record: StudentAttendanceRecord) => void;
+  onEditRecord?: (record: NonInstructorAttendanceRecord) => void;
+  onDeleteRecord?: (record: NonInstructorAttendanceRecord) => void;
+  onSelectRecord?: (record: NonInstructorAttendanceRecord) => void;
 }
 
 // Mock data for demonstration
@@ -70,7 +70,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
   const allVisibleIds = useMemo(() => data.map(r => r.id.toString()), [data]);
   const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.includes(id));
 
-  const renderCell = (row: StudentAttendanceRecord, column: string) => {
+  const renderCell = (row: NonInstructorAttendanceRecord, column: string) => {
     const displayStatus = (s?: string) => {
       if (!s) return '-'
       const v = s.toLowerCase()
@@ -81,9 +81,9 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
     const isPlanned = (row.status || '').toString().toLowerCase() === 'planned'
     switch (column) {
       case 'Non-Instructor ID':
-        return row.studentId || `STU-${row.id}`;
+        return row.instructorId || `NI-${row.id}`;
       case 'Non-Instructor Name':
-        return row.studentName || '-';
+        return row.instructorName || '-';
       case 'Date':
         return formatDisplayDate(row.date);
       case 'Start Time':

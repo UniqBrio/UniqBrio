@@ -228,7 +228,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                     return (
                       <DropdownMenuItem
                         key={contractType.value}
-                        className="flex items-center gap-2 cursor-pointer"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-transparent focus:bg-transparent"
                         onSelect={(e) => e.preventDefault()}
                         onClick={() => toggleStaffType(contractType.value)}
                       >
@@ -240,7 +240,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                             )
                           }
                           onClick={(e) => e.stopPropagation()}
-                          style={pendingStaffTypes.includes(contractType.value) ? { backgroundColor: primaryColor, borderColor: primaryColor } : { borderColor: primaryColor }}
+                          style={{ backgroundColor: pendingStaffTypes.includes(contractType.value) ? primaryColor : 'transparent', borderColor: primaryColor }}
                         />
                         <span className="text-sm">{contractType.label}</span>
                       </DropdownMenuItem>
@@ -301,7 +301,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                     return (
                       <DropdownMenuItem
                         key={leaveType}
-                        className="flex items-center gap-2 cursor-pointer"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-transparent focus:bg-transparent"
                         onSelect={(e) => e.preventDefault()}
                         onClick={() => toggleLeaveType(leaveType)}
                       >
@@ -313,7 +313,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                             )
                           }
                           onClick={(e) => e.stopPropagation()}
-                          style={pendingLeaveTypes.includes(leaveType) ? { backgroundColor: primaryColor, borderColor: primaryColor } : { borderColor: primaryColor }}
+                          style={{ backgroundColor: pendingLeaveTypes.includes(leaveType) ? primaryColor : 'transparent', borderColor: primaryColor }}
                         />
                         <span className="text-sm">{leaveType}</span>
                       </DropdownMenuItem>
@@ -366,7 +366,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                     return (
                       <DropdownMenuItem
                         key={level}
-                        className="flex items-center gap-2 cursor-pointer"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-transparent focus:bg-transparent"
                         onSelect={(e) => e.preventDefault()}
                         onClick={() => toggleJobLevel(level)}
                       >
@@ -378,7 +378,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                             )
                           }
                           onClick={(e) => e.stopPropagation()}
-                          style={pendingJobLevels.includes(level) ? { backgroundColor: primaryColor, borderColor: primaryColor } : { borderColor: primaryColor }}
+                          style={{ backgroundColor: pendingJobLevels.includes(level) ? primaryColor : 'transparent', borderColor: primaryColor }}
                         />
                         <span className="text-sm">{level}</span>
                       </DropdownMenuItem>

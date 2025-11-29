@@ -95,7 +95,8 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
   const [pendingClose, setPendingClose] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const isEditingDraft = Boolean(draftId || currentDraftId)
+  // Only show "Update draft" when editing a draft, not when editing an existing instructor
+  const isEditingDraft = mode !== "edit" && Boolean(draftId || currentDraftId)
 
   const tabOrder = ["basic", "payment", "professional", "employment"] as const
 
@@ -169,6 +170,8 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
 
   useEffect(() => {
     if (open) {
+      // Always reset to basic tab when opening the dialog
+      setAddTab("basic")
       if (draftData) {
         setForm(draftData)
         setOriginalForm(draftData)
@@ -295,14 +298,20 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-xl">
           <DialogHeader className="flex flex-row items-center justify-between pr-8">
             <DialogTitle>{title ?? (mode === "edit" ? "Edit Instructor" : "Add New Instructor")}</DialogTitle>
-            <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50" onClick={handleSaveDraft}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed" 
+              onClick={handleSaveDraft}
+              disabled={!hasFormChanged(form, originalForm)}
+            >
               <Save className="h-4 w-4" />
               {isEditingDraft ? "Update draft" : "Save draft"}
             </Button>
           </DialogHeader>
 
           <UITabs value={addTab} onValueChange={setAddTab} className="w-full">
-            <UITabsList className="flex justify-between gap-1 mb-6 w-full">
+            <UITabsList className="flex justify-between gap-1 mb-6 w-full bg-transparent p-0">
               <UITabsTrigger value="basic" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Basic Info</UITabsTrigger>
               <UITabsTrigger value="payment" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Payment Setup</UITabsTrigger>
               <UITabsTrigger value="professional" className="border-2 border-purple-300 text-purple-600 bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-400 hover:bg-gray-300 hover:text-white hover:border-gray-300 focus:outline-none">Branch Assignment</UITabsTrigger>
@@ -360,6 +369,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
                             type="button"
                             onClick={handleSave}
                             disabled={shouldDisable}
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
                             // Double-click safety
                             onDoubleClick={(e) => { e.preventDefault() }}
                           >
@@ -380,7 +390,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="inline-flex">
-                        <Button type="button" onClick={goToNextTab} disabled={!isCurrentTabValid()} className="flex items-center gap-2">
+                        <Button type="button" onClick={goToNextTab} disabled={!isCurrentTabValid()} className="flex items-center gap-2 hover:no-underline focus:no-underline">
                           Next
                           <ChevronRight className="h-4 w-4" />
                         </Button>

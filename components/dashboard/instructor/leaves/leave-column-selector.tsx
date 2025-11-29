@@ -30,7 +30,7 @@ export const LEAVE_TABLE_COLUMNS: { id: LeaveColId; label: string }[] = [
   { id: "jobLevel", label: "Job Level" },
   { id: "contractType", label: "Contract Type" },
   { id: "courseId", label: "Course ID" },
-  { id: "courseName", label: "Course" },
+  { id: "courseName", label: "Course Assigned" },
   { id: "cohortName", label: "Cohort" },
   { id: "cohortId", label: "Cohort ID" },
   { id: "leaveType", label: "Leave Type" },
@@ -87,8 +87,13 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
     const valid = cols.filter(
       (c): c is LeaveColId => LEAVE_TABLE_COLUMNS.some(x => x.id === c) && (seen.has(c) ? false : (seen.add(c), true))
     )
-    // Ensure mandatory columns remain present; if missing, insert at their default relative positions
-    NON_EDITABLE_COLS.forEach(c => {
+    
+    // Separate action columns (edit, delete) from other mandatory columns
+    const actionCols: LeaveColId[] = ["edit", "delete"]
+    const otherMandatory = NON_EDITABLE_COLS.filter(c => !actionCols.includes(c))
+    
+    // Ensure non-action mandatory columns remain present
+    otherMandatory.forEach(c => {
       if (!valid.includes(c)) {
         const defIdx = LEAVE_TABLE_COLUMNS.findIndex(x => x.id === c)
         let insertAt = valid.length
@@ -99,7 +104,16 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
         valid.splice(insertAt, 0, c)
       }
     })
-    return valid
+    
+    // Remove action columns from their current position and add them at the end
+    const withoutActions = valid.filter(c => !actionCols.includes(c))
+    actionCols.forEach(c => {
+      if (!withoutActions.includes(c)) {
+        withoutActions.push(c)
+      }
+    })
+    
+    return withoutActions
   }
 
   // Helper functions for keyboard shortcuts
@@ -338,7 +352,7 @@ export default function LeaveColumnSelector({ value, onChange, storageKey = "lea
               <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 rounded-lg border">
                 <div className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Keyboard Shortcuts:</div>
                 <div className="grid grid-cols-4 gap-x-4 gap-y-1 text-xs">
-                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Shift+??</kbd> Multi-select</div>
+                  <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
                   <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
                   <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
                   <div><kbd className="px-1 py-0.5 bg-white border rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>

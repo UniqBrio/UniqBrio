@@ -4,10 +4,10 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Calendar, Clock, User, MapPin, Pencil, Trash2, NotepadText, BookOpen } from "lucide-react"
 
-interface StudentAttendanceRecord {
+interface NonInstructorAttendanceRecord {
   id: number;
-  studentId: string;
-  studentName: string;
+  instructorId: string;
+  instructorName: string;
   cohortId?: string;
   cohortName?: string;
   cohortInstructor?: string;
@@ -22,10 +22,10 @@ interface StudentAttendanceRecord {
 }
 
 interface AttendanceGridProps {
-  attendanceData: StudentAttendanceRecord[];
-  onSelectRecord?: (record: StudentAttendanceRecord) => void;
-  onEditRecord?: (record: StudentAttendanceRecord) => void;
-  onDeleteRecord?: (record: StudentAttendanceRecord) => void;
+  attendanceData: NonInstructorAttendanceRecord[];
+  onSelectRecord?: (record: NonInstructorAttendanceRecord) => void;
+  onEditRecord?: (record: NonInstructorAttendanceRecord) => void;
+  onDeleteRecord?: (record: NonInstructorAttendanceRecord) => void;
 }
 
 export function AttendanceGrid({ 
@@ -70,9 +70,9 @@ export function AttendanceGrid({
               <div className="flex items-start justify-between mb-3 pr-8">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate">
-                    {record.studentName}
+                    {record.instructorName}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-white">{record.studentId}</p>
+                  <p className="text-sm text-gray-500 dark:text-white">{record.instructorId}</p>
                 </div>
                 <Badge className={
                   record.status === "present"

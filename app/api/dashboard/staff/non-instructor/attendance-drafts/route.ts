@@ -7,8 +7,6 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 function toUi(doc: any) {
   return {
     ...doc,
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
   }
 }
 
@@ -40,20 +38,26 @@ export async function POST(req: Request) {
       await dbConnect("uniqbrio")
       const body = await req.json()
       const savedAt = body.savedAt || new Date().toISOString()
-      const instructorId = String(body.instructorId ?? body.studentId ?? '') || undefined
-      const instructorName = String(body.instructorName ?? body.studentName ?? '') || undefined
+      const instructorId = body.instructorId || undefined
+      const instructorName = body.instructorName || undefined
+      
       const toSave: any = {
-        ...body,
         tenantId: session.tenantId,
         instructorId,
         instructorName,
+        date: body.date,
+        startTime: body.startTime ?? null,
+        endTime: body.endTime ?? null,
+        status: body.status || 'present',
+        cohortTiming: body.cohortTiming ?? null,
+        notes: body.notes ?? null,
         savedAt,
       }
-      delete toSave.studentId
-      delete toSave.studentName
+      
       const created = await NonInstructorAttendanceDraftModel.create(toSave)
       return NextResponse.json({ success: true, data: toUi(created.toObject()) }, { status: 201 })
     } catch (e: any) {
+      console.error('Error saving attendance draft:', e)
       return NextResponse.json({ success: false, error: e.message || 'Failed to save draft' }, { status: 500 })
     }
   })

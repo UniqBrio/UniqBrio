@@ -96,9 +96,14 @@ export default function InstructorDraftsDialog({
 
   const performDelete = async (idToDelete: string) => {
     setIsDeleting(true)
+    const isLastDraft = drafts.length === 1
     try {
       await deleteDraft(idToDelete)
       toast({ title: "Draft deleted", description: "The draft was removed successfully." })
+      // Close dialog if this was the last draft
+      if (isLastDraft) {
+        onOpenChange(false)
+      }
     } catch (e: any) {
       toast({ title: "Deletion failed", description: e?.message || 'Unable to delete draft', variant: "destructive" })
     } finally {
@@ -246,7 +251,12 @@ export default function InstructorDraftsDialog({
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel 
+                            disabled={isDeleting}
+                            className="hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                          >
+                            Cancel
+                          </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={(e) => {
                               e.preventDefault();

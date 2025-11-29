@@ -38,10 +38,10 @@ import { useCustomColors } from "@/lib/use-custom-colors"
 
 type ViewMode = "grid" | "list";
 
-interface StudentAttendanceRecord {
+interface InstructorAttendanceRecord {
   id: number;
-  studentId: string;
-  studentName: string;
+  instructorId: string;
+  instructorName: string;
   cohortId?: string;
   cohortName?: string;
   cohortInstructor?: string;
@@ -56,8 +56,8 @@ interface StudentAttendanceRecord {
 }
 
 export interface AttendanceSearchFiltersProps {
-  attendanceRecords: StudentAttendanceRecord[];
-  setFilteredAttendance?: React.Dispatch<React.SetStateAction<StudentAttendanceRecord[]>>;
+  attendanceRecords: InstructorAttendanceRecord[];
+  setFilteredAttendance?: React.Dispatch<React.SetStateAction<InstructorAttendanceRecord[]>>;
   searchTerm: string;
   setSearchTerm: (v: string) => void;
   sortBy: string;
@@ -67,7 +67,7 @@ export interface AttendanceSearchFiltersProps {
   viewMode: ViewMode;
   setViewMode: React.Dispatch<React.SetStateAction<ViewMode>>;
   onAddAttendance?: () => void;
-  onImport?: (items: StudentAttendanceRecord[]) => void;
+  onImport?: (items: InstructorAttendanceRecord[]) => void;
   selectedIds?: string[];
   // Column management UI removed (props kept for compatibility)
   displayedColumns?: string[];
@@ -233,10 +233,10 @@ export default function AttendanceSearchFilters({
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       data = data.filter(r => {
-        const studentMatch = r.studentName?.toLowerCase().includes(q) || r.studentId?.toLowerCase().includes(q);
+        const instructorMatch = r.instructorName?.toLowerCase().includes(q) || r.instructorId?.toLowerCase().includes(q);
         const instrMatch = r.cohortInstructor?.toLowerCase().includes(q);
         const notesMatch = r.notes?.toLowerCase().includes(q);
-        return studentMatch || instrMatch || notesMatch;
+        return instructorMatch || instrMatch || notesMatch;
       });
     }
     
@@ -267,13 +267,13 @@ export default function AttendanceSearchFilters({
       let vA: any;
       let vB: any;
       switch (sortBy) {
-        case 'studentName':
-          vA = a.studentName || '';
-          vB = b.studentName || '';
+        case 'instructorName':
+          vA = a.instructorName || '';
+          vB = b.instructorName || '';
           break;
-        case 'studentId':
-          vA = a.studentId || '';
-          vB = b.studentId || '';
+        case 'instructorId':
+          vA = a.instructorId || '';
+          vB = b.instructorId || '';
           break;
         // Cohort name sort removed
         case 'status':
@@ -307,7 +307,7 @@ export default function AttendanceSearchFilters({
         if (
           prev[i].status !== filtered[i].status ||
           prev[i].date !== filtered[i].date ||
-          prev[i].studentName !== filtered[i].studentName ||
+          prev[i].instructorName !== filtered[i].instructorName ||
           prev[i].notes !== filtered[i].notes ||
           prev[i].startTime !== filtered[i].startTime ||
           prev[i].endTime !== filtered[i].endTime
@@ -321,7 +321,7 @@ export default function AttendanceSearchFilters({
   }, [filtered, setFilteredAttendance]);
 
   // ---------- Import / Export helpers ----------
-  function toCSV(rows: StudentAttendanceRecord[]) {
+  function toCSV(rows: InstructorAttendanceRecord[]) {
     const formatDisplayDate = (s?: string) => {
       if (!s) return '';
       try {
@@ -335,9 +335,9 @@ export default function AttendanceSearchFilters({
       }
     };
 
-    const columns: { header: string; getter: (r: StudentAttendanceRecord) => any }[] = [
-      { header: 'Instructor ID', getter: r => r.studentId || '' },
-      { header: 'Instructor Name', getter: r => r.studentName || '' },
+    const columns: { header: string; getter: (r: InstructorAttendanceRecord) => any }[] = [
+      { header: 'Instructor ID', getter: r => r.instructorId || '' },
+      { header: 'Instructor Name', getter: r => r.instructorName || '' },
       { header: 'Date', getter: r => formatDisplayDate(r.date) },
       { header: 'Start Time', getter: r => r.startTime || '' },
       { header: 'End Time', getter: r => r.endTime || '' },
@@ -385,7 +385,7 @@ export default function AttendanceSearchFilters({
       return;
     }
     const byId = new Map(filtered.map(r => [r.id.toString(), r] as const));
-    const rows = selectedIds.map(id => byId.get(id)).filter(Boolean) as StudentAttendanceRecord[];
+    const rows = selectedIds.map(id => byId.get(id)).filter(Boolean) as InstructorAttendanceRecord[];
     const csv = toCSV(rows);
     download(`attendance-selected-${new Date().toISOString().slice(0,10)}.csv`, csv);
     toast({
@@ -419,16 +419,16 @@ export default function AttendanceSearchFilters({
     });
   }
 
-  function normalizeAttendanceRecord(o: any): StudentAttendanceRecord {
+  function normalizeAttendanceRecord(o: any): InstructorAttendanceRecord {
     return {
       id: 0, // Will be auto-generated
       // Accept both historic Student* and new Instructor* headers/keys
-      studentId: String(
+      instructorId: String(
         o.studentId || o.StudentId || o["Student ID"] ||
         o.instructorId || o.InstructorId || o["Instructor ID"] ||
         ""
       ).trim(),
-      studentName: String(
+      instructorName: String(
         o.studentName || o.StudentName || o["Student Name"] ||
         o.instructorName || o.InstructorName || o["Instructor Name"] ||
         ""
@@ -449,8 +449,8 @@ export default function AttendanceSearchFilters({
     };
   }
 
-  async function importAttendanceBatch(items: StudentAttendanceRecord[]) {
-    const successes: StudentAttendanceRecord[] = [];
+  async function importAttendanceBatch(items: InstructorAttendanceRecord[]) {
+    const successes: InstructorAttendanceRecord[] = [];
     let inserted = 0, duplicates = 0, errors = 0;
     
     for (let i = 0; i < items.length; i++) {
@@ -702,23 +702,23 @@ export default function AttendanceSearchFilters({
         {/* Sort (student-style dropdown) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1">
-              <ArrowUpDown className="mr-2 h-4 w-4" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white">
+            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
+              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white transition-colors" />
+              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white transition-colors">
                 {(() => {
                   const label = [
                     { value: 'date', label: 'Date' },
-                    { value: 'studentName', label: 'Instructor Name' },
-                    { value: 'studentId', label: 'Instructor ID' },
+                    { value: 'instructorName', label: 'Instructor Name' },
+                    { value: 'instructorId', label: 'Instructor ID' },
                     { value: 'status', label: 'Status' },
                   ].find(o => o.value === sortBy)?.label;
                   return label || 'Sort';
                 })()}
               </span>
               {sortOrder === 'asc' ? (
-                <ArrowUp className="ml-1 h-3 w-3 text-gray-500 dark:text-white" />
+                <ArrowUp className="ml-1 h-3 w-3 text-gray-500 dark:text-white group-hover:text-white transition-colors" />
               ) : (
-                <ArrowDown className="ml-1 h-3 w-3 text-gray-500 dark:text-white" />
+                <ArrowDown className="ml-1 h-3 w-3 text-gray-500 dark:text-white group-hover:text-white transition-colors" />
               )}
             </Button>
           </DropdownMenuTrigger>
@@ -726,8 +726,8 @@ export default function AttendanceSearchFilters({
             <DropdownMenuLabel>Sort By</DropdownMenuLabel>
             {[
               { value: 'date', label: 'Date' },
-              { value: 'studentName', label: 'Instructor Name' },
-              { value: 'studentId', label: 'Instructor ID' },
+              { value: 'instructorName', label: 'Instructor Name' },
+              { value: 'instructorId', label: 'Instructor ID' },
               { value: 'status', label: 'Status' },
             ].map(option => (
               <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
@@ -803,7 +803,7 @@ export default function AttendanceSearchFilters({
 
         {/* Import */}
         
-              <Button variant="outline" size="sm" title="Import" onClick={() => fileInputRef.current?.click()}>
+              <Button variant="outline" size="sm" title="Import" onClick={() => fileInputRef.current?.click()} disabled>
                 <Upload className="h-4 w-4 mr-2" />
                 Import
               </Button>

@@ -7,6 +7,7 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Skeleton } from "@/components/dashboard/ui/skeleton"
 import { Clock, Users, BookOpen, TrendingUp, Award, AlertTriangle, Calendar, Star, Target, Trophy } from "lucide-react"
 import { useCustomColors } from "@/lib/use-custom-colors";
+import Image from "next/image";
 import {
   ResponsiveContainer,
   BarChart,
@@ -127,11 +128,11 @@ export default function InstructorDashboard() {
           <CardContent className="h-[280px] md:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               {(() => {
-                const data = [...instructors.reduce((map, inst) => {
+                const data = Array.from(instructors.reduce((map, inst) => {
                   const key = (inst.jobLevel || "Unspecified").trim()
                   map.set(key, (map.get(key) || 0) + 1)
                   return map
-                }, new Map<string, number>())]
+                }, new Map<string, number>()))
                   .map(([name, value]) => ({ name, value }))
                   .sort((a, b) => b.value - a.value)
 
@@ -187,7 +188,7 @@ export default function InstructorDashboard() {
                   return map
                 }, new Map<string, number>())
                 // Filter out Unspecified
-                const data = [...rawMap]
+                const data = Array.from(rawMap)
                   .map(([name, value]) => ({ name, value }))
                   .filter(d => d.name !== "Unspecified" && d.value > 0)
                   .sort((a, b) => b.value - a.value)
@@ -232,9 +233,9 @@ export default function InstructorDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="inline-flex items-center gap-2">
                       Smart Nudges & Alerts{" "}
-                      
+                      <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" />
                     </CardTitle>
         </CardHeader>
         <CardContent>
@@ -285,11 +286,10 @@ export default function InstructorDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="inline-flex items-center gap-2">
               <Trophy className="h-5 w-5 text-yellow-500" />
               Leaderboard Status{" "}
-                      
-
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" />
             </CardTitle>
           </CardHeader>
           <CardContent>

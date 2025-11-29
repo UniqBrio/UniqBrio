@@ -4,12 +4,11 @@ import InstructorAttendanceDraftModel from "@/models/dashboard/staff/InstructorA
 import { getUserSession } from '@/lib/tenant/api-helpers'
 import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
-// Map DB doc to current UI shape (derive student* from instructor*)
+// Map DB doc to current UI shape
 function toUi(doc: any) {
   return {
     ...doc,
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
+    id: String(doc._id || doc.id),
   }
 }
 
@@ -57,9 +56,8 @@ export async function POST(req: Request) {
       await dbConnect("uniqbrio")
       const body = await req.json()
       const savedAt = body.savedAt || new Date().toISOString()
-      // Accept student* or instructor*, store only instructor*
-      const instructorId = String(body.instructorId ?? body.studentId ?? '') || undefined
-      const instructorName = String(body.instructorName ?? body.studentName ?? '') || undefined
+      const instructorId = String(body.instructorId ?? '') || undefined
+      const instructorName = String(body.instructorName ?? '') || undefined
       const toSave: any = {
         ...body,
         tenantId: session.tenantId,
@@ -67,9 +65,6 @@ export async function POST(req: Request) {
         instructorName,
         savedAt,
       }
-      // Remove student fields from storage
-      delete toSave.studentId
-      delete toSave.studentName
       const created = await InstructorAttendanceDraftModel.create(toSave)
       return NextResponse.json({ success: true, data: toUi(created.toObject()) }, { status: 201 })
     } catch (e: any) {

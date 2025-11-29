@@ -35,7 +35,14 @@ export async function GET() {
     const policy = await loadPolicy(session.tenantId)
     const allocs = policy?.allocations || { junior: 12, senior: 16, managers: 24 }
     const workingDaysArr = Array.isArray(policy?.workingDays) && policy!.workingDays.length ? policy!.workingDays : [1,2,3,4,5,6]
-    const people = await NonInstructorModel.find({ tenantId: session.tenantId }).lean()
+    const people = await NonInstructorModel.find({ 
+      tenantId: session.tenantId,
+      $or: [
+        { isDeleted: { $exists: false } },
+        { isDeleted: false }
+      ],
+      status: { $ne: 'Inactive' }
+    }).lean()
     const personMap: Record<string, any> = {}
     people.forEach(i => { personMap[i.id] = i; if (i.externalId) personMap[i.externalId] = i })
 
@@ -171,9 +178,42 @@ export async function POST(req: Request) {
       if (missing.length) {
         return NextResponse.json({ ok: false, error: `Missing required fields for submission: ${missing.join(', ')}` }, { status: 400 })
       }
+      
+      // Check for duplicate/overlapping leave requests
+      if (body.startDate && body.endDate && body.instructorId) {
+        const overlapping = await NonInstructorLeaveRequest.findOne({
+          instructorId: body.instructorId,
+          tenantId: session.tenantId,
+          status: { $in: ['APPROVED', 'PENDING'] },
+          $or: [
+            // New request starts during existing leave
+            { startDate: { $lte: body.startDate }, endDate: { $gte: body.startDate } },
+            // New request ends during existing leave
+            { startDate: { $lte: body.endDate }, endDate: { $gte: body.endDate } },
+            // New request completely contains existing leave
+            { startDate: { $gte: body.startDate }, endDate: { $lte: body.endDate } }
+          ]
+        }).lean()
+        
+        if (overlapping) {
+          return NextResponse.json({ 
+            ok: false, 
+            error: `A leave request already exists for this non-instructor from ${overlapping.startDate} to ${overlapping.endDate}. Please choose different dates.` 
+          }, { status: 409 })
+        }
+      }
+      
       try {
         const { startDate: start, endDate: end, instructorId } = body
-        const person = await NonInstructorModel.findOne({ id: instructorId, tenantId: session.tenantId }).lean()
+        const person = await NonInstructorModel.findOne({ 
+          id: instructorId, 
+          tenantId: session.tenantId,
+          $or: [
+            { isDeleted: { $exists: false } },
+            { isDeleted: false }
+          ],
+          status: { $ne: 'Inactive' }
+        }).lean()
         const jobLevelRaw: string | undefined = (person as any)?.jobLevel || body.jobLevel || body.selectedJobLevel
         if (!body.jobLevel && jobLevelRaw) body.jobLevel = jobLevelRaw
         const policy = await loadPolicy(session.tenantId)
@@ -261,9 +301,42 @@ export async function PUT(req: Request) {
         if (missing.length) {
           return NextResponse.json({ ok: false, error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
         }
+        
+        // Check for duplicate/overlapping leave requests when promoting or updating
+        if (merged.startDate && merged.endDate && merged.instructorId) {
+          const overlapping = await NonInstructorLeaveRequest.findOne({
+            instructorId: merged.instructorId,
+            tenantId: session.tenantId,
+            id: { $ne: existing.id }, // Exclude current record
+            status: { $in: ['APPROVED', 'PENDING'] },
+            $or: [
+              // Updated request starts during existing leave
+              { startDate: { $lte: merged.startDate }, endDate: { $gte: merged.startDate } },
+              // Updated request ends during existing leave
+              { startDate: { $lte: merged.endDate }, endDate: { $gte: merged.endDate } },
+              // Updated request completely contains existing leave
+              { startDate: { $gte: merged.startDate }, endDate: { $lte: merged.endDate } }
+            ]
+          }).lean()
+          
+          if (overlapping) {
+            return NextResponse.json({ 
+              ok: false, 
+              error: `A leave request already exists for this non-instructor from ${overlapping.startDate} to ${overlapping.endDate}. Please choose different dates.` 
+            }, { status: 409 })
+          }
+        }
       }
       try {
-        const person = await NonInstructorModel.findOne({ id: merged.instructorId, tenantId: session.tenantId }).lean()
+        const person = await NonInstructorModel.findOne({ 
+          id: merged.instructorId, 
+          tenantId: session.tenantId,
+          $or: [
+            { isDeleted: { $exists: false } },
+            { isDeleted: false }
+          ],
+          status: { $ne: 'Inactive' }
+        }).lean()
         const jobLevelRaw: string | undefined = (person as any)?.jobLevel || merged.jobLevel || updates?.selectedJobLevel
         if (!updates.jobLevel && jobLevelRaw) updates.jobLevel = jobLevelRaw
         const policy = await loadPolicy(session.tenantId)

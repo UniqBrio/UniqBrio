@@ -8,8 +8,8 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 function toUi(doc: any) {
   return {
     ...doc,
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
+    id: doc.id || doc._id,
+    _id: doc._id,
   }
 }
 
@@ -118,8 +118,8 @@ export async function POST(req: Request) {
     await dbConnect("uniqbrio")
     const body = await req.json()
 
-    const instructorId = String(body.instructorId ?? body.studentId ?? '')
-    const instructorName = String(body.instructorName ?? body.studentName ?? '')
+    const instructorId = String(body.instructorId ?? '')
+    const instructorName = String(body.instructorName ?? '')
     const date = String(body.date ?? '')
 
     if (!instructorId || !instructorName || !date) {
@@ -141,12 +141,20 @@ export async function POST(req: Request) {
       notes: body.notes ?? null,
     }
 
-    const created = await NonInstructorAttendanceModel.create(toSave as any)
-    return NextResponse.json({ success: true, data: toUi(created.toObject()) }, { status: 201 })
-  } catch (e: any) {
-    if (e?.code === 11000) {
-      return NextResponse.json({ success: false, error: 'Attendance already exists for this non-instructor and date' }, { status: 409 })
+    // Use findOneAndUpdate with upsert to handle both new records and updates to existing ones (e.g., planned leave)
+    const result = await NonInstructorAttendanceModel.findOneAndUpdate(
+      { tenantId: session.tenantId, instructorId, date },
+      { $set: toSave },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    )
+    
+    if (!result) {
+      return NextResponse.json({ success: false, error: 'Failed to create or update attendance record' }, { status: 500 })
     }
+    
+    return NextResponse.json({ success: true, data: toUi(result.toObject()) }, { status: 201 })
+  } catch (e: any) {
+    console.error('Error creating attendance:', e)
     return NextResponse.json({ success: false, error: e.message || 'Failed to create attendance' }, { status: 500 })
   }
     }

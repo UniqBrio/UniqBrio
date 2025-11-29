@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Button } from "@/components/dashboard/ui/button"
 import { Edit, Save, Star } from "lucide-react"
+import Image from "next/image"
 
 interface Props {
   isEditing: boolean
@@ -14,10 +15,10 @@ export default function PerformanceCard({ isEditing, onPrimaryAction }: Props) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="inline-flex items-center gap-2">
           <Star className="h-5 w-5" />
           AI-Enhanced Performance Reviews{" "}
-          ??
+          <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" />
         </CardTitle>
         
       </CardHeader>

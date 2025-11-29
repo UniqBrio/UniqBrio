@@ -426,7 +426,7 @@ export default function SearchAndFilterBar({
                     placeholder="Max"
                     value={pendingFilters.experience[1]}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value) || 50
+                      const value = e.target.value === '' ? 50 : parseInt(e.target.value)
                       setPendingFilters({
                         ...pendingFilters,
                         experience: [pendingFilters.experience[0], value]
@@ -551,6 +551,7 @@ export default function SearchAndFilterBar({
                   variant="outline"
                   size="sm"
                   onClick={() => document.getElementById('import-csv-input')?.click()}
+                  disabled
                 >
                   <Upload className="mr-2 h-4 w-4" />
                   Import

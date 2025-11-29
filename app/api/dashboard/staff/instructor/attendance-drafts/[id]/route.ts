@@ -7,8 +7,7 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 function toUi(doc: any) {
   return {
     ...doc,
-    studentId: doc.studentId || doc.instructorId,
-    studentName: doc.studentName || doc.instructorName,
+    id: String(doc._id || doc.id),
   }
 }
 
@@ -25,12 +24,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       try {
         await dbConnect("uniqbrio")
         const patch = await req.json()
-
-        // Normalize incoming: map student* to instructor* and drop student*
-        if (patch.instructorId == null && patch.studentId) patch.instructorId = patch.studentId
-        if (patch.instructorName == null && patch.studentName) patch.instructorName = patch.studentName
-        if ('studentId' in patch) delete patch.studentId
-        if ('studentName' in patch) delete patch.studentName
 
         const updated = await InstructorAttendanceDraftModel.findOneAndUpdate(
           { _id: params.id, tenantId: session.tenantId },

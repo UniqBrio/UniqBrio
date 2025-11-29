@@ -26,8 +26,8 @@ const exportAttendanceCSV = (attendanceData: any[]) => {
     "Notes"
   ];
   const rows = attendanceData.map(row => [
-    row.studentId,
-    row.studentName,
+    row.instructorId,
+    row.instructorName,
     row.cohortInstructor,
     row.cohortTiming,
     row.date,

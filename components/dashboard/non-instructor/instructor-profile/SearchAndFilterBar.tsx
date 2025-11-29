@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
-import { Search, Filter, ArrowUp, ArrowDown, ArrowUpDown, Upload, Download, Save, RotateCcw, X } from "lucide-react"
+import { Search, Filter, ArrowUp, ArrowDown, ArrowUpDown, Upload, Download, Save, RotateCcw, X, Check } from "lucide-react"
 import GridIcon from "@/components/dashboard/icons/grid"
 import { INSTRUCTOR_TABLE_COLUMNS, type InstructorColumnId } from "./instructor-columns"
 import { FilterDropdown } from "@/components/dashboard/ui/staff/filter-dropdown"
@@ -553,7 +553,10 @@ export default function SearchAndFilterBar({
                     }}
                     className={sortBy === option.value ? "bg-purple-50" : ""}
                   >
-                    {option.label}
+                    <span>{option.label}</span>
+                    {sortBy === option.value && (
+                      <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                    )}
                   </DropdownMenuItem>
                 ))}
               </div>
@@ -571,7 +574,13 @@ export default function SearchAndFilterBar({
                   sortTooltipTimerRef.current = null
                 }, 3000)
               }}>
-                Ascending
+                <span className="flex items-center gap-2">
+                  Ascending
+                  <ArrowUp className="h-4 w-4" />
+                </span>
+                {sortOrder === "asc" && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => {
                 setSortOrder("desc")
@@ -585,7 +594,13 @@ export default function SearchAndFilterBar({
                   sortTooltipTimerRef.current = null
                 }, 3000)
               }}>
-                Descending
+                <span className="flex items-center gap-2">
+                  Descending
+                  <ArrowDown className="h-4 w-4" />
+                </span>
+                {sortOrder === "desc" && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
