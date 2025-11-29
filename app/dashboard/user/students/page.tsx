@@ -58,6 +58,8 @@ export default function StudentsPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [coursesLoading, setCoursesLoading] = useState<boolean>(false);
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
+  // Active tab state - persists across operations
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   // Payment prompt state after adding a student
   const [showPaymentPrompt, setShowPaymentPrompt] = useState(false);
   const [lastAddedStudent, setLastAddedStudent] = useState<Student | null>(null);
@@ -509,6 +511,9 @@ export default function StudentsPage() {
         setDraftIdBeingEdited(null);
         setDraftToEdit(null);
         
+        // Switch to students tab after successful add
+        setActiveTab('students');
+        
         // Trigger payment prompt popup (toast removed per request)
         setShowPaymentPrompt(true);
         
@@ -607,6 +612,8 @@ export default function StudentsPage() {
           setSelectedStudent(null);
           setOpenDetailsDialog(false);
         }
+        // Ensure we stay on the students tab after delete
+        setActiveTab('students');
         // Show success toast notification
         toast({
           title: "🗑️ Student Deleted",
@@ -655,7 +662,7 @@ export default function StudentsPage() {
             onOpenDrafts={() => setOpenDraftsDialog(true)}
           />
           {/* Navigation Tabs */}
-          <Tabs defaultValue="dashboard" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-4 sm:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
               {[
                 { value: 'dashboard', icon: LayoutDashboard, label: 'Analytics', shortLabel: 'Stats' },

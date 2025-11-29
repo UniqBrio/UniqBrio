@@ -962,6 +962,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     // This ensures that if the user was on the last tab, closes, and reopens, they start at the first tab.
     if (open) {
       setActiveTab('student-info');
+      // Reset saving draft guard when dialog opens to ensure save button works
+      savingDraftRef.current = false;
+      setIsSavingDraft(false);
     }
     if (open && !initialStudent) {
       const initial = composeInitial();
@@ -1435,8 +1438,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     }
   }, [cohortList, newStudent.cohortId, cohortsLoading]);
   
-  const setNamePart=(part:'firstName'|'middleName'|'lastName',value:string)=> setNewStudent(prev=>{ const sanitized = value.replace(/[0-9]/g, ''); const next={...prev,[part]:sanitized} as NewStudentType; next.name=[next.firstName,next.middleName,next.lastName].filter(Boolean).join(' '); return next; });
-  const updateGuardianName=(part:'guardianFirstName'|'guardianMiddleName'|'guardianLastName',value:string)=> setNewStudent(prev=>{ const sanitized = value.replace(/[0-9]/g, ''); const next={...prev,[part]:sanitized} as NewStudentType; const full=[next.guardianFirstName,next.guardianMiddleName,next.guardianLastName].filter(Boolean).join(' '); next.guardian={...next.guardian,fullName:full}; return next; });
+  const setNamePart=(part:'firstName'|'middleName'|'lastName',value:string)=> setNewStudent(prev=>{ const sanitized = value.replace(/[^a-zA-Z\s\-'\.]/g, ''); const next={...prev,[part]:sanitized} as NewStudentType; next.name=[next.firstName,next.middleName,next.lastName].filter(Boolean).join(' '); return next; });
+  const updateGuardianName=(part:'guardianFirstName'|'guardianMiddleName'|'guardianLastName',value:string)=> setNewStudent(prev=>{ const sanitized = value.replace(/[^a-zA-Z\s\-'\.]/g, ''); const next={...prev,[part]:sanitized} as NewStudentType; const full=[next.guardianFirstName,next.guardianMiddleName,next.guardianLastName].filter(Boolean).join(' '); next.guardian={...next.guardian,fullName:full}; return next; });
   const updateGuardian=(changes:Partial<Parent>)=> setNewStudent(prev=>({...prev,guardian:{...prev.guardian,...changes}}));
   const handleCourseSelect=(courseId:string)=>{ 
     if(courseId.startsWith('__placeholder__')) return; 
@@ -1838,8 +1841,11 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   };
 
   const saveDraft = async () => {
-    // Idempotency guard � prevent multiple concurrent saves
-    if (savingDraftRef.current) return;
+    // Idempotency guard — prevent multiple concurrent saves
+    if (savingDraftRef.current) {
+      console.log('⏳ Draft save already in progress, skipping...');
+      return;
+    }
     savingDraftRef.current = true;
     setIsSavingDraft(true);
     try {
@@ -1849,13 +1855,14 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         ? `${newStudent.firstName} ${newStudent.lastName}` 
         : newStudent.name || 'Untitled Student';
       
-      console.log('?? Saving draft - currentDraftId:', currentDraftId);
+      console.log('💾 Saving draft - currentDraftId:', currentDraftId, 'studentName:', studentName);
+      console.log(' Draft data:', JSON.stringify(draft, null, 2));
       
       let savedDraft;
       
       if (currentDraftId) {
         // Update existing draft
-        console.log('?? Updating existing draft:', currentDraftId);
+        console.log('📝 Updating existing draft:', currentDraftId);
         savedDraft = await StudentDraftsAPI.updateDraft(currentDraftId, {
           name: studentName,
           instructor: newStudent.courseOfInterestId || 'No Course Selected',
@@ -1863,18 +1870,20 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
           data: draft
         });
         
+        console.log('✅ Draft updated successfully:', savedDraft.id);
+        
         // Trigger custom event for other components to update
         StudentDraftsAPI.triggerDraftsUpdatedEvent(undefined, 'updated', savedDraft);
         
         // Show success toast for update
         toast({
-          title: "? Draft Updated",
+          title: "✓ Draft Updated",
           description: `Student draft "${studentName}" has been updated successfully.`,
           duration: 3000,
         });
       } else {
         // Create new draft
-        console.log('? Creating new draft');
+        console.log('➕ Creating new draft');
         savedDraft = await StudentDraftsAPI.createDraft({
           name: studentName,
           instructor: newStudent.courseOfInterestId || 'No Course Selected',
@@ -1887,11 +1896,11 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         
         // Update current draft ID for subsequent saves
         setCurrentDraftId(savedDraft.id);
-        console.log('? New draft created with ID:', savedDraft.id);
+        console.log('✅ New draft created with ID:', savedDraft.id);
         
         // Show success toast for creation
         toast({
-          title: "? Draft Saved",
+          title: "✓ Draft Saved",
           description: `Student draft "${studentName}" has been saved successfully.`,
           duration: 3000,
         });
@@ -1899,14 +1908,15 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       
   // Close the dialog after successful save
       onOpenChange(false);
-    } catch (error) {
-      console.error('Failed to save draft:', error);
+    } catch (error: any) {
+      console.error('❌ Failed to save draft:', error);
+      console.error('Error details:', error?.message || error);
       // Fallback to localStorage if server fails
       try {
         const draft = { ...newStudent };
         localStorage.setItem('draft-new-student', JSON.stringify(draft));
         toast({
-          title: "?? Draft Saved Locally",
+          title: "⚠ Draft Saved Locally",
           description: "Draft saved to browser storage. Will sync when connection is restored.",
           duration: 4000,
         });
@@ -1914,9 +1924,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         // Close the dialog even for local save
         onOpenChange(false);
       } catch (localError) {
-        console.error('Failed to save draft locally:', localError);
+        console.error('❌ Failed to save draft locally:', localError);
         toast({
-          title: "? Save Failed",
+          title: "✗ Save Failed",
           description: "Unable to save draft. Please try again.",
           variant: "destructive",
           duration: 5000,
@@ -2002,25 +2012,25 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
               <TabsList className="grid w-full grid-cols-4 mb-3 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger
                   value="student-info"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
                 >
                   Student Information
                 </TabsTrigger>
                 <TabsTrigger
                   value="course-details"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
                 >
                   Course Details
                 </TabsTrigger>
                 <TabsTrigger
                   value="communication"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
                 >
                   Communication & Referral
                 </TabsTrigger>
                 <TabsTrigger
                   value="guardian-details"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] hover:bg-purple-700 hover:text-white"
+                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
                 >
                   Guardian Details
                 </TabsTrigger>
@@ -2141,7 +2151,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                               <Input 
                                 name="mobile"
                                 value={newStudent.mobile||''} 
-                                onChange={e=> setNewStudent(p=>({...p,mobile:e.target.value}))} 
+                                onChange={e=> { const sanitized = e.target.value.replace(/[^0-9]/g, ''); setNewStudent(p=>({...p,mobile:sanitized})); }} 
                                 required 
                                 className={cn('flex-1', showFieldError('mobile') && 'border-red-500 focus-visible:ring-red-500')} 
                                 placeholder="e.g. 9876543210"
@@ -2310,7 +2320,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                           <Input 
                             name="guardianContact"
                             value={newStudent.guardian.contact||''} 
-                            onChange={e=> updateGuardian({ contact:e.target.value })} 
+                            onChange={e=> { const sanitized = e.target.value.replace(/[^0-9]/g, ''); updateGuardian({ contact:sanitized }); }} 
                             className={cn('flex-1', showFieldError('guardianContact') && 'border-red-500 focus-visible:ring-red-500')} 
                             placeholder="e.g. 9876543210"
                             type="tel"

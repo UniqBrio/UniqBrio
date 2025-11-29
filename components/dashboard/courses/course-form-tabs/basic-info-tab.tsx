@@ -160,7 +160,7 @@ export default function BasicInfoTab({
       })
       const data = await response.json()
 
-      console.log(`📋 ${type} API response:`, data)
+      console.log(` ${type} API response:`, data)
       if (data.success) {
         return data.options || []
       }
@@ -215,7 +215,7 @@ export default function BasicInfoTab({
         body: JSON.stringify({ action: 'add-dropdown-option', type, value }),
       })
       const data = await response.json()
-      console.log(`📋 Add ${type} API response:`, data)
+      console.log(` Add ${type} API response:`, data)
       if (data.success) {
         // Refresh the specific dropdown options
         const updatedOptions = await fetchDropdownOptions(type)

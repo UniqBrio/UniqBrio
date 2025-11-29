@@ -803,7 +803,7 @@ export default function StudentSearchFilters({
 
               <div className="mb-2 font-semibold text-sm">Registration Date</div>
               <div className="flex items-center gap-2">
-                <div className="w-32">
+                <div className="w-36">
                   <FormattedDateInput
                     id="dateRangeStart"
                     value={pendingFilters.dateRange.start}
@@ -818,7 +818,7 @@ export default function StudentSearchFilters({
                   />
                 </div>
                 <span className="text-xs">to</span>
-                <div className="w-32">
+                <div className="w-36">
                   <FormattedDateInput
                     id="dateRangeEnd"
                     value={pendingFilters.dateRange.end}
@@ -900,31 +900,31 @@ export default function StudentSearchFilters({
               { value: "activity", label: "Course" },
               { value: "memberSince", label: "Registration Date" },
             ].map(option => (
-              <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
+              <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)} className="justify-between">
                 <span>{option.label}</span>
                 {sortBy === option.value && (
-                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                  <Check className="ml-auto h-3.5 w-3.5 text-green-600" />
                 )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => setSortOrder("asc")}>
+            <DropdownMenuItem onClick={() => setSortOrder("asc")} className="justify-between">
               <span className="flex items-center gap-2">
                 Ascending
                 <ArrowUp className="h-4 w-4" />
               </span>
               {sortOrder === "asc" && (
-                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                <Check className="ml-auto h-3.5 w-3.5 text-green-600" />
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortOrder("desc")}>
+            <DropdownMenuItem onClick={() => setSortOrder("desc")} className="justify-between">
               <span className="flex items-center gap-2">
                 Descending
                 <ArrowDown className="h-4 w-4" />
               </span>
               {sortOrder === "desc" && (
-                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                <Check className="ml-auto h-3.5 w-3.5 text-green-600" />
               )}
             </DropdownMenuItem>
           </DropdownMenuContent>

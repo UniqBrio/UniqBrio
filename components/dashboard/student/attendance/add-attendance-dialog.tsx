@@ -315,7 +315,7 @@ interface AddAttendanceDialogProps {
   editingDraft?: Partial<StudentAttendanceRecord> | null;
   attendanceData: StudentAttendanceRecord[];
   onSaveAttendance: (record: Partial<StudentAttendanceRecord>) => Promise<boolean>;
-  onSaveDraft: (record: Partial<StudentAttendanceRecord>) => void;
+  onSaveDraft: (record: Partial<StudentAttendanceRecord>) => Promise<void>;
 }
 
 export function AddAttendanceDialog({
@@ -883,7 +883,7 @@ export function AddAttendanceDialog({
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     // If absent, remarks are required even for drafts
     if (newStatus === 'absent' && !newNotes.trim()) {
       toast({
@@ -911,34 +911,31 @@ export function AddAttendanceDialog({
       savedAt: new Date().toISOString(),
     };
 
-    onSaveDraft(recordData);
-    
-    // Close modal
-    onOpenChange(false);
-    
-    // Toast success
-    const labelName = recordData.studentName || recordData.studentId || 'Untitled Attendance';
-    toast({
-      title: editingDraftId != null ? 'Draft Updated' : 'Draft Saved',
-      description: editingDraftId != null
-        ? `Attendance draft "${labelName}" has been updated.`
-        : `Attendance draft "${labelName}" has been saved successfully.`,
-    });
-    
-    // reset state after saving draft
-    resetFormToInitial();
-    initialSnapshotRef.current = {
-      studentId: "",
-      date: new Date().toISOString().slice(0,10),
-      start: "",
-      end: "",
-      status: "present",
-      notes: "",
-      cohortId: "",
-      cohortName: "",
-      cohortInstructor: "",
-      cohortTiming: "",
-    };
+    try {
+      // Wait for the API call to complete
+      await onSaveDraft(recordData);
+      
+      // Close modal only after successful save
+      onOpenChange(false);
+      
+      // reset state after saving draft
+      resetFormToInitial();
+      initialSnapshotRef.current = {
+        studentId: "",
+        date: new Date().toISOString().slice(0,10),
+        start: "",
+        end: "",
+        status: "present",
+        notes: "",
+        cohortId: "",
+        cohortName: "",
+        cohortInstructor: "",
+        cohortTiming: "",
+      };
+    } catch (error) {
+      // Error toast is already shown by the parent handler
+      console.error('Failed to save draft:', error);
+    }
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -1374,7 +1371,8 @@ export function AddAttendanceDialog({
                     !newStatus ||
                     (newStatus === 'absent' && !newNotes.trim()) ||
                     (!editingRecord && Boolean(potentialDuplicate)) ||
-                    invalidTimeRange
+                    invalidTimeRange ||
+                    (editingRecord && !isDirty)
                   }
                   title={
                     !newStudentId
@@ -1389,7 +1387,9 @@ export function AddAttendanceDialog({
                             ? 'A record already exists for this student on the selected date.'
                             : invalidTimeRange
                               ? 'End time must be after start time.'
-                              : undefined
+                              : (editingRecord && !isDirty)
+                                ? 'No changes to save'
+                                : undefined
                   }
                 >
                   {editingRecord ? 'Save Changes' : 'Add Attendance'}
@@ -1405,9 +1405,9 @@ export function AddAttendanceDialog({
         open={unsavedOpen}
         onOpenChange={setUnsavedOpen}
         onContinueEditing={() => setUnsavedOpen(false)}
-        onSaveAsDraft={() => {
+        onSaveAsDraft={async () => {
           setUnsavedOpen(false);
-          handleSaveDraft();
+          await handleSaveDraft();
           pendingCloseRef.current?.();
           pendingCloseRef.current = null;
         }}

@@ -98,7 +98,7 @@ export function AttendanceTable({ attendanceData, selectedIds = [], onToggleSele
       }
       case 'Remarks':
         return (
-          <div className="text-sm text-gray-600 dark:text-white truncate max-w-xs" title={row.notes}>
+          <div className="text-sm text-gray-600 dark:text-white truncate max-w-xs" title={row.notes || undefined}>
             {row.notes || '-'}
           </div>
         );

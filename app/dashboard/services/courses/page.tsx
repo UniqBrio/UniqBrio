@@ -599,18 +599,18 @@ export default function EnhancedCourseManagementPage() {
       const response = await fetch("/api/dashboard/services/courses/drafts");
       const draftsData = await response.json();
       
-      console.log('📋 Raw drafts API response:', draftsData);
+      console.log(' Raw drafts API response:', draftsData);
       
       if (draftsData.success && draftsData.drafts) {
-        console.log('📋 Refetched drafts (success):', draftsData.drafts.length, 'drafts');
-        console.log('📋 Draft details:', draftsData.drafts.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
+        console.log(' Refetched drafts (success):', draftsData.drafts.length, 'drafts');
+        console.log(' Draft details:', draftsData.drafts.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
         setDrafts(draftsData.drafts);
       } else if (Array.isArray(draftsData)) {
-        console.log('📋 Refetched drafts (array):', draftsData.length, 'drafts');
-        console.log('📋 Draft details:', draftsData.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
+        console.log(' Refetched drafts (array):', draftsData.length, 'drafts');
+        console.log(' Draft details:', draftsData.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
         setDrafts(draftsData);
       } else {
-        console.log('📋 No drafts found during refetch');
+        console.log(' No drafts found during refetch');
         setDrafts([]);
       }
     } catch (error) {
@@ -628,14 +628,14 @@ export default function EnhancedCourseManagementPage() {
 
     const handleDraftSaved = async () => {
       // Refetch drafts when a draft is saved
-      console.log('📋 Draft saved event received, refetching drafts...');
+      console.log('Draft saved event received, refetching drafts...');
       await refetchDrafts();
     };
 
     const handleDraftDeleted = (event: CustomEvent) => {
       // Remove draft from state when deleted
       const { draftId } = event.detail;
-      console.log('📋 Draft deleted event received, removing draft:', draftId);
+      console.log(' Draft deleted event received, removing draft:', draftId);
       setDrafts(prevDrafts => prevDrafts.filter(d => d.id !== draftId));
     };
     
@@ -668,17 +668,17 @@ export default function EnhancedCourseManagementPage() {
       }
       
       // Handle drafts data
-      console.log('📋 Raw drafts response during initial load:', draftsData);
+      console.log(' Raw drafts response during initial load:', draftsData);
       if (draftsData.success && draftsData.drafts) {
-        console.log('📋 Setting drafts from success response:', draftsData.drafts.length, 'drafts');
-        console.log('📋 Draft details:', draftsData.drafts.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
+        console.log(' Setting drafts from success response:', draftsData.drafts.length, 'drafts');
+        console.log(' Draft details:', draftsData.drafts.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
         setDrafts(draftsData.drafts);
       } else if (Array.isArray(draftsData)) {
-        console.log('📋 Setting drafts from array response:', draftsData.length, 'drafts');
-        console.log('📋 Draft details:', draftsData.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
+        console.log(' Setting drafts from array response:', draftsData.length, 'drafts');
+        console.log(' Draft details:', draftsData.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
         setDrafts(draftsData);
       } else {
-        console.log('📋 No drafts found during initial load, setting empty array');
+        console.log(' No drafts found during initial load, setting empty array');
         setDrafts([]);
       }
       

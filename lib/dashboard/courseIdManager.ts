@@ -52,7 +52,7 @@ export class CourseIdManager {
       const nextCourseNumber = maxCourseNumber + 1;
       const nextCourseId = `COURSE${String(nextCourseNumber).padStart(4, '0')}`;
       
-      console.log(`📋 Next available course ID: ${nextCourseId} for tenant ${tenantContext.tenantId} (based on highest existing ID across all courses)`);
+      console.log(` Next available course ID: ${nextCourseId} for tenant ${tenantContext.tenantId} (based on highest existing ID across all courses)`);
       return nextCourseId;
     } catch (error) {
       console.error('❌ Error getting next available course ID:', error);

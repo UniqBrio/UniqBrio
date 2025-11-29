@@ -42,7 +42,7 @@ async function fixStudentIndex() {
     const collection = db.collection('students');
     
     // List current indexes
-    console.log('\n📋 Current indexes on students collection:');
+    console.log('\n Current indexes on students collection:');
     const indexes = await collection.indexes();
     indexes.forEach((idx, i) => {
       console.log(`  ${i + 1}. ${idx.name}: ${JSON.stringify(idx.key)}${idx.unique ? ' (unique)' : ''}`);
@@ -128,7 +128,7 @@ async function fixStudentIndex() {
     }
 
     // Show final index state
-    console.log('\n📋 Final indexes on students collection:');
+    console.log('\n Final indexes on students collection:');
     updatedIndexes.forEach((idx, i) => {
       console.log(`  ${i + 1}. ${idx.name}: ${JSON.stringify(idx.key)}${idx.unique ? ' (unique)' : ''}`);
     });

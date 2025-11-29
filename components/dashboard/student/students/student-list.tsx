@@ -250,7 +250,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
         ) : student.cohortId ? (
           <div>
             <div className="font-medium text-gray-700 dark:text-white">{student.cohortId}</div>
-            <div className="text-xs text-amber-600 mt-1">?? Cohort details not found</div>
+            <div className="text-xs text-amber-600 mt-1">-</div>
           </div>
         ) : '-';
       }

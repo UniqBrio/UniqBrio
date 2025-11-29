@@ -154,7 +154,7 @@ function AttendanceManagementInner() {
             // Update local state
             setAttendanceData((prev: StudentAttendanceRecord[]) => {
               return prev.map(r => {
-                if (r.id !== editingRecordId) return r;
+                if (String(r.id) !== String(editingRecordId)) return r;
                 return {
                   ...result.data,
                   id: result.data._id
@@ -336,7 +336,7 @@ function AttendanceManagementInner() {
             setEditingDraft(null);
           }
         }}
-        editingRecord={editingRecordId != null ? attendanceData.find(r => r.id === editingRecordId) : null}
+        editingRecord={editingRecordId != null ? attendanceData.find(r => String(r.id) === String(editingRecordId)) : null}
         editingDraftId={editingDraftId}
         editingDraft={editingDraft}
         attendanceData={attendanceData}

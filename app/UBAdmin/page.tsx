@@ -793,7 +793,7 @@ function KYCManagement({ kycQueue, onRefresh }: { kycQueue: any[], onRefresh: ()
               </div>
               
               <div className="mt-6 p-4 bg-gray-50 rounded">
-                <h4 className="font-medium mb-2">📋 Submission Details</h4>
+                <h4 className="font-medium mb-2"> Submission Details</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <p><strong>👤 Owner:</strong> {selectedKYC.ownerName}</p>

@@ -277,7 +277,7 @@ export function generateKYCRejectionEmail(email: string, name: string, rejection
           <td style="padding: 40px 30px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <div style="background-color: #fef2f2; border-radius: 50px; width: 80px; height: 80px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 40px;">📋</span>
+                <span style="font-size: 40px;"></span>
               </div>
               <h2 style="color: #374151; margin: 0 0 20px 0; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">
                 ${greeting}
@@ -469,7 +469,7 @@ export function generateKYCSubmissionEmail(email: string, userName?: string, aca
             </div>
 
             <div style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
-              <h3 style="color: #0ea5e9; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">📋 Review Process:</h3>
+              <h3 style="color: #0ea5e9; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;"> Review Process:</h3>
               <ul style="color: #374151; margin: 0; padding-left: 20px; font-family: Arial, sans-serif; line-height: 1.6;">
                 <li style="margin-bottom: 8px;">Our team will review your submitted documents</li>
                 <li style="margin-bottom: 8px;">Background verification will be conducted</li>

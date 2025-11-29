@@ -341,7 +341,7 @@ export function formatPaymentMode(mode: string): string {
     UPI: '📱 UPI',
     Cheque: '📄 Cheque',
     'Bank Transfer': '🏦 Bank Transfer',
-    Others: '📋 Others',
+    Others: ' Others',
   };
   
   return modeMap[mode] || mode;

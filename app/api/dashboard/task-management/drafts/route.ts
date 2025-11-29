@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
 
       const total = await DraftModel.countDocuments(filter)
 
-    console.log('📋 GET /api/drafts - Found drafts:', drafts.length);
-    console.log('📋 Draft IDs:', drafts.map(d => d._id));
+    console.log(' GET /api/drafts - Found drafts:', drafts.length);
+    console.log(' Draft IDs:', drafts.map(d => d._id));
 
     // Transform drafts to match frontend expectations (similar to courses)
     const transformedDrafts = drafts.map((draft: any) => ({

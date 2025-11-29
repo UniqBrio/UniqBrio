@@ -15,7 +15,7 @@ Users can now customize all colors in **Settings → Appearance (Localization ta
 3. Colors apply INSTANTLY across all components using the system
 4. "Reset Theme" button restores default Purple & Orange
 
-## 📋 Quick Update Guide for Any Page
+##  Quick Update Guide for Any Page
 
 ### Step 1: Add Import
 ```tsx

@@ -129,7 +129,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
     },
     deleteDraft: async (id: number | string) => {
       try {
-        const response = await fetch(`/api/attendance-drafts/${id}`, {
+        const response = await fetch(`/api/dashboard/student/attendance-drafts/${id}`, {
           method: 'DELETE',
           credentials: 'include',
         });
@@ -281,7 +281,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
             onClick={async () => {
               if (draftToDelete) {
                 try {
-                  const response = await fetch(`/api/attendance-drafts/${draftToDelete.id}`, {
+                  const response = await fetch(`/api/dashboard/student/attendance-drafts/${draftToDelete.id}`, {
                     method: 'DELETE',
                     credentials: 'include',
                   });

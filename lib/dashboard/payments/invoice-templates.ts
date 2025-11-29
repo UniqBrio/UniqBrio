@@ -74,7 +74,7 @@ export function generateOneTimeInvoiceHTML(invoiceData: InvoiceData): string {
 
   ${isPartialPayment && invoiceData.paymentHistory && invoiceData.paymentHistory.length > 0 ? `
   <div class="history-section">
-    <h3>📋 Payment History</h3>
+    <h3> Payment History</h3>
     <table>
       <thead>
         <tr>
