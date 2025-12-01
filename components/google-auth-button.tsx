@@ -18,27 +18,11 @@ export default function GoogleAuthButton({
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      // Redirect to the "Select Role" page after successful Google login
-      const result = await signIn("google", {
-        callbackUrl: "/select-role", // Redirect to the "Select Role" page
-        redirect: false, // Don't redirect immediately, let us handle the result
+      // Use redirect: true to let NextAuth handle the full flow
+      await signIn("google", {
+        callbackUrl: "/select-role",
       });
-
-      if (result?.error) {
-        console.error("Google auth error:", result.error);
-        toast({
-          title: "Authentication Failed",
-          description: "Could not sign in with Google. Please try again or use email login.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // If successful and we have a URL, redirect manually
-      if (result?.url) {
-        window.location.href = result.url;
-      }
+      // No need to handle result when redirect: true (default behavior)
     } catch (error) {
       console.error("Google auth initiation error:", error);
       toast({
@@ -46,7 +30,7 @@ export default function GoogleAuthButton({
         description: "Could not start Google Sign-In. Please check your connection or try again later.",
         variant: "destructive",
       });
-      setIsLoading(false); // Reset loading state on initiation failure
+      setIsLoading(false);
     }
   };
 
