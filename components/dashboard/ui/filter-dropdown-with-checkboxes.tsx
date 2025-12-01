@@ -72,7 +72,7 @@ export function FilterDropdownWithCheckboxes({
         {options.map((option) => (
           <DropdownMenuItem
             key={option.value}
-            className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 focus:bg-gray-100 data-[highlighted]:bg-gray-100"
+            className="flex items-center gap-2 cursor-pointer rounded-md px-3 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100 data-[highlighted]:bg-gray-100 border-none shadow-none"
             onSelect={(e) => e.preventDefault()}
             onClick={() => {
               const isCurrentlySelected = pending.includes(option.value);
@@ -81,7 +81,6 @@ export function FilterDropdownWithCheckboxes({
                   ? [...prev, option.value] 
                   : prev.filter((x) => x !== option.value)
                 if (!showFooterActions) {
-                  // Defer the onChange call to avoid calling setState during render
                   setTimeout(() => onChange(updated), 0)
                 }
                 return updated
@@ -96,14 +95,14 @@ export function FilterDropdownWithCheckboxes({
                     ? [...prev, option.value] 
                     : prev.filter((x) => x !== option.value)
                   if (!showFooterActions) {
-                    // Defer the onChange call to avoid calling setState during render
                     setTimeout(() => onChange(updated), 0)
                   }
                   return updated
                 })
               }}
+              className="mr-2 border-gray-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 h-4 w-4 rounded"
             />
-            <span className="text-sm">{option.label}</span>
+            <span className="text-sm flex-1">{option.label}</span>
           </DropdownMenuItem>
         ))}
         {showFooterActions && (

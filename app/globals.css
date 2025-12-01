@@ -35,8 +35,7 @@
     --secondary: 25 95% 53%; /* Orange #fd9c2d - can be overridden by user */
     --secondary-foreground: 0 0% 0%; /* Black text on orange */
 
-    --accent: 272 97% 62%; /* Match button purple */
-    --accent-foreground: 0 0% 100%; /* White text on purple */
+    /* --accent and --accent-foreground removed to allow dropdowns to use their own styles */
 
     --destructive: 4.1 78.9% 54.5%; /* Mapped from your --error #e33629 */
     --destructive-foreground: 0 0% 100%; /* White text for high contrast on red */
@@ -63,7 +62,7 @@
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%; /* Default input border */
-    --ring: 272 97% 62%; /* Using brand purple for focus rings */
+    /* --ring removed to allow dropdowns to use their own focus ring styles */
 
     --radius: 0.5rem; /* Default shadcn radius - adjust if needed */
 
@@ -97,13 +96,12 @@
     --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 272 97% 62%; /* Match light mode accent */
-    --accent-foreground: 0 0% 100%;
+    /* --accent and --accent-foreground removed to allow dropdowns to use their own styles */
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 272 97% 62%; /* Purple focus ring in dark mode */
+    /* --ring removed to allow dropdowns to use their own focus ring styles */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

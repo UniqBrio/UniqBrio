@@ -10,6 +10,7 @@ import {
   FavoritesBar,
   FeedbackSection
 } from "@/components/dashboard/home"
+import { SelfieAttendanceButton } from "@/components/dashboard/home/SelfieAttendanceButton"
 
 const Dashboard = () => {
   const [showKycPopup, setShowKycPopup] = useState(false);
@@ -472,7 +473,10 @@ const Dashboard = () => {
       </div>
 
       <div className="mb-4 sm:mb-6 flex items-start justify-between gap-4">
-        <FavoritesBar />
+        <div className="flex items-start gap-4 flex-1">
+          <SelfieAttendanceButton />
+          <FavoritesBar />
+        </div>
         <Announcements />
       </div>
 
