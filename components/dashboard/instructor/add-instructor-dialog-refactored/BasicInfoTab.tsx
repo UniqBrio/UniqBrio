@@ -290,7 +290,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           )}
         </div>
 
-        {/* Country (swapped with Phone) */}
+        {/* Country */}
         <div>
           <CountryStateDropdown
             country={form.country}
@@ -314,89 +314,91 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           />
         </div>
 
-        {/* Country / State and Address */}
-        <div className="col-span-2">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-            {/* Phone (swapped into country position) */}
-            <div>
-              <Label>Phone <span className="text-red-500">*</span></Label>
-              <div className="flex gap-2">
-                <CountryCodeSelector
-                  value={form.phoneCountryCode}
-                  onValueChange={(dial) => {
-                    setForm(f => {
-                      const list = (countryCodes || []).filter((c: any) => c.dial === dial)
-                      const keep = list.find((m: any) => m.code === f.country)
-                      const nextCountry = keep ? f.country : (list[0]?.code || f.country)
-                      return {
-                        ...f,
-                        phoneCountryCode: dial,
-                        country: nextCountry,
-                        // Reset state if country changed implicitly
-                        state: keep ? f.state : "",
-                      }
-                    })
-                    // revalidate on dial change
-                    validatePhone(form.phone, form.country, dial)
-                  }}
-                  countryCodes={countryCodes}
-                />
-                <Input
-                  className={cn("flex-1", phoneError ? "border-red-500 focus:ring-red-400" : "")}
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="555 987 6543"
-                  value={form.phone}
-                  onKeyDown={(e) => {
-                    const k = e.key
-                    const isControl =
-                      e.ctrlKey || e.metaKey || e.altKey ||
-                      ["Backspace","Delete","Tab","Enter","Escape","ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"].includes(k)
-                    if (isControl) return
-                    // Only allow digits (0-9)
-                    if (k.length === 1 && !/[0-9]/.test(k)) {
-                      e.preventDefault()
-                    }
-                  }}
-                  onPaste={(e) => {
-                    const text = e.clipboardData?.getData("text") ?? ""
-                    const digits = text.replace(/\D/g, "")
-                    if (digits !== text) {
-                      e.preventDefault()
-                      if (digits.length > 0) {
-                        setForm(f => ({ ...f, phone: digits }))
-                        validatePhone(digits, form.country, form.phoneCountryCode)
-                      }
-                    }
-                  }}
-                  onChange={e => {
-                    const val = e.target.value.replace(/[^0-9]/g,'')
-                    setForm(f => ({ ...f, phone: val }))
-                    validatePhone(val, form.country, form.phoneCountryCode)
-                  }}
-                  onBlur={(e) => {
-                    validatePhone(e.target.value, form.country, form.phoneCountryCode)
-                  }}
-                />
-              </div>
-              
-              {phoneError && (
-                <p className="mt-1 text-[12px] text-red-600">{phoneError}</p>
-              )}
-            </div>
-            {/* State remains on the right */}
-            <CountryStateDropdown
-              country={form.country}
-              state={form.state}
-              onCountryChange={(value) => {
-                setForm(f => ({ ...f, country: value, state: "" }));
+        {/* Phone */}
+        <div className="md:col-span-2">
+          <Label>Phone <span className="text-red-500">*</span></Label>
+          <div className="flex gap-2">
+            <CountryCodeSelector
+              value={form.phoneCountryCode}
+              onValueChange={(dial) => {
+                setForm(f => {
+                  const list = (countryCodes || []).filter((c: any) => c.dial === dial)
+                  const keep = list.find((m: any) => m.code === f.country)
+                  const nextCountry = keep ? f.country : (list[0]?.code || f.country)
+                  return {
+                    ...f,
+                    phoneCountryCode: dial,
+                    country: nextCountry,
+                    // Reset state if country changed implicitly
+                    state: keep ? f.state : "",
+                  }
+                })
+                // revalidate on dial change
+                validatePhone(form.phone, form.country, dial)
               }}
-              onStateChange={(value) => {
-                setForm(f => ({ ...f, state: value }));
+              countryCodes={countryCodes}
+            />
+            <Input
+              className={cn("flex-1", phoneError ? "border-red-500 focus:ring-red-400" : "")}
+              type="tel"
+              inputMode="tel"
+              placeholder="555 987 6543"
+              value={form.phone}
+              onKeyDown={(e) => {
+                const k = e.key
+                const isControl =
+                  e.ctrlKey || e.metaKey || e.altKey ||
+                  ["Backspace","Delete","Tab","Enter","Escape","ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"].includes(k)
+                if (isControl) return
+                // Only allow digits (0-9)
+                if (k.length === 1 && !/[0-9]/.test(k)) {
+                  e.preventDefault()
+                }
               }}
-              mode="state"
+              onPaste={(e) => {
+                const text = e.clipboardData?.getData("text") ?? ""
+                const digits = text.replace(/\D/g, "")
+                if (digits !== text) {
+                  e.preventDefault()
+                  if (digits.length > 0) {
+                    setForm(f => ({ ...f, phone: digits }))
+                    validatePhone(digits, form.country, form.phoneCountryCode)
+                  }
+                }
+              }}
+              onChange={e => {
+                const val = e.target.value.replace(/[^0-9]/g,'')
+                setForm(f => ({ ...f, phone: val }))
+                validatePhone(val, form.country, form.phoneCountryCode)
+              }}
+              onBlur={(e) => {
+                validatePhone(e.target.value, form.country, form.phoneCountryCode)
+              }}
             />
           </div>
+          
+          {phoneError && (
+            <p className="mt-1 text-[12px] text-red-600">{phoneError}</p>
+          )}
+        </div>
+
+        {/* State/Province */}
+        <div>
+          <CountryStateDropdown
+            country={form.country}
+            state={form.state}
+            onCountryChange={(value) => {
+              setForm(f => ({ ...f, country: value, state: "" }));
+            }}
+            onStateChange={(value) => {
+              setForm(f => ({ ...f, state: value }));
+            }}
+            mode="state"
+          />
+        </div>
+
+        {/* Address */}
+        <div className="md:col-span-3">
           <Label>Address</Label>
           <Textarea placeholder="456 Creative Avenue, Art City, AC 67890" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
         </div>
