@@ -3,10 +3,10 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-export default function SelectRolePage() {
+function SelectRoleContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -100,5 +100,18 @@ export default function SelectRolePage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function SelectRolePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <Loader2 className="animate-spin h-8 w-8 text-gray-600" />
+        <p className="mt-4 text-gray-600">Loading...</p>
+      </div>
+    }>
+      <SelectRoleContent />
+    </Suspense>
   );
 }
