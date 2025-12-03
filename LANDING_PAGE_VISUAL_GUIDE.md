@@ -269,6 +269,7 @@
 │     Not at all! If you can use WhatsApp...       │
 │                                                   │
 │  ▶ How long does it take to set up?             │
+│  ▶ What if my parents don't have smartphones?   │
 │  ▶ Can I try it before committing?              │
 │  ▶ How does payment collection work?            │
 │  ▶ Is my data secure?                           │

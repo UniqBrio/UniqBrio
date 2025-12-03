@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, CreditCard, Users, BarChart3, MessageSquare, Check, Sparkles, ArrowRight } from 'lucide-react'
+import { Calendar, CreditCard, Users, BarChart3, UserCog, Check, Sparkles, ArrowRight } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 export default function FeaturesSection() {
@@ -32,18 +32,18 @@ export default function FeaturesSection() {
       gradient: 'from-purple-500 to-pink-500'
     },
     {
+      id: 'staff',
+      label: 'Staff',
+      icon: <UserCog className="w-5 h-5" />,
+      color: '#8B5CF6',
+      gradient: 'from-violet-500 to-purple-500'
+    },
+    {
       id: 'analytics',
       label: 'Analytics',
       icon: <BarChart3 className="w-5 h-5" />,
       color: '#DE7D14',
       gradient: 'from-orange-500 to-amber-500'
-    },
-    {
-      id: 'communication',
-      label: 'Multi-Branch',
-      icon: <MessageSquare className="w-5 h-5" />,
-      color: '#FF9A3D',
-      gradient: 'from-orange-400 to-yellow-500'
     }
   ]
 
@@ -55,8 +55,8 @@ export default function FeaturesSection() {
         'Create unlimited courses with custom details',
         'Organize batches with cohort management',
         'Set course fees and registration fees',
-        'Track course status and enrollment limits',
-        'Multi-level course organization'
+        'Draft system to save work in progress',
+        'Track course status and enrollment limits'
       ],
       screenshot: '📅'
     },
@@ -77,52 +77,60 @@ export default function FeaturesSection() {
       subtitle: 'Manage students, enrollments, and track their progress seamlessly.',
       benefits: [
         'Complete student profile management',
-        'Easy enrollment with course assignment',
-        'Track student attendance and progress',
-        'Bulk student import options',
+        'Bulk import and export of student data',
+        'Selfie-based attendance tracking',
+        'Automated notifications to parents',
         'Student-cohort relationships'
       ],
       screenshot: '👨‍👩‍👧'
     },
+    staff: {
+      title: '👥 Staff & Instructor Management',
+      subtitle: 'Manage instructors and non-teaching staff with profiles, schedules, and payroll.',
+      benefits: [
+        'Instructor profiles with certifications',
+        'Staff management with role assignments',
+        'Payroll tracking and payment info',
+        'Leave and attendance management',
+        'Performance tracking and analytics'
+      ],
+      screenshot: '👨‍🏫'
+    },
     analytics: {
-      title: '📊 Payment Analytics & Reports',
-      subtitle: 'Track revenue, collection rates, and payment trends across all courses.',
+      title: '📊 Analytics & Reports',
+      subtitle: 'Comprehensive analytics with audit logs and data export capabilities.',
       benefits: [
         'Course-wise payment summaries',
-        'Cohort-level financial breakdowns',
-        'Collection rate tracking',
-        'Outstanding amount monitoring',
-        'Exportable payment reports'
+        'Financial reports and trends',
+        'Audit logs for all activities',
+        'Data export in CSV format',
+        'Real-time dashboard metrics'
       ],
       screenshot: '📈'
-    },
-    communication: {
-      title: '💬 Multi-Branch Support',
-      subtitle: 'Manage multiple academy locations from a single dashboard.',
-      benefits: [
-        'Complete tenant isolation for data security',
-        'Branch-wise student and course management',
-        'Unified payment tracking across locations',
-        'Role-based access control',
-        'Separate branding per location'
-      ],
-      screenshot: '📢'
     }
   }
 
   const allKeyFeatures = [
     { name: 'Course Management', description: 'Create and manage unlimited courses with details' },
     { name: 'Cohort & Batch System', description: 'Organize students into cohorts and batches' },
-    { name: 'Student Enrollment', description: 'Quick enrollment with bulk import options' },
+    { name: 'Student Management', description: 'Complete student profiles with enrollment tracking' },
+    { name: 'Bulk Import/Export', description: 'Import students in bulk and export data anytime' },
     { name: 'Attendance Tracking', description: 'Track student attendance with selfie verification' },
     { name: 'Fee Management', description: 'Set course fees and registration fees' },
     { name: 'Payment Processing', description: 'Integrated Razorpay for online transactions' },
     { name: 'Payment Plans', description: 'One-time, installments, or monthly subscriptions' },
-    { name: 'Financial Reports', description: 'Course-wise and cohort-level payment analytics' },
-    { name: 'Outstanding Tracking', description: 'Automatic calculation of pending amounts' },
-    { name: 'Multi-Branch Support', description: 'Manage multiple academy locations' },
+    { name: 'Financial Analytics', description: 'Course-wise and cohort-level payment reports' },
+    { name: 'Instructor Management', description: 'Manage instructor profiles and schedules' },
+    { name: 'Staff Management', description: 'Non-teaching staff profiles and payroll tracking' },
+    { name: 'Notifications System', description: 'In-app, email, and SMS notifications' },
+    { name: 'Draft System', description: 'Save course and student drafts for later' },
+    { name: 'Audit Logs', description: 'Track all platform activities with detailed logs' },
+    { name: 'Settings & Preferences', description: 'Customize notifications and system preferences' },
+    { name: 'KYC Management', description: 'Academy verification and compliance tracking' },
+    { name: 'Multi-Tenant Support', description: 'Complete data isolation for multiple academies' },
     { name: 'Role-Based Access', description: 'Secure permissions for different user roles' },
-    { name: 'Mobile Responsive', description: 'Works perfectly on all devices' }
+    { name: 'Mobile Responsive', description: 'Works perfectly on all devices' },
+    { name: 'Data Export', description: 'Export your data anytime in CSV format' }
   ]
 
   return (
@@ -370,7 +378,7 @@ export default function FeaturesSection() {
             </motion.div>
             
             <h3 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-3">
-              <span className="bg-gradient-to-r from-[#6708C0] to-[#4A90E2] bg-clip-text text-transparent">12</span> Core Features Built & Ready
+              <span className="bg-gradient-to-r from-[#6708C0] to-[#4A90E2] bg-clip-text text-transparent">20</span> Core Features Built & Ready
             </h3>
             <p className="text-lg text-[#718096] max-w-2xl mx-auto">
               Everything you need to run your academy efficiently, available now

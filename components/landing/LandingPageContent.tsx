@@ -37,7 +37,7 @@ export default function LandingPageContent() {
       <div id="features">
         <FeaturesSection />
       </div>
-      <SocialProofSection />
+      
       <div id="how-it-works">
         <HowItWorksSection />
       </div>

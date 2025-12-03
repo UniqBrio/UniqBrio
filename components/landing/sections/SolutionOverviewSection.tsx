@@ -138,27 +138,16 @@ export default function SolutionOverviewSection() {
             </p>
           </div>
           
-          {/* Animated Dashboard GIF Placeholder */}
-          <div className="mt-8 max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-            <div className="relative aspect-video bg-gradient-to-br from-purple-100 via-blue-100 to-orange-100 rounded-xl overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="text-center"
-                >
-                  <div className="text-8xl mb-4">🎬</div>
-                  <p className="text-2xl font-bold text-[#6708C0]">Dashboard Animation</p>
-                  <p className="text-[#718096] mt-2">Coming Soon: Interactive Demo</p>
-                </motion.div>
-              </div>
+          {/* Video Demonstration */}
+          <div className="mt-8 max-w-4xl mx-auto">
+            <div className="relative aspect-video bg-gradient-to-br from-purple-100 via-blue-100 to-orange-100 rounded-2xl overflow-hidden shadow-2xl">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/8lSoprr1aHA?start=1"
+                title="UniqBrio Platform Overview"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             </div>
           </div>
         </motion.div>
