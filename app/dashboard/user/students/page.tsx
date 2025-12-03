@@ -665,9 +665,9 @@ export default function StudentsPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-4 sm:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
               {[
-                { value: 'dashboard', icon: LayoutDashboard, label: 'Analytics', shortLabel: 'Stats' },
+                { value: 'dashboard', icon: LayoutDashboard, label: 'Analytics', shortLabel: 'Analytics' },
                 { value: 'students', icon: Users, label: 'Students', shortLabel: 'Students' },
-                { value: 'student-attendance', icon: ClipboardList, label: 'Attendance', shortLabel: 'Attend' },
+                { value: 'student-attendance', icon: ClipboardList, label: 'Attendance', shortLabel: 'Attendance' },
                 { value: 'student-leaves', icon: Calendar, label: 'Leaves', shortLabel: 'Leaves' },
                 { value: 'settings', icon: Settings, label: 'Settings', shortLabel: 'Config' },
                 { value: 'achievements', icon: Trophy, label: 'Achievements', shortLabel: 'Awards', badge: true },

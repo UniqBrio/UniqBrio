@@ -422,13 +422,13 @@ useEffect(() => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Business Information</h3>
         <p className="text-sm text-muted-foreground">Tell us about your academy or class-based business</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {/* Business Name */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">

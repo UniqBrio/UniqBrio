@@ -171,14 +171,14 @@ export default function SearchAndFilters({
                                    </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-[34rem] p-4 bg-white border border-gray-200 shadow-lg z-50" 
+            className="w-[90vw] sm:w-[34rem] p-4 bg-white border border-gray-200 shadow-lg z-50" 
             onCloseAutoFocus={(event) => {
               event.preventDefault();
             }}
             onEscapeKeyDown={() => setFilterDropdownOpen(false)}
             onInteractOutside={() => setFilterDropdownOpen(false)}
           >
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="mb-2 font-semibold text-sm">Filter by Type</div>
                 <FilterDropdownWithCheckboxes
@@ -223,7 +223,7 @@ export default function SearchAndFilters({
                   showFooterActions={false}
                 />
               </div>
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2 col-span-1 sm:col-span-2">
                 <div className="mb-2 font-semibold text-sm">Price Range ({currency})</div>
                 <div className="grid grid-cols-2 gap-2">
                   <input

@@ -279,10 +279,10 @@ export default function RegistrationForm() {
   }
 
   return (
-    <Card className="w-full shadow-lg relative">
+    <Card className="w-full max-w-5xl mx-auto shadow-lg relative">
       <CardHeader className="space-y-2 text-center">
-        <div className="flex justify-center mb-4">
-          <Logo className="h-12 w-auto" />
+        <div className="flex justify-center mb-0">
+          <Logo className="h-24 w-auto" />
         </div>
         <CardTitle className="text-2xl md:text-3xl font-bold">Please Register Your Academy</CardTitle>
         <CardDescription className="text-base">Mentoring Businesses, Nurturing Learners</CardDescription>

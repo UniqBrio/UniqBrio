@@ -43,7 +43,13 @@ export default function DashboardNotificationsPage() {
             ? data
             : []
       if (latestNotifications.length) {
-        setNotifications(latestNotifications)
+        // Load read status from localStorage
+        const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        const notificationsWithReadStatus = latestNotifications.map((n: Notification) => ({
+          ...n,
+          read: readNotifications.includes(n.id) ? true : (n.read || false)
+        }));
+        setNotifications(notificationsWithReadStatus)
       } else {
         setNotifications(createSampleNotifications() as Notification[])
       }
@@ -57,11 +63,26 @@ export default function DashboardNotificationsPage() {
 
   const markAsRead = (id: string) => {
     setNotifications(
-      notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
+      notifications.map((notification) => {
+        if (notification.id === id) {
+          // Persist to localStorage
+          const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+          if (!readNotifications.includes(id)) {
+            readNotifications.push(id);
+            localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+          }
+          return { ...notification, read: true };
+        }
+        return notification;
+      }),
     )
   }
 
   const markAllAsRead = () => {
+    const allIds = notifications.map(n => n.id);
+    const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+    const newReadIds = allIds.filter(id => !readNotifications.includes(id));
+    localStorage.setItem('readNotifications', JSON.stringify([...readNotifications, ...newReadIds]));
     setNotifications(notifications.map((notification) => ({ ...notification, read: true })))
   }
 

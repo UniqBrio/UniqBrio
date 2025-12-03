@@ -105,13 +105,13 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
   // Removed password strength calculation and helpers
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Owner/Admin Information</h3>
         <p className="text-sm text-muted-foreground">Set up the primary administrator account for your business</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {/* Full Name */}
         <div className="space-y-2">
           <Label htmlFor="fullName">

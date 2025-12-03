@@ -812,7 +812,45 @@ export default function CourseFormDialog({
         </DialogHeader>
 
         <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-700 pb-2">
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full tabs-purple">
+          <Tabs value={currentTab} onValueChange={(newTab) => {
+            // Prevent tab change if trying to move forward without validation
+            const currentTabIndex = tabOrder.indexOf(currentTab);
+            const newTabIndex = tabOrder.indexOf(newTab);
+            
+            // If moving forward (to a higher index tab), validate current tab first
+            if (newTabIndex > currentTabIndex) {
+              let validation: { isValid: boolean; errors: string[] };
+              
+              switch (currentTab) {
+                case 'basic':
+                  validation = validateBasicInfo();
+                  break;
+                case 'pricing':
+                  validation = validatePricing();
+                  break;
+                case 'chapters':
+                  validation = validateChapters();
+                  break;
+                case 'schedule':
+                  validation = validateSchedule();
+                  break;
+                default:
+                  validation = { isValid: true, errors: [] };
+              }
+              
+              if (!validation.isValid) {
+                toast({
+                  title: "Missing Required Fields",
+                  description: `Please fill in the following mandatory fields before proceeding: ${validation.errors.join(', ')}`,
+                  variant: "destructive"
+                });
+                return; // Prevent tab change
+              }
+            }
+            
+            // Allow tab change if validation passed or moving backward
+            setCurrentTab(newTab);
+          }} className="w-full tabs-purple">
             <TabsList className="grid w-full grid-cols-7 gap-2 bg-transparent p-0 h-auto">
               <TabsTrigger 
                 value="basic" 
@@ -921,7 +959,45 @@ export default function CourseFormDialog({
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full tabs-purple">
+          <Tabs value={currentTab} onValueChange={(newTab) => {
+            // Prevent tab change if trying to move forward without validation
+            const currentTabIndex = tabOrder.indexOf(currentTab);
+            const newTabIndex = tabOrder.indexOf(newTab);
+            
+            // If moving forward (to a higher index tab), validate current tab first
+            if (newTabIndex > currentTabIndex) {
+              let validation: { isValid: boolean; errors: string[] };
+              
+              switch (currentTab) {
+                case 'basic':
+                  validation = validateBasicInfo();
+                  break;
+                case 'pricing':
+                  validation = validatePricing();
+                  break;
+                case 'chapters':
+                  validation = validateChapters();
+                  break;
+                case 'schedule':
+                  validation = validateSchedule();
+                  break;
+                default:
+                  validation = { isValid: true, errors: [] };
+              }
+              
+              if (!validation.isValid) {
+                toast({
+                  title: "Missing Required Fields",
+                  description: `Please fill in the following mandatory fields before proceeding: ${validation.errors.join(', ')}`,
+                  variant: "destructive"
+                });
+                return; // Prevent tab change
+              }
+            }
+            
+            // Allow tab change if validation passed or moving backward
+            setCurrentTab(newTab);
+          }} className="w-full tabs-purple">
 
           {/* Basic Info Tab */}
           <TabsContent value="basic" className="space-y-2 p-1">

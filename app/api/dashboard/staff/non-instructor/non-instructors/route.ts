@@ -99,10 +99,21 @@ export async function POST(req: NextRequest) {
         const { generateNonInstructorId } = await import('@/lib/dashboard/id-generators')
         const nonInstructorId = await generateNonInstructorId(session.tenantId)
         
+        console.log('[NonInstructor POST] Creating staff with tenantId:', session.tenantId);
+        console.log('[NonInstructor POST] Staff name:', body.firstName, body.lastName);
+        
         const created = await NonInstructorModel.create({
           ...body,
-          externalId: nonInstructorId // Assign generated ID
+          externalId: nonInstructorId, // Assign generated ID
+          tenantId: session.tenantId // Explicitly set tenantId
         })
+        
+        console.log('[NonInstructor POST] Created staff with:', {
+          id: created._id,
+          externalId: created.externalId,
+          name: `${created.firstName} ${created.lastName}`,
+          tenantId: created.tenantId
+        });
         
         // Audit log
         await logEntityCreate({

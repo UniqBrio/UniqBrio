@@ -1,10 +1,39 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function SelectRolePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    // Check for OAuth errors in URL params
+    const error = searchParams?.get('error');
+    
+    if (error) {
+      console.log("[SelectRolePage] OAuth error detected:", error);
+      // Redirect to login with error parameter
+      router.replace(`/login?error=${error}`);
+      return;
+    }
+
+    // If not loading and no session, redirect to login
+    if (status === "unauthenticated") {
+      console.log("[SelectRolePage] No session found, redirecting to login");
+      router.replace("/login");
+      return;
+    }
+
+    // If authenticated, user can select role
+    if (status === "authenticated") {
+      console.log("[SelectRolePage] User authenticated:", session?.user?.email);
+    }
+  }, [status, searchParams, router, session]);
 
   const handleRoleSelection = (role: string) => {
     // Redirect based on the selected role
@@ -25,6 +54,21 @@ export default function SelectRolePage() {
         console.error("Invalid role selected");
     }
   };
+
+  // Show loading state while checking session
+  if (status === "loading") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <Loader2 className="animate-spin h-8 w-8 text-gray-600" />
+        <p className="mt-4 text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  // Don't render role selection if not authenticated
+  if (status !== "authenticated") {
+    return null;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">

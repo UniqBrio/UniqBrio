@@ -6,7 +6,6 @@ export function Logo({ className = "" }: { className?: string }) {
       src="/UniqBrio Logo Transparent.png"
       alt="UniqBrio Logo"
       className={className}
-      style={{ maxHeight: 48 }}
     />
   );
 }

@@ -25,6 +25,7 @@ function getDefaultDashboard(role: string): string {
 const publicPaths = [
   "/login",
   "/signup", 
+  "/register", // Business registration - OAuth users complete this after sign-in
   "/forgot-password",
   "/reset-password",
   "/verify-email", // Page to handle link click

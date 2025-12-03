@@ -83,22 +83,34 @@ const handler = NextAuth({
           console.log("[NextAuth] User found:", !!dbUser);
           
           if (!dbUser) {
-            // Create new user for Google sign-in
-            console.log("[NextAuth] Creating new user");
+            // Create new user for Google sign-in with super_admin role
+            console.log("[NextAuth] Creating new user with super_admin role");
             dbUser = await UserModel.create({
               email: profile.email,
               name: profile.name || "",
               googleId: user.id,
               verified: true,
               phone: "",
+              role: "super_admin",
+              registrationComplete: false,
             });
             console.log("[NextAuth] User created successfully");
-          } else if (!dbUser.googleId) {
-            // Link Google ID to existing user
-            console.log("[NextAuth] Linking Google ID to existing user");
-            dbUser.googleId = user.id;
-            await dbUser.save();
-            console.log("[NextAuth] Google ID linked successfully");
+          } else {
+            // User exists - check if they signed up with password (credentials)
+            if (dbUser.password && !dbUser.googleId) {
+              // User exists with password-based signup, don't allow Google signup
+              console.log("[NextAuth] User exists with password, blocking Google signup");
+              throw new Error("AccountExistsWithCredentials");
+            } else if (!dbUser.googleId) {
+              // Link Google ID to existing user (user exists but has no password or googleId)
+              console.log("[NextAuth] Linking Google ID to existing user");
+              dbUser.googleId = user.id;
+              await dbUser.save();
+              console.log("[NextAuth] Google ID linked successfully");
+            } else {
+              // User already has Google ID, just continue
+              console.log("[NextAuth] User already linked to Google");
+            }
           }
 
           console.log("[NextAuth] Sign-in successful for:", profile.email);
@@ -107,10 +119,37 @@ const handler = NextAuth({
           console.error("[NextAuth] Error during Google sign-in:", error);
           console.error("[NextAuth] Error details:", error instanceof Error ? error.message : String(error));
           console.error("[NextAuth] Error stack:", error instanceof Error ? error.stack : "No stack trace");
+          // Return false to trigger error page redirect
           return false;
         }
       }
       return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // Handle OAuth callback redirects
+      console.log("[NextAuth] Redirect callback - url:", url, "baseUrl:", baseUrl);
+      
+      // If there's an error in the URL, redirect to login with error
+      if (url.includes("error=")) {
+        const errorMatch = url.match(/error=([^&]+)/);
+        if (errorMatch) {
+          console.log("[NextAuth] Error detected in URL, redirecting to login with error:", errorMatch[1]);
+          return `${baseUrl}/login?error=${errorMatch[1]}`;
+        }
+      }
+      
+      // If the URL is relative, prepend the base URL
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+      
+      // If the URL is on the same origin, allow it
+      if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      
+      // Default to base URL for any other case
+      return baseUrl;
     },
     async jwt({ token, user, account }) {
       if (user) {
@@ -137,6 +176,7 @@ const handler = NextAuth({
             token.name = dbUser.name
             token.academyId = dbUser.academyId
             token.userId = dbUser.userId
+            token.registrationComplete = dbUser.registrationComplete
           } else {
             console.log("[NextAuth JWT] DB user not found for email:", token.email);
           }
@@ -155,10 +195,10 @@ const handler = NextAuth({
         ;(session.user as any).name = token.name
         ;(session.user as any).academyId = token.academyId
         ;(session.user as any).userId = token.userId
+        ;(session.user as any).registrationComplete = token.registrationComplete
       }
       return session
     },
-    // ✅ Removed redirect callback — handled on frontend instead
   },
   events: {
     async signIn({ user }) {

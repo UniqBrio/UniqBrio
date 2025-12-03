@@ -310,7 +310,24 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
             </Button>
           </DialogHeader>
 
-          <UITabs value={addTab} onValueChange={setAddTab} className="w-full">
+          <UITabs value={addTab} onValueChange={(newTab) => {
+            // Prevent tab change if trying to move forward without validation
+            const tabOrder = ['basic', 'payment', 'professional', 'employment'];
+            const currentIndex = tabOrder.indexOf(addTab);
+            const newIndex = tabOrder.indexOf(newTab);
+            
+            // If moving forward, validate current tab
+            if (newIndex > currentIndex && !isCurrentTabValid()) {
+              toast({
+                title: "Missing Required Fields",
+                description: "Please fill all mandatory fields before proceeding.",
+                variant: "destructive"
+              });
+              return;
+            }
+            
+            setAddTab(newTab);
+          }} className="w-full">
             <UITabsList className="flex justify-between gap-1 mb-6 w-full bg-transparent p-0">
               <UITabsTrigger value="basic" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Basic Info</UITabsTrigger>
               <UITabsTrigger value="payment" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Payment Setup</UITabsTrigger>

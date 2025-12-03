@@ -27,7 +27,8 @@ import {
   BookOpen,
   Check,
   X,
-  ChevronDown
+  ChevronDown,
+  Camera
 } from "lucide-react"
 // Removed MultiSelectDropdown and ColumnSelectorModal per requirements
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input"
@@ -67,6 +68,7 @@ export interface AttendanceSearchFiltersProps {
   viewMode: ViewMode;
   setViewMode: React.Dispatch<React.SetStateAction<ViewMode>>;
   onAddAttendance?: () => void;
+  onSelfieAttendance?: () => void;
   onImport?: (items: InstructorAttendanceRecord[]) => void;
   selectedIds?: string[];
   // Column management UI removed (props kept for compatibility)
@@ -95,6 +97,7 @@ export default function AttendanceSearchFilters({
   viewMode,
   setViewMode,
   onAddAttendance,
+  onSelfieAttendance,
   onImport,
   selectedIds = [],
   displayedColumns,
@@ -103,7 +106,7 @@ export default function AttendanceSearchFilters({
   draftCount: draftCountProp,
 }: AttendanceSearchFiltersProps) {
   const { toast } = useToast();
-  const { primaryColor } = useCustomColors();
+  const { primaryColor, secondaryColor } = useCustomColors();
 
   // Draft count state (for attendance drafts)
   const [draftCount, setDraftCount] = useState(0);

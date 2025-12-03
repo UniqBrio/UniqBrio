@@ -23,10 +23,20 @@ export default function TokenRefreshHandler() {
           },
         })
 
-        if (!response.ok && response.status === 401) {
-          // Session expired
-          localStorage.removeItem("isAuthenticated")
-          router.push("/?session=expired")
+        if (!response.ok) {
+          // Check if response is HTML (not JSON)
+          const contentType = response.headers.get("content-type")
+          if (contentType && contentType.includes("text/html")) {
+            // Server returned HTML instead of JSON, likely a redirect or error page
+            localStorage.removeItem("isAuthenticated")
+            return
+          }
+          
+          if (response.status === 401) {
+            // Session expired
+            localStorage.removeItem("isAuthenticated")
+            router.push("/?session=expired")
+          }
         }
       } catch (error) {
         console.error("Error refreshing token:", error)

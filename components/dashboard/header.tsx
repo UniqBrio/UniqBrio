@@ -69,10 +69,16 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
             ? data
             : []
       if (latestNotifications.length) {
-        setNotificationsList(latestNotifications)
+        // Load read status from localStorage
+        const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        const notificationsWithReadStatus = latestNotifications.map((n: any) => ({
+          ...n,
+          read: readNotifications.includes(n.id) ? true : (n.read || false)
+        }));
+        setNotificationsList(notificationsWithReadStatus)
         const unreadFromApi = typeof data?.unreadCount === 'number' ? data.unreadCount : undefined
-        const derivedUnread = latestNotifications.filter((item: any) => item && item.read === false).length
-        setNotifications(unreadFromApi ?? derivedUnread ?? latestNotifications.length)
+        const derivedUnread = notificationsWithReadStatus.filter((item: any) => item && item.read === false).length
+        setNotifications(unreadFromApi ?? derivedUnread ?? notificationsWithReadStatus.length)
       } else {
         applyFallbackNotifications()
       }
@@ -86,11 +92,12 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      // await fetch('/api/dashboard/notifications', {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ notificationId }),
-      // })
+      // Persist to localStorage
+      const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+      if (!readNotifications.includes(notificationId)) {
+        readNotifications.push(notificationId);
+        localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+      }
       
       setNotificationsList(prev =>
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
@@ -103,11 +110,11 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
 
   const markAllAsRead = async () => {
     try {
-      // await fetch('/api/dashboard/notifications', {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ studentId: 'xxx', markAllAsRead: true }),
-      // })
+      // Persist all to localStorage
+      const allIds = notificationsList.map(n => n.id);
+      const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+      const newReadIds = allIds.filter(id => !readNotifications.includes(id));
+      localStorage.setItem('readNotifications', JSON.stringify([...readNotifications, ...newReadIds]));
       
       setNotificationsList(prev => prev.map(n => ({ ...n, read: true })))
       setNotifications(0)

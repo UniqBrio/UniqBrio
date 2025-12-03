@@ -2007,7 +2007,35 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
             
           </DialogHeader>
           <div className="flex-1 py-2">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-2">
+            <Tabs value={activeTab} onValueChange={(newTab) => {
+              // Prevent tab change if trying to move forward without validation
+              const currentIndex = tabKeys.indexOf(activeTab);
+              const newIndex = tabKeys.indexOf(newTab);
+              
+              // If moving forward, validate current tab
+              if (newIndex > currentIndex) {
+                const tabRequired: Record<string,string[]> = {
+                  'student-info': ['firstName','lastName','email','dob','mobile','gender','country','stateProvince','courseOfInterestId'],
+                  'course-details': ['registrationDate'],
+                  'communication': [],
+                  'guardian-details': []
+                };
+                const req = tabRequired[activeTab] || [];
+                const invalidInTab = req.filter(f => validationStatus.errors?.[f]);
+                
+                if(invalidInTab.length){
+                  setErrorFields(prev => new Set([...Array.from(prev), ...invalidInTab]));
+                  toast({
+                    title: "Missing Required Fields",
+                    description: `Please fill in the following mandatory fields: ${invalidInTab.join(', ')}`,
+                    variant: "destructive"
+                  });
+                  return;
+                }
+              }
+              
+              setActiveTab(newTab);
+            }} className="space-y-2">
               {/* Styled tabs to match page-level (Dashboard/Students) tab UI */}
               <TabsList className="grid w-full grid-cols-4 mb-3 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger

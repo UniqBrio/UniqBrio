@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useCustomColors } from "@/lib/use-custom-colors"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/staff/tabs"
 import InstructorDashboard from "@/components/dashboard/instructor/instructor-dashboard"
@@ -18,6 +18,7 @@ import { Button } from "@/components/dashboard/ui/staff/button"
 import { useToast } from "@/hooks/dashboard/use-toast"
 import InstructorSettings from "@/components/dashboard/instructor/instructor-settings"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 // Removed Save icon import; Drafts button moved into toolbar within Instructors tab
 
 const INSTRUCTOR_SETTINGS_KEY = 'instructorSettings'
@@ -89,12 +90,21 @@ export default function InstructorPage() {
   const { primaryColor, secondaryColor } = useCustomColors()
   const { toast } = useToast()
   const { addInstructor } = useInstructors()
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("dashboard")
   const [selectedInstructor, setSelectedInstructor] = useState<string | null>(null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [draftsDialogOpen, setDraftsDialogOpen] = useState(false)
   const [selectedDraftData, setSelectedDraftData] = useState(null)
   const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null)
+
+  // Handle URL parameter for tab switching
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['dashboard', 'profile', 'leave', 'attendance', 'settings'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   // Draft management
   const { draftsCount, drafts, saveDraft } = useInstructorDrafts()

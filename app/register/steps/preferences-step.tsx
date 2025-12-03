@@ -83,7 +83,7 @@ export default function PreferencesStep({ formState, updateFormState }: { formSt
   // Promo code and teammate handlers removed
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div className="space-y-4 relative">
         <h3 className="text-lg font-medium">Setup Preferences</h3>
         <p className="text-sm text-muted-foreground">Customize your UniqBrio experience</p>

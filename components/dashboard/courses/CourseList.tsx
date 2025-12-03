@@ -197,8 +197,8 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
         {courses.length > 2 ? (
           <Card>
           <CardContent className="p-0">
-          <div className="table-container-with-sticky-header" style={{ width: '100%' }}>
-            <table className="w-full caption-bottom text-sm min-w-max" style={{ width: 'max-content', borderCollapse: 'separate', borderSpacing: 0 }}>
+          <div className="overflow-x-auto">
+            <table className="w-full caption-bottom text-sm" style={{ minWidth: '800px', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead className="[&_tr]:border-b">
                 <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                   <TableHead className="w-12 sticky-table-header">
@@ -244,7 +244,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                         return (
                           <TableCell 
                             key={columnId} 
-                              className={`${columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''} min-w-[140px] break-words`}
+                            className={`${columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''} whitespace-nowrap px-4`}
                           >
                             {value}
                           </TableCell>
@@ -282,8 +282,8 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
         ) : (
           <Card>
           <CardContent className="p-0">
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <table className="w-full caption-bottom text-sm table-fixed">
+          <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+            <table className="w-full caption-bottom text-sm" style={{ minWidth: '800px' }}>
               <thead className="[&_tr]:border-b">
                 <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                   <TableHead className="w-12 sticky-table-header">
@@ -329,7 +329,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                       return (
                         <TableCell 
                           key={columnId} 
-                            className={`${columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''} min-w-[140px] break-words`}
+                          className={`${columnId === 'courseId' || columnId === 'name' ? 'font-medium' : ''} whitespace-nowrap px-4`}
                         >
                           {value}
                         </TableCell>
@@ -375,8 +375,8 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
         {courses.length === 0 ? (
           <div className="text-center text-gray-500 dark:text-white py-8">No courses found.</div>
         ) : (
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-4 w-max">
+          <div className="overflow-x-auto pb-4 -mx-2 px-2">
+            <div className="flex gap-4" style={{ width: 'max-content', minWidth: '100%' }}>
               {courses.map((course, index) => (
                 <Card 
                   key={course.id || (course as any)._id || `course-${index}`} 

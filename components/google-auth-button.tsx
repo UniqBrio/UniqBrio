@@ -20,7 +20,7 @@ export default function GoogleAuthButton({
     try {
       // Use redirect: true to let NextAuth handle the full flow
       await signIn("google", {
-        callbackUrl: "/select-role",
+        callbackUrl: "/register",
       });
       // No need to handle result when redirect: true (default behavior)
     } catch (error) {

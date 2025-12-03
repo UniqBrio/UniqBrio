@@ -39,7 +39,7 @@ export default function DraftsDialog({
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={() => {}}>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -50,28 +50,17 @@ export default function DraftsDialog({
                   {drafts.length > 0 && ` (${drafts.length} draft${drafts.length !== 1 ? 's' : ''} found)`}
                 </DialogDescription>
               </div>
-              <div className="flex items-center gap-2">
-                {onRefreshDrafts && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={onRefreshDrafts}
-                    title="Refresh Drafts"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                )}
+              {onRefreshDrafts && (
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0"
-                  onClick={() => onOpenChange(false)}
-                  title="Close"
+                  onClick={onRefreshDrafts}
+                  title="Refresh Drafts"
                 >
-                  <X className="h-4 w-4" />
+                  <RefreshCw className="h-4 w-4" />
                 </Button>
-              </div>
+              )}
             </div>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">

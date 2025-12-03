@@ -180,26 +180,28 @@ export function OverviewTab() {
         {loading && <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded">Loading charts...</div>}
         
         {/* Main Income to Profit Flow Chart */}
-        <Card className="w-full overflow-hidden">
-          <CardHeader className="pb-3 sm:pb-6 px-3 sm:px-6">
-            <CardTitle className="text-lg sm:text-xl lg:text-2xl break-words">Income to Profit Flow Analysis</CardTitle>
+        <Card className="w-full overflow-hidden shadow-lg border-2">
+          <CardHeader className="pb-3 sm:pb-6 px-3 sm:px-6 bg-gradient-to-r from-purple-50 to-orange-50">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold break-words">Income to Profit Flow Analysis</CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
+          <CardContent className="p-3 sm:p-6 pt-0 bg-white">
             <ResponsiveChartContainer>
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart 
                   data={chartData} 
                   margin={chartConfig.margins}
                 >
-                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" strokeWidth={1.5} opacity={0.7} />
                   <XAxis
                     dataKey="name"
                     tickFormatter={formatMonthLabel}
-                    tick={{ fontSize: chartConfig.fontSize }}
+                    tick={{ fontSize: chartConfig.fontSize, fill: '#334155', fontWeight: 600 }}
                     className="text-xs sm:text-sm"
+                    stroke="#64748b"
+                    strokeWidth={2}
                   >
                     {chartConfig.showLabels && (
-                      <Label value="Period" offset={-5} position="insideBottom" />
+                      <Label value="Period" offset={-5} position="insideBottom" style={{ fontSize: 14, fontWeight: 'bold', fill: '#1e293b' }} />
                     )}
                   </XAxis>
                   <YAxis
@@ -212,56 +214,63 @@ export function OverviewTab() {
                       if (!isFinite(magnitude) || magnitude <= 0) return Math.ceil(maxWithBuffer);
                       return Math.ceil(maxWithBuffer / magnitude) * magnitude;
                     }]}
-                    tick={{ fontSize: chartConfig.fontSize }}
+                    tick={{ fontSize: chartConfig.fontSize, fill: '#334155', fontWeight: 600 }}
                     className="text-xs sm:text-sm"
-                    width={screenSize === "mobile" ? 40 : 60}
+                    width={screenSize === "mobile" ? 45 : 70}
+                    stroke="#64748b"
+                    strokeWidth={2}
                   >
                     {chartConfig.showLabels && (
                       <Label 
                         value={`Amount (${currency || 'Amount'})`} 
                         angle={-90} 
                         position="insideLeft" 
-                        style={{ textAnchor: 'middle' }} 
+                        style={{ textAnchor: 'middle', fontSize: 14, fontWeight: 'bold', fill: '#1e293b' }} 
                       />
                     )}
                   </YAxis>
                   <RechartsTooltip 
                     formatter={(value: number) => [`${currency} ${value.toLocaleString()}`, 'Amount']}
                     contentStyle={{
-                      fontSize: screenSize === "mobile" ? '11px' : '14px',
-                      padding: screenSize === "mobile" ? '6px 8px' : '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid hsl(var(--border))',
-                      backgroundColor: 'hsl(var(--background))'
+                      fontSize: screenSize === "mobile" ? '12px' : '15px',
+                      padding: screenSize === "mobile" ? '8px 12px' : '12px 16px',
+                      borderRadius: '8px',
+                      border: '2px solid #64748b',
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      fontWeight: 600
                     }}
                   />
                   <Legend 
                     wrapperStyle={{ 
-                      paddingTop: screenSize === "mobile" ? '8px' : '20px',
-                      fontSize: screenSize === "mobile" ? '11px' : '14px'
+                      paddingTop: screenSize === "mobile" ? '12px' : '24px',
+                      fontSize: screenSize === "mobile" ? '13px' : '16px',
+                      fontWeight: 'bold'
                     }}
-                    iconSize={screenSize === "mobile" ? 12 : 14}
+                    iconSize={screenSize === "mobile" ? 16 : 20}
                   />
                   <Bar 
                     dataKey="income" 
-                    fill="#8b5cf6" 
+                    fill="#7c3aed" 
                     name="Income"
-                    radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
+                    radius={screenSize === "mobile" ? [4, 4, 0, 0] : [6, 6, 0, 0]}
+                    opacity={0.9}
                   />
                   <Bar 
                     dataKey="expense" 
-                    fill="#f97316" 
+                    fill="#ea580c" 
                     name="Expenses"
-                    radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
+                    radius={screenSize === "mobile" ? [4, 4, 0, 0] : [6, 6, 0, 0]}
+                    opacity={0.9}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="profit" 
-                    stroke="#10b981" 
-                    strokeWidth={chartConfig.strokeWidth}
+                    stroke="#059669" 
+                    strokeWidth={screenSize === "mobile" ? 3 : 4}
                     name="Net Profit"
-                    dot={{ r: screenSize === "mobile" ? 3 : 4 }}
-                    activeDot={{ r: screenSize === "mobile" ? 5 : 6 }}
+                    dot={{ r: screenSize === "mobile" ? 5 : 7, fill: '#059669', strokeWidth: 2, stroke: '#ffffff' }}
+                    activeDot={{ r: screenSize === "mobile" ? 7 : 9, fill: '#059669', stroke: '#ffffff', strokeWidth: 3 }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>

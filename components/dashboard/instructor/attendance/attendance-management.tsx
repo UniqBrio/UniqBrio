@@ -11,6 +11,7 @@ import { AttendanceFilters } from "./attendance-filters"
 import AttendanceSearchFilters from "./attendance-search-filters"
 import { AttendanceGrid } from "./attendance-grid"
 import AttendanceDrafts, { AttendanceDraftsHandle } from "./attendance-drafts"
+import { SelfieAttendanceModal } from "./selfie-attendance-modal"
 // Chart feature removed per request
 
 
@@ -316,12 +317,51 @@ function AttendanceManagementInner() {
   return (
     <div className="space-y-3">
       <div className="w-full">
-        <div className="flex items-center mb-1 flex-wrap gap-2 relative min-h-[48px]">
-    <h1 className="text-3xl md:text-3xl font-bold" style={{ color: primaryColor }}>Instructor Attendance Management </h1>
+        <div className="flex items-start justify-between mb-1 flex-wrap gap-3 relative min-h-[48px]">
+          <div className="flex-1">
+            <h1 className="text-3xl md:text-3xl font-bold" style={{ color: primaryColor }}>Instructor Attendance Management</h1>
+            <p className="text-lg mb-0 text-gray-700 dark:text-white mt-1">
+              Track, manage, and analyze attendance for all instructors across cohorts
+            </p>
+          </div>
+
+          {/* Selfie Attendance Button - Right Side */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={() => setIsSelfieModalOpen(true)}
+              className="group relative overflow-hidden rounded-xl shadow-[0_6px_20px_rgba(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 transform hover:scale-105"
+              style={{ backgroundImage: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+            >
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ backgroundImage: `linear-gradient(225deg, ${primaryColor}, ${secondaryColor})` }}
+              />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+              <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+
+              <div className="relative z-10 flex items-center gap-3 px-5 py-3">
+                <div className="relative">
+                  <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
+                    <Camera className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+
+                <div className="text-left">
+                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                    Selfie Attendance
+                  </div>
+                  <div className="text-xs text-white/90 font-medium">
+                    UI Preview • Coming Soon
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
-  <p className="text-lg mb-0 text-gray-700 dark:text-white">
-    Track, manage, and analyze attendance for all instructors across cohorts</p>
-        </div>
+      </div>
         
       
 
@@ -342,6 +382,21 @@ function AttendanceManagementInner() {
         attendanceData={attendanceData}
         onSaveAttendance={handleSaveAttendance}
         onSaveDraft={handleSaveDraft}
+      />
+
+      {/* Selfie Attendance Modal */}
+      <SelfieAttendanceModal
+        isOpen={isSelfieModalOpen}
+        onOpenChange={setIsSelfieModalOpen}
+        onSubmit={(photo, location, timestamp) => {
+          console.log('Selfie attendance:', { photo, location, timestamp });
+        }}
+        onShowToast={(title, description) => {
+          toast({
+            title,
+            description,
+          });
+        }}
       />
 
       {/* Drafts Modal (centralized component) */}
@@ -424,6 +479,7 @@ function AttendanceManagementInner() {
                 viewMode={viewMode}
                 setViewMode={setViewMode}
                 onAddAttendance={() => setIsAttendanceModalOpen(true)}
+                onSelfieAttendance={() => setIsSelfieModalOpen(true)}
                 onImport={(items) => {
                   setAttendanceData((prev: InstructorAttendanceRecord[]) => {
                     const maxId = prev.reduce((m, r) => Math.max(m, r.id), 0);

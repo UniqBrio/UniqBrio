@@ -818,6 +818,7 @@ export default function EnhancedCourseManagementPage() {
       type: course.type || 'Online',
       duration: course.duration !== undefined ? String(course.duration) : '',
       priceINR: course.priceINR !== undefined ? String(course.priceINR) : '',
+      paymentCategory: course.paymentCategory || '',
       schedule: course.schedule || '',
       maxStudents: course.maxStudents !== undefined ? String(course.maxStudents) : '',
       location: course.location || '',
@@ -1007,7 +1008,7 @@ export default function EnhancedCourseManagementPage() {
   }
 
   return (
-    <div className="container mx-auto p-2 space-y-4">
+    <div className="container mx-auto p-2 sm:p-4 space-y-4 max-w-full overflow-x-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -1025,60 +1026,60 @@ export default function EnhancedCourseManagementPage() {
 
             {/* Navigation Tabs */}
             <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6 bg-transparent gap-2 p-0 h-auto">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'dashboard' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <LayoutDashboard className="h-4 w-4" />
+                  <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger 
                   value="courses" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'courses' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <BookOpen className="h-4 w-4" />
+                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                   Courses
                 </TabsTrigger>
                 <TabsTrigger 
                   value="cohorts" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'cohorts' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <Users className="h-4 w-4" />
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                   Cohorts
                 </TabsTrigger>
                 <TabsTrigger 
                   value="settings" 
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <Settings className="h-4 w-4" />
+                  <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
                   Settings
                 </TabsTrigger>
               </TabsList>
 
               {/* Dashboard Tab Content */}
               <TabsContent value="dashboard" className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-500">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
