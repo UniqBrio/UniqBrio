@@ -1,0 +1,249 @@
+/* Landing Page Custom Styles */
+
+.landing-page {
+  scroll-behavior: smooth;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Custom CSS Variables for Landing Page */
+:root {
+  --landing-orange: #DE7D14;
+  --landing-purple: #6708C0;
+  --landing-orange-light: #FF9A3D;
+  --landing-bg: #FAFAFA;
+  --landing-text: #1A1A1A;
+  --landing-success: #10B981;
+  --landing-blue: #4A90E2;
+}
+
+/* Typography */
+.landing-page h1,
+.landing-page h2,
+.landing-page h3,
+.landing-page h4,
+.landing-page h5,
+.landing-page h6 {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+/* Smooth animations */
+.landing-page * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animation delay utilities */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Custom shadow effects */
+.shadow-3xl {
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
+}
+
+/* Blob animation for background elements */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, var(--landing-purple), var(--landing-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Hover scale effect */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+.landing-page::-webkit-scrollbar {
+  width: 12px;
+}
+
+.landing-page::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.landing-page::-webkit-scrollbar-thumb {
+  background: var(--landing-purple);
+  border-radius: 6px;
+}
+
+.landing-page::-webkit-scrollbar-thumb:hover {
+  background: var(--landing-orange);
+}
+
+/* Pulse animation for urgency elements */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(103, 8, 192, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(103, 8, 192, 0);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .landing-page h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .landing-page h2 {
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+
+  .landing-page section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* Touch target optimization for mobile */
+@media (max-width: 768px) {
+  button,
+  a.button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Loading states */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Focus visible for accessibility */
+.landing-page *:focus-visible {
+  outline: 2px solid var(--landing-purple);
+  outline-offset: 2px;
+}
+
+/* Gradient backgrounds */
+.gradient-purple-blue {
+  background: linear-gradient(135deg, var(--landing-purple), var(--landing-blue));
+}
+
+.gradient-orange-red {
+  background: linear-gradient(135deg, var(--landing-orange), #e53e3e);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* Button ripple effect */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+}
+
+.button-ripple:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Print styles */
+@media print {
+  .landing-page nav,
+  .landing-page footer,
+  .floating-elements {
+    display: none;
+  }
+
+  .landing-page {
+    background: white;
+    color: black;
+  }
+}

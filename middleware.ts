@@ -35,6 +35,7 @@ const publicPaths = [
   "/verification-pending",
   "/kyc-blocked", // KYC blocked access page
   "/UBAdmin", // UniqBrio Admin panel
+  "/landing", // Public landing page
   "/legal/", // Legal pages (terms, privacy, cookies)
   // API Routes - Allow specific prefixes
   "/api/auth/",
