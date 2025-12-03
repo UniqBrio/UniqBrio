@@ -151,13 +151,15 @@ export default function ProblemSection() {
           </p>
         </motion.div>
 
-        {/* Before vs After Slider */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative bg-white rounded-2xl overflow-hidden shadow-2xl"
-        >
+        {/* Two Column Layout: Before/After + Video */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+          {/* Left Column: Before vs After Slider */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative bg-white rounded-2xl overflow-hidden shadow-2xl h-full"
+          >
           <div className="grid md:grid-cols-2">
             {/* Before */}
             <motion.div 
@@ -264,6 +266,39 @@ export default function ProblemSection() {
             </div>
           </div>
         </motion.div>
+
+        {/* Right Column: Video Demo */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="flex flex-col justify-center"
+        >
+          <div className="bg-gradient-to-br from-[#6708C0]/10 to-[#DE7D14]/10 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">🎥</span>
+              <h3 className="text-xl font-bold text-[#1A1A1A]">
+                See the Solution in Action
+              </h3>
+            </div>
+            <div className="relative rounded-xl overflow-hidden shadow-lg border-2 border-[#6708C0]/20 bg-black">
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src="https://www.youtube.com/embed/8lSoprr1aHA?start=1"
+                  title="UniqBrio Platform Demo"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+            <p className="text-sm text-[#718096] mt-4 text-center">
+              Watch how UniqBrio eliminates all these problems in minutes
+            </p>
+          </div>
+        </motion.div>
+      </div>
       </div>
     </section>
   )

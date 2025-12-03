@@ -47,9 +47,7 @@ export default function LandingPageContent() {
       <div id="faq">
         <FAQSection />
       </div>
-      <div id="demo-form">
-        <FinalCTASection />
-      </div>
+      
       <LandingFooter />
       <FloatingElements onFormSuccess={() => setShowConfetti(true)} showConfetti={showConfetti} />
       <DemoPopup isOpen={isDemoPopupOpen} onClose={() => setIsDemoPopupOpen(false)} />

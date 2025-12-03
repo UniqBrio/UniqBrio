@@ -1,6 +1,6 @@
 'use client'
 
-import { Facebook, Twitter, Instagram, Linkedin, Youtube, Mail } from 'lucide-react'
+import { Facebook, Instagram, Linkedin, Youtube, Mail } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -45,11 +45,10 @@ export default function LandingFooter() {
   ]
 
   const socialLinks = [
-    { icon: <Facebook className="w-5 h-5" />, href: 'https://facebook.com/uniqbrio', label: 'Facebook' },
-    { icon: <Twitter className="w-5 h-5" />, href: 'https://twitter.com/uniqbrio', label: 'Twitter' },
-    { icon: <Instagram className="w-5 h-5" />, href: 'https://instagram.com/uniqbrio', label: 'Instagram' },
+    { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/uniqbrio', label: 'Facebook' },
+    { icon: <Instagram className="w-5 h-5" />, href: 'https://www.instagram.com/uniqbrio/#', label: 'Instagram' },
     { icon: <Linkedin className="w-5 h-5" />, href: 'https://linkedin.com/company/uniqbrio', label: 'LinkedIn' },
-    { icon: <Youtube className="w-5 h-5" />, href: 'https://youtube.com/@uniqbrio', label: 'YouTube' }
+    { icon: <Youtube className="w-5 h-5" />, href: 'https://www.youtube.com/@uniqbrio', label: 'YouTube' }
   ]
 
   return (
@@ -148,13 +147,13 @@ export default function LandingFooter() {
             <div>
               <p className="text-xs text-gray-500 mb-1">Registered Office</p>
               <p className="text-sm text-gray-400">
-                Bangalore, Karnataka, India
+                Tamil Nadu, India
               </p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-1">Business Hours</p>
               <p className="text-sm text-gray-400">
-                Mon-Sat: 9:00 AM - 7:00 PM IST
+                Mon-Sat: 9:00 AM - 6:00 PM IST
               </p>
             </div>
             <div>

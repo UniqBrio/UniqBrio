@@ -55,34 +55,6 @@ export default function SolutionOverviewSection() {
           </p>
         </motion.div>
 
-        {/* Video Demo - Compact Inline */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12 max-w-3xl mx-auto"
-        >
-          <div className="bg-gradient-to-r from-[#6708C0]/5 to-[#DE7D14]/5 rounded-xl p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg">🎥</span>
-              <h3 className="text-lg md:text-xl font-bold text-[#1A1A1A]">
-                See It In Action
-              </h3>
-            </div>
-            <div className="relative rounded-lg overflow-hidden shadow-lg border border-[#6708C0]/20 bg-black">
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube.com/embed/8lSoprr1aHA?start=1"
-                  title="UniqBrio Platform Demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Comparison Table */}
         <div className="overflow-x-auto">
           <motion.div
