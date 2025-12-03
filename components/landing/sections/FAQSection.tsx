@@ -16,10 +16,7 @@ export default function FAQSection() {
       question: 'How long does it take to set up?',
       answer: 'Most academies are up and running in under 10 minutes. You can import your existing student data from Excel, or add them manually. Our setup wizard guides you through every step – courses, batches, instructors, and fee structures.'
     },
-    {
-      question: 'What if my parents don\'t have smartphones?',
-      answer: 'No problem! While the parent portal works best on mobile, it\'s fully accessible on any device with internet – including basic smartphones, tablets, and computers. Parents can also receive SMS notifications for important updates.'
-    },
+    
     {
       question: 'Can I try it before committing?',
       answer: 'Absolutely! We offer a completely free plan for academies with under 10 students (forever free). For larger academies, start with a 14-day free trial of our Grow or Scale plans – no credit card required. Cancel anytime if it\'s not right for you.'

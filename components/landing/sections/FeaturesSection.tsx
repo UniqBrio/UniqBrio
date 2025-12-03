@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, CreditCard, Users, BarChart3, UserCog, Check, Sparkles, ArrowRight } from 'lucide-react'
+import { Calendar, CreditCard, Users, BarChart3, UserCog, Check, Sparkles, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import Image from 'next/image'
 
 export default function FeaturesSection() {
   const [activeTab, setActiveTab] = useState('scheduling')
   const [hoveredBenefit, setHoveredBenefit] = useState<number | null>(null)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
   const tabs = [
     {
@@ -15,37 +17,76 @@ export default function FeaturesSection() {
       label: 'Courses',
       icon: <Calendar className="w-5 h-5" />,
       color: '#4A90E2',
-      gradient: 'from-blue-500 to-cyan-500'
+      gradient: 'from-blue-500 to-cyan-500',
+      image: '/placeholder-course.jpg' // You can replace with actual dashboard screenshot
     },
     {
       id: 'payments',
       label: 'Payments',
       icon: <CreditCard className="w-5 h-5" />,
       color: '#10B981',
-      gradient: 'from-green-500 to-emerald-500'
+      gradient: 'from-green-500 to-emerald-500',
+      image: '/placeholder-payment.jpg'
     },
     {
       id: 'portal',
       label: 'Students',
       icon: <Users className="w-5 h-5" />,
       color: '#6708C0',
-      gradient: 'from-purple-500 to-pink-500'
+      gradient: 'from-purple-500 to-pink-500',
+      image: '/placeholder-student.jpg'
     },
     {
       id: 'staff',
       label: 'Staff',
       icon: <UserCog className="w-5 h-5" />,
       color: '#8B5CF6',
-      gradient: 'from-violet-500 to-purple-500'
+      gradient: 'from-violet-500 to-purple-500',
+      image: '/placeholder-staff.jpg'
     },
     {
       id: 'analytics',
       label: 'Analytics',
       icon: <BarChart3 className="w-5 h-5" />,
       color: '#DE7D14',
-      gradient: 'from-orange-500 to-amber-500'
+      gradient: 'from-orange-500 to-amber-500',
+      image: '/placeholder-analytics.jpg'
     }
   ]
+
+  // Auto-scroll functionality
+  useEffect(() => {
+    if (!isAutoPlaying) return
+
+    const interval = setInterval(() => {
+      setActiveTab((current) => {
+        const currentIndex = tabs.findIndex(tab => tab.id === current)
+        const nextIndex = (currentIndex + 1) % tabs.length
+        return tabs[nextIndex].id
+      })
+    }, 5000) // Change tab every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [isAutoPlaying])
+
+  const handlePrevious = () => {
+    setIsAutoPlaying(false)
+    const currentIndex = tabs.findIndex(tab => tab.id === activeTab)
+    const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
+    setActiveTab(tabs[prevIndex].id)
+  }
+
+  const handleNext = () => {
+    setIsAutoPlaying(false)
+    const currentIndex = tabs.findIndex(tab => tab.id === activeTab)
+    const nextIndex = (currentIndex + 1) % tabs.length
+    setActiveTab(tabs[nextIndex].id)
+  }
+
+  const handleTabClick = (tabId: string) => {
+    setIsAutoPlaying(false)
+    setActiveTab(tabId)
+  }
 
   const heroFeatures = {
     scheduling: {
@@ -225,135 +266,205 @@ export default function FeaturesSection() {
           </div>
         </motion.div>
 
-        {/* Tabbed Features */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Tab Headers - Enhanced */}
-          <div className="overflow-x-auto mb-8 pb-2">
-            <TabsList className="inline-flex h-auto p-1.5 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 min-w-full md:min-w-0 md:mx-auto">
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6708C0] data-[state=active]:to-[#4A90E2] data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
+        {/* Tabbed Features - Vertical Layout with Auto-scroll */}
+        <Tabs value={activeTab} onValueChange={handleTabClick} className="w-full">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-8">
+            {/* Vertical Tab Headers */}
+            <div className="lg:sticky lg:top-8 lg:self-start">
+              {/* Up Arrow */}
+              <div className="mb-3">
+                <button
+                  onClick={handlePrevious}
+                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                  aria-label="Previous"
                 >
-                  {tab.icon}
-                  <span className="whitespace-nowrap">{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+              </div>
 
-          {/* Tab Content - Enhanced */}
-          <AnimatePresence mode="wait">
-            {Object.keys(heroFeatures).map((key) => (
-              <TabsContent key={key} value={key} className="mt-0">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
-                >
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/5 via-transparent to-[#4A90E2]/5 pointer-events-none"></div>
-                  
-                  <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12">
-                    {/* Left: Content */}
-                    <div className="flex flex-col justify-center">
-                      <h3 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-3">
-                        {heroFeatures[key as keyof typeof heroFeatures].title}
-                      </h3>
-                      <p className="text-xl text-[#718096] mb-8">
-                        {heroFeatures[key as keyof typeof heroFeatures].subtitle}
-                      </p>
-                      
-                      <div className="space-y-4">
-                        {heroFeatures[key as keyof typeof heroFeatures].benefits.map((benefit, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                            onHoverStart={() => setHoveredBenefit(idx)}
-                            onHoverEnd={() => setHoveredBenefit(null)}
-                            whileHover={{ x: 8 }}
-                            className="flex items-start gap-3 group cursor-pointer bg-white/50 p-3 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300"
-                          >
-                            <motion.div 
-                              className="w-6 h-6 rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center flex-shrink-0 mt-0.5 relative shadow-md"
-                              animate={hoveredBenefit === idx ? { scale: [1, 1.2, 1] } : {}}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <Check className="w-4 h-4 text-white" />
-                              {/* Ripple effect on hover */}
-                              {hoveredBenefit === idx && (
-                                <motion.div
-                                  className="absolute inset-0 rounded-full border-2 border-[#10B981]"
-                                  initial={{ scale: 1, opacity: 1 }}
-                                  animate={{ scale: 1.8, opacity: 0 }}
-                                  transition={{ duration: 0.6, repeat: Infinity }}
-                                />
-                              )}
-                            </motion.div>
-                            <p className="text-[#4A5568] leading-relaxed group-hover:text-[#1A1A1A] font-medium transition-colors">
-                              {benefit}
-                            </p>
-                            <motion.div
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={hoveredBenefit === idx ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                            >
-                              <ArrowRight className="w-4 h-4 text-[#10B981] mt-1" />
-                            </motion.div>
-                          </motion.div>
-                        ))}
-                      </div>
+              {/* Tabs */}
+              <TabsList className="flex flex-col h-auto p-2 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 w-full">
+                {tabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    className="flex items-center gap-3 px-6 py-4 rounded-xl font-semibold w-full justify-start data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6708C0] data-[state=active]:to-[#4A90E2] data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-[1.02] text-left"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center data-[state=active]:bg-white/30">
+                      {tab.icon}
                     </div>
+                    <span>{tab.label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-                    {/* Right: Screenshot/Visual - Enhanced */}
-                    <div className="flex items-center justify-center">
-                      <div className="relative w-full aspect-square">
-                        {/* Background glow */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-200 via-blue-200 to-orange-200 rounded-3xl blur-2xl opacity-50"></div>
-                        
-                        {/* Main card */}
-                        <div className="relative w-full h-full bg-gradient-to-br from-purple-50 via-blue-50 to-orange-50 rounded-3xl flex items-center justify-center border-2 border-white shadow-2xl overflow-hidden">
-                          <motion.div
-                            animate={{
-                              scale: [1, 1.1, 1],
-                              rotate: [0, 5, -5, 0]
-                            }}
-                            transition={{
-                              duration: 4,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                            className="text-9xl drop-shadow-2xl"
-                          >
-                            {heroFeatures[key as keyof typeof heroFeatures].screenshot}
-                          </motion.div>
+              {/* Down Arrow */}
+              <div className="mt-3">
+                <button
+                  onClick={handleNext}
+                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                  aria-label="Next"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Progress Indicator */}
+              <div className="mt-4 flex gap-2 justify-center">
+                {tabs.map((tab) => (
+                  <motion.div
+                    key={tab.id}
+                    className={`h-1 rounded-full transition-all duration-300 ${
+                      activeTab === tab.id ? 'w-8 bg-gradient-to-r from-[#6708C0] to-[#4A90E2]' : 'w-1 bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Tab Content - Enhanced with Images */}
+            <div className="min-h-[600px]">
+              <AnimatePresence mode="wait">
+                {Object.keys(heroFeatures).map((key) => (
+                  <TabsContent key={key} value={key} className="mt-0">
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.5 }}
+                      className="relative bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
+                    >
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/5 via-transparent to-[#4A90E2]/5 pointer-events-none"></div>
+                      
+                      <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12">
+                        {/* Left: Content */}
+                        <div className="flex flex-col justify-center">
+                          <h3 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-3">
+                            {heroFeatures[key as keyof typeof heroFeatures].title}
+                          </h3>
+                          <p className="text-xl text-[#718096] mb-8">
+                            {heroFeatures[key as keyof typeof heroFeatures].subtitle}
+                          </p>
                           
-                          {/* Badge overlay */}
-                          <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-gray-100">
-                            <div className="flex items-center justify-center gap-2">
+                          <div className="space-y-4">
+                            {heroFeatures[key as keyof typeof heroFeatures].benefits.map((benefit, idx) => (
                               <motion.div
-                                animate={{ scale: [1, 1.2, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
+                                key={idx}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                onHoverStart={() => setHoveredBenefit(idx)}
+                                onHoverEnd={() => setHoveredBenefit(null)}
+                                whileHover={{ x: 8 }}
+                                className="flex items-start gap-3 group cursor-pointer bg-white/50 p-3 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300"
                               >
-                                <Sparkles className="w-4 h-4 text-[#6708C0]" />
+                                <motion.div 
+                                  className="w-6 h-6 rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center flex-shrink-0 mt-0.5 relative shadow-md"
+                                  animate={hoveredBenefit === idx ? { scale: [1, 1.2, 1] } : {}}
+                                  transition={{ duration: 0.3 }}
+                                >
+                                  <Check className="w-4 h-4 text-white" />
+                                  {/* Ripple effect on hover */}
+                                  {hoveredBenefit === idx && (
+                                    <motion.div
+                                      className="absolute inset-0 rounded-full border-2 border-[#10B981]"
+                                      initial={{ scale: 1, opacity: 1 }}
+                                      animate={{ scale: 1.8, opacity: 0 }}
+                                      transition={{ duration: 0.6, repeat: Infinity }}
+                                    />
+                                  )}
+                                </motion.div>
+                                <p className="text-[#4A5568] leading-relaxed group-hover:text-[#1A1A1A] font-medium transition-colors">
+                                  {benefit}
+                                </p>
+                                <motion.div
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={hoveredBenefit === idx ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                                >
+                                  <ArrowRight className="w-4 h-4 text-[#10B981] mt-1" />
+                                </motion.div>
                               </motion.div>
-                              <p className="text-sm font-semibold bg-gradient-to-r from-[#6708C0] to-[#4A90E2] bg-clip-text text-transparent">
-                                Live in Your Dashboard
-                              </p>
-                            </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Right: Dashboard Screenshot/Visual */}
+                        <div className="flex items-center justify-center">
+                          <div className="relative w-full aspect-square">
+                            {/* Background glow */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-200 via-blue-200 to-orange-200 rounded-3xl blur-2xl opacity-50"></div>
+                            
+                            {/* Main card with dashboard preview */}
+                            <motion.div 
+                              className="relative w-full h-full bg-gradient-to-br from-purple-50 via-blue-50 to-orange-50 rounded-3xl flex items-center justify-center border-2 border-white shadow-2xl overflow-hidden"
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ duration: 0.5 }}
+                            >
+                              {/* Placeholder for dashboard screenshot - replace with actual images */}
+                              <div className="relative w-full h-full flex items-center justify-center p-8">
+                                <motion.div
+                                  animate={{
+                                    scale: [1, 1.05, 1],
+                                  }}
+                                  transition={{
+                                    duration: 4,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                  }}
+                                  className="relative w-full h-full bg-white rounded-2xl shadow-2xl p-4 overflow-hidden"
+                                >
+                                  {/* Simulated Dashboard UI */}
+                                  <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center">
+                                    <div className="text-center">
+                                      <motion.div
+                                        animate={{
+                                          rotate: [0, 5, -5, 0]
+                                        }}
+                                        transition={{
+                                          duration: 3,
+                                          repeat: Infinity,
+                                          ease: "easeInOut"
+                                        }}
+                                        className="text-8xl mb-4 drop-shadow-lg"
+                                      >
+                                        {heroFeatures[key as keyof typeof heroFeatures].screenshot}
+                                      </motion.div>
+                                      <div className="space-y-2">
+                                        <div className="h-3 bg-gradient-to-r from-[#6708C0] to-[#4A90E2] rounded-full w-32 mx-auto"></div>
+                                        <div className="h-2 bg-gray-300 rounded-full w-24 mx-auto"></div>
+                                        <div className="h-2 bg-gray-300 rounded-full w-28 mx-auto"></div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              </div>
+                              
+                              {/* Badge overlay */}
+                              <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-gray-100">
+                                <div className="flex items-center justify-center gap-2">
+                                  <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                  >
+                                    <Sparkles className="w-4 h-4 text-[#6708C0]" />
+                                  </motion.div>
+                                  <p className="text-sm font-semibold bg-gradient-to-r from-[#6708C0] to-[#4A90E2] bg-clip-text text-transparent">
+                                    Live in Your Dashboard
+                                  </p>
+                                </div>
+                              </div>
+                            </motion.div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </TabsContent>
-            ))}
-          </AnimatePresence>
+                    </motion.div>
+                  </TabsContent>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
         </Tabs>
 
         {/* All Key Features Grid - Enhanced */}

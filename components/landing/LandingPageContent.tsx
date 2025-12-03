@@ -5,7 +5,7 @@ import HeroSection from './sections/HeroSection'
 import LandingHeader from './LandingHeader'
 import UrgencyBanner from './elements/UrgencyBanner'
 import DemoPopup from './DemoPopup'
-
+import VideoSection from './sections/VideoSection'
 import StickyHeaderCTA from './sticky-header-cta'
 import VisionMissionSection from 'components/landing/sections/VisionMissionSection'
 import ProblemSection from 'components/landing/sections/ProblemSection'
@@ -18,7 +18,6 @@ import FAQSection from 'components/landing/sections/FAQSection'
 import FinalCTASection from 'components/landing/sections/FinalCTASection'
 import LandingFooter from 'components/landing/sections/LandingFooter'
 import FloatingElements from 'components/landing/elements/FloatingElements'
-
 export default function LandingPageContent() {
   const [showConfetti, setShowConfetti] = useState(false)
   const [isDemoPopupOpen, setIsDemoPopupOpen] = useState(false)
@@ -33,11 +32,12 @@ export default function LandingPageContent() {
       </div>
       <VisionMissionSection />
       <ProblemSection />
+      <VideoSection />
       <SolutionOverviewSection />
       <div id="features">
         <FeaturesSection />
       </div>
-      
+      <SocialProofSection />
       <div id="how-it-works">
         <HowItWorksSection />
       </div>
@@ -47,7 +47,9 @@ export default function LandingPageContent() {
       <div id="faq">
         <FAQSection />
       </div>
-      
+      <div id="demo-form">
+        <FinalCTASection />
+      </div>
       <LandingFooter />
       <FloatingElements onFormSuccess={() => setShowConfetti(true)} showConfetti={showConfetti} />
       <DemoPopup isOpen={isDemoPopupOpen} onClose={() => setIsDemoPopupOpen(false)} />

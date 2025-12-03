@@ -33,7 +33,7 @@ export default function PricingSection() {
       period: '/month',
       yearlyPrice: '₹11,988',
       yearlySavings: 'Save ₹1,200/year',
-      bestFor: 'Most dance, cricket, badminton & arts academies',
+      bestFor: 'Dance, cricket, badminton & arts academies',
       description: 'Everything you need to run a thriving academy',
       features: [
         'Unlimited students',

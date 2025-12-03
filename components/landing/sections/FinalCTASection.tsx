@@ -84,11 +84,11 @@ export default function FinalCTASection() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-[#1A1A1A] mb-2">
-                Your Name <span className="text-red-500">*</span>
+                Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                placeholder="Priya Sharma"
+                placeholder="Wisdom Academy"
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#6708C0] focus:ring-2 focus:ring-[#6708C0]/20 outline-none transition-all"
               />
             </div>
