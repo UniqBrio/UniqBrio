@@ -4,7 +4,11 @@ import { Facebook, Instagram, Linkedin, Youtube, Mail } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default function LandingFooter() {
+interface LandingFooterProps {
+  onBookDemo?: () => void
+}
+
+export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
   const footerSections = [
     {
       title: 'Product',
@@ -101,12 +105,21 @@ export default function LandingFooter() {
               <ul className="space-y-3">
                 {section.links.map((link, linkIdx) => (
                   <li key={linkIdx}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-400 hover:text-[#6708C0] transition-colors duration-200 text-sm"
-                    >
-                      {link.label}
-                    </Link>
+                    {link.href === '#demo-form' ? (
+                      <button
+                        onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="text-gray-400 hover:text-[#6708C0] transition-colors duration-200 text-sm"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-gray-400 hover:text-[#6708C0] transition-colors duration-200 text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -157,9 +170,14 @@ export default function LandingFooter() {
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Support Email</p>
+              <p className="text-xs text-gray-500 mb-1">Phone</p>
               <p className="text-sm text-gray-400">
-                support@uniqbrio.com
+                <a href="tel:+918056329742" className="hover:underline">+91 8056329742</a>
+              </p>
+
+              <p className="text-xs text-gray-500 mt-3 mb-1">Support Email</p>
+              <p className="text-sm text-gray-400">
+                <a href="mailto:support@uniqbrio.com" className="hover:underline">support@uniqbrio.com</a>
               </p>
             </div>
           </div>

@@ -3,7 +3,11 @@
 import { motion } from 'framer-motion'
 import { UserPlus, Settings, Zap, TrendingUp } from 'lucide-react'
 
-export default function HowItWorksSection() {
+interface HowItWorksSectionProps {
+  onBookDemo?: () => void
+}
+
+export default function HowItWorksSection({ onBookDemo }: HowItWorksSectionProps) {
   const steps = [
     {
       number: 1,
@@ -150,7 +154,7 @@ export default function HowItWorksSection() {
               Ready to transform your academy?
             </p>
             <button 
-              onClick={() => document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
             >
               Book Your Free Demo Now →

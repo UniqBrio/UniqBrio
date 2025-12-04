@@ -55,21 +55,28 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
       <AnimatePresence>
         {showWhatsApp && (
           <motion.a
-            href={`https://wa.me/919876543210?text=${whatsappMessage}`}
+            href={`https://wa.me/918056329742?text=${whatsappMessage}`}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Chat with our assistant on WhatsApp"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-[#25D366] rounded-full shadow-2xl flex items-center justify-center text-white hover:shadow-3xl transition-all duration-300 group"
+            className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:shadow-3xl transition-all duration-300 group"
           >
-            <MessageCircle className="w-8 h-8 group-hover:scale-110 transition-transform" />
-            
-            {/* Pulse effect */}
-            <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20"></span>
-            
+            <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-white">
+              <img
+                src="/ai-generated-young-asian-indian-businesswoman-portrait-png.webp"
+                alt="UniqBrio assistant"
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Pulse effect (subtle, behind avatar) */}
+            <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-10 animate-ping"></span>
+
             {/* Tooltip */}
             <div className="absolute right-full mr-4 bg-white text-[#1A1A1A] px-4 py-2 rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <p className="text-sm font-semibold">Chat with us on WhatsApp!</p>
@@ -87,7 +94,7 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 100 }}
-            className="fixed bottom-24 left-6 z-40 bg-white rounded-2xl shadow-2xl p-4 max-w-xs"
+            className="fixed bottom-6 left-6 z-40 bg-white rounded-2xl shadow-2xl p-4 max-w-xs"
           >
             <button
               onClick={() => setShowBadge(false)}
@@ -111,35 +118,23 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
             </div>
 
             <div className="mt-3 flex gap-2">
-              {[...Array(5)].map((_, i) => (
-                <div
+              {[
+                'https://i.pravatar.cc/150?img=12',
+                'https://i.pravatar.cc/150?img=5',
+                'https://i.pravatar.cc/150?img=33',
+                'https://i.pravatar.cc/150?img=1',
+                'https://i.pravatar.cc/150?img=9',
+              ].map((avatarUrl, i) => (
+                <img
                   key={i}
-                  className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-200 to-orange-200 flex items-center justify-center text-sm"
-                >
-                  {['👨', '👩', '🧑', '👨‍🏫', '👩‍🏫'][i]}
-                </div>
+                  src={avatarUrl}
+                  alt={`Academy owner ${i + 1}`}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-purple-200 shadow-sm"
+                />
               ))}
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
-
-      {/* Scroll to top button - appears after scrolling down */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 left-6 z-40 w-12 h-12 bg-[#6708C0] rounded-full shadow-xl flex items-center justify-center text-white hover:bg-[#5607A0] transition-all duration-300"
-      >
-        <span className="text-2xl">↑</span>
-      </motion.button>
-
-      {/* Quick Animation: Closing 47 tabs → Opening UniqBrio */}
-      {/* This could be triggered on first visit */}
-      <AnimatePresence>
-        {/* Add animation logic here if needed */}
       </AnimatePresence>
     </>
   )

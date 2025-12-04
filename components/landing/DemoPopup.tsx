@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, ArrowRight, Clock } from 'lucide-react'
+import { X, Calendar, ArrowRight, Clock, CheckCircle, Star } from 'lucide-react'
 
 interface DemoPopupProps {
   isOpen: boolean
@@ -77,134 +77,125 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', duration: 0.5 }}
-              className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden"
+              className="relative w-full max-w-5xl full"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Content Container with Gradient Background */}
-              <div className="relative overflow-hidden rounded-2xl shadow-2xl h-full">
-                {/* Gradient Background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#DE7D14] via-[#6708C0] to-[#4A90E2]"></div>
+              {/* Content Container with Minimalist Gradient */}
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl h-full">
+                {/* Clean gradient background */}
+                <div
+                  className="absolute inset-0 bg-gradient-to-br from-purple-600 via-purple-500 to-violet-400"
+                />
                 
-                {/* Animated Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl animate-blob"></div>
-                  <div className="absolute top-20 right-20 w-64 h-64 bg-white rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-                  <div className="absolute bottom-10 left-1/2 w-64 h-64 bg-white rounded-full blur-3xl animate-blob animation-delay-4000"></div>
+                {/* Subtle animated orbs */}
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute top-10 left-10 w-96 h-96 bg-white rounded-full blur-3xl animate-blob"></div>
+                  <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-blob animation-delay-2000"></div>
                 </div>
 
-                <div className="relative z-10 h-full overflow-y-auto">
-                  {/* Close Button */}
-                  <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all hover:scale-110"
-                  >
-                    <X className="w-5 h-5 text-white" />
-                  </button>
+                {/* Minimalist close button */}
+                <button
+                  onClick={onClose}
+                  aria-label="Close demo popup"
+                  className="absolute top-6 right-6 z-50 w-9 h-9 bg-white/95 hover:bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow transition-all hover:scale-105"
+                >
+                  <X className="w-4 h-4 text-gray-700" />
+                </button>
+
+                <div className="relative z-10">
 
                   {/* Two Column Layout - Full Height */}
-                  <div className="grid lg:grid-cols-2 gap-0 min-h-full">
+                  <div className="grid lg:grid-cols-2 gap-0">
                     {/* Left Column - Header + Benefits */}
-                    <div className="text-white p-4 md:p-6 lg:p-8 flex flex-col justify-center">
+                    <div className="text-white p-6 md:p-8 lg:p-10 flex flex-col justify-center">
                       {/* Urgency Badge */}
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                        className="inline-block bg-white text-[#DE7D14] px-4 py-1.5 rounded-full font-bold text-sm mb-4 shadow-2xl self-start"
+                        className="inline-block bg-white/95 text-purple-600 px-4 py-2 rounded-full font-medium text-xs mb-4 shadow-sm self-start"
                       >
-                        <Clock className="inline w-4 h-4 mr-1.5 animate-pulse" />
-                        Only 58 spots remaining today!
+                        <Clock className="inline w-3.5 h-3.5 mr-1.5" />
+                        Only 58 spots remaining today
                       </motion.div>
 
-                      <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-3 leading-tight">
-                        Be one of the first 100 academies to go live tomorrow –{' '}
-                        <span className="text-yellow-300">10 December 2025</span>
+                      <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 leading-tight tracking-tight">
+                        Be one of the first 100 academies to go live tomorrow – <span className="text-yellow-300">10 December 2025</span>
                       </h2>
 
-                      <p className="text-sm md:text-base mb-3 opacity-95">
+                      <p className="text-xs md:text-sm mb-4 opacity-90 font-light">
                         Personal onboarding + lifetime pricing locked
                       </p>
 
-                      <div className="flex items-center gap-3 md:gap-4 flex-wrap text-xs md:text-sm mb-6">
+                      <div className="flex items-center gap-3 md:gap-4 flex-wrap text-[10px] md:text-xs mb-5 opacity-90">
                         <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 bg-[#10B981] rounded-full"></div>
-                          <span>No credit card required</span>
+                          <div className="w-1.5 h-1.5 bg-emerald-300 rounded-full"></div>
+                          <span className="font-light">No credit card required</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 bg-[#10B981] rounded-full"></div>
-                          <span>100% Free demo</span>
+                          <div className="w-1.5 h-1.5 bg-emerald-300 rounded-full"></div>
+                          <span className="font-light">100% Free demo</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 bg-[#10B981] rounded-full"></div>
-                          <span>30-minute call</span>
+                          <div className="w-1.5 h-1.5 bg-emerald-300 rounded-full"></div>
+                          <span className="font-light">30-minute call</span>
                         </div>
                       </div>
 
                       {/* Benefits Section */}
-                      <div className="space-y-4">
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                          <h3 className="text-lg font-bold mb-2.5">What You'll Get:</h3>
+                      <div className="space-y-3">
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
+                          <h3 className="text-base md:text-lg font-bold mb-2">What You'll Get:</h3>
                           <ul className="space-y-2">
-                            <li className="flex items-start gap-2">
-                              <div className="w-4 h-4 bg-[#10B981] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              </div>
-                              <span className="text-xs">Personal 30-minute demo tailored to your academy</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <div className="w-4 h-4 bg-[#10B981] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              </div>
-                              <span className="text-xs">See exactly how UniqBrio works for your sport/art</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <div className="w-4 h-4 bg-[#10B981] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              </div>
-                              <span className="text-xs">Get answers to all your questions</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <div className="w-4 h-4 bg-[#10B981] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              </div>
-                              <span className="text-xs">Lock in lifetime pricing (limited time)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <div className="w-4 h-4 bg-[#10B981] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              </div>
-                              <span className="text-xs">Priority onboarding support</span>
-                            </li>
+                            {[
+                              'Personal 30-minute demo tailored to your academy',
+                              'See exactly how UniqBrio works for your sport/art',
+                              'Get answers to all your questions',
+                              'Lock in lifetime pricing (limited time)',
+                              'Priority onboarding support',
+                            ].map((benefit, i) => (
+                              <li key={i} className="flex items-start gap-2">
+                                <div className="w-4 h-4 bg-emerald-400 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
+                                  </svg>
+                                </div>
+                                <span className="text-[11px] md:text-xs font-light leading-relaxed">
+                                  {benefit}
+                                </span>
+                              </li>
+                            ))}
                           </ul>
                         </div>
+                      </div>
 
-                        {/* Social Proof */}
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                          <p className="text-sm mb-2.5 font-semibold">
-                            Join these academy owners who booked today:
-                          </p>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {[...Array(10)].map((_, i) => (
-                              <div
-                                key={i}
-                                className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg shadow-lg"
-                              >
-                                {['👨', '👩', '🧑', '👨‍🏫', '👩‍🏫'][i % 5]}
-                              </div>
-                            ))}
-                            <div className="ml-1 text-sm font-semibold">
-                              +48 more today
-                            </div>
+                      {/* Social Proof */}
+                      <div className="mt-4 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
+                        <p className="text-xs md:text-sm mb-2 font-semibold">
+                          Join these academy owners who booked today:
+                        </p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {[
+                            'https://i.pravatar.cc/150?img=12',
+                            'https://i.pravatar.cc/150?img=5',
+                            'https://i.pravatar.cc/150?img=33',
+                            'https://i.pravatar.cc/150?img=1',
+                            'https://i.pravatar.cc/150?img=9',
+                            'https://i.pravatar.cc/150?img=20',
+                            'https://i.pravatar.cc/150?img=47',
+                            'https://i.pravatar.cc/150?img=32',
+                            'https://i.pravatar.cc/150?img=16',
+                            'https://i.pravatar.cc/150?img=44',
+                          ].map((avatarUrl, i) => (
+                            <img
+                              key={i}
+                              src={avatarUrl}
+                              alt={`Academy owner ${i + 1}`}
+                              className="w-8 h-8 rounded-full bg-white shadow-md object-cover border-2 border-white"
+                            />
+                          ))}
+                          <div className="ml-1 text-xs md:text-sm font-semibold">
+                            +48 more today
                           </div>
                         </div>
                       </div>
@@ -244,18 +235,16 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                       ) : (
                         <div>
                           <div className="text-center mb-4">
-                            <Calendar className="w-10 h-10 mx-auto mb-2 text-[#6708C0]" />
-                            <h3 className="text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1">
+                            <Calendar className="w-9 h-9 mx-auto mb-2 text-purple-600" />
+                            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1.5 tracking-tight">
                               Book Your Free 30-Min Demo
                             </h3>
-                            <p className="text-[#718096] text-xs">
-                              See UniqBrio in action. Get answers to all your questions.
-                            </p>
+                            
                           </div>
 
-                          <form onSubmit={handleSubmit} className="space-y-2.5">
+                          <form onSubmit={handleSubmit} className="space-y-3">
                             <div>
-                              <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                                 Name <span className="text-red-500">*</span>
                               </label>
                               <input
@@ -265,12 +254,12 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                                 onChange={handleChange}
                                 placeholder="Wisdom Academy"
                                 required
-                                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#6708C0] focus:ring-1 focus:ring-[#6708C0]/20 outline-none transition-all"
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                                 Phone Number <span className="text-red-500">*</span>
                               </label>
                               <input
@@ -280,12 +269,12 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                                 onChange={handleChange}
                                 placeholder="+91 98765 43210"
                                 required
-                                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#6708C0] focus:ring-1 focus:ring-[#6708C0]/20 outline-none transition-all"
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                                 Email Address <span className="text-red-500">*</span>
                               </label>
                               <input
@@ -295,12 +284,12 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                                 onChange={handleChange}
                                 placeholder="priya@academy.com"
                                 required
-                                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#6708C0] focus:ring-1 focus:ring-[#6708C0]/20 outline-none transition-all"
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                                 Academy Type <span className="text-red-500">*</span>
                               </label>
                               <select 
@@ -308,7 +297,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                                 value={formData.academyType}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#6708C0] focus:ring-1 focus:ring-[#6708C0]/20 outline-none transition-all"
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
                               >
                                 <option value="">Select your academy type</option>
                                 <option value="dance">Dance Academy</option>
@@ -323,8 +312,8 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
-                                Number of Students (Optional)
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                                Number of Students 
                               </label>
                               <input
                                 type="number"
@@ -332,14 +321,14 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                                 value={formData.numStudents}
                                 onChange={handleChange}
                                 placeholder="50"
-                                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#6708C0] focus:ring-1 focus:ring-[#6708C0]/20 outline-none transition-all"
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
                               />
                             </div>
 
                             <button
                               type="submit"
                               disabled={isSubmitting}
-                              className="w-full bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-sm py-2.5 rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm md:text-base py-2.5 md:py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
                               {isSubmitting ? (
                                 <span className="flex items-center justify-center gap-2">
@@ -358,7 +347,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                               )}
                             </button>
 
-                            <p className="text-[10px] text-center text-[#718096] mt-2 leading-tight">
+                            <p className="text-[10px] md:text-xs text-center text-gray-500 mt-2 leading-relaxed font-light">
                               🔒 Your information is 100% secure and will never be shared.
                               <br />
                               We'll reach out within 24 hours to schedule your demo.

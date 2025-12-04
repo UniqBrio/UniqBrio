@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Zap, Star, Sparkles, Crown, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default function PricingSection() {
+interface PricingSectionProps {
+  onBookDemo?: () => void
+}
+
+export default function PricingSection({ onBookDemo }: PricingSectionProps) {
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
   const [selectedBilling, setSelectedBilling] = useState<'monthly' | 'yearly'>('monthly')
   const plans = [
@@ -145,12 +149,12 @@ export default function PricingSection() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-red-500 to-orange-500 text-white p-6 rounded-2xl text-center mb-12 shadow-2xl"
+          className="bg-gradient-to-r from-purple-50 to-blue-50 text-[#1A1A1A] p-6 rounded-2xl text-center mb-12 shadow-md"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Zap className="w-6 h-6 animate-pulse" />
+            <Zap className="w-6 h-6 text-[#6708C0] animate-pulse" />
             <p className="text-2xl font-bold">Launch Exclusive Offer</p>
-            <Zap className="w-6 h-6 animate-pulse" />
+            <Zap className="w-6 h-6 text-[#6708C0] animate-pulse" />
           </div>
           <p className="text-lg">
             First 100 Indian academies lock this pricing <span className="font-bold underline">forever</span> – even if we raise prices later!
@@ -262,7 +266,7 @@ export default function PricingSection() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button
-                    onClick={() => document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
+                    onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
                     className={`w-full mb-6 font-bold py-6 text-lg rounded-xl transition-all duration-300 ${
                       plan.highlighted
                         ? 'bg-gradient-to-r from-[#6708C0] to-[#4A90E2] hover:from-[#5607A0] hover:to-[#3A80D2] text-white shadow-xl hover:shadow-2xl'
@@ -303,29 +307,7 @@ export default function PricingSection() {
           ))}
         </div>
 
-        {/* Additional Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid md:grid-cols-3 gap-6 text-center"
-        >
-          <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl">
-            <div className="text-3xl mb-2">🔒</div>
-            <h4 className="font-bold text-[#1A1A1A] mb-1">Secure Payments</h4>
-            <p className="text-sm text-[#718096]">Powered by Razorpay & Stripe</p>
-          </div>
-          <div className="bg-gradient-to-br from-green-50 to-teal-50 p-6 rounded-xl">
-            <div className="text-3xl mb-2">🔄</div>
-            <h4 className="font-bold text-[#1A1A1A] mb-1">No Lock-In</h4>
-            <p className="text-sm text-[#718096]">Cancel anytime, no questions asked</p>
-          </div>
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl">
-            <div className="text-3xl mb-2">🇮🇳</div>
-            <h4 className="font-bold text-[#1A1A1A] mb-1">Made in India</h4>
-            <p className="text-sm text-[#718096]">Support Indian businesses</p>
-          </div>
-        </motion.div>
+        
       </div>
     </section>
   )

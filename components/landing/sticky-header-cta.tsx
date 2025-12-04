@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default function StickyHeaderCTA() {
+interface StickyHeaderCTAProps {
+  onBookDemo?: () => void
+}
+
+export default function StickyHeaderCTA({ onBookDemo }: StickyHeaderCTAProps) {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -23,6 +27,7 @@ export default function StickyHeaderCTA() {
   }, [])
 
   const scrollToDemo = () => {
+    if (onBookDemo) return onBookDemo()
     document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })
   }
 

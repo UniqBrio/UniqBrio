@@ -4,7 +4,11 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 
-export default function FAQSection() {
+interface FAQSectionProps {
+  onBookDemo?: () => void
+}
+
+export default function FAQSection({ onBookDemo }: FAQSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   const faqs = [
@@ -115,7 +119,7 @@ export default function FAQSection() {
             Book a free demo call and we'll answer everything!
           </p>
           <button
-            onClick={() => document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
             className="bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
           >
             Book Your Free Demo →

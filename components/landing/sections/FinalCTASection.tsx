@@ -3,7 +3,11 @@
 import { motion } from 'framer-motion'
 import { Calendar, ArrowRight, Clock } from 'lucide-react'
 
-export default function FinalCTASection() {
+interface FinalCTASectionProps {
+  onBookDemo?: () => void
+}
+
+export default function FinalCTASection({ onBookDemo }: FinalCTASectionProps) {
   return (
     <section id="demo-form" className="py-20 px-4 md:px-8 relative overflow-hidden">
       {/* Gradient Background */}
@@ -144,7 +148,8 @@ export default function FinalCTASection() {
             </div>
 
             <button
-              type="submit"
+              type="button"
+              onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
               className="w-full bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-lg py-4 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 group"
             >
               Book My Free Demo Now

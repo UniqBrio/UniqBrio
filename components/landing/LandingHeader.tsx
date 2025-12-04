@@ -89,27 +89,11 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
             <div className="hidden lg:flex items-center gap-3">
               <motion.button
                 onClick={() => window.location.href = '/signup'}
-                className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold text-base rounded-xl shadow-lg overflow-hidden group"
+                className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold text-base rounded-xl overflow-hidden group"
                 initial={{ opacity: 0, x: -20 }}
-                animate={{ 
-                  opacity: 1, 
-                  x: 0,
-                  boxShadow: [
-                    '0 10px 30px rgba(103,8,192,0.3)',
-                    '0 15px 40px rgba(103,8,192,0.4)',
-                    '0 10px 30px rgba(103,8,192,0.3)'
-                  ]
-                }}
-                transition={{ 
-                  duration: 0.5, 
-                  delay: 0.4,
-                  boxShadow: {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }
-                }}
-                whileHover={{ scale: 1.05, boxShadow: '0 20px 50px rgba(103,8,192,0.5)' }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <span className="relative z-10">Sign Up</span>
@@ -126,27 +110,11 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
               
               <motion.button
                 onClick={onBookDemo}
-                className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-base rounded-xl shadow-lg overflow-hidden group"
+                className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-base rounded-xl overflow-hidden group"
                 initial={{ opacity: 0, x: 20 }}
-                animate={{ 
-                  opacity: 1, 
-                  x: 0,
-                  boxShadow: [
-                    '0 10px 30px rgba(222,125,20,0.3)',
-                    '0 15px 40px rgba(222,125,20,0.4)',
-                    '0 10px 30px rgba(222,125,20,0.3)'
-                  ]
-                }}
-                transition={{ 
-                  duration: 0.5, 
-                  delay: 0.5,
-                  boxShadow: {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }
-                }}
-                whileHover={{ scale: 1.05, boxShadow: '0 20px 50px rgba(222,125,20,0.5)' }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <motion.div
@@ -210,7 +178,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
                 
                 <motion.button
                   onClick={() => window.location.href = '/signup'}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold rounded-xl shadow-lg"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold rounded-xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.25 }}
@@ -221,7 +189,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
                 
                 <motion.button
                   onClick={onBookDemo}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold rounded-xl shadow-lg"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold rounded-xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.3 }}

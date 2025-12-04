@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles, Check, Calendar, Users, CreditCard } from 'lucide-react'
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onBookDemo?: () => void
+}
+
+export default function HeroSection({ onBookDemo }: HeroSectionProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
@@ -16,6 +20,7 @@ export default function HeroSection() {
   }, [])
 
   const scrollToDemo = () => {
+    if (onBookDemo) return onBookDemo()
     const demoSection = document.getElementById('demo-form')
     demoSection?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -105,7 +110,128 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-4 relative"
             >
-              {/* Primary CTA - Accent color with enhanced animations */}
+              {/* Primary CTA - Start Free Trial */}
+              <motion.button
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative px-8 py-4 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold text-lg rounded-xl shadow-xl overflow-visible"
+                whileHover={{ scale: 1.08, boxShadow: '0 25px 70px rgba(103,8,192,0.5)' }}
+                whileTap={{ scale: 0.92 }}
+                animate={{
+                  boxShadow: [
+                    '0 10px 40px rgba(103,8,192,0.3)',
+                    '0 15px 50px rgba(103,8,192,0.4)',
+                    '0 10px 40px rgba(103,8,192,0.3)'
+                  ]
+                }}
+                transition={{
+                  boxShadow: {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }
+                }}
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.div>
+                  Start Free Trial
+                </span>
+                
+                {/* Pulsing background */}
+                <motion.span
+                  className="absolute inset-0 bg-white rounded-xl"
+                  animate={{ 
+                    opacity: [0, 0.2, 0],
+                    scale: [0.95, 1.05, 0.95]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+                
+                {/* Shimmer effect */}
+                <motion.span
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
+                  animate={{ x: ['-200%', '200%'] }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
+                />
+                
+                {/* Animated cursor pointer */}
+                <motion.div
+                  className="absolute -right-3 -bottom-3 z-20"
+                  initial={{ opacity: 0, scale: 0, rotate: -20 }}
+                  animate={{ 
+                    opacity: [0, 1, 1, 1, 0],
+                    scale: [0.3, 1.2, 1, 1, 0.3],
+                    rotate: [-20, -10, 0, -10, -20],
+                    y: [0, 5, 0, 3, 0]
+                  }}
+                  transition={{
+                    duration: 3,
+                    delay: 5,
+                    repeat: Infinity,
+                    repeatDelay: 4,
+                    times: [0, 0.2, 0.5, 0.8, 1]
+                  }}
+                >
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <motion.path
+                      d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z"
+                      fill="#6708C0"
+                      stroke="#4A1D96"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                    <motion.circle
+                      cx="12"
+                      cy="12"
+                      r="2"
+                      fill="#4A1D96"
+                      animate={{ r: [2, 3, 2], opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                  </svg>
+                </motion.div>
+                
+                {/* Click ripple circles */}
+                {[0, 0.15, 0.3].map((delay, i) => (
+                  <motion.span
+                    key={i}
+                    className="absolute -right-3 -bottom-3 w-10 h-10 border-3 border-white rounded-full"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                      opacity: [0, 0.9, 0],
+                      scale: [0, 2 + i * 0.5, 3 + i * 0.5]
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      delay: 6.5 + delay,
+                      repeat: Infinity,
+                      repeatDelay: 6,
+                      ease: "easeOut"
+                    }}
+                  />
+                ))}
+                
+                {/* "14 DAYS" badge */}
+                <motion.div
+                  className="absolute -top-2 -left-2 bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20"
+                  animate={{ 
+                    y: [-2, -8, -2],
+                    rotate: [5, -5, 5]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                >
+                  14 DAYS
+                </motion.div>
+              </motion.button>
+
+              {/* Secondary CTA - Get A Demo in orange */}
               <motion.button
                 onClick={scrollToDemo}
                 className="group relative px-8 py-4 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-lg rounded-xl shadow-xl overflow-visible"
@@ -216,117 +342,6 @@ export default function HeroSection() {
                   FREE
                 </motion.div>
               </motion.button>
-
-              {/* Secondary CTA - Outline style with enhanced animations */}
-              <motion.button
-                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-                className="relative px-8 py-4 bg-white border-2 border-[#4A90E2] text-[#4A90E2] font-bold text-lg rounded-xl hover:bg-[#4A90E2] hover:text-white transition-all duration-300 overflow-visible shadow-lg"
-                whileHover={{ 
-                  scale: 1.08, 
-                  boxShadow: '0 25px 70px rgba(74,144,226,0.4)',
-                  borderColor: '#6708C0'
-                }}
-                whileTap={{ scale: 0.92 }}
-                animate={{
-                  borderColor: ['#4A90E2', '#6708C0', '#4A90E2'],
-                }}
-                transition={{
-                  borderColor: {
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }
-                }}
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  <motion.div
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
-                  >
-                    <ArrowRight className="w-5 h-5" />
-                  </motion.div>
-                  Start Free Trial
-                </span>
-                
-                {/* Pulsing background */}
-                <motion.span
-                  className="absolute inset-0 bg-[#4A90E2] rounded-xl opacity-0"
-                  animate={{ opacity: [0, 0.1, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                />
-                
-                {/* Animated cursor pointer */}
-                <motion.div
-                  className="absolute -right-3 -bottom-3 z-20"
-                  initial={{ opacity: 0, scale: 0, rotate: -20 }}
-                  animate={{ 
-                    opacity: [0, 1, 1, 1, 0],
-                    scale: [0.3, 1.2, 1, 1, 0.3],
-                    rotate: [-20, -10, 0, -10, -20],
-                    y: [0, 5, 0, 3, 0]
-                  }}
-                  transition={{
-                    duration: 3,
-                    delay: 5,
-                    repeat: Infinity,
-                    repeatDelay: 4,
-                    times: [0, 0.2, 0.5, 0.8, 1]
-                  }}
-                >
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <motion.path
-                      d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z"
-                      fill="#4A90E2"
-                      stroke="#2563EB"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                    <motion.circle
-                      cx="12"
-                      cy="12"
-                      r="2"
-                      fill="#2563EB"
-                      animate={{ r: [2, 3, 2], opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                  </svg>
-                </motion.div>
-                
-                {/* Click ripple circles */}
-                {[0, 0.15, 0.3].map((delay, i) => (
-                  <motion.span
-                    key={i}
-                    className="absolute -right-3 -bottom-3 w-10 h-10 border-3 border-[#4A90E2] rounded-full"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{
-                      opacity: [0, 0.9, 0],
-                      scale: [0, 2 + i * 0.5, 3 + i * 0.5]
-                    }}
-                    transition={{
-                      duration: 1.2,
-                      delay: 6.5 + delay,
-                      repeat: Infinity,
-                      repeatDelay: 6,
-                      ease: "easeOut"
-                    }}
-                  />
-                ))}
-                
-                {/* "14 DAYS" badge */}
-                <motion.div
-                  className="absolute -top-2 -left-2 bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20"
-                  animate={{ 
-                    y: [-2, -8, -2],
-                    rotate: [5, -5, 5]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                >
-                  14 DAYS
-                </motion.div>
-              </motion.button>
             </motion.div>
 
             {/* Trust indicators - Small text below CTAs */}
@@ -346,7 +361,7 @@ export default function HeroSection() {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-[#10B981]" />
-                <span>Setup in 5 minutes</span>
+                <span>Setup in 10 minutes</span>
               </div>
             </motion.div>
           </motion.div>

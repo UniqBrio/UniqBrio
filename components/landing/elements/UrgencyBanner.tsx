@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react'
 
-export default function UrgencyBanner() {
+interface UrgencyBannerProps {
+  onBookDemo?: () => void
+}
+
+export default function UrgencyBanner({ onBookDemo }: UrgencyBannerProps) {
   const [spotsLeft, setSpotsLeft] = useState(58)
 
   return (
@@ -13,7 +17,13 @@ export default function UrgencyBanner() {
           🚀 First 100 Indian academies go live on 10 Dec 2025
         </span>
         <span className="hidden md:inline">•</span>
-        <span className="text-sm md:text-base font-bold bg-white text-red-600 px-3 py-1 rounded-full animate-bounce">
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={() => onBookDemo?.()}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onBookDemo?.() }}
+          className="cursor-pointer text-sm md:text-base font-bold bg-white text-red-600 px-3 py-1 rounded-full animate-bounce"
+        >
           Only {spotsLeft} spots left - Hurry up!
         </span>
       </div>
