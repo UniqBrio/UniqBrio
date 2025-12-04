@@ -62,7 +62,10 @@
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%; /* Default input border */
-    /* --ring removed to allow dropdowns to use their own focus ring styles */
+    --ring: 272 97% 62%; /* Focus ring color - matches primary */
+    
+    --accent: 0 0% 96.1%; /* Accent background */
+    --accent-foreground: 0 0% 9%; /* Accent foreground */
 
     --radius: 0.5rem; /* Default shadcn radius - adjust if needed */
 
@@ -101,7 +104,11 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    /* --ring removed to allow dropdowns to use their own focus ring styles */
+    --ring: 272 97% 62%; /* Focus ring color - matches primary */
+    
+    --accent: 0 0% 14.9%; /* Accent background in dark mode */
+    --accent-foreground: 0 0% 98%; /* Accent foreground in dark mode */
+    
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

@@ -11,6 +11,7 @@ import TokenRefreshHandler from "../components/token-refresh-handler"
 
 import { SidebarPositionProvider } from "./contexts/sidebar-position-context"
 import { AppProvider } from "@/contexts/dashboard/app-context"
+import ShadcnVariablesExposer from "@/components/shadcn-variables-exposer"
 
 const sourceSans = Source_Sans_3({ 
   subsets: ["latin"],
@@ -53,8 +54,15 @@ export default function RootLayout({
   //   themeColor: '#ffffff',
   // };
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
+    <html lang="en" suppressHydrationWarning data-shadcn-ui="true">
+      <head>
+        <meta name="shadcn-ui" content="configured" />
+        <script
+          async
+          crossOrigin="anonymous"
+          src="https://tweakcn.com/live-preview.min.js"
+        />
+      </head>
       {/* Added a class for potential full-screen PWA styling */}
       {/* Ensure this class doesn't interfere with your existing styling */}
       <body className={`${sourceSans.className} pwa-body`}>
@@ -64,6 +72,7 @@ export default function RootLayout({
               <AppProvider>
                 {/* Allow children (like AuthLayout) to control their own full-screen display */}
                 <main className="min-h-screen">{children}</main>
+                <ShadcnVariablesExposer />
                 <Toaster />
 
                 {/* Wrap components that might use client-side hooks like useSearchParams */}

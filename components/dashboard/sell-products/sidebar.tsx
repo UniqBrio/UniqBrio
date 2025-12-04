@@ -71,7 +71,7 @@ export function Sidebar({ collapsed, onCollapsedChange, position, onPositionChan
       <div
         className={`fixed ${position === "left" ? "left-0" : position === "right" ? "right-0" : position === "top" ? "top-0 w-full h-auto" : "bottom-0 w-full h-auto"} ${
           position === "left" || position === "right" ? "top-0 h-full" : ""
-        } ${collapsed ? "w-16" : "w-64"} bg-white/90 dark:bg-gray-900/90 border-r border-gray-200 dark:border-gray-700 z-40 transition-all duration-300 shadow-lg`}>
+        } ${collapsed ? "w-16" : "w-64"} bg-white/90 dark:bg-gray-900/90 border-r border-gray-200 dark:border-gray-700 z-40 transition-all duration-300 shadow-lg`}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
