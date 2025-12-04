@@ -1,18 +1,21 @@
 import nodemailer from 'nodemailer';
 
-// Email configuration from environment variables
+// Email configuration from environment variables - Using Zoho ZeptoMail
 const SMTP_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.zeptomail.in',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false, // true for 465, false for other ports
+  host: process.env.ZEPTO_HOST || 'smtp.zeptomail.in',
+  port: parseInt(process.env.ZEPTO_PORT || '587'),
+  secure: false, // true for 465, false for other ports (use TLS for 587)
   auth: {
-    user: process.env.SMTP_USER || 'info@uniqbotz.com',
-    pass: process.env.SMTP_PASS || '',
+    user: process.env.ZEPTO_USER || 'info@uniqbotz.com',
+    pass: process.env.ZEPTO_PASS || '',
+  },
+  tls: {
+    rejectUnauthorized: process.env.NODE_ENV === 'production',
   },
 };
 
-const FROM_EMAIL = process.env.SMTP_FROM || process.env.SMTP_USER || 'info@uniqbotz.com';
-const FROM_NAME = process.env.FROM_NAME || 'UniqBrio Payments';
+const FROM_EMAIL = process.env.ZEPTO_FROM_EMAIL || process.env.ZEPTO_USER || 'info@uniqbotz.com';
+const FROM_NAME = process.env.FROM_NAME || 'UniqBrio';
 
 // Create reusable transporter
 let transporter: nodemailer.Transporter | null = null;
@@ -44,7 +47,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
     // Check if SMTP credentials are configured
     if (!SMTP_CONFIG.auth.pass) {
-      console.error('❌ SMTP password not configured. Please set SMTP_PASS environment variable.');
+      console.error('❌ Zepto email credentials not configured. Please set ZEPTO_PASS environment variable.');
       console.log('Email would have been sent to:', options.to);
       console.log('Subject:', options.subject);
       return false;

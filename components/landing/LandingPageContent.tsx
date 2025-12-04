@@ -18,6 +18,8 @@ import FAQSection from 'components/landing/sections/FAQSection'
 import FinalCTASection from 'components/landing/sections/FinalCTASection'
 import LandingFooter from 'components/landing/sections/LandingFooter'
 import FloatingElements from 'components/landing/elements/FloatingElements'
+import ThemePreview from 'components/landing/theme-preview'
+
 export default function LandingPageContent() {
   const [showConfetti, setShowConfetti] = useState(false)
   const [isDemoPopupOpen, setIsDemoPopupOpen] = useState(false)
@@ -41,6 +43,7 @@ export default function LandingPageContent() {
       <div id="how-it-works">
         <HowItWorksSection />
       </div>
+      <ThemePreview />
       <div id="pricing">
         <PricingSection />
       </div>
