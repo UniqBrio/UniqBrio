@@ -76,7 +76,7 @@ export default function HowItWorksSection({ onBookDemo }: HowItWorksSectionProps
           <h2 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] mb-4">
             Get Started in <span className="text-[#6708C0]">4 Simple Steps</span>
           </h2>
-          <p className="text-xl text-[#718096]">From chaos to clarity in less than 10 minutes</p>
+          <p className="text-xl text-[#718096]">From chaos to clarity in less than 7 minutes</p>
         </motion.div>
 
         {/* Steps */}
@@ -142,25 +142,7 @@ export default function HowItWorksSection({ onBookDemo }: HowItWorksSectionProps
           </div>
         </div>
 
-        {/* CTA After Steps */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-16"
-        >
-          <div className="inline-block bg-gradient-to-r from-purple-100 to-orange-100 px-8 py-6 rounded-2xl">
-            <p className="text-2xl font-bold text-[#1A1A1A] mb-4">
-              Ready to transform your academy?
-            </p>
-            <button 
-              onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-lg px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-            >
-              Book Your Free Demo Now →
-            </button>
-          </div>
-        </motion.div>
+        
       </div>
     </section>
   )

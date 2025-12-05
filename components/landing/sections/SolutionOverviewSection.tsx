@@ -64,7 +64,7 @@ export default function SolutionOverviewSection() {
             className="min-w-[800px] bg-white rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Table Header */}
-            <div className="grid grid-cols-3 bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white">
+            <div className="grid grid-cols-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white">
               <div className="p-6 border-r border-white/20">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">😰</span>
@@ -87,7 +87,7 @@ export default function SolutionOverviewSection() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className={`grid grid-cols-3 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50 transition-colors duration-300`}
+                className={`grid grid-cols-3 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-purple-50 transition-colors duration-300`}
               >
                 {/* Before Column */}
                 <div className="p-6 border-r border-gray-200 flex items-center">
@@ -140,7 +140,7 @@ export default function SolutionOverviewSection() {
           
           {/* Video Demonstration */}
           <div className="mt-8 max-w-4xl mx-auto">
-            <div className="relative aspect-video bg-gradient-to-br from-purple-100 via-blue-100 to-orange-100 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 rounded-2xl overflow-hidden shadow-2xl">
               <iframe
                 className="absolute inset-0 w-full h-full"
                 src="https://www.youtube.com/embed/8lSoprr1aHA?start=1"

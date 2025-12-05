@@ -2,6 +2,7 @@ import { getPayload } from "payload";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import Users from "../cms/collections/Users";
 import SupportTickets from "../cms/collections/SupportTickets";
+import DemoBookings from "../cms/collections/DemoBookings";
 
 // Global cache for reuse across invocations (Vercel function-level reuse)
 let cached = (globalThis as any).payload;
@@ -33,7 +34,7 @@ export async function createPayloadClient() {
         serverURL: PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000",
         secret: PAYLOAD_SECRET,
         db: mongooseAdapter({ url: MONGODB_URI }),
-        collections: [Users, SupportTickets],
+        collections: [Users, SupportTickets, DemoBookings],
 
         admin: {
           user: Users.slug,

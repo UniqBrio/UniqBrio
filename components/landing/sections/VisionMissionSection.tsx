@@ -14,7 +14,7 @@ export default function VisionMissionSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 hover:shadow-xl transition-shadow duration-300"
+            className="relative p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-shadow duration-300"
           >
             <div className="absolute top-4 right-4 text-4xl opacity-20">
               <Target className="w-16 h-16 text-[#6708C0]" />

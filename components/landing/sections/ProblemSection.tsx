@@ -77,22 +77,6 @@ export default function ProblemSection() {
               <motion.div
                 className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               />
-              
-              {/* X icon that appears on hover */}
-              <AnimatePresence>
-                {hoveredCard === index && (
-                  <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0, rotate: 180 }}
-                    className="absolute top-2 right-2 z-10"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-                      <X className="w-5 h-5 text-white" />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               <div className="relative z-10">
                 {/* Icon with pulse animation */}
@@ -151,154 +135,148 @@ export default function ProblemSection() {
           </p>
         </motion.div>
 
-        {/* Two Column Layout: Before/After + Video */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          {/* Left Column: Before vs After Slider */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative bg-white rounded-2xl overflow-hidden shadow-2xl h-full"
-          >
-          <div className="grid md:grid-cols-2">
-            {/* Before */}
-            <motion.div 
-              className={`p-8 transition-all duration-300 ${sliderValue[0] < 50 ? 'opacity-100' : 'opacity-40'}`}
-              animate={sliderValue[0] < 50 ? { scale: 1 } : { scale: 0.95 }}
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <motion.div 
-                  className="px-4 py-1 bg-red-500 text-white rounded-full text-sm font-bold flex items-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <X className="w-4 h-4" />
-                  BEFORE
-                </motion.div>
-                <span className="text-2xl">😰</span>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { icon: <FileSpreadsheet className="w-4 h-4" />, text: 'Cluttered desk with papers everywhere' },
-                  { icon: <ClipboardList className="w-4 h-4" />, text: '47 different Excel sheets' },
-                  { icon: <AlertCircle className="w-4 h-4" />, text: 'Working till midnight on admin' },
-                  { icon: <Users className="w-4 h-4" />, text: 'Missing payments and student updates' }
-                ].map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    className="flex items-start gap-3 group"
-                    initial={{ x: -20, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    whileHover={{ x: 5 }}
-                  >
-                    <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="text-red-500">{item.icon}</div>
-                    </div>
-                    <p className="text-[#4A5568]">{item.text}</p>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="mt-6 text-6xl opacity-20">📊📋📄</div>
-            </motion.div>
-
-            {/* After */}
-            <motion.div 
-              className={`p-8 bg-gradient-to-br from-green-50 to-blue-50 transition-all duration-300 ${sliderValue[0] > 50 ? 'opacity-100' : 'opacity-40'}`}
-              animate={sliderValue[0] > 50 ? { scale: 1 } : { scale: 0.95 }}
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <motion.div 
-                  className="px-4 py-1 bg-[#10B981] text-white rounded-full text-sm font-bold flex items-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Check className="w-4 h-4" />
-                  AFTER
-                </motion.div>
-                <span className="text-2xl">😊</span>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { icon: <Check className="w-4 h-4" />, text: 'One clean, beautiful dashboard' },
-                  { icon: <Check className="w-4 h-4" />, text: 'Everything automated' },
-                  { icon: <Check className="w-4 h-4" />, text: 'Evenings free for family & students' },
-                  { icon: <Check className="w-4 h-4" />, text: 'Parents & students always updated' }
-                ].map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    className="flex items-start gap-3 group"
-                    initial={{ x: 20, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    whileHover={{ x: -5 }}
-                  >
-                    <div className="w-6 h-6 rounded-full bg-[#10B981] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="text-white">{item.icon}</div>
-                    </div>
-                    <p className="text-[#1A1A1A] font-medium">{item.text}</p>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="mt-6 text-6xl opacity-20">✨🚀🎉</div>
-            </motion.div>
-          </div>
-
-          {/* Slider Control */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-64">
-            <Slider
-              value={sliderValue}
-              onValueChange={setSliderValue}
-              max={100}
-              step={1}
-              className="cursor-pointer"
-            />
-            <div className="flex justify-between mt-2 text-xs text-[#718096]">
-              <span>Before</span>
-              <motion.span
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="font-semibold"
-              >
-                👆 Drag to compare
-              </motion.span>
-              <span>After</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Right Column: Video Demo */}
+        {/* Unified Box with 2 Columns: Before/After + Video */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col justify-center"
+          className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100"
         >
-          <div className="bg-gradient-to-br from-[#6708C0]/10 to-[#DE7D14]/10 rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🎥</span>
-              <h3 className="text-xl font-bold text-[#1A1A1A]">
-                See the Solution in Action
-              </h3>
-            </div>
-            <div className="relative rounded-xl overflow-hidden shadow-lg border-2 border-[#6708C0]/20 bg-black">
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube.com/embed/8lSoprr1aHA?start=1"
-                  title="UniqBrio Platform Demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Left Column: Before vs After Slider */}
+            <div className="relative bg-gradient-to-br from-gray-50 to-white rounded-2xl overflow-hidden shadow-lg">
+              <div className="grid grid-cols-2">
+                {/* Before */}
+                <motion.div 
+                  className={`p-6 transition-all duration-300 ${sliderValue[0] < 50 ? 'opacity-100' : 'opacity-40'}`}
+                  animate={sliderValue[0] < 50 ? { scale: 1 } : { scale: 0.95 }}
+                >
+                  <div className="flex items-center gap-2 mb-6">
+                    <motion.div 
+                      className="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold flex items-center gap-1"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <X className="w-3 h-3" />
+                      BEFORE
+                    </motion.div>
+                    <span className="text-xl">😰</span>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { icon: <FileSpreadsheet className="w-4 h-4" />, text: 'Cluttered desk with papers everywhere' },
+                      { icon: <ClipboardList className="w-4 h-4" />, text: '47 different Excel sheets' },
+                      { icon: <AlertCircle className="w-4 h-4" />, text: 'Working till midnight on admin' },
+                      { icon: <Users className="w-4 h-4" />, text: 'Missing payments and student updates' }
+                    ].map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        className="flex items-start gap-2 group"
+                        initial={{ x: -20, opacity: 0 }}
+                        whileInView={{ x: 0, opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: idx * 0.1 }}
+                        whileHover={{ x: 5 }}
+                      >
+                        <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <div className="text-red-500">{item.icon}</div>
+                        </div>
+                        <p className="text-[#4A5568] text-sm leading-tight">{item.text}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-4xl opacity-20">📊📋📄</div>
+                </motion.div>
+
+                {/* After */}
+                <motion.div 
+                  className={`p-6 bg-gradient-to-br from-green-50 to-purple-50 transition-all duration-300 ${sliderValue[0] > 50 ? 'opacity-100' : 'opacity-40'}`}
+                  animate={sliderValue[0] > 50 ? { scale: 1 } : { scale: 0.95 }}
+                >
+                  <div className="flex items-center gap-2 mb-6">
+                    <motion.div 
+                      className="px-3 py-1 bg-[#10B981] text-white rounded-full text-xs font-bold flex items-center gap-1"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Check className="w-3 h-3" />
+                      AFTER
+                    </motion.div>
+                    <span className="text-xl">😊</span>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { icon: <Check className="w-4 h-4" />, text: 'One clean, beautiful dashboard' },
+                      { icon: <Check className="w-4 h-4" />, text: 'Everything automated' },
+                      { icon: <Check className="w-4 h-4" />, text: 'Evenings free for family & students' },
+                      { icon: <Check className="w-4 h-4" />, text: 'Parents & students always updated' }
+                    ].map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        className="flex items-start gap-2 group"
+                        initial={{ x: 20, opacity: 0 }}
+                        whileInView={{ x: 0, opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: idx * 0.1 }}
+                        whileHover={{ x: -5 }}
+                      >
+                        <div className="w-5 h-5 rounded-full bg-[#10B981] flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <div className="text-white">{item.icon}</div>
+                        </div>
+                        <p className="text-[#1A1A1A] font-medium text-sm leading-tight">{item.text}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-4xl opacity-20">✨🚀🎉</div>
+                </motion.div>
+              </div>
+
+              {/* Slider Control */}
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-56">
+                <Slider
+                  value={sliderValue}
+                  onValueChange={setSliderValue}
+                  max={100}
+                  step={1}
+                  className="cursor-pointer"
                 />
+                <div className="flex justify-between mt-2 text-xs text-[#718096]">
+                  <span>Before</span>
+                  <motion.span
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="font-semibold"
+                  >
+                    👆 Drag to compare
+                  </motion.span>
+                  <span>After</span>
+                </div>
               </div>
             </div>
-            <p className="text-sm text-[#718096] mt-4 text-center">
-              Watch how UniqBrio eliminates all these problems in minutes
-            </p>
+
+            {/* Right Column: Video Demo */}
+            <div className="flex flex-col justify-center">
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-2xl">🎥</span>
+                <h3 className="text-2xl font-bold text-[#1A1A1A]">
+                  See the Solution in Action
+                </h3>
+              </div>
+              <div className="relative rounded-xl overflow-hidden shadow-xl border-2 border-[#6708C0]/20 bg-black">
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full"
+                    src="https://www.youtube.com/embed/8lSoprr1aHA?start=1"
+                    title="UniqBrio Platform Demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-[#718096] mt-4 text-center">
+                Watch how UniqBrio eliminates all these problems in minutes
+              </p>
+            </div>
           </div>
         </motion.div>
-      </div>
       </div>
     </section>
   )

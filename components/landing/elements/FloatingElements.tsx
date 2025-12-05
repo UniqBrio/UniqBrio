@@ -8,16 +8,40 @@ import Confetti from 'react-confetti'
 interface FloatingElementsProps {
   onFormSuccess?: () => void
   showConfetti?: boolean
+  onBookDemo?: () => void
 }
 
-export default function FloatingElements({ onFormSuccess, showConfetti }: FloatingElementsProps) {
+export default function FloatingElements({ onFormSuccess, showConfetti, onBookDemo }: FloatingElementsProps) {
   const [showWhatsApp, setShowWhatsApp] = useState(false)
   const [showBadge, setShowBadge] = useState(true)
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
+  const [bookingsCount, setBookingsCount] = useState(0)
 
   useEffect(() => {
     // Show WhatsApp button after 3 seconds
     const timer = setTimeout(() => setShowWhatsApp(true), 3000)
+
+    // Fetch bookings count
+    const fetchCount = async () => {
+      try {
+        const response = await fetch('/api/demo-bookings-count', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        })
+        const data = await response.json()
+        if (data.success) {
+          setBookingsCount(data.count)
+        }
+      } catch (error) {
+        console.error('Error fetching bookings count:', error)
+      }
+    }
+    fetchCount()
+
+    // Poll for updates every 30 seconds
+    const interval = setInterval(fetchCount, 30000)
 
     // Update window size for confetti
     const handleResize = () => {
@@ -28,6 +52,7 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
 
     return () => {
       clearTimeout(timer)
+      clearInterval(interval)
       window.removeEventListener('resize', handleResize)
     }
   }, [])
@@ -68,8 +93,8 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
           >
             <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-white">
               <img
-                src="/ai-generated-young-asian-indian-businesswoman-portrait-png.webp"
-                alt="UniqBrio assistant"
+                src="/whatsapp.png"
+                alt="WhatsApp"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -94,11 +119,15 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 100 }}
-            className="fixed bottom-6 left-6 z-40 bg-white rounded-2xl shadow-2xl p-4 max-w-xs"
+            onClick={() => onBookDemo?.()}
+            className="fixed bottom-6 left-6 z-40 bg-white rounded-2xl shadow-2xl p-4 max-w-xs cursor-pointer hover:shadow-3xl transition-shadow"
           >
             <button
-              onClick={() => setShowBadge(false)}
-              className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-900 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowBadge(false)
+              }}
+              className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-900 transition-colors z-10"
             >
               <X className="w-4 h-4" />
             </button>
@@ -109,10 +138,10 @@ export default function FloatingElements({ onFormSuccess, showConfetti }: Floati
               </div>
               <div>
                 <p className="text-sm font-bold text-[#1A1A1A]">
-                  🔥 58 academies
+                  🔥 {bookingsCount} academies
                 </p>
                 <p className="text-xs text-[#718096]">
-                  booked their demo today
+                  booked their demo
                 </p>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { buildConfig } from "payload";
 import { mongooseAdapter } from "@payloadcms/db-mongodb"; // Correct adapter import
 import Users from "./cms/collections/Users"; // Assuming path is correct
 import SupportTickets from "./cms/collections/SupportTickets"; // Assuming path is correct
+import DemoBookings from "./cms/collections/DemoBookings";
 
 // Add checks for essential environment variables
 if (!process.env.PAYLOAD_SECRET) {
@@ -21,7 +22,7 @@ export default buildConfig({
       titleSuffix: "- UniqBrio Admin",
     },
   },
-  collections: [Users, SupportTickets],
+  collections: [Users, SupportTickets, DemoBookings],
   db: mongooseAdapter({ // Use the correct adapter function
     url: process.env.MONGODB_URI, // Rely on environment variable
     // Add other options like connectOptions if needed

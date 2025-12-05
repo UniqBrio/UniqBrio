@@ -5,11 +5,9 @@ import HeroSection from './sections/HeroSection'
 import LandingHeader from './LandingHeader'
 import UrgencyBanner from './elements/UrgencyBanner'
 import DemoPopup from './DemoPopup'
-import VideoSection from './sections/VideoSection'
 
 import VisionMissionSection from 'components/landing/sections/VisionMissionSection'
 import ProblemSection from 'components/landing/sections/ProblemSection'
-import SolutionOverviewSection from 'components/landing/sections/SolutionOverviewSection'
 import FeaturesSection from 'components/landing/sections/FeaturesSection'
 import HowItWorksSection from 'components/landing/sections/HowItWorksSection'
 import PricingSection from 'components/landing/sections/PricingSection'
@@ -47,9 +45,13 @@ export default function LandingPageContent() {
       <div id="faq">
         <FAQSection />
       </div>
-      <LandingFooter />
-      <FloatingElements onFormSuccess={() => setShowConfetti(true)} showConfetti={showConfetti} />
-      <DemoPopup isOpen={isDemoPopupOpen} onClose={() => setIsDemoPopupOpen(false)} />
+      <LandingFooter onBookDemo={() => setIsDemoPopupOpen(true)} />
+      <FloatingElements onFormSuccess={() => setShowConfetti(true)} showConfetti={showConfetti} onBookDemo={() => setIsDemoPopupOpen(true)} />
+      <DemoPopup 
+        isOpen={isDemoPopupOpen} 
+        onClose={() => setIsDemoPopupOpen(false)} 
+        onSuccess={() => setShowConfetti(true)}
+      />
     </div>
   )
 }

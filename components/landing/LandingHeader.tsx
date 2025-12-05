@@ -48,7 +48,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
         transition={{ duration: 0.6 }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <motion.div
               className="flex items-center cursor-pointer"
@@ -56,7 +56,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="relative h-12 w-48">
+              <div className="relative h-10 w-32 sm:h-12 sm:w-48">
                 <Image
                   src="/logo.png"
                   alt="UniqBrio"
@@ -203,9 +203,6 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
           )}
         </AnimatePresence>
       </motion.header>
-
-      {/* Spacer to prevent content from hiding under fixed header */}
-      <div className="h-20" />
     </>
   )
 }

@@ -71,7 +71,7 @@ export default function VideoSection() {
         >
           {[
             { icon: '🎯', title: 'Complete Walkthrough', desc: 'See every feature' },
-            { icon: '⚡', title: 'Quick Setup', desc: 'Start in 10 minutes' },
+            { icon: '⚡', title: 'Quick Setup', desc: 'Start in 7 minutes' },
             { icon: '💡', title: 'Real Use Cases', desc: 'Actual workflows' }
           ].map((item, idx) => (
             <motion.div

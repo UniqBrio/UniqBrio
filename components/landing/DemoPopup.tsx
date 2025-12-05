@@ -1,15 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, ArrowRight, Clock, CheckCircle, Star } from 'lucide-react'
+import { X, Calendar, ArrowRight, Clock, CheckCircle, Star, Search, Check, ChevronDown } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 interface DemoPopupProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
-export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
+export default function DemoPopup({ isOpen, onClose, onSuccess }: DemoPopupProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,6 +21,59 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [error, setError] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [spotsRemaining, setSpotsRemaining] = useState(42)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const academyTypes = [
+    'Dance Academy',
+    'Cricket Academy',
+    'Music School',
+    'Martial Arts / Karate / Taekwondo',
+    'Badminton Academy',
+    'Yoga Studio',
+    'Swimming School',
+    'Football Academy',
+    'Basketball Academy',
+    'Tennis Academy',
+    'Gymnastics Academy',
+    'Art & Craft Studio',
+    'Drama & Theatre School',
+    'Singing Academy',
+    'Chess Academy',
+    'Skating Academy',
+    'Table Tennis Academy',
+  ]
+
+  const filteredAcademyTypes = academyTypes.filter(type =>
+    type.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // Fetch bookings count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const response = await fetch('/api/demo-bookings-count', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        })
+        const data = await response.json()
+        if (data.success) {
+          setSpotsRemaining(data.spotsRemaining)
+        }
+      } catch (error) {
+        console.error('Error fetching bookings count:', error)
+      }
+    }
+    
+    if (isOpen) {
+      fetchCount()
+    }
+  }, [isOpen])
 
   // Handle ESC key press
   useEffect(() => {
@@ -28,26 +83,101 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
       }
     }
 
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
     document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [isOpen, onClose])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError('')
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    setIsSubmitting(false)
-    setIsSuccess(true)
-    
-    // Reset and close after success
-    setTimeout(() => {
-      setIsSuccess(false)
-      setFormData({ name: '', email: '', phone: '', academyType: '', numStudents: '' })
-      onClose()
-    }, 2000)
+    try {
+      // Validate required fields
+      if (!formData.name || !formData.email || !formData.phone || !formData.academyType) {
+        setIsSubmitting(false)
+        setError('Please fill in all required fields')
+        return
+      }
+
+      // Call API to create demo booking
+      const response = await fetch('/api/book-demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          academyType: formData.academyType.trim(),
+          numStudents: formData.numStudents ? parseInt(formData.numStudents) : undefined,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to book demo')
+      }
+
+      setIsSubmitting(false)
+      setIsSuccess(true)
+
+      // Trigger confetti celebration
+      const duration = 3000
+      const animationEnd = Date.now() + duration
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 }
+
+      const randomInRange = (min: number, max: number) => {
+        return Math.random() * (max - min) + min
+      }
+
+      const interval: any = setInterval(() => {
+        const timeLeft = animationEnd - Date.now()
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval)
+        }
+
+        const particleCount = 50 * (timeLeft / duration)
+        confetti(Object.assign({}, defaults, { 
+          particleCount, 
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+        }))
+        confetti(Object.assign({}, defaults, { 
+          particleCount, 
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+        }))
+      }, 250)
+
+      // Call onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess()
+      }
+      
+      // Reset and close after success
+      setTimeout(() => {
+        setIsSuccess(false)
+        setFormData({ name: '', email: '', phone: '', academyType: '', numStudents: '' })
+        setSearchQuery('')
+        onClose()
+      }, 3000)
+    } catch (err) {
+      setIsSubmitting(false)
+      setError(err instanceof Error ? err.message : 'Failed to book demo. Please try again.')
+      console.error('Error booking demo:', err)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -55,6 +185,18 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
       ...prev,
       [e.target.name]: e.target.value
     }))
+  }
+
+  const handleAcademyTypeSelect = (type: string) => {
+    setFormData(prev => ({ ...prev, academyType: type }))
+    setSearchQuery(type)
+    setShowDropdown(false)
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setFormData(prev => ({ ...prev, academyType: e.target.value }))
+    setShowDropdown(true)
   }
 
   return (
@@ -116,7 +258,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                         className="inline-block bg-white/95 text-purple-600 px-4 py-2 rounded-full font-medium text-xs mb-4 shadow-sm self-start"
                       >
                         <Clock className="inline w-3.5 h-3.5 mr-1.5" />
-                        Only 58 spots remaining today
+                        Only {spotsRemaining} spots remaining today
                       </motion.div>
 
                       <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 leading-tight tracking-tight">
@@ -172,7 +314,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                       {/* Social Proof */}
                       <div className="mt-4 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
                         <p className="text-xs md:text-sm mb-2 font-semibold">
-                          Join these academy owners who booked today:
+                          Join these academy owners who booked:
                         </p>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {[
@@ -195,7 +337,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                             />
                           ))}
                           <div className="ml-1 text-xs md:text-sm font-semibold">
-                            +48 more today
+                            +{Math.max(0, 100 - spotsRemaining - 10)} more
                           </div>
                         </div>
                       </div>
@@ -227,9 +369,12 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                               />
                             </motion.svg>
                           </div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-1.5">Demo Booked!</h3>
+                          <h3 className="text-lg font-bold text-gray-900 mb-1.5">🎉 Demo Booked Successfully!</h3>
+                          <p className="text-gray-600 text-xs mb-2">
+                            Thank you for booking a demo with UniqBrio!
+                          </p>
                           <p className="text-gray-600 text-xs">
-                            We'll reach out within 24 hours to schedule your personalized demo.
+                            We'll reach out within 24 hours to schedule your personalized 30-minute demo session.
                           </p>
                         </motion.div>
                       ) : (
@@ -292,23 +437,67 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                               <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                                 Academy Type <span className="text-red-500">*</span>
                               </label>
-                              <select 
-                                name="academyType"
-                                value={formData.academyType}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
-                              >
-                                <option value="">Select your academy type</option>
-                                <option value="dance">Dance Academy</option>
-                                <option value="cricket">Cricket Academy</option>
-                                <option value="music">Music School</option>
-                                <option value="martial-arts">Martial Arts / Karate / Taekwondo</option>
-                                <option value="badminton">Badminton Academy</option>
-                                <option value="yoga">Yoga Studio</option>
-                                <option value="swimming">Swimming School</option>
-                                <option value="other">Other</option>
-                              </select>
+                              <div className="relative" ref={dropdownRef}>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowDropdown(!showDropdown)}
+                                  className="w-full h-10 px-3 py-2 text-sm text-left border border-gray-300 rounded-xl bg-gray-50/50 hover:bg-white hover:border-gray-400 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all flex items-center justify-between"
+                                >
+                                  <span className={`truncate ${!formData.academyType ? 'text-gray-500' : ''}`}>
+                                    {formData.academyType || 'Select category'}
+                                  </span>
+                                  <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 text-gray-500" />
+                                </button>
+                                
+                                {showDropdown && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-2"
+                                  >
+                                    <div className="mb-2" onClick={e => e.stopPropagation()}>
+                                      <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <input
+                                          type="text"
+                                          value={searchQuery}
+                                          onChange={handleSearchChange}
+                                          placeholder="Search or type new category..."
+                                          className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                                          onClick={e => e.stopPropagation()}
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="max-h-[120px] overflow-y-auto">
+                                      {filteredAcademyTypes.length > 0 ? (
+                                        filteredAcademyTypes.map((type, idx) => (
+                                          <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => handleAcademyTypeSelect(type)}
+                                            className={`w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors ${
+                                              formData.academyType === type ? 'bg-purple-100' : ''
+                                            }`}
+                                          >
+                                            {type}
+                                          </button>
+                                        ))
+                                      ) : searchQuery ? (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            handleAcademyTypeSelect(searchQuery)
+                                          }}
+                                          className="w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors text-purple-600 font-medium"
+                                        >
+                                          Add "{searchQuery}" as new category
+                                        </button>
+                                      ) : null}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </div>
                             </div>
 
                             <div>
@@ -324,6 +513,16 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all"
                               />
                             </div>
+
+                            {error && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm"
+                              >
+                                <p className="font-medium">⚠️ {error}</p>
+                              </motion.div>
+                            )}
 
                             <button
                               type="submit"

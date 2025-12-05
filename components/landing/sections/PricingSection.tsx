@@ -24,8 +24,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
         'Basic scheduling & attendance',
         '1 branch location',
         'Email support',
-        'Mobile app access',
-        'Parent notifications'
+        'No credit card required',
       ],
       cta: 'Start Free',
       highlighted: false,
@@ -42,14 +41,12 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
       features: [
         'Unlimited students',
         'All scheduling features',
-        'Automated payments & reminders',
+        'Automated payment reminders',
         'Parent portal with progress tracking',
         'Advanced analytics & reports',
         'Multiple instructors',
-        'WhatsApp integration',
         'Priority support',
         'Custom branding',
-        'Up to 3 branches'
       ],
       cta: 'Start Free Trial',
       highlighted: true,
@@ -66,11 +63,9 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
       description: 'For established academies ready to scale',
       features: [
         'Everything in Grow, plus:',
-        'Unlimited branches',
         'Payroll management',
         'Merchandise store',
         'Custom reports & exports',
-        'API access',
         'White-label branding',
         'Dedicated account manager',
         'Phone support',
@@ -133,7 +128,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="inline-block bg-gradient-to-r from-green-100 to-blue-100 px-6 py-3 rounded-full"
+                className="inline-block bg-gradient-to-r from-green-100 to-purple-100 px-6 py-3 rounded-full"
               >
                 <p className="text-[#10B981] font-bold flex items-center gap-2">
                   <Sparkles className="w-5 h-5" />
@@ -149,7 +144,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-purple-50 to-blue-50 text-[#1A1A1A] p-6 rounded-2xl text-center mb-12 shadow-md"
+          className="bg-gradient-to-r from-purple-50 to-pink-50 text-[#1A1A1A] p-6 rounded-2xl text-center mb-12 shadow-md"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <Zap className="w-6 h-6 text-[#6708C0] animate-pulse" />
@@ -269,7 +264,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
                     onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
                     className={`w-full mb-6 font-bold py-6 text-lg rounded-xl transition-all duration-300 ${
                       plan.highlighted
-                        ? 'bg-gradient-to-r from-[#6708C0] to-[#4A90E2] hover:from-[#5607A0] hover:to-[#3A80D2] text-white shadow-xl hover:shadow-2xl'
+                        ? 'bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] hover:from-[#5607A0] hover:to-[#7C3AED] text-white shadow-xl hover:shadow-2xl'
                         : 'bg-white text-[#6708C0] border-2 border-[#6708C0] hover:bg-[#6708C0] hover:text-white'
                     }`}
                   >
@@ -301,7 +296,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
 
               {/* Bottom accent */}
               {plan.highlighted && (
-                <div className="h-2 bg-gradient-to-r from-[#6708C0] to-[#4A90E2]"></div>
+                <div className="h-2 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6]"></div>
               )}
             </motion.div>
           ))}

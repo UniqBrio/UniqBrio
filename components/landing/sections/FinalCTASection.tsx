@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, ArrowRight, Clock } from 'lucide-react'
 
@@ -8,6 +9,28 @@ interface FinalCTASectionProps {
 }
 
 export default function FinalCTASection({ onBookDemo }: FinalCTASectionProps) {
+  const [spotsRemaining, setSpotsRemaining] = useState(42)
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const response = await fetch('/api/demo-bookings-count', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        })
+        const data = await response.json()
+        if (data.success) {
+          setSpotsRemaining(data.spotsRemaining)
+        }
+      } catch (error) {
+        console.error('Error fetching bookings count:', error)
+      }
+    }
+    fetchCount()
+  }, [])
+
   return (
     <section id="demo-form" className="py-20 px-4 md:px-8 relative overflow-hidden">
       {/* Gradient Background */}
@@ -36,7 +59,7 @@ export default function FinalCTASection({ onBookDemo }: FinalCTASectionProps) {
             className="inline-block bg-white text-[#DE7D14] px-6 py-3 rounded-full font-bold text-lg mb-6 shadow-2xl"
           >
             <Clock className="inline w-5 h-5 mr-2 animate-pulse" />
-            Only 58 spots remaining today!
+            Only {spotsRemaining} spots remaining today!
           </motion.div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">

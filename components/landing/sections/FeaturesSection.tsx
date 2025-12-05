@@ -16,8 +16,8 @@ export default function FeaturesSection() {
       id: 'scheduling',
       label: 'Courses',
       icon: <Calendar className="w-5 h-5" />,
-      color: '#4A90E2',
-      gradient: 'from-blue-500 to-cyan-500',
+      color: '#8B5CF6',
+      gradient: 'from-purple-500 to-purple-600',
       image: '/placeholder-course.jpg' // You can replace with actual dashboard screenshot
     },
     {
@@ -99,7 +99,7 @@ export default function FeaturesSection() {
         'Draft system to save work in progress',
         'Track course status and enrollment limits'
       ],
-      screenshot: '📅'
+      screenshot: '/course.png'
     },
     payments: {
       title: '💳 Complete Payment Management',
@@ -152,25 +152,14 @@ export default function FeaturesSection() {
   }
 
   const allKeyFeatures = [
-    { name: 'Course Management', description: 'Create and manage unlimited courses with details' },
-    { name: 'Cohort & Batch System', description: 'Organize students into cohorts and batches' },
+    { name: 'Course and cohort Management', description: 'Create and manage courses and organize students into cohorts' },
     { name: 'Student Management', description: 'Complete student profiles with enrollment tracking' },
-    { name: 'Bulk Import/Export', description: 'Import students in bulk and export data anytime' },
     { name: 'Attendance Tracking', description: 'Track student attendance with selfie verification' },
     { name: 'Fee Management', description: 'Set course fees and registration fees' },
-    { name: 'Payment Processing', description: 'Integrated Razorpay for online transactions' },
     { name: 'Payment Plans', description: 'One-time, installments, or monthly subscriptions' },
     { name: 'Financial Analytics', description: 'Course-wise and cohort-level payment reports' },
-    { name: 'Instructor Management', description: 'Manage instructor profiles and schedules' },
-    { name: 'Staff Management', description: 'Non-teaching staff profiles and payroll tracking' },
-    { name: 'Notifications System', description: 'In-app, email, and SMS notifications' },
-    { name: 'Draft System', description: 'Save course and student drafts for later' },
+    { name: 'Staff Management', description: 'Manage instructor and non-instructor profiles and schedules' },
     { name: 'Audit Logs', description: 'Track all platform activities with detailed logs' },
-    { name: 'Settings & Preferences', description: 'Customize notifications and system preferences' },
-    { name: 'KYC Management', description: 'Academy verification and compliance tracking' },
-    { name: 'Multi-Tenant Support', description: 'Complete data isolation for multiple academies' },
-    { name: 'Role-Based Access', description: 'Secure permissions for different user roles' },
-    { name: 'Mobile Responsive', description: 'Works perfectly on all devices' },
     { name: 'Data Export', description: 'Export your data anytime in CSV format' }
   ]
 
@@ -178,7 +167,7 @@ export default function FeaturesSection() {
     <section id="features" className="py-20 px-4 md:px-8 bg-gradient-to-b from-white via-[#FAFAFA] to-white relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-[#6708C0]/5 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#4A90E2]/5 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#8B5CF6]/5 rounded-full blur-3xl -z-10"></div>
       
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
@@ -195,14 +184,14 @@ export default function FeaturesSection() {
             transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
             className="inline-block mb-4"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6708C0]/10 to-[#4A90E2]/10 rounded-full border border-[#6708C0]/20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6708C0]/10 to-[#8B5CF6]/10 rounded-full border border-[#6708C0]/20">
               <Sparkles className="w-4 h-4 text-[#6708C0]" />
               <span className="text-sm font-semibold text-[#6708C0]">Built & Ready to Use</span>
             </div>
           </motion.div>
           
           <h2 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] mb-4">
-            Everything in <span className="bg-gradient-to-r from-[#6708C0] to-[#4A90E2] bg-clip-text text-transparent">One Dashboard</span>
+            Everything in <span className="bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] bg-clip-text text-transparent">One Dashboard</span>
           </h2>
           <p className="text-xl text-[#718096] max-w-3xl mx-auto mb-12">
             No more juggling 47 different apps. UniqBrio brings it all together.
@@ -218,9 +207,9 @@ export default function FeaturesSection() {
               whileHover={{ y: -8, scale: 1.02 }}
               className="relative group"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
-              <div className="relative bg-white/80 backdrop-blur-sm border border-blue-100 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
+              <div className="relative bg-white/80 backdrop-blur-sm border border-purple-100 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <Calendar className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">Courses & Batches</h3>
@@ -275,7 +264,7 @@ export default function FeaturesSection() {
               <div className="mb-3">
                 <button
                   onClick={handlePrevious}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
                   aria-label="Previous"
                 >
                   <ChevronUp className="w-4 h-4" />
@@ -288,7 +277,7 @@ export default function FeaturesSection() {
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="flex items-center gap-3 px-6 py-4 rounded-xl font-semibold w-full justify-start data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6708C0] data-[state=active]:to-[#4A90E2] data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-[1.02] text-left"
+                    className="flex items-center gap-3 px-6 py-4 rounded-xl font-semibold w-full justify-start data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6708C0] data-[state=active]:to-[#8B5CF6] data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-[1.02] text-left"
                   >
                     <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center data-[state=active]:bg-white/30">
                       {tab.icon}
@@ -302,7 +291,7 @@ export default function FeaturesSection() {
               <div className="mt-3">
                 <button
                   onClick={handleNext}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
                   aria-label="Next"
                 >
                   <ChevronDown className="w-4 h-4" />
@@ -315,7 +304,7 @@ export default function FeaturesSection() {
                   <motion.div
                     key={tab.id}
                     className={`h-1 rounded-full transition-all duration-300 ${
-                      activeTab === tab.id ? 'w-8 bg-gradient-to-r from-[#6708C0] to-[#4A90E2]' : 'w-1 bg-gray-300'
+                      activeTab === tab.id ? 'w-8 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6]' : 'w-1 bg-gray-300'
                     }`}
                   />
                 ))}
@@ -335,7 +324,7 @@ export default function FeaturesSection() {
                       className="relative bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
                     >
                       {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/5 via-transparent to-[#4A90E2]/5 pointer-events-none"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/5 via-transparent to-[#8B5CF6]/5 pointer-events-none"></div>
                       
                       <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12">
                         {/* Left: Content */}
@@ -393,11 +382,11 @@ export default function FeaturesSection() {
                         <div className="flex items-center justify-center">
                           <div className="relative w-full aspect-square">
                             {/* Background glow */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-200 via-blue-200 to-orange-200 rounded-3xl blur-2xl opacity-50"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 rounded-3xl blur-2xl opacity-50"></div>
                             
                             {/* Main card with dashboard preview */}
                             <motion.div 
-                              className="relative w-full h-full bg-gradient-to-br from-purple-50 via-blue-50 to-orange-50 rounded-3xl flex items-center justify-center border-2 border-white shadow-2xl overflow-hidden"
+                              className="relative w-full h-full bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-3xl flex items-center justify-center border-2 border-white shadow-2xl overflow-hidden"
                               initial={{ scale: 0.9, opacity: 0 }}
                               animate={{ scale: 1, opacity: 1 }}
                               transition={{ duration: 0.5 }}
@@ -417,26 +406,38 @@ export default function FeaturesSection() {
                                 >
                                   {/* Simulated Dashboard UI */}
                                   <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center">
-                                    <div className="text-center">
-                                      <motion.div
-                                        animate={{
-                                          rotate: [0, 5, -5, 0]
-                                        }}
-                                        transition={{
-                                          duration: 3,
-                                          repeat: Infinity,
-                                          ease: "easeInOut"
-                                        }}
-                                        className="text-8xl mb-4 drop-shadow-lg"
-                                      >
-                                        {heroFeatures[key as keyof typeof heroFeatures].screenshot}
-                                      </motion.div>
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gradient-to-r from-[#6708C0] to-[#4A90E2] rounded-full w-32 mx-auto"></div>
-                                        <div className="h-2 bg-gray-300 rounded-full w-24 mx-auto"></div>
-                                        <div className="h-2 bg-gray-300 rounded-full w-28 mx-auto"></div>
+                                    {heroFeatures[key as keyof typeof heroFeatures].screenshot.startsWith('/') ? (
+                                      <div className="relative w-full h-full">
+                                        <Image
+                                          src={heroFeatures[key as keyof typeof heroFeatures].screenshot}
+                                          alt={heroFeatures[key as keyof typeof heroFeatures].title}
+                                          fill
+                                          className="object-contain p-4"
+                                          priority
+                                        />
                                       </div>
-                                    </div>
+                                    ) : (
+                                      <div className="text-center">
+                                        <motion.div
+                                          animate={{
+                                            rotate: [0, 5, -5, 0]
+                                          }}
+                                          transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                          }}
+                                          className="text-8xl mb-4 drop-shadow-lg"
+                                        >
+                                          {heroFeatures[key as keyof typeof heroFeatures].screenshot}
+                                        </motion.div>
+                                        <div className="space-y-2">
+                                          <div className="h-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] rounded-full w-32 mx-auto"></div>
+                                          <div className="h-2 bg-gray-300 rounded-full w-24 mx-auto"></div>
+                                          <div className="h-2 bg-gray-300 rounded-full w-28 mx-auto"></div>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 </motion.div>
                               </div>
@@ -482,14 +483,14 @@ export default function FeaturesSection() {
               transition={{ type: 'spring', stiffness: 200 }}
               className="inline-block mb-4"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6708C0] to-[#4A90E2] text-white rounded-full shadow-lg">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white rounded-full shadow-lg">
                 <Check className="w-4 h-4" />
                 <span className="text-sm font-semibold">All Features Included</span>
               </div>
             </motion.div>
             
             <h3 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-3">
-              <span className="bg-gradient-to-r from-[#6708C0] to-[#4A90E2] bg-clip-text text-transparent">20</span> Core Features Built & Ready
+              <span className="bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] bg-clip-text text-transparent">9 +</span> Core Features Built & Ready
             </h3>
             <p className="text-lg text-[#718096] max-w-2xl mx-auto">
               Everything you need to run your academy efficiently, available now
@@ -508,12 +509,12 @@ export default function FeaturesSection() {
                 className="group relative"
               >
                 {/* Hover glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/10 to-[#4A90E2]/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/10 to-[#8B5CF6]/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                 
                 {/* Card */}
                 <div className="relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-[#6708C0]/30 h-full">
                   <div className="flex items-start gap-4">
-                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#6708C0] to-[#4A90E2] mt-1.5 flex-shrink-0 shadow-md group-hover:scale-125 transition-transform duration-300"></div>
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] mt-1.5 flex-shrink-0 shadow-md group-hover:scale-125 transition-transform duration-300"></div>
                     <div className="flex-1">
                       <h4 className="font-bold text-[#1A1A1A] mb-2 text-lg group-hover:text-[#6708C0] transition-colors">{feature.name}</h4>
                       <p className="text-sm text-[#718096] leading-relaxed">{feature.description}</p>
