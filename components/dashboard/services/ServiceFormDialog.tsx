@@ -107,6 +107,8 @@ export default function ServiceFormDialog({
   })
 
   const [newTag, setNewTag] = useState("")
+  const [isStartDateCalendarOpen, setIsStartDateCalendarOpen] = useState(false)
+  const [isEndDateCalendarOpen, setIsEndDateCalendarOpen] = useState(false)
 
   const handleSave = () => {
     onSave(formData)
@@ -330,18 +332,21 @@ export default function ServiceFormDialog({
               
               <div className="space-y-2">
                 <Label>Start Date</Label>
-                <Popover>
+                <Popover open={isStartDateCalendarOpen} onOpenChange={setIsStartDateCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.startDate ? format(formData.startDate, "PPP") : "Pick a date"}
+                      {formData.startDate ? format(formData.startDate, "dd-MMM-yy") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={formData.startDate}
-                      onSelect={(date) => setFormData({ ...formData, startDate: date })}
+                      onSelect={(date) => {
+                        setFormData({ ...formData, startDate: date })
+                        if (date) setIsStartDateCalendarOpen(false)
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
@@ -350,18 +355,21 @@ export default function ServiceFormDialog({
               
               <div className="space-y-2">
                 <Label>End Date</Label>
-                <Popover>
+                <Popover open={isEndDateCalendarOpen} onOpenChange={setIsEndDateCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.endDate ? format(formData.endDate, "PPP") : "Pick a date"}
+                      {formData.endDate ? format(formData.endDate, "dd-MMM-yy") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={formData.endDate}
-                      onSelect={(date) => setFormData({ ...formData, endDate: date })}
+                      onSelect={(date) => {
+                        setFormData({ ...formData, endDate: date })
+                        if (date) setIsEndDateCalendarOpen(false)
+                      }}
                       initialFocus
                     />
                   </PopoverContent>

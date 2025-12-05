@@ -1213,10 +1213,10 @@ const ModuleFilterContent: React.FC<{ selectedModule: string[]; setSelectedModul
                                   {dateRange?.from ? (
                                     dateRange.to ? (
                                       <span>
-                                        {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                                        {format(dateRange.from, "dd-MMM-yy")} - {format(dateRange.to, "dd-MMM-yy")}
                                       </span>
                                     ) : (
-                                      <span>{format(dateRange.from, "LLL dd, y")}</span>
+                                      <span>{format(dateRange.from, "dd-MMM-yy")}</span>
                                     )
                                   ) : (
                                     <span className="text-muted-foreground">Pick a date range</span>

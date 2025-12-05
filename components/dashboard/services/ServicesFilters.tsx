@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Input } from "@/components/dashboard/ui/input"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -45,6 +46,9 @@ export default function ServicesFilters({
   branches,
   onReset
 }: ServicesFiltersProps) {
+  const [isStartDateFromOpen, setIsStartDateFromOpen] = useState(false)
+  const [isStartDateToOpen, setIsStartDateToOpen] = useState(false)
+  
   return (
     <Card>
       <CardHeader>
@@ -149,18 +153,21 @@ export default function ServicesFilters({
           
           <div className="space-y-2">
             <Label>Start Date From</Label>
-            <Popover>
+            <Popover open={isStartDateFromOpen} onOpenChange={setIsStartDateFromOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filter.startDateFrom ? format(filter.startDateFrom, "PPP") : "Pick a date"}
+                  {filter.startDateFrom ? format(filter.startDateFrom, "dd-MMM-yy") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={filter.startDateFrom}
-                  onSelect={(date) => setFilter({ ...filter, startDateFrom: date })}
+                  onSelect={(date) => {
+                    setFilter({ ...filter, startDateFrom: date })
+                    if (date) setIsStartDateFromOpen(false)
+                  }}
                   initialFocus
                 />
               </PopoverContent>
@@ -169,18 +176,21 @@ export default function ServicesFilters({
           
           <div className="space-y-2">
             <Label>Start Date To</Label>
-            <Popover>
+            <Popover open={isStartDateToOpen} onOpenChange={setIsStartDateToOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filter.startDateTo ? format(filter.startDateTo, "PPP") : "Pick a date"}
+                  {filter.startDateTo ? format(filter.startDateTo, "dd-MMM-yy") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={filter.startDateTo}
-                  onSelect={(date) => setFilter({ ...filter, startDateTo: date })}
+                  onSelect={(date) => {
+                    setFilter({ ...filter, startDateTo: date })
+                    if (date) setIsStartDateToOpen(false)
+                  }}
                   initialFocus
                 />
               </PopoverContent>

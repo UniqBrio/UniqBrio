@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -36,6 +36,26 @@ export default function RescheduleDialog({
   onConfirm,
 }: RescheduleDialogProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [originalDate, setOriginalDate] = useState<Date>(date)
+  const [originalStartTime, setOriginalStartTime] = useState<string>(startTime)
+  const [originalEndTime, setOriginalEndTime] = useState<string>(endTime)
+
+  // Track original values when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setOriginalDate(date)
+      setOriginalStartTime(startTime)
+      setOriginalEndTime(endTime)
+    }
+  }, [isOpen, date, startTime, endTime])
+
+  // Check if any changes were made
+  const hasChanges = () => {
+    const dateChanged = format(date, 'yyyy-MM-dd') !== format(originalDate, 'yyyy-MM-dd')
+    const startTimeChanged = startTime !== originalStartTime
+    const endTimeChanged = endTime !== originalEndTime
+    return dateChanged || startTimeChanged || endTimeChanged
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -90,7 +110,7 @@ export default function RescheduleDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>Reschedule Session</Button>
+          <Button onClick={onConfirm} disabled={!hasChanges()}>Reschedule Session</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

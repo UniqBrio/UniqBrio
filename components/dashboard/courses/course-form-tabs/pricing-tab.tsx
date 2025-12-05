@@ -8,8 +8,11 @@ import { Input } from "@/components/dashboard/ui/input"
 import { Button } from "@/components/dashboard/ui/button"
 import { Switch } from "@/components/dashboard/ui/switch"
 import { Separator } from "@/components/dashboard/ui/separator"
-import { Plus } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
+import { Calendar } from "@/components/dashboard/ui/calendar"
+import { Plus, CalendarIcon } from "lucide-react"
 import { useCurrency } from "@/contexts/currency-context";
+import { format } from "date-fns"
 
 interface PricingTabProps {
   formData: any
@@ -26,6 +29,10 @@ export default function PricingTab({
 }: PricingTabProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
+  
+  // State for calendar open/close control
+  const [isReferralStartCalendarOpen, setIsReferralStartCalendarOpen] = useState(false)
+  const [isReferralEndCalendarOpen, setIsReferralEndCalendarOpen] = useState(false)
   
   const validateDateTimeRange = (startDateTime: string, endDateTime: string): boolean => {
     if (!startDateTime || !endDateTime) return true;
@@ -370,76 +377,88 @@ export default function PricingTab({
         {/* Set Referral Code Start/End Date & Time */}
   <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
           <div>
-            <Label htmlFor="referralStart" className="mb-1 text-xs">Referral Start Date & Time</Label>
+            <Label htmlFor="referralStart" className="mb-1 text-xs">Referral Start Date</Label>
             <div className="space-y-1">
-              <Input
-                id="referralStart"
-                type="datetime-local"
-                value={formData.referralStart || ''}
-                onChange={e => {
-                  const newStartDateTime = e.target.value;
-                  if (formData.referralEnd && !validateDateTimeRange(newStartDateTime, formData.referralEnd)) {
-                    return; // Don't update if start datetime is after end datetime
-                  }
-                  onFormChange('referralStart', newStartDateTime);
-                  
-                  // Calculate and update duration if both dates are available
-                  if (newStartDateTime && formData.referralEnd) {
-                    const duration = calculateReferralDuration(newStartDateTime, formData.referralEnd);
-                    onFormChange('referralDuration', duration.toString());
-                  }
-                }}
-                className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
-                style={{ borderColor: '#d1d5db' }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = primaryColor;
-                  e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#d1d5db';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              />
+              <Popover open={isReferralStartCalendarOpen} onOpenChange={setIsReferralStartCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start text-left font-normal bg-transparent border-gray-300 hover:bg-gray-50"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.referralStart ? format(new Date(formData.referralStart), "dd-MMM-yy") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar 
+                    mode="single" 
+                    selected={formData.referralStart ? new Date(formData.referralStart) : undefined} 
+                    onSelect={(date) => {
+                      if (date) {
+                        const dateString = format(date, "yyyy-MM-dd");
+                        if (formData.referralEnd && !validateDateTimeRange(dateString, formData.referralEnd)) {
+                          return; // Don't update if start date is after end date
+                        }
+                        onFormChange('referralStart', dateString);
+                        
+                        // Calculate and update duration if both dates are available
+                        if (dateString && formData.referralEnd) {
+                          const duration = calculateReferralDuration(dateString, formData.referralEnd);
+                          onFormChange('referralDuration', duration.toString());
+                        }
+                        setIsReferralStartCalendarOpen(false);
+                      }
+                    }} 
+                    initialFocus 
+                  />
+                </PopoverContent>
+              </Popover>
               {formData.referralStart && formData.referralEnd && 
                 !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
-                <p className="text-red-500 text-xs">Start date & time must be before end date & time</p>
+                <p className="text-red-500 text-xs">Start date must be before end date</p>
               )}
             </div>
           </div>
           <div>
-            <Label htmlFor="referralEnd" className="mb-1 text-xs">Referral End Date & Time</Label>
+            <Label htmlFor="referralEnd" className="mb-1 text-xs">Referral End Date</Label>
             <div className="space-y-1">
-              <Input
-                id="referralEnd"
-                type="datetime-local"
-                value={formData.referralEnd || ''}
-                onChange={e => {
-                  const newEndDateTime = e.target.value;
-                  if (formData.referralStart && !validateDateTimeRange(formData.referralStart, newEndDateTime)) {
-                    return; // Don't update if end datetime is before start datetime
-                  }
-                  onFormChange('referralEnd', newEndDateTime);
-                  
-                  // Calculate and update duration if both dates are available
-                  if (formData.referralStart && newEndDateTime) {
-                    const duration = calculateReferralDuration(formData.referralStart, newEndDateTime);
-                    onFormChange('referralDuration', duration.toString());
-                  }
-                }}
-                className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
-                style={{ borderColor: '#d1d5db' }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = primaryColor;
-                  e.currentTarget.style.boxShadow = `0 0 0 1px ${primaryColor}66`;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#d1d5db';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              />
+              <Popover open={isReferralEndCalendarOpen} onOpenChange={setIsReferralEndCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start text-left font-normal bg-transparent border-gray-300 hover:bg-gray-50"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.referralEnd ? format(new Date(formData.referralEnd), "dd-MMM-yy") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar 
+                    mode="single" 
+                    selected={formData.referralEnd ? new Date(formData.referralEnd) : undefined} 
+                    onSelect={(date) => {
+                      if (date) {
+                        const dateString = format(date, "yyyy-MM-dd");
+                        if (formData.referralStart && !validateDateTimeRange(formData.referralStart, dateString)) {
+                          return; // Don't update if end date is before start date
+                        }
+                        onFormChange('referralEnd', dateString);
+                        
+                        // Calculate and update duration if both dates are available
+                        if (formData.referralStart && dateString) {
+                          const duration = calculateReferralDuration(formData.referralStart, dateString);
+                          onFormChange('referralDuration', duration.toString());
+                        }
+                        setIsReferralEndCalendarOpen(false);
+                      }
+                    }} 
+                    initialFocus 
+                  />
+                </PopoverContent>
+              </Popover>
               {formData.referralStart && formData.referralEnd && 
                 !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
-                <p className="text-red-500 text-xs">End date & time must be after start date & time</p>
+                <p className="text-red-500 text-xs">End date must be after start date</p>
               )}
             </div>
           </div>

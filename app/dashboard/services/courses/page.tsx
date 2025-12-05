@@ -539,6 +539,7 @@ export default function EnhancedCourseManagementPage() {
     type: 'Online',
     duration: '',
     priceINR: '',
+    paymentCategory: '',
     schedule: '',
     maxStudents: '',
     location: '',
@@ -888,6 +889,7 @@ export default function EnhancedCourseManagementPage() {
     if (draft.duration !== undefined && draft.duration !== null) formData.duration = String(draft.duration);
     if (draft.priceINR !== undefined && draft.priceINR !== null) formData.priceINR = String(draft.priceINR);
     if (draft.price !== undefined && draft.price !== null) formData.price = String(draft.price);
+    if (draft.paymentCategory) formData.paymentCategory = draft.paymentCategory;
     if (draft.schedule) formData.schedule = draft.schedule;
     if (draft.maxStudents !== undefined && draft.maxStudents !== null) formData.maxStudents = String(draft.maxStudents);
     if (draft.location) formData.location = draft.location;
