@@ -29,8 +29,11 @@ export async function GET() {
     
     console.log('Fetching instructor stats for date:', todayStr)
     
-    // Get total instructors
-    const totalInstructors = await Instructor.countDocuments({ tenantId: session.tenantId })
+    // Get total instructors (only active, not deleted)
+    const totalInstructors = await Instructor.countDocuments({ 
+      tenantId: session.tenantId,
+      isDeleted: { $ne: true }
+    })
     
     // Get instructors on leave today
     // Dates are stored as strings in YYYY-MM-DD format

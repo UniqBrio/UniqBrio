@@ -20,8 +20,8 @@ export default function CohortsPage() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/dashboard/services/courses", { credentials: 'include' }).then(res => res.json()),
-      fetch("/api/dashboard/services/cohorts", { credentials: 'include' }).then(res => res.json())
+      fetch("/api/dashboard/services/courses", { credentials: 'include' }).then(res => res.ok ? res.json() : Promise.reject(res)),
+      fetch("/api/dashboard/services/cohorts", { credentials: 'include' }).then(res => res.ok ? res.json() : Promise.reject(res))
     ]).then(([coursesData, cohortsData]) => {
       const allCourses = Array.isArray(coursesData) ? coursesData : coursesData.courses || [];
       const allCohorts = Array.isArray(cohortsData) ? cohortsData : cohortsData.cohorts || [];

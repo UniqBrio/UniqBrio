@@ -879,9 +879,9 @@ export default function EnhancedSchedulePage() {
   const [loadingLeaveRequests, setLoadingLeaveRequests] = useState(true)
   
   // Dynamic filter lists based on real session data
-  const instructors = ["All", ...Array.from(new Set(events.map(event => event.instructor).filter(Boolean)))]
-  const locations = ["All", ...Array.from(new Set(events.map(event => event.location).filter(Boolean)))]
-  const courseNames = ["All", ...Array.from(new Set(events.map(event => event.courseName || event.title).filter(Boolean)))]
+  const instructors = ["All", ...Array.from(new Set(events.map(event => event.instructor).filter(Boolean).map(i => i.trim())))]
+  const locations = ["All", ...Array.from(new Set(events.map(event => event.location).filter(Boolean).map(l => l.trim())))]
+  const courseNames = ["All", ...Array.from(new Set(events.map(event => event.courseName || event.title).filter(Boolean).map(c => c.trim())))]
   const dates = ["All", ...Array.from(new Set(events.map(event => format(event.date, "yyyy-MM-dd")).filter(Boolean)))]
   // Initialize to today's date
   const getMondayOfCurrentWeek = () => {
@@ -1007,25 +1007,25 @@ export default function EnhancedSchedulePage() {
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
   const [filterAction, setFilterAction] = useState<string | null>(null)
   const [sessionFilter, setSessionFilter] = useState({
-    instructor: "All",
-    courseType: "All",
-    status: "All",
-    category: "All",
-    location: "All",
+    instructor: [] as string[],
+    courseType: [] as string[],
+    status: [] as string[],
+    category: [] as string[],
+    location: [] as string[],
     timePeriod: "All",
-    course: "All",
+    course: [] as string[],
     date: "All",
     dateFrom: null as Date | null,
     dateTo: null as Date | null,
   })
   const [pendingFilters, setPendingFilters] = useState({
-    instructor: "All",
-    courseType: "All",
-    status: "All",
-    category: "All",
-    location: "All",
+    instructor: [] as string[],
+    courseType: [] as string[],
+    status: [] as string[],
+    category: [] as string[],
+    location: [] as string[],
     timePeriod: "All",
-    course: "All",
+    course: [] as string[],
     date: "All",
     dateFrom: null as Date | null,
     dateTo: null as Date | null,
@@ -1376,6 +1376,7 @@ export default function EnhancedSchedulePage() {
   const [comingSoonFeature, setComingSoonFeature] = useState("")
   const [isCohortViewDialogOpen, setIsCohortViewDialogOpen] = useState(false)
   const [isAddSessionDialogOpen, setIsAddSessionDialogOpen] = useState(false)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   const [selectedCohort, setSelectedCohort] = useState<ScheduleEvent | null>(null)
   const [newInstructorId, setNewInstructorId] = useState("")
@@ -1464,11 +1465,11 @@ export default function EnhancedSchedulePage() {
       event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.category.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesInstructor = sessionFilter.instructor === "All" || event.instructor === sessionFilter.instructor
-    const matchesCategory = sessionFilter.category === "All" || event.category === sessionFilter.category
-    const matchesStatus = sessionFilter.status === "All" || event.status === sessionFilter.status
-    const matchesLocation = sessionFilter.location === "All" || event.location === sessionFilter.location
-    const matchesCourse = sessionFilter.course === "All" || event.courseName === sessionFilter.course || event.title === sessionFilter.course
+    const matchesInstructor = sessionFilter.instructor.length === 0 || sessionFilter.instructor.includes(event.instructor)
+    const matchesCategory = sessionFilter.category.length === 0 || sessionFilter.category.includes(event.category)
+    const matchesStatus = sessionFilter.status.length === 0 || sessionFilter.status.includes(event.status)
+    const matchesLocation = sessionFilter.location.length === 0 || sessionFilter.location.includes(event.location)
+    const matchesCourse = sessionFilter.course.length === 0 || sessionFilter.course.includes(event.courseName || "") || sessionFilter.course.includes(event.title)
 
     // Ensure proper data separation - original sessions maintain their integrity
     const basicMatches = matchesSearch && matchesInstructor && matchesCategory && matchesStatus && 
@@ -1684,7 +1685,12 @@ export default function EnhancedSchedulePage() {
       })
       if (coursesResponse.ok) {
         const coursesData = await coursesResponse.json()
-        setAvailableCourses(coursesData.courses || [])
+        console.log('Courses API response:', coursesData)
+        const courses = coursesData.courses || []
+        console.log('Setting available courses:', courses.length, 'courses')
+        setAvailableCourses(courses)
+      } else {
+        console.error('Failed to fetch courses:', coursesResponse.status, coursesResponse.statusText)
       }
 
       // Fetch cohorts
@@ -1693,7 +1699,12 @@ export default function EnhancedSchedulePage() {
       })
       if (cohortsResponse.ok) {
         const cohortsData = await cohortsResponse.json()
-        setAvailableCohorts(cohortsData.cohorts || [])
+        console.log('Cohorts API response:', cohortsData)
+        const cohorts = cohortsData.cohorts || []
+        console.log('Setting available cohorts:', cohorts.length, 'cohorts')
+        setAvailableCohorts(cohorts)
+      } else {
+        console.error('Failed to fetch cohorts:', cohortsResponse.status, cohortsResponse.statusText)
       }
 
       // Fetch instructors
@@ -1702,7 +1713,12 @@ export default function EnhancedSchedulePage() {
       })
       if (instructorsResponse.ok) {
         const instructorsData = await instructorsResponse.json()
-        setAvailableInstructors(instructorsData.instructors || [])
+        console.log('Instructors API response:', instructorsData)
+        const instructors = instructorsData.instructors || []
+        console.log('Setting available instructors:', instructors.length, 'instructors')
+        setAvailableInstructors(instructors)
+      } else {
+        console.error('Failed to fetch instructors:', instructorsResponse.status, instructorsResponse.statusText)
       }
     } catch (error) {
       console.error('Error fetching dropdown options:', error)
@@ -1727,26 +1743,36 @@ export default function EnhancedSchedulePage() {
     setLoadingCourseData(true)
     try {
       // Fetch cohorts for the specific course
-      const cohortsResponse = await fetch(`/api/dashboard/cohorts?courseId=${courseId}`)
+      const cohortsResponse = await fetch(`/api/dashboard/services/cohorts?courseId=${courseId}`, {
+        credentials: 'include',
+      })
       if (cohortsResponse.ok) {
         const cohortsData = await cohortsResponse.json()
         setFilteredCohorts(cohortsData.cohorts || [])
+      } else {
+        setFilteredCohorts([])
       }
 
-      // Fetch instructors who can teach this course
-      // For now, we'll use all instructors, but you can modify the API to filter by course
-      const instructorsResponse = await fetch(`/api/instructors?courseId=${courseId}`)
-      if (instructorsResponse.ok) {
-        const instructorsData = await instructorsResponse.json()
-        setFilteredInstructors(instructorsData.instructors || [])
+      // Fetch the selected course to get its instructor
+      const selectedCourse = availableCourses.find(c => c._id === courseId)
+      
+      // Filter instructors based on the course's assigned instructor
+      // If course has an instructor, show that instructor, otherwise show all
+      if (selectedCourse?.instructor) {
+        const matchedInstructors = availableInstructors.filter(instructor => {
+          const fullName = `${instructor.firstName} ${instructor.lastName}`.trim()
+          return fullName === selectedCourse.instructor || 
+                 instructor._id === selectedCourse.instructorId ||
+                 instructor.instructorId === selectedCourse.instructorId
+        })
+        setFilteredInstructors(matchedInstructors.length > 0 ? matchedInstructors : availableInstructors)
       } else {
-        // Fallback to all instructors if course-specific API doesn't exist yet
         setFilteredInstructors(availableInstructors)
       }
     } catch (error) {
       console.error('Error fetching course-specific data:', error)
-      // Fallback to all available data
-      setFilteredCohorts(availableCohorts.filter(cohort => cohort.courseId === courseId))
+      // Fallback to filtering from available data
+      setFilteredCohorts(availableCohorts.filter((cohort: any) => cohort.courseId === courseId))
       setFilteredInstructors(availableInstructors)
     } finally {
       setLoadingCourseData(false)
@@ -2495,8 +2521,8 @@ export default function EnhancedSchedulePage() {
                               <div className="mb-2 font-semibold text-sm">Status</div>
                               <FilterDropdownWithCheckboxes
                                 options={statuses.filter(s => s !== "All").map(status => ({ value: status, label: status }))}
-                                value={pendingFilters.status === "All" ? [] : [pendingFilters.status]}
-                                onChange={(values) => setPendingFilters(prev => ({ ...prev, status: values.length > 0 ? values[0] : "All" }))}
+                                value={pendingFilters.status}
+                                onChange={(values) => setPendingFilters(prev => ({ ...prev, status: values }))}
                                 placeholder="All Statuses"
                                 className="w-full"
                                 showFooterActions={false}
@@ -2506,8 +2532,8 @@ export default function EnhancedSchedulePage() {
                               <div className="mb-2 font-semibold text-sm">Course</div>
                               <FilterDropdownWithCheckboxes
                                 options={courseNames.filter(c => c !== "All").map(course => ({ value: course, label: course }))}
-                                value={pendingFilters.course === "All" ? [] : [pendingFilters.course]}
-                                onChange={(values) => setPendingFilters(prev => ({ ...prev, course: values.length > 0 ? values[0] : "All" }))}
+                                value={pendingFilters.course}
+                                onChange={(values) => setPendingFilters(prev => ({ ...prev, course: values }))}
                                 placeholder="All Courses"
                                 className="w-full"
                                 showFooterActions={false}
@@ -2517,8 +2543,8 @@ export default function EnhancedSchedulePage() {
                               <div className="mb-2 font-semibold text-sm">Instructor</div>
                               <FilterDropdownWithCheckboxes
                                 options={instructors.filter(i => i !== "All").map(instructor => ({ value: instructor, label: instructor }))}
-                                value={pendingFilters.instructor === "All" ? [] : [pendingFilters.instructor]}
-                                onChange={(values) => setPendingFilters(prev => ({ ...prev, instructor: values.length > 0 ? values[0] : "All" }))}
+                                value={pendingFilters.instructor}
+                                onChange={(values) => setPendingFilters(prev => ({ ...prev, instructor: values }))}
                                 placeholder="All Instructors"
                                 className="w-full"
                                 showFooterActions={false}
@@ -2528,8 +2554,8 @@ export default function EnhancedSchedulePage() {
                               <div className="mb-2 font-semibold text-sm">Location</div>
                               <FilterDropdownWithCheckboxes
                                 options={locations.filter(l => l !== "All").map(location => ({ value: location, label: location }))}
-                                value={pendingFilters.location === "All" ? [] : [pendingFilters.location]}
-                                onChange={(values) => setPendingFilters(prev => ({ ...prev, location: values.length > 0 ? values[0] : "All" }))}
+                                value={pendingFilters.location}
+                                onChange={(values) => setPendingFilters(prev => ({ ...prev, location: values }))}
                                 placeholder="All Locations"
                                 className="w-full"
                                 showFooterActions={false}
@@ -2555,13 +2581,13 @@ export default function EnhancedSchedulePage() {
                               className="flex-1"
                               onClick={() => {
                                 const clearedState = {
-                                  instructor: "All",
-                                  courseType: "All",
-                                  status: "All",
-                                  category: "All",
-                                  location: "All",
+                                  instructor: [] as string[],
+                                  courseType: [] as string[],
+                                  status: [] as string[],
+                                  category: [] as string[],
+                                  location: [] as string[],
                                   timePeriod: "All",
-                                  course: "All",
+                                  course: [] as string[],
                                   date: "All",
                                   dateFrom: null,
                                   dateTo: null,
@@ -2647,35 +2673,45 @@ export default function EnhancedSchedulePage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuLabel>Sort By</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => setSortBy("date")}>
-                            Date
+                          <DropdownMenuItem onClick={() => setSortBy("date")} className="flex items-center justify-between">
+                            <span>Date</span>
+                            {sortBy === "date" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setSortBy("title")}>
-                            Course
+                          <DropdownMenuItem onClick={() => setSortBy("title")} className="flex items-center justify-between">
+                            <span>Course</span>
+                            {sortBy === "title" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setSortBy("cohortName")}>
-                            Cohort
+                          <DropdownMenuItem onClick={() => setSortBy("cohortName")} className="flex items-center justify-between">
+                            <span>Cohort</span>
+                            {sortBy === "cohortName" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setSortBy("instructor")}>
-                            Instructor
+                          <DropdownMenuItem onClick={() => setSortBy("instructor")} className="flex items-center justify-between">
+                            <span>Instructor</span>
+                            {sortBy === "instructor" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setSortBy("location")}>
-                            Location
+                          <DropdownMenuItem onClick={() => setSortBy("location")} className="flex items-center justify-between">
+                            <span>Location</span>
+                            {sortBy === "location" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setSortBy("status")}>
-                            Status
+                          <DropdownMenuItem onClick={() => setSortBy("status")} className="flex items-center justify-between">
+                            <span>Status</span>
+                            {sortBy === "status" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuLabel>Order</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => setSortOrder("asc")}>
-                            Ascending
-                            <ArrowUp className="h-4 w-4 mr-2" />
-                            
+                          <DropdownMenuItem onClick={() => setSortOrder("asc")} className="flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              Ascending
+                              <ArrowUp className="h-4 w-4" />
+                            </span>
+                            {sortOrder === "asc" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setSortOrder("desc")}>
-                            Descending
-                            <ArrowDown className="h-4 w-4 mr-2" />
-                            
+                          <DropdownMenuItem onClick={() => setSortOrder("desc")} className="flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              Descending
+                              <ArrowDown className="h-4 w-4" />
+                            </span>
+                            {sortOrder === "desc" && <Check className="ml-2 h-3.5 w-3.5 text-green-600" />}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -3280,7 +3316,7 @@ export default function EnhancedSchedulePage() {
 
       {/* Coming Soon Dialog */}
       <Dialog open={isComingSoonDialogOpen} onOpenChange={setIsComingSoonDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-purple-500" />
@@ -3322,7 +3358,7 @@ export default function EnhancedSchedulePage() {
 
       {/* Add Session Dialog */}
       <Dialog open={isAddSessionDialogOpen} onOpenChange={setIsAddSessionDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-4 border-b dark:border-gray-700">
             <DialogTitle className="flex items-center gap-2">
               
@@ -3343,14 +3379,14 @@ export default function EnhancedSchedulePage() {
                 
                 <div>
                   <Label htmlFor="session-title" className="text-sm font-medium">
-                    Session Title *
+                    Session Title <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="session-title"
                     placeholder="Enter session title"
                     value={newSession.title}
                     onChange={(e) => setNewSession(prev => ({ ...prev, title: e.target.value }))}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                   />
                 </div>
 
@@ -3363,7 +3399,7 @@ export default function EnhancedSchedulePage() {
                     placeholder="Enter session description"
                     value={newSession.description}
                     onChange={(e) => setNewSession(prev => ({ ...prev, description: e.target.value }))}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     rows={3}
                   />
                 </div>
@@ -3391,12 +3427,14 @@ export default function EnhancedSchedulePage() {
                     <SelectContent>
                       {loadingOptions ? (
                         <SelectItem key="loading" value="loading" disabled>Loading courses...</SelectItem>
+                      ) : availableCourses.length === 0 ? (
+                        <SelectItem key="no-courses" value="no-courses" disabled>No courses available</SelectItem>
                       ) : (
                         <>
                           <SelectItem key="none" value="none">No specific course</SelectItem>
                           {availableCourses.map((course) => (
                             <SelectItem key={course._id} value={course._id}>
-                              {course.title}
+                              {course.title || course.name || 'Untitled Course'}
                             </SelectItem>
                           ))}
                         </>
@@ -3439,16 +3477,16 @@ export default function EnhancedSchedulePage() {
 
                 <div>
                   <Label htmlFor="session-instructor" className="text-sm font-medium">
-                    Instructor *
+                    Instructor <span className="text-red-500">*</span>
                   </Label>
                   <Select
                     value={newSession.instructor}
                     onValueChange={(value) => {
-                      const instructor = filteredInstructors.find(i => i._id === value)
+                      const instructor = (filteredInstructors.length > 0 ? filteredInstructors : availableInstructors).find(i => (i._id || i.id) === value)
                       setNewSession(prev => ({ 
                         ...prev, 
                         instructor: value,
-                        instructorName: instructor ? `${instructor.firstName} ${instructor.lastName}` : ""
+                        instructorName: instructor ? (instructor.name || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim()) : ""
                       }))
                     }}
                   >
@@ -3456,18 +3494,18 @@ export default function EnhancedSchedulePage() {
                       <SelectValue placeholder="Select an instructor" />
                     </SelectTrigger>
                     <SelectContent>
-                      {loadingCourseData ? (
+                      {loadingOptions ? (
                         <SelectItem key="loading" value="loading" disabled>Loading instructors...</SelectItem>
-                      ) : !newSession.courseId || newSession.courseId === "none" ? (
-                        <SelectItem key="select-course" value="select-course" disabled>Please select a course first</SelectItem>
-                      ) : filteredInstructors.length === 0 ? (
-                        <SelectItem key="no-instructors" value="no-instructors" disabled>No instructors available for this course</SelectItem>
+                      ) : loadingCourseData ? (
+                        <SelectItem key="loading" value="loading" disabled>Loading instructors...</SelectItem>
+                      ) : (filteredInstructors.length > 0 ? filteredInstructors : availableInstructors).length === 0 ? (
+                        <SelectItem key="no-instructors" value="no-instructors" disabled>No instructors available</SelectItem>
                       ) : (
-                        filteredInstructors
-                          .filter(instructor => instructor._id && instructor._id.trim() !== '')
-                          .map((instructor, index) => (
-                            <SelectItem key={instructor._id} value={instructor._id}>
-                              {instructor.firstName} {instructor.lastName}
+                        (filteredInstructors.length > 0 ? filteredInstructors : availableInstructors)
+                          .filter(instructor => (instructor._id || instructor.id))
+                          .map((instructor) => (
+                            <SelectItem key={instructor._id || instructor.id} value={instructor._id || instructor.id}>
+                              {instructor.name || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim() || 'Unknown Instructor'}
                             </SelectItem>
                           ))
                       )}
@@ -3482,7 +3520,7 @@ export default function EnhancedSchedulePage() {
                 
                 <div>
                   <Label htmlFor="session-category" className="text-sm font-medium">
-                    Category *
+                    Category <span className="text-red-500">*</span>
                   </Label>
                   <Select
                     value={newSession.category}
@@ -3512,13 +3550,13 @@ export default function EnhancedSchedulePage() {
                     placeholder="Enter subcategory (optional)"
                     value={newSession.subcategory}
                     onChange={(e) => setNewSession(prev => ({ ...prev, subcategory: e.target.value }))}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="session-capacity" className="text-sm font-medium">
-                    Max Capacity *
+                    Max Capacity <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="session-capacity"
@@ -3528,7 +3566,7 @@ export default function EnhancedSchedulePage() {
                     placeholder="30"
                     value={newSession.maxCapacity}
                     onChange={(e) => setNewSession(prev => ({ ...prev, maxCapacity: parseInt(e.target.value) || 30 }))}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                   />
                 </div>
 
@@ -3545,7 +3583,7 @@ export default function EnhancedSchedulePage() {
                       const tagsArray = tagString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
                       setNewSession(prev => ({ ...prev, tags: tagsArray }))
                     }}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                   />
                   <p className="text-xs text-gray-500 dark:text-white mt-1">Separate multiple tags with commas</p>
                 </div>
@@ -3562,7 +3600,7 @@ export default function EnhancedSchedulePage() {
                       placeholder="0"
                       value={newSession.students}
                       onChange={(e) => setNewSession(prev => ({ ...prev, students: parseInt(e.target.value) || 0 }))}
-                      className="mt-1"
+                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                     <p className="text-xs text-gray-500 dark:text-white mt-1">Students currently enrolled</p>
                   </div>
@@ -3588,7 +3626,7 @@ export default function EnhancedSchedulePage() {
                     placeholder="Add any additional notes about this session..."
                     value={newSession.sessionNotes}
                     onChange={(e) => setNewSession(prev => ({ ...prev, sessionNotes: e.target.value }))}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     rows={2}
                   />
                 </div>
@@ -3603,23 +3641,28 @@ export default function EnhancedSchedulePage() {
                 
                 <div>
                   <Label htmlFor="session-date" className="text-sm font-medium">
-                    Date *
+                    Date <span className="text-red-500">*</span>
                   </Label>
-                  <Popover>
+                  <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className="w-full mt-1 justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {format(newSession.date, "PPP")}
+                        {format(newSession.date, "dd-MMM-yy")}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={newSession.date}
-                        onSelect={(date) => date && setNewSession(prev => ({ ...prev, date }))}
+                        onSelect={(date) => {
+                          if (date) {
+                            setNewSession(prev => ({ ...prev, date }))
+                            setIsDatePickerOpen(false)
+                          }
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
@@ -3629,26 +3672,26 @@ export default function EnhancedSchedulePage() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="session-start-time" className="text-sm font-medium">
-                      Start Time *
+                      Start Time <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="session-start-time"
                       type="time"
                       value={newSession.startTime}
                       onChange={(e) => setNewSession(prev => ({ ...prev, startTime: e.target.value }))}
-                      className="mt-1"
+                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
                   <div>
                     <Label htmlFor="session-end-time" className="text-sm font-medium">
-                      End Time *
+                      End Time <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="session-end-time"
                       type="time"
                       value={newSession.endTime}
                       onChange={(e) => setNewSession(prev => ({ ...prev, endTime: e.target.value }))}
-                      className="mt-1"
+                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
                 </div>
@@ -3703,7 +3746,7 @@ export default function EnhancedSchedulePage() {
                 
                 <div>
                   <Label htmlFor="session-type" className="text-sm font-medium">
-                    Session Type *
+                    Session Type <span className="text-red-500">*</span>
                   </Label>
                   <Select
                     value={newSession.type}
@@ -3724,7 +3767,7 @@ export default function EnhancedSchedulePage() {
 
                 <div>
                   <Label htmlFor="session-mode" className="text-sm font-medium">
-                    Mode *
+                    Mode <span className="text-red-500">*</span>
                   </Label>
                   <Select
                     value={newSession.mode}
@@ -3746,14 +3789,14 @@ export default function EnhancedSchedulePage() {
                 {newSession.type !== "online" && (
                   <div>
                     <Label htmlFor="session-location" className="text-sm font-medium">
-                      Location {newSession.type === "offline" ? "*" : ""}
+                      Location {newSession.type === "offline" && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
                       id="session-location"
                       placeholder="Enter session location"
                       value={newSession.location}
                       onChange={(e) => setNewSession(prev => ({ ...prev, location: e.target.value }))}
-                      className="mt-1"
+                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
                 )}
@@ -3761,14 +3804,14 @@ export default function EnhancedSchedulePage() {
                 {newSession.type !== "offline" && (
                   <div>
                     <Label htmlFor="session-virtual-url" className="text-sm font-medium">
-                      Virtual Classroom URL {newSession.type === "online" ? "*" : ""}
+                      Virtual Classroom URL {newSession.type === "online" && <span className="text-red-500">*</span>}
                     </Label>
                     <Input
                       id="session-virtual-url"
                       placeholder="https://meet.google.com/..."
                       value={newSession.virtualClassroomUrl}
                       onChange={(e) => setNewSession(prev => ({ ...prev, virtualClassroomUrl: e.target.value }))}
-                      className="mt-1"
+                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
                 )}
@@ -3803,7 +3846,7 @@ export default function EnhancedSchedulePage() {
                         placeholder="0.00"
                         value={newSession.price}
                         onChange={(e) => setNewSession(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                        className="mt-1"
+                        className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                       />
                     </div>
                     <div>
@@ -3862,7 +3905,7 @@ export default function EnhancedSchedulePage() {
 
       {/* Event View Dialog */}
       <Dialog open={isCohortViewDialogOpen} onOpenChange={setIsCohortViewDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           {selectedCohort && (
             <>
               <DialogHeader>

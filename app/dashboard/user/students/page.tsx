@@ -616,7 +616,7 @@ export default function StudentsPage() {
         setActiveTab('students');
         // Show success toast notification
         toast({
-          title: "🗑️ Student Deleted",
+          title: "Student Deleted",
           description: `${student.name} has been successfully deleted.`,
           duration: 4000,
         });

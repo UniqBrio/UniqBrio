@@ -53,9 +53,12 @@ export async function GET() {
       try {
         await dbConnect("uniqbrio");
 
-        // Fetch courses with only needed fields for performance
+        // Fetch only active courses with needed fields for performance
         const courses = await Course.find(
-          { tenantId: session.tenantId },
+          { 
+            tenantId: session.tenantId,
+            status: 'Active'
+          },
           { courseId: 1, name: 1, description: 1, courseCategory: 1, type: 1, duration: 1, level: 1, prerequisites: 1, outcomes: 1, status: 1 }
         ).lean();
     

@@ -23,6 +23,7 @@ import { ScrollArea } from "@/components/dashboard/ui/scroll-area"
 import { format, addDays } from "date-fns"
 import { cn } from "@/lib/dashboard/staff/utils"
 import { useLeave } from "@/contexts/dashboard/leave-context"
+import { useToast } from "@/hooks/dashboard/use-toast"
 import type { LeaveRequest } from "@/types/dashboard/staff/leave"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
 import { convertDraftToLeaveRequest, createLeaveRequest, createDraft, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft } from "@/lib/dashboard/staff/api"
@@ -54,6 +55,7 @@ interface LeaveRequestFormProps {
 
 export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormProps) {
   const { state, dispatch } = useLeave()
+  const { toast } = useToast()
   // No default instructor selection; user should choose explicitly
   const [formData, setFormData] = useState({
     instructorId: (draft?.instructorId || "") as string,
@@ -136,7 +138,11 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           dispatch({ type: 'UPDATE_DRAFT', payload: { id: draft.id, updates: draftData } })
           crudSuccess('draft leave request', 'updated')
         } else {
-          alert('Failed to update draft: ' + (result.error || 'Unknown error'))
+          toast({
+            title: "Failed to Update Draft",
+            description: result.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       } else {
@@ -147,13 +153,21 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           dispatch({ type: 'ADD_DRAFT', payload: result.data || draftData })
           crudSuccess('draft leave request', 'created')
         } else {
-          alert('Failed to create draft: ' + (result.error || 'Unknown error'))
+          toast({
+            title: "Failed to Create Draft",
+            description: result.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       }
     } catch (err) {
       console.error('Error saving draft:', err)
-      alert('Failed to save draft')
+      toast({
+        title: "Failed to Save Draft",
+        description: err instanceof Error ? err.message : 'Unknown error',
+        variant: "destructive",
+      })
       return
     }
     
@@ -243,13 +257,21 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     let reopenAfterClose = false
 
     if (!formData.instructorId || !formData.instructorName || !formData.leaveType || !formData.startDate || !formData.endDate || !formData.reason || !selectedJobLevel) {
-      alert("Please fill in all required fields, including Job Level.")
+      toast({
+        title: "Missing Required Fields",
+        description: "Please fill in all required fields, including Job Level.",
+        variant: "destructive",
+      })
       return
     }
 
     // Date range validation: end date must not be before start date
     if (formData.startDate && formData.endDate && formData.endDate < formData.startDate) {
-      alert("End date cannot be before the start date.")
+      toast({
+        title: "Invalid Date Range",
+        description: "End date cannot be before the start date.",
+        variant: "destructive",
+      })
       return
     }
 
@@ -258,7 +280,11 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
 
     const days = countWorkingDays(formData.startDate, formData.endDate)
     if (days <= 0) {
-      alert('Selected range contains no working days based on current configuration.')
+      toast({
+        title: "No Working Days",
+        description: 'Selected range contains no working days based on current configuration.',
+        variant: "destructive",
+      })
       return
     }
 
@@ -315,12 +341,20 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         const updateResult = await updateDraft(updatedDraftData)
         if (!updateResult.ok) {
           console.error('Failed to update draft before conversion', updateResult.error)
-          alert('Failed to update draft before conversion: ' + (updateResult.error || 'Unknown error'))
+          toast({
+            title: "Failed to Update Draft",
+            description: updateResult.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       } catch (err) {
         console.error('Failed to update draft before conversion', err)
-        alert('Failed to update draft before conversion: ' + (err instanceof Error ? err.message : 'Unknown error'))
+        toast({
+          title: "Failed to Update Draft",
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        })
         return
       }
 
@@ -340,12 +374,20 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           }
           if (requestsRes.ok) dispatch({ type: 'SET_LEAVE_REQUESTS', payload: requestsRes.data })
         } else {
-          alert('Failed to submit draft: ' + (result.error || 'Unknown error'))
+          toast({
+            title: "Failed to Submit Draft",
+            description: result.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       } catch (err) {
         console.error('Error converting draft:', err)
-        alert('Failed to submit draft')
+        toast({
+          title: "Failed to Submit Draft",
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        })
         return
       }
       requestInstructorId = formData.instructorId
@@ -379,12 +421,20 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           dispatch({ type: 'ADD_LEAVE_REQUEST', payload: result.data })
           crudSuccess('leave request', 'created')
         } else {
-          alert('Failed to create leave request: ' + (result.error || 'Unknown error'))
+          toast({
+            title: "Failed to Create Leave Request",
+            description: result.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       } catch (err) {
         console.error('Error creating leave request:', err)
-        alert('Failed to create leave request')
+        toast({
+          title: "Failed to Create Leave Request",
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        })
         return
       }
       

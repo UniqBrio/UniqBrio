@@ -400,7 +400,7 @@ export function ManualPaymentDialog({
         
         // Prepare parallel fetch calls based on what data we need
         const fetchPromises: Promise<any>[] = [
-          fetch(`/api/dashboard/payments/student-details?studentId=${payment.studentId}`, { credentials: 'include' }).then(r => r.json())
+          fetch(`/api/dashboard/payments/student-details?studentId=${payment.studentId}`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(r))
         ];
         
         // If payment already has course and cohort info, we can fetch those in parallel
@@ -415,7 +415,7 @@ export function ManualPaymentDialog({
         
         if (cohortId) {
           fetchPromises.push(
-            fetch(`/api/dashboard/payments/cohort-dates?cohortId=${cohortId}`, { credentials: 'include' }).then(r => r.json())
+            fetch(`/api/dashboard/payments/cohort-dates?cohortId=${cohortId}`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(r))
           );
         }
         

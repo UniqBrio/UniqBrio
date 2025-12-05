@@ -267,19 +267,32 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                 </button>
             </div>
             <div className="flex-1 w-full">
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/jpg"
-                className="block w-full border border-gray-300 rounded px-3 py-2"
-                onChange={e => setOwnerImage(e.target.files?.[0] || null)}
-              />
-              <span className="text-xs text-gray-500 dark:text-white">Accepted formats: jpeg, png, jpg</span>
+              {!ownerImage ? (
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                    className="block w-full text-sm text-transparent border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
+                    onChange={e => setOwnerImage(e.target.files?.[0] || null)}
+                  />
+                </div>
+              ) : null}
+              <span className="text-xs text-gray-500 dark:text-white mt-1 block">Accepted formats: jpeg, png, jpg</span>
               {ownerImage && (
                 <div className="mt-2">
                   {typeof ownerImage === 'string' ? (
                     <img src={ownerImage} alt="Owner" className="rounded shadow w-full max-w-xs" />
                   ) : (
-                    <div className="text-green-600 text-sm">✓ Owner image selected: {ownerImage.name}</div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-green-600 text-sm flex-1 truncate">✓ {ownerImage.name}</div>
+                      <button
+                        type="button"
+                        onClick={() => setOwnerImage(null)}
+                        className="text-red-600 hover:text-red-800 text-sm font-semibold flex-shrink-0"
+                      >
+                        Change
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -310,19 +323,32 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                 </button>
             </div>
             <div className="flex-1 w-full">
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/jpg"
-                className="block w-full border border-gray-300 rounded px-3 py-2"
-                onChange={e => setBannerImage(e.target.files?.[0] || null)}
-              />
-              <span className="text-xs text-gray-500 dark:text-white">Accepted formats: jpeg, png, jpg</span>
+              {!bannerImage ? (
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                    className="block w-full text-sm text-transparent border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
+                    onChange={e => setBannerImage(e.target.files?.[0] || null)}
+                  />
+                </div>
+              ) : null}
+              <span className="text-xs text-gray-500 dark:text-white mt-1 block">Accepted formats: jpeg, png, jpg</span>
               {bannerImage && (
                 <div className="mt-2">
                   {typeof bannerImage === 'string' ? (
                     <img src={bannerImage} alt="Banner" className="rounded shadow w-full max-w-xs" />
                   ) : (
-                    <div className="text-green-600 text-sm">✓ Banner image selected: {bannerImage.name}</div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-green-600 text-sm flex-1 truncate">✓ {bannerImage.name}</div>
+                      <button
+                        type="button"
+                        onClick={() => setBannerImage(null)}
+                        className="text-red-600 hover:text-red-800 text-sm font-semibold flex-shrink-0"
+                      >
+                        Change
+                      </button>
+                    </div>
                   )}
                 </div>
               )}

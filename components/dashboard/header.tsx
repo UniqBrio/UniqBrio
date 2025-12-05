@@ -155,9 +155,6 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
   }
 
   const handleLogout = async () => {
-    const confirmed = window.confirm("Are you sure you want to log out?")
-    if (!confirmed) return
-    
     try {
       // Broadcast logout to other tabs before logging out
       clearTabSession()

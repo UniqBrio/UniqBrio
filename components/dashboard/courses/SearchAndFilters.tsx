@@ -93,7 +93,15 @@ export default function SearchAndFilters({
     if (!courses || !Array.isArray(courses)) {
       return defaultLevels;
     }
-    const courseLevels = courses.map(course => course.level).filter(Boolean);
+    const courseLevels = courses
+      .map(course => course.level)
+      .filter(Boolean)
+      .map(level => {
+        // Normalize level to match default levels (fix case sensitivity)
+        const normalized = level.trim();
+        const match = defaultLevels.find(def => def.toLowerCase() === normalized.toLowerCase());
+        return match || normalized;
+      });
     const allLevels = new Set([...defaultLevels, ...courseLevels]);
     return Array.from(allLevels).sort();
   }, [courses]);
@@ -103,7 +111,15 @@ export default function SearchAndFilters({
     if (!courses || !Array.isArray(courses)) {
       return defaultStatuses;
     }
-    const courseStatuses = courses.map(course => course.status).filter(Boolean);
+    const courseStatuses = courses
+      .map(course => course.status)
+      .filter(Boolean)
+      .map(status => {
+        // Normalize status to match default statuses (fix case sensitivity)
+        const normalized = status.trim();
+        const match = defaultStatuses.find(def => def.toLowerCase() === normalized.toLowerCase());
+        return match || normalized;
+      });
     const allStatuses = new Set([...defaultStatuses, ...courseStatuses]);
     return Array.from(allStatuses).sort();
   }, [courses]);
@@ -115,7 +131,12 @@ export default function SearchAndFilters({
     }
     const courseCategories: string[] = [];
     courses.forEach(course => {
-      if (course.courseCategory) courseCategories.push(course.courseCategory);
+      if (course.courseCategory) {
+        // Normalize category to match default categories (fix case sensitivity)
+        const normalized = course.courseCategory.trim();
+        const match = defaultCategories.find(def => def.toLowerCase() === normalized.toLowerCase());
+        courseCategories.push(match || normalized);
+      }
     });
     const allCategories = new Set([...defaultCategories, ...courseCategories]);
     return Array.from(allCategories).sort();
@@ -328,25 +349,39 @@ export default function SearchAndFilters({
                 onClick={() => {
                   setSortBy(option.value);
                 }}
+                className="flex items-center justify-between"
               >
-                {option.label}
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => setSortOrder("asc")}
+              className="flex items-center justify-between"
             >
-              Ascending
-              <ArrowUp className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder === "asc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setSortOrder("desc")}
+              className="flex items-center justify-between"
             >
-              Descending
-              <ArrowDown className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder === "desc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

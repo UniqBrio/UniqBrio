@@ -184,14 +184,53 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
     let error = "";
 
     if (field === "amount") {
-      // Remove anything except digits (no decimals allowed)
-      sanitized = String(value).replace(/[^0-9]/g, "");
+      // Remove anything except digits and decimal point
+      sanitized = String(value).replace(/[^0-9.]/g, "");
+      // Ensure only one decimal point
+      const parts = sanitized.split('.');
+      if (parts.length > 2) {
+        sanitized = parts[0] + '.' + parts.slice(1).join('');
+      }
+      // Limit to 2 decimal places
+      if (parts[1] && parts[1].length > 2) {
+        sanitized = parts[0] + '.' + parts[1].substring(0, 2);
+      }
       
-      // Validation
-      if (!/^[0-9]*$/.test(sanitized)) {
-        error = "Only whole numbers are allowed.";
-      } else if (sanitized && sanitized !== "0" && parseInt(sanitized) <= 0) {
+      // Validation: /^\d+(\.\d{1,2})?$/
+      if (sanitized && !/^\d+(\.\d{1,2})?$/.test(sanitized)) {
+        error = "Amount must be a valid number with up to 2 decimal places.";
+      } else if (sanitized && parseFloat(sanitized) <= 0) {
         error = "Amount must be greater than 0.";
+      }
+    } else if (field === "incomeCategory") {
+      // Allow letters, numbers, spaces, hyphens, apostrophes, ampersands
+      sanitized = String(value).replace(/[^a-zA-Z0-9\s\-'&]/g, "");
+      if (sanitized && !/^[a-zA-Z0-9\s\-'&]+$/.test(sanitized)) {
+        error = "Category can only contain letters, numbers, spaces, hyphens, apostrophes, and ampersands.";
+      }
+    } else if (field === "sourceType") {
+      // Allow letters, numbers, spaces, hyphens, apostrophes
+      sanitized = String(value).replace(/[^a-zA-Z0-9\s\-']/g, "");
+      if (sanitized && !/^[a-zA-Z0-9\s\-']+$/.test(sanitized)) {
+        error = "Source can only contain letters, numbers, spaces, hyphens, and apostrophes.";
+      }
+    } else if (field === "receivedBy" || field === "receivedFrom") {
+      // Allow letters, spaces, hyphens, apostrophes, dots
+      sanitized = String(value).replace(/[^a-zA-Z\s\-'.]/g, "");
+      if (sanitized && !/^[a-zA-Z\s\-'.]+$/.test(sanitized)) {
+        error = "Name can only contain letters, spaces, hyphens, apostrophes, and dots.";
+      }
+    } else if (field === "receiptNumber") {
+      // Allow alphanumeric, hyphens, slashes, underscores
+      sanitized = String(value).replace(/[^a-zA-Z0-9\-/_]/g, "");
+      if (sanitized && !/^[a-zA-Z0-9\-/_]+$/.test(sanitized)) {
+        error = "Receipt number can only contain letters, numbers, hyphens, slashes, and underscores.";
+      }
+    } else if (field === "description") {
+      // Allow letters, numbers, spaces, and common punctuation
+      if (value && !/^[a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*]+$/.test(value)) {
+        error = "Description contains invalid characters.";
+        sanitized = String(value).replace(/[^a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*]/g, "");
       }
     } else {
       sanitized = value;
@@ -213,11 +252,6 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
     }
     
     setIncomeFormError("");
-
-    // Show immediate toast for invalid input if there's an error
-    if (error) {
-      toast({ title: 'Invalid input', description: error });
-    }
   }
 
   // Memoize filtered options to prevent recalculation on every render
@@ -307,7 +341,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
           data: incomeForm
         });
         toast({
-          title: "?? Draft Updated",
+          title: "✅ Draft Updated",
           description: `Income draft "${draftName}" has been updated successfully.`,
           duration: 3000,
         });
@@ -324,7 +358,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
           data: incomeForm
         });
         toast({
-          title: "?? Draft Saved",
+          title: "✅ Draft Saved",
           description: `Income draft "${draftName}" has been saved successfully.`,
           duration: 3000,
         });
@@ -340,7 +374,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
     } catch (error) {
       console.error('Error saving income draft:', error);
       toast({
-        title: "? Save Failed",
+        title: "❌ Save Failed",
         description: "Unable to save income draft. Please try again.",
         variant: "destructive",
         duration: 4000,
@@ -436,20 +470,18 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Amount<span className="text-red-500">*</span></Label>
                   <input 
                     type="number" 
-                    min="0.01" 
-                    step="any" 
                     className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
                     style={{ '--focus-ring-color': primaryColor } as any}
                     onFocus={(e) => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }}
-                    value={incomeForm.amount} 
-                    onChange={e => handleIncomeChange('amount', e.target.value)} 
-                    onKeyDown={e => { if (e.key === '-' || e.key === '+' || e.key === 'e') { e.preventDefault(); } }} 
-                    required 
-                    tabIndex={2} 
-                    placeholder="Enter amount"
-                  />
-                  {fieldErrors.amount && <div className="text-red-600 text-xs mt-1">{fieldErrors.amount}</div>}
+                  value={incomeForm.amount} 
+                  onChange={e => handleIncomeChange('amount', e.target.value)} 
+                  onKeyDown={e => { if (e.key === '-' || e.key === '+' || e.key === 'e') { e.preventDefault(); } }} 
+                  required 
+                  tabIndex={2} 
+                  placeholder="Enter amount"
+                />
+                {fieldErrors.amount && <div className="text-red-600 text-xs mt-1">{fieldErrors.amount}</div>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Category<span className="text-red-500">*</span></Label>
@@ -472,7 +504,16 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new category..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 custom-focus-ring" value={categorySearchTerm} onChange={e => setCategorySearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input 
+                          placeholder="Search or type new category..." 
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 custom-focus-ring" 
+                          value={categorySearchTerm} 
+                          onChange={e => {
+                            const sanitized = e.target.value.replace(/[^a-zA-Z\s\-']/g, '');
+                            setCategorySearchTerm(sanitized);
+                          }} 
+                          onKeyDown={e => e.stopPropagation()} 
+                        />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto">
                         {(options.incomeCategories || [])
@@ -512,7 +553,16 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new source..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 custom-focus-ring" value={sourceSearchTerm} onChange={e => setSourceSearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input 
+                          placeholder="Search or type new source..." 
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 custom-focus-ring" 
+                          value={sourceSearchTerm} 
+                          onChange={e => {
+                            const sanitized = e.target.value.replace(/[^a-zA-Z\s\-']/g, '');
+                            setSourceSearchTerm(sanitized);
+                          }} 
+                          onKeyDown={e => e.stopPropagation()} 
+                        />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto">
                         {(options.incomeSources || [])
@@ -577,6 +627,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     placeholder="Enter receiver's name" 
                     tabIndex={8} 
                   />
+                  {fieldErrors.receivedBy && <div className="text-red-600 text-xs mt-1">{fieldErrors.receivedBy}</div>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Received From</Label>
@@ -588,6 +639,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     placeholder="Enter sender's name" 
                     tabIndex={9} 
                   />
+                  {fieldErrors.receivedFrom && <div className="text-red-600 text-xs mt-1">{fieldErrors.receivedFrom}</div>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Receipt / Transaction Number</Label>
@@ -599,6 +651,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     placeholder="Enter receipt or transaction number" 
                     tabIndex={10} 
                   />
+                  {fieldErrors.receiptNumber && <div className="text-red-600 text-xs mt-1">{fieldErrors.receiptNumber}</div>}
                 </div>
                 
               </div>
@@ -611,6 +664,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   placeholder="Enter description or notes about this income"
                   tabIndex={7} 
                 />
+                {fieldErrors.description && <div className="text-red-600 text-xs mt-1">{fieldErrors.description}</div>}
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>

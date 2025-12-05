@@ -24,11 +24,12 @@ export async function GET() {
     { tenantId: session.tenantId },
     async () => {
       await dbConnect("uniqbrio")
-      // Only return non-inactive records. Also exclude legacy soft-deleted where deleted_data === false if present.
+      // Only return non-inactive and non-deleted records
       let items: any[] = await NonInstructorModel.find({
     $and: [
       { $or: [ { status: { $exists: false } }, { status: { $ne: "Inactive" } } ] },
-      { $or: [ { deleted_data: { $exists: false } }, { deleted_data: { $ne: false } } ] }
+      { $or: [ { deleted_data: { $exists: false } }, { deleted_data: { $ne: false } } ] },
+      { $or: [ { isDeleted: { $exists: false } }, { isDeleted: { $ne: true } } ] }
     ]
   }).lean()
 

@@ -4,7 +4,9 @@ import CohortModel from "@/models/dashboard/staff/Cohort"
 
 export async function GET() {
   await dbConnect("uniqbrio")
-  const items = await CohortModel.find().lean()
+  const items = await CohortModel.find({
+    $or: [ { isDeleted: { $exists: false } }, { isDeleted: { $ne: true } } ]
+  }).lean()
   return NextResponse.json(items)
 }
 

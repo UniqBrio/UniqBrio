@@ -49,12 +49,14 @@ export function FilterDropdownWithCheckboxes({
   }
  
   const getButtonText = () => {
-    if (pending.length === 0) return placeholder
-    if (pending.length === 1) {
-      const option = options.find(opt => opt.value === pending[0])
-      return option?.label || pending[0]
+    // Use 'value' (applied state) instead of 'pending' for the count display
+    const displayValue = showFooterActions ? pending : value
+    if (displayValue.length === 0) return placeholder
+    if (displayValue.length === 1) {
+      const option = options.find(opt => opt.value === displayValue[0])
+      return option?.label || displayValue[0]
     }
-    return `${pending.length} selected`
+    return `${displayValue.length} selected`
   }
  
   return (

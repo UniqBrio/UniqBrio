@@ -25,7 +25,7 @@ export default function CancelDialog({
 }: CancelDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center">

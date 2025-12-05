@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -34,9 +35,11 @@ export default function RescheduleDialog({
   onEndTimeChange,
   onConfirm,
 }: RescheduleDialogProps) {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5 text-blue-500" />
@@ -60,15 +63,15 @@ export default function RescheduleDialog({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>New Date</Label>
-            <Popover>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-start text-left font-normal bg-transparent">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : "Select date"}
+                  {date ? format(date, "dd-MMM-yy") : "Select date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
-                <Calendar mode="single" selected={date} onSelect={(d) => d && onDateChange(d)} initialFocus />
+                <Calendar mode="single" selected={date} onSelect={(d) => { if (d) { onDateChange(d); setIsCalendarOpen(false); } }} initialFocus />
               </PopoverContent>
             </Popover>
           </div>

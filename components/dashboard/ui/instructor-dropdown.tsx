@@ -119,24 +119,21 @@ export default function InstructorDropdown({
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-full p-2" align="start">
+        <PopoverContent className="w-full p-2" align="start" sideOffset={5} avoidCollisions={true} collisionPadding={10}>
           <Command>
-            <div className="flex items-center border-b px-3 mb-2">
-              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-              <CommandInput
-                placeholder="Search instructors..."
-                value={searchTerm}
-                onValueChange={setSearchTerm}
-                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
-                onFocus={(e) => {
-                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}`
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.boxShadow = ''
-                }}
-              />
-            </div>
+            <CommandInput
+              placeholder="Search instructors..."
+              value={searchTerm}
+              onValueChange={setSearchTerm}
+              className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}`
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = ''
+              }}
+            />
 
             <CommandList>
               {loading ? (

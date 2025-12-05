@@ -13,7 +13,7 @@ interface CalendarSyncDialogProps {
 export default function CalendarSyncDialog({ isOpen, onOpenChange, onSync }: CalendarSyncDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarIntegration className="h-5 w-5" />

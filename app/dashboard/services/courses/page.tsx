@@ -654,9 +654,9 @@ export default function EnhancedCourseManagementPage() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/dashboard/services/courses").then(res => res.json()),
-      fetch("/api/dashboard/services/courses/drafts").then(res => res.json()).catch(() => []),
-      fetch('/api/dashboard/services/cohorts').then(res => res.json()).catch(() => [])
+      fetch("/api/dashboard/services/courses").then(res => res.ok ? res.json() : Promise.reject(res)),
+      fetch("/api/dashboard/services/courses/drafts").then(res => res.ok ? res.json() : []).catch(() => []),
+      fetch('/api/dashboard/services/cohorts').then(res => res.ok ? res.json() : []).catch(() => [])
     ]).then(([coursesData, draftsData, cohortsData]) => {
       // Handle courses data
       if (coursesData.success && coursesData.courses) {

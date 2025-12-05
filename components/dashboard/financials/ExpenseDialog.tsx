@@ -184,58 +184,64 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
       let sanitized = value
       let error = ""
 
-      // Dates: keep as-is (native date input handles format)
-      if (field === "date") {
-        // nothing to sanitize
-      }
-
-      // Amount: allow only positive whole numbers (no decimals)
+      // Amount: allow positive numbers with up to 2 decimal places
       if (field === "amount") {
-        // Remove anything except digits (no decimals allowed)
-        sanitized = String(value).replace(/[^0-9]/g, "")
+        // Remove anything except digits and decimal point
+        sanitized = String(value).replace(/[^0-9.]/g, "");
+        // Ensure only one decimal point
+        const parts = sanitized.split('.');
+        if (parts.length > 2) {
+          sanitized = parts[0] + '.' + parts.slice(1).join('');
+        }
+        // Limit to 2 decimal places
+        if (parts[1] && parts[1].length > 2) {
+          sanitized = parts[0] + '.' + parts[1].substring(0, 2);
+        }
         
-        // Validation
-        if (!/^[0-9]*$/.test(sanitized)) {
-          error = "Only whole numbers are allowed."
-        } else if (sanitized && sanitized !== "0" && parseInt(sanitized) <= 0) {
-          error = "Amount must be greater than 0."
+        // Validation: /^\\d+(\\.\\d{1,2})?$/
+        if (sanitized && !/^\d+(\.\d{1,2})?$/.test(sanitized)) {
+          error = "Amount must be a valid number with up to 2 decimal places.";
+        } else if (sanitized && parseFloat(sanitized) <= 0) {
+          error = "Amount must be greater than 0.";
         }
-      }
-
-      // Account IDs: digits only
-      if (field === "senderAccountId" || field === "receiverAccountId") {
-        sanitized = String(value).replace(/[^0-9]/g, "")
-        if (!/^[0-9]*$/.test(sanitized)) error = "Only digits are allowed."
-      }
-
-      // Text fields: block control characters that are not printable and trim excessive whitespace
-      const textFields = [
-        'description',
-        'receivedBy',
-        'receivedFrom',
-        'receiptNumber',
-        'vendorName',
-        'vendorType'
-      ]
-
-      if (textFields.includes(field)) {
-        // remove non-printable characters except basic punctuation
-        sanitized = String(value).replace(/[\x00-\x1F\x7F]/g, "")
-        // disallow < and > to avoid accidental tag injection
-        if (/[<>]/.test(sanitized)) {
-          sanitized = sanitized.replace(/[<>]/g, '')
-          error = "Invalid characters removed."
+      } else if (field === "expenseCategory") {
+        // Allow letters, numbers, spaces, hyphens, apostrophes, ampersands
+        sanitized = String(value).replace(/[^a-zA-Z0-9\s\-'&]/g, "");
+        if (sanitized && !/^[a-zA-Z0-9\s\-'&]+$/.test(sanitized)) {
+          error = "Category can only contain letters, numbers, spaces, hyphens, apostrophes, and ampersands.";
         }
-      }
-
-      // References/receipt: allow alphanumeric and -_/ only
-      if (field === 'receiptNumber') {
-        sanitized = String(value).replace(/[^a-zA-Z0-9-_\/]/g, '')
-      }
-
-      // Vendor type search term update (free text allowed but sanitized)
-      if (field === 'vendorTypeSearchTerm') {
-        sanitized = String(value).replace(/[\x00-\x1F\x7F<>]/g, '')
+      } else if (field === "vendorName") {
+        // Allow letters, numbers, spaces, hyphens, apostrophes, dots, commas
+        sanitized = String(value).replace(/[^a-zA-Z0-9\s\-'.,]/g, "");
+        if (sanitized && !/^[a-zA-Z0-9\s\-'.,]+$/.test(sanitized)) {
+          error = "Vendor name can only contain letters, numbers, spaces, hyphens, apostrophes, dots, and commas.";
+        }
+      } else if (field === "vendorType") {
+        // Allow letters, numbers, spaces, hyphens, apostrophes
+        sanitized = String(value).replace(/[^a-zA-Z0-9\s\-']/g, "");
+        if (sanitized && !/^[a-zA-Z0-9\s\-']+$/.test(sanitized)) {
+          error = "Vendor type can only contain letters, numbers, spaces, hyphens, and apostrophes.";
+        }
+      } else if (field === "receivedBy" || field === "receivedFrom") {
+        // Allow letters, spaces, hyphens, apostrophes, dots
+        sanitized = String(value).replace(/[^a-zA-Z\s\-'.]/g, "");
+        if (sanitized && !/^[a-zA-Z\s\-'.]+$/.test(sanitized)) {
+          error = "Name can only contain letters, spaces, hyphens, apostrophes, and dots.";
+        }
+      } else if (field === "receiptNumber") {
+        // Allow alphanumeric, hyphens, slashes, underscores
+        sanitized = String(value).replace(/[^a-zA-Z0-9\-/_]/g, "");
+        if (sanitized && !/^[a-zA-Z0-9\-/_]+$/.test(sanitized)) {
+          error = "Receipt number can only contain letters, numbers, hyphens, slashes, and underscores.";
+        }
+      } else if (field === "description") {
+        // Allow letters, numbers, spaces, and common punctuation
+        if (value && !/^[a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*]+$/.test(value)) {
+          error = "Description contains invalid characters.";
+          sanitized = String(value).replace(/[^a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*]/g, "");
+        }
+      } else {
+        sanitized = value;
       }
 
       // Update field errors and form
@@ -363,7 +369,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
           data: expenseForm
         });
         toast({
-          title: "?? Draft Updated",
+          title: "✅ Draft Updated",
           description: `Expense draft "${draftName}" has been updated successfully.`,
           duration: 3000,
         });
@@ -380,7 +386,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
           data: expenseForm
         });
         toast({
-          title: "?? Draft Saved",
+          title: "✅ Draft Saved",
           description: `Expense draft "${draftName}" has been saved successfully.`,
           duration: 3000,
         });
@@ -396,7 +402,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
     } catch (error) {
       console.error('Error saving expense draft:', error);
       toast({
-        title: "? Save Failed",
+        title: "❌ Save Failed",
         description: "Unable to save expense draft. Please try again.",
         variant: "destructive",
         duration: 4000,
@@ -485,8 +491,6 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   <input
                     id="expense-amount"
                     type="number"
-                    min="0.01"
-                    step="any"
                     className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
                     value={expenseForm.amount}
                     onChange={e => handleExpenseChange("amount", e.target.value)}
@@ -527,7 +531,16 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new category..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value={expenseCategorySearchTerm} onChange={e => setExpenseCategorySearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input 
+                          placeholder="Search or type new category..." 
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                          value={expenseCategorySearchTerm} 
+                          onChange={e => {
+                            const sanitized = e.target.value.replace(/[^a-zA-Z\s\-']/g, '');
+                            setExpenseCategorySearchTerm(sanitized);
+                          }} 
+                          onKeyDown={e => e.stopPropagation()} 
+                        />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto" role="listbox">
                         {filteredExpenseCategories
@@ -570,7 +583,16 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new vendor..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value={vendorNameSearchTerm} onChange={e => setVendorNameSearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input 
+                          placeholder="Search or type new vendor..." 
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                          value={vendorNameSearchTerm} 
+                          onChange={e => {
+                            const sanitized = e.target.value.replace(/[^a-zA-Z\s\-'.]/g, '');
+                            setVendorNameSearchTerm(sanitized);
+                          }} 
+                          onKeyDown={e => e.stopPropagation()} 
+                        />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto" role="listbox">
                         {filteredVendorNames
@@ -613,7 +635,16 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 p-2 text-[15px]">
                       <div className="mb-2" onClick={e => e.stopPropagation()}>
-                        <Input placeholder="Search or type new type..." className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value={vendorTypeSearchTerm} onChange={e => setVendorTypeSearchTerm(e.target.value)} onKeyDown={e => e.stopPropagation()} />
+                        <Input 
+                          placeholder="Search or type new type..." 
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                          value={vendorTypeSearchTerm} 
+                          onChange={e => {
+                            const sanitized = e.target.value.replace(/[^a-zA-Z\s\-']/g, '');
+                            setVendorTypeSearchTerm(sanitized);
+                          }} 
+                          onKeyDown={e => e.stopPropagation()} 
+                        />
                       </div>
                       <div className="max-h-[200px] overflow-y-auto" role="listbox">
                         {filteredVendorTypes
@@ -680,6 +711,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     tabIndex={9}
                     aria-label="Received by" 
                   />
+                  {fieldErrors.receivedBy && <p className="text-red-500 text-xs mt-1">{fieldErrors.receivedBy}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expense-received-from" className="text-sm font-medium text-gray-700 dark:text-white">Received From</Label>
@@ -693,6 +725,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     tabIndex={10}
                     aria-label="Received from" 
                   />
+                  {fieldErrors.receivedFrom && <p className="text-red-500 text-xs mt-1">{fieldErrors.receivedFrom}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expense-receipt-number" className="text-sm font-medium text-gray-700 dark:text-white">Receipt / Transaction Number</Label>
@@ -706,6 +739,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     tabIndex={11}
                     aria-label="Receipt or transaction number" 
                   />
+                  {fieldErrors.receiptNumber && <p className="text-red-500 text-xs mt-1">{fieldErrors.receiptNumber}</p>}
                 </div>
                  
               </div>
@@ -720,6 +754,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   tabIndex={8}
                   aria-label="Expense description"
                 />
+                {fieldErrors.description && <p className="text-red-500 text-xs mt-1">{fieldErrors.description}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="expense-attachment" className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>

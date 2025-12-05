@@ -257,7 +257,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
             {!loading && error && <div className="text-xs text-red-500 py-2 px-2">{error}</div>}
             {!loading && !error && filtered.map(c=> {
               const label=(c.courseId? `${c.courseId} - ${c.name}${c.level?` - ${c.level}`:''}`: `${c.name}${c.level?` - ${c.level}`:''}`);
-              const sub=[c.category,c.type,c.duration].filter(Boolean).join(' � ');
+              const sub=[c.category,c.type,c.duration].filter(Boolean).join(' • ');
               const isSel = c.id===value;
               return (
                 <div key={c.id} onClick={()=> { onChange(c.id); setOpen(false); }} className={cn('cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100 flex flex-col gap-0.5', isSel && 'bg-gray-100')}>
@@ -1388,7 +1388,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   const [missingFieldsList, setMissingFieldsList] = useState<string[]>([]);
   
   useEffect(()=>{ if(prefetchedCourses?.length) setCourseList(prefetchedCourses.filter(c=>c&&c.id)); },[prefetchedCourses]);
-  useEffect(()=>{ if(prefetchedCourses?.length) return; let cancelled=false; (async()=>{ setIsLoadingCourses(true); setError(null); try{ const data=await fetchCourses(); if(!cancelled) setCourseList(Array.isArray(data)?data.filter(c=>c&&c.id):[]);}catch(e:any){ if(!cancelled){ setError(e.message||'Failed to load courses'); if(retry<2) setTimeout(()=>setRetry(r=>r+1),800); }} finally { if(!cancelled) setIsLoadingCourses(false);} })(); return ()=>{cancelled=true}; },[prefetchedCourses,retry]);
+  useEffect(()=>{ if(prefetchedCourses?.length) return; let cancelled=false; (async()=>{ setIsLoadingCourses(true); setError(null); try{ const data=await fetchCourses(); if(!cancelled) setCourseList(Array.isArray(data)?data.filter(c=>c&&c.id&&c.status==='Active'):[]);}catch(e:any){ if(!cancelled){ setError(e.message||'Failed to load courses'); if(retry<2) setTimeout(()=>setRetry(r=>r+1),800); }} finally { if(!cancelled) setIsLoadingCourses(false);} })(); return ()=>{cancelled=true}; },[prefetchedCourses,retry]);
   // Load cohorts whenever the enrolled course changes
   useEffect(()=>{ 
     const enrolledCourse = (newStudent as any).enrolledCourse;
@@ -1988,21 +1988,23 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                   {draftId ? 'Complete and create a new student from this saved draft.' : (initialStudent ? 'Edit and update the existing student profile.' : 'Create a comprehensive student profile.')}
                 </DialogDescription>
               </div>
-              <div className="flex items-start gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-9 gap-1 mr-10 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm font-medium pl-2 pr-3"
-                  onClick={saveDraft}
-                  disabled={isSavingDraft}
-                >
-                  
-                  <Save className="w-4 h-4" />
-                  <span className="text-sm">{currentDraftId ? 'Update Draft' : 'Save Draft'}</span>
-                </Button>
-                {/* Removed redundant close button to avoid double X */}
-              </div>
+              {!initialStudent && (
+                <div className="flex items-start gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-9 gap-1 mr-10 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm font-medium pl-2 pr-3"
+                    onClick={saveDraft}
+                    disabled={isSavingDraft}
+                  >
+                    
+                    <Save className="w-4 h-4" />
+                    <span className="text-sm">{currentDraftId ? 'Update Draft' : 'Save Draft'}</span>
+                  </Button>
+                  {/* Removed redundant close button to avoid double X */}
+                </div>
+              )}
             </div>
             
           </DialogHeader>
@@ -2375,10 +2377,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={saveDraft} disabled={isSavingDraft} className="h-10 gap-2 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium disabled:opacity-60 disabled:cursor-not-allowed">
-                      <Save className="w-4 h-4" />
-                      <span className="text-sm">{currentDraftId ? 'Update Draft' : 'Save Draft'}</span>
-                    </Button>
+                    {!initialStudent && (
+                      <Button type="button" variant="outline" onClick={saveDraft} disabled={isSavingDraft} className="h-10 gap-2 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+                        <Save className="w-4 h-4" />
+                        <span className="text-sm">{currentDraftId ? 'Update Draft' : 'Save Draft'}</span>
+                      </Button>
+                    )}
                     {activeTab!==tabKeys[tabKeys.length-1]
                       ? <Button type="button" className="bg-[#8A2BE2] hover:bg-[#7A1FD2]" onClick={nextTab}>Next</Button>
                       : <div className="flex flex-col items-end gap-1" onClick={()=> { if(!validationStatus.valid) { // expose all invalid fields and jump
@@ -2389,9 +2393,15 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         } }}>
                           <Button 
                             type="submit" 
-                            disabled={!validationStatus.valid}
+                            disabled={!validationStatus.valid || (initialStudent && !hasUnsavedChanges)}
                             className="bg-[#8A2BE2] hover:bg-[#7A1FD2] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-                            title={!validationStatus.valid ? "Please fill in all required fields to continue" : undefined}
+                            title={
+                              !validationStatus.valid 
+                                ? "Please fill in all required fields to continue" 
+                                : (initialStudent && !hasUnsavedChanges)
+                                  ? "No changes to save"
+                                  : undefined
+                            }
                           >
                             {draftId ? 'Create Student' : (initialStudent ? 'Save Changes' : 'Add Student')}
                           </Button>

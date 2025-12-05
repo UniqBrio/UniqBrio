@@ -23,8 +23,11 @@ export async function GET() {
       
       console.log('Fetching non-instructor stats for date:', todayStr)
       
-      // Get total non-instructors
-      const totalNonInstructors = await NonInstructor.countDocuments({ tenantId: session.tenantId })
+      // Get total non-instructors (only active, not deleted)
+      const totalNonInstructors = await NonInstructor.countDocuments({ 
+        tenantId: session.tenantId,
+        isDeleted: { $ne: true }
+      })
       
       // Get non-instructors on leave today
       // Dates are stored as strings in YYYY-MM-DD format

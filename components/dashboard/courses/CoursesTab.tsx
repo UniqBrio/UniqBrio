@@ -66,7 +66,13 @@ export default function CoursesTab({
   // Compute course type options
   const courseTypeOptions = useMemo(() => {
     const defaultTypes = ["Online", "Offline", "Hybrid"];
-    const courseTypes = courses?.map(course => course.type).filter(Boolean) || [];
+    const courseTypes = courses?.map(course => {
+      if (!course.type) return null;
+      // Normalize type to match default types (fix case sensitivity)
+      const normalized = course.type.trim();
+      const match = defaultTypes.find(def => def.toLowerCase() === normalized.toLowerCase());
+      return match || normalized;
+    }).filter(Boolean) || [];
     const allTypes = new Set([...defaultTypes, ...courseTypes]);
     return Array.from(allTypes).sort();
   }, [courses])

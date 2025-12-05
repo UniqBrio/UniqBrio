@@ -48,9 +48,9 @@ export function useCourseManagement() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/api/dashboard/services/courses", { credentials: 'include' }).then(res => res.json()),
-      fetch("/api/dashboard/services/courses/drafts", { credentials: 'include' }).then(res => res.json()).catch(() => []),
-      fetch('/api/dashboard/services/cohorts', { credentials: 'include' }).then(res => res.json()).catch(() => [])
+      fetch("/api/dashboard/services/courses", { credentials: 'include' }).then(res => res.ok ? res.json() : Promise.reject(res)),
+      fetch("/api/dashboard/services/courses/drafts", { credentials: 'include' }).then(res => res.ok ? res.json() : []).catch(() => []),
+      fetch('/api/dashboard/services/cohorts', { credentials: 'include' }).then(res => res.ok ? res.json() : []).catch(() => [])
     ]).then(([coursesData, draftsData, cohortsData]) => {
       // Handle courses data
       if (coursesData.success && coursesData.courses) {

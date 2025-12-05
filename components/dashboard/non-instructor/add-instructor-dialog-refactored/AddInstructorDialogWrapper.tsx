@@ -119,17 +119,19 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   const isCurrentTabValid = () => {
     if (addTab === "basic") {
       return (
-        !!form.joiningDate &&
-        !!form.contractType &&
         !!form.firstName &&
         !!form.lastName &&
-        !!form.role &&
-        !!form.email && validateEmail(form.email).ok &&
-        !!form.phone &&
         !!form.dob &&
         !!form.gender &&
+        !!form.email && validateEmail(form.email).ok &&
+        !!form.phone &&
         !!form.country &&
-        !!form.state
+        !!form.state &&
+        !!form.contractType &&
+        !!form.jobLevel &&
+        !!form.role &&
+        !!form.yearsOfExperience &&
+        !!form.joiningDate
       )
     }
     // Employment tab validation removed - fields not in type
@@ -138,17 +140,19 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
 
   // Basic Info mandatory validation reused for disabling Add Instructor on Payment tab
   const isBasicInfoValid = () => (
-    !!form.joiningDate &&
-    !!form.contractType &&
     !!form.firstName &&
     !!form.lastName &&
-    !!form.role &&
-    !!form.email && validateEmail(form.email).ok &&
-    !!form.phone &&
     !!form.dob &&
     !!form.gender &&
+    !!form.email && validateEmail(form.email).ok &&
+    !!form.phone &&
     !!form.country &&
-    !!form.state
+    !!form.state &&
+    !!form.contractType &&
+    !!form.jobLevel &&
+    !!form.role &&
+    !!form.yearsOfExperience &&
+    !!form.joiningDate
   )
 
   useEffect(() => {

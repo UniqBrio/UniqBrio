@@ -14,7 +14,7 @@ interface BulkActionsDialogProps {
 export default function BulkActionsDialog({ isOpen, onOpenChange, selectedCount, onAction }: BulkActionsDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Bulk Actions</DialogTitle>
           <DialogDescription>Perform actions on {selectedCount} selected events</DialogDescription>

@@ -66,7 +66,7 @@ export default function ReassignInstructorDialog({
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserCheck className="h-5 w-5" style={{ color: primaryColor }} />
@@ -121,11 +121,17 @@ export default function ReassignInstructorDialog({
                 <SelectValue placeholder="Choose an instructor" />
               </SelectTrigger>
               <SelectContent className="max-h-64">
+                {instructorAvailabilityList.length === 0 ? (
+                  <div className="px-2 py-4 text-sm text-center text-gray-500">
+                    No instructors available
+                  </div>
+                ) : (
+                  <>
                 {/* Available Instructors Section */}
                 {instructorAvailabilityList.filter(status => status.isAvailable).length > 0 && (
                   <>
                     <div className="px-2 py-1 text-xs font-medium text-green-700 bg-green-50 border-b">
-                      ? Available ({instructorAvailabilityList.filter(status => status.isAvailable).length})
+                      Available ({instructorAvailabilityList.filter(status => status.isAvailable).length})
                     </div>
                     {instructorAvailabilityList
                       .filter(status => status.isAvailable)
@@ -147,7 +153,7 @@ export default function ReassignInstructorDialog({
                 {instructorAvailabilityList.filter(status => !status.isAvailable).length > 0 && (
                   <>
                     <div className="px-2 py-1 text-xs font-medium text-red-700 bg-red-50 border-b border-t">
-                      ? Unavailable ({instructorAvailabilityList.filter(status => !status.isAvailable).length})
+                      Unavailable ({instructorAvailabilityList.filter(status => !status.isAvailable).length})
                     </div>
                     {instructorAvailabilityList
                       .filter(status => !status.isAvailable)
@@ -170,12 +176,14 @@ export default function ReassignInstructorDialog({
                     ))}
                   </>
                 )}
+                  </>
+                )}
               </SelectContent>
             </Select>
             
             {/* Compact status summary */}
             <div className="text-xs text-gray-500 dark:text-white text-center">
-              {instructorAvailabilityList.filter(i => i.isAvailable).length} of {instructorAvailabilityList.length} available � {format(sessionDate, 'dd-MMM-yy')} {startTime}-{endTime}
+              {instructorAvailabilityList.filter(i => i.isAvailable).length} of {instructorAvailabilityList.length} available · {format(sessionDate, 'dd-MMM-yy')} {startTime}-{endTime}
             </div>
           </div>
           
@@ -197,7 +205,7 @@ export default function ReassignInstructorDialog({
                       <div>
                         <div className="font-medium text-sm">{selectedInstructor.name}</div>
                         <div className="text-xs text-gray-600 dark:text-white">
-                          {selectedInstructor.specializations?.[0] || 'General'} � ? {selectedInstructor.rating?.toFixed(1) || 'N/A'}
+                          {selectedInstructor.specializations?.[0] || 'General'} · ⭐ {selectedInstructor.rating?.toFixed(1) || 'N/A'}
                         </div>
                       </div>
                     </div>

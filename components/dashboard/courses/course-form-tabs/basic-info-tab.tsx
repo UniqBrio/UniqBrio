@@ -51,36 +51,106 @@ export default function BasicInfoTab({
 
   const [locationSearchTerm, setLocationSearchTerm] = useState('')
   const [statusSearchTerm, setStatusSearchTerm] = useState('')
+  
+  // Error states for inline validation
+  const [courseNameError, setCourseNameError] = useState('')
+  const [descriptionError, setDescriptionError] = useState('')
+  const [levelError, setLevelError] = useState('')
+  const [typeError, setTypeError] = useState('')
+  const [categoryError, setCategoryError] = useState('')
+  const [locationError, setLocationError] = useState('')
+  const [statusError, setStatusError] = useState('')
+  const [tagsError, setTagsError] = useState('')
+  const [guidelinesError, setGuidelinesError] = useState('')
+  const [freeGiftsError, setFreeGiftsError] = useState('')
+  const [faqQuestionError, setFaqQuestionError] = useState<{[key: string]: string}>({})
+  const [faqAnswerError, setFaqAnswerError] = useState<{[key: string]: string}>({})
 
-  // Validation function for course name
+  // Comprehensive regex validation functions for all form fields
+  
+  // Course Name: Allow letters, numbers, spaces, hyphens, apostrophes, ampersands, and common symbols
   const validateCourseName = (name: string) => {
-    // Allow only letters (a-z, A-Z) and spaces
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    return nameRegex.test(name);
+    const nameRegex = /^[a-zA-Z0-9\s\-'&.()]+$/;
+    return name === '' || nameRegex.test(name);
   };
 
+  // Instructor Name: Allow letters, spaces, hyphens, apostrophes, and periods (Dr., Mr., etc.)
+  const validateInstructorName = (name: string) => {
+    const instructorRegex = /^[a-zA-Z\s\-'.]+$/;
+    return name === '' || instructorRegex.test(name);
+  };
 
+  // Location: Allow letters, numbers, spaces, hyphens, commas, and common address characters
+  const validateLocation = (location: string) => {
+    const locationRegex = /^[a-zA-Z0-9\s\-,./()#]+$/;
+    return location === '' || locationRegex.test(location);
+  };
 
-  // Validation function for description
+  // Max Students: Allow only positive numbers
+  const validateMaxStudents = (value: string) => {
+    const maxStudentsRegex = /^[1-9][0-9]*$/;
+    return value === '' || maxStudentsRegex.test(value);
+  };
+
+  // Description: Allow letters, numbers, spaces, and comprehensive punctuation
   const validateDescription = (description: string) => {
-    // Allow letters, numbers, spaces, and common punctuation
-    const descRegex = /^[a-zA-Z0-9\s.,!?;:()\-_'"]*$/;
-    return descRegex.test(description);
+    const descRegex = /^[a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*]+$/;
+    return description === '' || descRegex.test(description);
   };
 
-  // Validation function for student guidelines
+  // Student Guidelines: Allow comprehensive text with formatting characters
   const validateGuidelines = (guidelines: string) => {
-    // Allow letters, numbers, spaces, and common punctuation
-    const guidelinesRegex = /^[a-zA-Z0-9\s.,!?;:()\-_'"]*$/;
-    return guidelinesRegex.test(guidelines);
+    const guidelinesRegex = /^[a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*•–—]+$/;
+    return guidelines === '' || guidelinesRegex.test(guidelines);
   };
 
-  // Validation function for FAQ content
+  // FAQ Content: Allow comprehensive text for questions and answers
   const validateFaqContent = (content: string) => {
-    // Allow letters, numbers, spaces, and common punctuation
-    const faqRegex = /^[a-zA-Z0-9\s.,!?;:()\-_'"]*$/;
-    return faqRegex.test(content);
+    const faqRegex = /^[a-zA-Z0-9\s.,!?;:()\-_'"\n\r&@#%/\\[\]{}+=*]+$/;
+    return content === '' || faqRegex.test(content);
   };
+
+  // Tags: Allow letters, numbers, spaces, hyphens
+  const validateTag = (tag: string) => {
+    const tagRegex = /^[a-zA-Z0-9\s\-]+$/;
+    return tag === '' || tagRegex.test(tag);
+  };
+
+  // URL Validation (for virtual classroom URLs)
+  const validateUrl = (url: string) => {
+    const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/;
+    return url === '' || urlRegex.test(url);
+  };
+
+  // Price/Numbers: Allow only positive numbers with optional decimals
+  const validatePrice = (price: string) => {
+    const priceRegex = /^\d+(\.\d{1,2})?$/;
+    return price === '' || priceRegex.test(price);
+  };
+
+  // Duration: Allow numbers with optional units (e.g., "8 weeks", "3 months")
+  const validateDuration = (duration: string) => {
+    const durationRegex = /^[0-9]+(\s*(weeks?|months?|days?|hours?))?$/i;
+    return duration === '' || durationRegex.test(duration);
+  };
+
+  // Phone/Contact: Allow numbers, spaces, hyphens, parentheses, and plus sign
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^[\d\s\-+()]+$/;
+    return phone === '' || phoneRegex.test(phone);
+  };
+
+  // Email validation
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return email === '' || emailRegex.test(email);
+  };
+
+  // Alphanumeric with special chars (for codes, IDs)
+  const validateCode = (code: string) => {
+    const codeRegex = /^[a-zA-Z0-9\-_]+$/;
+    return code === '' || codeRegex.test(code);
+  }
 
   const defaultStatusOptions = [
     "Active",
@@ -359,22 +429,22 @@ export default function BasicInfoTab({
           <Label htmlFor="courseName" className="mb-1 font-medium">Course Name <span className="text-red-500">*</span></Label>
           <Input
             id="courseName"
-            placeholder="Enter course name (letters and spaces only)"
+            placeholder="Enter course name (letters, numbers, and common symbols)"
             value={formData.name || ''}
             onChange={e => {
               const newValue = e.target.value;
-              if (newValue === '' || validateCourseName(newValue)) {
+              if (validateCourseName(newValue)) {
                 onFormChange('name', newValue);
+                setCourseNameError('');
               } else {
-                toast({
-                  title: "Invalid Course Name",
-                  description: "Course name can only contain letters and spaces. Numbers and special characters are not allowed.",
-                  variant: "destructive",
-                });
+                setCourseNameError('Only letters, numbers, spaces, hyphens, apostrophes, ampersands, and periods allowed');
               }
             }}
             className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
+          {courseNameError && (
+            <p className="text-red-500 text-xs mt-1">{courseNameError}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="status" className="mb-1 font-medium">Course Status <span className="text-red-500">*</span></Label>
@@ -394,9 +464,22 @@ export default function BasicInfoTab({
                   placeholder="Search status..."
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   value={statusSearchTerm}
-                  onChange={e => setStatusSearchTerm(e.target.value)}
+                  onChange={e => {
+                    const newValue = e.target.value;
+                    // Only allow letters, spaces, and hyphens for status search
+                    const statusRegex = /^[a-zA-Z\s\-]*$/;
+                    if (statusRegex.test(newValue)) {
+                      setStatusSearchTerm(newValue);
+                      setStatusError('');
+                    } else {
+                      setStatusError('Only letters, spaces, and hyphens allowed');
+                    }
+                  }}
                   onKeyDown={(e) => e.stopPropagation()}
                 />
+                {statusError && (
+                  <p className="text-red-500 text-xs mt-1">{statusError}</p>
+                )}
               </div>
               <div className="max-h-[120px] overflow-y-auto">
                 {defaultStatusOptions
@@ -472,10 +555,16 @@ export default function BasicInfoTab({
                     
                     if (isValid) {
                       setLocationSearchTerm(value);
+                      setLocationError('');
+                    } else {
+                      setLocationError('Only letters, numbers, and spaces allowed (min 4 letters)');
                     }
                   }}
                   onKeyDown={(e) => e.stopPropagation()}
                 />
+                {locationError && (
+                  <p className="text-red-500 text-xs mt-1">{locationError}</p>
+                )}
               </div>
               <div className="max-h-[200px] overflow-y-auto">
                 {locationsLoading ? (
@@ -560,23 +649,23 @@ export default function BasicInfoTab({
   <Label htmlFor="description" className="mb-1 font-medium">Description <span className="text-red-500">*</span></Label>
         <Textarea
           id="description"
-          placeholder="Describe your course in detail (letters, numbers, basic punctuation only)..."
+          placeholder="Describe your course in detail (comprehensive text with punctuation)..."
           rows={3}
           value={formData.description || ''}
           onChange={e => {
             const newValue = e.target.value;
-            if (newValue === '' || validateDescription(newValue)) {
+            if (validateDescription(newValue)) {
               onFormChange('description', newValue);
+              setDescriptionError('');
             } else {
-              toast({
-                title: "Invalid Description",
-                description: "Description can only contain letters, numbers, spaces, and basic punctuation marks.",
-                variant: "destructive",
-              });
+              setDescriptionError('Only letters, numbers, spaces, and standard punctuation marks allowed');
             }
           }}
           className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
+        {descriptionError && (
+          <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
+        )}
       </div>
 
   <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[15px]">
@@ -603,10 +692,16 @@ export default function BasicInfoTab({
                     // Allow only alphabets and spaces for level
                     if (/^[a-zA-Z\s]*$/.test(value)) {
                       setLevelSearchTerm(value);
+                      setLevelError('');
+                    } else {
+                      setLevelError('Only letters and spaces allowed');
                     }
                   }}
                   onKeyDown={(e) => e.stopPropagation()}
                 />
+                {levelError && (
+                  <p className="text-red-500 text-xs mt-1">{levelError}</p>
+                )}
               </div>
               <div className="max-h-[120px] overflow-y-auto">
                 {levelOptions
@@ -667,10 +762,16 @@ export default function BasicInfoTab({
                     // Allow only alphabets and spaces for type
                     if (/^[a-zA-Z\s]*$/.test(value)) {
                       setTypeSearchTerm(value);
+                      setTypeError('');
+                    } else {
+                      setTypeError('Only letters and spaces allowed');
                     }
                   }}
                   onKeyDown={(e) => e.stopPropagation()}
                 />
+                {typeError && (
+                  <p className="text-red-500 text-xs mt-1">{typeError}</p>
+                )}
               </div>
               <div className="max-h-[200px] overflow-y-auto">
                 {typeOptions
@@ -731,10 +832,16 @@ export default function BasicInfoTab({
                     // Allow only alphabets and spaces for categories
                     if (/^[a-zA-Z\s]*$/.test(value)) {
                       setCategorySearchTerm(value);
+                      setCategoryError('');
+                    } else {
+                      setCategoryError('Only letters and spaces allowed');
                     }
                   }}
                   onKeyDown={(e) => e.stopPropagation()}
                 />
+                {categoryError && (
+                  <p className="text-red-500 text-xs mt-1">{categoryError}</p>
+                )}
               </div>
               <div className="max-h-[200px] overflow-y-auto">
                 {categoryOptions
@@ -817,6 +924,9 @@ export default function BasicInfoTab({
                   // Allow only alphabets and spaces for tags
                   if (/^[a-zA-Z\s]*$/.test(value)) {
                     setSearchTerm(value);
+                    setTagsError('');
+                  } else {
+                    setTagsError('Only letters and spaces allowed');
                   }
                 }}
               />
@@ -899,6 +1009,7 @@ export default function BasicInfoTab({
           </DropdownMenuContent>
         </DropdownMenu>
   <div className="text-[13px] text-gray-500 mt-0.5">Select one or more tags.</div>
+  {tagsError && <p className="text-red-500 text-xs mt-1">{tagsError}</p>}
       </div>
 
   <Separator className="my-2" />
@@ -909,23 +1020,23 @@ export default function BasicInfoTab({
         <div>
           <Textarea 
             id="studentGuidelines" 
-            placeholder="Student Guidelines or special instructions (letters, numbers, basic punctuation only)..." 
+            placeholder="Student Guidelines or special instructions (comprehensive text with formatting)..." 
             rows={2} 
             className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             value={formData.studentGuidelines || ''}
             onChange={e => {
               const newValue = e.target.value;
-              if (newValue === '' || validateGuidelines(newValue)) {
+              if (validateGuidelines(newValue)) {
                 onFormChange('studentGuidelines', newValue);
+                setGuidelinesError('');
               } else {
-                toast({
-                  title: "Invalid Guidelines",
-                  description: "Guidelines can only contain letters, numbers, spaces, and basic punctuation marks.",
-                  variant: "destructive",
-                });
+                setGuidelinesError('Only letters, numbers, spaces, and standard punctuation marks including bullets allowed');
               }
             }}
           />
+          {guidelinesError && (
+            <p className="text-red-500 text-xs mt-1">{guidelinesError}</p>
+          )}
         </div>
         
         <div>
@@ -970,6 +1081,9 @@ export default function BasicInfoTab({
                   // Allow only alphabets and spaces for free gifts
                   if (/^[a-zA-Z\s]*$/.test(value)) {
                     setFreeGiftSearchTerm(value);
+                    setFreeGiftsError('');
+                  } else {
+                    setFreeGiftsError('Only letters and spaces allowed');
                   }
                 }}
               />
@@ -983,6 +1097,9 @@ export default function BasicInfoTab({
                 Clear All
               </Button>
             </div>
+            {freeGiftsError && (
+              <p className="text-red-500 text-xs mt-1 mb-2">{freeGiftsError}</p>
+            )}
             <div
               style={{
                 minHeight: '32px',
@@ -1117,17 +1234,24 @@ export default function BasicInfoTab({
                         const updated = [...(formData.faqs || [])];
                         updated[idx] = { ...updated[idx], question: newValue };
                         onFormChange('faqs', updated);
-                      } else {
-                        toast({
-                          title: "Invalid FAQ Question",
-                          description: "FAQ question can only contain letters, numbers, spaces, and basic punctuation marks.",
-                          variant: "destructive",
+                        setFaqQuestionError(prev => {
+                          const newErrors = {...prev};
+                          delete newErrors[faq.id || `faq-${idx}`];
+                          return newErrors;
                         });
+                      } else {
+                        setFaqQuestionError(prev => ({
+                          ...prev,
+                          [faq.id || `faq-${idx}`]: 'Only letters, numbers, spaces, and basic punctuation marks allowed'
+                        }));
                       }
                     }}
                     placeholder="Enter FAQ question (letters, numbers, basic punctuation only)"
                     className="mb-2 border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
+                  {faqQuestionError[faq.id || `faq-${idx}`] && (
+                    <p className="text-red-500 text-xs mt-1 mb-2">{faqQuestionError[faq.id || `faq-${idx}`]}</p>
+                  )}
                   <Label className="font-medium">Answer</Label>
                   <Textarea
                     value={faq.answer}
@@ -1137,18 +1261,25 @@ export default function BasicInfoTab({
                         const updated = [...(formData.faqs || [])];
                         updated[idx] = { ...updated[idx], answer: newValue };
                         onFormChange('faqs', updated);
-                      } else {
-                        toast({
-                          title: "Invalid FAQ Answer",
-                          description: "FAQ answer can only contain letters, numbers, spaces, and basic punctuation marks.",
-                          variant: "destructive",
+                        setFaqAnswerError(prev => {
+                          const newErrors = {...prev};
+                          delete newErrors[faq.id || `faq-${idx}`];
+                          return newErrors;
                         });
+                      } else {
+                        setFaqAnswerError(prev => ({
+                          ...prev,
+                          [faq.id || `faq-${idx}`]: 'Only letters, numbers, spaces, and basic punctuation marks allowed'
+                        }));
                       }
                     }}
                     placeholder="Enter FAQ answer (letters, numbers, basic punctuation only)"
                     rows={2}
                     className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
+                  {faqAnswerError[faq.id || `faq-${idx}`] && (
+                    <p className="text-red-500 text-xs mt-1">{faqAnswerError[faq.id || `faq-${idx}`]}</p>
+                  )}
                 </>
               ) : (
                 <>

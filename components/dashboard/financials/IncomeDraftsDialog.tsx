@@ -141,15 +141,15 @@ export function IncomeDraftsDialog({
       
       // Show success toast
       toast({
-        title: "??? Draft Deleted",
-        description: `Income draft "${draftToDelete.name}" has been deleted successfully.`,
+        title: "🗑️ Draft Deleted",
+        description: `Income draft "${draft.name}" has been deleted successfully.`,
         duration: 3000,
       });
     } catch (error) {
       console.error('Error deleting draft:', error);
       setError('Failed to delete draft');
       toast({
-        title: "? Delete Failed",
+        title: "❌ Delete Failed",
         description: "Unable to delete income draft. Please try again.",
         variant: "destructive",
         duration: 4000,

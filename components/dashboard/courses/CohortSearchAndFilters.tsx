@@ -530,26 +530,39 @@ export default function CohortSearchAndFilters({
                 onClick={() => {
                   setSortBy(option.value);
                 }}
+                className="flex items-center justify-between"
               >
-                {option.label}
+                <span>{option.label}</span>
+                {sortBy === option.value && (
+                  <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Order</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => setSortOrder("asc")}
+              className="flex items-center justify-between"
             >
-              Ascending
-              <ArrowUp className="h-4 w-4 mr-2" />
-              
-
+              <span className="flex items-center gap-2">
+                Ascending
+                <ArrowUp className="h-4 w-4" />
+              </span>
+              {sortOrder === "asc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setSortOrder("desc")}
+              className="flex items-center justify-between"
             >
-              Descending
-              <ArrowDown className="h-4 w-4 mr-2" />
-              
+              <span className="flex items-center gap-2">
+                Descending
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              {sortOrder === "desc" && (
+                <Check className="ml-2 h-3.5 w-3.5 text-green-600" />
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

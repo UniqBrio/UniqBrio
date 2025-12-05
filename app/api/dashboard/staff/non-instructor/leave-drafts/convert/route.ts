@@ -80,6 +80,37 @@ export async function POST(req: Request) {
       }, { status: 400 })
     }
 
+    // Check for overlapping leave requests (all statuses to prevent duplicates)
+    const overlapping = await NonInstructorLeaveRequest.findOne({
+      instructorId: (draft as any).instructorId,
+      tenantId: session.tenantId,
+      status: { $ne: 'REJECTED' }, // Only exclude rejected requests
+      $or: [
+        // New request starts during existing leave
+        { 
+          startDate: { $lte: (draft as any).startDate }, 
+          endDate: { $gte: (draft as any).startDate } 
+        },
+        // New request ends during existing leave
+        { 
+          startDate: { $lte: (draft as any).endDate }, 
+          endDate: { $gte: (draft as any).endDate } 
+        },
+        // New request completely contains existing leave
+        { 
+          startDate: { $gte: (draft as any).startDate }, 
+          endDate: { $lte: (draft as any).endDate } 
+        }
+      ]
+    }).lean()
+
+    if (overlapping) {
+      return NextResponse.json({ 
+        ok: false, 
+        error: `A leave request already exists for this non-instructor from ${overlapping.startDate} to ${overlapping.endDate}. Please choose different dates.` 
+      }, { status: 409 })
+    }
+
     // Generate new leave request ID
     const leaveRequestId = `l${Date.now()}`
     
@@ -112,9 +143,18 @@ export async function POST(req: Request) {
 
         try {
           // Get non-instructor and policy for quota calculations
+          const instructorId = (draft as any).instructorId
+          const orConditions: any[] = [
+            { externalId: instructorId },
+            { id: instructorId }
+          ]
+          // Only add _id condition if it looks like a valid ObjectId
+          if (instructorId && /^[0-9a-fA-F]{24}$/.test(instructorId)) {
+            orConditions.push({ _id: instructorId })
+          }
           const inst = await NonInstructor.findOne({ 
             tenantId: session.tenantId,
-            $or: [ { externalId: (draft as any).instructorId }, { _id: (draft as any).instructorId }, { id: (draft as any).instructorId } ] 
+            $or: orConditions
           }).lean()
           const jobLevelRaw = (inst as any)?.jobLevel || (draft as any).jobLevel
           if (jobLevelRaw) (leaveRequestData as any).jobLevel = jobLevelRaw

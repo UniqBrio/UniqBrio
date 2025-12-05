@@ -22,7 +22,9 @@ export async function GET() {
     { tenantId: session.tenantId },
     async () => {
       await dbConnect("uniqbrio")
-      const items = await CourseModel.find().lean()
+      const items = await CourseModel.find({
+        $or: [ { isDeleted: { $exists: false } }, { isDeleted: { $ne: true } } ]
+      }).lean()
       return NextResponse.json(items)
     }
   )
