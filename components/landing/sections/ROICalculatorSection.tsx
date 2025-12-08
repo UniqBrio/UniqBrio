@@ -29,7 +29,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
   }, [students, timeSaved, hourlyRate])
 
   return (
-    <section className="relative py-20 md:py-28 px-4 md:px-8 lg:px-12 bg-gradient-to-br from-[#f5fbff] via-[#faf5ff] to-[#fff8f0] overflow-hidden">
+    <section className="relative py-12 md:py-16 px-4 md:px-8 lg:px-12 bg-gradient-to-br from-[#f5fbff] via-[#faf5ff] to-[#fff8f0] overflow-hidden">
       {/* Subtle gradient background matching hero section */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(103,8,192,0.06),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(222,125,20,0.06),transparent_50%)]" />
       
@@ -62,7 +62,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
           {/* Badge */}
           <motion.div
@@ -70,7 +70,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#6708C0]/20 mb-6 shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#6708C0]/20 mb-4 shadow-sm"
           >
             <Calculator className="w-5 h-5 text-[#6708C0]" />
             <span className="text-sm font-semibold text-[#6708C0] uppercase tracking-wide">
@@ -80,7 +80,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
 
           {/* Main Headline */}
           <motion.h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A] mb-6 leading-tight"
+            className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -95,7 +95,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
 
           {/* Sub-headline */}
           <motion.p
-            className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto"
+            className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -111,10 +111,10 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8 md:p-12 mb-12"
+          className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-6 md:p-8 mb-8"
         >
           {/* Input Fields */}
-          <div className="space-y-12 mb-12">
+          <div className="space-y-8 mb-8">
             {/* Number of Students */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -124,22 +124,22 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <label className="flex items-center gap-3 text-xl font-bold text-[#1A1A1A] mb-2">
-                    <div className="p-2.5 bg-[#6708C0]/10 rounded-xl">
-                      <TrendingUp className="w-6 h-6 text-[#6708C0]" />
+                  <label className="flex items-center gap-3 text-lg font-bold text-[#1A1A1A] mb-2">
+                    <div className="p-2 bg-[#6708C0]/10 rounded-xl">
+                      <TrendingUp className="w-5 h-5 text-[#6708C0]" />
                     </div>
                     How many active students do you have?
                   </label>
                 </div>
                 <motion.div 
-                  className="text-right px-6 py-3 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
+                  className="text-right px-4 py-2 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
                   key={students}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
-                  <div className="text-5xl font-black text-[#6708C0]">{students}</div>
-                  <div className="text-sm text-[#6708C0]/70 mt-1 font-semibold">students</div>
+                  <div className="text-4xl font-black text-[#6708C0]">{students}</div>
+                  <div className="text-xs text-[#6708C0]/70 mt-1 font-semibold">students</div>
                 </motion.div>
               </div>
               <div className="relative">
@@ -175,25 +175,25 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <label className="flex items-center gap-3 text-xl font-bold text-[#1A1A1A] mb-2">
-                    <div className="p-2.5 bg-[#6708C0]/10 rounded-xl">
-                      <Clock className="w-6 h-6 text-[#6708C0]" />
+                  <label className="flex items-center gap-3 text-lg font-bold text-[#1A1A1A] mb-2">
+                    <div className="p-2 bg-[#6708C0]/10 rounded-xl">
+                      <Clock className="w-5 h-5 text-[#6708C0]" />
                     </div>
                     Minutes saved per student per day
                   </label>
-                  <p className="text-sm text-gray-600 ml-14 font-medium">
+                  <p className="text-sm text-gray-600 ml-12 font-medium">
                     (attendance, fees follow-up, messaging, etc.)
                   </p>
                 </div>
                 <motion.div 
-                  className="text-right px-6 py-3 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
+                  className="text-right px-4 py-2 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
                   key={timeSaved}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
-                  <div className="text-5xl font-black text-[#6708C0]">{timeSaved}</div>
-                  <div className="text-sm text-[#6708C0]/70 mt-1 font-semibold">minutes</div>
+                  <div className="text-4xl font-black text-[#6708C0]">{timeSaved}</div>
+                  <div className="text-xs text-[#6708C0]/70 mt-1 font-semibold">minutes</div>
                 </motion.div>
               </div>
               <div className="relative">
@@ -229,22 +229,22 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <label className="flex items-center gap-3 text-xl font-bold text-[#1A1A1A] mb-2">
-                    <div className="p-2.5 bg-[#6708C0]/10 rounded-xl">
-                      <IndianRupee className="w-6 h-6 text-[#6708C0]" />
+                  <label className="flex items-center gap-3 text-lg font-bold text-[#1A1A1A] mb-2">
+                    <div className="p-2 bg-[#6708C0]/10 rounded-xl">
+                      <IndianRupee className="w-5 h-5 text-[#6708C0]" />
                     </div>
                     What is your (or your admin's) hourly rate?
                   </label>
                 </div>
                 <motion.div 
-                  className="text-right px-6 py-3 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
+                  className="text-right px-4 py-2 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
                   key={hourlyRate}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
-                  <div className="text-5xl font-black text-[#6708C0]">₹{hourlyRate}</div>
-                  <div className="text-sm text-[#6708C0]/70 mt-1 font-semibold">per hour</div>
+                  <div className="text-4xl font-black text-[#6708C0]">₹{hourlyRate}</div>
+                  <div className="text-xs text-[#6708C0]/70 mt-1 font-semibold">per hour</div>
                 </motion.div>
               </div>
               <div className="relative">
@@ -281,25 +281,25 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             className="relative rounded-3xl shadow-2xl overflow-hidden border border-[#6708C0]/20"
           >
             
-            <div className="relative bg-gradient-to-br from-[#6708C0]/5 via-white to-[#8B5CF6]/5 backdrop-blur-xl rounded-3xl p-8 md:p-12">
+            <div className="relative bg-gradient-to-br from-[#6708C0]/5 via-white to-[#8B5CF6]/5 backdrop-blur-xl rounded-3xl p-6 md:p-8">
               
               <div className="relative z-10 text-center">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#6708C0]/10 backdrop-blur-md rounded-full mb-6 border border-[#6708C0]/20"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#6708C0]/10 backdrop-blur-md rounded-full mb-4 border border-[#6708C0]/20"
                 >
                   <Sparkles className="w-5 h-5 text-[#6708C0]" />
                   <span className="text-sm font-bold text-[#6708C0] uppercase tracking-wider">Your Savings</span>
                 </motion.div>
                 
-                <h3 className="text-xl md:text-2xl font-semibold text-[#1A1A1A] mb-8">
+                <h3 className="text-lg md:text-xl font-semibold text-[#1A1A1A] mb-6">
                   You'll save approximately
                 </h3>
                 
                 {/* Floating cards for stats */}
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
                   <motion.div
                     key={`hours-${savings.hours}`}
                     initial={{ scale: 0.8, opacity: 0, y: 20 }}
@@ -307,11 +307,11 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                     transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
                     className="relative group"
                   >
-                    <div className="relative bg-white/80 backdrop-blur-xl border border-[#6708C0]/20 rounded-2xl p-8 hover:bg-white transition-all duration-300 hover:shadow-lg">
-                      <Clock className="w-10 h-10 text-[#6708C0] mx-auto mb-4" />
-                      <div className="text-6xl md:text-7xl font-black text-[#6708C0] mb-2">{savings.hours}</div>
-                      <div className="text-xl font-bold text-[#1A1A1A]">Hours Saved</div>
-                      <div className="text-sm text-gray-600 mt-2">per month</div>
+                    <div className="relative bg-white/80 backdrop-blur-xl border border-[#6708C0]/20 rounded-2xl p-6 hover:bg-white transition-all duration-300 hover:shadow-lg">
+                      <Clock className="w-8 h-8 text-[#6708C0] mx-auto mb-3" />
+                      <div className="text-5xl md:text-6xl font-black text-[#6708C0] mb-2">{savings.hours}</div>
+                      <div className="text-lg font-bold text-[#1A1A1A]">Hours Saved</div>
+                      <div className="text-sm text-gray-600 mt-1">per month</div>
                     </div>
                   </motion.div>
                   
@@ -322,11 +322,11 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                     transition={{ duration: 0.5, type: "spring", bounce: 0.4, delay: 0.1 }}
                     className="relative group"
                   >
-                    <div className="relative bg-white/80 backdrop-blur-xl border border-[#DE7D14]/20 rounded-2xl p-8 hover:bg-white transition-all duration-300 hover:shadow-lg">
-                      <IndianRupee className="w-10 h-10 text-[#DE7D14] mx-auto mb-4" />
-                      <div className="text-6xl md:text-7xl font-black text-[#DE7D14] mb-2">₹{savings.money.toLocaleString('en-IN')}</div>
-                      <div className="text-xl font-bold text-[#1A1A1A]">Money Saved</div>
-                      <div className="text-sm text-gray-600 mt-2">per month</div>
+                    <div className="relative bg-white/80 backdrop-blur-xl border border-[#DE7D14]/20 rounded-2xl p-6 hover:bg-white transition-all duration-300 hover:shadow-lg">
+                      <IndianRupee className="w-8 h-8 text-[#DE7D14] mx-auto mb-3" />
+                      <div className="text-5xl md:text-6xl font-black text-[#DE7D14] mb-2">₹{savings.money.toLocaleString('en-IN')}</div>
+                      <div className="text-lg font-bold text-[#1A1A1A]">Money Saved</div>
+                      <div className="text-sm text-gray-600 mt-1">per month</div>
                     </div>
                   </motion.div>
                 </div>
@@ -336,12 +336,12 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="bg-[#6708C0]/10 backdrop-blur-md border border-[#6708C0]/20 rounded-2xl p-6"
+                  className="bg-[#6708C0]/10 backdrop-blur-md border border-[#6708C0]/20 rounded-2xl p-4"
                 >
-                  <p className="text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-2">
+                  <p className="text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1">
                     That's like getting a <span className="text-[#6708C0]">full-time admin</span> for free! 🎉
                   </p>
-                  <p className="text-gray-600 text-lg">Focus on teaching, not admin work</p>
+                  <p className="text-gray-600">Focus on teaching, not admin work</p>
                 </motion.div>
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.8 }}
-            className="text-sm text-gray-500 text-center mt-6 italic"
+            className="text-sm text-gray-500 text-center mt-4 italic"
           >
             * Based on average time savings reported by academy owners during our validation interviews
           </motion.p>
@@ -368,7 +368,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
           className="text-center max-w-4xl mx-auto"
         >
           <motion.h3
-            className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A] mb-6 leading-tight"
+            className="text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-4 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -381,7 +381,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
           </motion.h3>
           
           <motion.p
-            className="text-xl md:text-2xl text-gray-600 mb-10"
+            className="text-lg md:text-xl text-gray-600 mb-6"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -393,7 +393,7 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
 
           <motion.button
             onClick={() => onBookDemo ? onBookDemo() : window.open('/signup', '_blank')}
-            className="group relative inline-flex items-center gap-3 px-10 py-6 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-xl rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden"
             whileHover={{ scale: 1.05, y: -5 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, y: 20 }}

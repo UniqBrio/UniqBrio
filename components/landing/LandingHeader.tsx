@@ -58,7 +58,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
             >
               <div className="relative h-10 w-32 sm:h-12 sm:w-48">
                 <Image
-                  src="/logo.png"
+                  src="/header logo.png"
                   alt="UniqBrio"
                   fill
                   className="object-contain"
