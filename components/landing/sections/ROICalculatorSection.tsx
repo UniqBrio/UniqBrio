@@ -125,27 +125,27 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <label className="flex items-center gap-3 text-xl font-bold text-[#1A1A1A] mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] rounded-xl shadow-lg">
-                      <TrendingUp className="w-6 h-6 text-white" />
+                    <div className="p-2.5 bg-[#6708C0]/10 rounded-xl">
+                      <TrendingUp className="w-6 h-6 text-[#6708C0]" />
                     </div>
                     How many active students do you have?
                   </label>
                 </div>
                 <motion.div 
-                  className="text-right px-6 py-3 bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] rounded-2xl shadow-xl"
+                  className="text-right px-6 py-3 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
                   key={students}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
-                  <div className="text-5xl font-black text-white">{students}</div>
-                  <div className="text-sm text-white/80 mt-1 font-semibold">students</div>
+                  <div className="text-5xl font-black text-[#6708C0]">{students}</div>
+                  <div className="text-sm text-[#6708C0]/70 mt-1 font-semibold">students</div>
                 </motion.div>
               </div>
               <div className="relative">
                 <div className="absolute inset-0 h-4 bg-gray-200 rounded-full" />
                 <motion.div 
-                  className="absolute inset-y-0 left-0 h-4 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] rounded-full shadow-lg"
+                  className="absolute inset-y-0 left-0 h-4 bg-[#6708C0]/30 rounded-full"
                   initial={{ width: '0%' }}
                   animate={{ width: `${((students - 10) / (500 - 10)) * 100}%` }}
                   transition={{ duration: 0.3 }}
@@ -176,8 +176,8 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <label className="flex items-center gap-3 text-xl font-bold text-[#1A1A1A] mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] rounded-xl shadow-lg">
-                      <Clock className="w-6 h-6 text-white" />
+                    <div className="p-2.5 bg-[#6708C0]/10 rounded-xl">
+                      <Clock className="w-6 h-6 text-[#6708C0]" />
                     </div>
                     Minutes saved per student per day
                   </label>
@@ -186,20 +186,20 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                   </p>
                 </div>
                 <motion.div 
-                  className="text-right px-6 py-3 bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] rounded-2xl shadow-xl"
+                  className="text-right px-6 py-3 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
                   key={timeSaved}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
-                  <div className="text-5xl font-black text-white">{timeSaved}</div>
-                  <div className="text-sm text-white/80 mt-1 font-semibold">minutes</div>
+                  <div className="text-5xl font-black text-[#6708C0]">{timeSaved}</div>
+                  <div className="text-sm text-[#6708C0]/70 mt-1 font-semibold">minutes</div>
                 </motion.div>
               </div>
               <div className="relative">
                 <div className="absolute inset-0 h-4 bg-gray-200 rounded-full" />
                 <motion.div 
-                  className="absolute inset-y-0 left-0 h-4 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] rounded-full shadow-lg"
+                  className="absolute inset-y-0 left-0 h-4 bg-[#6708C0]/30 rounded-full"
                   initial={{ width: '0%' }}
                   animate={{ width: `${((timeSaved - 1) / (10 - 1)) * 100}%` }}
                   transition={{ duration: 0.3 }}
@@ -230,27 +230,27 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <label className="flex items-center gap-3 text-xl font-bold text-[#1A1A1A] mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] rounded-xl shadow-lg">
-                      <IndianRupee className="w-6 h-6 text-white" />
+                    <div className="p-2.5 bg-[#6708C0]/10 rounded-xl">
+                      <IndianRupee className="w-6 h-6 text-[#6708C0]" />
                     </div>
                     What is your (or your admin's) hourly rate?
                   </label>
                 </div>
                 <motion.div 
-                  className="text-right px-6 py-3 bg-gradient-to-br from-[#6708C0] to-[#8B5CF6] rounded-2xl shadow-xl"
+                  className="text-right px-6 py-3 bg-[#6708C0]/10 rounded-2xl border border-[#6708C0]/20"
                   key={hourlyRate}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
-                  <div className="text-5xl font-black text-white">₹{hourlyRate}</div>
-                  <div className="text-sm text-white/80 mt-1 font-semibold">per hour</div>
+                  <div className="text-5xl font-black text-[#6708C0]">₹{hourlyRate}</div>
+                  <div className="text-sm text-[#6708C0]/70 mt-1 font-semibold">per hour</div>
                 </motion.div>
               </div>
               <div className="relative">
                 <div className="absolute inset-0 h-4 bg-gray-200 rounded-full" />
                 <motion.div 
-                  className="absolute inset-y-0 left-0 h-4 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] rounded-full shadow-lg"
+                  className="absolute inset-y-0 left-0 h-4 bg-[#6708C0]/30 rounded-full"
                   initial={{ width: '0%' }}
                   animate={{ width: `${((hourlyRate - 200) / (2000 - 200)) * 100}%` }}
                   transition={{ duration: 0.3 }}
@@ -278,45 +278,23 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
-            className="relative rounded-3xl p-1 shadow-2xl overflow-hidden"
+            className="relative rounded-3xl shadow-2xl overflow-hidden border border-[#6708C0]/20"
           >
-            {/* Animated gradient border */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-[#6708C0] via-[#DE7D14] to-[#6708C0] rounded-3xl"
-              animate={{
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              style={{ backgroundSize: '200% 200%' }}
-            />
             
-            <div className="relative bg-gradient-to-br from-[#6708C0]/95 via-[#7B2CBF]/95 to-[#8B5CF6]/95 backdrop-blur-xl rounded-3xl p-8 md:p-12">
-              {/* Floating orbs background */}
-              <div className="absolute inset-0 overflow-hidden rounded-3xl">
-                <motion.div
-                  className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"
-                  animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <motion.div
-                  className="absolute bottom-10 right-10 w-40 h-40 bg-[#DE7D14]/20 rounded-full blur-2xl"
-                  animate={{ x: [0, -30, 0], y: [0, 20, 0] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                />
-              </div>
+            <div className="relative bg-gradient-to-br from-[#6708C0]/5 via-white to-[#8B5CF6]/5 backdrop-blur-xl rounded-3xl p-8 md:p-12">
               
               <div className="relative z-10 text-center">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2, type: "spring" }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6 border border-white/30"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#6708C0]/10 backdrop-blur-md rounded-full mb-6 border border-[#6708C0]/20"
                 >
-                  <Sparkles className="w-5 h-5 text-yellow-300" />
-                  <span className="text-sm font-bold text-white uppercase tracking-wider">Your Savings</span>
+                  <Sparkles className="w-5 h-5 text-[#6708C0]" />
+                  <span className="text-sm font-bold text-[#6708C0] uppercase tracking-wider">Your Savings</span>
                 </motion.div>
                 
-                <h3 className="text-xl md:text-2xl font-semibold text-white/90 mb-8">
+                <h3 className="text-xl md:text-2xl font-semibold text-[#1A1A1A] mb-8">
                   You'll save approximately
                 </h3>
                 
@@ -329,12 +307,11 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                     transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
                     className="relative group"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-                    <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300">
-                      <Clock className="w-10 h-10 text-yellow-300 mx-auto mb-4" />
-                      <div className="text-6xl md:text-7xl font-black text-white mb-2">{savings.hours}</div>
-                      <div className="text-xl font-bold text-white/80">Hours Saved</div>
-                      <div className="text-sm text-white/60 mt-2">per month</div>
+                    <div className="relative bg-white/80 backdrop-blur-xl border border-[#6708C0]/20 rounded-2xl p-8 hover:bg-white transition-all duration-300 hover:shadow-lg">
+                      <Clock className="w-10 h-10 text-[#6708C0] mx-auto mb-4" />
+                      <div className="text-6xl md:text-7xl font-black text-[#6708C0] mb-2">{savings.hours}</div>
+                      <div className="text-xl font-bold text-[#1A1A1A]">Hours Saved</div>
+                      <div className="text-sm text-gray-600 mt-2">per month</div>
                     </div>
                   </motion.div>
                   
@@ -345,12 +322,11 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                     transition={{ duration: 0.5, type: "spring", bounce: 0.4, delay: 0.1 }}
                     className="relative group"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#DE7D14]/30 to-[#FF9A3D]/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-                    <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300">
-                      <IndianRupee className="w-10 h-10 text-[#FFD700] mx-auto mb-4" />
-                      <div className="text-6xl md:text-7xl font-black text-white mb-2">₹{savings.money.toLocaleString('en-IN')}</div>
-                      <div className="text-xl font-bold text-white/80">Money Saved</div>
-                      <div className="text-sm text-white/60 mt-2">per month</div>
+                    <div className="relative bg-white/80 backdrop-blur-xl border border-[#DE7D14]/20 rounded-2xl p-8 hover:bg-white transition-all duration-300 hover:shadow-lg">
+                      <IndianRupee className="w-10 h-10 text-[#DE7D14] mx-auto mb-4" />
+                      <div className="text-6xl md:text-7xl font-black text-[#DE7D14] mb-2">₹{savings.money.toLocaleString('en-IN')}</div>
+                      <div className="text-xl font-bold text-[#1A1A1A]">Money Saved</div>
+                      <div className="text-sm text-gray-600 mt-2">per month</div>
                     </div>
                   </motion.div>
                 </div>
@@ -360,12 +336,12 @@ export default function ROICalculatorSection({ onBookDemo }: ROICalculatorSectio
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6"
+                  className="bg-[#6708C0]/10 backdrop-blur-md border border-[#6708C0]/20 rounded-2xl p-6"
                 >
-                  <p className="text-2xl md:text-3xl font-bold text-white mb-2">
-                    That's like getting a <span className="text-yellow-300">full-time admin</span> for free! 🎉
+                  <p className="text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-2">
+                    That's like getting a <span className="text-[#6708C0]">full-time admin</span> for free! 🎉
                   </p>
-                  <p className="text-white/70 text-lg">Focus on teaching, not admin work</p>
+                  <p className="text-gray-600 text-lg">Focus on teaching, not admin work</p>
                 </motion.div>
               </div>
             </div>
