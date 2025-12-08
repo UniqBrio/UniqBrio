@@ -52,7 +52,7 @@ export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
             <div className="mb-3">
               <div className="relative h-10 w-40">
                 <Image
-                  src="/UniqBrio-Logo (White).png"
+                  src="/UniqBrio Logo-white text.png"
                   alt="UniqBrio"
                   fill
                   className="object-contain object-left"

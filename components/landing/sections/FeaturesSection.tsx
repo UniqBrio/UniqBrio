@@ -264,7 +264,7 @@ export default function FeaturesSection() {
               <div className="mb-3">
                 <button
                   onClick={handlePrevious}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                  className="w-full h-10 flex items-center justify-center text-[#6708C0] hover:text-[#8B5CF6] transition-transform"
                   aria-label="Previous"
                 >
                   <ChevronUp className="w-4 h-4" />
@@ -277,9 +277,9 @@ export default function FeaturesSection() {
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="flex items-center gap-3 px-6 py-4 rounded-xl font-semibold w-full justify-start data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6708C0] data-[state=active]:to-[#8B5CF6] data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-[1.02] text-left"
+                    className="flex items-center gap-3 px-6 py-4 rounded-xl font-semibold text-[#4A5568] w-full justify-start transition-all duration-300 hover:scale-[1.02] hover:bg-white/80 text-left data-[state=active]:bg-[#6708C0]/10 data-[state=active]:text-[#1A1A1A] data-[state=active]:border data-[state=active]:border-[#6708C0]/25 data-[state=active]:shadow-none"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center data-[state=active]:bg-white/30">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#6708C0]/10 text-[#6708C0] data-[state=active]:bg-[#6708C0]/20 data-[state=active]:text-[#6708C0]">
                       {tab.icon}
                     </div>
                     <span>{tab.label}</span>
@@ -291,7 +291,7 @@ export default function FeaturesSection() {
               <div className="mt-3">
                 <button
                   onClick={handleNext}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                  className="w-full h-10 flex items-center justify-center text-[#6708C0] hover:text-[#8B5CF6] transition-transform"
                   aria-label="Next"
                 >
                   <ChevronDown className="w-4 h-4" />
@@ -312,7 +312,7 @@ export default function FeaturesSection() {
             </div>
 
             {/* Tab Content - Enhanced with Images */}
-            <div className="min-h-[600px]">
+            <div className="self-stretch">
               <AnimatePresence mode="wait">
                 {Object.keys(heroFeatures).map((key) => (
                   <TabsContent key={key} value={key} className="mt-0">
@@ -321,12 +321,12 @@ export default function FeaturesSection() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.5 }}
-                      className="relative bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
+                      className="relative h-full flex flex-col bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
                     >
                       {/* Gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#6708C0]/5 via-transparent to-[#8B5CF6]/5 pointer-events-none"></div>
                       
-                      <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12">
+                      <div className="relative grid md:grid-cols-2 gap-6 p-6 md:p-8 h-full">
                         {/* Left: Content */}
                         <div className="flex flex-col justify-center">
                           <h3 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-3">
@@ -380,7 +380,7 @@ export default function FeaturesSection() {
 
                         {/* Right: Dashboard Screenshot/Visual */}
                         <div className="flex items-center justify-center">
-                          <div className="relative w-full aspect-square">
+                          <div className="relative w-full max-h-[360px] aspect-[4/3]">
                             {/* Background glow */}
                             <div className="absolute inset-0 bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 rounded-3xl blur-2xl opacity-50"></div>
                             
@@ -392,7 +392,7 @@ export default function FeaturesSection() {
                               transition={{ duration: 0.5 }}
                             >
                               {/* Placeholder for dashboard screenshot - replace with actual images */}
-                              <div className="relative w-full h-full flex items-center justify-center p-8">
+                              <div className="relative w-full h-full flex items-center justify-center p-6">
                                 <motion.div
                                   animate={{
                                     scale: [1, 1.05, 1],
