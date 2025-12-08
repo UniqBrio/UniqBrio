@@ -61,7 +61,7 @@ const getDefaultInstructorSettings = () => ({
     soundEnabled: false,
   },
   export: {
-    defaultFormat: 'xlsx',
+    defaultFormat: 'csv',
     includeContactDetails: true,
     includeDocuments: true,
     includeCompensation: false,

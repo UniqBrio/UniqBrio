@@ -18,7 +18,6 @@ import {
   ComposedChart,
 } from "recharts"
 import { saveAs } from "file-saver"
-import * as XLSX from "xlsx"
 import { toast } from "@/components/dashboard/ui/use-toast"
 import { formatMonthLabel } from "@/lib/dashboard/utils"
 import React, { useMemo } from 'react'
@@ -156,17 +155,19 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
         Expense: item.expense
       }))
       
-      const ws = XLSX.utils.json_to_sheet(exportData)
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, "Expense Data")
+      // Generate CSV
+      const headers = ['Period', 'Expense'];
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(row => `${row.Period},${row.Expense}`)
+      ].join('\n');
       
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
-      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-      saveAs(blob, `expense-data-${selectedYear}.xlsx`)
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      saveAs(blob, `expense-data-${selectedYear}.csv`)
       
       toast({
         title: "Export Successful",
-        description: "Expense data has been exported to Excel file.",
+        description: "Expense data has been exported to CSV file.",
       })
     } catch (error) {
       toast({

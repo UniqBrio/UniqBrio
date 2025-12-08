@@ -68,7 +68,6 @@ const categoryList = [...sportsList, ...artsList]
 const eventTypes = ["Tournament", "Workshop", "Coaching Session", "Friendly Match", "Training Camp", "Championship", "Seminar", "Tryout"]
 const skillLevels = ["Beginner", "Intermediate", "Advanced", "All Levels"]
 const formats = ["Individual", "Team", "Mixed"]
-const mockStaff = ["Ravi Kumar", "Priya Sharma", "Arjun Singh", "Sneha Patel", "Vikram Desai", "Ananya Nair"]
 
 // Helper function to calculate event status based on dates
 function getEventStatus(startDate: string, endDate: string): "Upcoming" | "Ongoing" | "Completed" {
@@ -105,6 +104,8 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
   const { toast } = useToast()
   const [events, setEvents] = useState<Event[]>(externalEvents || [])
   const [isLoading, setIsLoading] = useState(!externalEvents)
+  const [staffMembers, setStaffMembers] = useState<string[]>([])
+  const [isLoadingStaff, setIsLoadingStaff] = useState(true)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [statusFilter, setStatusFilter] = useState<"All" | "Upcoming" | "Ongoing" | "Completed">("All")
   const [sportFilter, setSportFilter] = useState<"All" | Event["sport"]>("All")
@@ -133,6 +134,69 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       setEvents(externalEvents)
     }
   }, [externalEvents])
+
+  // Load staff members from API on component mount
+  useEffect(() => {
+    const loadStaffMembers = async () => {
+      setIsLoadingStaff(true)
+      try {
+        // Fetch both instructors and non-instructors in parallel
+        const [instructorsRes, nonInstructorsRes] = await Promise.all([
+          fetch('/api/dashboard/services/user-management/instructors?limit=100'),
+          fetch('/api/dashboard/staff/non-instructor/non-instructors')
+        ])
+
+        const staffNames: string[] = []
+
+        // Process instructors
+        if (instructorsRes.ok) {
+          const instructorsData = await instructorsRes.json()
+          if (instructorsData.data && Array.isArray(instructorsData.data)) {
+            instructorsData.data.forEach((instructor: any) => {
+              if (instructor.name) {
+                staffNames.push(instructor.name)
+              }
+            })
+          }
+        }
+
+        // Process non-instructors
+        if (nonInstructorsRes.ok) {
+          const nonInstructorsData = await nonInstructorsRes.json()
+          if (nonInstructorsData.data && Array.isArray(nonInstructorsData.data)) {
+            nonInstructorsData.data.forEach((nonInstructor: any) => {
+              // Construct full name from firstName, middleName, lastName
+              const nameParts = [
+                nonInstructor.firstName || '',
+                nonInstructor.middleName || '',
+                nonInstructor.lastName || ''
+              ].filter(part => part.trim() !== '')
+              
+              const fullName = nameParts.join(' ')
+              if (fullName) {
+                staffNames.push(fullName)
+              }
+            })
+          }
+        }
+
+        // Sort staff names alphabetically
+        setStaffMembers(staffNames.sort((a, b) => a.localeCompare(b)))
+      } catch (error) {
+        console.error('Failed to load staff members:', error)
+        toast({
+          title: "Failed to Load Staff",
+          description: "Could not fetch staff members. Please try again.",
+          variant: "destructive",
+          duration: 3000,
+        })
+      } finally {
+        setIsLoadingStaff(false)
+      }
+    }
+
+    loadStaffMembers()
+  }, [toast])
 
   // Load events from API on component mount (only if externalEvents not provided)
   useEffect(() => {
@@ -941,7 +1005,8 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           }}
           formData={formData}
           setFormData={setFormData}
-          coaches={mockStaff}
+          coaches={staffMembers}
+          isLoadingStaff={isLoadingStaff}
           eventTypes={eventTypes}
           sportsList={sportsList}
           skillLevels={skillLevels}
@@ -1175,51 +1240,49 @@ function CategoryCombobox({
             }}
             className="h-9"
           />
-          <ScrollArea type="always" className="max-h-[260px]">
-            <CommandList className="max-h-[260px]" style={{ scrollBehavior: 'smooth' }}>
-              <CommandEmpty>No category found.</CommandEmpty>
-              {/* Inline add new */}
-              {(() => {
-                const q = query.trim()
-                if (!q || exists) return null
-                return (
-                  <CommandItem
-                    onSelect={() => handleAddCustom(q)}
-                    className="font-medium"
-                    style={{ color: primaryColor }}
+          <CommandList className="max-h-[260px] overflow-y-auto">
+            <CommandEmpty>No category found.</CommandEmpty>
+            {/* Inline add new */}
+            {(() => {
+              const q = query.trim()
+              if (!q || exists) return null
+              return (
+                <CommandItem
+                  onSelect={() => handleAddCustom(q)}
+                  className="font-medium"
+                  style={{ color: primaryColor }}
+                >
+                  <div 
+                    className="mr-2 h-4 w-4 rounded border-2 flex items-center justify-center text-xs"
+                    style={{ borderColor: primaryColor }}
                   >
-                    <div 
-                      className="mr-2 h-4 w-4 rounded border-2 flex items-center justify-center text-xs"
-                      style={{ borderColor: primaryColor }}
-                    >
-                      +
-                    </div>
-                    Add "{q}" as new category
-                  </CommandItem>
-                )
-              })()}
-              <CommandGroup>
-                {filtered.map(cat => (
-                  <CommandItem 
-                    key={cat} 
-                    value={cat} 
-                    onSelect={() => { 
-                      onChange(cat)
-                      setOpen(false) 
-                    }}
-                  >
-                    <Check 
-                      className={cn(
-                        "mr-2 h-4 w-4", 
-                        value === cat ? "opacity-100" : "opacity-0"
-                      )} 
-                    />
-                    <span className="flex-1">{cat}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </ScrollArea>
+                    +
+                  </div>
+                  Add "{q}" as new category
+                </CommandItem>
+              )
+            })()}
+            <CommandGroup>
+              {filtered.map(cat => (
+                <CommandItem 
+                  key={cat} 
+                  value={cat} 
+                  onSelect={() => { 
+                    onChange(cat)
+                    setOpen(false) 
+                  }}
+                >
+                  <Check 
+                    className={cn(
+                      "mr-2 h-4 w-4", 
+                      value === cat ? "opacity-100" : "opacity-0"
+                    )} 
+                  />
+                  <span className="flex-1">{cat}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
@@ -1234,6 +1297,7 @@ export function EventFormModal({
   formData: initialFormData,
   setFormData: setParentFormData,
   coaches,
+  isLoadingStaff,
   eventTypes,
   sportsList,
   skillLevels,
@@ -1245,6 +1309,7 @@ export function EventFormModal({
   formData: Partial<Event>
   setFormData: (data: Partial<Event>) => void
   coaches: string[]
+  isLoadingStaff: boolean
   eventTypes: string[]
   sportsList: string[]
   skillLevels: string[]
@@ -1445,9 +1510,10 @@ export function EventFormModal({
                   value={formData.staff || ""}
                   onChange={(e) => setFormData({ ...formData, staff: e.target.value })}
                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${validationErrors.staff ? 'border-red-500' : 'border-gray-300'}`}
+                  disabled={isLoadingStaff}
                 >
-                  <option value="">Select a staff member</option>
-                  {mockStaff.map(staff => (
+                  <option value="">{isLoadingStaff ? 'Loading staff...' : 'Select a staff member'}</option>
+                  {coaches.map(staff => (
                     <option key={staff} value={staff}>{staff}</option>
                   ))}
                 </select>

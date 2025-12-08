@@ -1430,6 +1430,15 @@ export default function EnhancedSchedulePage() {
   const [filteredCohorts, setFilteredCohorts] = useState<any[]>([])
   const [filteredInstructors, setFilteredInstructors] = useState<any[]>([])
   const [loadingCourseData, setLoadingCourseData] = useState(false)
+  
+  // Form validation errors
+  const [titleError, setTitleError] = useState('')
+  const [descriptionError, setDescriptionError] = useState('')
+  const [subcategoryError, setSubcategoryError] = useState('')
+  const [locationError, setLocationError] = useState('')
+  const [virtualUrlError, setVirtualUrlError] = useState('')
+  const [sessionNotesError, setSessionNotesError] = useState('')
+  const [tagsError, setTagsError] = useState('')
 
   // Check for instructor conflicts across cohorts
   const checkForInstructorConflicts = (cohortData: Partial<ScheduleEvent>) => {
@@ -3385,9 +3394,25 @@ export default function EnhancedSchedulePage() {
                     id="session-title"
                     placeholder="Enter session title"
                     value={newSession.title}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, title: e.target.value }))}
-                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                    onChange={(e) => {
+                      const value = e.target.value
+                      // Allow letters, numbers, spaces, hyphens, apostrophes, and basic punctuation
+                      const titleRegex = /^[a-zA-Z0-9\s'"&().,!?-]*$/
+                      
+                      if (value === '' || titleRegex.test(value)) {
+                        setNewSession(prev => ({ ...prev, title: value }))
+                        setTitleError('')
+                      } else {
+                        setTitleError('Only letters, numbers, spaces, and basic punctuation allowed')
+                      }
+                    }}
+                    className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                      titleError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
                   />
+                  {titleError && (
+                    <p className="text-red-500 text-xs mt-1">{titleError}</p>
+                  )}
                 </div>
 
                 <div>
@@ -3398,10 +3423,26 @@ export default function EnhancedSchedulePage() {
                     id="session-description"
                     placeholder="Enter session description"
                     value={newSession.description}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, description: e.target.value }))}
-                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                    onChange={(e) => {
+                      const value = e.target.value
+                      // Allow letters, numbers, spaces, and common punctuation
+                      const descRegex = /^[a-zA-Z0-9\s'"&().,!?;:\n\r-]*$/
+                      
+                      if (value === '' || descRegex.test(value)) {
+                        setNewSession(prev => ({ ...prev, description: value }))
+                        setDescriptionError('')
+                      } else {
+                        setDescriptionError('Only letters, numbers, spaces, and basic punctuation allowed')
+                      }
+                    }}
+                    className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                      descriptionError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
                     rows={3}
                   />
+                  {descriptionError && (
+                    <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
+                  )}
                 </div>
 
                 <div>
@@ -3549,9 +3590,25 @@ export default function EnhancedSchedulePage() {
                     id="session-subcategory"
                     placeholder="Enter subcategory (optional)"
                     value={newSession.subcategory}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, subcategory: e.target.value }))}
-                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                    onChange={(e) => {
+                      const value = e.target.value
+                      // Allow only letters, numbers, spaces, and hyphens
+                      const subcategoryRegex = /^[a-zA-Z0-9\s-]*$/
+                      
+                      if (value === '' || subcategoryRegex.test(value)) {
+                        setNewSession(prev => ({ ...prev, subcategory: value }))
+                        setSubcategoryError('')
+                      } else {
+                        setSubcategoryError('Only letters, numbers, spaces, and hyphens allowed')
+                      }
+                    }}
+                    className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                      subcategoryError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
                   />
+                  {subcategoryError && (
+                    <p className="text-red-500 text-xs mt-1">{subcategoryError}</p>
+                  )}
                 </div>
 
                 <div>
@@ -3580,12 +3637,26 @@ export default function EnhancedSchedulePage() {
                     value={newSession.tags.join(', ')}
                     onChange={(e) => {
                       const tagString = e.target.value
-                      const tagsArray = tagString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
-                      setNewSession(prev => ({ ...prev, tags: tagsArray }))
+                      // Allow only letters, numbers, spaces, commas, and hyphens
+                      const tagsRegex = /^[a-zA-Z0-9\s,-]*$/
+                      
+                      if (tagString === '' || tagsRegex.test(tagString)) {
+                        const tagsArray = tagString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+                        setNewSession(prev => ({ ...prev, tags: tagsArray }))
+                        setTagsError('')
+                      } else {
+                        setTagsError('Only letters, numbers, spaces, commas, and hyphens allowed')
+                      }
                     }}
-                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                    className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                      tagsError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
                   />
-                  <p className="text-xs text-gray-500 dark:text-white mt-1">Separate multiple tags with commas</p>
+                  {tagsError ? (
+                    <p className="text-red-500 text-xs mt-1">{tagsError}</p>
+                  ) : (
+                    <p className="text-xs text-gray-500 dark:text-white mt-1">Separate multiple tags with commas</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -3625,10 +3696,26 @@ export default function EnhancedSchedulePage() {
                     id="session-notes"
                     placeholder="Add any additional notes about this session..."
                     value={newSession.sessionNotes}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, sessionNotes: e.target.value }))}
-                    className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                    onChange={(e) => {
+                      const value = e.target.value
+                      // Allow letters, numbers, spaces, and common punctuation
+                      const notesRegex = /^[a-zA-Z0-9\s'"&().,!?;:\n\r-]*$/
+                      
+                      if (value === '' || notesRegex.test(value)) {
+                        setNewSession(prev => ({ ...prev, sessionNotes: value }))
+                        setSessionNotesError('')
+                      } else {
+                        setSessionNotesError('Only letters, numbers, spaces, and basic punctuation allowed')
+                      }
+                    }}
+                    className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                      sessionNotesError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
                     rows={2}
                   />
+                  {sessionNotesError && (
+                    <p className="text-red-500 text-xs mt-1">{sessionNotesError}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -3795,9 +3882,25 @@ export default function EnhancedSchedulePage() {
                       id="session-location"
                       placeholder="Enter session location"
                       value={newSession.location}
-                      onChange={(e) => setNewSession(prev => ({ ...prev, location: e.target.value }))}
-                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Allow only letters, numbers, spaces, hyphens, commas, and periods
+                        const locationRegex = /^[a-zA-Z0-9\s,.-]*$/
+                        
+                        if (value === '' || locationRegex.test(value)) {
+                          setNewSession(prev => ({ ...prev, location: value }))
+                          setLocationError('')
+                        } else {
+                          setLocationError('Only letters, numbers, spaces, hyphens, commas, and periods are allowed')
+                        }
+                      }}
+                      className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                        locationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
+                    {locationError && (
+                      <p className="text-red-500 text-xs mt-1">{locationError}</p>
+                    )}
                   </div>
                 )}
 
@@ -3810,9 +3913,25 @@ export default function EnhancedSchedulePage() {
                       id="session-virtual-url"
                       placeholder="https://meet.google.com/..."
                       value={newSession.virtualClassroomUrl}
-                      onChange={(e) => setNewSession(prev => ({ ...prev, virtualClassroomUrl: e.target.value }))}
-                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Basic URL validation - allow alphanumeric, common URL characters
+                        const urlRegex = /^[a-zA-Z0-9:\/.?=&_\-]*$/
+                        
+                        if (value === '' || urlRegex.test(value)) {
+                          setNewSession(prev => ({ ...prev, virtualClassroomUrl: value }))
+                          setVirtualUrlError('')
+                        } else {
+                          setVirtualUrlError('Please enter a valid URL format')
+                        }
+                      }}
+                      className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
+                        virtualUrlError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
+                    {virtualUrlError && (
+                      <p className="text-red-500 text-xs mt-1">{virtualUrlError}</p>
+                    )}
                   </div>
                 )}
               </div>

@@ -11,7 +11,6 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Button } from "@/components/dashboard/ui/button"
 import { toast } from "@/components/dashboard/ui/use-toast"
 import { saveAs } from "file-saver"
-import * as XLSX from "xlsx"
 import {
   BarChart,
   Bar,
@@ -397,15 +396,15 @@ function ROICalculatorMultiStep() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => {
               // Export ROI summary to CSV
-              const ws = XLSX.utils.json_to_sheet([
+              const data = [
                 { Metric: 'ROI %', Value: roi.toFixed(2) },
                 { Metric: 'Annualized ROI %', Value: annualROI.toFixed(2) },
                 { Metric: 'Total Profit/Loss', Value: netProfit.toLocaleString("en-IN", { maximumFractionDigits: 0 }) + ` ${currency}` },
                 { Metric: 'Payback Duration', Value: showPayback ? `${paybackMonths!.toFixed(1)} months (${paybackYears?.toFixed(2)} yrs)` : "N/A" },
                 { Metric: 'Breakeven Status', Value: breakeven ? "Achieved" : "Not Achieved" },
                 { Metric: 'Breakeven Enrollments', Value: showBreakevenEnrollments ? breakevenEnrollments!.toFixed(0) : "N/A" },
-              ]);
-              const csv = XLSX.utils.sheet_to_csv(ws);
+              ];
+              const csv = ['Metric,Value', ...data.map(row => `${row.Metric},${row.Value}`)].join('\n');
               saveAs(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), 'roi_summary.csv');
               toast({ title: "Export", description: "ROI summary exported as CSV." });
             }}>Export Report</Button>

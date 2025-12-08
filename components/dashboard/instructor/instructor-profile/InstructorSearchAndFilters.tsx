@@ -525,7 +525,7 @@ export default function InstructorSearchAndFilters({
           <input
             id="import-instructor-csv-input"
             type="file"
-            accept="text/csv,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx"
+            accept="text/csv,.csv"
             className="hidden"
             onChange={async (e) => {
               const file = e.target.files?.[0];
@@ -567,11 +567,8 @@ export default function InstructorSearchAndFilters({
                   toast({ title: 'Import complete', description: `Imported ${newInstructors.length} instructors.` })
                 };
                 reader.readAsText(file);
-              } else if (file.name.endsWith('.xlsx')) {
-                // Excel import logic would go here
-                toast({ title: 'Not implemented', description: 'Excel import not yet implemented for instructors.' })
               } else {
-                toast({ title: 'Unsupported file', description: 'Only CSV and Excel (.xlsx) files are allowed.', variant: 'destructive' });
+                toast({ title: 'Unsupported file', description: 'Only CSV files are allowed.', variant: 'destructive' });
               }
             }}
           />
