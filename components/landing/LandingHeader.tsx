@@ -22,11 +22,11 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
   }, [])
 
   const navLinks = [
-    { name: 'Home', href: '#hero' },
+    { name: 'Hero', href: '#hero', bold: true },
     { name: 'Features', href: '#features' },
     { name: 'How It Works', href: '#how-it-works' },
     { name: 'Pricing', href: '#pricing' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'ROI Calculator', href: '#roi-calculator', bold: true },
   ]
 
   const scrollToSection = (href: string) => {
@@ -73,7 +73,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
                 <motion.button
                   key={link.name}
                   onClick={() => scrollToSection(link.href)}
-                  className="text-[#1A1A1A] hover:text-[#6708C0] font-medium text-base transition-colors relative group"
+                  className={`text-[#1A1A1A] hover:text-[#6708C0] ${link.bold ? 'font-bold' : 'font-medium'} text-base transition-colors relative group`}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -88,7 +88,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
             {/* CTA Buttons - Desktop */}
             <div className="hidden lg:flex items-center gap-3">
               <motion.button
-                onClick={() => window.location.href = '/signup'}
+                onClick={() => window.open('/signup', '_blank')}
                 className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold text-base rounded-xl overflow-hidden group"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -166,7 +166,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
                   <motion.button
                     key={link.name}
                     onClick={() => scrollToSection(link.href)}
-                    className="block w-full text-left px-4 py-3 text-[#1A1A1A] hover:text-[#6708C0] hover:bg-purple-50 rounded-lg font-medium transition-colors"
+                    className={`block w-full text-left px-4 py-3 text-[#1A1A1A] hover:text-[#6708C0] hover:bg-purple-50 rounded-lg ${link.bold ? 'font-bold' : 'font-medium'} transition-colors`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -177,7 +177,7 @@ export default function LandingHeader({ onBookDemo }: LandingHeaderProps) {
                 ))}
                 
                 <motion.button
-                  onClick={() => window.location.href = '/signup'}
+                  onClick={() => window.open('/signup', '_blank')}
                   className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold rounded-xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

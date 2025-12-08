@@ -1,13 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageSquare, FileSpreadsheet, ClipboardList, Users, AlertCircle, X, Check } from 'lucide-react'
+import { MessageSquare, FileSpreadsheet, ClipboardList, Users, AlertCircle, X, Check, Sparkles } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
-export default function ProblemSection() {
+interface ProblemSectionProps {
+  onBookDemo?: () => void
+}
+
+export default function ProblemSection({ onBookDemo }: ProblemSectionProps) {
   const [sliderValue, setSliderValue] = useState([0])
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+
+  // Auto-animate slider
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSliderValue(prev => {
+        const current = prev[0]
+        if (current >= 100) {
+          return [0]
+        }
+        return [current + 1]
+      })
+    }, 50) // Adjust speed here (lower = faster)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const painPoints = [
     {
@@ -130,9 +149,37 @@ export default function ProblemSection() {
           <p className="text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-2">
             You started your academy to teach,
           </p>
-          <p className="text-2xl md:text-3xl font-bold text-[#6708C0]">
+          <p className="text-2xl md:text-3xl font-bold text-[#6708C0] mb-6">
             not to do admin.
           </p>
+          
+          {/* Get Rid of It Button */}
+          <motion.button
+            onClick={() => onBookDemo && onBookDemo()}
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#DE7D14] to-[#FF9A3D] text-white font-bold text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden"
+            whileHover={{ scale: 1.05, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {/* Animated background shimmer */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
+              animate={{ x: ['-200%', '200%'] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+            />
+            
+            <Sparkles className="w-5 h-5" />
+            <span className="relative z-10">Get Rid of It</span>
+            
+            {/* Pulsing glow effect */}
+            <motion.span
+              className="absolute inset-0 bg-white rounded-xl"
+              animate={{ 
+                opacity: [0, 0.15, 0],
+                scale: [0.95, 1.05, 0.95]
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.button>
         </motion.div>
 
         {/* Unified Box with 2 Columns: Before/After + Video */}
@@ -229,25 +276,53 @@ export default function ProblemSection() {
                 </motion.div>
               </div>
 
-              {/* Slider Control */}
-              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-56">
-                <Slider
-                  value={sliderValue}
-                  onValueChange={setSliderValue}
-                  max={100}
-                  step={1}
-                  className="cursor-pointer"
-                />
-                <div className="flex justify-between mt-2 text-xs text-[#718096]">
-                  <span>Before</span>
-                  <motion.span
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="font-semibold"
+              {/* Slider Control with Animated Emojis */}
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-64">
+                <div className="relative">
+                  {/* Left Emoji - Stressed */}
+                  <motion.div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 text-3xl"
+                    animate={{
+                      opacity: sliderValue[0] < 50 ? [0.5, 1, 0.5] : 0.2,
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: sliderValue[0] < 50 ? Infinity : 0,
+                      ease: "easeInOut"
+                    }}
                   >
-                    👆 Drag to compare
-                  </motion.span>
-                  <span>After</span>
+                    😰
+                  </motion.div>
+
+                  {/* Slider */}
+                  <Slider
+                    value={sliderValue}
+                    onValueChange={setSliderValue}
+                    max={100}
+                    step={1}
+                    className="cursor-pointer"
+                  />
+
+                  {/* Right Emoji - Happy */}
+                  <motion.div
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 text-3xl"
+                    animate={{
+                      opacity: sliderValue[0] > 50 ? 1 : 0.2,
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    😊
+                  </motion.div>
+                </div>
+
+                {/* Label below slider */}
+                <div className="text-center mt-3">
+                  <span className="text-xs font-semibold text-[#6708C0]">
+                    Auto-comparing
+                  </span>
                 </div>
               </div>
             </div>

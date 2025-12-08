@@ -2,17 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { getSpotsRemaining } from '@/lib/spotsRemaining'
 
 interface UrgencyBannerProps {
   onBookDemo?: () => void
 }
 
 export default function UrgencyBanner({ onBookDemo }: UrgencyBannerProps) {
-  const [spotsLeft, setSpotsLeft] = useState(58)
+  const [spotsLeft] = useState(() => getSpotsRemaining())
   const router = useRouter()
 
   const handleHurryUpClick = () => {
-    router.push('/signup')
+    window.open('/signup', '_blank')
   }
 
   return (

@@ -37,7 +37,7 @@ export default function HowItWorksSection({ onBookDemo }: HowItWorksSectionProps
       number: 4,
       title: 'Grow',
       description: 'Focus on teaching while UniqBrio handles the rest',
-      detail: 'Watch your academy thrive as admin time drops to zero. Launch new batches, expand to new locations, or just enjoy your evenings!',
+      detail: 'Unlock parent portals so artists track progress, not payments—nurture talent, not spreadsheets.',
       icon: <TrendingUp className="w-8 h-8" />,
       color: '#10B981'
     }
@@ -76,7 +76,7 @@ export default function HowItWorksSection({ onBookDemo }: HowItWorksSectionProps
           <h2 className="text-4xl md:text-5xl font-bold text-[#1A1A1A] mb-4">
             Get Started in <span className="text-[#6708C0]">4 Simple Steps</span>
           </h2>
-          <p className="text-xl text-[#718096]">From chaos to clarity in less than 7 minutes</p>
+          <p className="text-xl text-[#718096]">From chaos to clarity in less than 2 minutes</p>
         </motion.div>
 
         {/* Steps */}

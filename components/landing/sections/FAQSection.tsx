@@ -112,7 +112,7 @@ export default function FAQSection({ onBookDemo }: FAQSectionProps) {
             Book a free demo call and we'll answer everything!
           </p>
           <button
-            onClick={() => onBookDemo ? onBookDemo() : document.getElementById('demo-form')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => onBookDemo && onBookDemo()}
             className="bg-gradient-to-r from-[#6708C0] to-[#8B5CF6] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
           >
             Book Your Free Demo →

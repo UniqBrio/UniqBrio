@@ -26,7 +26,7 @@ export default function VisionMissionSection() {
               <h2 className="text-3xl font-bold text-[#1A1A1A] mb-4">Our Vision</h2>
               <p className="text-lg text-[#4A5568] leading-relaxed">
                 To connect the passion for arts and sports with the productivity of smart management tools 
-                — helping every Indian academy excel at inspiring and training the next generation of talent.
+                — helping every academy excel at inspiring and training the next generation of talent.
               </p>
             </div>
           </motion.div>

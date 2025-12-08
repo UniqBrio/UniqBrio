@@ -5,12 +5,14 @@ import HeroSection from './sections/HeroSection'
 import LandingHeader from './LandingHeader'
 import UrgencyBanner from './elements/UrgencyBanner'
 import DemoPopup from './DemoPopup'
+import CountdownTimer from './elements/CountdownTimer'
 
 import VisionMissionSection from 'components/landing/sections/VisionMissionSection'
 import ProblemSection from 'components/landing/sections/ProblemSection'
 import FeaturesSection from 'components/landing/sections/FeaturesSection'
 import HowItWorksSection from 'components/landing/sections/HowItWorksSection'
 import PricingSection from 'components/landing/sections/PricingSection'
+import ROICalculatorSection from 'components/landing/sections/ROICalculatorSection'
 import FAQSection from 'components/landing/sections/FAQSection'
 import LandingFooter from 'components/landing/sections/LandingFooter'
 import FloatingElements from 'components/landing/elements/FloatingElements'
@@ -26,10 +28,13 @@ export default function LandingPageContent() {
            <UrgencyBanner />
       
       <div id="hero">
-        <HeroSection />
+        <HeroSection onBookDemo={() => setIsDemoPopupOpen(true)} />
       </div>
+      
+      <CountdownTimer />
+      
       <VisionMissionSection />
-      <ProblemSection />
+      <ProblemSection onBookDemo={() => setIsDemoPopupOpen(true)} />
       
       
       <div id="features">
@@ -42,8 +47,11 @@ export default function LandingPageContent() {
       <div id="pricing">
         <PricingSection />
       </div>
+      <div id="roi-calculator">
+        <ROICalculatorSection onBookDemo={() => setIsDemoPopupOpen(true)} />
+      </div>
       <div id="faq">
-        <FAQSection />
+        <FAQSection onBookDemo={() => setIsDemoPopupOpen(true)} />
       </div>
       <LandingFooter onBookDemo={() => setIsDemoPopupOpen(true)} />
       <FloatingElements onFormSuccess={() => setShowConfetti(true)} showConfetti={showConfetti} onBookDemo={() => setIsDemoPopupOpen(true)} />

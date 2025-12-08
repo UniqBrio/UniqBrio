@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Calendar, ArrowRight, Clock, CheckCircle, Star, Search, Check, ChevronDown } from 'lucide-react'
 import confetti from 'canvas-confetti'
+import { getSpotsRemaining, getBookingsCount } from '@/lib/spotsRemaining'
 
 interface DemoPopupProps {
   isOpen: boolean
@@ -24,7 +25,8 @@ export default function DemoPopup({ isOpen, onClose, onSuccess }: DemoPopupProps
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
-  const [spotsRemaining, setSpotsRemaining] = useState(42)
+  const [spotsRemaining] = useState(() => getSpotsRemaining())
+  const [bookingsCount] = useState(() => getBookingsCount())
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const academyTypes = [
@@ -51,29 +53,29 @@ export default function DemoPopup({ isOpen, onClose, onSuccess }: DemoPopupProps
     type.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // Fetch bookings count
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const response = await fetch('/api/demo-bookings-count', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-        })
-        const data = await response.json()
-        if (data.success) {
-          setSpotsRemaining(data.spotsRemaining)
-        }
-      } catch (error) {
-        console.error('Error fetching bookings count:', error)
-      }
-    }
-    
-    if (isOpen) {
-      fetchCount()
-    }
-  }, [isOpen])
+  // Fetch bookings count - commented out since we're using random spots
+  // useEffect(() => {
+  //   const fetchCount = async () => {
+  //     try {
+  //       const response = await fetch('/api/demo-bookings-count', {
+  //         cache: 'no-store',
+  //         headers: {
+  //           'Cache-Control': 'no-cache',
+  //         },
+  //       })
+  //       const data = await response.json()
+  //       if (data.success) {
+  //         setSpotsRemaining(data.spotsRemaining)
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching bookings count:', error)
+  //     }
+  //   }
+  //   
+  //   if (isOpen) {
+  //     fetchCount()
+  //   }
+  // }, [isOpen])
 
   // Handle ESC key press
   useEffect(() => {
@@ -262,7 +264,7 @@ export default function DemoPopup({ isOpen, onClose, onSuccess }: DemoPopupProps
                       </motion.div>
 
                       <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 leading-tight tracking-tight">
-                        Be one of the first 100 academies to go live tomorrow – <span className="text-yellow-300">10 December 2025</span>
+                        Be one of the first 50 academies to go live today 
                       </h2>
 
                       <p className="text-xs md:text-sm mb-4 opacity-90 font-light">
@@ -328,7 +330,10 @@ export default function DemoPopup({ isOpen, onClose, onSuccess }: DemoPopupProps
                             'https://i.pravatar.cc/150?img=32',
                             'https://i.pravatar.cc/150?img=16',
                             'https://i.pravatar.cc/150?img=44',
-                          ].map((avatarUrl, i) => (
+                            'https://i.pravatar.cc/150?img=15',
+                            'https://i.pravatar.cc/150?img=25',
+                            'https://i.pravatar.cc/150?img=30',
+                          ].slice(0, bookingsCount).map((avatarUrl, i) => (
                             <img
                               key={i}
                               src={avatarUrl}
@@ -336,9 +341,6 @@ export default function DemoPopup({ isOpen, onClose, onSuccess }: DemoPopupProps
                               className="w-8 h-8 rounded-full bg-white shadow-md object-cover border-2 border-white"
                             />
                           ))}
-                          <div className="ml-1 text-xs md:text-sm font-semibold">
-                            +{Math.max(0, 100 - spotsRemaining - 10)} more
-                          </div>
                         </div>
                       </div>
                     </div>

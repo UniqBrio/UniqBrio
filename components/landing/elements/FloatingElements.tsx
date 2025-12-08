@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Sparkles } from 'lucide-react'
 import Confetti from 'react-confetti'
+import { getBookingsCount } from '@/lib/spotsRemaining'
 
 interface FloatingElementsProps {
   onFormSuccess?: () => void
@@ -15,33 +16,33 @@ export default function FloatingElements({ onFormSuccess, showConfetti, onBookDe
   const [showWhatsApp, setShowWhatsApp] = useState(false)
   const [showBadge, setShowBadge] = useState(true)
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
-  const [bookingsCount, setBookingsCount] = useState(0)
+  const [bookingsCount] = useState(() => getBookingsCount())
 
   useEffect(() => {
     // Show WhatsApp button after 3 seconds
     const timer = setTimeout(() => setShowWhatsApp(true), 3000)
 
-    // Fetch bookings count
-    const fetchCount = async () => {
-      try {
-        const response = await fetch('/api/demo-bookings-count', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-        })
-        const data = await response.json()
-        if (data.success) {
-          setBookingsCount(data.count)
-        }
-      } catch (error) {
-        console.error('Error fetching bookings count:', error)
-      }
-    }
-    fetchCount()
+    // Fetch bookings count - commented out since we're using random count
+    // const fetchCount = async () => {
+    //   try {
+    //     const response = await fetch('/api/demo-bookings-count', {
+    //       cache: 'no-store',
+    //       headers: {
+    //         'Cache-Control': 'no-cache',
+    //       },
+    //     })
+    //     const data = await response.json()
+    //     if (data.success) {
+    //       setBookingsCount(data.count)
+    //     }
+    //   } catch (error) {
+    //     console.error('Error fetching bookings count:', error)
+    //   }
+    // }
+    // fetchCount()
 
     // Poll for updates every 30 seconds
-    const interval = setInterval(fetchCount, 30000)
+    // const interval = setInterval(fetchCount, 30000)
 
     // Update window size for confetti
     const handleResize = () => {
@@ -52,7 +53,7 @@ export default function FloatingElements({ onFormSuccess, showConfetti, onBookDe
 
     return () => {
       clearTimeout(timer)
-      clearInterval(interval)
+      // clearInterval(interval)
       window.removeEventListener('resize', handleResize)
     }
   }, [])
@@ -153,7 +154,15 @@ export default function FloatingElements({ onFormSuccess, showConfetti, onBookDe
                 'https://i.pravatar.cc/150?img=33',
                 'https://i.pravatar.cc/150?img=1',
                 'https://i.pravatar.cc/150?img=9',
-              ].map((avatarUrl, i) => (
+                'https://i.pravatar.cc/150?img=20',
+                'https://i.pravatar.cc/150?img=47',
+                'https://i.pravatar.cc/150?img=32',
+                'https://i.pravatar.cc/150?img=16',
+                'https://i.pravatar.cc/150?img=44',
+                'https://i.pravatar.cc/150?img=15',
+                'https://i.pravatar.cc/150?img=25',
+                'https://i.pravatar.cc/150?img=30',
+              ].slice(0, bookingsCount).map((avatarUrl, i) => (
                 <img
                   key={i}
                   src={avatarUrl}

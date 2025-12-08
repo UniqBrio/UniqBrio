@@ -11,16 +11,16 @@ interface PricingSectionProps {
 
 export default function PricingSection({ onBookDemo }: PricingSectionProps) {
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
-  const [selectedBilling, setSelectedBilling] = useState<'monthly' | 'yearly'>('monthly')
+  const [selectedBilling, setSelectedBilling] = useState<'monthly' | 'yearly'>('yearly')
   const plans = [
     {
       name: 'Free',
       price: '₹0',
       period: 'forever',
-      bestFor: '<10 active students',
+      bestFor: '<14 active students',
       description: 'Perfect for new academies just getting started',
       features: [
-        'Up to 10 active students',
+        'Up to 14 active students',
         'Basic scheduling & attendance',
         '1 branch location',
         'Email support',
@@ -42,7 +42,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
         'Unlimited students',
         'All scheduling features',
         'Automated payment reminders',
-        'Parent portal with progress tracking',
+        
         'Advanced analytics & reports',
         'Multiple instructors',
         'Priority support',

@@ -100,7 +100,7 @@ export default function HeroSection({ onBookDemo }: HeroSectionProps) {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="text-lg md:text-xl text-[#4A5568] leading-relaxed max-w-xl"
             >
-              Empower your academy with our all-in-one solution. Effortlessly manage students, athletes, payments,communications etc. while streamlining multi-center operations for seamless growth and success.
+              Empower your academy with our all-in-one solution. Effortlessly manage students, athletes, payments, communications etc. while streamlining multi-center operations for seamless growth and success.
             </motion.p>
 
             {/* 2 CTAs - Side by side (Z-pattern continues) */}
@@ -361,7 +361,7 @@ export default function HeroSection({ onBookDemo }: HeroSectionProps) {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-[#10B981]" />
-                <span>Setup in 7 minutes</span>
+                <span>Setup in 2 minutes</span>
               </div>
             </motion.div>
           </motion.div>
@@ -417,14 +417,15 @@ export default function HeroSection({ onBookDemo }: HeroSectionProps) {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-16 md:mt-24"
+          className="mt-8 md:mt-12"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
               { number: '14-Day', label: 'Free Trial' },
+              
+              { number: '2 Min', label: 'Quick Setup' },
+              { number: '100%', label: 'Data Security' },
               { number: '24/7', label: 'Support Available' },
-              { number: '7 Min', label: 'Quick Setup' },
-              { number: '100%', label: 'Data Security' }
             ].map((stat, idx) => (
               <motion.div
                 key={idx}
@@ -434,7 +435,7 @@ export default function HeroSection({ onBookDemo }: HeroSectionProps) {
                 whileHover={{ scale: 1.05 }}
                 className="p-4"
               >
-                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#6708C0] to-[#DE7D14] bg-clip-text text-transparent mb-2">
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#6708C0] to-[#DE7D14] bg-clip-text text-transparent mb-2 pb-1">
                   {stat.number}
                 </div>
                 <div className="text-sm text-[#718096]">{stat.label}</div>

@@ -1,14 +1,20 @@
 'use client'
 
-import { Facebook, Instagram, Youtube, Mail } from 'lucide-react'
+import { useState } from 'react'
+import { Facebook, Instagram, Youtube, Mail, MapPin, Clock, Phone, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import LegalModal from '@/components/landing/LegalModal'
 
 interface LandingFooterProps {
   onBookDemo?: () => void
 }
 
 export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
+  const [legalModal, setLegalModal] = useState<{ isOpen: boolean; type: 'privacy' | 'terms' | 'cookies' | null }>({
+    isOpen: false,
+    type: null
+  })
   const footerSections = [
     {
       title: 'Product',
@@ -23,9 +29,9 @@ export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
     {
       title: 'Legal',
       links: [
-        { label: 'Privacy Policy', href: '/legal/privacy' },
-        { label: 'Terms of Service', href: '/legal/terms' },
-        { label: 'Cookie Policy', href: '/legal/cookies' }
+        { label: 'Privacy Policy', href: 'privacy', isModal: true },
+        { label: 'Terms of Service', href: 'terms', isModal: true },
+        { label: 'Cookie Policy', href: 'cookies', isModal: true }
       ]
     }
   ]
@@ -57,7 +63,7 @@ export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
               Mentoring Businesses • Nurturing Learners
             </p>
             <div className="flex items-center gap-2 text-xs mb-4">
-              <span className="text-xl">🇮🇳</span>
+             
               <p className="text-gray-400">
                 Made with love in India for Indian academies
               </p>
@@ -93,6 +99,13 @@ export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
                       >
                         {link.label}
                       </button>
+                    ) : (link as any).isModal ? (
+                      <button
+                        onClick={() => setLegalModal({ isOpen: true, type: link.href as 'privacy' | 'terms' | 'cookies' })}
+                        className="text-gray-400 hover:text-[#6708C0] transition-colors duration-200 text-sm"
+                      >
+                        {link.label}
+                      </button>
                     ) : link.href.startsWith('#') ? (
                       <button
                         onClick={() => document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' })}
@@ -117,26 +130,26 @@ export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
           {/* Contact Info Column */}
           <div className="lg:col-span-2">
             <h3 className="font-bold text-base mb-3">Contact Us</h3>
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Registered Office</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-white flex-shrink-0" />
                 <p className="text-sm text-gray-400">Tamil Nadu, India</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Business Hours</p>
-                <p className="text-sm text-gray-400">Mon-Sat: 9:00 AM - 6:00 PM IST</p>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-white flex-shrink-0" />
+                <p className="text-sm text-gray-400">Mon-Fri: 9 AM - 6 PM IST</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Phone</p>
-                <p className="text-sm text-gray-400">
-                  <a href="tel:+918056329742" className="hover:text-[#6708C0] transition-colors">+91 8056329742</a>
-                </p>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-white flex-shrink-0" />
+                <a href="tel:+918056329742" className="text-sm text-gray-400 hover:text-[#6708C0] transition-colors">
+                  +91 8056329742
+                </a>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Support Email</p>
-                <p className="text-sm text-gray-400">
-                  <a href="mailto:support@uniqbrio.com" className="hover:text-[#6708C0] transition-colors">support@uniqbrio.com</a>
-                </p>
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-white flex-shrink-0" />
+                <a href="mailto:support@uniqbrio.com" className="text-sm text-gray-400 hover:text-[#6708C0] transition-colors">
+                  support@uniqbrio.com
+                </a>
               </div>
             </div>
           </div>
@@ -167,6 +180,15 @@ export default function LandingFooter({ onBookDemo }: LandingFooterProps) {
         </div>
 
       </div>
+
+      {/* Legal Modal */}
+      {legalModal.type && (
+        <LegalModal
+          isOpen={legalModal.isOpen}
+          onClose={() => setLegalModal({ isOpen: false, type: null })}
+          type={legalModal.type}
+        />
+      )}
     </footer>
   )
 }
