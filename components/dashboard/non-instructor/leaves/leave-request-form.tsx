@@ -365,7 +365,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
       try {
         const result = await convertDraftToLeaveRequest(draft.id, 'APPROVED')
         if (result.ok) {
-          crudSuccess('leave request', 'created from draft')
+          crudSuccess('leave request', 'moved from draft', { description: 'Draft moved or updated to list' })
           // Refresh both drafts and leave requests to reflect server truth
           const [draftsRes, requestsRes] = await Promise.all([fetchDrafts(), fetchLeaveRequests()])
           if (draftsRes.ok) {

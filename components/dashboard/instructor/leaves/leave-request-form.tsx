@@ -301,7 +301,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
       try {
         const result = await convertDraftToLeaveRequest(draft.id, 'APPROVED')
         if (result.ok && result.data) {
-          crudSuccess('leave request', 'created from draft')
+          crudSuccess('leave request', 'moved from draft', { description: 'Draft moved or updated to list' })
           
           // Add the newly created leave request to state immediately
           dispatch({ type: 'ADD_LEAVE_REQUEST', payload: result.data })

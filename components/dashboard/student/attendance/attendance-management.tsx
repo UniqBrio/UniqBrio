@@ -428,7 +428,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
             
             toast({
               title: 'Success',
-              description: 'Attendance record created successfully',
+              description: editingDraftId != null ? 'Draft moved or updated to list' : 'Attendance record created successfully',
             });
             return true; // Indicate success
           } else {

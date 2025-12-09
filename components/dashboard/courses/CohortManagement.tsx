@@ -1837,18 +1837,9 @@ export default function CohortManagement({
             handleCohortDialogClose();
           }}
         >
-          <div className="flex items-center justify-between mb-1">
+          <DialogHeader>
             <DialogTitle className="font-bold text-sm sm:text-base">{newCohortEditId ? 'Edit Cohort' : 'Add New Cohort'}</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 flex-shrink-0"
-              onClick={handleCohortDialogClose}
-              title="Close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          </DialogHeader>
           <div className="flex-1 overflow-y-auto px-2">
             <div className="space-y-0.5">
               <Label className="text-xs">Cohort Name <span style={{ color: 'red' }}>*</span></Label>
@@ -2836,25 +2827,22 @@ export default function CohortManagement({
       </Dialog>
 
       {/* Add Members Modal */}
-      <Dialog open={!!addMembersCohortId} onOpenChange={() => {}}>
+      <Dialog open={!!addMembersCohortId} onOpenChange={(open) => {
+        if (!open) {
+          setAddMembersCohortId(null);
+          setSelectedMembers([]);
+          setStudentSearch('');
+        }
+      }}>
         <DialogContent className="max-w-md w-[95vw] sm:w-full">
-          <div className="flex items-center justify-between mb-2">
+          <DialogHeader>
             <DialogTitle className="font-bold text-sm sm:text-base">Add Members</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0"
-              onClick={() => setAddMembersCohortId(null)}
-              title="Close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          </DialogHeader>
           {addMembersCohortId && (() => {
             const cohort = cohorts.find(c => c.id === addMembersCohortId);
       if (!cohort) return null;
-        // Map cohort.members to student names for display
-        const memberNames = cohort.members.map(member => {
+        // Map cohort.members to display format with both ID and name
+        const memberDisplayList = cohort.members.map(member => {
           // Preserve existing valid names, only lookup if name is missing or looks like an ID
           const hasValidName = member.name && 
             member.name !== member.id && 
@@ -2863,18 +2851,22 @@ export default function CohortManagement({
             member.name.length < 50 &&
             !/^[a-z0-9]{20,}$/.test(member.name);
             
-          if (hasValidName) {
-            return member.name;
+          let studentName = member.name;
+          let studentId = member.id;
+          
+          if (!hasValidName) {
+            const student = students.find(s => 
+              s.id === member.id || 
+              (s as any).studentId === member.id ||
+              (s as any).mongoId === member.id ||
+              s.id === member.id.replace(/^STU0*/, '') ||
+              (s as any).studentId === member.id.replace(/^STU0*/, '')
+            );
+            studentName = student?.name || member.name || `Student ${member.id}`;
+            studentId = (student as any)?.studentId || member.id;
           }
           
-          const student = students.find(s => 
-            s.id === member.id || 
-            (s as any).studentId === member.id ||
-            (s as any).mongoId === member.id ||
-            s.id === member.id.replace(/^STU0*/, '') ||
-            (s as any).studentId === member.id.replace(/^STU0*/, '')
-          );
-          return student?.name || member.name || `Student ${member.id}`;
+          return `${studentId} - ${studentName}`;
         });
                 return (
                   <div className="space-y-4">
@@ -2910,6 +2902,7 @@ export default function CohortManagement({
                             })
                             .map((student, idx) => {
                               const safeId = student.id && student.id !== '' ? student.id : `student-${idx}`;
+                              const studentId = (student as any).studentId || student.id;
                               const isDisabled = cohort.members.length + selectedMembers.length >= cohort.capacity && !selectedMembers.includes(safeId);
                               return (
                                 <label key={safeId} className={`flex items-center gap-2 ${isDisabled ? 'opacity-50' : ''}`}>
@@ -2927,7 +2920,10 @@ export default function CohortManagement({
                                       }
                                     }}
                                   />
-                                  <span className="text-sm">{student.name}</span>
+                                  <span className="text-sm">
+                                    <span className="font-medium text-gray-700 dark:text-gray-300">{studentId}</span>
+                                    <span className="text-gray-500 dark:text-gray-400"> - {student.name}</span>
+                                  </span>
                                 </label>
                               );
                             })
@@ -2987,9 +2983,16 @@ export default function CohortManagement({
                         Add {selectedMembers.length} Members
                       </Button>
                     </div>
-                    {/* Display current members with names */}
-                    {memberNames.length > 0 && (
-                      <div className="mt-2 text-xs text-gray-700 dark:text-white">Current Members: {memberNames.join(', ')}</div>
+                    {/* Display current members with IDs and names */}
+                    {memberDisplayList.length > 0 && (
+                      <div className="mt-2 text-xs text-gray-700 dark:text-white">
+                        <div className="font-semibold mb-1">Current Members ({memberDisplayList.length}):</div>
+                        <div className="max-h-20 overflow-y-auto">
+                          {memberDisplayList.map((member, idx) => (
+                            <div key={idx} className="text-gray-600 dark:text-gray-300">{member}</div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                     {/* Display capacity information */}
                     <div className="mt-2 text-xs text-blue-600">
@@ -3736,15 +3739,6 @@ export default function CohortManagement({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Cohort Details</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-              onClick={() => setIsViewCohortDialogOpen(false)}
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button>
           </DialogHeader>
           {selectedCohortForView && (
             <div className="space-y-4">

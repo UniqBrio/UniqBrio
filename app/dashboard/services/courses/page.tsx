@@ -155,7 +155,7 @@ export default function EnhancedCourseManagementPage() {
   const [isFinancialDialogOpen, setIsFinancialDialogOpen] = useState(false)
   
   // Navigation tab state
-  const [currentTab, setCurrentTab] = useState("courses")
+  const [currentTab, setCurrentTab] = useState("dashboard")
   
   const createCourseSettingsDefaults = () => ({
     display: {

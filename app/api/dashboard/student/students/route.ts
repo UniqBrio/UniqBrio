@@ -662,6 +662,27 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'Student not found' }, { status: 404 });
       }
       
+      // Remove student from any cohorts they're enrolled in
+      if (student.cohortId) {
+        console.log(`🔄 Removing student ${student.studentId} from cohort ${student.cohortId}`);
+        const removeResult = await removeStudentFromCohort(student.cohortId, student.studentId);
+        if (!removeResult.success) {
+          console.warn(`⚠️ Failed to remove student from cohort: ${removeResult.error}`);
+        } else {
+          console.log(`✅ Successfully removed student from cohort`);
+        }
+      }
+      
+      // Also remove from any additional cohorts in the cohorts array
+      if (student.cohorts && Array.isArray(student.cohorts) && student.cohorts.length > 0) {
+        for (const cohortId of student.cohorts) {
+          if (cohortId && cohortId !== student.cohortId) {
+            console.log(`🔄 Removing student ${student.studentId} from additional cohort ${cohortId}`);
+            await removeStudentFromCohort(cohortId, student.studentId);
+          }
+        }
+      }
+      
       // Create audit log for hard delete
       try {
         const ipAddress = getClientIp(req.headers);
@@ -700,6 +721,27 @@ export async function DELETE(req: NextRequest) {
     const student = await Student.findOne({ studentId: key, tenantId: session.tenantId });
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
+    
+    // Remove student from any cohorts they're enrolled in before soft delete
+    if (student.cohortId) {
+      console.log(`🔄 Removing student ${student.studentId} from cohort ${student.cohortId} (soft delete)`);
+      const removeResult = await removeStudentFromCohort(student.cohortId, student.studentId);
+      if (!removeResult.success) {
+        console.warn(`⚠️ Failed to remove student from cohort: ${removeResult.error}`);
+      } else {
+        console.log(`✅ Successfully removed student from cohort`);
+      }
+    }
+    
+    // Also remove from any additional cohorts in the cohorts array
+    if (student.cohorts && Array.isArray(student.cohorts) && student.cohorts.length > 0) {
+      for (const cohortId of student.cohorts) {
+        if (cohortId && cohortId !== student.cohortId) {
+          console.log(`🔄 Removing student ${student.studentId} from additional cohort ${cohortId}`);
+          await removeStudentFromCohort(cohortId, student.studentId);
+        }
+      }
     }
     
     // Mark as deleted instead of removing from database

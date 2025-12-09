@@ -592,6 +592,7 @@ export default function AttendanceSearchFilters({
                     <Button
                       variant="outline"
                       className="w-full justify-between text-sm hover:bg-transparent hover:text-current active:bg-transparent focus-visible:ring-0 focus-visible:outline-none data-[state=open]:bg-transparent"
+                      aria-label="Select attendance status filter"
                     >
                       {pendingFilters.statuses.length === 0
                         ? 'All Statuses'

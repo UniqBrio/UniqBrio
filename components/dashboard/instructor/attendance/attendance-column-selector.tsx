@@ -129,6 +129,7 @@ export default function AttendanceColumnSelector({ value, onChange, storageKey =
     // Merge back into full list keeping mandatory columns fixed in their current positions
     const newDraft = draft.map(c => (NON_EDITABLE_COLS.includes(c) ? c : newOrder.shift()!))
     setDraft(newDraft)
+    window.dispatchEvent(new CustomEvent('attendance-displayed-columns-changed', { detail: newDraft }))
   }
 
   const save = () => {

@@ -81,6 +81,24 @@ function AttendanceManagementInner() {
     };
   }, []);
 
+  // Listen for column reordering events from the column selector
+  React.useEffect(() => {
+    const onColumnsChanged = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && Array.isArray(customEvent.detail)) {
+        setDisplayedColumns(customEvent.detail);
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('attendance-displayed-columns-changed', onColumnsChanged);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('attendance-displayed-columns-changed', onColumnsChanged);
+      }
+    };
+  }, []);
+
   const fetchAttendanceData = async () => {
     try {
       setLoading(true);
@@ -194,7 +212,7 @@ function AttendanceManagementInner() {
             setAttendanceData(prev => [newRecord, ...prev]);
             toast({
               title: 'Success',
-              description: 'Attendance record created successfully',
+              description: editingDraftId != null ? 'Draft moved or updated to list' : 'Attendance record created successfully',
             });
             // If this attendance came from a draft, delete that draft now
             if (editingDraftId != null) {
@@ -742,10 +760,6 @@ function AttendanceManagementInner() {
 }
 
 export function AttendanceManagement() {
-  return (
-    
-      <AttendanceManagementInner />
-    
-  );
+  return <AttendanceManagementInner />;
 }
 

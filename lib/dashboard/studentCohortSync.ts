@@ -59,14 +59,32 @@ export async function addStudentToCohort(
       return { success: false, error: 'Database connection failed' };
     }
 
-    // Update cohort - add student to currentStudents if not already present
+    // Get student details for the member object
+    const student = await db.collection('students').findOne(
+      createStudentFilter(studentId),
+      { projection: { studentId: 1, name: 1, firstName: 1, lastName: 1 } }
+    );
+
+    const studentName = student?.name || `${student?.firstName || ''} ${student?.lastName || ''}`.trim() || studentId;
+
+    // Remove existing member entry first to avoid duplicates
+    await db.collection('cohorts').updateOne(
+      { cohortId: cohortId },
+      { 
+        $pull: { members: { id: studentId } }
+      }
+    );
+
+    // Update cohort - add student to currentStudents and members
     const cohortUpdate = await db.collection('cohorts').updateOne(
+      { cohortId: cohortId },
       { 
-        cohortId: cohortId,
-        currentStudents: { $nin: [studentId] }
-      },
-      { 
-        $addToSet: { currentStudents: studentId }
+        $addToSet: { 
+          currentStudents: studentId
+        },
+        $push: {
+          members: { id: studentId, name: studentName }
+        }
       }
     );
 
@@ -111,12 +129,13 @@ export async function removeStudentFromCohort(
       return { success: false, error: 'Database connection failed' };
     }
 
-    // Update cohort - remove student from currentStudents
+    // Update cohort - remove student from currentStudents and members
     const cohortUpdate = await db.collection('cohorts').updateOne(
       { cohortId: cohortId },
       { 
         $pull: { 
           currentStudents: studentId,
+          members: { id: studentId },
           waitlist: studentId
         }
       } as any
@@ -387,7 +406,15 @@ export async function enrollStudentInCohort(
 
     console.log(`🎓 Enrolling student ${studentId} in cohort ${cohortId}...`);
 
-    // 1. Update student record with cohort information
+    // 1. Get student details for the member object
+    const student = await db.collection('students').findOne(
+      { studentId: studentId },
+      { projection: { studentId: 1, name: 1, firstName: 1, lastName: 1 } }
+    );
+
+    const studentName = student?.name || `${student?.firstName || ''} ${student?.lastName || ''}`.trim() || studentId;
+
+    // 2. Update student record with cohort information
     const studentUpdate = await db.collection('students').updateOne(
       { studentId: studentId },
       {
@@ -404,11 +431,25 @@ export async function enrollStudentInCohort(
 
     console.log(`  Student update result: matchedCount=${studentUpdate.matchedCount}, modifiedCount=${studentUpdate.modifiedCount}`);
 
-    // 2. Update cohort's currentStudents array
+    // 3. Update cohort's currentStudents array and members array
+    // First, remove any existing member with this studentId to avoid duplicates
+    await db.collection('cohorts').updateOne(
+      { cohortId: cohortId },
+      { 
+        $pull: { members: { id: studentId } }
+      }
+    );
+
+    // Then add the student with updated information
     const cohortUpdate = await db.collection('cohorts').updateOne(
       { cohortId: cohortId },
       { 
-        $addToSet: { currentStudents: studentId },
+        $addToSet: { 
+          currentStudents: studentId
+        },
+        $push: {
+          members: { id: studentId, name: studentName }
+        },
         $set: { updatedAt: new Date() }
       }
     );
@@ -422,10 +463,25 @@ export async function enrollStudentInCohort(
     if (cohortUpdate.matchedCount === 0) {
       // Try fallback query with 'id' field in case cohortId field is not set
       console.log(`  Cohort not found by cohortId, trying fallback with id field...`);
+      
+      // Remove existing member first
+      await db.collection('cohorts').updateOne(
+        { id: cohortId },
+        { 
+          $pull: { members: { id: studentId } }
+        }
+      );
+      
+      // Then add with updated information
       const cohortUpdateFallback = await db.collection('cohorts').updateOne(
         { id: cohortId },
         { 
-          $addToSet: { currentStudents: studentId },
+          $addToSet: { 
+            currentStudents: studentId
+          },
+          $push: {
+            members: { id: studentId, name: studentName }
+          },
           $set: { updatedAt: new Date() }
         }
       );
