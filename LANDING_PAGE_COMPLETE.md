@@ -108,7 +108,7 @@ I've created a **complete, production-ready, high-converting landing page** for 
 - Setup time? → 10 minutes
 - Parents without smartphones? → Works on any device
 - Try before committing? → Free plan + 14-day trial
-- Payment collection? → Razorpay/Stripe integrated
+- Payment collection? → Cashfree integrated
 - Data security? → Bank-grade encryption
 - Help available? → Email, priority, phone support
 - Cancel anytime? → Yes, no lock-in

@@ -34,7 +34,7 @@ export default function TermsPage() {
             </div>
             <p className="text-sm text-white/90 flex items-center gap-2">
               <span className="w-2 h-2 bg-white rounded-full"></span>
-              Last updated: 24 November 2025
+              Last updated: 09 December 2025
             </p>
           </div>
         </div>

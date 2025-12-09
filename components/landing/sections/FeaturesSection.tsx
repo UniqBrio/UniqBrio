@@ -107,7 +107,7 @@ export default function FeaturesSection() {
       benefits: [
         'Course and registration fee tracking',
         'Multiple payment options (One-time, Installments, Monthly)',
-        'Razorpay integration for online payments',
+        'Cashfree integration for online payments',
         'Automated outstanding amount calculations',
         'Payment history and invoice management'
       ],

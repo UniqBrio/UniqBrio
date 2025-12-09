@@ -128,7 +128,7 @@ export function CookiesContent() {
       </div>
 
       <p className="text-xs text-gray-500 text-center">
-        Last updated: 24 November 2025
+        Last updated: 09 December 2025
       </p>
     </div>
   )
