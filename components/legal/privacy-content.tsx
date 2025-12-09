@@ -59,7 +59,7 @@ export function PrivacyContent() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold mt-0.5">•</span>
-                <span className="text-xs text-gray-700">To comply with Indian and Canadian law</span>
+                <span className="text-xs text-gray-700">To comply with Indian law</span>
               </li>
             </ul>
           </div>
@@ -85,7 +85,7 @@ export function PrivacyContent() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold mt-0.5">•</span>
-                <span className="text-xs text-gray-700">Trusted partners: Auth0 (authentication), MongoDB Atlas, Cloudflare R2, Razorpay/Stripe (payments) – all under strict contracts.</span>
+                <span className="text-xs text-gray-700">Trusted partners: Auth0 (authentication), MongoDB Atlas, Cloudflare R2, Cashfree (payments) – all under strict contracts.</span>
               </li>
             </ul>
           </div>
@@ -122,7 +122,7 @@ export function PrivacyContent() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold mt-0.5">•</span>
-                <span className="text-xs text-gray-700">Payment details are handled by PCI-compliant providers (Razorpay/Stripe) – we never see or store your card numbers</span>
+                <span className="text-xs text-gray-700">Payment details are handled by PCI-compliant providers (Cashfree) – we never see or store your card numbers</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-purple-600 font-bold mt-0.5">•</span>
@@ -213,8 +213,8 @@ export function PrivacyContent() {
           <div className="flex-1">
             <p className="text-xs text-gray-800 leading-relaxed">
               Questions about privacy? Email{" "}
-              <a href="mailto:privacy@uniqbrio.com" className="text-purple-700 hover:text-purple-800 font-semibold underline">
-                privacy@uniqbrio.com
+              <a href="mailto:support@uniqbrio.com" className="text-purple-700 hover:text-purple-800 font-semibold underline">
+                support@uniqbrio.com
               </a>{" "}
               – we respond promptly.
             </p>
@@ -227,7 +227,7 @@ export function PrivacyContent() {
       </div>
 
       <p className="text-xs text-gray-500 text-center">
-        Last updated: 24 November 2025
+        Last updated: 09 December 2025
       </p>
     </div>
   )
