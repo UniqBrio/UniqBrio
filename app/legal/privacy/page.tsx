@@ -34,7 +34,7 @@ export default function PrivacyPage() {
             </div>
             <p className="text-sm text-white/90 flex items-center gap-2">
               <span className="w-2 h-2 bg-white rounded-full"></span>
-              Last updated: 24 November 2025
+              Last updated: 09 December 2025
             </p>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700 dark:text-white">To comply with Indian and Canadian law</span>
+                    <span className="text-sm text-gray-700 dark:text-white">To comply with Indian law</span>
                   </li>
                 </ul>
               </div>
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-purple-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700 dark:text-white">Trusted partners: Auth0 (authentication), MongoDB Atlas, Cloudflare R2, Razorpay/Stripe (payments) – all under strict contracts.</span>
+                    <span className="text-sm text-gray-700 dark:text-white">Trusted partners: Auth0 (authentication), MongoDB Atlas, Cloudflare R2, Cashfree (payments) – all under strict contracts.</span>
                   </li>
                 </ul>
               </div>
