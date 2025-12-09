@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/
 // Removed Select-based sort UI in favor of student-style dropdown
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu"
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 
 import { useToast } from "@/hooks/dashboard/use-toast"
 import { 
@@ -826,10 +827,17 @@ export default function AttendanceSearchFilters({
 
         {/* Add Attendance */}
         {onAddAttendance && (
-          <Button onClick={onAddAttendance} size="sm" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Attendance
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={onAddAttendance} size="sm" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Attendance
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Record new attendance entry</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         </div>
       </div>

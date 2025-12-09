@@ -40,7 +40,6 @@ const publicPaths = [
   "/legal/", // Legal pages (terms, privacy, cookies)
   // API Routes - Allow specific prefixes
   "/api/auth/",
-  "/api/payload/",
   "/api/admin-auth", // Admin authentication
   "/api/admin-data", // Admin data endpoints
   // Next.js internals and static assets

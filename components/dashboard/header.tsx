@@ -19,7 +19,6 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { useCustomColors } from "@/lib/use-custom-colors"
-import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
 import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
 
 interface HeaderProps {
@@ -39,9 +38,9 @@ export default function Header({  userRole, changeUserRole }: HeaderProps) {
   const notificationHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
   const applyFallbackNotifications = () => {
-    const fallback = createSampleNotifications()
-    setNotificationsList(fallback)
-    setNotifications(fallback.filter((item) => item.read === false).length)
+    // No fallback notifications - show empty state instead
+    setNotificationsList([])
+    setNotifications(0)
   }
 
   // Fetch notifications when component mounts

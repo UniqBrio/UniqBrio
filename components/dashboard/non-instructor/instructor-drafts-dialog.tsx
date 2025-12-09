@@ -117,7 +117,17 @@ export default function InstructorDraftsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-2xl max-h-[80vh] overflow-y-auto"
+        onEscapeKeyDown={(e) => {
+          // Prevent closing the dialog with the Escape key for non-instructor drafts
+          e.preventDefault()
+        }}
+        onPointerDownOutside={(e) => {
+          // Prevent closing the dialog by clicking the overlay/backdrop
+          e.preventDefault()
+        }}
+      >
         <DialogHeader>
           <div className="pr-12">
             <DialogTitle className="text-xl font-semibold">Non-Instructor Drafts</DialogTitle>
@@ -230,7 +240,16 @@ export default function InstructorDraftsDialog({
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Draft?</AlertDialogTitle>
+                          <div className="flex items-center justify-between">
+                            <AlertDialogTitle>Delete Draft?</AlertDialogTitle>
+                            <button
+                              onClick={() => setIsDeleting(false)}
+                              className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                              disabled={isDeleting}
+                            >
+                              <X className="h-4 w-4 text-gray-500" />
+                            </button>
+                          </div>
                           <AlertDialogDescription>
                             This action will permanently remove the draft "{draft.name}". This cannot be undone.
                           </AlertDialogDescription>

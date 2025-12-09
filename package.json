@@ -21,7 +21,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.937.0",
     "@hookform/resolvers": "3.10.0",
-    "@payloadcms/db-mongodb": "3.64.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -51,7 +50,6 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "@reactour/tour": "3.8.0",
-    "@testing-library/jest-dom": "6.9.1",
     "@types/mongodb": "4.0.7",
     "@types/uuid": "10.0.0",
     "autoprefixer": "10.4.21",
@@ -84,12 +82,10 @@
     "mongoose": "8.20.1",
     "next": "15.5.7",
     "next-auth": "4.24.12",
-    "next-pwa": "5.6.0",
     "next-themes": "0.4.6",
     "node-fetch": "3.3.2",
     "nodemailer": "7.0.11",
     "path": "0.12.7",
-    "payload": "3.64.0",
     "react": "18.3.1",
     "react-chartjs-2": "5.3.1",
     "react-confetti": "6.4.0",
@@ -120,7 +116,6 @@
     "@types/formidable": "3.4.6",
     "@types/html2canvas": "0.5.35",
     "@types/ioredis": "4.28.10",
-    "@types/jest": "30.0.0",
     "@types/js-cookie": "3.0.6",
     "@types/node": "22.19.1",
     "@types/nodemailer": "6.4.21",
@@ -136,6 +131,7 @@
   },
   "overrides": {
     "nodemailer": "7.0.11",
-    "date-fns": "3.6.0"
+    "date-fns": "3.6.0",
+    "serialize-javascript": "6.0.2"
   }
 }

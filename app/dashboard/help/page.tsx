@@ -1144,7 +1144,17 @@ export default function HelpPage() {
 
       {/* Create Ticket Dialog */}
       <Dialog open={creatingTicket} onOpenChange={setCreatingTicket}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent 
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          onInteractOutside={(e) => {
+            // Prevent closing when clicking outside - must use close button
+            e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            // Prevent closing when pressing Escape - must use close button
+            e.preventDefault();
+          }}
+        >
           <DialogHeader>
             <DialogTitle style={{ color: secondaryColor }}>Create New Ticket</DialogTitle>
             <DialogDescription>

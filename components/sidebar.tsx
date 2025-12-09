@@ -293,7 +293,10 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       icon: <CalendarClock className="h-5 w-5" />,
       href: "/dashboard/events",
       tooltip: "Manage events",
-      
+      badge: {
+        text: "🎯 Coming Soon",
+        variant: "comingSoon"
+      }
     },
     {
       id: "community",

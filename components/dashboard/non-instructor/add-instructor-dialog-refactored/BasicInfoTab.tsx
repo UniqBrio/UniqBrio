@@ -271,21 +271,45 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             aria-invalid={!!emailError}
             aria-describedby="email-help email-error"
             onChange={e => {
-              const v = e.target.value
+              const v = e.target.value.trim()
               setForm(f => ({ ...f, email: v }))
-              if (v) runEmailValidation(v)
-              else setEmailError("Email is required.")
+              
+              // Immediate validation on every keystroke for better UX
+              if (v.length > 0) {
+                // Basic regex check for immediate feedback
+                const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                if (!basicEmailRegex.test(v)) {
+                  setEmailError("Please enter a valid email address")
+                } else {
+                  // Run full validation if basic regex passes
+                  runEmailValidation(v)
+                }
+              } else {
+                setEmailError("Email is required.")
+              }
             }}
             onBlur={e => {
-              const v = e.target.value
-              runEmailValidation(v)
+              const v = e.target.value.trim()
+              if (v) {
+                runEmailValidation(v)
+              } else {
+                setEmailError("Email is required.")
+              }
+            }}
+            onKeyDown={e => {
+              // Prevent certain characters that would make email invalid
+              if (e.key === ' ' || (e.key === '-' && e.currentTarget.value.endsWith('-'))) {
+                e.preventDefault()
+              }
             }}
             className={cn(
-              emailError ? "border-red-500 focus:ring-red-400" : "",
+              emailError ? "border-red-500 focus:ring-red-400" : "border-gray-300",
+              "transition-colors duration-200"
             )}
           />
+          <p className="mt-1 text-[11px] text-gray-500">Must be a valid email address (e.g., user@domain.com)</p>
           {emailError && (
-            <p id="email-error" className="mt-1 text-[12px] text-red-600">{emailError}</p>
+            <p id="email-error" className="mt-1 text-[12px] text-red-600 font-medium">{emailError}</p>
           )}
         </div>
 

@@ -749,7 +749,11 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
 
         {/* Edit Request Dialog - consistent with New Leave Request UI */}
   <Dialog open={isEditOpen} onOpenChange={(open) => { if (!open) { attemptCloseEdit() } else { setIsEditOpen(true) } }}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent
+            className="max-w-2xl"
+            onEscapeKeyDown={(e) => { e.preventDefault() }}
+            onPointerDownOutside={(e) => { e.preventDefault() }}
+          >
             <DialogHeader>
               <DialogTitle>Edit Leave Request</DialogTitle>
               <DialogDescription>Update fields and save changes.</DialogDescription>
@@ -991,7 +995,11 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
 
         {/* Substitute Management Dialog */}
         <Dialog open={isSubstituteOpen} onOpenChange={setIsSubstituteOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent
+            className="sm:max-w-[600px]"
+            onEscapeKeyDown={(e) => { e.preventDefault() }}
+            onPointerDownOutside={(e) => { e.preventDefault() }}
+          >
             <DialogHeader>
               <DialogTitle className="inline-flex items-center gap-2">Request Substitute <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" /></DialogTitle>
               <DialogDescription>

@@ -98,7 +98,11 @@ export default function Header({ currentLanguage, changeLanguage, userRole, chan
               <TooltipContent>Settings</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent
+            className="sm:max-w-[425px]"
+            onEscapeKeyDown={(e) => { e.preventDefault() }}
+            onPointerDownOutside={(e) => { e.preventDefault() }}
+          >
             <DialogHeader className="flex flex-row items-center justify-between">
               <DialogTitle>Settings</DialogTitle>
               <DialogClose asChild>

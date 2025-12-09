@@ -664,12 +664,20 @@ export function AddAttendanceDialog({
   };
 
   const handleSaveDraft = () => {
+    // Validate that an instructor is selected
+    if (!newInstructorId?.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select an instructor before saving the draft.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const recordData = {
       id: editingDraftId ?? Date.now(),
-      instructorId: newInstructorId || '-',
-      instructorName: instructorsList.find(s => s.id === newInstructorId)?.name || 
-                   attendanceData.find(r => r.instructorId === newInstructorId)?.instructorName || 
-                   (newInstructorId || '-'),
+      instructorId: newInstructorId,
+      instructorName: instructorsList.find(s => s.id === newInstructorId)?.name || newInstructorId,
       cohortName: newCohortName || undefined,
       cohortInstructor: newCohortInstructor || undefined,
       cohortTiming: newCohortTiming || undefined,
@@ -727,7 +735,12 @@ export function AddAttendanceDialog({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-2xl" ref={dialogContentRef}>
+        <DialogContent
+          className="max-w-2xl"
+          ref={dialogContentRef}
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <DialogHeader>
             <div className="flex items-start justify-between w-full">
               <DialogTitle>{editingRecord ? 'Edit Attendance' : 'Add Non-Instructor Attendance'}</DialogTitle>

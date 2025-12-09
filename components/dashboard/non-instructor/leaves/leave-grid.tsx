@@ -512,7 +512,11 @@ export default function LeaveGrid({ searchQuery, filters, sortBy = "startDate", 
 
       {/* Edit Request Dialog - consistent with New Leave Request UI */}
   <Dialog open={isEditOpen} onOpenChange={(open) => { if (!open) { attemptCloseEdit() } else { setIsEditOpen(true) } }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent
+          className="max-w-2xl"
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <DialogHeader>
             <DialogTitle>Edit Leave Request</DialogTitle>
             <DialogDescription>Update fields and save changes.</DialogDescription>

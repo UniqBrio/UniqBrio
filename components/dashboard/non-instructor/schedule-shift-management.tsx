@@ -12,6 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { CalendarIcon, Clock, Users, AlertTriangle, Plus, Edit, Trash2, UserCheck, RefreshCw } from "lucide-react"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/dashboard/ui/tooltip"
 
 interface ScheduleEvent {
   id: string
@@ -101,17 +107,29 @@ export default function ScheduleShiftManagement() {
   }
 
   return (
+    <TooltipProvider>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Schedule & Shift Management</h2>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add Event
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Event
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Create a new scheduled event
+              </TooltipContent>
+            </Tooltip>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent
+            className="max-w-md"
+            onEscapeKeyDown={(e) => { e.preventDefault() }}
+            onPointerDownOutside={(e) => { e.preventDefault() }}
+          >
             <DialogHeader>
               <DialogTitle>Add New Event</DialogTitle>
             </DialogHeader>
@@ -152,7 +170,14 @@ export default function ScheduleShiftManagement() {
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea id="notes" placeholder="Additional notes" />
               </div>
-              <Button className="w-full">Create Event</Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="w-full">Create Event</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Save and add this event to schedule
+                </TooltipContent>
+              </Tooltip>
             </div>
           </DialogContent>
         </Dialog>
@@ -241,15 +266,30 @@ export default function ScheduleShiftManagement() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="icon" variant="ghost" style={{ color: primaryColor }}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost">
-                        <UserCheck className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="text-red-500">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost" style={{ color: primaryColor }}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit Event</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost">
+                              <UserCheck className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Mark Attendance</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost" className="text-red-500">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete Event</TooltipContent>
+                        </Tooltip>
                     </div>
                   </div>
                 </div>
@@ -276,9 +316,16 @@ export default function ScheduleShiftManagement() {
                   <span className="font-medium text-red-800">Room Conflict</span>
                 </div>
                 <p className="text-sm text-red-700 mt-1">Art Studio is double-booked at 4:00 PM today</p>
-                <Button size="sm" variant="outline" className="mt-2 bg-transparent">
-                  Resolve Conflict
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline" className="mt-2 bg-transparent">
+                      Resolve Conflict
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Fix scheduling conflicts automatically
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
@@ -309,9 +356,16 @@ export default function ScheduleShiftManagement() {
                 <p className="text-sm text-blue-700 mt-1">
                   Dr. Smith is available to cover your 2:00 PM class if needed
                 </p>
-                <Button size="sm" variant="outline" className="mt-2 bg-transparent">
-                  Request Substitute
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline" className="mt-2 bg-transparent">
+                      Request Substitute
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Ask for coverage for your duties
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="p-3 bg-green-50 rounded-lg border border-green-200">
@@ -320,9 +374,16 @@ export default function ScheduleShiftManagement() {
                   <span className="font-medium text-green-800">Optimal Schedule</span>
                 </div>
                 <p className="text-sm text-green-700 mt-1">Consider moving Art Workshop to 3:00 PM for better flow</p>
-                <Button size="sm" variant="outline" className="mt-2 bg-transparent">
-                  Apply Suggestion
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline" className="mt-2 bg-transparent">
+                      Apply Suggestion
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Implement AI schedule optimization
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </CardContent>
@@ -343,30 +404,52 @@ export default function ScheduleShiftManagement() {
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Request Substitute</h4>
                 <p className="text-sm text-gray-600 dark:text-white mb-3">Need someone to cover your class?</p>
-                <Button size="sm" className="w-full">
-                  Find Substitute
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" className="w-full">
+                      Find Substitute
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Search for available substitute staff
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Available to Substitute</h4>
                 <p className="text-sm text-gray-600 dark:text-white mb-3">Help colleagues by covering their classes</p>
-                <Button size="sm" variant="outline" className="w-full bg-transparent">
-                  Mark Available
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline" className="w-full bg-transparent">
+                      Mark Available
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Offer to substitute for other staff
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Temporary Transfer</h4>
                 <p className="text-sm text-gray-600 dark:text-white mb-3">Request transfer to another branch</p>
-                <Button size="sm" variant="outline" className="w-full bg-transparent">
-                  Request Transfer
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline" className="w-full bg-transparent">
+                      Request Transfer
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Apply for temporary transfer to another location
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
+    </TooltipProvider>
   )
 }

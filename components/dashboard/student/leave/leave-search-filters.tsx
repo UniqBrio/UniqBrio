@@ -565,38 +565,45 @@ export default function LeaveSearchFilters({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* View toggle */}
-          <div className="flex border rounded-md">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="rounded-r-none"
-              title="List View"
-              aria-label="List View"
-            >
-              <div className="flex flex-col gap-0.5 w-4 h-4">
-                <div className="bg-current h-0.5 rounded-sm" />
-                <div className="bg-current h-0.5 rounded-sm" />
-                <div className="bg-current h-0.5 rounded-sm" />
-              </div>
-            </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className="rounded-l-none border-l"
-              title="Grid View"
-              aria-label="Grid View"
-            >
-              <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-                <div className="bg-current rounded-sm" />
-                <div className="bg-current rounded-sm" />
-                <div className="bg-current rounded-sm" />
-                <div className="bg-current rounded-sm" />
-              </div>
-            </Button>
-          </div>
+          {/* View Mode Toggle */}
+                 <div className="flex border rounded-md">
+                   
+                   <Button
+                     variant={viewMode === "list" ? "default" : "ghost"}
+                     size="sm"
+                     onClick={() => setViewMode("list")}
+                     className="rounded-r-none"
+                     style={viewMode === "list" ? { backgroundColor: primaryColor, color: 'white' } : {}}
+                     onMouseEnter={(e) => viewMode === "list" ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+                     onMouseLeave={(e) => viewMode === "list" ? e.currentTarget.style.backgroundColor = primaryColor : null}
+                     title="List View"
+                   >
+                     <div className="flex flex-col gap-0.5 w-4 h-4">
+                       <div className="bg-current h-0.5 rounded-sm"></div>
+                       <div className="bg-current h-0.5 rounded-sm"></div>
+                       <div className="bg-current h-0.5 rounded-sm"></div>
+                     </div>
+                   </Button>
+                   <Button
+                     variant={viewMode === "grid" ? "default" : "ghost"}
+                     size="sm"
+                     onClick={() => setViewMode("grid")}
+                     className="rounded-l-none border-l"
+                     style={viewMode === "grid" ? { backgroundColor: primaryColor, color: 'white' } : {}}
+                     onMouseEnter={(e) => viewMode === "grid" ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+                     onMouseLeave={(e) => viewMode === "grid" ? e.currentTarget.style.backgroundColor = primaryColor : null}
+                     title="Grid View"
+                   >
+                     <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+                       <div className="bg-current rounded-sm"></div>
+                       <div className="bg-current rounded-sm"></div>
+                       <div className="bg-current rounded-sm"></div>
+                       <div className="bg-current rounded-sm"></div>
+                     </div>
+                   </Button>
+                 </div>
+               
+         
 
           {/* Export */}
           

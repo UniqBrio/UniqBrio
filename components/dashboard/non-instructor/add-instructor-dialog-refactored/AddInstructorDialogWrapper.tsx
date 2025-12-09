@@ -282,7 +282,11 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogClose}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-xl">
+        <DialogContent
+          className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-xl"
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <DialogHeader className="flex flex-row items-center justify-between pr-8">
             <DialogTitle>{title ?? (mode === "edit" ? "Edit Non-Instructor" : "Add New Non-Instructor")}</DialogTitle>
             <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50" onClick={handleSaveDraft}>

@@ -501,7 +501,11 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
   return (
     <>
     <Dialog open={true} onOpenChange={(open) => { if (!open) attemptClose() }}>
-  <DialogContent className="max-w-2xl">
+  <DialogContent
+    className="max-w-2xl"
+    onEscapeKeyDown={(e) => { e.preventDefault() }}
+    onPointerDownOutside={(e) => { e.preventDefault() }}
+  >
         <DialogHeader>
           <DialogTitle>New Leave Request</DialogTitle>
         </DialogHeader>

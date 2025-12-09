@@ -105,6 +105,8 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
   const [events, setEvents] = useState<Event[]>(externalEvents || [])
   const [isLoading, setIsLoading] = useState(!externalEvents)
   const [staffMembers, setStaffMembers] = useState<string[]>([])
+  const [instructors, setInstructors] = useState<string[]>([])
+  const [nonInstructors, setNonInstructors] = useState<string[]>([])
   const [isLoadingStaff, setIsLoadingStaff] = useState(true)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [statusFilter, setStatusFilter] = useState<"All" | "Upcoming" | "Ongoing" | "Completed">("All")
@@ -146,23 +148,30 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           fetch('/api/dashboard/staff/non-instructor/non-instructors')
         ])
 
-        const staffNames: string[] = []
+        const instructorNames: string[] = []
+        const nonInstructorNames: string[] = []
 
         // Process instructors
         if (instructorsRes.ok) {
           const instructorsData = await instructorsRes.json()
-          if (instructorsData.data && Array.isArray(instructorsData.data)) {
-            instructorsData.data.forEach((instructor: any) => {
+          console.log('Instructors API Response:', instructorsData)
+          // API returns 'instructors' key, not 'data'
+          const instructorsList = instructorsData.instructors || instructorsData.data || []
+          if (Array.isArray(instructorsList)) {
+            instructorsList.forEach((instructor: any) => {
               if (instructor.name) {
-                staffNames.push(instructor.name)
+                instructorNames.push(instructor.name)
               }
             })
           }
+        } else {
+          console.error('Failed to fetch instructors:', instructorsRes.status)
         }
 
         // Process non-instructors
         if (nonInstructorsRes.ok) {
           const nonInstructorsData = await nonInstructorsRes.json()
+          console.log('Non-Instructors API Response:', nonInstructorsData)
           if (nonInstructorsData.data && Array.isArray(nonInstructorsData.data)) {
             nonInstructorsData.data.forEach((nonInstructor: any) => {
               // Construct full name from firstName, middleName, lastName
@@ -174,14 +183,26 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
               
               const fullName = nameParts.join(' ')
               if (fullName) {
-                staffNames.push(fullName)
+                nonInstructorNames.push(fullName)
               }
             })
           }
+        } else {
+          console.error('Failed to fetch non-instructors:', nonInstructorsRes.status)
         }
 
-        // Sort staff names alphabetically
-        setStaffMembers(staffNames.sort((a, b) => a.localeCompare(b)))
+        // Sort both lists alphabetically
+        const sortedInstructors = instructorNames.sort((a, b) => a.localeCompare(b))
+        const sortedNonInstructors = nonInstructorNames.sort((a, b) => a.localeCompare(b))
+        
+        console.log('Sorted Instructors:', sortedInstructors.length, sortedInstructors)
+        console.log('Sorted Non-Instructors:', sortedNonInstructors.length, sortedNonInstructors)
+        
+        setInstructors(sortedInstructors)
+        setNonInstructors(sortedNonInstructors)
+        
+        // Also maintain combined list for backward compatibility
+        setStaffMembers([...sortedInstructors, ...sortedNonInstructors])
       } catch (error) {
         console.error('Failed to load staff members:', error)
         toast({
@@ -208,7 +229,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           setEvents(response.data)
         } else {
           toast({
-            title: "? Failed to Load Events",
+            title: "Failed to Load Events",
             description: response.error || "Could not fetch events from the server.",
             duration: 3000,
           })
@@ -216,7 +237,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       } catch (error) {
         console.error('Failed to load events:', error)
         toast({
-          title: "? Failed to Load Events",
+          title: "Failed to Load Events",
           description: "An error occurred while fetching events.",
           duration: 3000,
         })
@@ -496,7 +517,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       } else {
         console.error('Delete failed with error:', response.error);
         toast({
-          title: "? Delete Failed",
+          title: "Delete Failed",
           description: response.error || "Failed to delete event",
           duration: 3000,
         })
@@ -505,7 +526,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
     } catch (error) {
       console.error('Error deleting event:', error)
       toast({
-        title: "? Delete Error",
+        title: "Delete Error",
         description: "An error occurred while deleting the event.",
         duration: 3000,
       })
@@ -544,11 +565,11 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
         setEvents(prev => prev.map(e => (e.id === updatedEvent.eventId || e.id === updatedEvent._id) ? ({ ...e, participants: updatedEvent.participants }) : e))
         if (onUpdateEvent) onUpdateEvent(updatedEvent)
       } else {
-        toast({ title: '? Update Failed', description: response.error || 'Failed to update participants', duration: 3000 })
+        toast({ title: 'Update Failed', description: response.error || 'Failed to update participants', duration: 3000 })
       }
     } catch (err) {
       console.error('Error changing participants:', err)
-      toast({ title: '? Error', description: 'Could not change participants', duration: 3000 })
+      toast({ title: 'Error', description: 'Could not change participants', duration: 3000 })
     }
   }
 
@@ -636,7 +657,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           console.log('Event updated locally and modal closed. Updated participants:', updatedEvent.participants)
         } else {
           toast({
-            title: "? Update Failed",
+            title: "Update Failed",
             description: response.error || "Failed to update event",
             duration: 3000,
           })
@@ -644,7 +665,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
       } catch (error) {
         console.error('Error updating event:', error)
         toast({
-          title: "? Update Error",
+          title: "Update Error",
           description: "An error occurred while updating the event.",
           duration: 3000,
         })
@@ -689,7 +710,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           !newEvent.staff || !newEvent.skillLevel || !newEvent.format || !newEvent.ageGroup ||
           newEvent.maxParticipants <= 0) {
         toast({
-          title: "? Validation Error",
+          title: "Validation Error",
           description: "Please fill all required fields before saving.",
           duration: 3000,
         })
@@ -741,7 +762,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
         setFormData({})
       } else {
         toast({
-          title: "? Creation Failed",
+          title: "Creation Failed",
           description: response.error || "Failed to create event",
           duration: 3000,
         })
@@ -1006,6 +1027,8 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           formData={formData}
           setFormData={setFormData}
           coaches={staffMembers}
+          instructors={instructors}
+          nonInstructors={nonInstructors}
           isLoadingStaff={isLoadingStaff}
           eventTypes={eventTypes}
           sportsList={sportsList}
@@ -1297,6 +1320,8 @@ export function EventFormModal({
   formData: initialFormData,
   setFormData: setParentFormData,
   coaches,
+  instructors,
+  nonInstructors,
   isLoadingStaff,
   eventTypes,
   sportsList,
@@ -1309,6 +1334,8 @@ export function EventFormModal({
   formData: Partial<Event>
   setFormData: (data: Partial<Event>) => void
   coaches: string[]
+  instructors: string[]
+  nonInstructors: string[]
   isLoadingStaff: boolean
   eventTypes: string[]
   sportsList: string[]
@@ -1513,9 +1540,20 @@ export function EventFormModal({
                   disabled={isLoadingStaff}
                 >
                   <option value="">{isLoadingStaff ? 'Loading staff...' : 'Select a staff member'}</option>
-                  {coaches.map(staff => (
-                    <option key={staff} value={staff}>{staff}</option>
-                  ))}
+                  {instructors.length > 0 && (
+                    <optgroup label="Instructors">
+                      {instructors.map((staff, index) => (
+                        <option key={`instructor-${index}-${staff}`} value={staff}>{staff}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {nonInstructors.length > 0 && (
+                    <optgroup label="Non-Instructors">
+                      {nonInstructors.map((staff, index) => (
+                        <option key={`non-instructor-${index}-${staff}`} value={staff}>{staff}</option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
                 {validationErrors.staff && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.staff}</p>

@@ -18,7 +18,11 @@ export default function UnsavedChangesDialog({
 }: UnsavedChangesDialogProps) {
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-lg p-6 rounded-xl [&>button]:hidden">
+      <DialogContent
+        className="max-w-lg p-6 rounded-xl [&>button]:hidden"
+        onEscapeKeyDown={(e) => { e.preventDefault() }}
+        onPointerDownOutside={(e) => { e.preventDefault() }}
+      >
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
             Unsaved Changes

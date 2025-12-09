@@ -8,6 +8,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 // Removed Select-based sort UI in favor of student-style dropdown
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 
 import { useToast } from "@/hooks/dashboard/use-toast"
 import { 
@@ -732,39 +733,44 @@ export default function AttendanceSearchFilters({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* View toggle (moved next to Sort) */}
+ {/* View Mode Toggle */}
         <div className="flex border rounded-md">
+          
           <Button
-            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            variant={viewMode === "list" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewMode("list")}
             className="rounded-r-none"
+            style={viewMode === "list" ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => viewMode === "list" ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => viewMode === "list" ? e.currentTarget.style.backgroundColor = primaryColor : null}
             title="List View"
-            aria-label="List View"
           >
             <div className="flex flex-col gap-0.5 w-4 h-4">
-              <div className="bg-current h-0.5 rounded-sm" />
-              <div className="bg-current h-0.5 rounded-sm" />
-              <div className="bg-current h-0.5 rounded-sm" />
+              <div className="bg-current h-0.5 rounded-sm"></div>
+              <div className="bg-current h-0.5 rounded-sm"></div>
+              <div className="bg-current h-0.5 rounded-sm"></div>
             </div>
           </Button>
           <Button
-            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            variant={viewMode === "grid" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setViewMode('grid')}
+            onClick={() => setViewMode("grid")}
             className="rounded-l-none border-l"
+            style={viewMode === "grid" ? { backgroundColor: primaryColor, color: 'white' } : {}}
+            onMouseEnter={(e) => viewMode === "grid" ? e.currentTarget.style.backgroundColor = `${primaryColor}dd` : null}
+            onMouseLeave={(e) => viewMode === "grid" ? e.currentTarget.style.backgroundColor = primaryColor : null}
             title="Grid View"
-            aria-label="Grid View"
           >
             <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-              <div className="bg-current rounded-sm" />
-              <div className="bg-current rounded-sm" />
-              <div className="bg-current rounded-sm" />
-              <div className="bg-current rounded-sm" />
+              <div className="bg-current rounded-sm"></div>
+              <div className="bg-current rounded-sm"></div>
+              <div className="bg-current rounded-sm"></div>
+              <div className="bg-current rounded-sm"></div>
             </div>
           </Button>
         </div>
+    
 
         {/* Import */}
         
@@ -807,10 +813,17 @@ export default function AttendanceSearchFilters({
 
         {/* Add Attendance */}
         {onAddAttendance && (
-          <Button onClick={onAddAttendance} size="sm" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Attendance
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={onAddAttendance} size="sm" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Attendance
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Record new attendance entry</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         </div>
       </div>

@@ -53,7 +53,11 @@ export default function RecurringLeaveDialog({ open, onOpenChange, onCreate }: R
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o) }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onEscapeKeyDown={(e) => { e.preventDefault() }}
+        onPointerDownOutside={(e) => { e.preventDefault() }}
+      >
         <DialogHeader>
           <DialogTitle>Schedule Recurring Leave</DialogTitle>
           <DialogDescription>

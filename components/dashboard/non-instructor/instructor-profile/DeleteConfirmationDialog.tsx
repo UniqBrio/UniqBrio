@@ -11,6 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/dashboard/ui/alert-dialog"
+import { Button } from "@/components/dashboard/ui/button"
+import { X } from "lucide-react"
 
 interface Instructor {
   instructorId: string
@@ -41,7 +43,17 @@ export default function DeleteConfirmationDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Instructor</AlertDialogTitle>
+          <div className="flex items-center justify-between">
+            <AlertDialogTitle>Delete Instructor</AlertDialogTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              className="h-6 w-6 rounded-full p-0 hover:bg-gray-100"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <AlertDialogDescription>
             Are you sure you want to delete this instructor? This action cannot be undone.
             <br />

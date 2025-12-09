@@ -1287,6 +1287,13 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       }
     };
 
+    // Regex validation patterns
+    const nameRegex = /^[a-zA-Z\s\-'\.]{2,50}$/; // Letters, spaces, hyphens, apostrophes, dots, 2-50 chars
+    const addressRegex = /^[a-zA-Z0-9\s\-,\.#/()]{5,100}$/; // Alphanumeric with common address characters
+    // Email: Must start with alphanumeric, can contain dots/hyphens/underscores (but not consecutively or at edges), standard domain format
+    const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$|^[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^[\d\s\-\+()]{10,}$/; // Flexible phone format
+
     // Base required fields
     const baseRequired: {key:string; value:any}[] = [
       { key:'firstName', value:newStudent.firstName?.trim() },
@@ -1302,9 +1309,33 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     ];
     baseRequired.forEach(f => { if(!f.value) addError(f.key); });
 
+    // First Name regex validation
+    if (newStudent.firstName?.trim()) {
+      const firstName = newStudent.firstName.trim();
+      if (!nameRegex.test(firstName)) {
+        addError('firstName', 'First Name can only contain letters, spaces, hyphens, apostrophes, and dots (2-50 characters)');
+      }
+    }
+
+    // Last Name regex validation
+    if (newStudent.lastName?.trim()) {
+      const lastName = newStudent.lastName.trim();
+      if (!nameRegex.test(lastName)) {
+        addError('lastName', 'Last Name can only contain letters, spaces, hyphens, apostrophes, and dots (2-50 characters)');
+      }
+    }
+
+    // Gender validation - must be letters only, no numbers
+    if (newStudent.gender?.trim()) {
+      const gender = newStudent.gender.trim();
+      const genderRegex = /^[a-zA-Z\s]{2,50}$/; // Letters and spaces only, 2-50 chars
+      if (!genderRegex.test(gender)) {
+        addError('gender', 'Gender can only contain letters and spaces');
+      }
+    }
+
     // Email format validation
     if (newStudent.email) {
-      const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
       if (!emailRegex.test(newStudent.email.trim())) {
         addError('email', 'Please enter a valid email address (e.g. john@example.com)');
       } else {
@@ -1340,6 +1371,14 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       }
     }
 
+    // Address regex validation
+    if (newStudent.address?.trim()) {
+      const address = newStudent.address.trim();
+      if (!addressRegex.test(address)) {
+        addError('address', 'Address contains invalid characters. Use letters, numbers, and common address symbols (5-100 characters)');
+      }
+    }
+
     // DOB must not be a future date
     if (newStudent.dob) {
       try {
@@ -1359,6 +1398,15 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     // Guardian validation if required (validate presence and format)
     if (isGuardianRequired()) {
       if (!newStudent.guardianFirstName?.trim()) addError('guardianFirstName');
+      
+      // Guardian First Name regex validation
+      if (newStudent.guardianFirstName?.trim()) {
+        const guardianFirstName = newStudent.guardianFirstName.trim();
+        if (!nameRegex.test(guardianFirstName)) {
+          addError('guardianFirstName', 'Guardian First Name can only contain letters, spaces, hyphens, apostrophes, and dots (2-50 characters)');
+        }
+      }
+      
       if (!newStudent.guardian?.relationship) addError('guardianRelationship');
       if (!newStudent.guardian?.contact?.trim()) {
         addError('guardianContact', 'Please enter a valid guardian contact number');
@@ -1702,19 +1750,19 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         
         // Show success toast
         toast({
-          title: "? Student Added",
+          title: "✅ Student Added",
           description: `Student "${student.name}" has been created and draft has been removed.`,
           duration: 3000,
         });
       } catch (error) {
-        console.error('? Failed to delete draft after student creation:', error);
+        console.error('❌ Failed to delete draft after student creation:', error);
         
         // Still create the student even if draft deletion fails
         onAdd(student);
         
         // Show error toast about draft
         toast({
-          title: "?? Draft Not Removed",
+          title: "⚠️ Draft Not Removed",
           description: `Student "${student.name}" was created, but the draft could not be removed. Please delete it manually.`,
           variant: "destructive",
           duration: 5000,
@@ -1726,7 +1774,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       
       // Only show toast for new student creation, not for edits (parent handles edit toast)
       toast({
-        title: "? Student Added",
+        title: "✅ Student Added",
         description: `Student "${student.name}" has been created successfully.`,
         duration: 3000,
       });

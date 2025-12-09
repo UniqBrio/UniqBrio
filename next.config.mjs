@@ -1,12 +1,3 @@
-import withPWA from 'next-pwa';
-
-const pwaConfig = withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-});
-
 let userConfig = undefined
 try {
   // try to import ESM first
@@ -97,4 +88,4 @@ if (userConfig) {
   }
 }
 
-export default pwaConfig(nextConfig);
+export default nextConfig;

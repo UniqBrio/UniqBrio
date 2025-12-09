@@ -884,6 +884,16 @@ export function AddAttendanceDialog({
   };
 
   const handleSaveDraft = async () => {
+    // Validate that a student is selected
+    if (!newStudentId?.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a student before saving the draft.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     // If absent, remarks are required even for drafts
     if (newStatus === 'absent' && !newNotes.trim()) {
       toast({
@@ -895,10 +905,8 @@ export function AddAttendanceDialog({
     }
     const recordData = {
       id: editingDraftId ?? Date.now(),
-      studentId: newStudentId || '-',
-      studentName: studentsList.find(s => s.id === newStudentId)?.name || 
-                   attendanceData.find(r => r.studentId === newStudentId)?.studentName || 
-                   (newStudentId || '-'),
+      studentId: newStudentId,
+      studentName: studentsList.find(s => s.id === newStudentId)?.name || newStudentId,
       cohortId: newCohortId || undefined,
       cohortName: newCohortName || undefined,
       cohortInstructor: newCohortInstructor || undefined,

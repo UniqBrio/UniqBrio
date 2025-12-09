@@ -65,7 +65,11 @@ export default function InstructorDetailsDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl shadow-2xl">
+      <DialogContent
+        className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl shadow-2xl"
+        onEscapeKeyDown={(e) => { e.preventDefault() }}
+        onPointerDownOutside={(e) => { e.preventDefault() }}
+      >
         {/* Hidden dialog title for accessibility (required by Radix) */}
         <VisuallyHidden>
           <DialogTitle>Non-Instructor Details</DialogTitle>

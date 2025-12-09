@@ -31,8 +31,11 @@ export async function GET() {
   try {
     await dbConnect("uniqbrio");
 
-    // CRITICAL: Explicitly filter by tenantId to ensure tenant isolation
-    const instructors = await Instructor.find({ tenantId: session.tenantId })
+    // CRITICAL: Explicitly filter by tenantId AND status to ensure tenant isolation and only active staff
+    const instructors = await Instructor.find({ 
+      tenantId: session.tenantId,
+      status: { $ne: 'Inactive' } // Exclude inactive/deleted staff
+    })
       .select('instructorId firstName middleName lastName')
       .lean()
       .sort({ firstName: 1 });

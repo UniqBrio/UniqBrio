@@ -541,7 +541,11 @@ function AttendanceManagementInner() {
       </Tabs>
       {/* View details dialog - redesigned to match Leave Management UI */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl shadow-2xl">
+        <DialogContent
+          className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl shadow-2xl"
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <VisuallyHidden>
             <DialogTitle>Attendance Details</DialogTitle>
           </VisuallyHidden>
@@ -625,7 +629,11 @@ function AttendanceManagementInner() {
       </Dialog>
       {/* Delete confirmation modal */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent
+          className="max-w-md"
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <DialogHeader>
             <DialogTitle>Delete Attendance</DialogTitle>
           </DialogHeader>

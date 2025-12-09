@@ -18,6 +18,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/dashboard/ui/dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/dashboard/ui/tooltip"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { NotificationTemplateButton } from "./notification-templates-dialog"
 
@@ -150,6 +156,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
   }
 
   return (
+    <TooltipProvider>
     <div className={"space-y-6 " + (disabled ? "pointer-events-none opacity-50 grayscale" : "")}>
       {/* Quick Actions */}
       <div className="flex justify-end gap-3">
@@ -256,9 +263,16 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
             </div>
             <Dialog open={showCourseTemplates} onOpenChange={setShowCourseTemplates}>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Info className="h-5 w-5" style={{ color: primaryColor }} />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Info className="h-5 w-5" style={{ color: primaryColor }} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    View message templates
+                  </TooltipContent>
+                </Tooltip>
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
@@ -942,5 +956,6 @@ Note: Associated cohorts and sessions may be affected.`}
         </Button>
       </div>
     </div>
+    </TooltipProvider>
   )
 }

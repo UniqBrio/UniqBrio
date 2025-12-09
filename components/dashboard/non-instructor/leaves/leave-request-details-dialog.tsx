@@ -183,7 +183,11 @@ export default function LeaveRequestDetailsDialog({ request, open, onOpenChange,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl shadow-2xl">
+      <DialogContent
+        className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 rounded-2xl shadow-2xl"
+        onEscapeKeyDown={(e) => { e.preventDefault() }}
+        onPointerDownOutside={(e) => { e.preventDefault() }}
+      >
         <VisuallyHidden>
           <DialogTitle>Leave Request Details</DialogTitle>
         </VisuallyHidden>

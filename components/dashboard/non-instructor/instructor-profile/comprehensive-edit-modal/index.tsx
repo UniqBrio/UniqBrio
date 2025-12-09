@@ -129,7 +129,11 @@ export default function ComprehensiveEditModalSplit({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleDialogClose}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-xl">
+        <DialogContent
+          className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-xl"
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <DialogHeader>
             <DialogTitle>Edit Non-Instructor</DialogTitle>
           </DialogHeader>

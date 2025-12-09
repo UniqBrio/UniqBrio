@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/
 // Removed Select-based sort UI in favor of student-style dropdown
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu"
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 
 import { useToast } from "@/hooks/dashboard/use-toast"
 import { 
@@ -795,11 +796,11 @@ export default function AttendanceSearchFilters({
             aria-label="Grid View"
             aria-pressed={viewMode === 'grid'}
           >
-            <div className="grid grid-cols-2 gap-1 w-4 h-4">
-              <div className="bg-current rounded-sm w-1.5 h-1.5" />
-              <div className="bg-current rounded-sm w-1.5 h-1.5" />
-              <div className="bg-current rounded-sm w-1.5 h-1.5" />
-              <div className="bg-current rounded-sm w-1.5 h-1.5" />
+            <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+              <div className="bg-current rounded-sm" />
+              <div className="bg-current rounded-sm" />
+              <div className="bg-current rounded-sm" />
+              <div className="bg-current rounded-sm" />
             </div>
           </button>
         </div>
@@ -846,10 +847,17 @@ export default function AttendanceSearchFilters({
 
         {/* Add Attendance */}
         {onAddAttendance && (
-          <Button onClick={onAddAttendance} size="sm" className="h-9 text-white rounded-lg hover:opacity-90" style={{ backgroundColor: primaryColor }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Attendance
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={onAddAttendance} size="sm" className="h-9 text-white rounded-lg hover:opacity-90" style={{ backgroundColor: primaryColor }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Attendance
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Record new attendance entry</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         </div>
       </div>

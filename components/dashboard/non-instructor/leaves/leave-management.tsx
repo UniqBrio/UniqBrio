@@ -18,7 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Calendar } from "@/components/dashboard/ui/calendar"
 import type { DateRange } from "react-day-picker"
-import { Clock, AlertTriangle, Plus, Search, Download, Table, CalendarDays, ArrowUpDown, ArrowUp, ArrowDown, Upload, Grid2X2, Save, Pencil, Trash2, RefreshCw, ChevronDown, Check } from "lucide-react"
+import { Clock, AlertTriangle, Plus, Search, Download, Table, CalendarDays, ArrowUpDown, ArrowUp, ArrowDown, Upload, Grid2X2, Save, Pencil, Trash2, RefreshCw, ChevronDown, Check, X } from "lucide-react"
 import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { LeaveRequest, Instructor } from "@/types/dashboard/staff/leave"
 import dynamic from "next/dynamic"
@@ -1044,7 +1044,11 @@ export default function LeaveManagement() {
 
       {/* Drafts viewer */}
       <Dialog open={draftsOpen} onOpenChange={setDraftsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent
+          className="max-w-2xl"
+          onEscapeKeyDown={(e) => { e.preventDefault() }}
+          onPointerDownOutside={(e) => { e.preventDefault() }}
+        >
           <DialogHeader>
             <div className="flex items-center justify-between w-full">
               <DialogTitle className="flex-1">Instructor Drafts</DialogTitle>
@@ -1097,7 +1101,15 @@ export default function LeaveManagement() {
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Leave Request</AlertDialogTitle>
+            <div className="flex items-center justify-between">
+              <AlertDialogTitle>Delete Leave Request</AlertDialogTitle>
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-4 w-4 text-gray-500" />
+              </button>
+            </div>
             <AlertDialogDescription>Are you sure you want to delete this leave request? This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
                     <div className="text-sm font-medium mt-2">"{state.drafts.find(d => d.id === deleteConfirmId)?.instructorName || ''}"</div>

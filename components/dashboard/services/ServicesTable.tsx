@@ -9,6 +9,7 @@ import { Badge } from "@/components/dashboard/ui/badge"
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Label } from "@/components/dashboard/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -314,20 +315,41 @@ export default function ServicesTable({
                     {visibleColumns.actions && (
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => onView(service)}>
-                            <Eye className="h-4 w-4" />
-                            <span className="sr-only">View</span>
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => onEdit(service)}>
-                            <Pencil className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => onView(service)}>
+                                  <Eye className="h-4 w-4" />
+                                  <span className="sr-only">View</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>View Service Details</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => onEdit(service)}>
+                                  <Pencil className="h-4 w-4" />
+                                  <span className="sr-only">Edit</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit Service</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">More</span>
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                      <span className="sr-only">More</span>
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>More Actions</TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => onToggleStatus(service)}>

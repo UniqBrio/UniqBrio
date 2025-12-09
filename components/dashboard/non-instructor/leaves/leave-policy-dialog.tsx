@@ -88,7 +88,11 @@ export default function LeavePolicyDialog({ open, onOpenChange, policy, onSave }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl md:max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-xl md:max-w-2xl max-h-[85vh] overflow-y-auto"
+        onEscapeKeyDown={(e) => { e.preventDefault() }}
+        onPointerDownOutside={(e) => { e.preventDefault() }}
+      >
         <DialogHeader>
           <DialogTitle>Leave Policy Configuration</DialogTitle>
           <p className="text-sm text-muted-foreground">Configure advanced leave policies and rules</p>

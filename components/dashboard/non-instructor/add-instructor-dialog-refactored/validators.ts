@@ -25,9 +25,23 @@ export function validateEmail(email: string): { ok: true } | { ok: false; reason
     return { ok: false, reason: "Local part cannot start/end with a dot or contain consecutive dots." }
   }
 
-  // Allowed characters in local part (common pragmatic set)
+  // Enhanced validation for local part
+  // 1. Check for allowed characters (common pragmatic set)
   const localOk = /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~.-]+$/.test(local)
   if (!localOk) return { ok: false, reason: "Local part contains invalid characters." }
+  
+  // 2. Reject consecutive hyphens, which are often typos
+  if (local.includes('--')) return { ok: false, reason: "Email cannot contain consecutive hyphens." }
+  
+  // 3. Local part cannot start or end with hyphen
+  if (local.startsWith('-') || local.endsWith('-')) {
+    return { ok: false, reason: "Local part cannot start or end with a hyphen." }
+  }
+  
+  // 4. Must contain at least one letter or number (not just special characters)
+  if (!/[A-Za-z0-9]/.test(local)) {
+    return { ok: false, reason: "Email must contain at least one letter or number." }
+  }
 
   // Domain must have at least one dot and valid labels
   if (!domain.includes('.')) return { ok: false, reason: "Domain must contain a dot, e.g., example.com." }
