@@ -498,7 +498,7 @@ function CohortSearchCombobox({ value, onChange, cohorts, loading, disabled }: C
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-white">
                     {infoParts.map((text, idx) => (
                       <span key={`${text}-${idx}`} className="flex items-center gap-1">
-                        {idx > 0 && <span>�</span>}
+                        {idx > 0 && <span>•</span>}
                         <span>{text}</span>
                       </span>
                     ))}
@@ -551,7 +551,7 @@ function MultiSelectTimings({ values, onChange, options = ['5pm - 6pm','6pm - 7p
                   className="ml-0.5 text-purple-500 hover:text-purple-700 leading-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-500 rounded"
                   aria-label={`Remove ${t}`}
                 >
-                  �
+                  ×
                 </span>
               </span>
             ))}
@@ -1789,7 +1789,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     if(error) return <SelectItem value="__placeholder__error_courses" disabled className="text-red-500">{error}</SelectItem>; 
     if(!courseList.length) return <SelectItem value="__placeholder__no_courses" disabled>No courses found</SelectItem>; 
     
-    return courseList.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500 dark:text-white">{[c.category,c.duration].filter(Boolean).join(' � ')}</span></div></SelectItem>); 
+    return courseList.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500 dark:text-white">{[c.category,c.duration].filter(Boolean).join(' • ')}</span></div></SelectItem>); 
   };
   
   // Render options for enrolled course (only Active or Upcoming courses)
@@ -1805,7 +1805,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     
     if(enrollableCourses.length === 0) return <SelectItem value="__placeholder__no_active_courses" disabled>No active or upcoming courses available</SelectItem>;
     
-    return enrollableCourses.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500 dark:text-white">{[c.category,c.type,c.duration].filter(Boolean).join(' � ')}</span></div></SelectItem>); 
+    return enrollableCourses.map(c=> <SelectItem key={c.id} value={c.id}><div className="flex flex-col"><span className="font-medium">{c.courseId ? `${c.courseId} - ${c.name}${c.level ? ` - ${c.level}` : ''}` : `${c.name}${c.level ? ` - ${c.level}` : ''}`}</span><span className="text-xs text-gray-500 dark:text-white">{[c.category,c.type,c.duration].filter(Boolean).join(' • ')}</span></div></SelectItem>); 
   };
   const renderCohortOptions=()=>{ if(!newStudent.courseOfInterestId) return <SelectItem value="__placeholder__select_course_first" disabled>Select a course first</SelectItem>; if(cohortsLoading) return <SelectItem value="__placeholder__loading_cohorts" disabled>Loading cohorts...</SelectItem>; if(!cohortList.length) return <SelectItem value="__placeholder__no_cohorts" disabled>No cohorts found</SelectItem>; return cohortList.map(co=> { const seatsInfo=`${(co.enrolledStudents?.length||0)}/${co.capacity||0}`; const cohortLabel = [co.id, co.name, co.instructor || 'TBA', co.timing || '--'].filter(Boolean).join(' - '); return <SelectItem key={co.id} value={co.id} className="flex flex-col items-start py-2"><div className="w-full flex flex-col"><div className="font-medium flex items-center justify-between w-full"><span>{cohortLabel}</span><span className="text-xs text-gray-500 dark:text-white">{seatsInfo}</span></div></div></SelectItem>; }); };
   
@@ -1829,12 +1829,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   const handleDialogClose = (nextOpen: boolean) => {
     if (!nextOpen && hasUnsavedChanges) {
       // If this is a NEW student (not editing) and the form equals the default initial
-      // don't show the unsaved dialog � treat as no changes made by the user.
+      // don't show the unsaved dialog - treat as no changes made by the user.
       if (!initialStudent) {
         try {
           const defaultInitial = composeInitial();
           if (!hasMeaningfulChanges(newStudent as NewStudentType, defaultInitial)) {
-            // Nothing meaningful entered � close directly
+            // Nothing meaningful entered - close directly
             onOpenChange(nextOpen);
             return;
           }

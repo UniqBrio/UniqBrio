@@ -26,6 +26,7 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
     fullName: { isValid: false, isInvalid: false, message: "" },
     email: { isValid: false, isInvalid: false, message: "" },
     phone: { isValid: false, isInvalid: false, message: "" },
+    socialProfile: { isValid: false, isInvalid: false, message: "" },
     agreeToTerms: { isValid: false, isInvalid: false, message: "" },
   })
 
@@ -37,37 +38,104 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
 
     switch (field) {
       case "fullName":
-        if (!value || value.length < 2) {
+        const nameRegex = /^[a-zA-Z\s.'\-]+$/
+        const trimmedName = value?.trim() || ""
+        
+        if (trimmedName.length === 0) {
+          isInvalid = true
+          message = "Full name is required"
+        } else if (trimmedName.length < 2) {
           isInvalid = true
           message = "Full name must be at least 2 characters"
+        } else if (trimmedName.length > 50) {
+          isInvalid = true
+          message = "Full name cannot exceed 50 characters"
+        } else if (!nameRegex.test(trimmedName)) {
+          isInvalid = true
+          message = "Full name can only contain letters, spaces, dots, apostrophes, and hyphens"
+        } else if (trimmedName.split(' ').length < 2) {
+          isInvalid = true
+          message = "Please enter your full name (first and last name)"
         } else {
           isValid = true
-          message = "Valid name"
+          message = "Valid full name"
         }
         break
       case "email":
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailRegex.test(value)) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        const trimmedEmail = value?.trim() || ""
+        
+        if (trimmedEmail.length === 0) {
           isInvalid = true
-          message = "Please enter a valid email address"
+          message = "Email address is required"
+        } else if (trimmedEmail.length < 5) {
+          isInvalid = true
+          message = "Email must be at least 5 characters long"
+        } else if (trimmedEmail.startsWith('.') || trimmedEmail.startsWith('-') || trimmedEmail.startsWith('_')) {
+          isInvalid = true
+          message = "Email cannot start with special characters"
+        } else if (!emailRegex.test(trimmedEmail)) {
+          isInvalid = true
+          message = "Please enter a valid email address (e.g., name@domain.com)"
+        } else if (trimmedEmail.includes('..')) {
+          isInvalid = true
+          message = "Email cannot contain consecutive dots"
         } else {
-          isValid = true
-          message = "Valid email address"
+          const domainPart = trimmedEmail.split('@')[1]
+          if (domainPart && domainPart.length < 4) {
+            isInvalid = true
+            message = "Domain must be at least 4 characters (e.g., mail.com)"
+          } else {
+            isValid = true
+            message = "Valid email address"
+          }
         }
         break
       // Removed password and confirmPassword validation
       case "phone":
-        // Simple phone validation: must be at least 10 digits
-        const phoneRegex = /^\+?\d{10,15}$/;
-        if (!value || !phoneRegex.test(value)) {
+        const phoneRegex = /^[\+]?[0-9\s\(\)\-]+$/
+        const cleanPhone = (value || '').replace(/[\s\(\)\-]/g, '') // Remove formatting for length check
+        
+        if (!value || value.trim().length === 0) {
           isInvalid = true
-          message = "Please enter a valid phone number"
+          message = "Phone number is required"
+        } else if (!phoneRegex.test(value)) {
+          isInvalid = true
+          message = "Phone number can only contain numbers, spaces, (), -, and +"
+        } else if (cleanPhone.length < 10) {
+          isInvalid = true
+          message = "Phone number must be at least 10 digits"
+        } else if (cleanPhone.length > 15) {
+          isInvalid = true
+          message = "Phone number cannot exceed 15 digits"
         } else {
           isValid = true
           message = "Valid phone number"
         }
         break
-  // Removed role validation
+      case "socialProfile":
+        const socialUrlRegex = /^(https?:\/\/)?(www\.)?(linkedin\.com\/in\/|twitter\.com\/|facebook\.com\/|instagram\.com\/|github\.com\/|youtube\.com\/|tiktok\.com\/@?)[a-zA-Z0-9._-]+\/?$/
+        const generalUrlRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?(\/.*)?(\?.*)?(#.*)?$/
+        
+        if (!value || value.trim().length === 0) {
+          // Social profile is optional
+          isValid = false
+          isInvalid = false
+          message = ""
+        } else if (value.trim().length < 10) {
+          isInvalid = true
+          message = "Social profile URL seems too short"
+        } else if (socialUrlRegex.test(value)) {
+          isValid = true
+          message = "Valid social profile URL"
+        } else if (generalUrlRegex.test(value)) {
+          isValid = true
+          message = "Valid profile URL"
+        } else {
+          isInvalid = true
+          message = "Please enter a valid social media or website URL"
+        }
+        break
       case "agreeToTerms":
         if (!value) {
           isInvalid = true
@@ -97,7 +165,7 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
     })
 
     // Validate fields that need immediate feedback
-  if (["fullName", "email", "phone", "agreeToTerms"].includes(field)) {
+    if (["fullName", "email", "phone", "socialProfile", "agreeToTerms"].includes(field)) {
       validateField(field, value)
     }
   }
@@ -188,6 +256,12 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
             placeholder="https://linkedin.com/in/yourprofile"
             value={formState.adminInfo.socialProfile}
             onChange={(e) => handleInputChange("socialProfile", e.target.value)}
+            onBlur={() => validateField("socialProfile", formState.adminInfo.socialProfile)}
+          />
+          <FormValidation
+            isValid={validationState.socialProfile.isValid}
+            isInvalid={validationState.socialProfile.isInvalid}
+            message={validationState.socialProfile.message}
           />
         </div>
 

@@ -147,8 +147,8 @@ export function generateVerificationEmail(email: string, token: string, userName
             <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
               <h3 style="color: #1e40af; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">Why verify your email?</h3>
               <ul style="color: #374151; margin: 0; padding-left: 20px; font-family: Arial, sans-serif; line-height: 1.6;">
-                <li style="margin-bottom: 8px;">� Secure your account and protect your data</li>
-                <li style="margin-bottom: 8px;">� Receive important account notifications and updates</li>
+                <li style="margin-bottom: 8px;">🛡️ Secure your account and protect your data</li>
+                <li style="margin-bottom: 8px;">📧 Receive important account notifications and updates</li>
                 <li style="margin-bottom: 8px;">🔑 Enable password recovery for your account</li>
                 <li>✅ Complete your account setup and unlock all features</li>
               </ul>
@@ -277,7 +277,7 @@ export function generateKYCRejectionEmail(email: string, name: string, rejection
           <td style="padding: 40px 30px;">
             <div style="text-align: center; margin-bottom: 30px;">
               <div style="background-color: #fef2f2; border-radius: 50px; width: 80px; height: 80px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 40px;"></span>
+                <span style="font-size: 40px;">❗</span>
               </div>
               <h2 style="color: #374151; margin: 0 0 20px 0; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">
                 ${greeting}
@@ -544,9 +544,9 @@ export function generateKYCApprovalEmail(email: string, name?: string, academyNa
               <h3 style="color: #16a34a; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">What happens next?</h3>
               <ul style="color: #374151; margin: 0; padding-left: 20px; font-family: Arial, sans-serif; line-height: 1.6;">
                 <li style="margin-bottom: 8px;">🚀 Your account is now fully activated and ready to use</li>
-                <li style="margin-bottom: 8px;">� Access your complete dashboard with all features unlocked</li>
+                <li style="margin-bottom: 8px;">📊 Access your complete dashboard with all features unlocked</li>
                 <li style="margin-bottom: 8px;">🎯 Start managing your academy with full system capabilities</li>
-                <li>� Contact our support team if you need any assistance</li>
+                <li>💬 Contact our support team if you need any assistance</li>
               </ul>
             </div>
 

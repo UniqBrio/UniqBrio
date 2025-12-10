@@ -4,6 +4,11 @@
 /* --- Tailwind Directives (Declare once at the top) --- */
 @tailwind base;
 @tailwind components;
+
+/* Import responsive fixes for instructor page */
+@import '../styles/instructor-responsive.css';
+@import '../styles/instructor-utilities.css';
+
 @tailwind utilities;
 
 @layer base {

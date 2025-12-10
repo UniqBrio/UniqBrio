@@ -6,6 +6,11 @@ import { dbConnect } from "@/lib/mongodb";
 // Route segment config for optimal performance
 export const dynamic = 'force-dynamic'; // Always check fresh data for auth status
 export const runtime = 'nodejs'; // Use Node.js runtime for DB access
+export const fetchCache = 'force-no-store'; // Don't cache responses
+
+// Simple in-memory cache with TTL (cache user status for 30 seconds to reduce DB load)
+const statusCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 30000; // 30 seconds
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -21,40 +26,75 @@ export async function GET(request: NextRequest) {
 
     const tokenStartTime = Date.now();
     const payload = await verifyToken(sessionCookie);
-    console.log(`[user-registration-status] Token verification took ${Date.now() - tokenStartTime}ms`);
+    const tokenTime = Date.now() - tokenStartTime;
+    if (tokenTime > 100) {
+      console.log(`[user-registration-status] Token verification took ${tokenTime}ms`);
+    }
     
     if (!payload?.email) {
       console.log("[user-registration-status] Invalid token payload");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("[user-registration-status] Checking for user:", payload.email);
+    // Check cache first
+    const cached = statusCache.get(payload.email);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      return NextResponse.json(cached.data);
+    }
 
     // Get user registration status with performance monitoring
     const dbStartTime = Date.now();
     await dbConnect("uniqbrio");
-    console.log(`[user-registration-status] DB connection took ${Date.now() - dbStartTime}ms`);
+    const dbTime = Date.now() - dbStartTime;
+    if (dbTime > 50) {
+      console.log(`[user-registration-status] DB connection took ${dbTime}ms`);
+    }
     
     const queryStartTime = Date.now();
     const user = await UserModel.findOne({ email: payload.email })
       .select('registrationComplete verified kycStatus createdAt')
       .lean()
       .maxTimeMS(2000); // Set MongoDB query timeout to 2 seconds
-    console.log(`[user-registration-status] Query took ${Date.now() - queryStartTime}ms`);
+    
+    const queryTime = Date.now() - queryStartTime;
+    if (queryTime > 200) {
+      console.log(`[user-registration-status] Query took ${queryTime}ms`);
+    }
 
     if (!user) {
       console.log("[user-registration-status] User not found");
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    console.log(`[user-registration-status] Total request took ${Date.now() - startTime}ms`);
+    const totalTime = Date.now() - startTime;
+    if (totalTime > 500) {
+      console.log(`[user-registration-status] Total request took ${totalTime}ms`);
+    }
     
-    return NextResponse.json({
+    const responseData = {
       registrationComplete: user.registrationComplete,
       verified: user.verified,
       kycStatus: user.kycStatus,
       createdAt: user.createdAt
+    };
+
+    // Cache the result
+    statusCache.set(payload.email, {
+      data: responseData,
+      timestamp: Date.now()
     });
+
+    // Clean up old cache entries (simple cleanup every 100 requests)
+    if (statusCache.size > 100) {
+      const now = Date.now();
+      for (const [key, value] of statusCache.entries()) {
+        if (now - value.timestamp > CACHE_TTL) {
+          statusCache.delete(key);
+        }
+      }
+    }
+
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error(`[user-registration-status] Error after ${Date.now() - startTime}ms:`, error);

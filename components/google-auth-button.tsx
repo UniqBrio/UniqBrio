@@ -19,8 +19,9 @@ export default function GoogleAuthButton({
     setIsLoading(true);
     try {
       // Use redirect: true to let NextAuth handle the full flow
+      // The google-redirect route will handle the actual redirection based on registration status
       await signIn("google", {
-        callbackUrl: "/register",
+        redirect: true,
       });
       // No need to handle result when redirect: true (default behavior)
     } catch (error) {

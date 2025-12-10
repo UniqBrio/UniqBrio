@@ -24,6 +24,7 @@ import Confetti from "react-confetti"
 import { businessInfoSchema, adminInfoSchema, preferencesSchema } from "@/lib/validations/registration"
 import { z } from "zod"
 import TourPage from "../tour/page"
+import { fetchJson } from "@/lib/fetch-json"
 
 export default function RegistrationForm() {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
@@ -172,14 +173,18 @@ export default function RegistrationForm() {
         imageFormData.append("businessName", businessInfo.businessName || "academy");
 
         console.log("[Registration] Uploading business images...");
-        const uploadResponse = await fetch("/api/business-upload", {
+        const uploadData = await fetchJson<{
+          success: boolean;
+          error?: string;
+          businessLogoUrl?: string;
+          businessNameUploadUrl?: string;
+          profilePictureUrl?: string;
+        }>("/api/business-upload", {
           method: "POST",
           body: imageFormData,
         });
-
-        const uploadData = await uploadResponse.json();
         
-        if (!uploadResponse.ok || !uploadData.success) {
+        if (!uploadData.success) {
           throw new Error(uploadData.error || "Failed to upload images");
         }
 
@@ -202,15 +207,18 @@ export default function RegistrationForm() {
       };
 
       console.log("[Registration] Submitting registration with image URLs...");
-      const response = await fetch("/api/register", {
+      
+      // Debug: Check what cookies are actually present in document.cookie
+      // Note: httpOnly cookies won't appear here but will still be sent by browser
+      console.log("[Registration Client] Readable cookies (non-httpOnly):", document.cookie);
+      console.log("[Registration Client] Note: Session cookie is httpOnly and won't appear above, but should be sent automatically");
+      
+      const data = await fetchJson("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Important: Send cookies with the request
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data?.error || "Registration failed");
-      }
       toast({
         title: "Registration Successful!",
         description: (

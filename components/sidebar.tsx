@@ -287,17 +287,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       tooltip: "Manage tasks and workflows",
      
     },
-      {
-      id: "events",
-      name: "Events",
-      icon: <CalendarClock className="h-5 w-5" />,
-      href: "/dashboard/events",
-      tooltip: "Manage events",
-      badge: {
-        text: "🎯 Coming Soon",
-        variant: "comingSoon"
-      }
-    },
+      
     {
       id: "community",
       name: "Community",
@@ -328,6 +318,17 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       icon: <HelpCircle className="h-5 w-5" />,
       href: "/dashboard/help",
       tooltip: "Help",
+    },
+    {
+      id: "events",
+      name: "Events",
+      icon: <CalendarClock className="h-5 w-5" />,
+      href: "/dashboard/events",
+      tooltip: "Manage events",
+      badge: {
+        text: "🎯 Coming Soon",
+        variant: "comingSoon"
+      }
     },
      {
       id: "enquiries",

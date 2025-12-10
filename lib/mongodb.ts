@@ -34,40 +34,62 @@ export async function dbConnect(dbName: string = DB_NAME): Promise<typeof mongoo
     cachedMongoose = null;
   }
 
-  // Connect to MongoDB with specified database and retry logic
-  try {
-    await mongoose.connect(MONGODB_URI, {
-      dbName: dbName,
-      maxPoolSize: 10,
-      minPoolSize: 2,
-      serverSelectionTimeoutMS: 10000, // Increased to 10 seconds
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 10000,
-      retryWrites: true,
-      retryReads: true,
-    });
+  // Connect to MongoDB with retry logic
+  let retries = 3;
+  let lastError: Error | null = null;
 
-    cachedMongoose = mongoose;
-    return mongoose;
-  } catch (error: any) {
-    console.error('❌ MongoDB connection error:', {
-      message: error.message,
-      code: error.code,
-      name: error.name,
-      uri: MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@') // Hide password in logs
-    });
+  while (retries > 0) {
+    try {
+      await mongoose.connect(MONGODB_URI, {
+        dbName: dbName,
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        serverSelectionTimeoutMS: 30000, // Increased to 30 seconds
+        socketTimeoutMS: 60000,
+        connectTimeoutMS: 30000,
+        retryWrites: true,
+        retryReads: true,
+        heartbeatFrequencyMS: 10000,
+        maxIdleTimeMS: 30000,
+      });
+
+      cachedMongoose = mongoose;
+      return mongoose;
+    } catch (error: any) {
+      lastError = error;
+      retries--;
+      
+      console.error('❌ MongoDB connection error (retries left:', retries + '):', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        uri: MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@') // Hide password in logs
+      });
+      
+      if (retries > 0) {
+        console.log('⏳ Retrying connection in 2 seconds...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  }
+
+  // All retries failed
+  if (lastError) {
+    console.error('❌ All connection retries failed');
     
     // Provide more helpful error messages
-    if (error.message.includes('ECONNREFUSED') || error.message.includes('querySrv')) {
+    if (lastError.message.includes('ECONNREFUSED') || lastError.message.includes('querySrv')) {
       throw new Error('Database connection failed. Please check your internet connection and try again.');
-    } else if (error.message.includes('authentication')) {
+    } else if (lastError.message.includes('authentication')) {
       throw new Error('Database authentication failed. Please contact support.');
-    } else if (error.message.includes('timeout')) {
+    } else if (lastError.message.includes('timeout')) {
       throw new Error('Database connection timeout. Please try again.');
     }
     
-    throw error;
+    throw lastError;
   }
+
+  throw new Error('Unknown database connection error');
 }
 
 /**
@@ -91,42 +113,73 @@ export async function getMongoClient(dbName: string = DB_NAME): Promise<{ client
   }
 
   // Create new connection if needed
-  try {
-    if (!cachedClient) {
-      cachedClient = new MongoClient(MONGODB_URI, {
-        maxPoolSize: 10,
-        minPoolSize: 2,
-        serverSelectionTimeoutMS: 10000, // Increased to 10 seconds
-        connectTimeoutMS: 10000,
-        retryWrites: true,
-        retryReads: true,
+  let retries = 3;
+  let lastError: Error | null = null;
+
+  while (retries > 0) {
+    try {
+      if (!cachedClient) {
+        cachedClient = new MongoClient(MONGODB_URI, {
+          maxPoolSize: 10,
+          minPoolSize: 2,
+          serverSelectionTimeoutMS: 30000, // Increased to 30 seconds
+          socketTimeoutMS: 60000,
+          connectTimeoutMS: 30000,
+          retryWrites: true,
+          retryReads: true,
+        });
+        await cachedClient.connect();
+      }
+
+      // Get database instance
+      const db = cachedClient.db(dbName);
+      cachedDbs[dbName] = db;
+
+      return { client: cachedClient, db };
+    } catch (error: any) {
+      lastError = error;
+      retries--;
+      
+      console.error('❌ MongoDB client connection error (retries left:', retries + '):', {
+        message: error.message,
+        code: error.code,
+        name: error.name
       });
-      await cachedClient.connect();
+      
+      // Clean up failed client
+      if (cachedClient) {
+        try {
+          await cachedClient.close();
+        } catch (closeError) {
+          console.warn('Warning: Error closing failed client:', closeError);
+        }
+        cachedClient = null;
+      }
+      
+      if (retries > 0) {
+        console.log('⏳ Retrying client connection in 2 seconds...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
+  }
 
-    // Get database instance
-    const db = cachedClient.db(dbName);
-    cachedDbs[dbName] = db;
-
-    return { client: cachedClient, db };
-  } catch (error: any) {
-    console.error('❌ MongoDB client connection error:', {
-      message: error.message,
-      code: error.code,
-      name: error.name
-    });
+  // All retries failed
+  if (lastError) {
+    console.error('❌ All client connection retries failed');
     
     // Provide more helpful error messages
-    if (error.message.includes('ECONNREFUSED') || error.message.includes('querySrv')) {
+    if (lastError.message.includes('ECONNREFUSED') || lastError.message.includes('querySrv')) {
       throw new Error('Database connection failed. Please check your internet connection and try again.');
-    } else if (error.message.includes('authentication')) {
+    } else if (lastError.message.includes('authentication')) {
       throw new Error('Database authentication failed. Please contact support.');
-    } else if (error.message.includes('timeout')) {
+    } else if (lastError.message.includes('timeout')) {
       throw new Error('Database connection timeout. Please try again.');
     }
     
-    throw error;
+    throw lastError;
   }
+
+  throw new Error('Unknown database connection error');
 }
 
 /**

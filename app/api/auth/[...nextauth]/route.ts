@@ -84,17 +84,30 @@ const handler = NextAuth({
           
           if (!dbUser) {
             // Create new user for Google sign-in with super_admin role
+            // userId, academyId, and tenantId will be set during registration
             console.log("[NextAuth] Creating new user with super_admin role");
             dbUser = await UserModel.create({
               email: profile.email,
               name: profile.name || "",
               googleId: user.id,
-              verified: true,
-              phone: "",
+              verified: true, // Google users are pre-verified
+              phone: "", // Will be filled during registration
               role: "super_admin",
-              registrationComplete: false,
+              registrationComplete: false, // User must complete registration to get IDs
+              failedAttempts: 0,
+              kycStatus: "pending",
+              lockedUntil: null,
+              image: (profile as any).picture || "", // Store Google profile picture
             });
-            console.log("[NextAuth] User created successfully");
+            console.log("[NextAuth] User created successfully with schema:", {
+              email: dbUser.email,
+              name: dbUser.name,
+              googleId: dbUser.googleId,
+              verified: dbUser.verified,
+              role: dbUser.role,
+              kycStatus: dbUser.kycStatus,
+              failedAttempts: dbUser.failedAttempts
+            });
           } else {
             // User exists - check if they signed up with password (credentials)
             if (dbUser.password && !dbUser.googleId) {
@@ -112,6 +125,10 @@ const handler = NextAuth({
               console.log("[NextAuth] User already linked to Google");
             }
           }
+          
+          // Store the email in token for the redirect callback to use
+          (user as any).dbEmail = dbUser.email;
+          (user as any).dbId = dbUser.id;
 
           console.log("[NextAuth] Sign-in successful for:", profile.email);
           return true;
@@ -119,7 +136,14 @@ const handler = NextAuth({
           console.error("[NextAuth] Error during Google sign-in:", error);
           console.error("[NextAuth] Error details:", error instanceof Error ? error.message : String(error));
           console.error("[NextAuth] Error stack:", error instanceof Error ? error.stack : "No stack trace");
-          // Return false to trigger error page redirect
+          
+          // If it's our custom AccountExistsWithCredentials error, return "/login?error=AccountExistsWithCredentials"
+          if (error instanceof Error && error.message === "AccountExistsWithCredentials") {
+            console.log("[NextAuth] Redirecting to login with AccountExistsWithCredentials error");
+            // NextAuth will handle this and add error parameter to redirect URL
+          }
+          
+          // Return false to trigger error page redirect with AccessDenied
           return false;
         }
       }
@@ -138,27 +162,38 @@ const handler = NextAuth({
         }
       }
       
-      // If the URL is relative, prepend the base URL
+      // Check if the URL contains signin or signup (where Google auth was initiated)
+      // These indicate a Google OAuth flow that needs our custom handler
+      if (url.includes("/signup") || url.includes("/signin") || url.includes("/login")) {
+        console.log("[NextAuth] OAuth flow from signup/login detected, redirecting to google-redirect handler");
+        return `${baseUrl}/api/auth/google-redirect`;
+      }
+      
+      // If URL is relative, prepend baseUrl
       if (url.startsWith("/")) {
+        console.log("[NextAuth] Relative URL, returning as-is:", url);
         return `${baseUrl}${url}`;
       }
       
-      // If the URL is on the same origin, allow it
+      // If same origin, allow it
       if (new URL(url).origin === baseUrl) {
+        console.log("[NextAuth] Same origin, allowing:", url);
         return url;
       }
       
-      // Default to base URL for any other case
+      // Default to baseUrl
+      console.log("[NextAuth] Default, returning baseUrl");
       return baseUrl;
     },
     async jwt({ token, user, account }) {
       if (user) {
         console.log("[NextAuth JWT] User object received:", { id: user.id, email: user.email });
-        token.id = (user as any).id
-        token.verified = (user as any).verified
-        token.lastActivity = Date.now()
+        token.id = (user as any).dbId || (user as any).id;
+        token.email = (user as any).dbEmail || (user as any).email;
+        token.verified = (user as any).verified;
+        token.lastActivity = Date.now();
       } else {
-        token.lastActivity = Date.now()
+        token.lastActivity = Date.now();
       }
 
       if (account?.provider === "google") {
@@ -177,6 +212,7 @@ const handler = NextAuth({
             token.academyId = dbUser.academyId
             token.userId = dbUser.userId
             token.registrationComplete = dbUser.registrationComplete
+            token.email = dbUser.email // Ensure email is in token
           } else {
             console.log("[NextAuth JWT] DB user not found for email:", token.email);
           }
@@ -190,6 +226,7 @@ const handler = NextAuth({
     async session({ session, token }) {
       if (token) {
         (session.user as any).id = token.id
+        ;(session.user as any).email = token.email // Ensure email is in session
         ;(session.user as any).verified = token.verified
         ;(session.user as any).lastActivity = token.lastActivity
         ;(session.user as any).name = token.name

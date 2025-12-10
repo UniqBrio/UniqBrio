@@ -110,6 +110,8 @@ export default function LoginPage() {
           errorDescription = "This email is already registered with a different sign-in method. Please use your original sign-in method.";
           break;
         case 'accountexistswithcredentials':
+        case 'accessdenied':
+          // AccessDenied can be thrown when user exists with password but tries Google sign-in
           errorTitle = "Account Already Exists";
           errorDescription = "An account with this email already exists. Please sign in using your email and password instead.";
           break;

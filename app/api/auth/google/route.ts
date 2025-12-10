@@ -56,11 +56,14 @@ export async function POST(request: Request) {
 
     if (!user) {
       // Create a new user if not found
+      // userId, academyId, and tenantId will be set during registration
       user = await UserModel.create({
         email,
         name,
         googleId,
         verified: true,
+        registrationComplete: false, // User must complete registration to get IDs
+        role: 'super_admin',
       });
     }
 

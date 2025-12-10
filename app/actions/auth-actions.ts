@@ -44,6 +44,8 @@ type SessionData = {
   name?: string
   lastActivity?: number
   tenantId?: string // Add tenantId for multi-tenant isolation
+  userId?: string // Add userId for user identification
+  academyId?: string // Add academyId for academy association
 }
 
 // --- MODIFIED Signup action ---
@@ -104,13 +106,13 @@ export async function signup(formData: FormData) {
     // Always assign 'super_admin' role for new users
     const userRole = "super_admin"
 
-    // Generate a unique userId
-    const userId = `USER-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-    console.log("[AuthAction] signup: Generated userId:", userId);
+    // Don't generate userId here - it will be generated during registration
+    // with proper format (AD000001, AD000002, etc.)
+    console.log("[AuthAction] signup: Creating user without userId (will be generated during registration)");
 
-    // Create user
+    // Create user without userId, academyId, or tenantId
+    // These will be generated in sync during registration (AD000001 ↔ AC000001)
     const newUser = await UserModel.create({
-      userId,
       name,
       email,
       phone,
@@ -119,7 +121,6 @@ export async function signup(formData: FormData) {
       verified: false,
       verificationToken,
       registrationComplete: false,
-      tenantId: 'default', // Will be updated to academyId during registration
     });
     console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser._id);
 
@@ -249,7 +250,9 @@ export async function login(formData: FormData) {
       verified: user.verified,
       name: user.name,
       lastActivity: Date.now(),
-      tenantId: user.academyId || user.tenantId || 'default', // Add tenantId from academyId for multi-tenant isolation
+      tenantId: user.academyId || user.tenantId, // tenantId should always equal academyId after registration
+      userId: user.userId, // Include userId in session
+      academyId: user.academyId, // Include academyId in session
     };
     
     console.log("[AuthAction] login: SessionData created:", { ...sessionData, tenantId: sessionData.tenantId });
@@ -720,8 +723,8 @@ export async function submitSupportTicket(formData: FormData) {
 
 export async function signInWithGoogle(): Promise<{ success: boolean; redirectUrl?: string }> {
   try {
-    // You can make this dynamic or context-aware if needed
-    const redirectUrl = "/api/auth/signin/google?callbackUrl=/api/auth/google-redirect"
+    // NextAuth will handle the OAuth flow and redirect to our custom handler via the redirect callback
+    const redirectUrl = "/api/auth/signin/google"
 
     return {
       success: true,

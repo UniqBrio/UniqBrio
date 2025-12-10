@@ -105,7 +105,7 @@ export async function getUserSession() {
     
     return {
       email: decoded?.email as string,
-      userId: decoded?.id as string,
+      userId: (decoded?.userId || decoded?.id) as string, // Prefer userId (AD000003), fallback to id for old sessions
       role: decoded?.role as string,
       academyId: decoded?.academyId as string,
       tenantId: (decoded?.tenantId || decoded?.academyId) as string,

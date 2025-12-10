@@ -125,7 +125,7 @@ export async function middleware(request: NextRequest) {
       // Use API route instead of direct Prisma in middleware (edge environment)
       // Add timeout to prevent middleware hanging
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout (increased from 5s to allow for cold starts and compilation)
 
       const userInfoResponse = await fetch(`${request.nextUrl.origin}/api/user-registration-status`, {
         headers: {
@@ -192,9 +192,14 @@ export async function middleware(request: NextRequest) {
         // Continue with normal flow if API fails - allow user to access pages
       }
     } catch (error) {
-      console.error(`[Middleware] Error checking registration status for ${payload.email}:`, error);
+      // Log error safely without exposing user data
+      console.error('[Middleware] Error checking registration status:', {
+        hasEmail: !!payload?.email,
+        errorType: error instanceof Error ? error.name : 'Unknown',
+        errorMessage: error instanceof Error ? error.message : String(error)
+      });
       // Continue with normal flow if API check fails - this prevents blocking all pages
-      console.log(`[Middleware] Allowing access despite registration check failure`);
+      console.log('[Middleware] Allowing access despite registration check failure');
     }
   }
 

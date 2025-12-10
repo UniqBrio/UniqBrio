@@ -215,10 +215,10 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
         error = "Source can only contain letters, numbers, spaces, hyphens, and apostrophes.";
       }
     } else if (field === "receivedBy" || field === "receivedFrom") {
-      // Allow letters, spaces, hyphens, apostrophes, dots
-      sanitized = String(value).replace(/[^a-zA-Z\s\-'.]/g, "");
-      if (sanitized && !/^[a-zA-Z\s\-'.]+$/.test(sanitized)) {
-        error = "Name can only contain letters, spaces, hyphens, apostrophes, and dots.";
+      // Allow only letters and spaces
+      sanitized = String(value).replace(/[^a-zA-Z\s]/g, "");
+      if (sanitized && !/^[a-zA-Z\s]+$/.test(sanitized)) {
+        error = "Name can only contain letters and spaces.";
       }
     } else if (field === "receiptNumber") {
       // Allow alphanumeric, hyphens, slashes, underscores

@@ -1,5 +1,6 @@
 ﻿import Notification from '@/models/dashboard/Notification';
 import { sendPaymentConfirmationEmail, sendPaymentReminderEmail } from './email-service';
+import { getTenantContext } from '@/lib/tenant/tenant-context';
 
 /**
  * Send payment confirmation notification (email + in-app)
@@ -149,11 +150,19 @@ export async function sendPaymentReminderNotification(
  */
 export async function getUnreadNotifications(studentId: string) {
   try {
-    const notifications = await Notification.find({
+    const tenantContext = getTenantContext();
+    const query: any = {
       studentId,
       channel: 'in-app',
       read: false,
-    })
+    };
+    
+    // Add tenantId for isolation
+    if (tenantContext?.tenantId) {
+      query.tenantId = tenantContext.tenantId;
+    }
+    
+    const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
       .limit(50)
       .lean();
@@ -178,7 +187,13 @@ export async function getStudentNotifications(
   } = {}
 ) {
   try {
+    const tenantContext = getTenantContext();
     const query: any = { studentId, channel: 'in-app' };
+    
+    // Add tenantId for isolation
+    if (tenantContext?.tenantId) {
+      query.tenantId = tenantContext.tenantId;
+    }
     
     if (options.read !== undefined) {
       query.read = options.read;
@@ -194,11 +209,18 @@ export async function getStudentNotifications(
       .skip(options.skip || 0)
       .lean();
 
-    const unreadCount = await Notification.countDocuments({
+    const unreadCountQuery: any = {
       studentId,
       channel: 'in-app',
       read: false,
-    });
+    };
+    
+    // Add tenantId for isolation in count query
+    if (tenantContext?.tenantId) {
+      unreadCountQuery.tenantId = tenantContext.tenantId;
+    }
+
+    const unreadCount = await Notification.countDocuments(unreadCountQuery);
 
     return {
       notifications,
@@ -215,7 +237,15 @@ export async function getStudentNotifications(
  */
 export async function markNotificationAsRead(notificationId: string) {
   try {
-    await Notification.findByIdAndUpdate(notificationId, {
+    const tenantContext = getTenantContext();
+    const query: any = { _id: notificationId };
+    
+    // Add tenantId for isolation
+    if (tenantContext?.tenantId) {
+      query.tenantId = tenantContext.tenantId;
+    }
+    
+    await Notification.findOneAndUpdate(query, {
       $set: {
         read: true,
         readAt: new Date(),
@@ -232,8 +262,20 @@ export async function markNotificationAsRead(notificationId: string) {
  */
 export async function markAllNotificationsAsRead(studentId: string) {
   try {
+    const tenantContext = getTenantContext();
+    const query: any = { 
+      studentId, 
+      channel: 'in-app', 
+      read: false 
+    };
+    
+    // Add tenantId for isolation
+    if (tenantContext?.tenantId) {
+      query.tenantId = tenantContext.tenantId;
+    }
+    
     await Notification.updateMany(
-      { studentId, channel: 'in-app', read: false },
+      query,
       {
         $set: {
           read: true,

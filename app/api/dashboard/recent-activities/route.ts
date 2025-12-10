@@ -11,21 +11,23 @@ import mongoose from 'mongoose';
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
   
-  if (!session?.tenantId) {
-    console.error('🚨 SECURITY: Attempt to access notifications without tenant context!');
+  // Check if user is authenticated at all
+  if (!session) {
+    console.error('🚨 SECURITY: Unauthenticated access attempt to notifications');
     return NextResponse.json(
-      { error: 'Unauthorized: No tenant context' },
+      { error: 'Unauthorized: Not authenticated' },
       { status: 401 }
     );
   }
   
-  // Validate tenantId format (should not be 'default', 'undefined', null, etc.)
+  // If user doesn't have tenantId yet (e.g., Google OAuth user before registration completion)
+  // Return empty activities instead of blocking access
   if (!session.tenantId || session.tenantId === 'default' || session.tenantId === 'undefined') {
-    console.error('🚨 SECURITY: Invalid tenantId detected:', session.tenantId);
-    return NextResponse.json(
-      { error: 'Unauthorized: Invalid tenant context' },
-      { status: 401 }
-    );
+    console.log('⚠️ User has no tenantId yet (registration incomplete):', session.email);
+    return NextResponse.json({
+      activities: [],
+      message: 'Complete registration to see activities'
+    });
   }
   
   return runWithTenantContext(

@@ -199,46 +199,70 @@ export default function InstructorPage() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Enhanced Navigation Tabs with Course Page Design */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex flex-col gap-2">
-              <TabsList className="grid w-full grid-cols-5 gap-1 h-auto p-1">
-                <TabsTrigger
-                  value="dashboard"
-                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                >
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Analytics
-                </TabsTrigger>
-                <TabsTrigger
-                  value="profile"
-                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                >
-                  <GraduationCap className="h-4 w-4 mr-2" />
-                  Instructors
-                </TabsTrigger>
-                <TabsTrigger
-                  value="leave"
-                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                >
-                  <CalendarDays className="h-4 w-4 mr-2" />
-                  Leave Management
-                </TabsTrigger>
-                <TabsTrigger
-                  value="attendance"
-                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                >
-                  <ClipboardCheck className="h-4 w-4 mr-2" />
-                  Attendance Management
-                </TabsTrigger>
-                <TabsTrigger
-                  value="settings"
-                  className="text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                >
-                  <SettingsIcon className="h-4 w-4 mr-2" />
-                  Settings
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 bg-transparent gap-2 p-0 h-auto">
+              <TabsTrigger 
+                value="dashboard" 
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'dashboard' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
+              >
+                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger 
+                value="profile" 
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'profile' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
+              >
+                <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" />
+                Instructors
+              </TabsTrigger>
+              <TabsTrigger 
+                value="leave" 
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'leave' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
+              >
+                <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4" />
+                Leave Management
+              </TabsTrigger>
+              <TabsTrigger 
+                value="attendance" 
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'attendance' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
+              >
+                <ClipboardCheck className="h-3 w-3 sm:h-4 sm:w-4" />
+                Attendance Management
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                style={{
+                  borderColor: secondaryColor,
+                  color: secondaryColor,
+                  ...(activeTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+                }}
+              >
+                <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
             <TabsContent value="dashboard" className="mt-6">
               <Card>
                 <CardHeader>

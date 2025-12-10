@@ -1,0 +1,123 @@
+/* Instructor Page Responsive Fixes */
+/* This CSS file provides responsive fixes for the instructor page without modifying the existing code */
+
+/* Target the specific TabsList in instructor management using more reliable selector */
+/* Apply the same responsive pattern as attendance management */
+.grid.w-full.grid-cols-5.gap-1.h-auto.p-1 {
+  /* Mobile: 2 columns layout like attendance management */
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 0.5rem !important;
+  background: transparent !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+
+@media (min-width: 768px) {
+  /* Tablet: 4 columns like attendance management md:grid-cols-4 */
+  .grid.w-full.grid-cols-5.gap-1.h-auto.p-1 {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Desktop: All 5 columns as intended */
+  .grid.w-full.grid-cols-5.gap-1.h-auto.p-1 {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}
+
+/* Make tab triggers more responsive - match attendance management styling */
+.grid.w-full.grid-cols-5.gap-1.h-auto.p-1 button {
+  /* Apply same styling as attendance management tabs */
+  border-radius: 0.5rem !important;
+  background: transparent !important;
+  transition: all 150ms !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1rem !important;
+  outline: none !important;
+  border-width: 2px !important;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Adjust text and icons for very small screens */
+@media (max-width: 480px) {
+  .grid.w-full.grid-cols-5.gap-1.h-auto.p-1 button svg {
+    width: 12px !important;
+    height: 12px !important;
+    margin-right: 4px !important;
+  }
+  
+  .grid.w-full.grid-cols-5.gap-1.h-auto.p-1 button {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 0.25rem !important;
+  }
+}
+
+/* Improve text wrapping on mobile like attendance management */
+@media (max-width: 767px) {
+  .grid.w-full.grid-cols-5.gap-1.h-auto.p-1 button {
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.5rem !important;
+    line-height: 1.2;
+  }
+  
+  /* Hide text on very small screens, keep only icons */
+  .grid.w-full.grid-cols-5.gap-1.h-auto.p-1 button {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+  }
+}
+
+/* Container responsive improvements */
+.instructor-management-container {
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .instructor-management-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .instructor-management-container {
+    padding: 2rem;
+  }
+}
+
+/* Card header responsive text */
+.instructor-page-title {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .instructor-page-title {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .instructor-page-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* Responsive tab content spacing */
+.instructor-tab-content {
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .instructor-tab-content {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .instructor-tab-content {
+    margin-top: 2rem;
+  }
+}

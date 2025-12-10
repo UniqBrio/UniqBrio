@@ -188,8 +188,14 @@ export default function BusinessInfoStep({ formState, updateFormState }: Busines
   // Add state for field validation
   const [validationState, setValidationState] = useState({
     businessName: { isValid: false, isInvalid: false, message: "" },
+    legalEntityName: { isValid: false, isInvalid: false, message: "" },
     businessEmail: { isValid: false, isInvalid: false, message: "" },
     phoneNumber: { isValid: false, isInvalid: false, message: "" },
+    address: { isValid: false, isInvalid: false, message: "" },
+    city: { isValid: false, isInvalid: false, message: "" },
+    pincode: { isValid: false, isInvalid: false, message: "" },
+    taxId: { isValid: false, isInvalid: false, message: "" },
+    website: { isValid: false, isInvalid: false, message: "" },
   })
   // Countries state
   const [countries, setCountries] = useState<Option[]>([]);
@@ -284,15 +290,18 @@ useEffect(() => {
       });
   }, []);
 
-  // Auto-detect language and timezone
+  // Set English as default language
   useEffect(() => {
-    // Set preferred language based on browser
-    const browserLang = navigator.language.split("-")[0];
-    if (browserLang && !formState.businessInfo.preferredLanguage && languages.length > 0) {
-      // Try to match browserLang to a language code
-      const match = languages.find(l => l.value === browserLang || l.label.toLowerCase().includes(browserLang));
-      if (match) {
-        handleInputChange("preferredLanguage", match.value);
+    // Set English as default preferred language if not already set
+    if (!formState.businessInfo.preferredLanguage && languages.length > 0) {
+      // Try to find English in the languages list
+      const englishLang = languages.find(l => 
+        l.value === 'en' || 
+        l.value === 'eng' || 
+        l.label.toLowerCase().includes('english')
+      );
+      if (englishLang) {
+        handleInputChange("preferredLanguage", englishLang.value);
       }
     }
   }, [languages]);
@@ -320,31 +329,167 @@ useEffect(() => {
 
     switch (field) {
       case "businessName":
+        const nameRegex = /^[a-zA-Z\s&.-]+$/; // Only letters, spaces, &, ., and - allowed
         if (value.length < 2) {
           isInvalid = true
           message = "Business name must be at least 2 characters"
+        } else if (!nameRegex.test(value)) {
+          isInvalid = true
+          message = "Business name should only contain letters, spaces, &, ., and -"
         } else {
           isValid = true
           message = "Valid business name"
         }
         break
-      case "businessEmail":
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailRegex.test(value)) {
+      case "legalEntityName":
+        const legalNameRegex = /^[a-zA-Z0-9\s&.,-]+$/
+        
+        if (value.trim().length === 0) {
+          // Legal entity name is optional, so empty is valid
+          isValid = false
+          isInvalid = false
+          message = ""
+        } else if (value.trim().length < 2) {
           isInvalid = true
-          message = "Please enter a valid email address"
+          message = "Legal entity name must be at least 2 characters"
+        } else if (!legalNameRegex.test(value)) {
+          isInvalid = true
+          message = "Legal entity name should only contain letters, numbers, spaces, &, ., , and -"
         } else {
           isValid = true
-          message = "Valid email address"
+          message = "Valid legal entity name"
+        }
+        break
+      case "businessEmail":
+        // More robust email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        const trimmedEmail = value.trim()
+        
+        if (trimmedEmail.length === 0) {
+          isInvalid = true
+          message = "Business email is required"
+        } else if (trimmedEmail.length < 5) {
+          isInvalid = true
+          message = "Email must be at least 5 characters long"
+        } else if (trimmedEmail.startsWith('.') || trimmedEmail.startsWith('-') || trimmedEmail.startsWith('_')) {
+          isInvalid = true
+          message = "Email cannot start with special characters"
+        } else if (!emailRegex.test(trimmedEmail)) {
+          isInvalid = true
+          message = "Please enter a valid email address (e.g., name@domain.com)"
+        } else if (trimmedEmail.includes('..')) {
+          isInvalid = true
+          message = "Email cannot contain consecutive dots"
+        } else {
+          // Additional validation for domain part
+          const domainPart = trimmedEmail.split('@')[1]
+          if (domainPart && domainPart.length < 4) {
+            isInvalid = true
+            message = "Domain must be at least 4 characters (e.g., mail.com)"
+          } else {
+            isValid = true
+            message = "Valid email address"
+          }
         }
         break
       case "phoneNumber":
-        if (value.length < 10) {
+        // Phone number validation - only numbers, spaces, parentheses, hyphens, and plus
+        const phoneRegex = /^[\+]?[0-9\s\(\)\-]+$/
+        const cleanPhone = value.replace(/[\s\(\)\-]/g, '') // Remove formatting for length check
+        
+        if (value.trim().length === 0) {
           isInvalid = true
-          message = "Please enter a valid phone number"
+          message = "Phone number is required"
+        } else if (!phoneRegex.test(value)) {
+          isInvalid = true
+          message = "Phone number can only contain numbers, spaces, (), -, and +"
+        } else if (cleanPhone.length < 10) {
+          isInvalid = true
+          message = "Phone number must be at least 10 digits"
+        } else if (cleanPhone.length > 15) {
+          isInvalid = true
+          message = "Phone number cannot exceed 15 digits"
         } else {
           isValid = true
           message = "Valid phone number"
+        }
+        break
+      case "city":
+        const cityRegex = /^[a-zA-Z\s.-]+$/; // Only letters, spaces, ., and - allowed
+        if (value.length < 2) {
+          isInvalid = true
+          message = "City must be at least 2 characters"
+        } else if (!cityRegex.test(value)) {
+          isInvalid = true
+          message = "City should only contain letters, spaces, ., and -"
+        } else {
+          isValid = true
+          message = "Valid city name"
+        }
+        break
+      case "pincode":
+        const pincodeRegex = /^[0-9]+$/; // Only numbers allowed
+        if (value.length < 4) {
+          isInvalid = true
+          message = "Pincode must be at least 4 digits"
+        } else if (!pincodeRegex.test(value)) {
+          isInvalid = true
+          message = "Pincode should only contain numbers"
+        } else {
+          isValid = true
+          message = "Valid pincode"
+        }
+        break
+      case "address":
+        const addressRegex = /^[a-zA-Z0-9\s\.,\/#&\-]+$/
+        
+        if (value.trim().length === 0) {
+          isInvalid = true
+          message = "Address is required"
+        } else if (value.trim().length < 5) {
+          isInvalid = true
+          message = "Address must be at least 5 characters"
+        } else if (!addressRegex.test(value)) {
+          isInvalid = true
+          message = "Address contains invalid characters"
+        } else {
+          isValid = true
+          message = "Valid address"
+        }
+        break
+      case "taxId":
+        const taxIdRegex = /^[a-zA-Z0-9\-]+$/
+        
+        if (value.trim().length === 0) {
+          // Tax ID is optional
+          isValid = false
+          isInvalid = false
+          message = ""
+        } else if (value.trim().length < 3) {
+          isInvalid = true
+          message = "Tax ID must be at least 3 characters"
+        } else if (!taxIdRegex.test(value)) {
+          isInvalid = true
+          message = "Tax ID should only contain letters, numbers, and hyphens"
+        } else {
+          isValid = true
+          message = "Valid tax ID"
+        }
+        break
+      case "website":
+        const urlRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?(\/.*)?(\?.*)?(#.*)?$/
+        
+        if (value.trim().length === 0) {
+          // Website is optional
+          isValid = false
+          isInvalid = false
+          message = ""
+        } else if (!urlRegex.test(value)) {
+          isInvalid = true
+          message = "Please enter a valid website URL (e.g., https://example.com)"
+        } else {
+          isValid = true
+          message = "Valid website URL"
         }
         break
     }
@@ -364,7 +509,7 @@ useEffect(() => {
       },
     });
     // Validate fields that need immediate feedback
-    if (["businessName", "businessEmail", "phoneNumber"].includes(field as string)) {
+    if (["businessName", "legalEntityName", "businessEmail", "phoneNumber", "address", "city", "pincode", "taxId", "website"].includes(field as string)) {
       validateField(field as string, value)
     }
   }
@@ -477,6 +622,12 @@ useEffect(() => {
             placeholder="e.g., Harmony Music LLC"
             value={formState.businessInfo.legalEntityName}
             onChange={(e) => handleInputChange("legalEntityName", e.target.value)}
+            onBlur={() => validateField("legalEntityName", formState.businessInfo.legalEntityName)}
+          />
+          <FormValidation
+            isValid={validationState.legalEntityName.isValid}
+            isInvalid={validationState.legalEntityName.isInvalid}
+            message={validationState.legalEntityName.message}
           />
         </div>
 
@@ -683,8 +834,14 @@ useEffect(() => {
             placeholder="Enter your business address"
             value={formState.businessInfo.address}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("address", e.target.value)}
+            onBlur={() => validateField("address", formState.businessInfo.address)}
             rows={2}
             aria-required="true"
+          />
+          <FormValidation
+            isValid={validationState.address.isValid}
+            isInvalid={validationState.address.isInvalid}
+            message={validationState.address.message}
           />
         </div>
 
@@ -696,7 +853,13 @@ useEffect(() => {
             placeholder="Enter your city"
             value={formState.businessInfo.city}
             onChange={(e) => handleInputChange("city", e.target.value)}
+            onBlur={() => validateField("city", formState.businessInfo.city)}
             aria-required="true"
+          />
+          <FormValidation 
+            isValid={validationState.city.isValid} 
+            isInvalid={validationState.city.isInvalid} 
+            message={validationState.city.message} 
           />
         </div>
 
@@ -708,7 +871,13 @@ useEffect(() => {
             placeholder="Enter your pincode"
             value={formState.businessInfo.pincode || ""}
             onChange={(e) => handleInputChange("pincode", e.target.value)}
+            onBlur={() => validateField("pincode", formState.businessInfo.pincode || "")}
             aria-required="true"
+          />
+          <FormValidation 
+            isValid={validationState.pincode.isValid} 
+            isInvalid={validationState.pincode.isInvalid} 
+            message={validationState.pincode.message} 
           />
         </div>
 
@@ -720,13 +889,30 @@ useEffect(() => {
             placeholder="Enter your Tax ID"
             value={formState.businessInfo.taxId || ""}
             onChange={(e) => handleInputChange("taxId", e.target.value)}
+            onBlur={() => validateField("taxId", formState.businessInfo.taxId || "")}
           />
+          <FormValidation
+            isValid={validationState.taxId.isValid}
+            isInvalid={validationState.taxId.isInvalid}
+            message={validationState.taxId.message}
+          />
+        </div>
+
+        {/* Website */}
+        <div className="space-y-2">
+          <Label htmlFor="website">Website</Label>
           <Input
             id="website"
             type="url"
             placeholder="https://yourbusiness.com"
             value={formState.businessInfo.website}
             onChange={(e) => handleInputChange("website", e.target.value)}
+            onBlur={() => validateField("website", formState.businessInfo.website)}
+          />
+          <FormValidation
+            isValid={validationState.website.isValid}
+            isInvalid={validationState.website.isInvalid}
+            message={validationState.website.message}
           />
         </div>
 
