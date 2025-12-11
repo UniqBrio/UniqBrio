@@ -100,8 +100,265 @@ export function StudentPaymentTable({
   const defaultColumns = ['Student ID', 'Student Name', 'Enrolled Course', 'Cohort', 'Payment Category', `Course Fee (${currency})`, `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Paid (${currency})`, `Balance (${currency})`, 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions'];
   const columns = displayedColumns || defaultColumns;
 
+  // Filter columns to only include those that actually exist (not Actions as it's handled separately)
+  const visibleColumns = useMemo(() => {
+    return columns.filter(col => col !== 'Actions');
+  }, [columns]);
+
   // Helper to check if column should be displayed
   const shouldShowColumn = (columnName: string) => columns.includes(columnName);
+
+  // Helper function to render table header for a column
+  const renderColumnHeader = (columnName: string) => {
+    return (
+      <TableHead key={columnName} className="font-semibold text-gray-600 dark:text-white sticky-table-header">
+        {columnName}
+      </TableHead>
+    );
+  };
+
+  // Helper function to render table cell for a column
+  const renderColumnCell = (columnName: string, payment: Payment) => {
+    switch (columnName) {
+      case 'Student ID':
+        return (
+          <TableCell key={columnName} className="font-semibold">
+            {payment.studentId}
+          </TableCell>
+        );
+      case 'Student Name':
+        return (
+          <TableCell key={columnName} className="font-medium">{payment.studentName}</TableCell>
+        );
+      case 'Enrolled Course':
+        return (
+          <TableCell key={columnName}>
+            <div className="space-y-1">
+              <div className="text-purple-600 text-sm font-medium">
+                {payment.enrolledCourse || "N/A"}
+              </div>
+              <div className="text-gray-700 dark:text-white font-medium">
+                {payment.enrolledCourseName || "-"}
+              </div>
+            </div>
+          </TableCell>
+        );
+      case 'Payment Category':
+        return (
+          <TableCell key={columnName}>
+            <Badge 
+              variant="outline" 
+              className={`
+                ${payment.studentCategory === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
+                ${payment.studentCategory === 'Regular' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                ${payment.studentCategory === 'Basic' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 dark:text-white border-gray-200' : ''}
+              `}
+            >
+              {payment.studentCategory || 'Not Set'}
+            </Badge>
+          </TableCell>
+        );
+      case 'Cohort':
+        return (
+          <TableCell key={columnName}>
+            {payment.cohortId ? (
+              <div className="space-y-1">
+                <div className="text-purple-700 text-sm font-bold">
+                  {payment.cohortId}
+                </div>
+                <div className="text-gray-600 dark:text-white text-xs">
+                  {cohortsLoading ? (
+                    <span className="text-gray-400 dark:text-white animate-pulse">Loading name...</span>
+                  ) : (
+                    <span title={`Cohort: ${getCohortDisplayName(payment.cohortId, cohortMap)}`}>
+                      {getCohortDisplayName(payment.cohortId, cohortMap)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-400 dark:text-white text-sm">
+                Unassigned
+              </div>
+            )}
+          </TableCell>
+        );
+      case 'Course Type':
+        return (
+          <TableCell key={columnName}>
+            <Badge 
+              variant="secondary" 
+              className={`
+                ${payment.courseType === 'Online' ? 'bg-green-100 text-green-700 border-0' : ''}
+                ${payment.courseType === 'Offline' ? 'bg-blue-100 text-blue-700 border-0' : ''}
+                ${payment.courseType === 'Hybrid' ? 'bg-orange-100 text-orange-700 border-0' : ''}
+                ${payment.courseType === 'Individual' || payment.courseType === 'Not Set' || !payment.courseType ? 'bg-gray-100 text-gray-700 dark:text-white border-0' : ''}
+              `}
+            >
+              {payment.courseType || "Not Set"}
+            </Badge>
+          </TableCell>
+        );
+      case `Course Fee (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-right">
+            {currency} {(payment.courseFee || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Course Reg Fee (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-right">
+            {(payment.courseRegistrationFee || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Student Reg Fee (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-right">
+            {(payment.studentRegistrationFee || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Total To Be Paid (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-right font-bold text-purple-700 bg-purple-50 min-w-[150px]">
+            {((payment.courseFee || 0) + (payment.courseRegistrationFee || 0) + (payment.studentRegistrationFee || 0)).toLocaleString()}
+          </TableCell>
+        );
+      case `Total Paid (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-right text-green-600 font-semibold">
+            {(payment.receivedAmount || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Balance (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-right text-red-600 font-semibold">
+            {(payment.outstandingAmount || 0).toLocaleString()}
+          </TableCell>
+        );
+      case 'Status':
+        return (
+          <TableCell key={columnName}>
+            {payment.status === "N/A" ? (
+              <span className="text-gray-400 dark:text-white">{payment.status}</span>
+            ) : (
+              getStatusBadge(payment.status, payment)
+            )}
+          </TableCell>
+        );
+      case 'Paid Date':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.lastPaymentDate 
+              ? new Date(payment.lastPaymentDate).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : "-"}
+          </TableCell>
+        );
+      case 'Start Date':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.startDate
+              ? new Date(payment.startDate).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : "-"}
+          </TableCell>
+        );
+      case 'End Date':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.endDate
+              ? new Date(payment.endDate).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : "-"}
+          </TableCell>
+        );
+      case 'Next Reminder Date':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.nextReminderDate
+              ? new Date(payment.nextReminderDate).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : "-"}
+          </TableCell>
+        );
+      case 'Next Due Date':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.nextDueDate
+              ? new Date(payment.nextDueDate).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })
+              : "-"}
+          </TableCell>
+        );
+      case 'Invoice':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.status === "N/A" || !payment.receivedAmount || payment.receivedAmount === 0 ? (
+              <span className="text-gray-400 dark:text-white">N/A</span>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-purple-600 border-purple-600 hover:bg-purple-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenInvoiceDialog(payment);
+                }}
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+            )}
+          </TableCell>
+        );
+      case 'Send Reminder':
+        return (
+          <TableCell key={columnName} className="text-center">
+            {payment.status === "N/A" ? (
+              <span className="text-gray-400 dark:text-white">N/A</span>
+            ) : payment.collectionRate >= 100 ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-gray-400 dark:text-white border-gray-300 cursor-not-allowed"
+                disabled
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenReminderDialog(payment);
+                }}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            )}
+          </TableCell>
+        );
+      default:
+        return <TableCell key={columnName}>-</TableCell>;
+    }
+  };
 
   // Filter and sort payments
   const filteredPayments = useMemo(() => {
@@ -463,26 +720,9 @@ export function StudentPaymentTable({
                       onCheckedChange={(checked) => toggleSelectAll?.(!!checked)}
                     />
                   </TableHead>
-                  {shouldShowColumn('Student ID') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student ID</TableHead>}
-                  {shouldShowColumn('Student Name') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student Name</TableHead>}
-                  {shouldShowColumn('Enrolled Course') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Enrolled Course</TableHead>}
-                  {shouldShowColumn('Payment Category') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Payment Category</TableHead>}
-                  {shouldShowColumn('Cohort') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Cohort</TableHead>}
-                  {shouldShowColumn('Course Type') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Type</TableHead>}
-                  {shouldShowColumn(`Course Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Fee ({currency})</TableHead>}
-                  {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Reg Fee ({currency})</TableHead>}
-                  {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student Reg Fee ({currency})</TableHead>}
-                  {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Total To Be Paid ({currency})</TableHead>}
-                  {shouldShowColumn(`Total Paid (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Total Paid ({currency})</TableHead>}
-                  {shouldShowColumn(`Balance (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Balance ({currency})</TableHead>}
-                  {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Status</TableHead>}
-                  {shouldShowColumn('Paid Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Paid Date</TableHead>}
-                  {shouldShowColumn('Start Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Start Date</TableHead>}
-                  {shouldShowColumn('End Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">End Date</TableHead>}
-                  {shouldShowColumn('Next Reminder Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Next Reminder Date</TableHead>}
-                  {shouldShowColumn('Next Due Date') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Next Due Date</TableHead>}
-                  {shouldShowColumn('Invoice') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Invoice</TableHead>}
-                  {shouldShowColumn('Send Reminder') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Send Reminder</TableHead>}
+                  {/* Render columns in the order specified by visibleColumns */}
+                  {visibleColumns.map(col => renderColumnHeader(col))}
+                  {/* Always show Actions column at the end if included */}
                   {shouldShowColumn('Actions') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Actions</TableHead>}
                 </tr>
               </thead>
@@ -506,235 +746,9 @@ export function StudentPaymentTable({
                           onCheckedChange={(checked) => toggleSelect?.(payment.id, !!checked)}
                         />
                       </TableCell>
-                      {shouldShowColumn('Student ID') && (
-                        <TableCell className="font-semibold">
-                          {payment.studentId}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Student Name') && (
-                        <TableCell className="font-medium">{payment.studentName}</TableCell>
-                      )}
-                      {shouldShowColumn('Enrolled Course') && (
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-purple-600 text-sm font-medium">
-                              {payment.enrolledCourse || "N/A"}
-                            </div>
-                            <div className="text-gray-700 dark:text-white font-medium">
-                              {payment.enrolledCourseName || "-"}
-                            </div>
-                          </div>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Payment Category') && (
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={`
-                              ${payment.studentCategory === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
-                              ${payment.studentCategory === 'Regular' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                              ${payment.studentCategory === 'Basic' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                              ${payment.studentCategory === 'Not Set' || !payment.studentCategory ? 'bg-gray-50 text-gray-700 dark:text-white border-gray-200' : ''}
-                            `}
-                          >
-                            {payment.studentCategory || 'Not Set'}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Cohort') && (
-                        <TableCell>
-                          {payment.cohortId ? (
-                            <div className="space-y-1">
-                              <div className="text-purple-700 text-sm font-bold">
-                                {payment.cohortId}
-                              </div>
-                              <div className="text-gray-600 dark:text-white text-xs">
-                                {cohortsLoading ? (
-                                  <span className="text-gray-400 dark:text-white animate-pulse">Loading name...</span>
-                                ) : (
-                                  <span title={`Cohort: ${getCohortDisplayName(payment.cohortId, cohortMap)}`}>
-                                    {getCohortDisplayName(payment.cohortId, cohortMap)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-gray-400 dark:text-white text-sm">
-                              Unassigned
-                            </div>
-                          )}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Course Type') && (
-                        <TableCell>
-                          <Badge 
-                            variant="secondary" 
-                            className={`
-                              ${payment.courseType === 'Online' ? 'bg-green-100 text-green-700 border-0' : ''}
-                              ${payment.courseType === 'Offline' ? 'bg-blue-100 text-blue-700 border-0' : ''}
-                              ${payment.courseType === 'Hybrid' ? 'bg-orange-100 text-orange-700 border-0' : ''}
-                              ${payment.courseType === 'Individual' || payment.courseType === 'Not Set' || !payment.courseType ? 'bg-gray-100 text-gray-700 dark:text-white border-0' : ''}
-                            `}
-                          >
-                            {payment.courseType || "Not Set"}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {shouldShowColumn(`Course Fee (${currency})`) && (
-                        <TableCell className="text-right">
-                          {currency} {(payment.courseFee || 0).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn(`Course Reg Fee (${currency})`) && (
-                        <TableCell className="text-right">
-                          {(payment.courseRegistrationFee || 0).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn(`Student Reg Fee (${currency})`) && (
-                        <TableCell className="text-right">
-                          {(payment.studentRegistrationFee || 0).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn(`Total To Be Paid (${currency})`) && (
-                        <TableCell className="text-right font-bold text-purple-700 bg-purple-50 min-w-[150px]">
-                          {((payment.courseFee || 0) + (payment.courseRegistrationFee || 0) + (payment.studentRegistrationFee || 0)).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn(`Total Paid (${currency})`) && (
-                        <TableCell className="text-right text-green-600 font-semibold">
-                          {(payment.receivedAmount || 0).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn(`Balance (${currency})`) && (
-                        <TableCell className="text-right text-red-600 font-semibold">
-                          {(payment.outstandingAmount || 0).toLocaleString()}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Status') && (
-                        <TableCell>
-                          {payment.status === "N/A" ? (
-                            <span className="text-gray-400 dark:text-white">{payment.status}</span>
-                          ) : (
-                            getStatusBadge(payment.status, payment)
-                          )}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Paid Date') && (
-                        <TableCell className="text-center">
-                          {payment.lastPaymentDate 
-                            ? new Date(payment.lastPaymentDate).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                              })
-                            : "-"}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Start Date') && (
-                        <TableCell className="text-center">
-                          {payment.startDate
-                            ? new Date(payment.startDate).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                              })
-                            : "-"}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('End Date') && (
-                        <TableCell className="text-center">
-                          {payment.endDate
-                            ? new Date(payment.endDate).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                              })
-                            : "-"}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Next Reminder Date') && (
-                        <TableCell className="text-center">
-                          {payment.nextReminderDate ? (
-                            (() => {
-                              try {
-                                return new Date(payment.nextReminderDate).toLocaleDateString('en-GB', {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  year: 'numeric'
-                                });
-                              } catch (error) {
-                                console.error('Error formatting nextReminderDate:', payment.nextReminderDate, error);
-                                return "-";
-                              }
-                            })()
-                          ) : "-"}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Next Due Date') && (
-                        <TableCell className="text-center">
-                          {payment.nextDueDate ? (
-                            (() => {
-                              try {
-                                return new Date(payment.nextDueDate).toLocaleDateString('en-GB', {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  year: 'numeric'
-                                });
-                              } catch (error) {
-                                console.error('Error formatting nextDueDate:', payment.nextDueDate, error);
-                                return "-";
-                              }
-                            })()
-                          ) : "-"}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Invoice') && (
-                        <TableCell className="text-center">
-                          {payment.status === "N/A" || !payment.receivedAmount || payment.receivedAmount === 0 ? (
-                            <span className="text-gray-400 dark:text-white">N/A</span>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-purple-600 border-purple-600 hover:bg-purple-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenInvoiceDialog(payment);
-                              }}
-                            >
-                              <FileText className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </TableCell>
-                      )}
-                      {shouldShowColumn('Send Reminder') && (
-                        <TableCell className="text-center">
-                          {payment.status === "N/A" ? (
-                            <span className="text-gray-400 dark:text-white">N/A</span>
-                          ) : payment.collectionRate >= 100 ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-gray-400 dark:text-white border-gray-300 cursor-not-allowed"
-                              disabled
-                            >
-                              <Send className="h-4 w-4" />
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenReminderDialog(payment);
-                              }}
-                            >
-                              <Send className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </TableCell>
-                      )}
+                      {/* Render columns dynamically in the order specified */}
+                      {visibleColumns.map(col => renderColumnCell(col, payment))}
+                      {/* Always show Actions column at the end if included */}
                       {shouldShowColumn('Actions') && (
                         <TableCell>
                           {payment.status === "N/A" ? (

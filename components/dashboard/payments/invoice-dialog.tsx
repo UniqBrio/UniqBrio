@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useCustomColors } from "@/lib/use-custom-colors";
 import {
@@ -17,6 +17,11 @@ import { useToast } from "@/hooks/dashboard/use-toast";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useCurrency } from "@/contexts/currency-context";
+
+// Cache for academy information to avoid repeated API calls
+let cachedAcademyInfo: any = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 interface PaymentRecord {
   _id: string;
@@ -46,7 +51,46 @@ export function InvoiceDialog({
   const [isDownloading, setIsDownloading] = useState(false);
   const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
-  const [invoiceId, setInvoiceId] = useState<string>('');
+  // Generate immediate invoice ID based on payment data
+  const generateImmediateInvoiceId = (payment: Payment | null) => {
+    if (!payment) return '';
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `INV-${year}${month}${day}-${payment.studentId.slice(-4)}`;
+  };
+  const [invoiceId, setInvoiceId] = useState<string>(() => generateImmediateInvoiceId(payment));
+  // Initialize with cached data or defaults to show immediately
+  const [academyInfo, setAcademyInfo] = useState<{
+    businessName?: string;
+    email?: string;
+    phone?: string;
+    website?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+    logo?: string;
+    tagline?: string;
+    taxId?: string;
+  } | null>(() => {
+    // Use cached data if available and valid
+    if (cachedAcademyInfo && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+      return cachedAcademyInfo;
+    }
+    // Return defaults for instant display
+    return {
+      businessName: 'Academy',
+      email: 'contact@academy.com',
+      phone: '+XX-XXXXX-XXXXX',
+      website: 'www.academy.com',
+      logo: '/Academy logo.png',
+      tagline: 'Empowering Minds, Shaping Futures'
+    };
+  });
+  const fetchInProgress = useRef(false);
 
   // Check if this is a partial payment or EMI scenario
   // Show payment history for installments/EMI regardless of payment status
@@ -55,6 +99,132 @@ export function InvoiceDialog({
                          payment?.planType === 'ONE_TIME_WITH_INSTALLMENTS' ||
                          payment?.planType === 'EMI' ||
                          (payment && payment.receivedAmount > 0 && payment.receivedAmount < (payment.courseFee || 0));
+
+  // Fetch academy information with caching
+  useEffect(() => {
+    const fetchAcademyInfo = async () => {
+      if (!open) {
+        return;
+      }
+
+      // Check if we have valid cached data
+      const now = Date.now();
+      if (cachedAcademyInfo && (now - cacheTimestamp) < CACHE_DURATION) {
+        setAcademyInfo(cachedAcademyInfo);
+        return;
+      }
+
+      // Prevent concurrent fetches
+      if (fetchInProgress.current) {
+        return;
+      }
+
+      fetchInProgress.current = true;
+
+      try {
+        // Fetch academy information from the dedicated API endpoint
+        const academyResponse = await fetch('/api/dashboard/academy-info', {
+          credentials: 'include',
+          cache: 'force-cache', // Use browser cache for better performance
+        });
+
+        if (academyResponse.ok) {
+          const academyData = await academyResponse.json();
+          if (academyData.businessInfo) {
+            const business = academyData.businessInfo;
+            const info = {
+              businessName: business.businessName || business.academyName || 'Academy',
+              email: business.businessEmail || business.email || 'contact@academy.com',
+              phone: business.phoneNumber || business.phone || '+XX-XXXXX-XXXXX',
+              website: business.website || 'www.academy.com',
+              address: business.address || '',
+              city: business.city || '',
+              state: business.state || '',
+              country: business.country || '',
+              zipCode: business.pincode || business.zipCode || '',
+              logo: business.logo || '/Academy logo.png',
+              tagline: business.tagline || 'Empowering Minds, Shaping Futures',
+              taxId: business.taxId || ''
+            };
+            
+            // Update cache
+            cachedAcademyInfo = info;
+            cacheTimestamp = now;
+            setAcademyInfo(info);
+            return;
+          }
+        }
+
+        // Fallback: try to fetch from user/registration data
+        const response = await fetch('/api/auth/user', {
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user && data.user.tenantId) {
+            const regResponse = await fetch(`/api/register?tenantId=${data.user.tenantId}`, {
+              credentials: 'include'
+            });
+
+            if (regResponse.ok) {
+              const regData = await regResponse.json();
+              if (regData.registration && regData.registration.businessInfo) {
+                const business = regData.registration.businessInfo;
+                const info = {
+                  businessName: business.businessName || business.name || 'Academy',
+                  email: business.email || business.businessEmail || 'contact@academy.com',
+                  phone: business.phone || business.phoneNumber || business.contactNumber || '+XX-XXXXX-XXXXX',
+                  website: business.website || business.websiteUrl || 'www.academy.com',
+                  address: business.address || business.businessAddress || '',
+                  city: business.city || '',
+                  state: business.state || '',
+                  country: business.country || '',
+                  zipCode: business.pincode || business.zipCode || '',
+                  logo: business.logo || business.logoUrl || '/Academy logo.png',
+                  tagline: business.tagline || business.slogan || 'Empowering Minds, Shaping Futures',
+                  taxId: business.taxId || ''
+                };
+                
+                // Update cache
+                cachedAcademyInfo = info;
+                cacheTimestamp = now;
+                setAcademyInfo(info);
+                return;
+              }
+            }
+          }
+        }
+
+        // Set default values if both attempts fail
+        const defaultInfo = {
+          businessName: 'Academy',
+          email: 'contact@academy.com',
+          phone: '+XX-XXXXX-XXXXX',
+          website: 'www.academy.com',
+          logo: '/Academy logo.png',
+          tagline: 'Empowering Minds, Shaping Futures'
+        };
+        setAcademyInfo(defaultInfo);
+      } catch (error) {
+        console.error('Error fetching academy info:', error);
+        // Set default values on error
+        const defaultInfo = {
+          businessName: 'Academy',
+          email: 'contact@academy.com',
+          phone: '+XX-XXXXX-XXXXX',
+          website: 'www.academy.com',
+          logo: '/Academy logo.png',
+          tagline: 'Empowering Minds, Shaping Futures'
+        };
+        setAcademyInfo(defaultInfo);
+      } finally {
+        fetchInProgress.current = false;
+      }
+    };
+
+    fetchAcademyInfo();
+  }, [open]);
 
   // Fetch payment records for partial payments and EMI
   useEffect(() => {
@@ -127,14 +297,15 @@ export function InvoiceDialog({
   }, [open, payment?.id, isPartialOrEMI]);
 
   // Set invoice ID from existing payment records specific to this payment
+  // Initial invoice ID is already set, this effect will update it if a stored one exists
   useEffect(() => {
     const setInvoiceNumber = async () => {
       if (!open || !payment) {
-        setInvoiceId('');
         return;
       }
       
-      console.log('Setting invoice number for payment:', payment.id, payment.studentId);
+      // Keep the immediate invoice ID visible while fetching
+      const immediateId = generateImmediateInvoiceId(payment);
       
       try {
         // Fetch payment records specifically for this payment ID to get existing invoice number
@@ -144,7 +315,8 @@ export function InvoiceDialog({
         let response = await fetch(
           `/api/dashboard/payments/payment-records?action=history&paymentId=${payment.id}&sortBy=paidDate&sortOrder=desc`,
           {
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'force-cache'
           }
         );
         
@@ -154,7 +326,6 @@ export function InvoiceDialog({
             const recordWithInvoice = data.records.find((record: any) => record.invoiceNumber);
             if (recordWithInvoice) {
               existingInvoiceNumber = recordWithInvoice.invoiceNumber;
-              console.log('Found existing invoice number from PaymentRecord:', existingInvoiceNumber);
             }
           }
         }
@@ -162,7 +333,8 @@ export function InvoiceDialog({
         // If not found, try PaymentTransaction system
         if (!existingInvoiceNumber) {
           response = await fetch(`/api/dashboard/payments/manual?paymentId=${payment.id}`, {
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'force-cache'
           });
           
           if (response.ok) {
@@ -171,42 +343,20 @@ export function InvoiceDialog({
               const transactionWithInvoice = data.transactions.find((txn: any) => txn.invoiceNumber);
               if (transactionWithInvoice) {
                 existingInvoiceNumber = transactionWithInvoice.invoiceNumber;
-                console.log('Found existing invoice number from PaymentTransaction:', existingInvoiceNumber);
               }
             }
           }
         }
         
-        // Use existing invoice number if found
-        if (existingInvoiceNumber) {
+        // Only update if we found a different invoice number
+        if (existingInvoiceNumber && existingInvoiceNumber !== immediateId) {
           setInvoiceId(existingInvoiceNumber);
-          return;
         }
+        // Otherwise keep the immediate invoice ID that's already showing
         
-        // If no existing invoice number found, this might be a payment without transactions yet
-        console.log('No existing invoice number found for payment:', payment.id, '- this may be a payment record without transactions');
-        
-        // Check if this payment has any received amount or payment transactions
-        if (payment.receivedAmount && payment.receivedAmount > 0) {
-          // This payment has received amount but no invoice number - might be an old record
-          const displayId = `PENDING-${payment.studentId}-${payment.id?.slice(-6) || 'XXXX'}`;
-          console.log('Payment has received amount but no invoice number, using pending ID:', displayId);
-          setInvoiceId(displayId);
-        } else {
-          // This is likely a new payment record or one without transactions
-          const draftId = `DRAFT-${payment.studentId}`;
-          console.log('Payment appears to be draft/new, using draft ID:', draftId);
-          setInvoiceId(draftId);
-        }
       } catch (error) {
-        console.error('Error setting invoice number for payment', payment.id, ':', error);
-        // Fallback to timestamp-based ID
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const fallbackId = `INV-${year}${month}-${payment.studentId}-${Date.now().toString().slice(-4)}`;
-        console.log('Using fallback invoice number:', fallbackId);
-        setInvoiceId(fallbackId);
+        console.error('Error fetching invoice number:', error);
+        // Keep the immediate invoice ID on error
       }
     };
     
@@ -270,8 +420,8 @@ export function InvoiceDialog({
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
-      // Add additional pages if needed
-      while (heightLeft >= 0) {
+      // Add additional pages if needed (only if content exceeds one page)
+      while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
@@ -327,7 +477,7 @@ export function InvoiceDialog({
                   {/* Academy Logo */}
                   <div className="relative h-16 w-24">
                     <Image 
-                      src="/Academy logo.png" 
+                      src={academyInfo?.logo || '/Academy logo.png'} 
                       alt="Academy Logo" 
                       fill 
                       style={{ objectFit: "contain" }} 
@@ -335,20 +485,36 @@ export function InvoiceDialog({
                     />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>XYZ Academy</h1>
-                    <p className="text-gray-600 dark:text-white font-medium">Empowering Minds, Shaping Futures</p>
+                    <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>
+                      {academyInfo?.businessName || 'Academy'}
+                    </h1>
+                    <p className="text-gray-600 dark:text-white font-medium">
+                      {academyInfo?.tagline || 'Empowering Minds, Shaping Futures'}
+                    </p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-white mt-4">
-                  <p>Email: support@uniqbrio.com</p>
-                  <p>Phone: +91-XXXXX-XXXXX</p>
-                  <p>Website: www.uniqbrio.com</p>
+                <div className="text-sm text-gray-600 dark:text-white mt-4 space-y-1">
+                  <p><strong>Email:</strong> {academyInfo?.email || 'contact@academy.com'}</p>
+                  <p><strong>Phone:</strong> {academyInfo?.phone || '+XX-XXXXX-XXXXX'}</p>
+                  <p><strong>Website:</strong> {academyInfo?.website || 'www.academy.com'}</p>
+                  {academyInfo?.taxId && (
+                    <p><strong>Tax ID:</strong> {academyInfo.taxId}</p>
+                  )}
+                  {academyInfo?.address && (
+                    <p className="mt-1">
+                      <strong>Address:</strong> {academyInfo.address}
+                      {academyInfo.city && `, ${academyInfo.city}`}
+                      {academyInfo.state && `, ${academyInfo.state}`}
+                      {academyInfo.zipCode && ` - ${academyInfo.zipCode}`}
+                      {academyInfo.country && `, ${academyInfo.country}`}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="text-right">
                 <h2 className="text-2xl font-bold mb-2" style={{ color: primaryColor }}>INVOICE</h2>
                 <div className="text-sm">
-                  <p className="font-semibold">Invoice #: {invoiceId || 'Generating...'}</p>
+                  <p className="font-semibold">Invoice #: {invoiceId}</p>
                   <p className="text-gray-600 dark:text-white">Date: {invoiceDate}</p>
                 </div>
               </div>
@@ -404,34 +570,34 @@ export function InvoiceDialog({
                 {payment.courseFee > 0 && (
                   <tr className="border">
                     <td className="p-3 border">Course Fee</td>
-                    <td className="text-right p-3 border">?{payment.courseFee.toLocaleString()}</td>
+                    <td className="text-right p-3 border">{currency} {payment.courseFee.toLocaleString()}</td>
                   </tr>
                 )}
                 {payment.studentRegistrationFee > 0 && (
                   <tr className="border">
                     <td className="p-3 border">Student Registration Fee</td>
-                    <td className="text-right p-3 border">?{payment.studentRegistrationFee.toLocaleString()}</td>
+                    <td className="text-right p-3 border">{currency} {payment.studentRegistrationFee.toLocaleString()}</td>
                   </tr>
                 )}
                 {payment.courseRegistrationFee > 0 && (
                   <tr className="border">
                     <td className="p-3 border">Course Registration Fee</td>
-                    <td className="text-right p-3 border">?{payment.courseRegistrationFee.toLocaleString()}</td>
+                    <td className="text-right p-3 border">{currency} {payment.courseRegistrationFee.toLocaleString()}</td>
                   </tr>
                 )}
                 <tr className="border bg-gray-50">
                   <td className="p-3 font-semibold border">Total Amount</td>
                   <td className="text-right p-3 font-semibold border">
-                    ?{((payment.courseFee || 0) + (payment.studentRegistrationFee || 0) + (payment.courseRegistrationFee || 0)).toLocaleString()}
+                    {currency} {((payment.courseFee || 0) + (payment.studentRegistrationFee || 0) + (payment.courseRegistrationFee || 0)).toLocaleString()}
                   </td>
                 </tr>
                 <tr className="border bg-green-50">
                   <td className="p-3 font-semibold text-green-700 border">Amount Paid</td>
-                  <td className="text-right p-3 font-semibold text-green-700 border">?{(payment.receivedAmount || 0).toLocaleString()}</td>
+                  <td className="text-right p-3 font-semibold text-green-700 border">{currency} {(payment.receivedAmount || 0).toLocaleString()}</td>
                 </tr>
                 <tr className="bg-red-50 border">
                   <td className="p-3 font-semibold text-red-700 border">Outstanding Balance</td>
-                  <td className="text-right p-3 font-semibold text-red-700 border">?{(payment.outstandingAmount || 0).toLocaleString()}</td>
+                  <td className="text-right p-3 font-semibold text-red-700 border">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</td>
                 </tr>
               </tbody>
             </table>
@@ -474,7 +640,7 @@ export function InvoiceDialog({
                             })}
                           </td>
                           <td className="border border-gray-300 p-3 text-right text-sm font-semibold">
-                            ?{record.paidAmount.toLocaleString('en-IN')}
+                            {currency} {record.paidAmount.toLocaleString('en-IN')}
                           </td>
                           <td className="border border-gray-300 p-3 text-sm">
                             <Badge variant="outline" className="text-xs">
@@ -495,7 +661,7 @@ export function InvoiceDialog({
                           Total Paid:
                         </td>
                         <td className="border border-gray-300 p-3 text-right text-sm">
-                          ?{paymentRecords.reduce((sum, r) => sum + r.paidAmount, 0).toLocaleString('en-IN')}
+                          {currency} {paymentRecords.reduce((sum, r) => sum + r.paidAmount, 0).toLocaleString('en-IN')}
                         </td>
                         <td colSpan={3} className="border border-gray-300 p-3"></td>
                       </tr>
@@ -536,7 +702,7 @@ export function InvoiceDialog({
                             }) : '-'}
                           </td>
                           <td className="border border-gray-300 p-3 text-right text-sm font-semibold">
-                            ?{(emi.paidAmount || emi.amount).toLocaleString('en-IN')}
+                            {currency} {(emi.paidAmount || emi.amount).toLocaleString('en-IN')}
                           </td>
                           <td className="border border-gray-300 p-3 text-sm">
                             <Badge 
@@ -556,7 +722,7 @@ export function InvoiceDialog({
                           Total Paid:
                         </td>
                         <td className="border border-gray-300 p-3 text-right text-sm">
-                          ?{payment.emiSchedule
+                          {currency} {payment.emiSchedule
                             .filter(emi => emi.status === 'PAID')
                             .reduce((sum, emi) => sum + (emi.paidAmount || emi.amount), 0)
                             .toLocaleString('en-IN')}
@@ -584,8 +750,8 @@ export function InvoiceDialog({
 
           {/* Footer */}
           <div className="mt-12 pt-6 border-t text-center text-sm text-gray-600 dark:text-white">
-            <p className="mb-2 font-semibold">Thank you for choosing XYZ Academy!</p>
-            <p>For any queries, please contact us at support@uniqbrio.com</p>
+            <p className="mb-2 font-semibold">Thank you for choosing {academyInfo?.businessName || 'our academy'}!</p>
+            <p>For any queries, please contact us at {academyInfo?.email || 'contact@academy.com'}</p>
             <p className="mt-4 text-xs italic">This is a computer-generated invoice and does not require a signature.</p>
           </div>
         </div>

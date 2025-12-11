@@ -2,6 +2,7 @@ export interface Payment {
   id: string;
   studentId: string;
   studentName: string;
+  studentEmail?: string;
   studentCategory: string;
   enrolledCourse: string;
   enrolledCourseId?: string;

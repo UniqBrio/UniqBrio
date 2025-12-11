@@ -6,7 +6,6 @@ import { useCurrency } from "@/contexts/currency-context";
 
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTitle,
 } from "@/components/dashboard/ui/dialog";
@@ -24,7 +23,6 @@ import {
   CreditCard,
   Bell,
   Receipt,
-  X,
   Clock,
   Target,
   TrendingUp,
@@ -336,7 +334,6 @@ export function StudentDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        data-no-close
         className="max-w-[980px] border-none bg-transparent p-0 shadow-none"
       >
         <div className="flex max-h-[86vh] flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_24px_60px_-30px_rgba(124,58,237,0.45)]">
@@ -369,14 +366,6 @@ export function StudentDetailDialog({
                 >
                   {payment.status}
                 </Badge>
-                <DialogClose asChild>
-                  <button
-                    type="button"
-                    className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </DialogClose>
               </div>
             </div>
           </div>

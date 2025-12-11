@@ -38,8 +38,133 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
   const defaultColumns = ['CourseID', 'Course Name', 'Students', `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Amount (${currency})`, `Received (${currency})`, `Outstanding (${currency})`, 'Collection Rate', 'Status'];
   const columns = displayedColumns || defaultColumns;
 
+  // Filter columns for dynamic rendering
+  const visibleColumns = React.useMemo(() => {
+    return columns;
+  }, [columns]);
+
   // Helper to check if column should be displayed
   const shouldShowColumn = (columnName: string) => columns.includes(columnName);
+
+  // Helper function to render table header for a column
+  const renderColumnHeader = (columnName: string) => {
+    const isSpecialColumn = columnName === `Total To Be Paid (${currency})`;
+    return (
+      <TableHead 
+        key={columnName} 
+        className={`font-semibold sticky-table-header ${isSpecialColumn ? 'bg-purple-50 text-purple-700' : 'text-gray-600 dark:text-white'}`}
+      >
+        {columnName === 'Collection Rate' ? 'Collection Rate / Status' : columnName}
+      </TableHead>
+    );
+  };
+
+  // Helper function to render table cell for a column
+  const renderColumnCell = (columnName: string, course: CoursePaymentSummary) => {
+    switch (columnName) {
+      case 'CourseID':
+        return (
+          <TableCell key={columnName} className="font-medium">
+            <div className="flex items-center gap-2">
+              {course.cohorts && course.cohorts.length > 0 && (
+                expandedCourses.has(course.courseId) ? (
+                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-white" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-gray-600 dark:text-white" />
+                )
+              )}
+              <BookOpen className="h-4 w-4 text-gray-600 dark:text-white" />
+              <span className="font-bold">{course.courseId}</span>
+            </div>
+          </TableCell>
+        );
+      case 'Course Name':
+        return (
+          <TableCell key={columnName} className="font-semibold">{course.courseName}</TableCell>
+        );
+      case 'Students':
+        return (
+          <TableCell key={columnName}>
+            <span className="flex items-center gap-1 text-gray-700 dark:text-white">
+              <Users className="h-4 w-4" />
+              {course.totalStudents}
+            </span>
+          </TableCell>
+        );
+      case `Course Reg Fee (${currency})`:
+        return (
+          <TableCell key={columnName} className="font-semibold text-blue-600">
+            {(course.totalCourseRegistrationFees || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Student Reg Fee (${currency})`:
+        return (
+          <TableCell key={columnName} className="font-semibold text-purple-600">
+            {(course.totalStudentRegistrationFees || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Total To Be Paid (${currency})`:
+        return (
+          <TableCell key={columnName} className="font-bold text-indigo-600">
+            {(course.totalToBePaid || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Total Amount (${currency})`:
+        return (
+          <TableCell key={columnName} className="font-semibold">
+            {(course.totalAmount || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Received (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-green-600 font-bold">
+            {(course.receivedAmount || 0).toLocaleString()}
+          </TableCell>
+        );
+      case `Outstanding (${currency})`:
+        return (
+          <TableCell key={columnName} className="text-red-600 font-bold">
+            {(course.outstandingAmount === 0 && (course.receivedAmount || 0) > 0 && 
+              (course.totalCourseFees || 0) > 0) && (() => {
+                const totalRegistrationFees = (course.totalCourseRegistrationFees || 0) + (course.totalStudentRegistrationFees || 0);
+                const totalAllFees = course.totalToBePaid || 0;
+                const registrationFeeRatio = totalAllFees > 0 ? totalRegistrationFees / totalAllFees : 0;
+                const estimatedRegistrationFeesReceived = (course.receivedAmount || 0) * registrationFeeRatio;
+                const estimatedCourseFeesOnlyReceived = (course.receivedAmount || 0) - estimatedRegistrationFeesReceived;
+                return estimatedCourseFeesOnlyReceived > (course.totalCourseFees || 0);
+              })() ? (
+              <span className="text-gray-400 dark:text-white text-sm">N/A</span>
+            ) : (
+              (course.outstandingAmount || 0).toLocaleString()
+            )}
+          </TableCell>
+        );
+      case 'Collection Rate':
+        return (
+          <TableCell key={columnName} className="font-semibold">
+            {(course.outstandingAmount === 0 && (course.receivedAmount || 0) > 0 && 
+              (course.totalCourseFees || 0) > 0) && (() => {
+                const totalRegistrationFees = (course.totalCourseRegistrationFees || 0) + (course.totalStudentRegistrationFees || 0);
+                const totalAllFees = course.totalToBePaid || 0;
+                const registrationFeeRatio = totalAllFees > 0 ? totalRegistrationFees / totalAllFees : 0;
+                const estimatedRegistrationFeesReceived = (course.receivedAmount || 0) * registrationFeeRatio;
+                const estimatedCourseFeesOnlyReceived = (course.receivedAmount || 0) - estimatedRegistrationFeesReceived;
+                return estimatedCourseFeesOnlyReceived > (course.totalCourseFees || 0);
+              })() ? (
+              <span className="text-green-600 font-bold">Active</span>
+            ) : (
+              <span>{(course.collectionRate || 0).toFixed(1)}%</span>
+            )}
+          </TableCell>
+        );
+      case 'Status':
+        return (
+          <TableCell key={columnName}>{getStatusBadge(course.status)}</TableCell>
+        );
+      default:
+        return <TableCell key={columnName}>-</TableCell>;
+    }
+  };
   
   // Fetch cohort data when course summaries change
   useEffect(() => {
@@ -270,17 +395,8 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
           <Table>
             <TableHeader className="bg-white">
               <TableRow>
-                {shouldShowColumn('CourseID') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">CourseID</TableHead>}
-                {shouldShowColumn('Course Name') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Name</TableHead>}
-                {shouldShowColumn('Students') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Students</TableHead>}
-                {shouldShowColumn(`Course Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Course Reg Fee ({currency})</TableHead>}
-                {shouldShowColumn(`Student Reg Fee (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Student Reg Fee ({currency})</TableHead>}
-                {shouldShowColumn(`Total To Be Paid (${currency})`) && <TableHead className="font-semibold sticky-table-header bg-purple-50 text-purple-700">Total To Be Paid ({currency})</TableHead>}
-                {shouldShowColumn(`Total Amount (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Total Amount ({currency})</TableHead>}
-                {shouldShowColumn(`Received (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Received ({currency})</TableHead>}
-                {shouldShowColumn(`Outstanding (${currency})`) && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Outstanding ({currency})</TableHead>}
-                {shouldShowColumn('Collection Rate') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Collection Rate / Status</TableHead>}
-                {shouldShowColumn('Status') && <TableHead className="font-semibold text-gray-600 dark:text-white sticky-table-header">Status</TableHead>}
+                {/* Render columns in the order specified by visibleColumns */}
+                {visibleColumns.map(col => renderColumnHeader(col))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -292,96 +408,8 @@ export function CoursePaymentSummaryTable({ courseSummaries, displayedColumns, v
                     }`}
                     onClick={() => toggleCourse(course.courseId)}
                   >
-                    {shouldShowColumn('CourseID') && (
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          {course.cohorts && course.cohorts.length > 0 && (
-                            expandedCourses.has(course.courseId) ? (
-                              <ChevronDown className="h-4 w-4 text-gray-600 dark:text-white" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4 text-gray-600 dark:text-white" />
-                            )
-                          )}
-                          <BookOpen className="h-4 w-4 text-gray-600 dark:text-white" />
-                          <span className="font-bold">{course.courseId}</span>
-                        </div>
-                      </TableCell>
-                    )}
-                    {shouldShowColumn('Course Name') && (
-                      <TableCell className="font-semibold">{course.courseName}</TableCell>
-                    )}
-                    {shouldShowColumn('Students') && (
-                      <TableCell>
-                        <span className="flex items-center gap-1 text-gray-700 dark:text-white">
-                          <Users className="h-4 w-4" />
-                          {course.totalStudents}
-                        </span>
-                      </TableCell>
-                    )}
-                    {shouldShowColumn(`Course Reg Fee (${currency})`) && (
-                      <TableCell className="font-semibold text-blue-600">
-                        {(course.totalCourseRegistrationFees || 0).toLocaleString()}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn(`Student Reg Fee (${currency})`) && (
-                      <TableCell className="font-semibold text-purple-600">
-                        {(course.totalStudentRegistrationFees || 0).toLocaleString()}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn(`Total To Be Paid (${currency})`) && (
-                      <TableCell className="font-bold text-indigo-600">
-                        {(course.totalToBePaid || 0).toLocaleString()}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn(`Total Amount (${currency})`) && (
-                      <TableCell className="font-semibold">
-                        {(course.totalAmount || 0).toLocaleString()}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn(`Received (${currency})`) && (
-                      <TableCell className="text-green-600 font-bold">
-                        {(course.receivedAmount || 0).toLocaleString()}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn(`Outstanding (${currency})`) && (
-                      <TableCell className="text-red-600 font-bold">
-                        {/* Show N/A only for truly ongoing monthly subscriptions */}
-                        {(course.outstandingAmount === 0 && (course.receivedAmount || 0) > 0 && 
-                          (course.totalCourseFees || 0) > 0) && (() => {
-                            const totalRegistrationFees = (course.totalCourseRegistrationFees || 0) + (course.totalStudentRegistrationFees || 0);
-                            const totalAllFees = course.totalToBePaid || 0;
-                            const registrationFeeRatio = totalAllFees > 0 ? totalRegistrationFees / totalAllFees : 0;
-                            const estimatedRegistrationFeesReceived = (course.receivedAmount || 0) * registrationFeeRatio;
-                            const estimatedCourseFeesOnlyReceived = (course.receivedAmount || 0) - estimatedRegistrationFeesReceived;
-                            return estimatedCourseFeesOnlyReceived > (course.totalCourseFees || 0);
-                          })() ? (
-                          <span className="text-gray-400 dark:text-white text-sm">N/A</span>
-                        ) : (
-                          (course.outstandingAmount || 0).toLocaleString()
-                        )}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn('Collection Rate') && (
-                      <TableCell className="font-semibold">
-                        {/* Show Active only for truly ongoing monthly subscriptions */}
-                        {(course.outstandingAmount === 0 && (course.receivedAmount || 0) > 0 && 
-                          (course.totalCourseFees || 0) > 0) && (() => {
-                            const totalRegistrationFees = (course.totalCourseRegistrationFees || 0) + (course.totalStudentRegistrationFees || 0);
-                            const totalAllFees = course.totalToBePaid || 0;
-                            const registrationFeeRatio = totalAllFees > 0 ? totalRegistrationFees / totalAllFees : 0;
-                            const estimatedRegistrationFeesReceived = (course.receivedAmount || 0) * registrationFeeRatio;
-                            const estimatedCourseFeesOnlyReceived = (course.receivedAmount || 0) - estimatedRegistrationFeesReceived;
-                            return estimatedCourseFeesOnlyReceived > (course.totalCourseFees || 0);
-                          })() ? (
-                          <span className="text-green-600 font-bold">Active</span>
-                        ) : (
-                          <span>{(course.collectionRate || 0).toFixed(1)}%</span>
-                        )}
-                      </TableCell>
-                    )}
-                    {shouldShowColumn('Status') && (
-                      <TableCell>{getStatusBadge(course.status)}</TableCell>
-                    )}
+                    {/* Render columns dynamically in the order specified */}
+                    {visibleColumns.map(col => renderColumnCell(col, course))}
                   </TableRow>
 
                   {/* Cohort Breakdown */}

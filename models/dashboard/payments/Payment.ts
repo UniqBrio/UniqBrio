@@ -5,6 +5,7 @@ const PaymentSchema = new mongoose.Schema(
   {
     studentId: { type: String, required: true, ref: 'Student' },
     studentName: { type: String, required: true },
+    studentEmail: { type: String },
     studentCategory: { type: String },
     enrolledCourse: { type: String },
     enrolledCourseId: { type: String },

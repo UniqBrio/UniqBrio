@@ -20,6 +20,7 @@ import { type Payment, type PaymentAnalytics, type CoursePaymentSummary } from "
 import { format as formatDateFns } from 'date-fns';
 import { useToast } from "@/hooks/dashboard/use-toast";
 import { Button } from "@/components/dashboard/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
 
 export default function PaymentsPage() {
   const { currency } = useCurrency();
@@ -328,15 +329,24 @@ export default function PaymentsPage() {
             Track student payments, send reminders, and manage financial records
           </p>
         </div>
-        <Button
-          onClick={fetchData}
-          disabled={loading}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh Data
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={fetchData}
+                disabled={loading}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh Data
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Reload all payment data and analytics</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         </div>
 
       {/* Tabs */}
@@ -471,7 +481,7 @@ export default function PaymentsPage() {
                         <p className="text-3xl font-bold text-red-900">
                           {currency} {(analytics.totalOutstanding || 0).toLocaleString()}
                         </p>
-                        <p className="text-xs text-red-600 mt-1">Pending</p>
+                        <p className="text-xs text-red-600 mt-1">All time</p>
                       </div>
                       <div className="text-red-600 dark:text-red-400 bg-red-200 dark:bg-red-800/50 p-3 rounded-lg">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

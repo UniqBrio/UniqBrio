@@ -87,10 +87,9 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                 formatter={(value: any, name: string, props: any) => {
                   const courseName = props.payload?.courseName || 'Unknown Course';
                   return [
-                    <div key="revenue-tooltip" className="space-y-0.5">
-                      <div className="text-xs font-semibold" style={{ color: primaryColor }}>{courseName}</div>
-                      <div className="text-sm font-bold">{currency} {value.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">ID: {props.payload?.course}</div>
+                    <div key="revenue-tooltip" className="space-y-0">
+                      <div className="text-[10px] font-semibold" style={{ color: primaryColor }}>{courseName}</div>
+                      <div className="text-xs font-bold">{currency} {value.toLocaleString()}</div>
                     </div>,
                     ''
                   ];
@@ -98,10 +97,10 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
                 contentStyle={{
                   backgroundColor: 'rgba(255, 255, 255, 0.98)',
                   border: '1px solid #D1D5DB',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  padding: '8px',
-                  minWidth: '120px',
+                  padding: '6px 8px',
+                  minWidth: '100px',
                 }}
               />
               <Bar dataKey="amount" fill="url(#revenueGradient)" radius={[8, 8, 0, 0]}>

@@ -163,8 +163,7 @@ export default function PaymentSearchFilters({
     'Monthly subscription',
     'Monthly subscription with discounts',
     'One-time',
-    'One-time with installments',
-    'Recurring'
+    'One-time with installments'
   ];
 
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
@@ -207,7 +206,12 @@ export default function PaymentSearchFilters({
     // Status filter
     if (selectedFilters.statuses.length) {
       data = data.filter(p => {
-        return selectedFilters.statuses.includes(p.status || "");
+        // Get the display status (same logic as in student-payment-table.tsx)
+        let displayStatus = p.status || "";
+        if ((p.paymentOption === 'Monthly' || p.planType === 'MONTHLY_SUBSCRIPTION') && displayStatus === 'Paid') {
+          displayStatus = 'Recurring';
+        }
+        return selectedFilters.statuses.includes(displayStatus);
       });
     }
 

@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
       
       return {
         ...payment,
+        id: payment._id.toString(), // Convert MongoDB _id to string id
         courseRegistrationFee: payment.courseRegistrationFee ?? 0,
         studentRegistrationFee: payment.studentRegistrationFee ?? 0,
         courseFee: payment.courseFee ?? 0,

@@ -10,6 +10,7 @@ import { Button } from "@/components/dashboard/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
 import { 
   CreditCard, Bell, FileText, Settings, CheckCircle2, 
   Plus, Minus, Save, Calendar, Percent, AlertCircle,
@@ -201,7 +202,7 @@ export default function PaymentSettings() {
       'monthly-subscription-discounted': {
         name: 'Monthly Subscription (Discounted) Reminder',
         subject: 'Discounted Subscription Renewal - {courseName}',
-        mainMessage: 'Your discounted monthly subscription is due for renewal. Don\'t miss out on your special rate!',
+        mainMessage: 'Your discounted monthly subscription is due for renewal. Do not miss out on your special rate!',
       }
     };
     
@@ -279,6 +280,30 @@ export default function PaymentSettings() {
 
 
 
+  // Helper function to sanitize text and fix encoding issues
+  const sanitizeText = (text: string): string => {
+    if (!text) return text;
+    return text
+      .replace(/�/g, "'")  // Replace placeholder with apostrophe
+      .replace(/â€™/g, "'") // Fix UTF-8 encoding issue for apostrophe
+      .replace(/â€œ/g, '"') // Fix UTF-8 encoding issue for left quote
+      .replace(/â€/g, '"')  // Fix UTF-8 encoding issue for right quote
+      .replace(/â€"/g, '-') // Fix UTF-8 encoding issue for dash
+      .replace(/Â /g, ' ')  // Fix non-breaking space
+      .replace(/\?{2,}/g, "'"); // Replace multiple ? marks with apostrophe
+  };
+
+  // Helper function to sanitize template objects
+  const sanitizeTemplate = (template: any): any => {
+    const sanitized = { ...template };
+    Object.keys(sanitized).forEach(key => {
+      if (typeof sanitized[key] === 'string') {
+        sanitized[key] = sanitizeText(sanitized[key]);
+      }
+    });
+    return sanitized;
+  };
+
   // Load settings and templates on mount
   useEffect(() => {
     try {
@@ -305,21 +330,33 @@ export default function PaymentSettings() {
         if (settings.draftInvoiceMonthlySubscription !== undefined) setDraftInvoiceMonthlySubscription(settings.draftInvoiceMonthlySubscription);
       }
       
-      // Load templates
+      // Load templates with sanitization
       const savedReminderTemplates = localStorage.getItem('reminderTemplates');
       if (savedReminderTemplates) {
-        setReminderTemplates(JSON.parse(savedReminderTemplates));
+        const templates = JSON.parse(savedReminderTemplates);
+        const sanitizedTemplates = templates.map((t: any) => sanitizeTemplate(t));
+        setReminderTemplates(sanitizedTemplates);
+        // Re-save sanitized templates
+        localStorage.setItem('reminderTemplates', JSON.stringify(sanitizedTemplates));
       }
       
       const savedInvoiceTemplates = localStorage.getItem('invoiceTemplates');
       if (savedInvoiceTemplates) {
-        setInvoiceTemplates(JSON.parse(savedInvoiceTemplates));
+        const templates = JSON.parse(savedInvoiceTemplates);
+        const sanitizedTemplates = templates.map((t: any) => sanitizeTemplate(t));
+        setInvoiceTemplates(sanitizedTemplates);
+        // Re-save sanitized templates
+        localStorage.setItem('invoiceTemplates', JSON.stringify(sanitizedTemplates));
       }
 
-      // Load custom templates
+      // Load custom templates with sanitization
       const savedCustomReminderTemplates = localStorage.getItem('customReminderTemplates');
       if (savedCustomReminderTemplates) {
-        setCustomReminderTemplates(JSON.parse(savedCustomReminderTemplates));
+        const templates = JSON.parse(savedCustomReminderTemplates);
+        const sanitizedTemplates = templates.map((t: any) => sanitizeTemplate(t));
+        setCustomReminderTemplates(sanitizedTemplates);
+        // Re-save sanitized templates
+        localStorage.setItem('customReminderTemplates', JSON.stringify(sanitizedTemplates));
       }
     } catch (err) {
       console.error("Error loading settings:", err);
@@ -337,28 +374,37 @@ export default function PaymentSettings() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            onClick={handleSaveSettings}
-            disabled={saving}
-            className="bg-purple-600 hover:bg-purple-700 !text-white"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {saving ? 'Saving...' : 'Save All Settings'}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={handleSaveSettings}
+                  disabled={saving}
+                  className="bg-purple-600 hover:bg-purple-700 !text-white"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {saving ? 'Saving...' : 'Save All Settings'}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Save all payment configuration changes</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
       <Tabs defaultValue="payment-types" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-white border-2 border-purple-200">
-          <TabsTrigger value="payment-types" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+        <TabsList className="grid w-full grid-cols-3 bg-white border-2 border-purple-200 h-auto p-1 gap-1">
+          <TabsTrigger value="payment-types" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white py-3 px-4 rounded-md">
             <CreditCard className="h-4 w-4 mr-2" />
             Payment Categories
           </TabsTrigger>
-          <TabsTrigger value="reminders" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger value="reminders" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white py-3 px-4 rounded-md">
             <Bell className="h-4 w-4 mr-2" />
             Reminders
           </TabsTrigger>
-          <TabsTrigger value="invoices" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+          <TabsTrigger value="invoices" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white py-3 px-4 rounded-md">
             <FileText className="h-4 w-4 mr-2" />
             Invoices
           </TabsTrigger>
@@ -428,13 +474,22 @@ export default function PaymentSettings() {
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Number of Installments</Label>
                       <div className="flex items-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setInstallmentsCount(Math.max(2, installmentsCount - 1))}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setInstallmentsCount(Math.max(2, installmentsCount - 1))}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Decrease installments (min 2)</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         <Input
                           type="number"
                           value={installmentsCount}
@@ -443,13 +498,22 @@ export default function PaymentSettings() {
                           min="2"
                           max="5"
                         />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setInstallmentsCount(Math.min(5, installmentsCount + 1))}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setInstallmentsCount(Math.min(5, installmentsCount + 1))}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Increase installments (max 5)</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         <span className="text-sm text-gray-600 dark:text-white">installments</span>
                       </div>
                     </div>
@@ -699,20 +763,29 @@ export default function PaymentSettings() {
                       </Select>
                     </div>
                     <div className="flex items-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          if (selectedReminderTemplate) {
-                            const template = reminderTemplates.find(t => t.category === selectedReminderTemplate) || createDefaultReminderTemplate(selectedReminderTemplate as any);
-                            setEditingReminderTemplate(template);
-                          }
-                        }}
-                        disabled={!selectedReminderTemplate}
-                      >
-                        <FileText className="h-4 w-4 mr-1" />
-                        Edit Template
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                if (selectedReminderTemplate) {
+                                  const template = reminderTemplates.find(t => t.category === selectedReminderTemplate) || createDefaultReminderTemplate(selectedReminderTemplate as any);
+                                  setEditingReminderTemplate(template);
+                                }
+                              }}
+                              disabled={!selectedReminderTemplate}
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              Edit Template
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Customize email reminder template</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
 
@@ -815,27 +888,45 @@ export default function PaymentSettings() {
                         </div>
 
                         <div className="flex justify-end gap-2 pt-4 border-t">
-                          <Button
-                            variant="outline"
-                            onClick={() => setEditingReminderTemplate(null)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              // Save template logic
-                              const updatedTemplates = reminderTemplates.filter(t => t.category !== editingReminderTemplate.category);
-                              updatedTemplates.push(editingReminderTemplate);
-                              setReminderTemplates(updatedTemplates);
-                              localStorage.setItem('reminderTemplates', JSON.stringify(updatedTemplates));
-                              setEditingReminderTemplate(null);
-                              toast({ title: "Template Saved", description: "Email template has been saved successfully!" });
-                            }}
-                            className="bg-purple-600 hover:bg-purple-700"
-                          >
-                            <Save className="h-4 w-4 mr-2" />
-                            Save Template
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setEditingReminderTemplate(null)}
+                                >
+                                  Cancel
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Discard template changes</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  onClick={() => {
+                                    // Save template logic
+                                    const updatedTemplates = reminderTemplates.filter(t => t.category !== editingReminderTemplate.category);
+                                    updatedTemplates.push(editingReminderTemplate);
+                                    setReminderTemplates(updatedTemplates);
+                                    localStorage.setItem('reminderTemplates', JSON.stringify(updatedTemplates));
+                                    setEditingReminderTemplate(null);
+                                    toast({ title: "Template Saved", description: "Email template has been saved successfully!" });
+                                  }}
+                                  className="bg-purple-600 hover:bg-purple-700"
+                                >
+                                  <Save className="h-4 w-4 mr-2" />
+                                  Save Template
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Save reminder template changes</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       </CardContent>
                     </Card>
@@ -1126,27 +1217,45 @@ export default function PaymentSettings() {
                           </div>
 
                           <div className="flex justify-end gap-2 pt-4 border-t">
-                            <Button
-                              variant="outline"
-                              onClick={() => setEditingInvoiceTemplate(null)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                // Save template logic
-                                const updatedTemplates = invoiceTemplates.filter(t => t.category !== editingInvoiceTemplate.category);
-                                updatedTemplates.push(editingInvoiceTemplate);
-                                setInvoiceTemplates(updatedTemplates);
-                                localStorage.setItem('invoiceTemplates', JSON.stringify(updatedTemplates));
-                                setEditingInvoiceTemplate(null);
-                                toast({ title: "Template Saved", description: "Invoice template has been saved successfully!" });
-                              }}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <Save className="h-4 w-4 mr-2" />
-                              Save Template
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => setEditingInvoiceTemplate(null)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Discard template changes</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    onClick={() => {
+                                      // Save template logic
+                                      const updatedTemplates = invoiceTemplates.filter(t => t.category !== editingInvoiceTemplate.category);
+                                      updatedTemplates.push(editingInvoiceTemplate);
+                                      setInvoiceTemplates(updatedTemplates);
+                                      localStorage.setItem('invoiceTemplates', JSON.stringify(updatedTemplates));
+                                      setEditingInvoiceTemplate(null);
+                                      toast({ title: "Template Saved", description: "Invoice template has been saved successfully!" });
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    <Save className="h-4 w-4 mr-2" />
+                                    Save Template
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Save invoice template changes</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                         </CardContent>
                       </Card>
@@ -1185,18 +1294,27 @@ export default function PaymentSettings() {
                                       {hasCustomTemplate ? "Custom" : "Default"}
                                     </Badge>
                                   </div>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      const template = invoiceTemplates.find(t => t.category === cat.id) || createDefaultInvoiceTemplate(cat.id as any);
-                                      setEditingInvoiceTemplate(template);
-                                    }}
-                                    className="text-xs px-2 py-1"
-                                  >
-                                    <FileText className="h-3 w-3 mr-1" />
-                                    Edit
-                                  </Button>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => {
+                                            const template = invoiceTemplates.find(t => t.category === cat.id) || createDefaultInvoiceTemplate(cat.id as any);
+                                            setEditingInvoiceTemplate(template);
+                                          }}
+                                          className="text-xs px-2 py-1"
+                                        >
+                                          <FileText className="h-3 w-3 mr-1" />
+                                          Edit
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Customize invoice template</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
                                 </div>
                                 <p className="text-xs text-gray-500 dark:text-white mb-3">
                                   {hasCustomTemplate ? "Using customized template" : "Using system default template"}

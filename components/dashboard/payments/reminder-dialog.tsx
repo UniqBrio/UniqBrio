@@ -12,8 +12,9 @@ import {
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Textarea } from "@/components/dashboard/ui/textarea";
-import { X, Mail, Smartphone, MessageSquare, Phone, Edit, Eye } from "lucide-react";
+import { X, Mail, Smartphone, MessageSquare, Phone, Edit, Eye, Loader2 } from "lucide-react";
 import { type Payment } from "@/types/dashboard/payment";
+import { useToast } from "@/hooks/dashboard/use-toast";
 
 interface ReminderDialogProps {
   payment: Payment | null;
@@ -28,9 +29,11 @@ export function ReminderDialog({
 }: ReminderDialogProps) {
   const { currency } = useCurrency();
   const { primaryColor, secondaryColor } = useCustomColors();
+  const { toast } = useToast();
   const [selectedMode, setSelectedMode] = useState<"email" | "inapp" | "whatsapp" | "sms">("email");
   const [isEditing, setIsEditing] = useState(false);
   const [messageContent, setMessageContent] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   const communicationModes = [
     { id: "email", label: "Email", icon: Mail },
@@ -43,7 +46,7 @@ export function ReminderDialog({
     if (!payment) return "";
     
     if (selectedMode === "inapp") {
-      return `?? In-App Notification
+      return `📱 In-App Notification
 
 Payment Reminder for ${payment.studentName}
 
@@ -54,8 +57,8 @@ Course: ${payment.enrolledCourseName}
 Outstanding: ${currency}${(payment.outstandingAmount || 0).toLocaleString()}
 
 Tap to pay now via:
-� UPI: -
-� Payment Link: -
+• UPI: -
+• Payment Link: -
 
 - UniqBrio Team`;
     }
@@ -73,8 +76,8 @@ Course: ${payment.enrolledCourseName}
 Outstanding: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
 
 Tap to pay now via:
-� UPI: -
-� Payment Link: -
+• UPI: -
+• Payment Link: -
 
 Best regards,
 UniqBrio Support Team.
@@ -85,17 +88,17 @@ ___________________________________________
 Best regards,
 UniqBrio Academic Team
 
-?? Email: support@uniqbrio.com
-?? Phone: +91-XXXXX-XXXXX
-?? Website: www.uniqbrio.com
+📧 Email: support@uniqbrio.com
+📞 Phone: +91-XXXXX-XXXXX
+🌐 Website: www.uniqbrio.com
 
 Payment QR
 
 Included Payment Options:
-� UPI ID: -
-� Payment Link
-� Amount: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
-� Course: ${payment.enrolledCourse || "N/A"}
+• UPI ID: -
+• Payment Link
+• Amount: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
+• Course: ${payment.enrolledCourse || "N/A"}
 
 QR auto-generated for Email & WhatsApp previews.`;
   };
@@ -117,11 +120,52 @@ QR auto-generated for Email & WhatsApp previews.`;
     setMessageContent(getDefaultMessageContent());
   };
 
-  const handleSendReminder = () => {
-    // Implement send reminder logic here
-    console.log(`Sending ${selectedMode} reminder for payment:`, payment?.id);
-    console.log("Message content:", messageContent);
-    onOpenChange(false);
+  const handleSendReminder = async () => {
+    if (!payment || !payment.studentId) {
+      toast({
+        title: "Error",
+        description: "Student ID is missing. Cannot send reminder.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const response = await fetch('/api/dashboard/payments/reminders/manual', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          studentId: payment.studentId,
+          paymentId: payment.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reminder');
+      }
+
+      toast({
+        title: "Reminder Sent Successfully",
+        description: `Payment reminder has been sent to ${data.sentTo || 'the student'}`,
+      });
+
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error('Error sending reminder:', error);
+      toast({
+        title: "Failed to Send Reminder",
+        description: error.message || "An error occurred while sending the reminder. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (!payment) return null;
@@ -161,7 +205,7 @@ QR auto-generated for Email & WhatsApp previews.`;
                   >
                     <Icon className="h-5 w-5" />
                     <span>{mode.label}</span>
-                    {isDisabled && <span className="text-xs">??</span>}
+                    {isDisabled && <span className="text-xs">🔒</span>}
                   </button>
                 );
               })}
@@ -231,7 +275,7 @@ QR auto-generated for Email & WhatsApp previews.`;
                   placeholder="Edit your reminder message here..."
                 />
                 <p className="text-xs text-gray-500 dark:text-white">
-                  ?? Tip: You can customize the message above. Click "Reset to Default" to restore the original template.
+                  💡 Tip: You can customize the message above. Click "Reset to Default" to restore the original template.
                 </p>
               </div>
             ) : (
@@ -245,17 +289,27 @@ QR auto-generated for Email & WhatsApp previews.`;
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isSending}
+            >
               Cancel
             </Button>
             <Button 
               className="text-white"
               style={{ backgroundColor: selectedMode === "email" ? primaryColor : secondaryColor }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = selectedMode === "email" ? `${primaryColor}dd` : `${secondaryColor}dd`}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedMode === "email" ? primaryColor : secondaryColor}
+              onMouseEnter={(e) => !isSending && (e.currentTarget.style.backgroundColor = selectedMode === "email" ? `${primaryColor}dd` : `${secondaryColor}dd`)}
+              onMouseLeave={(e) => !isSending && (e.currentTarget.style.backgroundColor = selectedMode === "email" ? primaryColor : secondaryColor)}
               onClick={handleSendReminder}
+              disabled={isSending}
             >
-              {selectedMode === "email" ? (
+              {isSending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : selectedMode === "email" ? (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
                   Send Email Reminder

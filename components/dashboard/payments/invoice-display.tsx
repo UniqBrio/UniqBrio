@@ -9,6 +9,21 @@ import { InvoiceBreakdown } from '@/types/dashboard/payment';
 import { formatCurrency, formatDate } from '@/lib/dashboard/payments/payment-record-helper';
 import { Download, Printer, FileText, Calendar, User, CreditCard } from 'lucide-react';
 
+interface AcademyInfo {
+  businessName?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zipCode?: string;
+  logo?: string;
+  tagline?: string;
+  taxId?: string;
+}
+
 interface InvoiceDisplayProps {
   invoice: InvoiceBreakdown;
   showActions?: boolean;
@@ -19,6 +34,7 @@ interface InvoiceDisplayProps {
   companyPhone?: string;
   companyEmail?: string;
   companyLogo?: string;
+  academyInfo?: AcademyInfo | null;
 }
 
 export default function InvoiceDisplay({
@@ -31,6 +47,7 @@ export default function InvoiceDisplay({
   companyPhone = '+91 XXXXXXXXXX',
   companyEmail = 'info@uniqbrio.com',
   companyLogo,
+  academyInfo,
 }: InvoiceDisplayProps) {
   const handlePrint = () => {
     if (onPrint) {
@@ -64,15 +81,42 @@ export default function InvoiceDisplay({
           {/* Company Header */}
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              {companyLogo ? (
-                <img src={companyLogo} alt={companyName} className="h-12 mb-2" />
+              {(academyInfo?.logo || companyLogo) ? (
+                <img 
+                  src={academyInfo?.logo || companyLogo} 
+                  alt={academyInfo?.businessName || companyName} 
+                  className="h-12 mb-2" 
+                />
               ) : (
-                <h1 className="text-2xl font-bold text-primary">{companyName}</h1>
+                <h1 className="text-2xl font-bold text-primary">
+                  {academyInfo?.businessName || companyName}
+                </h1>
               )}
-              <p className="text-sm text-muted-foreground">{companyAddress}</p>
-              <p className="text-sm text-muted-foreground">
-                {companyPhone} | {companyEmail}
-              </p>
+              {academyInfo?.tagline && (
+                <p className="text-sm text-muted-foreground font-medium">{academyInfo.tagline}</p>
+              )}
+              <div className="text-sm text-muted-foreground space-y-1">
+                {academyInfo?.address ? (
+                  <p>
+                    {academyInfo.address}
+                    {academyInfo.city && `, ${academyInfo.city}`}
+                    {academyInfo.state && `, ${academyInfo.state}`}
+                    {academyInfo.zipCode && ` - ${academyInfo.zipCode}`}
+                    {academyInfo.country && `, ${academyInfo.country}`}
+                  </p>
+                ) : (
+                  <p>{companyAddress}</p>
+                )}
+                <p>
+                  {academyInfo?.phone || companyPhone} | {academyInfo?.email || companyEmail}
+                </p>
+                {academyInfo?.website && (
+                  <p>Website: {academyInfo.website}</p>
+                )}
+                {academyInfo?.taxId && (
+                  <p>Tax ID: {academyInfo.taxId}</p>
+                )}
+              </div>
             </div>
             <div className="text-right space-y-1">
               <Badge variant="outline" className="mb-2">

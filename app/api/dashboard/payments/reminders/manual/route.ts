@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
+import Student from '@/models/dashboard/student/Student';
 import { sendPaymentReminderEmail } from '@/lib/dashboard/email-service';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
@@ -28,6 +29,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { paymentId, studentId } = body;
 
+    console.log('[Manual Reminder API] Received request:', {
+      paymentId,
+      studentId,
+      paymentIdType: typeof paymentId,
+      paymentIdLength: paymentId?.length
+    });
+
     if (!paymentId && !studentId) {
       return NextResponse.json(
         { error: 'Either paymentId or studentId is required' },
@@ -36,12 +44,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Find payment record with tenant isolation
-    let payment;
-    if (paymentId) {
-      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId });
-    } else {
-      payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
-    }
+    // Use studentId since the id field mapping is unreliable
+    const payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
 
     if (!payment) {
       return NextResponse.json(
@@ -66,10 +70,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch student email from Student collection
+    const student = await Student.findOne({ 
+      studentId: payment.studentId, 
+      tenantId: session.tenantId 
+    });
+
+    if (!student || !student.email) {
+      return NextResponse.json(
+        { error: 'Student email not found. Cannot send reminder.' },
+        { status: 400 }
+      );
+    }
+
     // Send reminder email
     try {
       await sendPaymentReminderEmail(
-        payment.studentEmail || '',
+        student.email,
         payment.studentName,
         {
           courseName: payment.enrolledCourseName || 'Course',
@@ -89,6 +106,7 @@ export async function POST(request: NextRequest) {
         message: 'Reminder sent successfully',
         reminderCount: payment.remindersCount,
         lastSentAt: payment.lastReminderSentAt,
+        sentTo: student.email,
       });
     } catch (emailError: any) {
       console.error('Error sending reminder email:', emailError);

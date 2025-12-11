@@ -48,6 +48,24 @@ export async function GET(request: NextRequest) {
         
         // Get all existing payment records with explicit tenantId filter
         const payments = await Payment.find({ tenantId: session.tenantId }).lean().exec();
+        
+        console.log(`[all-students] Fetched ${payments.length} payments from DB`);
+        
+        // Debug: Check what _id looks like for STU0018
+        const testPayment = payments.find((p: any) => p.studentId === 'STU0018');
+        if (testPayment) {
+          console.log('[all-students] Raw payment from DB (STU0018):', {
+            _id: testPayment._id,
+            _idType: typeof testPayment._id,
+            _idConstructor: testPayment._id?.constructor?.name,
+            _idString: String(testPayment._id),
+            _idToString: testPayment._id?.toString?.(),
+            studentId: testPayment.studentId,
+            hasId: 'id' in testPayment,
+            id: (testPayment as any).id,
+            allKeys: Object.keys(testPayment)
+          });
+        }
     
     // Get all cohorts to fetch course IDs and cohort names
     const allCohortIds = Array.from(new Set([
@@ -276,8 +294,8 @@ export async function GET(request: NextRequest) {
           outstandingAmount = Math.max(0, outstandingAmount);
         }
         
-        return {
-          id: payment._id?.toString() || payment.studentId,
+        const paymentData = {
+          id: String(payment._id),
           studentId: payment.studentId,
           studentName: payment.studentName,
           studentCategory: courseDetails?.paymentCategory || payment.studentCategory || 'Not Set',
@@ -308,6 +326,18 @@ export async function GET(request: NextRequest) {
           monthlyInstallment: payment.monthlyInstallment,
           emiSchedule: payment.emiSchedule,
         };
+        
+        // Log first payment for debugging
+        if (payment.studentId === 'STU0018') {
+          console.log('[all-students] Sample payment STU0018:', {
+            id: paymentData.id,
+            studentId: paymentData.studentId,
+            _id: payment._id,
+            idLength: paymentData.id.length
+          });
+        }
+        
+        return paymentData;
       } else {
         // Student doesn't have a payment record yet - show with defaults and dynamic course fee
         // Get courseId from cohort first, then fall back to enrolledCourse/courseOfInterestId
