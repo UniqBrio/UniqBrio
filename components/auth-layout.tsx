@@ -50,7 +50,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-6 max-w-lg mx-auto"> {/* Added max-w-lg and mx-auto */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-6 max-w-2xl mx-auto"> {/* Changed to 3 columns */}
             <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-purple-100 dark:border-purple-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-purple-300 dark:hover:border-purple-500 group">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
                 <svg
@@ -136,6 +136,50 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               </div>
               <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Staff Management</h3>
               <p className="text-xs text-gray-600 dark:text-white">Coordinate your team</p>
+            </div>
+
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-teal-100 dark:border-teal-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-teal-300 dark:hover:border-teal-500 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">Students Management</h3>
+              <p className="text-xs text-gray-600 dark:text-white">Track learner progress</p>
+            </div>
+
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-emerald-100 dark:border-emerald-700 hover:shadow-xl hover:scale-105 transition-all duration-300 hover:border-emerald-300 dark:hover:border-emerald-500 group">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 11l3 3L22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-base mb-1 text-gray-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Attendance Tracking</h3>
+              <p className="text-xs text-gray-600 dark:text-white">Monitor daily attendance</p>
             </div>
           </div>
         </div>

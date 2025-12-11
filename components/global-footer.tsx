@@ -12,6 +12,7 @@ import {
 import { TermsContent } from "@/components/legal/terms-content"
 import { PrivacyContent } from "@/components/legal/privacy-content"
 import { CookiesContent } from "@/components/legal/cookies-content"
+import { RefundsContent } from "@/components/legal/refunds-content"
 
 const CookiePreferencesModal = dynamic(() => import("@/components/cookie-preferences-modal"), { ssr: false })
 
@@ -69,6 +70,20 @@ export default function GlobalFooter() {
                     <DialogTitle>Cookie Policy</DialogTitle>
                   </DialogHeader>
                   <CookiesContent />
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-gray-600 dark:text-white hover:text-purple-700 dark:hover:text-purple-400 hover:underline transition-colors">
+                    Refunds & Cancellations
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Refund & Cancellation Policy</DialogTitle>
+                  </DialogHeader>
+                  <RefundsContent />
                 </DialogContent>
               </Dialog>
 

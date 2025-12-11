@@ -260,8 +260,17 @@ const Dashboard = () => {
           {/* Pending KYC - Show warning with days left (only if NOT rejected) */}
           {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
             <div className="w-full bg-orange-100 dark:bg-orange-900/30 border-b-2 border-orange-400 dark:border-orange-600 text-orange-800 dark:text-orange-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
-              Please complete verification to continue using the amazing features of UniqBrio —
-              <span className="ml-2 font-bold">{kycDaysLeft} days</span> of verification pending.
+              <div className="flex items-center justify-center flex-wrap gap-2">
+                <span>Verify your account to receive payments securely and enjoy full UniqBrio features. Only takes 2 minutes --</span>
+                <button
+                  onClick={() => setShowKycForm(true)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors shadow-md hover:shadow-lg"
+                >
+                  Verify Now
+                </button>
+                <span className="font-italic">{kycDaysLeft} days</span>
+                <span>remaining.</span>
+              </div>
             </div>
           )}
           
@@ -382,22 +391,6 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Verification Button - show for pending, rejected, or expired KYCs */}
-      {!showKycForm && (kycStatus === "pending" || kycStatus === "rejected" || kycStatus === "expired" || (!kycStatus && kycStatus !== "submitted" && kycStatus !== "verified")) && (
-        <div className="flex justify-end mb-4">
-          <button
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              kycStatus === "rejected" 
-                ? "bg-red-600 text-white hover:bg-red-700" 
-                : "bg-purple-600 text-white hover:bg-purple-700"
-            }`}
-            onClick={() => setShowKycForm(true)}
-          >
-            {kycStatus === "rejected" ? "Upload KYC Again" : "Verification"}
-          </button>
         </div>
       )}
 
