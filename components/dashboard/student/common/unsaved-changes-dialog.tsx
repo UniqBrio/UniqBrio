@@ -2,6 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
+import { X } from "lucide-react";
 import React from "react";
 
 interface UnsavedChangesDialogProps {

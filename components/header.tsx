@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Bell, SettingsIcon, User, ChevronDown, LogOut, Check, Clock, AlertCircle } from "lucide-react"
+import { Bell, SettingsIcon, User, ChevronDown, LogOut, Check, Clock, AlertCircle, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
@@ -57,6 +57,7 @@ export default function Header(props: HeaderProps) {
   const [notificationsList, setNotificationsList] = useState<HeaderNotification[]>([])
   const [loadingNotifications, setLoadingNotifications] = useState(false)
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [notificationsMenuOpen, setNotificationsMenuOpen] = useState(false)
   const notificationHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
@@ -159,6 +160,7 @@ export default function Header(props: HeaderProps) {
   }
 
   const handleLogout = async () => {
+    setIsLoggingOut(true)
     try {
       // Broadcast logout to other tabs before logging out
       clearTabSession()
@@ -173,6 +175,7 @@ export default function Header(props: HeaderProps) {
       router.push("/login")
     } catch (error) {
       console.error("Logout error:", error)
+      setIsLoggingOut(false)
     }
   }
 
@@ -436,19 +439,28 @@ export default function Header(props: HeaderProps) {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setLogoutDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setLogoutDialogOpen(false)} disabled={isLoggingOut}>
                 Cancel
               </Button>
               <Button 
                 variant="destructive" 
                 onClick={() => {
-                  setLogoutDialogOpen(false)
                   handleLogout()
                 }}
                 className="bg-red-600 hover:bg-red-700"
+                disabled={isLoggingOut}
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Log Out
+                {isLoggingOut ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Logging out...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Log Out
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

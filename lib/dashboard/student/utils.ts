@@ -8,12 +8,12 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Converts an ISO date string (e.g. "2025-10-10")
- * into a readable format like "10-Oct-2025".
+ * into a readable format like "10-Oct-25".
  */
 export function formatDateForDisplay(dateString: string): string {
   if (!dateString) return '';
   try {
-    return format(new Date(dateString), 'dd-MMM-yyyy');
+    return format(new Date(dateString), 'dd-MMM-yy');
   } catch {
     return dateString; // fallback if parsing fails
   }

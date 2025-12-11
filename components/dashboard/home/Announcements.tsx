@@ -4,6 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard
 import { Megaphone, Trophy, AlertCircle, Info, Sparkles, X, Bell, BellRing, Loader2 } from "lucide-react";
 import { useCustomColors } from "@/lib/use-custom-colors";
 
+// Validate URL to prevent XSS via javascript: or data: URLs
+function isValidUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 interface Announcement {
   id: string;
   type: "update" | "achievement" | "alert" | "info";
@@ -299,12 +310,13 @@ export function Announcements({
                               </span>
 
                               <div className="flex items-center gap-2">
-                                {announcement.link && (
+                                {isValidUrl(announcement.link) && (
                                   <a
                                     href={announcement.link}
                                     onClick={() => markAsRead(announcement.id)}
                                     className="text-[10px] hover:underline font-semibold"
                                     style={{ color: primaryColor }}
+                                    rel="noopener noreferrer"
                                   >
                                     Learn More
                                   </a>

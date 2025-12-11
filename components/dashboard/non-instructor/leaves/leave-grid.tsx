@@ -5,7 +5,7 @@ import { format } from "date-fns"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { Button } from "@/components/dashboard/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
-import { Trash2, Pencil, Calendar as CalendarIcon } from "lucide-react"
+import { Trash2, Pencil, Calendar as CalendarIcon, X } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -706,7 +706,12 @@ export default function LeaveGrid({ searchQuery, filters, sortBy = "startDate", 
       <AlertDialog open={unsavedEditOpen} onOpenChange={setUnsavedEditOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <div className="flex items-center justify-between">
+              <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+              <Button variant="ghost" size="sm" onClick={() => setUnsavedEditOpen(false)} className="h-6 w-6 p-0">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
             <AlertDialogDescription>
               You have unsaved changes in your leave request. What would you like to do?
             </AlertDialogDescription>

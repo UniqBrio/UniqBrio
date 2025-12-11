@@ -117,7 +117,11 @@ const PaymentTab: React.FC<PaymentTabProps> = ({ form, setForm }) => {
                     <CommandInput
                       placeholder="Search or add providers..."
                       value={providerSearch}
-                      onValueChange={setProviderSearch}
+                      onValueChange={(value) => {
+                        // Only allow letters, spaces, and basic punctuation (no numbers)
+                        const filtered = value.replace(/[0-9]/g, '')
+                        setProviderSearch(filtered)
+                      }}
                       onKeyDown={async (e: React.KeyboardEvent<HTMLInputElement>) => {
                         const query = providerSearch.trim()
                         const exists = getAllProviders().some(p => p.label.toLowerCase() === query.toLowerCase())

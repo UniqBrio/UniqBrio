@@ -7,6 +7,8 @@ import { ensureDeviceId } from "@/lib/cookies"
 // Broadcast channel for cross-tab communication
 const BROADCAST_CHANNEL_NAME = "uniqbrio_session_sync"
 const SESSION_STORAGE_KEY = "current_tab_session"
+// Hardcoded interval for session checks (in milliseconds) - not derived from user input
+const SESSION_CHECK_INTERVAL_MS = 5000 as const
 
 interface TabSession {
   id: string
@@ -59,11 +61,30 @@ export default function MultiTabSessionHandler() {
   const broadcastChannelRef = useRef<BroadcastChannel | null>(null)
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Validate session data structure to prevent code injection
+  const isValidTabSession = (data: unknown): data is TabSession => {
+    if (!data || typeof data !== 'object') return false
+    const session = data as Record<string, unknown>
+    return (
+      typeof session.id === 'string' &&
+      typeof session.email === 'string' &&
+      typeof session.timestamp === 'number' &&
+      (session.tenantId === undefined || typeof session.tenantId === 'string') &&
+      // Validate email format to prevent injection
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(session.email) &&
+      // Ensure id is alphanumeric/safe
+      /^[a-zA-Z0-9_-]+$/.test(session.id)
+    )
+  }
+
   // Get the stored session for this specific tab
   const getTabSession = useCallback((): TabSession | null => {
     try {
       const stored = sessionStorage.getItem(SESSION_STORAGE_KEY)
-      return stored ? JSON.parse(stored) : null
+      if (!stored) return null
+      const parsed: unknown = JSON.parse(stored)
+      // Validate parsed data before returning
+      return isValidTabSession(parsed) ? parsed : null
     } catch {
       return null
     }
@@ -188,8 +209,9 @@ export default function MultiTabSessionHandler() {
       }
     }
 
-    // Periodic check every 5 seconds (backup for edge cases)
-    checkIntervalRef.current = setInterval(checkSessionSync, 5000)
+    // Periodic check using hardcoded constant (backup for edge cases)
+    // Note: SESSION_CHECK_INTERVAL_MS is a compile-time constant, not user input
+    checkIntervalRef.current = setInterval(checkSessionSync, SESSION_CHECK_INTERVAL_MS)
 
     // Also check when window gains focus (user switches tabs)
     const handleFocus = () => {

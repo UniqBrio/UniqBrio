@@ -29,6 +29,7 @@ export async function GET() {
   const [instructorList, leaveRequests, leaveDrafts, leavePolicy, courses, cohorts] = await Promise.all([
       Instructor.find({ 
         tenantId: session.tenantId,
+        status: { $ne: 'Inactive' },
         $or: [
           { isDeleted: { $exists: false } },
           { isDeleted: false }

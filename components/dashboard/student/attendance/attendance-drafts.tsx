@@ -3,7 +3,7 @@
 import React, { forwardRef, useImperativeHandle } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
-import { FileText, RefreshCcw, Pencil, Trash2 } from "lucide-react";
+import { FileText, RefreshCcw, Pencil, Trash2, X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog";
 import { formatDateForDisplay, formatTimeTo12Hour } from "@/lib/dashboard/student/utils";
 import { useToast } from "@/hooks/dashboard/use-toast";
@@ -223,7 +223,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                       )}
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-600 dark:text-white">
                         <span className="inline-flex items-center gap-1">
-                          {formatDateForDisplay(d.date)} � {d.startTime ? formatTimeTo12Hour(d.startTime) : '--:--'} - {d.endTime ? formatTimeTo12Hour(d.endTime) : '--:--'}
+                          {formatDateForDisplay(d.date)} · {d.startTime ? formatTimeTo12Hour(d.startTime) : '--:--'} - {d.endTime ? formatTimeTo12Hour(d.endTime) : '--:--'}
                         </span>
                         <span className="inline-flex items-center">
                           <span className="px-2 py-0.5 rounded-full text-purple-700 bg-purple-100 border border-purple-300 text-[11px]">{(d.status||'').charAt(0).toUpperCase() + (d.status||'').slice(1)}</span>
@@ -265,7 +265,12 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
   <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Draft</AlertDialogTitle>
+          <div className="flex items-center justify-between">
+            <AlertDialogTitle>Delete Draft</AlertDialogTitle>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} className="h-6 w-6 p-0">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <AlertDialogDescription>
             {draftToDelete ? (
               <>Are you sure you want to delete the draft for <span className="font-medium">{draftToDelete.studentName}</span> ({draftToDelete.studentId})? This action cannot be undone.</>

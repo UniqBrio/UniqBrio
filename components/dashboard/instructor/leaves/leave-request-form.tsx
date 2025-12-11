@@ -11,7 +11,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
-import { ChevronsUpDown, Check, ChevronDown, Save } from "lucide-react"
+import { ChevronsUpDown, Check, ChevronDown, Save, X } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/dashboard/ui/hover-card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -23,6 +23,7 @@ import { ScrollArea } from "@/components/dashboard/ui/scroll-area"
 import { format } from "date-fns"
 import { cn } from "@/lib/dashboard/staff/utils"
 import { useLeave } from "@/contexts/dashboard/leave-context"
+import { useToast } from "@/hooks/dashboard/use-toast"
 import type { LeaveRequest } from "@/types/dashboard/staff/leave"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
 import { convertDraftToLeaveRequest, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft, createLeaveRequest } from "@/lib/dashboard/staff/api"
@@ -54,6 +55,7 @@ interface LeaveRequestFormProps {
 
 export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormProps) {
   const { state, dispatch } = useLeave()
+  const { toast } = useToast()
   // No default instructor selection; user should choose explicitly
   const [formData, setFormData] = useState({
     instructorId: (draft?.instructorId || "") as string,
@@ -218,13 +220,21 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     e.preventDefault()
 
     if (!formData.instructorId || !formData.instructorName || !formData.leaveType || !formData.startDate || !formData.endDate || !formData.reason || !selectedJobLevel) {
-      alert("Please fill in all required fields, including Job Level.")
+      toast({
+        title: "Missing Required Fields",
+        description: "Please fill in all required fields, including Job Level.",
+        variant: "destructive",
+      })
       return
     }
 
     // Date range validation: end date must not be before start date
     if (formData.startDate && formData.endDate && formData.endDate < formData.startDate) {
-      alert("End date cannot be before the start date.")
+      toast({
+        title: "Invalid Date Range",
+        description: "End date cannot be before the start date.",
+        variant: "destructive",
+      })
       return
     }
 
@@ -233,7 +243,11 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
 
     const days = countWorkingDays(formData.startDate, formData.endDate)
     if (days <= 0) {
-      alert('Selected range contains no working days based on current configuration.')
+      toast({
+        title: "Invalid Date Range",
+        description: "Selected range contains no working days based on current configuration.",
+        variant: "destructive",
+      })
       return
     }
 
@@ -290,7 +304,11 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         await updateDraft(updatedDraftData)
       } catch (err) {
         console.error('Failed to update draft before conversion', err)
-        alert('Failed to update draft before conversion')
+        toast({
+          title: "Failed to Update Draft",
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        })
         return
       }
 
@@ -320,12 +338,20 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
             setShouldReopenDrafts(remaining > 0)
           } catch { setShouldReopenDrafts(false) }
         } else {
-          alert('Failed to submit draft: ' + (result.error || 'Unknown error'))
+          toast({
+            title: "Failed to Submit Draft",
+            description: result.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       } catch (err) {
         console.error('Error converting draft:', err)
-        alert('Failed to submit draft')
+        toast({
+          title: "Failed to Submit Draft",
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        })
         return
       }
       requestInstructorId = formData.instructorId
@@ -360,12 +386,20 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           crudSuccess('leave request', 'created')
           requestInstructorId = newRequest.instructorId
         } else {
-          alert('Failed to create leave request: ' + (result.error || 'Unknown error'))
+          toast({
+            title: "Failed to Create Leave Request",
+            description: result.error || 'Unknown error',
+            variant: "destructive",
+          })
           return
         }
       } catch (err) {
         console.error('Error creating leave request:', err)
-        alert('Failed to create leave request')
+        toast({
+          title: "Failed to Create Leave Request",
+          description: err instanceof Error ? err.message : 'Unknown error',
+          variant: "destructive",
+        })
         return
       }
     }
@@ -403,11 +437,14 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
                   setSelectedJobLevel(normalized)
                   setContractType(deriveContractType(inst) || "")
                 }}
-                instructors={state.instructors.slice(0, 500).map((inst) => ({
-                  id: inst.id,
-                  name: inst.displayName || inst.fullName || inst.name || inst.externalId || inst.instructorId || inst.id,
-                  code: inst.displayCode || inst.externalId || inst.instructorId || inst.id,
-                }))}
+                instructors={state.instructors
+                  .filter((inst) => inst.status !== 'Inactive' && inst.status !== 'Deleted')
+                  .slice(0, 500)
+                  .map((inst) => ({
+                    id: inst.id,
+                    name: inst.displayName || inst.fullName || inst.name || inst.externalId || inst.instructorId || inst.id,
+                    code: inst.displayCode || inst.externalId || inst.instructorId || inst.id,
+                  }))}
               />
             </div>
             <div className="space-y-2">
@@ -609,7 +646,12 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     <AlertDialog open={unsavedOpen} onOpenChange={setUnsavedOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <div className="flex items-center justify-between">
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <Button variant="ghost" size="sm" onClick={() => setUnsavedOpen(false)} className="h-6 w-6 p-0">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <AlertDialogDescription>
             You have unsaved changes in your leave request. What would you like to do?
           </AlertDialogDescription>

@@ -408,11 +408,13 @@ export default function SearchAndFilterBar({
                 <div className="flex flex-wrap gap-2">
                   <input
                     type="number"
+                    min="0"
                     className="w-20 px-2 py-1 text-xs border rounded"
                     placeholder="Min"
                     value={pendingFilters.experience[0]}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value) || 0
+                      const parsed = parseInt(e.target.value)
+                      const value = Number.isNaN(parsed) ? 0 : Math.max(0, parsed)
                       setPendingFilters({
                         ...pendingFilters,
                         experience: [value, pendingFilters.experience[1]]
@@ -422,11 +424,13 @@ export default function SearchAndFilterBar({
                   <span className="text-xs text-gray-500 dark:text-white self-center">to</span>
                   <input
                     type="number"
+                    min="0"
                     className="w-20 px-2 py-1 text-xs border rounded"
                     placeholder="Max"
                     value={pendingFilters.experience[1]}
                     onChange={(e) => {
-                      const value = e.target.value === '' ? 50 : parseInt(e.target.value)
+                      const parsed = parseInt(e.target.value)
+                      const value = Number.isNaN(parsed) ? 50 : Math.max(0, parsed)
                       setPendingFilters({
                         ...pendingFilters,
                         experience: [pendingFilters.experience[0], value]

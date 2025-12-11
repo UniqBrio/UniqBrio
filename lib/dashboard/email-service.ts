@@ -277,11 +277,12 @@ export async function sendPaymentReminderEmail(
     amount: number;
     outstandingBalance: number;
     currency?: string; // Currency symbol
+    academyName?: string; // Academy name from settings
   }
 ): Promise<boolean> {
-  const { courseName, dueDate, amount, outstandingBalance, currency = '' } = reminderDetails;
+  const { courseName, dueDate, amount, outstandingBalance, currency = '', academyName = 'Academy' } = reminderDetails;
 
-  const subject = '⏰ Payment Reminder - UniqBrio';
+  const subject = `⏰ Payment Reminder - ${academyName}`;
 
   const html = `
     <!DOCTYPE html>
@@ -325,10 +326,10 @@ export async function sendPaymentReminderEmail(
           <p>Thank you for your cooperation!</p>
           
           <p>Best regards,<br>
-          <strong>UniqBrio Team</strong></p>
+          <strong>${academyName} Team</strong></p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} UniqBrio. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} ${academyName}. All rights reserved.</p>
         </div>
       </div>
     </body>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCurrency } from "@/contexts/currency-context";
 import { useCustomColors } from "@/lib/use-custom-colors";
 import {
@@ -11,10 +11,14 @@ import {
 } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge } from "@/components/dashboard/ui/badge";
-import { Textarea } from "@/components/dashboard/ui/textarea";
-import { X, Mail, Smartphone, MessageSquare, Phone, Edit, Eye, Loader2 } from "lucide-react";
+import { X, Mail, Smartphone, MessageSquare, Phone, Loader2 } from "lucide-react";
 import { type Payment } from "@/types/dashboard/payment";
 import { useToast } from "@/hooks/dashboard/use-toast";
+
+// Cache for academy information to avoid repeated API calls
+let cachedAcademyInfo: any = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 interface ReminderDialogProps {
   payment: Payment | null;
@@ -31,9 +35,19 @@ export function ReminderDialog({
   const { primaryColor, secondaryColor } = useCustomColors();
   const { toast } = useToast();
   const [selectedMode, setSelectedMode] = useState<"email" | "inapp" | "whatsapp" | "sms">("email");
-  const [isEditing, setIsEditing] = useState(false);
-  const [messageContent, setMessageContent] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [academyInfo, setAcademyInfo] = useState<{
+    businessName?: string;
+    email?: string;
+    phone?: string;
+  } | null>(() => {
+    // Use cached data if available and valid
+    if (cachedAcademyInfo && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+      return cachedAcademyInfo;
+    }
+    return null;
+  });
+  const fetchInProgress = useRef(false);
 
   const communicationModes = [
     { id: "email", label: "Email", icon: Mail },
@@ -42,82 +56,56 @@ export function ReminderDialog({
     { id: "sms", label: "SMS", icon: Phone, disabled: true },
   ];
 
-  const getDefaultMessageContent = () => {
-    if (!payment) return "";
-    
-    if (selectedMode === "inapp") {
-      return `📱 In-App Notification
-
-Payment Reminder for ${payment.studentName}
-
-Student ID: ${payment.studentId}
-Student Name: ${payment.studentName}
-Course ID: ${payment.enrolledCourse || "N/A"}
-Course: ${payment.enrolledCourseName}
-Outstanding: ${currency}${(payment.outstandingAmount || 0).toLocaleString()}
-
-Tap to pay now via:
-• UPI: -
-• Payment Link: -
-
-- UniqBrio Team`;
-    }
-
-    return `Subject: Payment Reminder - ${payment.enrolledCourseName}
-
-Dear ${payment.studentName},
-
-This is a payment reminder for your enrollment in ${payment.enrolledCourseName}.
-
-Student ID: ${payment.studentId}
-Student Name: ${payment.studentName}
-Course ID: ${payment.enrolledCourse || "N/A"}
-Course: ${payment.enrolledCourseName}
-Outstanding: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
-
-Tap to pay now via:
-• UPI: -
-• Payment Link: -
-
-Best regards,
-UniqBrio Support Team.
-support@uniqbrio.com
-
-___________________________________________
-
-Best regards,
-UniqBrio Academic Team
-
-📧 Email: support@uniqbrio.com
-📞 Phone: +91-XXXXX-XXXXX
-🌐 Website: www.uniqbrio.com
-
-Payment QR
-
-Included Payment Options:
-• UPI ID: -
-• Payment Link
-• Amount: ${currency} ${(payment.outstandingAmount || 0).toLocaleString()}
-• Course: ${payment.enrolledCourse || "N/A"}
-
-QR auto-generated for Email & WhatsApp previews.`;
-  };
-
-  // Update message content when mode changes or dialog opens
+  // Fetch academy information with caching
   useEffect(() => {
-    if (open && payment) {
-      setMessageContent(getDefaultMessageContent());
-      setIsEditing(false);
-    }
-  }, [open, selectedMode, payment]);
+    const fetchAcademyInfo = async () => {
+      if (!open) return;
+
+      // Check if we have valid cached data
+      const now = Date.now();
+      if (cachedAcademyInfo && (now - cacheTimestamp) < CACHE_DURATION) {
+        setAcademyInfo(cachedAcademyInfo);
+        return;
+      }
+
+      // Prevent concurrent fetches
+      if (fetchInProgress.current) return;
+      fetchInProgress.current = true;
+
+      try {
+        const response = await fetch('/api/dashboard/academy-info', {
+          credentials: 'include',
+          cache: 'force-cache',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.businessInfo) {
+            const business = data.businessInfo;
+            const info = {
+              businessName: business.businessName || business.academyName || 'Academy',
+              email: business.businessEmail || business.email || 'contact@academy.com',
+              phone: business.phoneNumber || business.phone || '+XX-XXXXX-XXXXX',
+            };
+            
+            // Update cache
+            cachedAcademyInfo = info;
+            cacheTimestamp = now;
+            setAcademyInfo(info);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching academy info:', error);
+      } finally {
+        fetchInProgress.current = false;
+      }
+    };
+
+    fetchAcademyInfo();
+  }, [open]);
 
   const handleModeChange = (mode: "email" | "inapp" | "whatsapp" | "sms") => {
     setSelectedMode(mode);
-    setIsEditing(false);
-  };
-
-  const handleResetMessage = () => {
-    setMessageContent(getDefaultMessageContent());
   };
 
   const handleSendReminder = async () => {
@@ -228,63 +216,25 @@ QR auto-generated for Email & WhatsApp previews.`;
             </div>
           </div>
 
-          
-
-          {/* Message Content */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">Message Content:</h3>
-              <div className="flex gap-2">
-                {isEditing && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleResetMessage}
-                    className="text-sm"
-                  >
-                    Reset to Default
-                  </Button>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="text-sm"
-                >
-                  {isEditing ? (
-                    <>
-                      <Eye className="mr-2 h-4 w-4" />
-                      Preview
-                    </>
-                  ) : (
-                    <>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit Message
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-            
-            {isEditing ? (
-              <div className="space-y-2">
-                <Textarea
-                  value={messageContent}
-                  onChange={(e) => setMessageContent(e.target.value)}
-                  className="min-h-[400px] font-mono text-sm"
-                  placeholder="Edit your reminder message here..."
-                />
-                <p className="text-xs text-gray-500 dark:text-white">
-                  💡 Tip: You can customize the message above. Click "Reset to Default" to restore the original template.
+          {/* Reminder Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-blue-900">Email Reminder</h4>
+                <p className="text-sm text-blue-700 mt-1">
+                  A payment reminder email will be sent to the student with the following details:
+                </p>
+                <ul className="text-sm text-blue-700 mt-2 list-disc list-inside space-y-1">
+                  <li>Course: {payment.enrolledCourseName}</li>
+                  <li>Outstanding Amount: {currency} {(payment.outstandingAmount || 0).toLocaleString()}</li>
+                  <li>Next Due Date: {payment.nextDueDate ? new Date(payment.nextDueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not set'}</li>
+                </ul>
+                <p className="text-sm text-blue-600 mt-3 font-medium">
+                  From: {academyInfo?.businessName || 'Your Academy'}
                 </p>
               </div>
-            ) : (
-              <div className="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto">
-                <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 dark:text-white">
-                  {messageContent}
-                </pre>
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Action Buttons */}

@@ -3,7 +3,7 @@
 import React, { forwardRef, useImperativeHandle } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
-import { FileText, RefreshCcw, Pencil, Trash2 } from "lucide-react";
+import { FileText, RefreshCcw, Pencil, Trash2, X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog";
 import { useToast } from "@/hooks/dashboard/use-toast";
 import { format as formatDateFns } from "date-fns";
@@ -209,7 +209,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                       {/* Removed Cohort Name from drafts list per requirement */}
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-600 dark:text-white">
                         <span className="inline-flex items-center gap-1">
-                          {new Date(d.date).toLocaleDateString('en-GB')} � {d.startTime || '--:--'} - {d.endTime || '--:--'}
+                          {formatDateFns(new Date(d.date), 'dd-MMM-yy')} · {d.startTime || '--:--'} - {d.endTime || '--:--'}
                         </span>
                         <span className="inline-flex items-center">
                           <span className="px-2 py-0.5 rounded-full text-purple-700 bg-purple-100 border border-purple-300 text-[11px]">{(d.status||'').charAt(0).toUpperCase() + (d.status||'').slice(1)}</span>
@@ -218,7 +218,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                       {d.notes && (
                         <div className="text-xs text-gray-500 dark:text-white mt-2 line-clamp-1" title={d.notes}>{d.notes}</div>
                       )}
-                      <div className="text-xs text-gray-500 dark:text-white mt-3">Last updated: {d.savedAt ? formatDateFns(new Date(d.savedAt), 'dd-MMM-yyyy') : formatDateFns(new Date(), 'dd-MMM-yyyy')}</div>
+                      <div className="text-xs text-gray-500 dark:text-white mt-3">Last updated: {d.savedAt ? formatDateFns(new Date(d.savedAt), 'dd-MMM-yy') : formatDateFns(new Date(), 'dd-MMM-yy')}</div>
                     </div>
                     <div className="shrink-0 flex items-center gap-2" onClick={(e)=> e.stopPropagation()}>
                       <button
@@ -247,7 +247,12 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
   <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Draft</AlertDialogTitle>
+          <div className="flex items-center justify-between">
+            <AlertDialogTitle>Delete Draft</AlertDialogTitle>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} className="h-6 w-6 p-0">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <AlertDialogDescription>
             {draftToDelete ? (
               <>Are you sure you want to delete the draft for <span className="font-medium">{draftToDelete.instructorName}</span> ({draftToDelete.instructorId})? This action cannot be undone.</>

@@ -1077,7 +1077,7 @@ export default function LeaveManagement() {
                     <div className="font-semibold text-lg">{d.title || 'Untitled Draft'}</div>
                     <div className="text-muted-foreground">{d.instructorName || d.instructorId}</div>
                     <div className="text-muted-foreground mt-1">
-                      {(d.startDate && d.endDate) ? `${d.startDate} - ${d.endDate}` : 'Dates not set'}
+                      {(d.startDate && d.endDate) ? `${formatDateFns(new Date(d.startDate), 'dd-MMM-yy')} - ${formatDateFns(new Date(d.endDate), 'dd-MMM-yy')}` : 'Dates not set'}
                     </div>
                     {d.jobLevel && (<span className="inline-block mt-2 rounded-full bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5">{d.jobLevel}</span>)}
                     <div className="text-xs text-muted-foreground mt-2">Last updated: {d.updatedAt ? formatDateFns(new Date(d.updatedAt), 'dd-MMM-yyyy') : '?'}</div>

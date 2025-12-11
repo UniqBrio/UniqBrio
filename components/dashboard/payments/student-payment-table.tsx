@@ -96,6 +96,38 @@ export function StudentPaymentTable({
     return () => clearTimeout(timeoutId);
   }, [payments, toast]);
 
+  // Helper function to check if reminder button should be disabled
+  const isReminderDisabled = (payment: Payment): boolean => {
+    // Always disabled for N/A status or fully paid
+    if (payment.status === "N/A" || payment.collectionRate >= 100) {
+      return true;
+    }
+    
+    // Disabled for Pending status (no payment made yet)
+    if (payment.status === "Pending") {
+      return true;
+    }
+    
+    // For recurring payments (Monthly subscriptions), only enable on or after next reminder date
+    const isRecurring = payment.paymentOption === 'Monthly' || 
+                        payment.paymentOption === 'Monthly With Discounts' ||
+                        payment.planType === 'MONTHLY_SUBSCRIPTION';
+    
+    if (isRecurring && payment.nextReminderDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const reminderDate = new Date(payment.nextReminderDate);
+      reminderDate.setHours(0, 0, 0, 0);
+      
+      // Disable if today is before the next reminder date
+      if (today < reminderDate) {
+        return true;
+      }
+    }
+    
+    return false;
+  };
+
   // Use default columns if not provided
   const defaultColumns = ['Student ID', 'Student Name', 'Enrolled Course', 'Cohort', 'Payment Category', `Course Fee (${currency})`, `Course Reg Fee (${currency})`, `Student Reg Fee (${currency})`, `Total To Be Paid (${currency})`, `Total Paid (${currency})`, `Balance (${currency})`, 'Status', 'Start Date', 'End Date', 'Next Due Date', 'Invoice', 'Send Reminder', 'Actions'];
   const columns = displayedColumns || defaultColumns;
@@ -327,16 +359,18 @@ export function StudentPaymentTable({
           </TableCell>
         );
       case 'Send Reminder':
+        const reminderDisabled = isReminderDisabled(payment);
         return (
           <TableCell key={columnName} className="text-center">
             {payment.status === "N/A" ? (
               <span className="text-gray-400 dark:text-white">N/A</span>
-            ) : payment.collectionRate >= 100 ? (
+            ) : reminderDisabled ? (
               <Button
                 size="sm"
                 variant="outline"
                 className="text-gray-400 dark:text-white border-gray-300 cursor-not-allowed"
                 disabled
+                title={payment.nextReminderDate ? `Next reminder: ${new Date(payment.nextReminderDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}` : undefined}
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -682,13 +716,14 @@ export function StudentPaymentTable({
                           <Button
                             size="sm"
                             variant="outline"
-                            className={payment.collectionRate >= 100 
+                            className={isReminderDisabled(payment)
                               ? "flex-1 text-gray-400 dark:text-white border-gray-300 cursor-not-allowed" 
                               : "flex-1 text-blue-600 border-blue-600 hover:bg-blue-50"}
-                            disabled={payment.collectionRate >= 100}
+                            disabled={isReminderDisabled(payment)}
+                            title={payment.nextReminderDate ? `Next reminder: ${new Date(payment.nextReminderDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}` : undefined}
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (payment.collectionRate < 100) {
+                              if (!isReminderDisabled(payment)) {
                                 handleOpenReminderDialog(payment);
                               }
                             }}

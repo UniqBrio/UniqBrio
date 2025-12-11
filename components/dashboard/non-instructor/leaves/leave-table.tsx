@@ -21,7 +21,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
 import LeaveTypeCombobox from "./leave-type-combobox"
 import type { LeavePolicy } from './leave-policy-dialog'
-import { User, MessageSquare, UserPlus, Pencil, CalendarDays, Info } from "lucide-react"
+import { User, MessageSquare, UserPlus, Pencil, CalendarDays, Info, X } from "lucide-react"
 import { Progress } from "@/components/dashboard/ui/progress"
 import { Badge } from "@/components/dashboard/ui/badge"
 import LeaveRequestDetailsDialog from "./leave-request-details-dialog"
@@ -979,7 +979,12 @@ export default function LeaveTable({ searchQuery, filters, sortBy = "startDate",
         <AlertDialog open={unsavedEditOpen} onOpenChange={setUnsavedEditOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+              <div className="flex items-center justify-between">
+                <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+                <Button variant="ghost" size="sm" onClick={() => setUnsavedEditOpen(false)} className="h-6 w-6 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
               <AlertDialogDescription>
                 You have unsaved changes in your leave request. What would you like to do?
               </AlertDialogDescription>

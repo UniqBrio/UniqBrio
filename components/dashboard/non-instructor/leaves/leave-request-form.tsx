@@ -11,7 +11,7 @@ import { Label } from "@/components/dashboard/ui/label"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
-import { ChevronsUpDown, Check, ChevronDown, Save } from "lucide-react"
+import { ChevronsUpDown, Check, ChevronDown, Save, X } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/dashboard/ui/hover-card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -528,11 +528,14 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
                   setSelectedJobLevel(normalized)
                   setContractType(deriveContractType(inst) || "")
                 }}
-                instructors={state.instructors.slice(0, 500).map((inst) => ({
-                  id: inst.id,
-                  name: inst.displayName || inst.fullName || inst.name || inst.externalId || inst.instructorId || inst.id,
-                  code: inst.displayCode || inst.externalId || inst.instructorId || inst.id,
-                }))}
+                instructors={state.instructors
+                  .filter((inst) => inst.status !== 'Inactive' && inst.status !== 'Deleted')
+                  .slice(0, 500)
+                  .map((inst) => ({
+                    id: inst.id,
+                    name: inst.displayName || inst.fullName || inst.name || inst.externalId || inst.instructorId || inst.id,
+                    code: inst.displayCode || inst.externalId || inst.instructorId || inst.id,
+                  }))}
               />
             </div>
             <div className="space-y-2">
@@ -734,7 +737,12 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     <AlertDialog open={unsavedOpen} onOpenChange={setUnsavedOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <div className="flex items-center justify-between">
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <Button variant="ghost" size="sm" onClick={() => setUnsavedOpen(false)} className="h-6 w-6 p-0">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <AlertDialogDescription>
             You have unsaved changes in your leave request. What would you like to do?
           </AlertDialogDescription>

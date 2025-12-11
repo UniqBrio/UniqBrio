@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
 import Student from '@/models/dashboard/student/Student';
+import RegistrationModel from '@/models/Registration';
 import { sendPaymentReminderEmail } from '@/lib/dashboard/email-service';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
@@ -83,6 +84,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch academy info for the email
+    let academyName = 'Academy';
+    try {
+      const registration = await RegistrationModel.findOne({
+        $or: [
+          { academyId: session.tenantId },
+          { tenantId: session.tenantId }
+        ]
+      }).lean();
+
+      if (registration?.businessInfo) {
+        const businessInfo = registration.businessInfo as any;
+        academyName = businessInfo.businessName || businessInfo.academyName || 'Academy';
+      }
+    } catch (error) {
+      console.error('[Manual Reminder API] Error fetching academy info:', error);
+      // Continue with default academy name
+    }
+
     // Send reminder email
     try {
       await sendPaymentReminderEmail(
@@ -93,6 +113,7 @@ export async function POST(request: NextRequest) {
           dueDate: payment.nextPaymentDate || new Date(),
           amount: payment.dueAmount || payment.outstandingAmount || 0,
           outstandingBalance: payment.outstandingAmount || 0,
+          academyName: academyName,
         }
       );
 

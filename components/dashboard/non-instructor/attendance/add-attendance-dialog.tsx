@@ -3,6 +3,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
+import { Input } from "@/components/dashboard/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
 import { Save, ChevronDown } from "lucide-react";
@@ -11,257 +12,12 @@ import { useToast } from "@/hooks/dashboard/use-toast";
 import UnsavedChangesDialog from "@/components/dashboard/common/unsaved-changes-dialog";
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input";
 
-// Helper function to compare times in HH:mm format
+// Helper function to validate time range
 function isTimeAfter(time1: string, time2: string): boolean {
   if (!time1 || !time2) return false;
   const [h1, m1] = time1.split(':').map(Number);
   const [h2, m2] = time2.split(':').map(Number);
   return (h1 * 60 + m1) > (h2 * 60 + m2);
-}
-
-// Helper function to convert 24-hour to 12-hour format
-function to12HourFormat(time24: string): { time: string; period: string } {
-  if (!time24) return { time: '', period: 'AM' };
-  const [hours, minutes = '00'] = time24.split(':');
-  if (!hours || !minutes) return { time: '', period: 'AM' };
-  
-  let h = parseInt(hours);
-  const period = h >= 12 ? 'PM' : 'AM';
-  h = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return { time: `${h}:${minutes.padStart(2, '0')}`, period };
-}
-
-// Helper function to convert 12-hour to 24-hour format
-function to24HourFormat(time12: string, period: string): string {
-  if (!time12) return '';
-  const [hours, minutes = '00'] = time12.split(':');
-  if (!hours || !minutes) return '';
-  
-  let h = parseInt(hours);
-  if (isNaN(h)) return '';
-  
-  if (period === 'PM' && h !== 12) h += 12;
-  if (period === 'AM' && h === 12) h = 0;
-  return `${h.toString().padStart(2, '0')}:${minutes.padStart(2, '0')}`;
-}
-
-// Streamlined time input component matching the design
-interface TimeInput12HourProps {
-  value?: string; // 24-hour format (HH:mm)
-  onChange: (value: string) => void; // Returns 24-hour format
-  placeholder?: string;
-  isInvalid?: boolean;
-}
-
-function TimeInput12Hour({ value = '', onChange, placeholder = "Select time", isInvalid = false }: TimeInput12HourProps) {
-  const { time: time12, period: currentPeriod } = to12HourFormat(value);
-  const [timeInput, setTimeInput] = useState(time12 || '');
-  const [period, setPeriod] = useState<'AM' | 'PM'>(currentPeriod as 'AM' | 'PM');
-  const [localInvalidMessage, setLocalInvalidMessage] = useState('');
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const timePickerRef = useRef<HTMLDivElement>(null);
-
-  // Update local state when value prop changes
-  useEffect(() => {
-    const { time: newTime12, period: newPeriod } = to12HourFormat(value);
-    setTimeInput(newTime12 || '');
-    setPeriod(newPeriod as 'AM' | 'PM');
-  }, [value]);
-
-  // Handle click outside to close time picker
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (timePickerRef.current && !timePickerRef.current.contains(event.target as Node)) {
-        setShowTimePicker(false);
-      }
-    };
-
-    if (showTimePicker) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showTimePicker]);
-
-  const handleTimeInputChange = (inputValue: string) => {
-    // Masked input: extract up to 4 digits and render as HH:MM with '-' placeholders
-    const digitsOnly = inputValue.replace(/\D/g, '').slice(0, 4);
-
-    const padDigits = (d: string) => d.padEnd(4, '-');
-    const padded = padDigits(digitsOnly);
-    const hoursPart = padded.substring(0, 2);
-    const minutesPart = padded.substring(2, 4);
-    const formatted = `${hoursPart}:${minutesPart}`;
-
-    setTimeInput(formatted);
-
-    // If we have 4 digits, validate and notify parent with 24-hour format
-    if (digitsOnly.length === 4) {
-      const hours = parseInt(digitsOnly.substring(0, 2), 10);
-      const minutes = parseInt(digitsOnly.substring(2, 4), 10);
-      if (!isNaN(hours) && !isNaN(minutes) && hours >= 1 && hours <= 12 && minutes >= 0 && minutes <= 59) {
-        onChange(to24HourFormat(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`, period));
-      }
-    }
-  };
-
-  // Handle keydown for Backspace/Delete to remove last entered digit
-  const handleTimeInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace') {
-      e.preventDefault();
-      // derive current digits
-      const currentDigits = (timeInput || '').replace(/\D/g, '');
-      const newDigits = currentDigits.slice(0, -1);
-      const padDigits = (d: string) => d.padEnd(4, '-');
-      const padded = padDigits(newDigits).slice(0, 4);
-      const hoursPart = padded.substring(0, 2);
-      const minutesPart = padded.substring(2, 4);
-      setTimeInput(`${hoursPart}:${minutesPart}`);
-      return;
-    }
-
-    // Allow digits, colon, Enter and navigation keys
-    if (/^[0-9:]$/.test(e.key) || e.key.startsWith('Arrow') || e.key === 'Tab' || e.key === 'Enter' || e.key === 'Home' || e.key === 'End') {
-      return;
-    }
-
-    // Prevent other characters
-    e.preventDefault();
-  };
-
-  const handlePeriodChange = (newPeriod: 'AM' | 'PM') => {
-    setPeriod(newPeriod);
-    if (timeInput && timeInput !== '--:--') {
-      const time24 = to24HourFormat(timeInput, newPeriod);
-      onChange(time24);
-    }
-  };
-
-  const handleTimePickerSelect = (selectedTime: string) => {
-    onChange(selectedTime);
-    setShowTimePicker(false);
-  };
-
-  return (
-    <div className="flex gap-2">
-      {/* Time Input Field */}
-      <div className="flex-1 relative">
-        <input
-          type="text"
-          value={timeInput}
-          onChange={(e) => handleTimeInputChange(e.target.value)}
-          onKeyDown={handleTimeInputKeyDown}
-          placeholder="--:--"
-          className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition ${
-            isInvalid ? 'border-red-300 bg-red-50' : 'border-gray-300'
-          }`}
-          maxLength={5}
-        />
-        
-        {/* Clock Icon */}
-        <button
-          type="button"
-          onClick={() => setShowTimePicker(!showTimePicker)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white hover:text-gray-600"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12,6 12,12 16,14"/>
-          </svg>
-        </button>
-
-        {localInvalidMessage && (
-          <p className="mt-1 text-xs text-red-500">{localInvalidMessage}</p>
-        )}
-
-        {/* Time Picker Dropdown */}
-        {showTimePicker && (
-          <div ref={timePickerRef} className="absolute top-full left-0 mt-1 bg-white border rounded-md shadow-lg z-50 p-2 w-48">
-            
-            
-            {/* Time Selector Grid */}
-            <div className="grid grid-cols-2 gap-1">
-              {/* Hours */}
-              <div>
-                <div className="max-h-32 overflow-y-auto border rounded-md">
-                  {Array.from({ length: 12 }, (_, i) => {
-                    const hour = i + 1;
-                    const currentHour = timeInput ? parseInt(timeInput.split(':')[0]) : 0;
-                    const isSelected = currentHour === hour || (currentHour === 0 && hour === 12);
-                    
-                    return (
-                      <button
-                        key={hour}
-                        type="button"
-                        className={`w-full px-1 py-2 text-sm hover:bg-blue-50 transition-colors ${
-                          isSelected ? 'bg-blue-500 text-white' : 'text-gray-700 dark:text-white'
-                        }`}
-                        onClick={() => {
-                          const currentMinute = timeInput ? timeInput.split(':')[1] : '00';
-                          const newTime = `${hour}:${currentMinute}`;
-                          setTimeInput(newTime);
-                          const time24 = to24HourFormat(newTime, period);
-                          onChange(time24);
-                        }}
-                      >
-                        {hour.toString().padStart(2, '0')}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Minutes */}
-              <div>
-                <div className="max-h-32 overflow-y-auto border rounded-md">
-                  {Array.from({ length: 60 }, (_, i) => {
-                    const minute = i;
-                    const currentMinute = timeInput ? parseInt(timeInput.split(':')[1] || '0') : 0;
-                    const isSelected = currentMinute === minute;
-                    
-                    return (
-                      <button
-                        key={minute}
-                        type="button"
-                        className={`w-full px-1 py-2 text-sm hover:bg-blue-50 transition-colors ${
-                          isSelected ? 'bg-blue-500 text-white' : 'text-gray-700 dark:text-white'
-                        }`}
-                        onClick={() => {
-                          const currentHour = timeInput ? timeInput.split(':')[0] : '1';
-                          const newTime = `${currentHour}:${minute.toString().padStart(2, '0')}`;
-                          setTimeInput(newTime);
-                          const time24 = to24HourFormat(newTime, period);
-                          onChange(time24);
-                        }}
-                      >
-                        {minute.toString().padStart(2, '0')}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-             
-            </div>
-
-           
-            
-          </div>
-        )}
-      </div>
-
-      {/* AM/PM Dropdown */}
-      <select
-        value={period}
-        onChange={(e) => handlePeriodChange(e.target.value as 'AM' | 'PM')}
-        className={`px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white transition ${
-          isInvalid ? 'border-red-300 bg-red-50' : 'border-gray-300'
-        }`}
-      >
-        <option value="AM">AM</option>
-        <option value="PM">PM</option>
-      </select>
-    </div>
-  );
 }
 
 // Unified attendance record type (mirrors search filters + table expectations)
@@ -418,17 +174,19 @@ export function AddAttendanceDialog({
 
           if (!cancelled) {
             if (Array.isArray(arr) && arr.length > 0) {
-              const mapped = arr.map((s: any) => {
-              const id = s.externalId || s.id || s._id || s.instructorId || s.code;
-              const name = s.name || [s.firstName, s.middleName, s.lastName].filter(Boolean).join(" ") || s.fullName || id;
-              return {
-                id,
-                name,
-                cohortName: s.cohortId || s.cohort || '',
-                instructor: s.instructor || undefined,
-                timing: s.timing || undefined,
-              };
-              });
+              const mapped = arr
+                .filter((s: any) => s.status !== 'Inactive' && s.status !== 'Deleted')
+                .map((s: any) => {
+                  const id = s.externalId || s.id || s._id || s.instructorId || s.code;
+                  const name = s.name || [s.firstName, s.middleName, s.lastName].filter(Boolean).join(" ") || s.fullName || id;
+                  return {
+                    id,
+                    name,
+                    cohortName: s.cohortId || s.cohort || '',
+                    instructor: s.instructor || undefined,
+                    timing: s.timing || undefined,
+                  };
+                });
               setinstructorsList(mapped.filter(s => s.id));
             } else {
               // Fallback to current attendance dataset unique non-instructors
@@ -935,14 +693,19 @@ export function AddAttendanceDialog({
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Start Time</label>
-                  <TimeInput12Hour
-                    value={newStart}
-                    onChange={(value) => {
-                      setNewStart(value);
+                  <Input
+                    type="time"
+                    value={newStart || ''}
+                    onChange={(e) => {
+                      const rawTime = e.target.value;
+                      if (newEnd && rawTime >= newEnd) {
+                        alert('Start time must be before end time');
+                        return;
+                      }
+                      setNewStart(rawTime);
                       setStartAutoFilled(false);
                     }}
-                    placeholder="Select time"
-                    isInvalid={!!(newStart && newEnd && isTimeAfter(newStart, newEnd))}
+                    className={`${newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-300 bg-red-50' : ''}`}
                   />
                   {startAutoFilled && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
@@ -953,14 +716,19 @@ export function AddAttendanceDialog({
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">End Time</label>
-                  <TimeInput12Hour
-                    value={newEnd}
-                    onChange={(value) => {
-                      setNewEnd(value);
+                  <Input
+                    type="time"
+                    value={newEnd || ''}
+                    onChange={(e) => {
+                      const rawTime = e.target.value;
+                      if (newStart && rawTime <= newStart) {
+                        alert('End time must be after start time');
+                        return;
+                      }
+                      setNewEnd(rawTime);
                       setEndAutoFilled(false);
                     }}
-                    placeholder="Select time"
-                    isInvalid={!!(newStart && newEnd && isTimeAfter(newStart, newEnd))}
+                    className={`${newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-300 bg-red-50' : ''}`}
                   />
                   {endAutoFilled && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>

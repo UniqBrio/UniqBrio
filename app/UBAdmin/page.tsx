@@ -29,13 +29,15 @@ import {
   Edit2,
   Trash2,
   Trophy,
-  Info
+  Info,
+  Loader2
 } from "lucide-react"
 
 export default function UBAdminPage() {
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [loginData, setLoginData] = useState({ email: "", password: "" })
   const [loginError, setLoginError] = useState("")
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -124,12 +126,15 @@ export default function UBAdminPage() {
   }
 
   const handleLogout = async () => {
+    setIsLoggingOut(true)
     try {
       await fetch("/api/admin-auth", { method: "DELETE" })
       setIsAuthenticated(false)
       setLoginData({ email: "", password: "" })
     } catch (error) {
       console.error("Logout failed:", error)
+    } finally {
+      setIsLoggingOut(false)
     }
   }
 
@@ -245,10 +250,20 @@ export default function UBAdminPage() {
             <Button 
               variant="secondary" 
               onClick={handleLogout} 
-              className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm transition-all duration-200 hover:shadow-lg"
+              disabled={isLoggingOut}
+              className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm transition-all duration-200 hover:shadow-lg disabled:opacity-70"
             >
-              <LogOut className="w-4 h-4" />
-              Logout
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Logging out...
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </>
+              )}
             </Button>
           </div>
         </div>
