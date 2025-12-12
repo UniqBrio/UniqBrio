@@ -5,8 +5,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "@/components/ui/use-toast"
-import { Loader2, Save, User, Lock, Bell, Shield } from "lucide-react"
+import { Loader2, Save, User, Lock, Bell, Shield, CreditCard } from "lucide-react"
 import { ProfileSettings } from "@/components/dashboard/settings/profile-settings"
+import { BillingSettings } from "@/components/dashboard/settings"
 import { useCustomColors } from '@/lib/use-custom-colors'
 
 const profileSchema = z.object({
@@ -208,6 +209,14 @@ export default function SettingsPage() {
               <Shield size={18} />
               <span>Privacy</span>
             </button>
+              <button
+                className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${activeTab === "billing" ? "" : "hover:bg-gray-100"}`}
+                style={activeTab === "billing" ? { backgroundColor: `${primaryColor}20`, color: primaryColor } : {}}
+                onClick={() => setActiveTab("billing")}
+              >
+                <CreditCard size={18} />
+                <span>Billings</span>
+              </button>
           </nav>
         </div>
 
@@ -437,6 +446,10 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === "billing" && (
+            <BillingSettings />
           )}
         </div>
       </div>

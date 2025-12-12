@@ -34,6 +34,7 @@ import { AdminSystemConfig } from "@/components/dashboard/settings/admin-system-
 import { AcademyInfoSettings } from "@/components/dashboard/settings/academy-info-settings"
 import { NotificationSettings } from "@/components/dashboard/settings/notification-settings"
 import { BankAccountSettings } from "@/components/dashboard/settings/bank-account-settings"
+import { BillingSettings } from "@/components/dashboard/settings"
 import { useApp } from "@/contexts/dashboard/app-context"
 
 export default function SettingsPage() {
@@ -47,7 +48,7 @@ export default function SettingsPage() {
   // Update active tab when URL changes
   useEffect(() => {
     const tab = searchParams.get("tab")
-    if (tab && ["profile", "academy-info", "appearance", "system-config", "notifications", "bank-accounts"].includes(tab)) {
+    if (tab && ["profile", "academy-info", "appearance", "system-config", "notifications", "bank-accounts", "billing"].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
@@ -365,6 +366,29 @@ export default function SettingsPage() {
                   <Landmark className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Bank Accounts</span>
                 </TabsTrigger>
+
+                  <TabsTrigger
+                    value="billing"
+                    className="text-xs sm:text-sm border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-3 sm:px-4 py-2 focus:outline-none whitespace-nowrap flex-shrink-0"
+                    style={{
+                      borderColor: activeTab === 'billing' ? primaryColor : secondaryColor,
+                      color: activeTab === 'billing' ? 'white' : secondaryColor,
+                      backgroundColor: activeTab === 'billing' ? primaryColor : undefined,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (activeTab !== 'billing') {
+                        e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activeTab !== 'billing') {
+                        e.currentTarget.style.backgroundColor = ''
+                      }
+                    }}
+                  >
+                    <Landmark className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Billings</span>
+                  </TabsTrigger>
                   
               </TabsList>
             </div>
@@ -404,6 +428,10 @@ export default function SettingsPage() {
 
             <TabsContent value="bank-accounts" className="space-y-4">
               <BankAccountSettings />
+            </TabsContent>
+
+            <TabsContent value="billing" className="space-y-4">
+              <BillingSettings />
             </TabsContent>
               
           </Tabs>
