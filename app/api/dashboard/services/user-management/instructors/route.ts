@@ -23,8 +23,10 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url)
         
         // Build query for active instructors - use Mongoose model with tenant plugin
+        // Use exact match for 'Active' status (case-insensitive) to exclude 'Inactive' or 'Deleted'
         const query: any = {
-          status: { $regex: /active/i } // Case insensitive match for 'active'
+          status: { $regex: /^active$/i }, // Exact match for 'active' only, excludes 'Inactive', 'Deleted'
+          isDeleted: { $ne: true } // Also exclude soft-deleted instructors
         }
     
     // Search functionality

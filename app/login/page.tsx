@@ -8,7 +8,7 @@ import { z } from "zod"
 import DividerWithText from "@/components/divider-with-text"
 import GoogleAuthButton from "@/components/google-auth-button"
 import Link from "next/link"
-import { CheckCircle2, Eye, EyeOff, Loader2, ChevronDown } from "lucide-react"
+import { CheckCircle2, Eye, EyeOff, Loader2, ChevronDown, Check, X } from "lucide-react"
 import { login } from "../actions/auth-actions" // Ensure this path is correct
 import { toast } from "@/components/ui/use-toast"
 import AuthLayout from "@/components/auth-layout" // Import AuthLayout
@@ -16,7 +16,15 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
 
 const loginSchema = z.object({
-  emailOrPhone: z.string().min(1, "Email or phone number is required"),
+  emailOrPhone: z.string()
+    .min(1, "Email or phone number is required")
+    .refine((value) => {
+      // Check if it's a phone number (only digits, at least 10)
+      const isPhone = /^[0-9]{10,}$/.test(value);
+      // Check if it's a valid email format with strict regex
+      const isEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+      return isPhone || isEmail;
+    }, "Please enter a valid email address (user@example.com) or phone number (10+ digits)"),
   password: z.string().min(1, "Password is required"),
   // Remove role from login schema
   // role: z.enum(["super_admin", "admin", "instructor", "student"], {
@@ -272,11 +280,38 @@ export default function LoginPage() {
             type="text"
             placeholder="abc@abc.com or phone number"
             className={`w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fd9c2d] ${errors.emailOrPhone ? "border-red-500" : "border-[#fd9c2d]"}}`}
-            {...register("emailOrPhone")}
-            autoComplete="username"
+            {...register("emailOrPhone")}            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              // Remove spaces
+              target.value = target.value.replace(/\s/g, '');
+              // If it contains @, treat as email and convert to lowercase
+              if (target.value.includes('@')) {
+                target.value = target.value.toLowerCase();
+              }
+            }}            autoComplete="username"
             autoFocus
           />
           {errors.emailOrPhone && <p className="text-red-500 text-sm">{errors.emailOrPhone.message}</p>}
+          {watch("emailOrPhone") && (
+            <ul className="text-xs text-gray-500 dark:text-white mt-1 space-y-0.5">
+              <li className="flex items-center">
+                {watch("emailOrPhone").length >= 1 ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                Not empty
+              </li>
+              <li className="flex items-center">
+                {(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(watch("emailOrPhone")) || /^[0-9]+$/.test(watch("emailOrPhone"))) ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                Valid email or phone number format
+              </li>
+            </ul>
+          )}
         </div>
 
         {/* Password */}

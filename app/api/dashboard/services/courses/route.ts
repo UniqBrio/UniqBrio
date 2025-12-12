@@ -109,13 +109,13 @@ export async function POST(request: Request) {
             const updatedOptions = [...new Set([...currentOptions, trimmedValue])].sort()
         
             await Course.updateOne(
-          { _id: courseWithOptions._id },
+          { _id: courseWithOptions._id, tenantId: session.tenantId },
           { $set: { [config.field]: updatedOptions } }
             )
         
             // Update all other courses to have the same dropdown options
             await Course.updateMany(
-          { _id: { $ne: courseWithOptions._id } },
+          { _id: { $ne: courseWithOptions._id }, tenantId: session.tenantId },
           { $set: { [config.field]: updatedOptions } }
           )
           } else {
@@ -201,13 +201,13 @@ export async function POST(request: Request) {
             const updatedLocations = [...new Set([...currentLocations, locationName])].sort()
         
             await Course.updateOne(
-          { _id: courseWithLocations._id },
+          { _id: courseWithLocations._id, tenantId: session.tenantId },
           { $set: { availableLocations: updatedLocations } }
             )
         
             // Update all other courses to have the same location options
             await Course.updateMany(
-          { _id: { $ne: courseWithLocations._id } },
+          { _id: { $ne: courseWithLocations._id }, tenantId: session.tenantId },
           { $set: { availableLocations: updatedLocations } }
           )
           } else {
@@ -358,19 +358,7 @@ export async function POST(request: Request) {
             }
           }
 
-          // Final safety check: ensure the courseId doesn't already exist
-          const existingCourse = await Course.findOne({ courseId: body.courseId, tenantId: session.tenantId });
-          if (existingCourse) {
-            console.error(`❌ CourseId ${body.courseId} already exists! Generating new sequential ID...`);
-            // Generate a new sequential ID instead of random fallback
-            try {
-          body.courseId = await CourseIdManager.assignCourseIdToPublishedCourse();
-          console.log(`🔄 Using new sequential courseId: ${body.courseId}`);
-          } catch (error) {
-          console.error('❌ Error generating replacement courseId:', error);
-          body.courseId = `COURSE${String(Date.now()).slice(-4)}_${Math.random().toString(36).substr(2, 3)}`;
-          }
-        }
+          // Note: No additional safety check needed - assignCourseIdToPublishedCourse() already handles collisions atomically
   
         const course = await Course.create({ 
           _id: new mongoose.Types.ObjectId(),

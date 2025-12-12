@@ -361,45 +361,56 @@ export async function PUT(request: NextRequest) {
 
 // DELETE /api/drafts - Delete a draft
 export async function DELETE(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
-    
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'Draft ID is required' },
-        { status: 400 }
-      )
-    }
-
-    const DraftModel = await ensureDraftModel()
-
-    const draft = await DraftModel.findById(id)
-    if (!draft) {
-      return NextResponse.json(
-        { success: false, error: 'Draft not found' },
-        { status: 404 }
-      )
-    }
-
-    await Draft.findByIdAndDelete(id)
-
-    return NextResponse.json({
-      success: true,
-      message: 'Draft deleted successfully'
-    })
-
-  } catch (error) {
-    console.error('Error deleting draft:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to delete draft',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        
+        const { searchParams } = new URL(request.url)
+        const id = searchParams.get('id')
+
+        if (!id) {
+          return NextResponse.json(
+            { success: false, error: 'Draft ID is required' },
+            { status: 400 }
+          )
+        }
+
+        const DraftModel = await ensureDraftModel()
+
+        const draft = await DraftModel.findById(id)
+        if (!draft) {
+          return NextResponse.json(
+            { success: false, error: 'Draft not found' },
+            { status: 404 }
+          )
+        }
+
+        await DraftModel.findByIdAndDelete(id)
+
+        return NextResponse.json({
+          success: true,
+          message: 'Draft deleted successfully'
+        })
+
+      } catch (error) {
+        console.error('Error deleting draft:', error)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to delete draft',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          },
+          { status: 500 }
+        )
+      }
+    }
+  );
 }

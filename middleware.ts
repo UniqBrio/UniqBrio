@@ -27,7 +27,7 @@ const publicPaths = [
   "/signup", 
   "/register", // Business registration - OAuth users complete this after sign-in
   "/forgot-password",
-  "/reset-password",
+  "/reset-password/", // Reset password with token parameter
   "/verify-email", // Page to handle link click
   "/support",
   "/troubleshoot",
@@ -42,6 +42,7 @@ const publicPaths = [
   "/api/auth/",
   "/api/admin-auth", // Admin authentication
   "/api/admin-data", // Admin data endpoints
+  "/api/verify-reset-token", // Verify reset token API
   // Next.js internals and static assets
   "/_next/",
   // Files with extensions (e.g., .png, .ico)

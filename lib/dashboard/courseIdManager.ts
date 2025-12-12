@@ -304,19 +304,27 @@ export class CourseIdManager {
   /**
    * Update all drafts to show the current next available course ID
    * This is called after a new course is published to update draft previews
+   * TENANT-SCOPED: Only updates drafts for current tenant
    */
   static async updateDraftPreviews(): Promise<void> {
     try {
+      // Get current tenant context
+      const tenantContext = getTenantContext();
+      if (!tenantContext?.tenantId) {
+        console.log('⚠️ No tenant context for draft preview update, skipping');
+        return;
+      }
+
       const Draft = await import('@/models/dashboard/Draft').then(m => m.default);
       const nextCourseId = await this.getNextAvailableCourseId();
       
-      // Update all drafts to show the current next available ID
+      // Update all drafts for this tenant to show the current next available ID
       const result = await Draft.updateMany(
-        {}, // All drafts
+        { tenantId: tenantContext.tenantId }, // Only this tenant's drafts
         { $set: { courseId: nextCourseId } }
       );
       
-      console.log(`📝 Updated ${result.modifiedCount} drafts to show preview ID: ${nextCourseId}`);
+      console.log(`📝 Updated ${result.modifiedCount} drafts to show preview ID: ${nextCourseId} for tenant ${tenantContext.tenantId}`);
     } catch (error) {
       console.error('❌ Error updating draft previews:', error);
     }

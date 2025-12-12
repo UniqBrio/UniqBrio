@@ -26,9 +26,16 @@ import { CookiesContent } from "@/components/legal/cookies-content"
 
 const signupSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
-    phone: z.string().min(10, "Please enter a valid phone number"),
+    name: z.string()
+      .min(2, "Name must be at least 2 characters")
+      .regex(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens"),
+    email: z.string()
+      .min(1, "Email address is required")
+      .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Please enter a valid email address (e.g., user@example.com)")
+      .email("Please enter a valid email address"),
+    phone: z.string()
+      .min(10, "Please enter a valid phone number")
+      .regex(/^[0-9]+$/, "Phone number can only contain numbers"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -196,10 +203,32 @@ export default function SignupPage() {
             type="text"
             placeholder="Enter your full name"
             className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.name ? "border-red-500" : ""}}`}
-            {...register("name")}
-            autoFocus
+            {...register("name")}            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              target.value = target.value.replace(/[0-9]/g, '');
+            }}            autoFocus
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          {watch("name") && (
+            <ul className="text-xs text-gray-500 dark:text-white mt-1 space-y-0.5">
+              <li className="flex items-center">
+                {watch("name").length >= 2 ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                At least 2 characters
+              </li>
+              <li className="flex items-center">
+                {/^[a-zA-Z\s.'-]+$/.test(watch("name")) ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                Only letters, spaces, dots, apostrophes, and hyphens
+              </li>
+            </ul>
+          )}
         </div>
 
         {/* Email */}
@@ -213,8 +242,33 @@ export default function SignupPage() {
             placeholder="abc@abc.com"
             className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.email ? "border-red-500" : ""}`}
             {...register("email")}
+            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              // Remove spaces and convert to lowercase for consistency
+              target.value = target.value.replace(/\s/g, '').toLowerCase();
+            }}
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          {watch("email") && (
+            <ul className="text-xs text-gray-500 dark:text-white mt-1 space-y-0.5">
+              <li className="flex items-center">
+                {watch("email").includes('@') ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                Contains @ symbol
+              </li>
+              <li className="flex items-center">
+                {/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(watch("email")) ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                Valid email format (e.g., user@domain.com)
+              </li>
+            </ul>
+          )}
         </div>
 
         {/* Phone Number */}
@@ -228,8 +282,32 @@ export default function SignupPage() {
             placeholder="Enter your phone number"
             className={`w-full h-10 px-3 text-sm bg-white border border-[#8a3ffc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a3ffc] ${errors.phone ? "border-red-500" : ""}`}
             {...register("phone")}
+            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              target.value = target.value.replace(/[^0-9]/g, '');
+            }}
           />
           {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
+          {watch("phone") && (
+            <ul className="text-xs text-gray-500 dark:text-white mt-1 space-y-0.5">
+              <li className="flex items-center">
+                {watch("phone").length >= 10 ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                At least 10 digits
+              </li>
+              <li className="flex items-center">
+                {/^[0-9]+$/.test(watch("phone")) ? (
+                  <Check size={12} className="text-green-500 mr-1 flex-shrink-0" />
+                ) : (
+                  <X size={12} className="text-red-500 mr-1 flex-shrink-0" />
+                )}
+                Only numbers allowed
+              </li>
+            </ul>
+          )}
         </div>
 
         {/* Password */}

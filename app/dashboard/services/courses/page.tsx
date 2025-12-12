@@ -875,7 +875,7 @@ export default function EnhancedCourseManagementPage() {
     // Convert draft data to course form format - only include fields that exist in the draft
     const formData: any = {
       id: newCourseId, // Use new course ID instead of draft ID
-      status: 'Draft' // Always set status for drafts
+      status: 'Active' // Set status to Active when converting draft to course
     };
     
     // Only populate fields that actually exist in the draft (no auto-population with defaults)

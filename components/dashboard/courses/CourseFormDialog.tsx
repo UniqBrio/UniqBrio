@@ -563,18 +563,29 @@ export default function CourseFormDialog({
             const deleteResult = await deleteResponse.json()
             
             if (deleteResult.success) {
+              console.log('✅ Draft deleted successfully:', editCourseId);
               // Dispatch event to remove draft from parent component's state
               window.dispatchEvent(new CustomEvent('draftDeleted', { 
                 detail: { draftId: editCourseId } 
               }))
+            } else {
+              console.error('❌ Failed to delete draft:', deleteResult.error);
             }
             
             // Update courses state
             setCourses(prevCourses => [createResult.course, ...prevCourses])
+            
+            // Close dialog and reset form
+            onOpenChange(false)
+            resetForm()
+            
             toast({
               title: "Draft Converted to Course",
               description: `${courseData.title} has been created as ${createResult.course.courseId || createResult.course.id}.`,
             })
+            
+            // Return early to skip the normal dialog close at the end
+            return
           } else {
             throw new Error(createResult.error || 'Failed to convert draft to course')
           }
