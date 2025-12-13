@@ -253,7 +253,7 @@ export function StudentPaymentTable({
       case `Total To Be Paid (${currency})`:
         return (
           <TableCell key={columnName} className="text-right font-bold text-purple-700 bg-purple-50 min-w-[150px]">
-            {((payment.courseFee || 0) + (payment.courseRegistrationFee || 0) + (payment.studentRegistrationFee || 0)).toLocaleString()}
+            {(Number(payment.courseFee || 0) + Number(payment.courseRegistrationFee || 0) + Number(payment.studentRegistrationFee || 0)).toLocaleString()}
           </TableCell>
         );
       case `Total Paid (${currency})`:

@@ -445,9 +445,9 @@ export function ManualPaymentDialog({
             });
             
             setFetchedFees({
-              courseFee: courseData.priceINR || 0,
-              courseRegistrationFee: courseData.registrationFee || 1000,
-              studentRegistrationFee: 500
+              courseFee: Number(courseData.priceINR || 0),
+              courseRegistrationFee: Number(courseData.registrationFee || 1000),
+              studentRegistrationFee: Number(500)
             });
           }
         } else {
@@ -1437,9 +1437,9 @@ export function ManualPaymentDialog({
 
   // Helper function to get effective fees (fetched or from payment record)
   const getEffectiveFees = () => ({
-    courseFee: fetchedFees?.courseFee ?? payment.courseFee ?? 0,
-    courseRegistrationFee: fetchedFees?.courseRegistrationFee ?? payment.courseRegistrationFee ?? 0,
-    studentRegistrationFee: fetchedFees?.studentRegistrationFee ?? payment.studentRegistrationFee ?? 0,
+    courseFee: Number(fetchedFees?.courseFee ?? payment.courseFee ?? 0),
+    courseRegistrationFee: Number(fetchedFees?.courseRegistrationFee ?? payment.courseRegistrationFee ?? 0),
+    studentRegistrationFee: Number(fetchedFees?.studentRegistrationFee ?? payment.studentRegistrationFee ?? 0),
   });
 
   const defaultMonthly = calculateDefaultMonthly();
@@ -2911,7 +2911,7 @@ export function ManualPaymentDialog({
                       <p className="text-sm text-amber-800 mt-1">
                         Current Due: <span className="font-bold">{currency} {(() => {
                           const effectiveFees = getEffectiveFees();
-                          return (effectiveFees.courseFee + effectiveFees.courseRegistrationFee + effectiveFees.studentRegistrationFee - (payment.receivedAmount || 0)).toLocaleString();
+                          return (Number(effectiveFees.courseFee || 0) + Number(effectiveFees.courseRegistrationFee || 0) + Number(effectiveFees.studentRegistrationFee || 0) - (payment.receivedAmount || 0)).toLocaleString();
                         })()}</span>
                       </p>
                       <p className="text-xs text-amber-700 mt-1">

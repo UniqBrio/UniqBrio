@@ -262,14 +262,14 @@ export async function GET(request: NextRequest) {
           const courseInfo = courseFeeMap.get(courseId);
           
           if (courseInfo) {
-            finalCourseFee = courseInfo.fee || 0;
-            finalCourseRegFee = courseInfo.registrationFee || 1000;
-            finalStudentRegFee = 500;
+            finalCourseFee = Number(courseInfo.fee || 0);
+            finalCourseRegFee = Number(courseInfo.registrationFee || 1000);
+            finalStudentRegFee = Number(500);
             finalEnrolledCourse = courseId;
           }
         }
         
-        const totalFees = finalCourseFee + finalCourseRegFee + finalStudentRegFee;
+        const totalFees = Number(finalCourseFee || 0) + Number(finalCourseRegFee || 0) + Number(finalStudentRegFee || 0);
         const receivedAmount = payment.receivedAmount || 0;
         
         // Fix paymentOption if installmentsConfig exists but paymentOption is wrong
@@ -305,9 +305,9 @@ export async function GET(request: NextRequest) {
           cohortId: payment.cohortId,
           cohortName: cohortToNameMap.get(payment.cohortId) || payment.cohortName,
           courseType: courseDetails?.courseType || payment.courseType || 'Not Set',
-          courseRegistrationFee: finalCourseRegFee,
-          studentRegistrationFee: finalStudentRegFee,
-          courseFee: finalCourseFee,
+          courseRegistrationFee: Number(finalCourseRegFee || 0),
+          studentRegistrationFee: Number(finalStudentRegFee || 0),
+          courseFee: Number(finalCourseFee || 0),
           receivedAmount: receivedAmount,
           outstandingAmount: outstandingAmount,
           collectionRate: totalFees > 0 ? Math.round((receivedAmount / totalFees) * 100) : 0,
@@ -350,7 +350,7 @@ export async function GET(request: NextRequest) {
         const courseRegFee = courseInfo?.registrationFee || 1000;
         const studentRegFee = 500;
         const courseFeeAmount = courseInfo?.fee || 0;
-        const totalFees = courseRegFee + studentRegFee + courseFeeAmount;
+        const totalFees = Number(courseRegFee || 0) + Number(studentRegFee || 0) + Number(courseFeeAmount || 0);
         
         // For Monthly Subscription payment categories, outstanding amount should be 0
         const isMonthlySubscription = courseDetails?.paymentCategory === 'Monthly subscription';
@@ -367,9 +367,9 @@ export async function GET(request: NextRequest) {
           cohortId: student.cohortId,
           cohortName: cohortToNameMap.get(student.cohortId) || student.cohortName || student.cohortId,
           courseType: courseDetails?.courseType || student.courseType || 'Not Set',
-          courseRegistrationFee: courseRegFee,
-          studentRegistrationFee: studentRegFee,
-          courseFee: courseFeeAmount,
+          courseRegistrationFee: Number(courseRegFee) || 0,
+          studentRegistrationFee: Number(studentRegFee) || 0,
+          courseFee: Number(courseFeeAmount) || 0,
           receivedAmount: 0,
           outstandingAmount: outstandingAmount,
           collectionRate: 0,

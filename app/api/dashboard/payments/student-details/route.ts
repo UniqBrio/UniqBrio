@@ -2,15 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Student from '@/models/dashboard/student/Student';
 import mongoose from 'mongoose';
+import { getUserSession } from '@/lib/tenant/api-helpers';
+import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
 export async function GET(request: NextRequest) {
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json(
+      { error: 'Unauthorized: No tenant context' },
+      { status: 401 }
+    );
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
   try {
     await dbConnect("uniqbrio");
 
     const searchParams = request.nextUrl.searchParams;
     const studentId = searchParams.get('studentId');
 
-    console.log('[student-details] Request received for studentId:', studentId);
+    console.log('[student-details] Request received for studentId:', studentId, 'tenantId:', session.tenantId);
 
     if (!studentId) {
       return NextResponse.json(
@@ -19,7 +33,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const student = await Student.findOne({ studentId })
+    const student = await Student.findOne({ studentId, tenantId: session.tenantId })
       .select('studentId name enrolledCourse enrolledCourseName category courseType courseLevel cohortId courseOfInterestId guardian guardianFirstName guardianMiddleName guardianLastName')
       .lean()
       .exec();
@@ -48,7 +62,7 @@ export async function GET(request: NextRequest) {
     if (!courseId && (student as any).cohortId) {
       console.log('[student-details] Fetching courseId from cohort:', (student as any).cohortId);
       const Cohort = mongoose.connection.collection('cohorts');
-      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId });
+      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId });
       if (cohort?.courseId) {
         courseId = cohort.courseId;
         console.log('[student-details] Found courseId from cohort:', courseId);
@@ -93,4 +107,5 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+  });
 }

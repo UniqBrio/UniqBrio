@@ -203,7 +203,7 @@ export function StudentDetailDialog({
   ];
 
   // Calculate totals
-  const totalToBePaid = (payment.courseFee || 0) + (payment.courseRegistrationFee || 0) + (payment.studentRegistrationFee || 0);
+  const totalToBePaid = Number(payment.courseFee || 0) + Number(payment.courseRegistrationFee || 0) + Number(payment.studentRegistrationFee || 0);
   const collectionRate = totalToBePaid > 0 ? ((payment.receivedAmount || 0) / totalToBePaid) * 100 : 0;
 
   const paymentSummaryFields: InfoField[] = [
