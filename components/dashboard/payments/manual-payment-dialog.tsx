@@ -163,6 +163,7 @@ export function ManualPaymentDialog({
   const [emiIndex, setEmiIndex] = useState<number>(0);
   const [showEmiSelector, setShowEmiSelector] = useState(false);
   const [receivedBySearch, setReceivedBySearch] = useState("");
+  const [customPayers, setCustomPayers] = useState<string[]>([]);
   
   // One Time with Installments fields
   const [installmentsConfig, setInstallmentsConfig] = useState<OneTimeInstallmentsConfig | null>(null);
@@ -325,6 +326,13 @@ export function ManualPaymentDialog({
 
     if (open) {
       fetchPeople();
+    }
+  }, [open]);
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      resetForm();
     }
   }, [open]);
 
@@ -1069,7 +1077,7 @@ export function ManualPaymentDialog({
     if (!payment) return;
     
     const numAmount = parseFloat(amount);
-    const balance = payment.outstandingAmount || 0;
+    const receivedAmount = payment.receivedAmount || 0;
     
     if (isNaN(numAmount) || numAmount <= 0) {
       setPaymentAmountError("");
@@ -1083,25 +1091,33 @@ export function ManualPaymentDialog({
       return;
     }
     
-    // For first payment with registration fees, allow higher amount
-    const isFirstPayment = !payment.receivedAmount || payment.receivedAmount === 0;
-    let maxAllowedAmount = balance;
+    // Calculate the actual maximum allowed amount based on total fees and what's been paid
+    const isFirstPayment = receivedAmount === 0;
     
-    if (isFirstPayment) {
-      // Add unpaid registration fees to the allowed amount
-      if (!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee) {
-        maxAllowedAmount += payment.studentRegistrationFee;
-      }
-      if (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee) {
-        maxAllowedAmount += payment.courseRegistrationFee;
-      }
+    // Get effective fees
+    const courseFee = fetchedFees?.courseFee || payment.courseFee || 0;
+    const studentRegistrationFee = fetchedFees?.studentRegistrationFee || payment.studentRegistrationFee || 0;
+    const courseRegistrationFee = fetchedFees?.courseRegistrationFee || payment.courseRegistrationFee || 0;
+    
+    // Calculate total fees
+    let totalFees = courseFee;
+    
+    // Add registration fees if not already paid and if selected
+    if (!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee) {
+      totalFees += studentRegistrationFee;
+    }
+    if (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee) {
+      totalFees += courseRegistrationFee;
     }
     
+    // Maximum allowed is total fees minus what's already been received
+    const maxAllowedAmount = Math.max(0, totalFees - receivedAmount);
+    
     if (numAmount > maxAllowedAmount) {
-      if (isFirstPayment) {
-        setPaymentAmountError(`Payment cannot exceed ${currency} ${maxAllowedAmount.toLocaleString()} (course fee + registration fees)`);
+      if (maxAllowedAmount === 0) {
+        setPaymentAmountError(`Payment already completed. No additional payment required.`);
       } else {
-        setPaymentAmountError(`Payment cannot exceed remaining balance of ${currency} ${balance.toLocaleString()}`);
+        setPaymentAmountError(`Payment cannot exceed ${currency} ${maxAllowedAmount.toLocaleString()} (remaining balance)`);
       }
     } else {
       setPaymentAmountError("");
@@ -1425,12 +1441,88 @@ export function ManualPaymentDialog({
   };
 
   const resetForm = () => {
+    // Basic payment fields
+    setPaymentOption("Monthly");
+    setPlanType('MONTHLY_SUBSCRIPTION');
+    setPaymentSubType('');
     setPaymentAmount("");
+    const now = new Date();
+    setDate(now.toISOString().slice(0, 10));
+    setTime(now.toTimeString().slice(0, 5));
+    setMode("Cash");
+    setReceivedBy("");
     setNotes("");
-    setDiscount("");
+    
+    // Enhanced fields
+    setPayerType('student');
+    setCustomPayerType("");
     setPayerName("");
+    setDiscount("");
+    
+    // EMI fields
     setEmiIndex(0);
+    setShowEmiSelector(false);
+    setReceivedBySearch("");
+    
+    // One Time with Installments fields
+    setInstallmentsConfig(null);
+    setCurrentInstallmentNumber(1);
+    
+    // Ongoing Training - Monthly Subscription fields
+    setBaseMonthlyAmount(0);
+    setIsDiscountedPlan(false);
+    setDiscountType('percentage');
+    setDiscountValue('');
+    setLockInMonths(0);
+    setDiscountedMonthlyAmount(0);
+    setTotalPayable(0);
+    setTotalSavings(0);
+    setAllowEditMonthlyFee(false);
+    
+    // Monthly subscription billing fields
+    setBillingDueDate(1);
+    setAutoRenew(false);
+    setLateFeeRule('');
+    setGracePeriodDays(0);
+    setAutoRenewOption('ask_again');
+    setRefundPolicy('no_refund');
+    
+    // Error states
     setPaymentAmountError("");
+    
+    // UI states
+    setOpenCombobox(false);
+    setShowCommitmentSelector(false);
+    
+    // Payment types selection
+    setSelectedTypes({
+      coursePayment: false,
+      studentRegistrationFee: false,
+      courseRegistrationFee: false,
+    });
+    
+    // Monthly subscription state
+    setMonthlySubscriptionState({
+      monthlyAmount: 0,
+      discountedAmount: 0,
+      discountType: 'percentage',
+      discountValue: 0,
+      discountPeriod: 3,
+      isDiscounted: false,
+      isFirstPayment: true,
+      totalMonthlyWithRegistration: 0,
+      registrationFeesIncluded: {
+        student: false,
+        course: false
+      }
+    });
+    
+    // Commitment and subscription fields
+    setCommitmentPeriod(3);
+    setShowCommitmentSelector(false);
+    
+    // Stop reminders
+    setStopReminders(false);
   };
 
   if (!payment) return null;
@@ -2325,7 +2417,12 @@ export function ManualPaymentDialog({
                           <div className="p-1">
                             <div 
                               onClick={() => {
-                                setReceivedBy(receivedBySearch.trim());
+                                const newPayerName = receivedBySearch.trim();
+                                // Add to custom payers list if not already present
+                                setCustomPayers(prev => 
+                                  prev.includes(newPayerName) ? prev : [...prev, newPayerName]
+                                );
+                                setReceivedBy(newPayerName);
                                 setOpenCombobox(false);
                                 setReceivedBySearch("");
                               }}
@@ -2392,6 +2489,39 @@ export function ManualPaymentDialog({
                                 }`}
                               />
                               {person.displayName}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                      {customPayers.length > 0 && (
+                        <CommandGroup heading="Other Payers">
+                          {customPayers
+                            .filter(payerName => 
+                              payerName.toLowerCase().includes(receivedBySearch.toLowerCase())
+                            )
+                            .map((payerName, index) => (
+                            <CommandItem
+                              key={`custom-${index}-${payerName}`}
+                              value={payerName}
+                              onSelect={(currentValue) => {
+                                setReceivedBy(currentValue === receivedBy ? "" : payerName);
+                                setOpenCombobox(false);
+                                setReceivedBySearch("");
+                              }}
+                              className={`cursor-pointer ${
+                                receivedBy === payerName
+                                  ? "bg-purple-600 text-white hover:bg-purple-700 hover:text-white data-[selected=true]:bg-purple-600 data-[selected=true]:text-white"
+                                  : "hover:bg-purple-50 data-[selected=true]:bg-purple-50 data-[selected=true]:text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${
+                                  receivedBy === payerName
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                }`}
+                              />
+                              {payerName}
                             </CommandItem>
                           ))}
                         </CommandGroup>
