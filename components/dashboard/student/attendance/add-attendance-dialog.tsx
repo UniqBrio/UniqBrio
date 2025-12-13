@@ -162,7 +162,7 @@ export function AddAttendanceDialog({
 
   // Detect potential duplicate records (only for new records, not when editing)
   const potentialDuplicate = useMemo(() => {
-    if (editingRecord || !newStudentId || !newDate) return null;
+    if (editingRecord || !newStudentId || !newDate) return undefined;
     
     return attendanceData.find(
       record => record.studentId === newStudentId && record.date === newDate
@@ -1114,7 +1114,7 @@ export function AddAttendanceDialog({
                 </Button>
                 <Button
                   size="sm"
-                  className="h-9"
+                  className="h-9 bg-purple-600 text-white"
                   onClick={handleSaveAttendance}
                   disabled={
                     !newStudentId ||
@@ -1123,7 +1123,7 @@ export function AddAttendanceDialog({
                     (newStatus === 'absent' && !newNotes.trim()) ||
                     (!editingRecord && Boolean(potentialDuplicate)) ||
                     invalidTimeRange ||
-                    (editingRecord && !isDirty)
+                    Boolean(editingRecord && !isDirty)
                   }
                   title={
                     !newStudentId

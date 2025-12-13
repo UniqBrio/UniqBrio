@@ -94,8 +94,10 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const offset = searchParams.get('offset');
 
-    // Build query filters
-    let query: any = { tenantId: session.tenantId };
+    // Build query filters - CRITICAL: Always filter by tenantId for multi-tenant isolation
+    let query: any = { 
+      tenantId: session.tenantId // Ensure only current tenant's attendance is returned
+    };
     
     if (studentId) {
       query.studentId = studentId;
@@ -118,8 +120,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Build aggregation pipeline to join with student data for course details
+    // CRITICAL: Double-check tenantId in the match stage
     let pipeline: any[] = [
-      { $match: query },
+      { $match: { 
+        ...query, 
+        tenantId: session.tenantId // Double-check tenantId filter
+      } },
       // Left join with students collection to get course details
       {
         $lookup: {
@@ -338,12 +344,25 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Note: avoid verbose logging in production
+    // SECURITY CHECK: Verify all returned records belong to current tenant
+    const invalidRecords = enrichedRecords.filter((record: any) => record.tenantId !== session.tenantId);
+    if (invalidRecords.length > 0) {
+      console.error(`[SECURITY] Found ${invalidRecords.length} attendance records with wrong tenantId!`, {
+        currentTenant: session.tenantId,
+        invalidRecords: invalidRecords.map((r: any) => ({ id: r._id, tenantId: r.tenantId, studentId: r.studentId }))
+      });
+      // Filter out invalid records as a safety measure
+      enrichedRecords = enrichedRecords.filter((record: any) => record.tenantId === session.tenantId);
+    }
 
     // Get total count for pagination (if filters are applied)
+    // CRITICAL: Ensure count also filters by tenantId
     let totalCount = null;
     if (limit || offset) {
-      const countResult = await StudentAttendance.countDocuments(query);
+      const countResult = await StudentAttendance.countDocuments({ 
+        ...query, 
+        tenantId: session.tenantId // Ensure tenant isolation
+      });
       totalCount = countResult;
     }
 

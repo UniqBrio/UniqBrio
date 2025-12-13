@@ -735,19 +735,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <div className="flex items-center justify-between w-full">
-              <DialogTitle>Attendance Details</DialogTitle>
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 rounded-full hover:bg-gray-100"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogClose>
-            </div>
+            <DialogTitle>Attendance Details</DialogTitle>
           </DialogHeader>
           {recordToView && (
             <div className="p-2 space-y-6">
@@ -782,19 +770,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <div className="flex items-center justify-between w-full">
-              <DialogTitle>Delete Attendance</DialogTitle>
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 rounded-full hover:bg-gray-100"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogClose>
-            </div>
+            <DialogTitle>Delete Attendance</DialogTitle>
           </DialogHeader>
           <div className="p-2">
             <p className="text-sm text-gray-600 dark:text-white mb-3">Are you sure you want to delete this attendance record? This will remove it and cannot be undone.</p>

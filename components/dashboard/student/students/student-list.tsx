@@ -34,7 +34,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
   const loadCohorts = async () => {
     setCohortsLoading(true);
     try {
-      console.log('?? Fetching cohorts from database...');
+      console.log('Fetching cohorts from database...');
       const data = await fetchCohorts(); // Fetch all cohorts
       setCohorts(Array.isArray(data) ? data : []);
       console.log('? Cohorts loaded:', data.length);
@@ -54,8 +54,8 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
   // Refresh cohorts whenever the students list changes (students added/updated)
   useEffect(() => {
     if (students.length > 0) {
-      console.log('?? Students list changed, refreshing cohorts...');
-      console.log('?? Students with cohort assignments:', 
+      console.log('Students list changed, refreshing cohorts...');
+      console.log('Students with cohort assignments:', 
         students
           .filter(s => s.cohortId)
           .map(s => ({ name: s.name, cohortId: s.cohortId }))
@@ -74,11 +74,11 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
         cohortId = inferred.id;
         // Mutate in-place so subsequent renders use it (safe client-side)
         (student as any).cohortId = cohortId;
-        console.log('?? Inferred missing cohortId for student from cohorts', { student: student.studentId, cohortId });
+        console.log('Inferred missing cohortId for student from cohorts', { student: student.studentId, cohortId });
       }
     }
     if (!cohortId || cohorts.length === 0) {
-      console.log('?? getCohortDetails - No cohortId or cohorts:', { studentName: student.name, cohortId, cohortsCount: cohorts.length });
+      console.log('getCohortDetails - No cohortId or cohorts:', { studentName: student.name, cohortId, cohortsCount: cohorts.length });
       return null;
     }
     
@@ -97,7 +97,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
              nameLower === cohortIdLower;
     });
     
-    console.log('?? getCohortDetails - Looking for cohort:', { 
+    console.log('getCohortDetails - Looking for cohort:', { 
       studentName: student.name, 
   studentCohortId: cohortId, 
       foundCohort: cohort ? `${cohort.id} (${cohort.name})` : 'NOT FOUND',
@@ -212,7 +212,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
       case 'Cohort': {
         const cohortDetails = getCohortDetails(student);
         if (student.cohortId) {
-          console.log(`?? Rendering Cohort for ${student.name}:`, {
+          console.log(`Rendering Cohort for ${student.name}:`, {
             cohortId: student.cohortId,
             hasCohortDetails: !!cohortDetails,
             cohortDetails: cohortDetails
@@ -290,6 +290,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
             <span 
               role="button" 
               aria-label="Edit"
+              title="Edit Student"
               className="cursor-pointer text-sm hover:bg-gray-100 p-2 rounded transition-colors inline-block"
               onClick={(e) => { 
                 e.stopPropagation(); 
@@ -301,6 +302,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
             <span
               role="button"
               aria-label="Delete"
+              title="Delete Student"
               className="cursor-pointer text-sm hover:bg-red-100 p-2 rounded transition-colors inline-block"
               onClick={(e) => {
                 e.stopPropagation();
@@ -397,7 +399,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                           ? `${course.courseId || course.id} - ${course.name}`
                           : (student.enrolledCourseName && student.courseOfInterestId
                               ? `${student.courseOfInterestId} - ${student.enrolledCourseName}`
-                              : (student.enrolledCourseName || student.courseOfInterestId || (courses.length === 0 ? '�' : '-')));
+                              : (student.enrolledCourseName || student.courseOfInterestId || (courses.length === 0 ? '-' : '-')));
                       })()}
                     </div>
                     
@@ -410,7 +412,7 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
                         return same ? cohortDetails.id : (
                           <>
                             <span style={{ color: `${primaryColor}dd` }}>{cohortDetails.id}</span>
-                            <span className="mx-1 text-gray-400 dark:text-white">�</span>
+                            <span className="mx-1 text-gray-400 dark:text-white">•</span>
                             <span>{cohortDetails.name}</span>
                           </>
                         );

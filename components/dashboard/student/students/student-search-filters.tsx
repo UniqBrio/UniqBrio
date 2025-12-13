@@ -374,6 +374,29 @@ export default function StudentSearchFilters({
   function toCSV(rows: Student[]) {
     // Export all fields available in the Add Student dialog frontend form
     // Includes all personal info, course details, communication preferences, referral info, and guardian details
+    
+    // Helper function to enrich student data with course details if missing
+    const getEnrichedCourseData = (student: Student) => {
+      const enrolledCourseId = (student as any).enrolledCourse;
+      let category = student.category || '';
+      let courseType = (student as any).courseType || '';
+      let courseLevel = (student as any).courseLevel || '';
+      let enrolledCourseName = (student as any).enrolledCourseName || '';
+      
+      // If any course fields are missing and student has an enrolled course, fetch from courses list
+      if (enrolledCourseId && (!category || !courseType || !courseLevel || !enrolledCourseName)) {
+        const course = courses.find(c => c.id === enrolledCourseId || c.courseId === enrolledCourseId);
+        if (course) {
+          if (!enrolledCourseName) enrolledCourseName = (course as any).name || '';
+          if (!category) category = (course as any).category || '';
+          if (!courseType) courseType = (course as any).type || '';
+          if (!courseLevel) courseLevel = (course as any).level || '';
+        }
+      }
+      
+      return { category, courseType, courseLevel, enrolledCourseName };
+    };
+    
     const columns: { header: string; getter: (s: Student) => any }[] = [
       { header: 'Student ID', getter: s => s.studentId || s.id || '' },
       { header: 'Full Name', getter: s => s.name || '' },
@@ -383,19 +406,19 @@ export default function StudentSearchFilters({
       { header: 'Gender', getter: s => s.gender || '' },
     { header: 'Date of Birth', getter: s => formatDateForDisplay(s.dob || '') },
       { header: 'Mobile Number', getter: s => s.mobile || '' },
-      { header: 'Country Code', getter: s => (s as any).countryCode || '' },
+      { header: 'Country Code', getter: s => (s as any).countryCode ? `+${(s as any).countryCode}` : '' },
       { header: 'Country', getter: s => (s as any).country || '' },
       { header: 'State/Province', getter: s => (s as any).stateProvince || '' },
       { header: 'Email Address', getter: s => s.email || '' },
       { header: 'Address', getter: s => s.address || '' },
       
-      // Course Information
+      // Course Information - enriched with course data if missing
       { header: 'Course of Interest', getter: s => s.courseOfInterestId || '' },
       { header: 'Enrolled Course ID', getter: s => (s as any).enrolledCourse || '' },
-      { header: 'Enrolled Course Name', getter: s => (s as any).enrolledCourseName || '' },
-      { header: 'Course Category', getter: s => s.category || '' },
-      { header: 'Course Type', getter: s => (s as any).courseType || '' },
-      { header: 'Course Level', getter: s => (s as any).courseLevel || '' },
+      { header: 'Enrolled Course Name', getter: s => getEnrichedCourseData(s).enrolledCourseName },
+      { header: 'Course Category', getter: s => getEnrichedCourseData(s).category },
+      { header: 'Course Type', getter: s => getEnrichedCourseData(s).courseType },
+      { header: 'Course Level', getter: s => getEnrichedCourseData(s).courseLevel },
   { header: 'Registration Date', getter: s => formatDateForDisplay(s.registrationDate || '') },
   { header: 'Course Start Date', getter: s => formatDateForDisplay(s.courseStartDate || '') },
       { header: 'Cohort', getter: s => s.cohortId || '' },
@@ -413,7 +436,7 @@ export default function StudentSearchFilters({
       { header: 'Guardian Last Name', getter: s => (s as any).guardianLastName || '' },
       { header: 'Guardian Full Name', getter: s => s.guardian?.fullName || '' },
       { header: 'Guardian Relationship', getter: s => s.guardian?.relationship || '' },
-      { header: 'Guardian Country Code', getter: s => (s as any).guardianCountryCode || '' },
+      { header: 'Guardian Country Code', getter: s => (s as any).guardianCountryCode ? `+${(s as any).guardianCountryCode}` : '' },
       { header: 'Guardian Contact', getter: s => s.guardian?.contact || '' },
 
     ];
@@ -661,7 +684,7 @@ export default function StudentSearchFilters({
         
         // Show import start notification
         toast({ 
-          title: '?? Import Started', 
+          title: 'Import Started', 
           description: `Processing ${valid.length} student records...`,
           duration: 3000
         });
@@ -678,13 +701,13 @@ export default function StudentSearchFilters({
         // Show completion toast based on results
         if (result.stats.inserted > 0) {
           toast({ 
-            title: `?? Successfully Imported!`, 
+            title: `Successfully Imported!`, 
             description: `Added ${result.stats.inserted} new student${result.stats.inserted !== 1 ? 's' : ''} to your database.${result.stats.duplicates > 0 ? ` (${result.stats.duplicates} duplicates skipped)` : ''}`,
             duration: 5000,
           });
         } else if (result.stats.duplicates > 0 && result.stats.errors === 0) {
           toast({ 
-            title: '?? All Students Already Exist', 
+            title: 'All Students Already Exist', 
             description: `Found ${result.stats.duplicates} duplicate records. No new students were added.`,
             duration: 4000,
           });
@@ -836,7 +859,7 @@ export default function StudentSearchFilters({
                 <Button
                   size="sm"
                   variant="default"
-                  className="flex-1"
+                  className="flex-1 bg-purple-600 text-white"
                   onClick={() => {
                     setSelectedFilters({ ...pendingFilters });
                     setFilterDropdownOpen(false);

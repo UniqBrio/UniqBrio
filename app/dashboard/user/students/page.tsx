@@ -67,6 +67,7 @@ export default function StudentsPage() {
   // Preload attendance data to improve UX
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
   const [attendanceLoading, setAttendanceLoading] = useState(true);
+  const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
 
   // Student Settings State with localStorage persistence
   const [studentSettings, setStudentSettings] = useState(() => {
@@ -429,6 +430,39 @@ export default function StudentsPage() {
     };
     loadAttendanceData();
   }, []);
+
+  // Refetch attendance data when the attendance tab becomes active
+  useEffect(() => {
+    if (activeTab === 'student-attendance') {
+      const loadAttendanceData = async () => {
+        try {
+          setAttendanceLoading(true);
+          const response = await fetch('/api/dashboard/student/attendance', {
+            credentials: 'include',
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            
+            if (result.success) {
+              // Map MongoDB _id to id for frontend compatibility
+              const mappedData = result.data.map((record: any) => ({
+                ...record,
+                id: record._id
+              }));
+              setAttendanceData(mappedData);
+              setAttendanceRefreshKey(prev => prev + 1);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading attendance data:', error);
+        } finally {
+          setAttendanceLoading(false);
+        }
+      };
+      loadAttendanceData();
+    }
+  }, [activeTab]);
 
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -847,6 +881,7 @@ export default function StudentsPage() {
           {/* Student Attendance Tab */}
           <TabsContent value="student-attendance">
             <AttendanceManagement 
+              key={attendanceRefreshKey}
               preloadedData={attendanceData}
               preloadedDataLoading={attendanceLoading}
             />

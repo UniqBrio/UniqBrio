@@ -20,6 +20,7 @@ interface StudentStatisticsCardsProps {
 
 export default function StudentStatisticsCards({ stats: propStats }: StudentStatisticsCardsProps) {
   const { primaryColor, secondaryColor } = useCustomColors()
+  const [loading, setLoading] = useState(!propStats);
   const [stats, setStats] = useState<StudentStats>(propStats || {
     totalStudents: 0,
     activeStudents: 0,
@@ -31,6 +32,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
       try {
         // Fetch student stats
         const [studentsResponse, coursesResponse, cohortsResponse] = await Promise.all([
@@ -66,6 +68,8 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
         setStats(newStats);
       } catch (error) {
         console.error('Failed to fetch student statistics:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -82,7 +86,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-blue-600">Total Students</p>
-              <p className="text-2xl font-bold text-blue-900">{stats.totalStudents}</p>
+              <p className="text-2xl font-bold text-blue-900">{loading ? '-' : stats.totalStudents}</p>
             </div>
             <Users className="h-8 w-8 text-blue-500" />
           </div>
@@ -94,7 +98,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-green-600">Active Students</p>
-              <p className="text-2xl font-bold text-green-900">{stats.activeStudents}</p>
+              <p className="text-2xl font-bold text-green-900">{loading ? '-' : stats.activeStudents}</p>
             </div>
             <UserCheck className="h-8 w-8 text-green-500" />
           </div>
@@ -106,7 +110,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium" style={{ color: primaryColor }}>Enrolled Courses</p>
-              <p className="text-2xl font-bold" style={{ color: primaryColor, opacity: 0.9 }}>{stats.totalCourses}</p>
+              <p className="text-2xl font-bold" style={{ color: primaryColor, opacity: 0.9 }}>{loading ? '-' : stats.totalCourses}</p>
             </div>
             <GraduationCap className="h-8 w-8" style={{ color: primaryColor }} />
           </div>
@@ -118,7 +122,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium" style={{ color: secondaryColor }}>Attendance Rate</p>
-              <p className="text-2xl font-bold" style={{ color: secondaryColor, opacity: 0.9 }}>{stats.attendanceRate}%</p>
+              <p className="text-2xl font-bold" style={{ color: secondaryColor, opacity: 0.9 }}>{loading ? '-' : `${stats.attendanceRate}%`}</p>
             </div>
             <Clock className="h-8 w-8" style={{ color: secondaryColor }} />
           </div>
@@ -130,7 +134,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-emerald-600">Completion Rate</p>
-              <p className="text-2xl font-bold text-emerald-900">{stats.completionRate}%</p>
+              <p className="text-2xl font-bold text-emerald-900">{loading ? '-' : `${stats.completionRate}%`}</p>
             </div>
             <CheckCircle className="h-8 w-8 text-emerald-500" />
           </div>
@@ -142,7 +146,7 @@ export default function StudentStatisticsCards({ stats: propStats }: StudentStat
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-indigo-600">Total Cohorts</p>
-              <p className="text-2xl font-bold text-indigo-900">{stats.totalCohorts}</p>
+              <p className="text-2xl font-bold text-indigo-900">{loading ? '-' : stats.totalCohorts}</p>
             </div>
             <Users className="h-8 w-8 text-indigo-500" />
           </div>

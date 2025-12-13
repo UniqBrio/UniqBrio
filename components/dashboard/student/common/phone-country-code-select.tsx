@@ -73,7 +73,7 @@ export const PhoneCountryCodeSelect: React.FC<PhoneCountryCodeSelectProps> = ({
             {sel ? (
               <>
                 <span>{sel.code}</span>
-                {sel.iso2 && <span className="text-xs text-gray-500 dark:text-white font-medium uppercase">{sel.iso2}</span>}
+                {sel.iso2 && <span className="text-xs text-black hover:text-white font-medium uppercase">{sel.iso2}</span>}
               </>
             ) : placeholder}
           </span>

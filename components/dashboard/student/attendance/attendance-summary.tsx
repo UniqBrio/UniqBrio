@@ -55,8 +55,8 @@ export function AttendanceSummary({ attendanceData = [], loading = false }: Atte
     
     // Overall metrics
     const presentPercentage = totalRecords > 0 ? Math.round((presentRecords / totalRecords) * 100) : 0;
-    const uniqueStudents = new Set(attendanceData.map(r => r.studentId)).size;
-    const uniqueCourses = new Set(attendanceData.map(r => r.courseId)).size;
+    const uniqueStudents = new Set(attendanceData.filter(r => r.studentId).map(r => r.studentId)).size;
+    const uniqueCourses = new Set(attendanceData.filter(r => r.courseId).map(r => r.courseId)).size;
     
     // Student performance analysis
     const studentStats = attendanceData.reduce((acc, record) => {

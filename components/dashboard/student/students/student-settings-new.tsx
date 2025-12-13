@@ -365,7 +365,7 @@ export default function StudentSettings({ settings, onUpdateSetting, onResetSett
         <Button
           onClick={handleSave}
           disabled={!hasChanges}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-purple-600"
         >
           <Save className="h-4 w-4" />
           Save Settings

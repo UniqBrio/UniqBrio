@@ -42,7 +42,24 @@ function GenderCombobox({ value, onChange, error }: GenderComboboxProps){
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectValue=(val:string)=>{ onChange(val); setOpen(false); setQuery(''); };
-  const addNew=()=>{ const v=query.trim(); if(!v) return; setCustom(prev=>[...prev,v]); selectValue(v); };
+  const addNew=()=>{ 
+    const v=query.trim(); 
+    if(!v) return; 
+    // Validate that the custom gender only contains letters and spaces
+    const genderRegex = /^[a-zA-Z\s]+$/;
+    if (!genderRegex.test(v)) {
+      return; // Don't add if it contains numbers or special characters
+    }
+    setCustom(prev=>[...prev,v]); 
+    selectValue(v); 
+  };
+
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    // Only allow letters and spaces
+    const sanitized = inputValue.replace(/[^a-zA-Z\s]/g, '');
+    setQuery(sanitized);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -58,7 +75,7 @@ function GenderCombobox({ value, onChange, error }: GenderComboboxProps){
             ref={searchInputRef}
             autoFocus
             value={query}
-            onChange={e=> setQuery(e.target.value)}
+            onChange={handleQueryChange}
             placeholder="Search or type new gender..."
             className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
@@ -252,7 +269,17 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               </Button>
             )}
           </div>
-          <div className="max-h-[180px] overflow-y-auto text-sm pr-1">
+          <div 
+            className="max-h-[180px] overflow-y-auto text-sm pr-1" 
+            style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+            onWheel={(e) => {
+              const element = e.currentTarget;
+              const scrollable = element.scrollHeight > element.clientHeight;
+              if (scrollable) {
+                e.stopPropagation();
+              }
+            }}
+          >
             {loading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading courses...</div>}
             {!loading && error && <div className="text-xs text-red-500 py-2 px-2">{error}</div>}
             {!loading && !error && filtered.map(c=> {
@@ -597,7 +624,24 @@ function ReferredByCombobox({ value, onChange }: ReferredByComboboxProps){
   const searchInputRef = useRef<HTMLInputElement>(null);
   
   const selectValue=(val:string)=>{ onChange(val); setOpen(false); setQuery(''); };
-  const addNew=()=>{ const v=query.trim(); if(!v) return; setCustom(prev=>[...prev,v]); selectValue(v); };
+  const addNew=()=>{ 
+    const v=query.trim(); 
+    if(!v) return; 
+    // Validate that the custom referral source only contains letters and spaces
+    const referralRegex = /^[a-zA-Z\s]+$/;
+    if (!referralRegex.test(v)) {
+      return; // Don't add if it contains numbers or special characters
+    }
+    setCustom(prev=>[...prev,v]); 
+    selectValue(v); 
+  };
+
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    // Only allow letters and spaces
+    const sanitized = inputValue.replace(/[^a-zA-Z\s]/g, '');
+    setQuery(sanitized);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -613,7 +657,7 @@ function ReferredByCombobox({ value, onChange }: ReferredByComboboxProps){
             ref={searchInputRef}
             autoFocus
             value={query}
-            onChange={e=> setQuery(e.target.value)}
+            onChange={handleQueryChange}
             placeholder="Search or type new source..."
             className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
@@ -700,7 +744,24 @@ function RelationshipCombobox({ value, onChange }: RelationshipComboboxProps){
   const searchInputRef = useRef<HTMLInputElement>(null);
   
   const selectValue=(val:string)=>{ onChange(val); setOpen(false); setQuery(''); };
-  const addNew=()=>{ const v=query.trim(); if(!v) return; setCustom(prev=>[...prev,v]); selectValue(v); };
+  const addNew=()=>{ 
+    const v=query.trim(); 
+    if(!v) return; 
+    // Validate that the custom relationship only contains letters and spaces
+    const relationshipRegex = /^[a-zA-Z\s]+$/;
+    if (!relationshipRegex.test(v)) {
+      return; // Don't add if it contains numbers or special characters
+    }
+    setCustom(prev=>[...prev,v]); 
+    selectValue(v); 
+  };
+
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    // Only allow letters and spaces
+    const sanitized = inputValue.replace(/[^a-zA-Z\s]/g, '');
+    setQuery(sanitized);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -716,7 +777,7 @@ function RelationshipCombobox({ value, onChange }: RelationshipComboboxProps){
             ref={searchInputRef}
             autoFocus
             value={query}
-            onChange={e=> setQuery(e.target.value)}
+            onChange={handleQueryChange}
             placeholder="Search or type new relationship..."
             className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
           />
@@ -808,7 +869,31 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     if(sanitizedInitial.cohort && !sanitizedInitial.cohortId) sanitizedInitial.cohortId = sanitizedInitial.cohort;
     if('batch' in sanitizedInitial) delete sanitizedInitial.batch;
     if('cohort' in sanitizedInitial) delete sanitizedInitial.cohort;
-    return { ...base, ...sanitizedInitial, guardian: initialStudent.guardian?{...emptyGuardian,...initialStudent.guardian}:emptyGuardian, firstName:sn.first,middleName:sn.middle,lastName:sn.last, guardianFirstName:gn.first,guardianMiddleName:gn.middle,guardianLastName:gn.last };
+    
+    const composed = { 
+      ...base, 
+      ...sanitizedInitial, 
+      guardian: initialStudent.guardian?{...emptyGuardian,...initialStudent.guardian}:emptyGuardian, 
+      firstName:sn.first,
+      middleName:sn.middle,
+      lastName:sn.last, 
+      guardianFirstName:gn.first,
+      guardianMiddleName:gn.middle,
+      guardianLastName:gn.last 
+    };
+    
+    console.log('🔍 composeInitial - initialStudent:', {
+      courseOfInterestId: initialStudent.courseOfInterestId,
+      enrolledCourse: (initialStudent as any).enrolledCourse,
+      cohortId: initialStudent.cohortId
+    });
+    console.log('🔍 composeInitial - composed:', {
+      courseOfInterestId: composed.courseOfInterestId,
+      enrolledCourse: (composed as any).enrolledCourse,
+      cohortId: composed.cohortId
+    });
+    
+    return composed;
   };
   // Helper to detect meaningful user edits vs default-initial values.
   // By default we ignore some fields that are programmatically set (like registrationDate)
@@ -935,106 +1020,99 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   };
   const prevTab=(e?: React.MouseEvent)=>{ e?.preventDefault(); e?.stopPropagation(); const i=tabKeys.indexOf(activeTab); if(i>0) setActiveTab(tabKeys[i-1]); };
   
-  // Reset form when dialog opens/closes or when initialStudent changes
-  useEffect(()=>{ 
-    const initial = composeInitial();
-    setNewStudent(initial);
-    
-    // Debug log when editing a student
-    if (initialStudent) {
-      console.log('?? Editing student - Initial data:', {
-        name: initialStudent.name,
-        enrolledCourse: (initialStudent as any).enrolledCourse,
-        enrolledCourseName: initialStudent.enrolledCourseName,
-        cohortId: initialStudent.cohortId,
-        courseStartDate: initialStudent.courseStartDate
-      });
-      console.log('?? Composed initial state:', {
-        enrolledCourse: (initial as any).enrolledCourse,
-        cohortId: initial.cohortId
-      });
-    }
-  },[initialStudent]);
-  
-  // Reset form when dialog is opened fresh (not editing)
+  // Reset form when dialog is opened (for both new and edit modes)
   useEffect(() => {
     // Always reset to first tab whenever the dialog is (re)opened, whether creating or editing.
     // This ensures that if the user was on the last tab, closes, and reopens, they start at the first tab.
     if (open) {
+      console.log('📝 Dialog opened - initialStudent:', initialStudent ? {
+        name: initialStudent.name,
+        courseOfInterestId: initialStudent.courseOfInterestId,
+        enrolledCourse: (initialStudent as any).enrolledCourse,
+        cohortId: initialStudent.cohortId
+      } : 'NEW STUDENT');
+      
       setActiveTab('student-info');
       // Reset saving draft guard when dialog opens to ensure save button works
       savingDraftRef.current = false;
       setIsSavingDraft(false);
-    }
-    if (open && !initialStudent) {
+      
+      // Compose initial data based on whether editing or creating
       const initial = composeInitial();
+      console.log('📝 Setting newStudent with:', {
+        courseOfInterestId: initial.courseOfInterestId,
+        enrolledCourse: (initial as any).enrolledCourse,
+        cohortId: initial.cohortId
+      });
       setNewStudent(initial);
-      setInitialFormState(initial as Partial<Student>);
-      setHasUnsavedChanges(false);
-      setCurrentDraftId(null); // Reset draft ID for new students
-      setCountryCode('+91'); // Reset to India
-      setSelectedCountryName('India');
-      setGuardianCountryCode('+91'); // Reset guardian to India
-      // Clear any previous validation highlights when opening fresh
-      setErrorFields(new Set());
-      setShowValidationAlert(false);
-      console.log('?? Opening new student dialog - draftId reset to null');
-      // Record an initial snapshot used to determine whether the user
-      // has made any meaningful edits (mirrors attendance dialog approach)
-      initialSnapshotRef.current = {
-        firstName: initial.firstName || '',
-        lastName: initial.lastName || '',
-        email: initial.email || '',
-        dob: initial.dob || '',
-        mobile: initial.mobile || '',
-        gender: initial.gender || '',
-        courseOfInterestId: initial.courseOfInterestId || '',
-        enrolledCourse: (initial as any).enrolledCourse || '',
-        cohortId: initial.cohortId || '',
-        country: (initial as any).country || '',
-        stateProvince: (initial as any).stateProvince || '',
-        registrationDate: initial.registrationDate || '',
-        address: initial.address || ''
-      };
-    } else if (open && initialStudent) {
-      setInitialFormState(initialStudent);
-      setHasUnsavedChanges(false);
-      setCurrentDraftId(draftId || null); // Set draft ID when editing existing draft
-      // Set country codes from initialStudent if available
-      if (initialStudent.countryCode) setCountryCode(initialStudent.countryCode);
-      if (initialStudent.guardianCountryCode) setGuardianCountryCode(initialStudent.guardianCountryCode);
-      // Set country name from country code
-      if ((initialStudent as any).country) {
-        getCachedCountries().then(countries => {
-          const country = countries.find((c: any) => c.cca2 === (initialStudent as any).country);
-          if (country) {
-            setSelectedCountryName(country.name?.common);
-          }
-        }).catch(err => {
-          console.error('Failed to load country name:', err);
-        });
+      
+      if (!initialStudent) {
+        // Creating new student
+        setInitialFormState(initial as Partial<Student>);
+        setHasUnsavedChanges(false);
+        setCurrentDraftId(null);
+        setCountryCode('+91');
+        setSelectedCountryName('India');
+        setGuardianCountryCode('+91');
+        setErrorFields(new Set());
+        setShowValidationAlert(false);
+        
+        initialSnapshotRef.current = {
+          firstName: initial.firstName || '',
+          lastName: initial.lastName || '',
+          email: initial.email || '',
+          dob: initial.dob || '',
+          mobile: initial.mobile || '',
+          gender: initial.gender || '',
+          courseOfInterestId: initial.courseOfInterestId || '',
+          enrolledCourse: (initial as any).enrolledCourse || '',
+          cohortId: initial.cohortId || '',
+          country: (initial as any).country || '',
+          stateProvince: (initial as any).stateProvince || '',
+          registrationDate: initial.registrationDate || '',
+          address: initial.address || ''
+        };
+      } else {
+        // Editing existing student
+        setInitialFormState(initialStudent);
+        setHasUnsavedChanges(false);
+        setCurrentDraftId(draftId || null);
+        
+        // Set country codes from initialStudent
+        if (initialStudent.countryCode) setCountryCode(initialStudent.countryCode);
+        if (initialStudent.guardianCountryCode) setGuardianCountryCode(initialStudent.guardianCountryCode);
+        
+        // Set country name from country code
+        if ((initialStudent as any).country) {
+          getCachedCountries().then(countries => {
+            const country = countries.find((c: any) => c.cca2 === (initialStudent as any).country);
+            if (country) {
+              setSelectedCountryName(country.name?.common);
+            }
+          }).catch(err => {
+            console.error('Failed to load country name:', err);
+          });
+        }
+        
+        setErrorFields(new Set());
+        setShowValidationAlert(false);
+        
+        initialSnapshotRef.current = {
+          firstName: initialStudent.firstName || initialStudent.name || '',
+          lastName: initialStudent.lastName || '',
+          email: initialStudent.email || '',
+          dob: initialStudent.dob || '',
+          mobile: initialStudent.mobile || '',
+          gender: initialStudent.gender || '',
+          courseOfInterestId: initialStudent.courseOfInterestId || '',
+          enrolledCourse: (initialStudent as any).enrolledCourse || '',
+          cohortId: initialStudent.cohortId || '',
+          country: (initialStudent as any).country || '',
+          stateProvince: (initialStudent as any).stateProvince || '',
+          registrationDate: initialStudent.registrationDate || '',
+          address: initialStudent.address || ''
+        };
       }
-      // Clear validation highlights when opening for edit
-      setErrorFields(new Set());
-      setShowValidationAlert(false);
-      console.log('?? Opening existing student/draft - draftId:', draftId);
-      // Set snapshot based on the provided initialStudent so edits are
-      // compared against the pre-existing data when deciding "dirty".
-      initialSnapshotRef.current = {
-        firstName: initialStudent.firstName || initialStudent.name || '',
-        lastName: initialStudent.lastName || '',
-        email: initialStudent.email || '',
-        dob: initialStudent.dob || '',
-        mobile: initialStudent.mobile || '',
-        gender: initialStudent.gender || '',
-        courseOfInterestId: initialStudent.courseOfInterestId || '',
-        enrolledCourse: (initialStudent as any).enrolledCourse || '',
-        cohortId: initialStudent.cohortId || '',
-        country: (initialStudent as any).country || '',
-        stateProvince: (initialStudent as any).stateProvince || '',
-        registrationDate: initialStudent.registrationDate || '',
-        address: initialStudent.address || ''
-      };
     }
   }, [open, initialStudent, draftId]);
   
@@ -1161,6 +1239,16 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     })();
     return () => { cancelled = true; };
   }, []);
+  
+  // Filter out the current student from the referring student list (student cannot refer themselves)
+  const availableReferringStudents = useMemo(() => {
+    return students.filter(s => {
+      // Exclude the current student being edited/created
+      const currentStudentId = initialStudent?.studentId || initialStudent?.id;
+      const studentId = s.studentId || s.id;
+      return currentStudentId !== studentId;
+    });
+  }, [students, initialStudent]);
 
   
 
@@ -1290,8 +1378,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     // Regex validation patterns
     const nameRegex = /^[a-zA-Z\s\-'\.]{2,50}$/; // Letters, spaces, hyphens, apostrophes, dots, 2-50 chars
     const addressRegex = /^[a-zA-Z0-9\s\-,\.#/()]{5,100}$/; // Alphanumeric with common address characters
-    // Email: Must start with alphanumeric, can contain dots/hyphens/underscores (but not consecutively or at edges), standard domain format
-    const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$|^[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+    // Email: RFC-compliant validation - alphanumeric at start/end, special chars (._-) only between alphanumerics, no consecutive special chars
+    const emailRegex = /^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
     const phoneRegex = /^[\d\s\-\+()]{10,}$/; // Flexible phone format
 
     // Base required fields
@@ -1440,27 +1528,23 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   // Load cohorts whenever the enrolled course changes
   useEffect(()=>{ 
     const enrolledCourse = (newStudent as any).enrolledCourse;
-    console.log('?? Cohort loading effect triggered:', { enrolledCourse, hasValue: !!enrolledCourse });
     
     if(!enrolledCourse){ 
       setCohortList([]); 
-      console.log('?? No enrolled course - clearing cohort list');
       return;
     } 
     let cancelled=false; 
     (async()=>{ 
       setCohortsLoading(true);
-      console.log('?? Loading cohorts for course:', enrolledCourse);
       try{ 
         const data=await fetchCohorts(enrolledCourse); 
         if(!cancelled) {
           setCohortList(Array.isArray(data)?data.filter(c=>c&&c.id):[]);
-          console.log('? Loaded cohorts:', data?.length || 0, 'cohorts');
         }
       }catch(err){ 
         if(!cancelled) {
           setCohortList([]);
-          console.error('? Failed to load cohorts:', err);
+          console.error('Failed to load cohorts:', err);
         }
       } finally{ 
         if(!cancelled) setCohortsLoading(false);
@@ -1474,20 +1558,41 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     if (cohortList.length > 0 && newStudent.cohortId && !cohortsLoading) {
       const selectedCohort = cohortList.find(c => c.id === newStudent.cohortId);
       if (selectedCohort && selectedCohort.startDate) {
-        // Only update if the current courseStartDate doesn't match the cohort's startDate
-        if (newStudent.courseStartDate !== selectedCohort.startDate) {
-          console.log('?? Auto-filling course start date from existing cohort:', selectedCohort.startDate);
-          setNewStudent(p => ({
-            ...p,
-            courseStartDate: selectedCohort.startDate
-          }));
-        }
+        // Always update to ensure we display the cohort's start date
+        // This is especially important when editing existing students who may not have courseStartDate saved
+        setNewStudent(p => ({
+          ...p,
+          courseStartDate: selectedCohort.startDate
+        }));
       }
     }
-  }, [cohortList, newStudent.cohortId, cohortsLoading]);
+  }, [cohortList, newStudent.cohortId, cohortsLoading, newStudent.courseStartDate]);
   
-  const setNamePart=(part:'firstName'|'middleName'|'lastName',value:string)=> setNewStudent(prev=>{ const sanitized = value.replace(/[^a-zA-Z\s\-'\.]/g, ''); const next={...prev,[part]:sanitized} as NewStudentType; next.name=[next.firstName,next.middleName,next.lastName].filter(Boolean).join(' '); return next; });
-  const updateGuardianName=(part:'guardianFirstName'|'guardianMiddleName'|'guardianLastName',value:string)=> setNewStudent(prev=>{ const sanitized = value.replace(/[^a-zA-Z\s\-'\.]/g, ''); const next={...prev,[part]:sanitized} as NewStudentType; const full=[next.guardianFirstName,next.guardianMiddleName,next.guardianLastName].filter(Boolean).join(' '); next.guardian={...next.guardian,fullName:full}; return next; });
+  // Sanitize name input to allow only letters, spaces, hyphens, apostrophes, and dots (NO commas, numbers, or special characters)
+  const setNamePart = (part: 'firstName' | 'middleName' | 'lastName', value: string) => {
+    setNewStudent(prev => {
+      // Remove any characters that are NOT letters, spaces, hyphens, apostrophes, or dots
+      const sanitized = value.replace(/[^a-zA-Z\s\-'\.]/g, '');
+      const next = { ...prev, [part]: sanitized } as NewStudentType;
+      // Recompute full name from parts
+      next.name = [next.firstName, next.middleName, next.lastName].filter(Boolean).join(' ');
+      return next;
+    });
+  };
+  
+  // Sanitize guardian name input (same rules as student names - NO commas)
+  const updateGuardianName = (part: 'guardianFirstName' | 'guardianMiddleName' | 'guardianLastName', value: string) => {
+    setNewStudent(prev => {
+      // Remove any characters that are NOT letters, spaces, hyphens, apostrophes, or dots
+      const sanitized = value.replace(/[^a-zA-Z\s\-'\.]/g, '');
+      const next = { ...prev, [part]: sanitized } as NewStudentType;
+      // Recompute full guardian name from parts
+      const full = [next.guardianFirstName, next.guardianMiddleName, next.guardianLastName].filter(Boolean).join(' ');
+      next.guardian = { ...next.guardian, fullName: full };
+      return next;
+    });
+  };
+  
   const updateGuardian=(changes:Partial<Parent>)=> setNewStudent(prev=>({...prev,guardian:{...prev.guardian,...changes}}));
   const handleCourseSelect=(courseId:string)=>{ 
     if(courseId.startsWith('__placeholder__')) return; 
@@ -1499,7 +1604,6 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         enrolledCourseName:sel.name||p.enrolledCourseName,
         cohortId:'' // Clear cohort selection when course changes
       }));
-      console.log('? Selected course:', sel.name);
     } else {
   setNewStudent(p=>({...p,courseOfInterestId:courseId,enrolledCourseName:p.enrolledCourseName,cohortId:''}));
     }
@@ -1514,9 +1618,6 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     const phoneCode = getPhoneCodeByCountry(countryCode);
     if (phoneCode) {
       setCountryCode(phoneCode);
-      console.log(`?? Auto-synced phone code: ${phoneCode} for country ${countryCode} (${countryName})`);
-    } else {
-      console.warn(`?? No phone code mapping found for country: ${countryCode} (${countryName})`);
     }
   };
   
@@ -1715,9 +1816,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       courseOfInterestId: newStudent.courseOfInterestId!, // Course of Interest ID
       enrolledCourse: (newStudent as any).enrolledCourse || '', // Enrolled Course ID
       enrolledCourseName: (newStudent as any).enrolledCourseName || '', // Enrolled Course Name
-      category: '',
-      courseType: '',
-      courseLevel: '',
+      category: (newStudent as any).category || '',
+      courseType: (newStudent as any).courseType || '',
+      courseLevel: (newStudent as any).courseLevel || '',
       registrationDate: newStudent.registrationDate || todayLocal(),
       courseStartDate: newStudent.courseStartDate || '',
   cohortId: newStudent.cohortId || '',
@@ -1737,10 +1838,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     // If this was created from a draft, delete the draft FIRST before creating the student
     if (currentDraftId) {
       try {
-        console.log('??? Attempting to delete draft:', currentDraftId);
         const { StudentDraftsAPI } = await import('@/lib/dashboard/student/student-drafts-api');
         await StudentDraftsAPI.deleteDraft(currentDraftId);
-        console.log('? Draft deleted successfully:', currentDraftId);
         
         // Trigger event to update draft lists
         StudentDraftsAPI.triggerDraftsUpdatedEvent(undefined, 'deleted');
@@ -2036,7 +2135,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                   {draftId ? 'Complete and create a new student from this saved draft.' : (initialStudent ? 'Edit and update the existing student profile.' : 'Create a comprehensive student profile.')}
                 </DialogDescription>
               </div>
-              {!initialStudent && (
+              {(!initialStudent || draftId) && (
                 <div className="flex items-start gap-2">
                   <Button
                     type="button"
@@ -2280,7 +2379,6 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                                   cohortId: '', // Clear cohort when enrolled course is removed
                                   courseStartDate: '' // Clear course start date too
                                 }));
-                                console.log('??? Cleared enrolled course and cohort');
                                 return;
                               }
                               
@@ -2290,14 +2388,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                                   ...p,
                                   enrolledCourse: courseId,
                                   enrolledCourseName: sel.name || p.enrolledCourseName,
+                                  category: sel.category || p.category,
+                                  courseType: sel.type || p.courseType,
+                                  courseLevel: sel.level || p.courseLevel,
                                   cohortId: '', // Clear cohort when enrolled course changes
                                   courseStartDate: '' // Clear course start date when course changes
                                 }));
-                                console.log('? Selected enrolled course and cleared cohort:', {
-                                  courseName: sel.name,
-                                  clearedCohort: true,
-                                  clearedStartDate: true
-                                });
                               }
                             }}
                             courses={courseList.filter(c => c.status === 'Active' || c.status === 'Upcoming')}
@@ -2323,7 +2419,6 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                                   cohortId: cohortId,
                                   courseStartDate: selectedCohort.startDate
                                 }));
-                                console.log('? Auto-filled course start date from cohort:', selectedCohort.startDate);
                               } else {
                                 setNewStudent(p => ({...p, cohortId: cohortId}));
                               }
@@ -2361,7 +2456,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                           onChange={(v)=> setNewStudent(p=>({...p,referredBy:v, ...(v!=='Student'? { referringStudentId:undefined, referringStudentName:undefined }: {}) }))}
                         />
                       </div>
-                      {newStudent.referredBy==='Student' && <div><Label className="text-sm font-medium text-gray-700 dark:text-white">Select Referring Student</Label><Select value={newStudent.referringStudentId||''} onValueChange={v=> { const rs=students.find(s=>s.studentId===v || s.id===v); if(rs) setNewStudent(p=>({...p,referringStudentId:rs.studentId || rs.id, referringStudentName: rs.name })); }}><SelectTrigger className="mt-1"><SelectValue placeholder={studentsLoading ? "Loading students..." : "Select student"} /></SelectTrigger><SelectContent>{studentsLoading ? <SelectItem value="__placeholder__loading" disabled>Loading students...</SelectItem> : students.length === 0 ? <SelectItem value="__placeholder__no_students" disabled>No students found</SelectItem> : students.map(s=> <SelectItem key={s.studentId || s.id} value={s.studentId || s.id || ''}>{(s.studentId || s.id)} - {s.name}</SelectItem>)}</SelectContent></Select></div>}
+                      {newStudent.referredBy==='Student' && <div><Label className="text-sm font-medium text-gray-700 dark:text-white">Select Referring Student</Label><Select value={newStudent.referringStudentId||''} onValueChange={v=> { const rs=availableReferringStudents.find(s=>s.studentId===v || s.id===v); if(rs) setNewStudent(p=>({...p,referringStudentId:rs.studentId || rs.id, referringStudentName: rs.name })); }}><SelectTrigger className="mt-1"><SelectValue placeholder={studentsLoading ? "Loading students..." : "Select student"} /></SelectTrigger><SelectContent>{studentsLoading ? <SelectItem value="__placeholder__loading" disabled>Loading students...</SelectItem> : availableReferringStudents.length === 0 ? <SelectItem value="__placeholder__no_students" disabled>No other students available</SelectItem> : availableReferringStudents.map(s=> <SelectItem key={s.studentId || s.id} value={s.studentId || s.id || ''}>{(s.studentId || s.id)} - {s.name}</SelectItem>)}</SelectContent></Select></div>}
                       <div><Label className="text-sm font-medium text-gray-700 dark:text-white mb-2 block">Communication Channels</Label><div className="grid grid-cols-3 gap-2">{['Email','SMS','WhatsApp'].map(ch=> { const checked=newStudent.communicationPreferences?.channels?.includes(ch)||false; return <div key={ch} className="flex items-center space-x-2"><Checkbox id={`comm-${ch}`} checked={checked} onCheckedChange={ck=> setNewStudent(p=> { const cur=p.communicationPreferences?.channels||[]; const channels=ck? [...cur,ch]: cur.filter(c=>c!==ch); return { ...p, communicationPreferences:{ enabled:true, channels } }; })} /><Label htmlFor={`comm-${ch}`} className="text-sm">{ch}</Label></div>; })}</div></div>
                     </div>
                   </div>
@@ -2372,16 +2467,16 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">First Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
-                        <Input name="guardianFirstName" value={newStudent.guardianFirstName||''} onChange={e=> updateGuardianName('guardianFirstName', e.target.value)} className={cn('mt-1', showFieldError('guardianFirstName') && 'border-red-500 focus-visible:ring-red-500')} />
+                        <Input name="guardianFirstName" value={newStudent.guardianFirstName||''} onChange={e=> updateGuardianName('guardianFirstName', e.target.value)} className={cn('mt-1', showFieldError('guardianFirstName') && 'border-red-500 focus-visible:ring-red-500')} placeholder="e.g. Rajesh" />
                         {showFieldError('guardianFirstName') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.guardianFirstName}</p>}
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">Middle Name</Label>
-                        <Input name="guardianMiddleName" value={newStudent.guardianMiddleName||''} onChange={e=> updateGuardianName('guardianMiddleName', e.target.value)} className="mt-1" />
+                        <Input name="guardianMiddleName" value={newStudent.guardianMiddleName||''} onChange={e=> updateGuardianName('guardianMiddleName', e.target.value)} className="mt-1" placeholder="e.g. Kumar" />
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">Last Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
-                        <Input name="guardianLastName" value={newStudent.guardianLastName||''} onChange={e=> updateGuardianName('guardianLastName', e.target.value)} className="mt-1" />
+                        <Input name="guardianLastName" value={newStudent.guardianLastName||''} onChange={e=> updateGuardianName('guardianLastName', e.target.value)} className="mt-1" placeholder="e.g. Sharma" />
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">Relationship{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
@@ -2425,7 +2520,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                     )}
                   </div>
                   <div className="flex gap-2">
-                    {!initialStudent && (
+                    {(!initialStudent || draftId) && (
                       <Button type="button" variant="outline" onClick={saveDraft} disabled={isSavingDraft} className="h-10 gap-2 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium disabled:opacity-60 disabled:cursor-not-allowed">
                         <Save className="w-4 h-4" />
                         <span className="text-sm">{currentDraftId ? 'Update Draft' : 'Save Draft'}</span>
@@ -2441,7 +2536,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         } }}>
                           <Button 
                             type="submit" 
-                            disabled={!validationStatus.valid || (initialStudent && !hasUnsavedChanges)}
+                            disabled={!validationStatus.valid || Boolean(initialStudent && !hasUnsavedChanges)}
                             className="bg-[#8A2BE2] hover:bg-[#7A1FD2] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
                             title={
                               !validationStatus.valid 

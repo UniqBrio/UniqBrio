@@ -275,7 +275,7 @@ export function AttendanceFilters({
                     <Button
                       variant="default"
                       size="sm"
-                      className="h-9 flex-1"
+                      className="h-9 flex-1 bg-purple-600 text-white"
                       aria-label="Apply filters"
                       onClick={() => {
                         onApplyFilter();

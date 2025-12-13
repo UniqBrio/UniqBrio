@@ -119,7 +119,7 @@ export function StudentDraftsDialog({
       
       // Show success toast
       toast({
-        title: "??? Draft Deleted",
+        title: "✅ Draft Deleted",
         description: `Draft "${draftToDelete.name}" has been deleted successfully.`,
         duration: 3000,
       });
@@ -132,7 +132,7 @@ export function StudentDraftsDialog({
       console.error('Error deleting draft:', error);
       setError('Failed to delete draft');
       toast({
-        title: "? Delete Failed",
+        title: "❌ Delete Failed",
         description: "Unable to delete draft. Please try again.",
         variant: "destructive",
         duration: 4000,

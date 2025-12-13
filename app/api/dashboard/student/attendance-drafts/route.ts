@@ -25,15 +25,21 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const offset = searchParams.get('offset');
 
-    // Build query filters
-    let query: any = { tenantId: session.tenantId };
+    // Build query filters - CRITICAL: Always filter by tenantId for multi-tenant isolation
+    let query: any = { 
+      tenantId: session.tenantId // Ensure only current tenant's drafts are returned
+    };
     
     if (studentId) {
       query.studentId = studentId;
     }
 
     // Build query with sorting (newest first) and lean() for performance
-    let queryBuilder = StudentAttendanceDraft.find(query).sort({ savedAt: -1 }).lean();
+    // Explicitly set tenantId again as a safety measure
+    let queryBuilder = StudentAttendanceDraft.find({ 
+      ...query, 
+      tenantId: session.tenantId // Double-check tenantId filter
+    }).sort({ savedAt: -1 }).lean();
 
     // Add pagination if specified
     if (offset) {
@@ -45,10 +51,50 @@ export async function GET(request: NextRequest) {
 
     const drafts = await queryBuilder.exec();
 
+    // SECURITY CHECK: Verify all returned drafts belong to current tenant
+    const invalidDrafts = drafts.filter((draft: any) => draft.tenantId !== session.tenantId);
+    if (invalidDrafts.length > 0) {
+      console.error(`[SECURITY] Found ${invalidDrafts.length} drafts with wrong tenantId!`, {
+        currentTenant: session.tenantId,
+        invalidDrafts: invalidDrafts.map((d: any) => ({ id: d._id, tenantId: d.tenantId }))
+      });
+      // Filter out invalid drafts as a safety measure
+      const validDrafts = drafts.filter((draft: any) => draft.tenantId === session.tenantId);
+      
+      // Get total count for pagination (if filters are applied)
+      // CRITICAL: Ensure count also filters by tenantId
+      let totalCount = null;
+      if (limit || offset) {
+        totalCount = await StudentAttendanceDraft.countDocuments({ 
+          ...query, 
+          tenantId: session.tenantId // Ensure tenant isolation
+        });
+      }
+
+      const response: any = {
+        success: true,
+        data: validDrafts,
+      };
+
+      if (totalCount !== null) {
+        response.pagination = {
+          total: totalCount,
+          limit: limit ? parseInt(limit) : null,
+          offset: offset ? parseInt(offset) : 0,
+        };
+      }
+
+      return NextResponse.json(response);
+    }
+
     // Get total count for pagination (if filters are applied)
+    // CRITICAL: Ensure count also filters by tenantId
     let totalCount = null;
     if (limit || offset) {
-      totalCount = await StudentAttendanceDraft.countDocuments(query);
+      totalCount = await StudentAttendanceDraft.countDocuments({ 
+        ...query, 
+        tenantId: session.tenantId // Ensure tenant isolation
+      });
     }
 
     const response: any = {
