@@ -189,7 +189,13 @@ export async function POST(req: Request) {
           tenantId: finalAcademyId!,
           businessInfo: body?.businessInfo || {},
           adminInfo: body?.adminInfo || {},
-          preferences: body?.preferences || {},
+          preferences: {
+            ...(body?.preferences || {}),
+            currency: (body?.preferences as any)?.currency || 'INR',
+            dateFormat: (body?.preferences as any)?.dateFormat || 'dd-MMM-yyyy',
+            timeFormat: (body?.preferences as any)?.timeFormat || '12h',
+            timeZone: (body?.preferences as any)?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
         }
       },
       { 

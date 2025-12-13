@@ -131,7 +131,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         const data = await response.json()
         
         // Convert object to array and add popular currencies first
-        const popularCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CNY']
+        const popularCurrencies = ['INR', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CNY']
         const currencyList: Currency[] = []
         
         // Add popular currencies first
@@ -161,6 +161,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         console.error('Error fetching currencies:', error)
         // Fallback to default currencies
         setCurrencies([
+          { code: "INR", name: "Indian Rupee", symbol: "₹" },
           { code: "USD", name: "US Dollar", symbol: "$" },
           { code: "EUR", name: "Euro", symbol: "€" },
           { code: "GBP", name: "British Pound", symbol: "£" },
@@ -296,7 +297,7 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   // Helper function to get currency symbols
   const getCurrencySymbol = (code: string): string => {
     const symbols: { [key: string]: string } = {
-      USD: "", EUR: "", GBP: "", JPY: "",INR: "",
+      INR: "", USD: "", EUR: "", GBP: "", JPY: "",
       AUD: "", CAD: "", CNY: "", CHF: "", BRL: "",
       MXN: "", ZAR: "", SEK: "", NOK: "", DKK: "",
       RUB: "", KRW: "", SGD: "", HKD: "", NZD: ""

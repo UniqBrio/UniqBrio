@@ -11,7 +11,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined)
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-  const [currency, setCurrencyState] = useState<string>("USD")
+  const [currency, setCurrencyState] = useState<string>("INR")
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchCurrency = async () => {
