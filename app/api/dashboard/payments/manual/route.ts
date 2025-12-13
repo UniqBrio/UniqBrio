@@ -419,34 +419,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only validate against outstanding amount if the payment record has fees set
-    // Skip validation for newly created records (receivedAmount = 0, outstandingAmount = 0)
-    const isNewPaymentRecord = payment.receivedAmount === 0 && payment.outstandingAmount === 0;
-    const isFirstPayment = payment.receivedAmount === 0;
+    // Calculate maximum allowed payment based on total fees minus what's already been received
+    const receivedAmount = payment.receivedAmount || 0;
+    const isFirstPayment = receivedAmount === 0;
     
-    if (!isNewPaymentRecord) {
-      let maxAllowedAmount = payment.outstandingAmount;
-      
-      // For first payment, allow registration fees to be included
-      if (isFirstPayment) {
-        if (!payment.studentRegistrationFeePaid && payment.studentRegistrationFee) {
-          maxAllowedAmount += payment.studentRegistrationFee;
-        }
-        if (!payment.courseRegistrationFeePaid && payment.courseRegistrationFee) {
-          maxAllowedAmount += payment.courseRegistrationFee;
-        }
-      }
-      
-      if (amount > maxAllowedAmount) {
-        return NextResponse.json(
-          {
-            error: isFirstPayment 
-              ? `Payment amount (${amount}) cannot exceed ${maxAllowedAmount} (course fee + registration fees)`
-              : `Payment amount (${amount}) cannot exceed outstanding amount (${payment.outstandingAmount})`,
-          },
-          { status: 400 }
-        );
-      }
+    // Calculate total fees that should be collected
+    let totalFees = payment.courseFee || 0;
+    
+    // Add registration fees if not already paid (check based on the request data)
+    const selectedTypes = body.selectedTypes || {};
+    
+    if (!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee) {
+      totalFees += payment.studentRegistrationFee;
+    }
+    if (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee) {
+      totalFees += payment.courseRegistrationFee;
+    }
+    
+    // Maximum allowed is total fees minus what's already been received
+    const maxAllowedAmount = Math.max(0, totalFees - receivedAmount);
+    
+    // Only validate if we have a valid total fees amount
+    if (totalFees > 0 && amount > maxAllowedAmount) {
+      return NextResponse.json(
+        {
+          error: maxAllowedAmount === 0 
+            ? `Payment already completed. No additional payment required.`
+            : `Payment amount (${amount}) cannot exceed remaining balance (${maxAllowedAmount})`,
+        },
+        { status: 400 }
+      );
     }
 
     // Parse payment date

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/dashboard
 import { useCurrency } from "@/contexts/currency-context";
 import { useCustomColors } from "@/lib/use-custom-colors";
 import { BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -16,29 +17,91 @@ import {
 } from "recharts";
 
 interface RevenueBySourceChartProps {
-  data: Array<{
+  data?: Array<{
     courseId: string;
     courseName: string;
     amount: number;
   }>;
 }
 
-export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
+export function RevenueBySourceChart({ data: propData }: RevenueBySourceChartProps) {
   const { currency } = useCurrency();
   const { primaryColor } = useCustomColors();
+  const [revenueData, setRevenueData] = useState<Array<{
+    courseId: string;
+    courseName: string;
+    amount: number;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/dashboard/payments/revenue-by-course', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch revenue data: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.success && Array.isArray(result.data)) {
+          setRevenueData(result.data);
+        } else {
+          console.warn('Invalid revenue data format:', result);
+          setRevenueData([]);
+        }
+      } catch (error) {
+        console.error('Error fetching revenue data:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch revenue data');
+        setRevenueData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Use prop data if provided, otherwise fetch from API
+    if (propData && propData.length > 0) {
+      setRevenueData(propData);
+      setLoading(false);
+    } else {
+      fetchRevenueData();
+    }
+  }, [propData]);
+
   // Transform data for the chart - limit to top 3
-  const chartData = data.slice(0, 3).map((item) => ({
+  const chartData = revenueData.slice(0, 3).map((item) => ({
     course: item.courseId,
     amount: item.amount,
     courseName: item.courseName,
   }));
 
-  // Ensure we have at least some data to display
-  const displayData = chartData.length > 0 ? chartData : [
-    { course: 'COURSE0003', amount: 0, courseName: 'No Data Available' },
-    { course: 'COURSE0005', amount: 0, courseName: 'No Data Available' },
-    { course: 'COURSE0004', amount: 0, courseName: 'No Data Available' },
-  ];
+  // Handle different states
+  const displayData = loading 
+    ? [
+        { course: 'Loading...', amount: 0, courseName: 'Loading...' },
+        { course: 'Loading...', amount: 0, courseName: 'Loading...' },
+        { course: 'Loading...', amount: 0, courseName: 'Loading...' },
+      ]
+    : error
+    ? [
+        { course: 'Error', amount: 0, courseName: 'Failed to load data' },
+      ]
+    : chartData.length > 0 
+    ? chartData 
+    : [
+        { course: 'No Data', amount: 0, courseName: 'No revenue data available' },
+      ];
 
   return (
     <Card className="border shadow-sm">
@@ -144,7 +207,17 @@ export function RevenueBySourceChart({ data }: RevenueBySourceChartProps) {
               </div>
             ))}
           </div>
-          {displayData.every(item => item.amount === 0) && (
+          {loading && (
+            <div className="text-center py-4 text-blue-500 text-sm">
+              Loading revenue data...
+            </div>
+          )}
+          {error && (
+            <div className="text-center py-4 text-red-500 text-sm">
+              {error}
+            </div>
+          )}
+          {!loading && !error && displayData.every(item => item.amount === 0) && (
             <div className="text-center py-4 text-gray-500 dark:text-white text-sm">
               No revenue data available for courses
             </div>
