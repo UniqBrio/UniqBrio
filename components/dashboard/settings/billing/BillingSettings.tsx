@@ -9,7 +9,8 @@ import { Badge } from "./Badge"
 import { Modal } from "./Modal"
 import { PLANS } from "./plans"
 import { BillingCycle, PlanKey } from "./types"
-import { InvoicePaymentHistory } from "./InvoicePaymentHistory"
+import { Invoices } from "./Invoices"
+import { Overview } from "./Overview"
 
 export default function BillingSettings() {
   const [activeSubTab, setActiveSubTab] = useState<"overview" | "plans" | "invoices" | "branches">("overview")
@@ -37,142 +38,42 @@ export default function BillingSettings() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Billing & Subscription</h1>
-        <p className="text-sm text-gray-600">Manage your plan and invoices.</p>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="animate-in slide-in-from-top duration-300">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
+          Billing & Subscription
+        </h1>
+        <p className="text-sm text-gray-600 mt-1">Manage your plan, invoices, and payment settings</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-2 border-0 mb-6">
-        <div className="grid w-full grid-cols-3 sm:grid-cols-4 gap-2 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-12 p-1">
+      <div className="bg-white rounded-2xl shadow-lg p-2 border border-gray-100 mb-6 animate-in slide-in-from-top duration-500">
+        <div className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14 p-1.5 relative">
           {[
             { key: "overview", label: "Overview" },
             { key: "plans", label: "Plan Comparison" },
-            { key: "invoices", label: "Invoice & Payment History" },
+            { key: "invoices", label: "Invoices & Payment" },
             { key: "branches", label: "Branch Billing" },
           ].map((t) => (
             <button
               key={t.key}
               onClick={() => setActiveSubTab(t.key as any)}
-              className={`rounded-lg font-semibold text-sm transition-all duration-300 ${activeSubTab === t.key ? "text-white bg-gradient-to-r from-purple-600 to-orange-500" : "hover:bg-white/50 bg-transparent"}`}
+              className={`rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 relative overflow-hidden group ${
+                activeSubTab === t.key 
+                  ? "text-white bg-gradient-to-r from-purple-600 to-orange-500 shadow-lg scale-105" 
+                  : "hover:bg-white/60 bg-white/30 text-gray-700 hover:text-gray-900"
+              }`}
             >
-              {t.label}
+              {activeSubTab === t.key && (
+                <span className="absolute inset-0 bg-gradient-to-r from-purple-400 to-orange-400 opacity-30 blur-md animate-pulse" />
+              )}
+              <span className="relative z-10">{t.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {activeSubTab === "overview" && (
-        <Section title="Current Plan" subtitle="Your active subscription details">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Badge color={primaryColor}>{PLANS[currentPlan].name}</Badge>
-                  <Badge color="#fd9c2d">{cycle === "monthly" ? "Monthly" : "Yearly"}</Badge>
-                </div>
-                <span className="flex items-center gap-1 text-lg font-semibold"><IndianRupee size={18} />{(cycle === "monthly" ? PLANS[currentPlan].monthly : PLANS[currentPlan].yearly).toLocaleString()} <span className="text-sm font-normal text-gray-600">/ {cycle === "monthly" ? "month" : "year"}</span></span>
-              </div>
-              <p className="text-base text-gray-700 font-medium mb-3">Renews on {nextRenewal}</p>
-              <p className="text-base text-gray-700 mb-5">{currentPlan === "free" ? PLANS.free.studentLimit : "Unlimited students"}</p>
-
-              <div className="flex flex-wrap gap-3">
-                <button className="px-4 py-2.5 bg-gradient-to-r from-[#7c3aed] to-[#6d28d9] text-white rounded-lg hover:shadow-[0_8px_20px_rgba(124,58,237,0.35)] shadow-[0_4px_12px_rgba(124,58,237,0.25)] transition-all duration-300 hover:-translate-y-0.5 font-medium" onClick={() => setShowUpgradeModal(true)}>
-                  Upgrade / Change Plan
-                </button>
-                <button className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-2 hover:bg-white hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 font-medium" onClick={() => setActiveSubTab("invoices")}>
-                  <FileText size={16} /> View Invoices
-                </button>
-              </div>
-
-              <div className="mt-6 border border-gray-200 rounded-xl p-5 bg-gradient-to-br from-gray-50 to-white shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
-                <div className="font-semibold mb-4 text-gray-800">What you get in Grow</div>
-                <ul className="text-sm space-y-2.5">
-                  {PLANS.grow.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5"><CheckCircle2 className="text-emerald-600 flex-shrink-0" size={16} /> <span className="text-gray-700">{f}</span></li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)] transition-shadow duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="font-semibold text-gray-800">Scale Plan Features Comparison</div>
-                  <span className="px-3 py-1.5 text-xs font-semibold rounded-full text-white shadow-[0_4px_12px_rgba(124,58,237,0.3)]" style={{ background: 'linear-gradient(90deg, #7c3aed, #f97316)' }}>Premium</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div>
-                    <div className="text-sm font-semibold mb-3 text-gray-700">Included in Grow</div>
-                    <ul className="text-sm space-y-2.5">
-                      {PLANS.grow.features.map((f) => (
-                        <li key={f} className="flex items-center gap-2.5"><CheckCircle2 className="text-emerald-600 flex-shrink-0" size={16} /> <span className="text-gray-700">{f}</span></li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold mb-3 text-gray-700">Unlock in Scale</div>
-                    <ul className="text-sm space-y-2.5">
-                      {(PLANS.scale.scaleOnly ?? []).map((f) => (
-                        <li key={f} className="flex items-center gap-2 opacity-70">
-                          <Lock className="text-gray-400 flex-shrink-0" size={14} />
-                          <span className="text-gray-600">{f}</span>
-                          <span className="ml-auto text-xs px-2 py-1 rounded bg-gray-100 text-gray-500 font-medium shadow-sm">Locked</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-4">
-                      <button className="w-full px-4 py-2.5 rounded-lg text-white font-semibold shadow-[0_6px_20px_rgba(124,58,237,0.35)] hover:shadow-[0_8px_25px_rgba(124,58,237,0.45)] transition-all duration-300 hover:-translate-y-0.5" style={{ background: 'linear-gradient(90deg, #7c3aed, #f97316)' }} onClick={() => setShowUpgradeModal(true)}>Upgrade to unlock</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl p-5 border-2 shadow-[0_8px_30px_rgba(124,58,237,0.25),0_0_0_3px_rgba(124,58,237,0.1)] hover:shadow-[0_12px_40px_rgba(124,58,237,0.35),0_0_0_3px_rgba(124,58,237,0.15)] transition-all duration-300 hover:-translate-y-1" style={{ borderColor: '#7c3aed', background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(249,115,22,0.08))' }}>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-sm text-purple-700 font-medium mb-1">Go Premium</div>
-                    <div className="text-lg font-bold text-gray-800">Scale — Everything in Grow, plus</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-gray-600 font-medium">Yearly</div>
-                    <div className="text-2xl font-bold bg-gradient-to-r from-purple-700 to-orange-600 bg-clip-text text-transparent">₹{PLANS.scale.yearly.toLocaleString()}</div>
-                  </div>
-                </div>
-                <div className="mt-4 text-sm flex flex-wrap gap-2">
-                  {(PLANS.scale.scaleOnly ?? []).slice(0, 4).map((f) => (
-                    <span key={f} className="px-3 py-1.5 rounded-full bg-white border border-purple-200 text-gray-700 shadow-[0_2px_8px_rgba(124,58,237,0.15)] font-medium">{f}</span>
-                  ))}
-                </div>
-                <div className="mt-5">
-                  <button className="w-full px-5 py-3 rounded-lg text-white font-bold shadow-[0_8px_24px_rgba(124,58,237,0.4)] hover:shadow-[0_12px_32px_rgba(124,58,237,0.5)] transition-all duration-300 hover:-translate-y-1 text-base" style={{ background: 'linear-gradient(90deg, #7c3aed, #f97316)' }} onClick={() => setShowUpgradeModal(true)}>Upgrade to Scale</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Hidden Cancellation Section - placed at bottom to be less visible */}
-          <div className="mt-16 pt-8 border-t border-gray-100">
-            <button
-              onClick={() => setShowCancelSection(!showCancelSection)}
-              className="text-xs text-gray-400 hover:text-gray-500 transition-colors"
-            >
-              {showCancelSection ? "Hide" : "Manage subscription"}
-            </button>
-            
-            {showCancelSection && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-500 mb-3">Need to make changes to your subscription?</p>
-                <button
-                  onClick={() => setShowCancelModal(true)}
-                  className="text-xs text-gray-500 hover:text-red-600 underline transition-colors"
-                >
-                  Cancel subscription
-                </button>
-              </div>
-            )}
-          </div>
-        </Section>
+        <Overview setShowCancelModal={setShowCancelModal} nextRenewal={nextRenewal} />
       )}
 
       {activeSubTab === "plans" && (
@@ -386,7 +287,7 @@ export default function BillingSettings() {
 
       {activeSubTab === "invoices" && (
         <div>
-          <InvoicePaymentHistory />
+          <Invoices />
         </div>
       )}
 
@@ -583,14 +484,14 @@ export default function BillingSettings() {
           </>
         )}
       >
-        <div className="space-y-5">
+        <div className="space-y-3">
           {/* Warning Message */}
-          <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-            <div className="flex items-start gap-3">
-              <span className="text-yellow-600 text-lg">⚠️</span>
+          <div className="p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+            <div className="flex items-start gap-2">
+              <span className="text-yellow-600">⚠️</span>
               <div>
-                <p className="text-sm font-semibold text-yellow-800 mb-1">Before you go...</p>
-                <p className="text-sm text-yellow-700">
+                <p className="text-xs font-semibold text-yellow-800 mb-0.5">Before you go...</p>
+                <p className="text-xs text-yellow-700">
                   {cancelOption === "end" 
                     ? `Your access will continue until ${nextRenewal} (end of current billing cycle). After that, you'll be moved to the Free Plan.`
                     : "Cancelling immediately means you'll lose access to premium features right away and no refund will be provided."}
@@ -600,56 +501,56 @@ export default function BillingSettings() {
           </div>
 
           {/* Cancellation Options */}
-          <div className="space-y-3">
-            <label className="text-sm font-semibold text-gray-700">Cancellation Option</label>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-gray-700">Cancellation Option</label>
             
             <div 
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+              className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                 cancelOption === "end" ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-gray-300"
               }`}
               onClick={() => setCancelOption("end")}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 <input
                   type="radio"
                   checked={cancelOption === "end"}
                   onChange={() => setCancelOption("end")}
-                  className="mt-1"
+                  className="mt-0.5"
                 />
                 <div>
-                  <p className="font-semibold text-sm text-gray-900">Cancel at end of billing cycle</p>
-                  <p className="text-xs text-gray-600 mt-1">Recommended - Keep access until {nextRenewal}</p>
+                  <p className="font-semibold text-xs text-gray-900">Cancel at end of billing cycle</p>
+                  <p className="text-xs text-gray-600 mt-0.5">Recommended - Keep access until {nextRenewal}</p>
                 </div>
               </div>
             </div>
 
             <div 
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+              className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                 cancelOption === "immediate" ? "border-red-500 bg-red-50" : "border-gray-200 hover:border-gray-300"
               }`}
               onClick={() => setCancelOption("immediate")}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 <input
                   type="radio"
                   checked={cancelOption === "immediate"}
                   onChange={() => setCancelOption("immediate")}
-                  className="mt-1"
+                  className="mt-0.5"
                 />
                 <div>
-                  <p className="font-semibold text-sm text-gray-900">Cancel immediately</p>
-                  <p className="text-xs text-red-600 mt-1">Lose access now - No refund will be provided</p>
+                  <p className="font-semibold text-xs text-gray-900">Cancel immediately</p>
+                  <p className="text-xs text-red-600 mt-0.5">Lose access now - No refund will be provided</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Reason for Cancellation */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Help us improve - Why are you cancelling?</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-700">Help us improve - Why are you cancelling?</label>
             <textarea
-              className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-              rows={4}
+              className="w-full p-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              rows={3}
               placeholder="Your feedback helps us improve our service..."
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
@@ -658,12 +559,12 @@ export default function BillingSettings() {
           </div>
 
           {/* Free Plan Info */}
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <span className="text-blue-600 text-lg">ℹ️</span>
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <span className="text-blue-600">ℹ️</span>
               <div>
-                <p className="text-sm font-semibold text-blue-900 mb-1">After cancellation</p>
-                <p className="text-sm text-blue-800">You'll be moved to the <strong>Free Plan</strong> with a 14-student limit. You can upgrade again anytime.</p>
+                <p className="text-xs font-semibold text-blue-900 mb-0.5">After cancellation</p>
+                <p className="text-xs text-blue-800">You'll be moved to the <strong>Free Plan</strong> with a 14-student limit. You can upgrade again anytime.</p>
               </div>
             </div>
           </div>
