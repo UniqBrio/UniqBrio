@@ -2,28 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { MongoClient, ObjectId } from 'mongodb'
 
 // MongoDB connection for raw database operations
-const MONGODB_URI = process.env.MONGODB_URI
+let clientPromise: Promise<MongoClient> | null = null
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable')
-}
+function getClientPromise() {
+  const MONGODB_URI = process.env.MONGODB_URI
 
-let client: MongoClient
-let clientPromise: Promise<MongoClient>
-
-if (process.env.NODE_ENV === 'development') {
-  if (!(global as any)._mongoClientPromise) {
-    client = new MongoClient(MONGODB_URI)
-    ;(global as any)._mongoClientPromise = client.connect()
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable')
   }
-  clientPromise = (global as any)._mongoClientPromise
-} else {
-  client = new MongoClient(MONGODB_URI)
-  clientPromise = client.connect()
+
+  if (process.env.NODE_ENV === 'development') {
+    if (!(global as any)._mongoClientPromise) {
+      const client = new MongoClient(MONGODB_URI)
+      ;(global as any)._mongoClientPromise = client.connect()
+    }
+    return (global as any)._mongoClientPromise
+  } else {
+    if (!clientPromise) {
+      const client = new MongoClient(MONGODB_URI)
+      clientPromise = client.connect()
+    }
+    return clientPromise
+  }
 }
 
 async function getDatabase() {
-  const client = await clientPromise
+  const client = await getClientPromise()
   return client.db('uniqbrio')
 }
 
