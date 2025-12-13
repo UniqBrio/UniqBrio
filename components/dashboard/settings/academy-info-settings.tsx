@@ -64,15 +64,63 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   const [currencies, setCurrencies] = useState<Array<{code: string, name: string, symbol: string}>>([])
   const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true)
   const [showCurrencyDialog, setShowCurrencyDialog] = useState(false)
+  const [showFinalConfirmation, setShowFinalConfirmation] = useState(false)
   const [pendingCurrency, setPendingCurrency] = useState<string>("")
   const [currencyChangeOption, setCurrencyChangeOption] = useState<"display" | "convert">("display")
   const [exchangeRate, setExchangeRate] = useState<number | null>(null)
   const [exchangeRateSource, setExchangeRateSource] = useState<string>("")
   const [loadingExchangeRate, setLoadingExchangeRate] = useState(false)
   const [exchangeRateDate, setExchangeRateDate] = useState<string>("")
+  const [languages, setLanguages] = useState<Array<{value: string, label: string}>>([])
+  const [languagesLoading, setLanguagesLoading] = useState(true)
+  const [languageSearch, setLanguageSearch] = useState("")
 
   // Temporarily disable Banner & Logo section
   const brandingComingSoon = true
+
+  // Fetch languages from API
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        setLanguagesLoading(true)
+        const res = await fetch("https://restcountries.com/v3.1/all?fields=languages")
+        if (!res.ok) throw new Error("Failed to fetch languages")
+        const data = await res.json()
+        
+        // Collect all unique language codes and names
+        const langMap: Record<string, string> = {}
+        data.forEach((country: any) => {
+          if (country.languages) {
+            Object.entries(country.languages).forEach(([code, name]) => {
+              langMap[code] = name as string
+            })
+          }
+        })
+        
+        // Convert to array and sort alphabetically
+        const languageList = Object.entries(langMap)
+          .map(([value, label]) => ({ value, label }))
+          .sort((a, b) => a.label.localeCompare(b.label))
+        
+        setLanguages(languageList)
+      } catch (error) {
+        console.error('Error fetching languages:', error)
+        // Fallback to basic languages
+        setLanguages([
+          { value: "en", label: "English" },
+          { value: "es", label: "Spanish" },
+          { value: "fr", label: "French" },
+          { value: "de", label: "German" },
+          { value: "zh", label: "Chinese" },
+          { value: "hi", label: "Hindi" },
+        ])
+      } finally {
+        setLanguagesLoading(false)
+      }
+    }
+    
+    fetchLanguages()
+  }, [])
 
   // Fetch currencies from API
   useEffect(() => {
@@ -105,7 +153,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       } catch (error) {
         console.error('Error fetching currencies:', error)
         setCurrencies([
-          {code: "INR", name: "Indian Rupee", symbol: "₹" },
+          {code: "INR", name: "Indian Rupee", symbol: "" },
           { code: "USD", name: "US Dollar", symbol: "" },
           { code: "EUR", name: "Euro", symbol: "" },
           { code: "GBP", name: "British Pound", symbol: "" },
@@ -136,6 +184,11 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
     currency.code.toLowerCase().includes(currencySearch.toLowerCase()) ||
     currency.name.toLowerCase().includes(currencySearch.toLowerCase()) ||
     currency.symbol.includes(currencySearch)
+  )
+
+  const filteredLanguages = languages.filter(language =>
+    language.label.toLowerCase().includes(languageSearch.toLowerCase()) ||
+    language.value.toLowerCase().includes(languageSearch.toLowerCase())
   )
 
   const [formData, setFormData] = useState({
@@ -495,9 +548,25 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
     }
   }
 
-  const confirmCurrencyChange = async () => {
+  const confirmCurrencyChange = () => {
+    // First close the option selection dialog
+    setShowCurrencyDialog(false)
+    // Then show the final confirmation dialog
+    setShowFinalConfirmation(true)
+  }
+
+  const applyFinalCurrencyChange = async () => {
     const oldCurrency = formData.currency
     const newCurrency = pendingCurrency
+    
+    // Close the confirmation dialog
+    setShowFinalConfirmation(false)
+    
+    // Show immediate toast that changes are being applied
+    toast({
+      title: "Applying Changes...",
+      description: `${currencyChangeOption === "display" ? "Replacing" : "Converting"} currency from ${oldCurrency} to ${newCurrency}. Please wait...`,
+    })
     
     // Update the currency in formData
     handleInputChange("currency", newCurrency)
@@ -591,6 +660,12 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
 
   const cancelCurrencyChange = () => {
     setShowCurrencyDialog(false)
+    setPendingCurrency("")
+    setCurrencyChangeOption("display")
+  }
+
+  const cancelFinalConfirmation = () => {
+    setShowFinalConfirmation(false)
     setPendingCurrency("")
     setCurrencyChangeOption("display")
   }
@@ -730,12 +805,24 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="academyName">Academy Name *</Label>
+              <Label htmlFor="academyName">Academy Name <span className="text-red-500">*</span></Label>
               <Input
                 id="academyName"
                 placeholder="e.g., Elite Arts & Sports Academy"
                 value={formData.academyName}
-                onChange={(e) => handleInputChange("academyName", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Only allow letters, numbers, spaces, ampersand, apostrophe, hyphen, dot, and comma
+                  const sanitizedValue = value.replace(/[^a-zA-Z0-9\s&'\-.,]/g, '')
+                  if (value !== sanitizedValue) {
+                    toast({
+                      title: "Invalid Characters",
+                      description: "Academy name can only contain letters, numbers, spaces, and basic punctuation (&, ', -, ., ,)",
+                      variant: "destructive",
+                    })
+                  }
+                  handleInputChange("academyName", sanitizedValue)
+                }}
                 disabled={!isEditing}
                 required
               />
@@ -932,13 +1019,39 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="preferredLanguage">Preferred Language</Label>
-              <Input
-                id="preferredLanguage"
-                placeholder="e.g., English"
+              <Select
                 value={formData.preferredLanguage}
-                onChange={(e) => handleInputChange("preferredLanguage", e.target.value)}
-                disabled={!isEditing}
-              />
+                onValueChange={(value) => {
+                  handleInputChange("preferredLanguage", value)
+                  setLanguageSearch("")
+                }}
+                disabled={languagesLoading || !isEditing}
+              >
+                <SelectTrigger id="preferredLanguage">
+                  <SelectValue placeholder={languagesLoading ? "Loading languages..." : "Select language"} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 p-2 border-b">
+                    <Input
+                      placeholder="Search languages..."
+                      value={languageSearch}
+                      onChange={(e) => setLanguageSearch(e.target.value)}
+                      className="h-8"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  <div className="max-h-[200px] overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
+                    {filteredLanguages.length === 0 && (
+                      <div className="px-2 py-6 text-sm text-center text-muted-foreground">No languages found</div>
+                    )}
+                    {filteredLanguages.map((lang) => (
+                      <SelectItem key={lang.value} value={lang.value}>
+                        {lang.label}
+                      </SelectItem>
+                    ))}
+                  </div>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2 md:col-span-1">
               <Label htmlFor="businessLogo">Academy Logo</Label>
@@ -1028,7 +1141,19 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="city"
                 placeholder="New York"
                 value={formData.city}
-                onChange={(e) => handleInputChange("city", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Only allow letters, spaces, hyphens, apostrophes, and dots (for cities like St. Louis, O'Fallon)
+                  const sanitizedValue = value.replace(/[^a-zA-Z\s\-'.]/g, '')
+                  if (value !== sanitizedValue) {
+                    toast({
+                      title: "Invalid Characters",
+                      description: "City name can only contain letters, spaces, and basic punctuation (-, ', .)",
+                      variant: "destructive",
+                    })
+                  }
+                  handleInputChange("city", sanitizedValue)
+                }}
                 disabled={!isEditing}
               />
             </div>
@@ -1051,7 +1176,19 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   type="tel"
                   placeholder="+1 (555) 123-4567"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    // Only allow numbers, +, -, (, ), and spaces
+                    const sanitizedValue = value.replace(/[^0-9+\-() ]/g, '')
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "Phone number can only contain numbers and the following characters: + - ( )",
+                        variant: "destructive",
+                      })
+                    }
+                    handleInputChange("phone", sanitizedValue)
+                  }}
                   className="sm:pl-10"
                   disabled={!isEditing}
                 />
@@ -1077,6 +1214,20 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   placeholder="contact@academy.com"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
+                  onBlur={(e) => {
+                    const email = e.target.value.trim()
+                    if (email) {
+                      // Comprehensive email validation regex
+                      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+                      if (!emailRegex.test(email)) {
+                        toast({
+                          title: "Invalid Email",
+                          description: "Please enter a valid email address (e.g., contact@academy.com)",
+                          variant: "destructive",
+                        })
+                      }
+                    }
+                  }}
                   className="sm:pl-10"
                   disabled={!isEditing}
                 />
@@ -1208,8 +1359,13 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       )}
 
       {/* Currency Change Dialog */}
-      <Dialog open={showCurrencyDialog} onOpenChange={setShowCurrencyDialog}>
-        <DialogContent className="sm:max-w-[550px]">
+      <Dialog open={showCurrencyDialog} onOpenChange={(open) => {
+        // Prevent closing dialog by clicking outside - only allow close via buttons
+        if (!open) {
+          cancelCurrencyChange()
+        }
+      }}>
+        <DialogContent className="sm:max-w-[550px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>How do you want to change the currency?</DialogTitle>
             <DialogDescription>
@@ -1318,6 +1474,70 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               className="bg-purple-600 hover:bg-purple-700"
             >
               {currencyChangeOption === "display" ? "Replace with " + pendingCurrency : "Convert to " + pendingCurrency}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Final Confirmation Dialog */}
+      <Dialog open={showFinalConfirmation} onOpenChange={(open) => {
+        if (!open) {
+          cancelFinalConfirmation()
+        }
+      }}>
+        <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <span className="text-2xl">⚠️</span> Final Confirmation Required
+            </DialogTitle>
+            <div className="space-y-2 pt-2 text-sm text-muted-foreground">
+              <p className="font-semibold text-base text-gray-900 dark:text-white">
+                You are about to change the currency from <span className="text-purple-600 font-bold">{formData.currency}</span> to <span className="text-purple-600 font-bold">{pendingCurrency}</span>
+              </p>
+              <div className="mt-3 p-3 bg-orange-50 border-l-4 border-orange-500 rounded">
+                <p className="text-sm text-orange-900 font-medium">
+                  {currencyChangeOption === "display" ? (
+                    <>
+                      <strong>Replace Currency Code:</strong> All prices will keep the same numbers, only the currency symbol will change to {pendingCurrency}.
+                    </>
+                  ) : (
+                    <>
+                      <strong>Convert Currency:</strong> All prices will be recalculated using current exchange rates. This will affect all financial data across the entire system.
+                    </>
+                  )}
+                </p>
+              </div>
+              <div className="mt-3 p-3 bg-red-50 border-l-4 border-red-500 rounded">
+                <p className="text-sm text-red-900 font-semibold">
+                  This action will affect:
+                </p>
+                <ul className="text-sm text-red-800 mt-2 space-y-1 list-disc list-inside">
+                  <li>All course fees and pricing</li>
+                  <li>All payment records</li>
+                  <li>All financial reports</li>
+                  <li>All invoices and receipts</li>
+                </ul>
+              </div>
+              <p className="text-sm font-bold text-gray-900 dark:text-white mt-4">
+                Are you absolutely sure you want to proceed?
+              </p>
+            </div>
+          </DialogHeader>
+          <DialogFooter className="mt-4 gap-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={cancelFinalConfirmation}
+              className="flex-1"
+            >
+              No, Cancel
+            </Button>
+            <Button 
+              type="button" 
+              onClick={applyFinalCurrencyChange} 
+              className="bg-red-600 hover:bg-red-700 text-white flex-1"
+            >
+              Yes, I'm Sure - Proceed
             </Button>
           </DialogFooter>
         </DialogContent>

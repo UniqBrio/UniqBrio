@@ -161,14 +161,14 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
         console.error('Error fetching currencies:', error)
         // Fallback to default currencies
         setCurrencies([
-          { code: "INR", name: "Indian Rupee", symbol: "₹" },
-          { code: "USD", name: "US Dollar", symbol: "$" },
-          { code: "EUR", name: "Euro", symbol: "€" },
-          { code: "GBP", name: "British Pound", symbol: "£" },
-          { code: "JPY", name: "Japanese Yen", symbol: "¥" },
-          { code: "AUD", name: "Australian Dollar", symbol: "$" },
-          { code: "CAD", name: "Canadian Dollar", symbol: "$" },
-          { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+          { code: "INR", name: "Indian Rupee", symbol: "" },
+          { code: "USD", name: "US Dollar", symbol: "" },
+          { code: "EUR", name: "Euro", symbol: "" },
+          { code: "GBP", name: "British Pound", symbol: "" },
+          { code: "JPY", name: "Japanese Yen", symbol: "" },
+          { code: "AUD", name: "Australian Dollar", symbol: "" },
+          { code: "CAD", name: "Canadian Dollar", symbol: "" },
+          { code: "CNY", name: "Chinese Yuan", symbol: "" },
         ])
       } finally {
         setIsLoadingCurrencies(false)

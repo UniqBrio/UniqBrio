@@ -252,7 +252,7 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
               <AlertTriangle className="h-5 w-5" />
               Are you absolutely sure?
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</p>
               <p className="font-semibold text-red-600">All of the following will be deleted:</p>
               <ul className="list-disc list-inside space-y-1 text-sm">
@@ -262,7 +262,7 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
                 <li>Progress and achievements</li>
                 <li>All uploaded files and content</li>
               </ul>
-            </AlertDialogDescription>
+            </div>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
