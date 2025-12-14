@@ -119,7 +119,7 @@ const PaymentRecordSchema = new mongoose.Schema(
     // Payment context
     paymentOption: {
       type: String,
-      enum: ['One Time', 'One Time With Installments', 'Monthly', 'Monthly With Discounts', 'EMI', 'Monthly Subscription', 'Monthly Subscription With Discounts'],
+      enum: ['One Time', 'One Time With Installments', 'Monthly', 'Monthly With Discounts', 'EMI'],
       default: 'One Time',
     },
     
@@ -479,6 +479,3 @@ if (mongoose.models.PaymentTransaction) {
 const PaymentTransactionModel = mongoose.model('PaymentTransaction', PaymentRecordSchema, 'paymenttransactions');
 
 export default PaymentTransactionModel;
-
-// Also export as PaymentRecordModel for backward compatibility during transition
-export { PaymentTransactionModel as PaymentRecordModel };

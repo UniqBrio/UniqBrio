@@ -1,4 +1,6 @@
-﻿import PaymentRecordModel from '@/models/dashboard/payments/PaymentRecord';
+﻿import PaymentTransactionModel from '@/models/dashboard/payments/PaymentTransaction';
+// Alias for backward compatibility
+const PaymentRecordModel = PaymentTransactionModel;
 import Payment from '@/models/dashboard/payments/Payment';
 import mongoose from 'mongoose';
 import { getTenantContext, requireTenantId } from '@/lib/tenant/tenant-context';

@@ -242,17 +242,26 @@ export async function PUT(req: NextRequest) {
       
       console.log(`✅ Added ${newStudents.length} students to cohort ${cohortId}`);
       
-      // BIDIRECTIONAL SYNC: Update each student's batch field
+      // BIDIRECTIONAL SYNC: Update each student's cohortId field
       for (const studentId of newStudents) {
         try {
           const updateResult = await Student.findOneAndUpdate(
             { studentId: studentId, tenantId: session.tenantId },
-            { $set: { batch: cohortId } },
+            { 
+              $set: { 
+                cohortId: cohortId,
+                batch: cohortId // Keep batch for backward compatibility
+              },
+              $addToSet: {
+                cohorts: cohortId,
+                enrolledCohorts: cohortId
+              }
+            },
             { new: true }
           );
           
           if (updateResult) {
-            console.log(`✅ Updated student ${studentId} batch field to ${cohortId}`);
+            console.log(`✅ Updated student ${studentId} cohortId field to ${cohortId}`);
           } else {
             console.warn(`⚠️ Student ${studentId} not found in students collection`);
           }
@@ -293,17 +302,43 @@ export async function PUT(req: NextRequest) {
       
       console.log(`✅ Removed ${studentsToRemove.length} students from cohort ${cohortId}`);
       
-      // BIDIRECTIONAL SYNC: Clear each student's batch field
+      // BIDIRECTIONAL SYNC: Handle cohortId field clearing for removed students
       for (const studentId of studentsToRemove) {
         try {
-          const updateResult = await Student.findOneAndUpdate(
-            { studentId: studentId, tenantId: session.tenantId },
-            { $set: { batch: '' } }, // Clear the batch field
-            { new: true }
-          );
+          // First, get the student to check their other cohorts
+          const student = await Student.findOne({ 
+            studentId: studentId, 
+            tenantId: session.tenantId 
+          }).select('cohorts enrolledCohorts cohortId');
           
-          if (updateResult) {
-            console.log(`✅ Cleared student ${studentId} batch field`);
+          if (student) {
+            const remainingCohorts = (student.cohorts || []).filter((id: string) => id !== cohortId);
+            const updateData: any = {
+              $set: { batch: '' }, // Clear batch for backward compatibility
+              $pull: {
+                cohorts: cohortId,
+                enrolledCohorts: cohortId
+              }
+            };
+            
+            // Handle cohortId field
+            if (student.cohortId === cohortId) {
+              if (remainingCohorts.length > 0) {
+                updateData.$set.cohortId = remainingCohorts[0]; // Set to first remaining cohort
+              } else {
+                updateData.$unset = { cohortId: '' }; // Clear if no other cohorts
+              }
+            }
+            
+            const updateResult = await Student.findOneAndUpdate(
+              { studentId: studentId, tenantId: session.tenantId },
+              updateData,
+              { new: true }
+            );
+            
+            if (updateResult) {
+              console.log(`✅ Updated student ${studentId} cohort membership`);
+            }
           } else {
             console.warn(`⚠️ Student ${studentId} not found in students collection`);
           }

@@ -57,7 +57,7 @@ export function PaymentCompletionChart({ distribution }: PaymentCompletionChartP
       totalPaid: safeDistribution.oneTime.totalPaid,
     },
     {
-      category: "Installments",
+      category: "One Time With Installments",
       students: safeDistribution.oneTimeWithInstallments.count,
       totalToBePaid: safeDistribution.oneTimeWithInstallments.totalToBePaid,
       courseFees: safeDistribution.oneTimeWithInstallments.courseFees,

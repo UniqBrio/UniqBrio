@@ -70,7 +70,7 @@ export async function GET() {
             $sort: { amount: -1 } // Sort by revenue in descending order
           },
           {
-            $limit: 10 // Limit to top 10 courses
+            $limit: 20 // Limit to top 20 courses to show more data
           }
         ]);
 

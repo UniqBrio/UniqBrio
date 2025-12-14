@@ -106,7 +106,7 @@ export async function POST(request: Request) {
             if (courseWithOptions) {
             // Add the new option to the existing options array
             const currentOptions = (courseWithOptions as any)[config.field] || [...config.defaults]
-            const updatedOptions = [...new Set([...currentOptions, trimmedValue])].sort()
+            const updatedOptions = Array.from(new Set([...currentOptions, trimmedValue])).sort()
         
             await Course.updateOne(
           { _id: courseWithOptions._id, tenantId: session.tenantId },
@@ -198,7 +198,7 @@ export async function POST(request: Request) {
             if (courseWithLocations) {
             // Add the new location to the existing locations array
             const currentLocations = (courseWithLocations as any).availableLocations || [...DEFAULT_LOCATIONS]
-            const updatedLocations = [...new Set([...currentLocations, locationName])].sort()
+            const updatedLocations = Array.from(new Set([...currentLocations, locationName])).sort()
         
             await Course.updateOne(
           { _id: courseWithLocations._id, tenantId: session.tenantId },
@@ -283,14 +283,14 @@ export async function POST(request: Request) {
           }
 
           // Handle instructor field - support both name and ID
-          async function processInstructor(instructorData: any) {
+          const processInstructor = async (instructorData: any) => {
             if (!instructorData) return 'Unknown Instructor';
       
             // If instructorId is provided, fetch the instructor name
             if (body.instructorId) {
             try {
           const { User } = await import('@/models/dashboard')
-          const instructor = await User.findOne({ _id: body.instructorId, tenantId: session.tenantId }).select('name')
+          const instructor = await User.findOne({ _id: body.instructorId, tenantId: session?.tenantId }).select('name')
           if (instructor) {
             return instructor.name
           }
@@ -307,7 +307,7 @@ export async function POST(request: Request) {
             if (instructorData.id) return instructorData.id;
             }
             return String(instructorData);
-          }
+          };
 
           if (body.instructor || body.instructorId) {
             body.instructor = await processInstructor(body.instructor);
@@ -379,7 +379,7 @@ export async function POST(request: Request) {
         await logEntityCreate(
           AuditModule.COURSES,
           course._id.toString(),
-          course.name || course.title || course.courseId || 'Unnamed Course',
+          course.name || course.courseId || 'Unnamed Course',
           session.userId,
           session.email,
           'super_admin',
@@ -580,7 +580,7 @@ export async function GET(request: Request) {
         options = Array.from(allOptions).sort()
         
       } catch (error) {
-        console.error(`Error fetching ${type} options from courses:`, error)
+        console.error('Error fetching dropdown options from courses:', { type: type }, error)
         // Return defaults if database query fails
       }
       
@@ -640,7 +640,7 @@ export async function GET(request: Request) {
           })
           
           // Combine defaults, stored locations, and course locations
-          const allLocations = new Set([...DEFAULT_LOCATIONS, ...storedLocations, ...courseLocations])
+          const allLocations = new Set([...DEFAULT_LOCATIONS, ...storedLocations, ...Array.from(courseLocations)])
           locations = Array.from(allLocations).sort()
         }
         
@@ -710,11 +710,10 @@ export async function GET(request: Request) {
     
     // Build query based on search parameters
     const query: any = {
+      // CRITICAL: Explicitly set tenantId to ensure tenant isolation
       tenantId: session.tenantId,
       // Always exclude soft-deleted courses unless explicitly requested
-      isDeleted: { $ne: true },
-      // CRITICAL: Explicitly set tenantId to ensure tenant isolation
-      tenantId: session.tenantId
+      isDeleted: { $ne: true }
     }
     
     // If explicitly requesting deleted courses
@@ -876,10 +875,10 @@ export async function PUT(request: Request) {
     
     // Log course update with field changes
     const fieldChanges = Object.keys(updateData)
-      .filter(key => currentCourse[key] !== updateData[key])
+      .filter(key => (currentCourse as any)[key] !== updateData[key])
       .map(key => ({
         field: key,
-        oldValue: String(currentCourse[key] || ''),
+        oldValue: String((currentCourse as any)[key] || ''),
         newValue: String(updateData[key] || '')
       }));
     
@@ -888,7 +887,7 @@ export async function PUT(request: Request) {
       await logEntityUpdate(
         AuditModule.COURSES,
         course._id.toString(),
-        course.name || course.title || course.courseId || 'Unnamed Course',
+        course.name || course.courseId || 'Unnamed Course',
         fieldChanges,
         session.userId,
         session.email,
@@ -1021,7 +1020,7 @@ export async function DELETE(request: Request) {
         await logEntityDelete(
           AuditModule.COURSES,
           course._id.toString(),
-          course.name || course.title || course.courseId || 'Unnamed Course',
+          course.name || course.courseId || 'Unnamed Course',
           session.userId,
           session.email,
           'super_admin',
