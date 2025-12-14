@@ -483,7 +483,7 @@ export default function CourseCohortFilters({
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="max-h-64 overflow-y-auto">
             <DropdownMenuLabel>Sort By</DropdownMenuLabel>
             {[
               { value: "courseId", label: "Course ID" },

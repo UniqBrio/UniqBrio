@@ -1,4 +1,4 @@
-﻿import { dbConnect } from '@/lib/mongodb';
+﻿import { dbConnect, connectDB } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 // Helper to get mongoose connection
@@ -49,7 +49,8 @@ function createStudentFilter(studentId: string) {
  */
 export async function addStudentToCohort(
   cohortId: string, 
-  studentId: string
+  studentId: string,
+  tenantId?: string
 ): Promise<CohortUpdateResult> {
   try {
     const mongoose = await getMongooseConnection();
@@ -59,46 +60,63 @@ export async function addStudentToCohort(
       return { success: false, error: 'Database connection failed' };
     }
 
-    // Get student details for the member object
+    console.log(`🔄 Adding student ${studentId} to cohort ${cohortId} (tenant: ${tenantId || 'auto'})`);
+
+    // Get student details
+    const studentFilter = createStudentFilter(studentId);
+    if (tenantId) {
+      studentFilter.$and = [{ tenantId: tenantId }];
+    }
     const student = await db.collection('students').findOne(
-      createStudentFilter(studentId),
-      { projection: { studentId: 1, name: 1, firstName: 1, lastName: 1 } }
+      studentFilter,
+      { projection: { studentId: 1, name: 1, firstName: 1, lastName: 1, tenantId: 1 } }
     );
+    
+    if (!student) {
+      return { success: false, error: `Student ${studentId} not found` };
+    }
 
-    const studentName = student?.name || `${student?.firstName || ''} ${student?.lastName || ''}`.trim() || studentId;
+    const studentName = student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || studentId;
+    const effectiveTenantId = tenantId || student.tenantId;
 
-    // Remove existing member entry first to avoid duplicates
-    await db.collection('cohorts').updateOne(
-      { cohortId: cohortId },
-      { 
-        $pull: { members: { id: studentId } }
-      }
-    );
+    // Update cohort with tenant filtering
+    const cohortFilter: any = { cohortId: cohortId };
+    if (effectiveTenantId) {
+      cohortFilter.tenantId = effectiveTenantId;
+    }
 
-    // Update cohort - add student to currentStudents and members
+    // Add student to cohort's arrays
     const cohortUpdate = await db.collection('cohorts').updateOne(
-      { cohortId: cohortId },
+      cohortFilter,
       { 
         $addToSet: { 
-          currentStudents: studentId
-        },
-        $push: {
+          currentStudents: studentId,
           members: { id: studentId, name: studentName }
-        }
+        },
+        $set: { updatedAt: new Date() }
       }
     );
 
-    // Update student in the correct students collection - add cohort to their cohorts list
+    // Update student record
+    const studentUpdateFilter: any = createStudentFilter(studentId);
+    if (effectiveTenantId) {
+      studentUpdateFilter.$and = [{ tenantId: effectiveTenantId }];
+    }
     const studentUpdate = await db.collection('students').updateOne(
-      createStudentFilter(studentId),
+      studentUpdateFilter,
       { 
+        $set: {
+          cohortId: cohortId,
+          updatedAt: new Date()
+        },
         $addToSet: { 
           cohorts: cohortId,
           enrolledCohorts: cohortId 
         }
-      },
-      { upsert: false } // Don't create student if they don't exist
+      }
     );
+    
+    console.log(`✅ Cohort updated: ${cohortUpdate.modifiedCount}, Student updated: ${studentUpdate.modifiedCount}`);
 
     return {
       success: true,
@@ -119,7 +137,8 @@ export async function addStudentToCohort(
  */
 export async function removeStudentFromCohort(
   cohortId: string, 
-  studentId: string
+  studentId: string,
+  tenantId?: string
 ): Promise<CohortUpdateResult> {
   try {
     const mongoose = await getMongooseConnection();
@@ -129,9 +148,31 @@ export async function removeStudentFromCohort(
       return { success: false, error: 'Database connection failed' };
     }
 
-    // Update cohort - remove student from currentStudents and members
+    console.log(`🔄 Removing student ${studentId} from cohort ${cohortId} (tenant: ${tenantId || 'auto'})`);
+
+    // Get student details
+    const studentFilter = createStudentFilter(studentId);
+    if (tenantId) {
+      studentFilter.$and = [{ tenantId: tenantId }];
+    }
+    const student = await db.collection('students').findOne(
+      studentFilter,
+      { projection: { cohorts: 1, enrolledCohorts: 1, cohortId: 1, tenantId: 1 } }
+    );
+    
+    if (!student) {
+      return { success: false, error: `Student ${studentId} not found` };
+    }
+    
+    const effectiveTenantId = tenantId || student.tenantId;
+
+    // Update cohort
+    const cohortFilter: any = { cohortId: cohortId };
+    if (effectiveTenantId) {
+      cohortFilter.tenantId = effectiveTenantId;
+    }
     const cohortUpdate = await db.collection('cohorts').updateOne(
-      { cohortId: cohortId },
+      cohortFilter,
       { 
         $pull: { 
           currentStudents: studentId,
@@ -141,15 +182,32 @@ export async function removeStudentFromCohort(
       } as any
     );
 
-    // Update student - remove cohort from their cohorts list
+    // Update student - remove cohort from their cohorts list and handle cohortId field
+    
+    const updateData: any = {
+      $pull: { 
+        cohorts: cohortId,
+        enrolledCohorts: cohortId
+      }
+    };
+    
+    // If this was their primary cohort, update cohortId accordingly
+    if (student.cohortId === cohortId) {
+      const remainingCohorts = (student.cohorts || []).filter((id: string) => id !== cohortId);
+      if (remainingCohorts.length > 0) {
+        updateData.$set = { cohortId: remainingCohorts[0] }; // Set to first remaining cohort
+      } else {
+        updateData.$unset = { cohortId: '' }; // Clear if no other cohorts
+      }
+    }
+    
+    const studentUpdateFilter = createStudentFilter(studentId);
+    if (effectiveTenantId) {
+      studentUpdateFilter.$and = [{ tenantId: effectiveTenantId }];
+    }
     const studentUpdate = await db.collection('students').updateOne(
-      createStudentFilter(studentId),
-      { 
-        $pull: { 
-          cohorts: cohortId,
-          enrolledCohorts: cohortId
-        }
-      } as any
+      studentUpdateFilter,
+      updateData
     );
 
     return {
@@ -171,7 +229,8 @@ export async function removeStudentFromCohort(
  */
 export async function syncCohortStudents(
   cohortId: string, 
-  studentIds: string[]
+  studentIds: string[],
+  tenantId?: string
 ): Promise<CohortUpdateResult> {
   try {
     const mongoose = await getMongooseConnection();
@@ -205,32 +264,69 @@ export async function syncCohortStudents(
 
     // Add students to their records
     if (toAdd.length > 0) {
+      console.log(`📝 Adding ${toAdd.length} students to cohort ${cohortId}:`, toAdd);
       const addFilters = toAdd.map(id => createStudentFilter(id).$or).flat();
+      const addQuery: any = { $or: addFilters as any };
+      if (tenantId) {
+        addQuery.tenantId = tenantId;
+      }
       const addResult = await db.collection('students').updateMany(
-        { $or: addFilters as any },
+        addQuery,
         { 
+          $set: {
+            cohortId: cohortId // Set primary cohort ID
+          },
           $addToSet: { 
             cohorts: cohortId,
             enrolledCohorts: cohortId 
           }
         }
       );
+      console.log(`✅ Added ${toAdd.length} students to cohort, updated ${addResult.modifiedCount} student records`);
       totalUpdated += addResult.modifiedCount;
     }
 
     // Remove students from their records
     if (toRemove.length > 0) {
+      console.log(`📝 Removing ${toRemove.length} students from cohort ${cohortId}:`, toRemove);
       const removeFilters = toRemove.map(id => createStudentFilter(id).$or).flat();
-      const removeResult = await db.collection('students').updateMany(
-        { $or: removeFilters as any },
-        { 
+      
+      // First, check if these students have other cohorts and update cohortId accordingly
+      const removeQuery: any = { $or: removeFilters as any };
+      if (tenantId) {
+        removeQuery.tenantId = tenantId;
+      }
+      const studentsToRemove = await db.collection('students').find(
+        removeQuery,
+        { projection: { studentId: 1, cohorts: 1, enrolledCohorts: 1, cohortId: 1 } }
+      ).toArray();
+      
+      for (const student of studentsToRemove) {
+        const remainingCohorts = (student.cohorts || []).filter((id: string) => id !== cohortId);
+        const updateData: any = {
           $pull: { 
             cohorts: cohortId as any,
             enrolledCohorts: cohortId as any
           }
+        };
+        
+        // If this was their primary cohort, update cohortId to another cohort or clear it
+        if (student.cohortId === cohortId) {
+          if (remainingCohorts.length > 0) {
+            updateData.$set = { cohortId: remainingCohorts[0] }; // Set to first remaining cohort
+          } else {
+            updateData.$unset = { cohortId: '' }; // Clear if no other cohorts
+          }
         }
-      );
-      totalUpdated += removeResult.modifiedCount;
+        
+        await db.collection('students').updateOne(
+          { _id: student._id },
+          updateData
+        );
+      }
+      
+      console.log(`✅ Removed ${toRemove.length} students from cohort, updated ${studentsToRemove.length} student records`);
+      totalUpdated += studentsToRemove.length;
     }
 
     return {
@@ -250,7 +346,7 @@ export async function syncCohortStudents(
 /**
  * Get student record with cohort information
  */
-export async function getStudentWithCohorts(studentId: string): Promise<StudentRecord | null> {
+export async function getStudentWithCohorts(studentId: string, tenantId?: string): Promise<StudentRecord | null> {
   try {
     const mongoose = await getMongooseConnection();
     const db = mongoose.connection.db;
@@ -259,9 +355,11 @@ export async function getStudentWithCohorts(studentId: string): Promise<StudentR
       return null;
     }
 
-    const student = await db.collection('students').findOne(
-      createStudentFilter(studentId)
-    );
+    const filter = createStudentFilter(studentId);
+    if (tenantId) {
+      filter.$and = [{ tenantId: tenantId }];
+    }
+    const student = await db.collection('students').findOne(filter);
 
     return student as StudentRecord;
 
@@ -392,9 +490,111 @@ export async function getAllEnrollments(): Promise<EnrollmentSummary[]> {
  * Auto-enrollment function: When a student selects a course and cohort,
  * this ensures bidirectional sync between student and cohort records
  */
+/**
+ * Sync payment record when student data is updated
+ */
+export async function syncStudentPaymentRecord(
+  studentId: string,
+  studentData: any,
+  tenantId?: string
+): Promise<CohortUpdateResult> {
+  try {
+    const mongoose = await getMongooseConnection();
+    const db = mongoose.connection.db;
+    
+    if (!db) {
+      return { success: false, error: 'Database connection failed' };
+    }
+
+    console.log(`💳 Syncing payment record for student ${studentId} (tenant: ${tenantId || 'auto'})`);
+
+    // Find existing payment record
+    const paymentFilter: any = { studentId: studentId };
+    if (tenantId) {
+      paymentFilter.tenantId = tenantId;
+    }
+    
+    const payment = await db.collection('payments').findOne(paymentFilter);
+    
+    if (payment) {
+      // Update payment record with new student data
+      const updateData: any = {};
+      
+      // Update student name if changed
+      if (studentData.name && studentData.name !== payment.studentName) {
+        updateData.studentName = studentData.name;
+      }
+      
+      // Update enrolled course if changed
+      if (studentData.enrolledCourse && studentData.enrolledCourse !== payment.enrolledCourse) {
+        updateData.enrolledCourse = studentData.enrolledCourse;
+      }
+      
+      // Update enrolled course name if changed
+      if (studentData.enrolledCourseName && studentData.enrolledCourseName !== payment.enrolledCourseName) {
+        updateData.enrolledCourseName = studentData.enrolledCourseName;
+      }
+      
+      // Update cohort if changed
+      if (studentData.cohortId && studentData.cohortId !== payment.cohortId) {
+        updateData.cohortId = studentData.cohortId;
+        
+        // Try to get cohort name
+        const cohort = await db.collection('cohorts').findOne(
+          { cohortId: studentData.cohortId, ...(tenantId && { tenantId }) }
+        );
+        if (cohort) {
+          updateData.cohortName = cohort.name || cohort.cohortId;
+        }
+      }
+      
+      // Update student category if changed
+      if (studentData.category && studentData.category !== payment.studentCategory) {
+        updateData.studentCategory = studentData.category;
+      }
+      
+      // Update course type if changed
+      if (studentData.courseType && studentData.courseType !== payment.courseType) {
+        updateData.courseType = studentData.courseType;
+      }
+      
+      // Only update if there are changes
+      if (Object.keys(updateData).length > 0) {
+        updateData.updatedAt = new Date();
+        
+        const result = await db.collection('payments').updateOne(
+          paymentFilter,
+          { $set: updateData }
+        );
+        
+        console.log(`✅ Payment record updated for student ${studentId}:`, Object.keys(updateData));
+        
+        return {
+          success: true,
+          updatedCount: result.modifiedCount
+        };
+      } else {
+        console.log(`ℹ️ No payment updates needed for student ${studentId}`);
+        return { success: true, updatedCount: 0 };
+      }
+    } else {
+      console.log(`ℹ️ No payment record found for student ${studentId}`);
+      return { success: true, updatedCount: 0 };
+    }
+
+  } catch (error) {
+    console.error('Error in syncStudentPaymentRecord:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
 export async function enrollStudentInCohort(
   studentId: string, 
-  cohortId: string
+  cohortId: string,
+  tenantId?: string
 ): Promise<CohortUpdateResult> {
   try {
     const mongoose = await getMongooseConnection();
@@ -415,8 +615,13 @@ export async function enrollStudentInCohort(
     const studentName = student?.name || `${student?.firstName || ''} ${student?.lastName || ''}`.trim() || studentId;
 
     // 2. Update student record with cohort information
+    const effectiveTenantId = tenantId || student?.tenantId;
+    const studentUpdateFilter = createStudentFilter(studentId);
+    if (effectiveTenantId) {
+      studentUpdateFilter.$and = [{ tenantId: effectiveTenantId }];
+    }
     const studentUpdate = await db.collection('students').updateOne(
-      { studentId: studentId },
+      studentUpdateFilter,
       {
         $set: { 
           cohortId: cohortId,
@@ -432,9 +637,13 @@ export async function enrollStudentInCohort(
     console.log(`  Student update result: matchedCount=${studentUpdate.matchedCount}, modifiedCount=${studentUpdate.modifiedCount}`);
 
     // 3. Update cohort's currentStudents array and members array
+    const cohortFilter = effectiveTenantId 
+      ? { cohortId: cohortId, tenantId: effectiveTenantId }
+      : { cohortId: cohortId };
+    
     // First, remove any existing member with this studentId to avoid duplicates
     await db.collection('cohorts').updateOne(
-      { cohortId: cohortId },
+      cohortFilter,
       { 
         $pull: { members: { id: studentId } }
       }
@@ -442,7 +651,7 @@ export async function enrollStudentInCohort(
 
     // Then add the student with updated information
     const cohortUpdate = await db.collection('cohorts').updateOne(
-      { cohortId: cohortId },
+      cohortFilter,
       { 
         $addToSet: { 
           currentStudents: studentId
@@ -464,9 +673,13 @@ export async function enrollStudentInCohort(
       // Try fallback query with 'id' field in case cohortId field is not set
       console.log(`  Cohort not found by cohortId, trying fallback with id field...`);
       
+      const fallbackCohortFilter = effectiveTenantId 
+        ? { id: cohortId, tenantId: effectiveTenantId }
+        : { id: cohortId };
+      
       // Remove existing member first
       await db.collection('cohorts').updateOne(
-        { id: cohortId },
+        fallbackCohortFilter,
         { 
           $pull: { members: { id: studentId } }
         }
@@ -474,7 +687,7 @@ export async function enrollStudentInCohort(
       
       // Then add with updated information
       const cohortUpdateFallback = await db.collection('cohorts').updateOne(
-        { id: cohortId },
+        fallbackCohortFilter,
         { 
           $addToSet: { 
             currentStudents: studentId

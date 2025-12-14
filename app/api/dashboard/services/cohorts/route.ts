@@ -185,7 +185,7 @@ export async function POST(request: Request) {
         await existingCohort.save();
         
         // Sync students bidirectionally when student list changes
-        const syncResult = await syncCohortStudents(existingCohort.cohortId, newStudents);
+        const syncResult = await syncCohortStudents(existingCohort.cohortId, newStudents, session.tenantId);
         if (!syncResult.success) {
           console.warn(`Failed to sync students for cohort ${existingCohort.cohortId}:`, syncResult.error);
         }
@@ -426,7 +426,7 @@ export async function PUT(request: Request) {
     
     // Sync students bidirectionally if student list was updated
     if (newStudents) {
-      const syncResult = await syncCohortStudents(updatedCohort.cohortId, newStudents);
+      const syncResult = await syncCohortStudents(updatedCohort.cohortId, newStudents, session.tenantId);
       if (!syncResult.success) {
         console.warn(`Failed to sync students for cohort ${updatedCohort.cohortId}:`, syncResult.error);
       }

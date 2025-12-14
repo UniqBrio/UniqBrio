@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     if (action === 'enroll') {
       // Use the new enrollment function that handles bidirectional sync
-      const result = await enrollStudentInCohort(studentId, cohortId);
+      const result = await enrollStudentInCohort(studentId, cohortId, session.tenantId);
       
       if (result.success) {
         console.log(`✅ [Enrollment API] Successfully enrolled ${studentId} in ${cohortId}`);

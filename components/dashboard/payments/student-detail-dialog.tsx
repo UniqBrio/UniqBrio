@@ -212,26 +212,26 @@ export function StudentDetailDialog({
       label: "Course Fee",
       value: (
         <span className="text-base font-semibold text-slate-900">
-          {currency} {formatCurrency(payment.courseFee || 0)}
+          {formatCurrency(payment.courseFee || 0)}
         </span>
       ),
     },
     {
       icon: CreditCard,
       label: "Student Registration",
-      value: `${currency} ${formatCurrency(payment.studentRegistrationFee || 0)}`,
+      value: formatCurrency(payment.studentRegistrationFee || 0),
     },
     {
       icon: CreditCard,
       label: "Course Registration",
-      value: `${currency} ${formatCurrency(payment.courseRegistrationFee || 0)}`,
+      value: formatCurrency(payment.courseRegistrationFee || 0),
     },
     {
       icon: Calculator,
       label: "Total To Be Paid",
       value: (
         <span className="font-bold text-purple-700 text-base">
-          {currency} {formatCurrency(totalToBePaid)}
+          {formatCurrency(totalToBePaid)}
         </span>
       ),
     },
@@ -240,7 +240,7 @@ export function StudentDetailDialog({
       label: "Total Paid",
       value: (
         <span className="font-semibold text-emerald-600">
-          {currency} {formatCurrency(payment.receivedAmount || 0)}
+          {formatCurrency(payment.receivedAmount || 0)}
         </span>
       ),
     },
@@ -249,7 +249,7 @@ export function StudentDetailDialog({
       label: "Balance",
       value: (
         <span className="font-semibold text-red-600">
-          {currency} {formatCurrency(payment.outstandingAmount || 0)}
+          {formatCurrency(payment.outstandingAmount || 0)}
         </span>
       ),
     },

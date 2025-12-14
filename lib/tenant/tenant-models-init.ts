@@ -39,7 +39,6 @@ import Achievement from '@/models/dashboard/student/Achievement';
 
 // Payment models
 import Payment from '@/models/dashboard/payments/Payment';
-import PaymentRecord from '@/models/dashboard/payments/PaymentRecord';
 import PaymentTransaction from '@/models/dashboard/payments/PaymentTransaction';
 import MonthlySubscription from '@/models/dashboard/payments/MonthlySubscription';
 import Counter from '@/models/dashboard/payments/Counter';
@@ -100,7 +99,6 @@ export function initializeTenantModels() {
 
   // Payment models
   ensureTenantPlugin(Payment, 'Payment');
-  ensureTenantPlugin(PaymentRecord, 'PaymentRecord');
   ensureTenantPlugin(PaymentTransaction, 'PaymentTransaction');
   ensureTenantPlugin(MonthlySubscription, 'MonthlySubscription');
   ensureTenantPlugin(Counter, 'Counter');

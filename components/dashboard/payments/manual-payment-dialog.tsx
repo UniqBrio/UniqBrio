@@ -329,12 +329,23 @@ export function ManualPaymentDialog({
     }
   }, [open]);
 
-  // Reset form when dialog closes
+  // Reset form when dialog closes - immediate cleanup
   useEffect(() => {
     if (!open) {
+      // Reset form immediately when dialog closes
       resetForm();
     }
   }, [open]);
+
+  // Additional cleanup when component unmounts or payment changes
+  useEffect(() => {
+    return () => {
+      // Cleanup when payment changes or component unmounts
+      if (!open) {
+        resetForm();
+      }
+    };
+  }, [payment?.id, open]);
 
   // Fetch payment history for existing payments
   useEffect(() => {
@@ -746,6 +757,7 @@ export function ManualPaymentDialog({
 
   useEffect(() => {
     if (payment && open) {
+      // Only initialize when dialog is actually open to prevent overriding reset
       // Initialize form with current date and time
       const now = new Date();
       setDate(now.toISOString().split("T")[0]);
@@ -1441,7 +1453,7 @@ export function ManualPaymentDialog({
   };
 
   const resetForm = () => {
-    // Basic payment fields
+    // Basic payment fields - Reset to defaults
     setPaymentOption("Monthly");
     setPlanType('MONTHLY_SUBSCRIPTION');
     setPaymentSubType('');
@@ -1453,22 +1465,23 @@ export function ManualPaymentDialog({
     setReceivedBy("");
     setNotes("");
     
-    // Enhanced fields
+    // Enhanced fields - Clear all user input
     setPayerType('student');
     setCustomPayerType("");
     setPayerName("");
     setDiscount("");
     
-    // EMI fields
+    // EMI fields - Reset to defaults
     setEmiIndex(0);
     setShowEmiSelector(false);
     setReceivedBySearch("");
+    setCustomPayers([]);
     
-    // One Time with Installments fields
+    // One Time with Installments fields - Clear configuration
     setInstallmentsConfig(null);
     setCurrentInstallmentNumber(1);
     
-    // Ongoing Training - Monthly Subscription fields
+    // Ongoing Training - Monthly Subscription fields - Reset all
     setBaseMonthlyAmount(0);
     setIsDiscountedPlan(false);
     setDiscountType('percentage');
@@ -1479,7 +1492,7 @@ export function ManualPaymentDialog({
     setTotalSavings(0);
     setAllowEditMonthlyFee(false);
     
-    // Monthly subscription billing fields
+    // Monthly subscription billing fields - Reset to defaults
     setBillingDueDate(1);
     setAutoRenew(false);
     setLateFeeRule('');
@@ -1487,42 +1500,54 @@ export function ManualPaymentDialog({
     setAutoRenewOption('ask_again');
     setRefundPolicy('no_refund');
     
-    // Error states
+    // Reminder fields - Reset all
+    setReminderEnabled(false);
+    setNextReminderDate("");
+    setPreReminderEnabled(false);
+    setStopReminders(false);
+    setReminderFrequency('DAILY');
+    setIsReminderDisabled(false);
+    
+    // Error states - Clear all errors
     setPaymentAmountError("");
     
-    // UI states
+    // UI states - Reset all
     setOpenCombobox(false);
     setShowCommitmentSelector(false);
+    setLoading(false);
+    setSubmitting(false);
+    setLoadingHistory(false);
+    setIsPaymentOptionDisabled(false);
     
-    // Payment types selection
+    // Payment types selection - Reset to defaults
     setSelectedTypes({
-      coursePayment: false,
+      coursePayment: true,
       studentRegistrationFee: false,
       courseRegistrationFee: false,
     });
     
-    // Monthly subscription state
+    // Monthly subscription state - Reset to initial state
     setMonthlySubscriptionState({
-      monthlyAmount: 0,
-      discountedAmount: 0,
-      discountType: 'percentage',
-      discountValue: 0,
-      discountPeriod: 3,
-      isDiscounted: false,
       isFirstPayment: true,
-      totalMonthlyWithRegistration: 0,
-      registrationFeesIncluded: {
-        student: false,
-        course: false
-      }
+      monthlyRecords: [],
+      originalMonthlyFee: 0,
+      discountedMonthlyFee: 0,
+      currentMonth: new Date().toISOString().slice(0, 7) // "YYYY-MM" format
     });
     
-    // Commitment and subscription fields
+    // Commitment and subscription fields - Reset
     setCommitmentPeriod(3);
     setShowCommitmentSelector(false);
     
-    // Stop reminders
-    setStopReminders(false);
+    // Clear data states that might persist user entries
+    setPaymentHistory([]);
+    setFetchedFees(null);
+    setCourseInfo({ courseType: null, courseCategory: null, paymentCategory: null });
+    setGuardianInfo({ fullName: null, relationship: null, contact: null });
+    setCohortDates({ startDate: null, endDate: null });
+    setMonthlyInstallment(0);
+    setNumberOfMonths(0);
+    setCourseCategory(null);
   };
 
   if (!payment) return null;
@@ -2827,7 +2852,13 @@ export function ManualPaymentDialog({
                     <Input
                       type="text"
                       value={customPayerType}
-                      onChange={(e) => setCustomPayerType(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Only allow letters and spaces
+                        if (/^[a-zA-Z\s]*$/.test(value)) {
+                          setCustomPayerType(value);
+                        }
+                      }}
                       placeholder="e.g., Sponsor, Organization"
                     />
                   </div>
@@ -2837,7 +2868,13 @@ export function ManualPaymentDialog({
                   <Input
                     type="text"
                     value={payerName}
-                    onChange={(e) => setPayerName(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only allow letters and spaces
+                      if (/^[a-zA-Z\s]*$/.test(value)) {
+                        setPayerName(value);
+                      }
+                    }}
                     placeholder={payment.studentName}
                   />
                 </div>

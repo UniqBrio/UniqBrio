@@ -192,7 +192,7 @@ export function RevenueBySourceChart({ data: propData }: RevenueBySourceChartPro
           </h4>
           <div className="grid grid-cols-1 gap-2">
             {displayData.map((item, index) => (
-              <div key={item.course} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+              <div key={`${item.course}-${index}`} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <span className="text-xs px-2 py-1 rounded font-mono" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                     {item.course}
