@@ -68,8 +68,10 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
   const [showCelebration, setShowCelebration] = useState(false)
   const searchParams = useSearchParams()
 
-  // Check for URL parameters
+  // Check for URL parameters - prioritize query param over initialPlan prop
   const error = searchParams?.get("error")
+  const planFromQuery = searchParams?.get("plan") as 'free' | 'grow' | 'scale' | null
+  const selectedPlan = planFromQuery || initialPlan || 'free' // Query param > Prop > Default
 
   useEffect(() => {
     // Show toast messages based on URL params (e.g., from OAuth errors)
@@ -143,10 +145,8 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
       formData.append("confirmPassword", data.confirmPassword)
       formData.append("role", "admin") // Always assign 'admin' role
       formData.append("termsAccepted", data.termsAccepted ? "true" : "false")
-      // Add plan information if provided from URL
-      if (initialPlan) {
-        formData.append("planChoosed", initialPlan)
-      }
+      // Add plan information - use selectedPlan which reads from query param or prop
+      formData.append("planChoosed", selectedPlan)
       // TODO: Backend integration - store terms acceptance timestamp in user profile
       // Example: formData.append("termsAcceptedAt", new Date().toISOString())
 
@@ -202,10 +202,10 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
 
         {/* Plan Selection Banner - Show if plan was pre-selected from URL */}
-        {initialPlan && (
+        {selectedPlan && selectedPlan !== 'free' && (
           <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-center animate-in fade-in duration-300">
             <p className="text-sm text-purple-700 font-medium">
-              You selected the <span className="font-bold capitalize">{initialPlan}</span> plan
+              You selected the <span className="font-bold capitalize">{selectedPlan}</span> plan
             </p>
           </div>
         )}

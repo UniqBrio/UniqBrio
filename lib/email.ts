@@ -105,8 +105,11 @@ export async function sendEmail({
 /// --- MODIFIED: generateVerificationEmail (OTP Removed) ---
 // Now only sends a verification link.
 export function generateVerificationEmail(email: string, token: string, userName?: string, academyName?: string) {
-  // Use query parameter for token verification
-  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+  // Use query parameter for token verification with fallback
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BASE_URL || 'https://app.uniqbrio.com';
+  const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
+  
+  console.log('[Email] Verification URL:', verificationUrl); // Debug log
   
   // Create personalized greeting
   let greeting = "Hi there!";
