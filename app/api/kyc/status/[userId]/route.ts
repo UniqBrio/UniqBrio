@@ -57,30 +57,30 @@ export async function GET(
       academyId: user.academyId
     }).select('_id createdAt rejectionReason').sort({ createdAt: -1 });
 
-    // Auto-expire logic: if no submission and more than 14 days since account creation
-    if (!kycSubmission && user.registrationComplete && user.createdAt) {
-      const registeredAt = new Date(user.createdAt);
-      const now = new Date();
-      const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays >= 14 && user.kycStatus !== 'expired') {
-        await UserModel.updateMany({ 
-          userId: params.userId 
-        }, {
-          $set: { kycStatus: 'expired' }
-        });
-        
-        return NextResponse.json({
-          status: "expired",
-          hasSubmitted: false,
-          submissionDate: null,
-          message: "KYC verification window expired - please resubmit",
-          userDetails: {
-            name: user.name,
-            email: user.email
-          }
-        });
-      }
-    }
+    // COMMENTED OUT: Auto-expire logic - 14 days blocking disabled
+    // if (!kycSubmission && user.registrationComplete && user.createdAt) {
+    //   const registeredAt = new Date(user.createdAt);
+    //   const now = new Date();
+    //   const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+    //   if (diffDays >= 14 && user.kycStatus !== 'expired') {
+    //     await UserModel.updateMany({ 
+    //       userId: params.userId 
+    //     }, {
+    //       $set: { kycStatus: 'expired' }
+    //     });
+    //     
+    //     return NextResponse.json({
+    //       status: "expired",
+    //       hasSubmitted: false,
+    //       submissionDate: null,
+    //       message: "KYC verification window expired - please resubmit",
+    //       userDetails: {
+    //         name: user.name,
+    //         email: user.email
+    //       }
+    //     });
+    //   }
+    // }
 
     // Return status based on user's KYC status
     switch (user.kycStatus) {

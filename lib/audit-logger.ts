@@ -57,10 +57,10 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
 }
 
 /**
- * Creates an audit log for authentication events (login/logout)
+ * Creates an audit log for authentication events (login/logout/session management)
  */
 export async function logAuthEvent(
-  action: 'Login' | 'Logout',
+  action: 'Login' | 'Logout' | 'LogoutAll' | 'AdminSessionRevoke',
   userId: string,
   userName: string,
   userEmail: string,

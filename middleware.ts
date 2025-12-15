@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { verifyTokenEdge, getSessionCookieEdge } from '@/lib/auth-edge' // NEW IMPORT - Edge safe
+import { verifyTokenEdge, getSessionCookieEdge, verifyTokenSignatureOnly } from '@/lib/auth-edge' // NEW IMPORT - Edge safe
 import { COOKIE_NAMES, COOKIE_EXPIRY } from '@/lib/cookies'; // Assuming COOKIE_EXPIRY is defined here
 import { tenantMiddleware } from '@/lib/tenant/tenant-middleware'; // Tenant support
 
@@ -94,18 +94,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // --- Token Verification ---
-  const tokenPayload = await verifyTokenEdge(sessionCookieValue);
+  // --- JWT Verification (Edge Runtime Compatible) ---
+  let tokenPayload: any = null;
+  
+  // Verify JWT signature in Edge Runtime
+  try {
+    tokenPayload = await verifyTokenSignatureOnly(sessionCookieValue);
+    if (tokenPayload) {
+      console.log(`[Middleware] JWT verification successful for: ${tokenPayload.email}`);
+    } else {
+      console.log(`[Middleware] JWT verification failed, trying edge verification`);
+      tokenPayload = await verifyTokenEdge(sessionCookieValue);
+    }
+  } catch (error) {
+    console.error(`[Middleware] JWT verification error:`, error);
+    tokenPayload = await verifyTokenEdge(sessionCookieValue);
+  }
   
   interface TokenPayload {
     id: string;
     email: string;
     role: string;
+    tenantId?: string;
+    userId?: string;
+    academyId?: string;
   }
 
   const payload = tokenPayload && 
     typeof tokenPayload === 'object' && 
-    'id' in tokenPayload && 
     'email' in tokenPayload && 
     'role' in tokenPayload ? 
     tokenPayload as unknown as TokenPayload : null;
@@ -117,7 +133,9 @@ export async function middleware(request: NextRequest) {
     response.cookies.delete(COOKIE_NAMES.LAST_ACTIVITY);
     return response;
   }
-  console.log(`[Middleware] Valid session found for role: ${payload.role}, email: ${payload.email}`);
+  
+  // Log session information for debugging
+  console.log(`[Middleware] Session verified - Role: ${payload.role}, Email: ${payload.email}`);
 
   // --- Registration Completion Check ---
   // Check if user has completed registration before accessing protected areas
@@ -160,32 +178,31 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL('/dashboard', request.url));
         }
 
-        // --- KYC Blocking Check ---
-        // Check if user has expired KYC (15+ days without submission) and block access
-        if (userData?.registrationComplete && !path.startsWith('/kyc-blocked') && 
-            path !== '/login' && path !== '/logout') {
-          
-          // Check if KYC is expired or if it should be expired
-          let shouldBlock = userData.kycStatus === 'expired';
-          
-          // If not already expired, check if it should be
-          if (!shouldBlock && userData.createdAt) {
-            const registeredAt = new Date(userData.createdAt);
-            const now = new Date();
-            const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
-            
-            // Block access if 15+ days (grace period of 1 day after 14-day limit)
-            if (diffDays >= 15 && userData.kycStatus !== 'verified' && userData.kycStatus !== 'approved') {
-              shouldBlock = true;
-              console.log(`[Middleware] Should block user ${payload.email} - ${diffDays} days since registration, KYC status: ${userData.kycStatus}`);
-            }
-          }
-          
-          if (shouldBlock) {
-            console.log(`[Middleware] User ${payload.email} has expired KYC, redirecting to /kyc-blocked`);
-            return NextResponse.redirect(new URL('/kyc-blocked', request.url));
-          }
-        }
+        // COMMENTED OUT: KYC Blocking Check - 14 days blocking disabled
+        // if (userData?.registrationComplete && !path.startsWith('/kyc-blocked') && 
+        //     path !== '/login' && path !== '/logout') {
+        //   
+        //   // Check if KYC is expired or if it should be expired
+        //   let shouldBlock = userData.kycStatus === 'expired';
+        //   
+        //   // If not already expired, check if it should be
+        //   if (!shouldBlock && userData.createdAt) {
+        //     const registeredAt = new Date(userData.createdAt);
+        //     const now = new Date();
+        //     const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+        //     
+        //     // Block access if 15+ days (grace period of 1 day after 14-day limit)
+        //     if (diffDays >= 15 && userData.kycStatus !== 'verified' && userData.kycStatus !== 'approved') {
+        //       shouldBlock = true;
+        //       console.log(`[Middleware] Should block user ${payload.email} - ${diffDays} days since registration, KYC status: ${userData.kycStatus}`);
+        //     }
+        //   }
+        //   
+        //   if (shouldBlock) {
+        //     console.log(`[Middleware] User ${payload.email} has expired KYC, redirecting to /kyc-blocked`);
+        //     return NextResponse.redirect(new URL('/kyc-blocked', request.url));
+        //   }
+        // }
 
         console.log(`[Middleware] Registration status check passed for ${payload.email} - verified: ${userData?.verified}, complete: ${userData?.registrationComplete}`);
       } else {
@@ -317,6 +334,15 @@ export async function middleware(request: NextRequest) {
       path: "/",
     });
   }
+
+  // --- Session Context Injection ---
+  // Add session context to request headers for API routes and server components
+  // Extract session info from JWT payload (Edge Runtime compatible)
+  response.headers.set('x-session-user-id', String(payload.userId || payload.id || ''));
+  response.headers.set('x-session-tenant-id', String(payload.tenantId || payload.academyId || ''));
+  response.headers.set('x-session-role', String(payload.role || ''));
+  response.headers.set('x-session-email', String(payload.email || ''));
+  console.log(`[Middleware] Session headers added for: ${payload.email}`);
 
   // --- Tenant Context Injection ---
   // Add tenant context to request headers for API routes and pages

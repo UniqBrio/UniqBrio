@@ -706,7 +706,7 @@ export function ManualPaymentDialog({
             installment,
             courseFee: courseFeeOnly,
             months,
-            calculation: `${courseFeeOnly} � ${months} months`
+            calculation: `${courseFeeOnly} × ${months} months`
           });
         } else {
           console.log('Ongoing Training or missing end date - no monthly calculation needed');
@@ -1948,21 +1948,21 @@ export function ManualPaymentDialog({
                             <p className="text-xs font-semibold text-gray-700 dark:text-white mb-2">Features:</p>
                             <div className="flex flex-wrap gap-2">
                               <Badge variant="outline" className="text-xs">
-                                {inst.invoiceOnPayment ? '? Invoice on payment' : '? No invoice'}
+                                {inst.invoiceOnPayment ? '✓ Invoice on payment' : '✗ No invoice'}
                               </Badge>
                               {inst.finalInvoice && (
                                 <Badge variant="outline" className="text-xs bg-green-50">
-                                  ? Final invoice
+                                  ✓ Final invoice
                                 </Badge>
                               )}
                               {inst.stopReminderToggle && (
                                 <Badge variant="outline" className="text-xs bg-yellow-50">
-                                  ? Stop reminder toggle
+                                  ✓ Stop reminder toggle
                                 </Badge>
                               )}
                               {inst.stopAccessToggle && (
                                 <Badge variant="outline" className="text-xs bg-red-50">
-                                  ? Stop access toggle
+                                  ✓ Stop access toggle
                                 </Badge>
                               )}
                             </div>
@@ -3044,19 +3044,19 @@ export function ManualPaymentDialog({
                           <p className="font-bold text-blue-900">Automatic Reminder Settings for Partial Payment:</p>
                           <ul className="space-y-1.5 text-blue-800">
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 font-bold">�</span>
+                              <span className="text-blue-600 font-bold">✓</span>
                               <span><strong>Next Payment Date:</strong> Tomorrow (day after this payment)</span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 font-bold">�</span>
+                              <span className="text-blue-600 font-bold">✓</span>
                               <span><strong>Reminder Frequency:</strong> Daily at 10:00 AM</span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 font-bold">�</span>
+                              <span className="text-blue-600 font-bold">✓</span>
                               <span><strong>Duration:</strong> Unlimited until fully paid</span>
                             </li>
                             <li className="flex items-start gap-2">
-                              <span className="text-blue-600 font-bold">�</span>
+                              <span className="text-blue-600 font-bold">✓</span>
                               <span><strong>Status:</strong> Auto-enabled (can be disabled below)</span>
                             </li>
                           </ul>
@@ -3099,7 +3099,7 @@ export function ManualPaymentDialog({
                       <p className="font-bold text-green-900">Automatic Reminder Schedule Active</p>
                       <ul className="text-sm text-gray-700 dark:text-white space-y-1.5">
                         <li className="flex items-start gap-2">
-                          <span className="text-green-600 font-bold mt-0.5">�</span>
+                          <span className="text-green-600 font-bold mt-0.5">✓</span>
                           <span>
                             {paymentOption === 'One Time With Installments' && 
                               'Reminder and due dates are shown in the installment details above'}
@@ -3110,11 +3110,11 @@ export function ManualPaymentDialog({
                           </span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-green-600 font-bold mt-0.5">�</span>
+                          <span className="text-green-600 font-bold mt-0.5">✓</span>
                           <span><strong>No manual configuration needed</strong> - System handles everything automatically</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="text-green-600 font-bold mt-0.5">�</span>
+                          <span className="text-green-600 font-bold mt-0.5">✓</span>
                           <span>You can disable reminders below if needed</span>
                         </li>
                       </ul>

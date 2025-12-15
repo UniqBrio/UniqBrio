@@ -8,7 +8,7 @@ import { Input } from "@/components/dashboard/ui/input"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/dashboard/ui/dialog"
-import { Landmark, Plus, Pencil, Trash2, Building2, CreditCard, Loader2 } from "lucide-react"
+import { Landmark, Plus, Pencil, Trash2, Building2, CreditCard, Loader2, Search } from "lucide-react"
 import { toast } from "@/components/dashboard/ui/use-toast"
 
 interface BankAccount {
@@ -52,11 +52,36 @@ export function BankAccountSettings() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null)
   const [bankForm, setBankForm] = useState<BankFormData>(initialFormData)
+  const [originalFormData, setOriginalFormData] = useState<BankFormData>(initialFormData)
+  const [isFormModified, setIsFormModified] = useState(false)
   const [bankFormError, setBankFormError] = useState("")
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [accountToDelete, setAccountToDelete] = useState<string | null>(null)
+  const [unsavedChangesDialogOpen, setUnsavedChangesDialogOpen] = useState(false)
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [viewingAccount, setViewingAccount] = useState<BankAccount | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const isFormValid = bankForm.holderName && bankForm.accountNumber && bankForm.accountType && bankForm.bankName && bankForm.ifsc && bankForm.branch
+
+  // Track form modifications
+  useEffect(() => {
+    if (editingAccount) {
+      // Check if any field has changed from original
+      const hasChanged = 
+        bankForm.holderName !== originalFormData.holderName ||
+        bankForm.accountNumber !== originalFormData.accountNumber ||
+        bankForm.accountType !== originalFormData.accountType ||
+        bankForm.bankName !== originalFormData.bankName ||
+        bankForm.ifsc !== originalFormData.ifsc ||
+        bankForm.branch !== originalFormData.branch ||
+        bankForm.micr !== originalFormData.micr
+      setIsFormModified(hasChanged)
+    } else {
+      // In add mode, form is always considered modified if fields are filled
+      setIsFormModified(true)
+    }
+  }, [bankForm, originalFormData, editingAccount])
 
   // Fetch bank accounts from the database on component mount
   useEffect(() => {
@@ -102,16 +127,53 @@ export function BankAccountSettings() {
     setBankFormError("")
   }
 
+  function hasUnsavedChanges(): boolean {
+    // Check if any field has been filled or modified
+    if (!editingAccount) {
+      // In add mode, check if any field has data
+      return !!(bankForm.holderName || bankForm.accountNumber || bankForm.accountType || 
+               bankForm.bankName || bankForm.ifsc || bankForm.branch || bankForm.micr)
+    } else {
+      // In edit mode, check if form is modified
+      return isFormModified
+    }
+  }
+
+  function handleDialogClose(open: boolean) {
+    if (!open && hasUnsavedChanges()) {
+      // Prevent closing and show confirmation dialog
+      setUnsavedChangesDialogOpen(true)
+    } else {
+      setDialogOpen(open)
+    }
+  }
+
+  function discardChanges() {
+    setUnsavedChangesDialogOpen(false)
+    setDialogOpen(false)
+    setBankForm(initialFormData)
+    setOriginalFormData(initialFormData)
+    setIsFormModified(false)
+    setBankFormError("")
+  }
+
   function openAddDialog() {
     setEditingAccount(null)
     setBankForm(initialFormData)
+    setOriginalFormData(initialFormData)
+    setIsFormModified(false)
     setBankFormError("")
     setDialogOpen(true)
   }
 
+  function openViewDialog(account: BankAccount) {
+    setViewingAccount(account)
+    setViewDialogOpen(true)
+  }
+
   function openEditDialog(account: BankAccount) {
     setEditingAccount(account)
-    setBankForm({
+    const formData = {
       holderName: account.holderName,
       accountNumber: account.accountNumber,
       accountType: account.accountType,
@@ -119,7 +181,10 @@ export function BankAccountSettings() {
       ifsc: account.ifsc,
       branch: account.branch,
       micr: account.micr || ""
-    })
+    }
+    setBankForm(formData)
+    setOriginalFormData(formData)
+    setIsFormModified(false)
     setBankFormError("")
     setDialogOpen(true)
   }
@@ -284,30 +349,59 @@ export function BankAccountSettings() {
     return "XXXX" + accountNumber.slice(-4)
   }
 
+  // Filter bank accounts based on search query
+  const filteredBankAccounts = bankAccounts.filter((account) => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      account.bankName.toLowerCase().includes(query) ||
+      account.holderName.toLowerCase().includes(query) ||
+      account.accountNumber.includes(query) ||
+      account.ifsc.toLowerCase().includes(query) ||
+      account.branch.toLowerCase().includes(query) ||
+      account.accountType.toLowerCase().includes(query)
+    )
+  })
+
   return (
     <>
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-            <div className="flex-1">
-              <CardTitle className="flex items-center gap-2">
-                <Landmark className="h-5 w-5" style={{ color: primaryColor }} />
-                Bank Accounts
-              </CardTitle>
-              <CardDescription>
-                Manage your bank accounts for receiving payments and payouts
-              </CardDescription>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+              <div className="flex-1">
+                <CardTitle className="flex items-center gap-2">
+                  <Landmark className="h-5 w-5" style={{ color: primaryColor }} />
+                  Bank Accounts
+                </CardTitle>
+                <CardDescription>
+                  Manage your bank accounts for receiving payments and payouts
+                </CardDescription>
+              </div>
+              <Button
+                onClick={openAddDialog}
+                className="gap-2"
+                title="Add Bank Account"
+                style={{ backgroundColor: primaryColor }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
+              >
+                <Plus className="h-4 w-4" />
+                Add Bank Account
+              </Button>
             </div>
-            <Button
-              onClick={openAddDialog}
-              className="gap-2"
-              style={{ backgroundColor: primaryColor }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
-            >
-              <Plus className="h-4 w-4" />
-              Add Bank Account
-            </Button>
+            {bankAccounts.length > 0 && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search by bank name, holder, account number, IFSC, branch..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -333,20 +427,44 @@ export function BankAccountSettings() {
                 onClick={openAddDialog}
                 variant="outline"
                 className="gap-2"
+                title="Add Your First Bank Account"
                 style={{ borderColor: primaryColor, color: primaryColor }}
               >
                 <Plus className="h-4 w-4" />
                 Add Your First Bank Account
               </Button>
             </div>
+          ) : filteredBankAccounts.length === 0 && searchQuery ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div 
+                className="rounded-full p-4 mb-4"
+                style={{ backgroundColor: `${primaryColor}15` }}
+              >
+                <Search className="h-8 w-8" style={{ color: primaryColor }} />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                No Results Found
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
+                No bank accounts match your search criteria. Try a different search term.
+              </p>
+              <Button
+                onClick={() => setSearchQuery("")}
+                variant="outline"
+                style={{ borderColor: primaryColor, color: primaryColor }}
+              >
+                Clear Search
+              </Button>
+            </div>
           ) : (
             <div className="space-y-4">
-              {[...bankAccounts]
+              {[...filteredBankAccounts]
                 .sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
                 .map((account) => (
                 <div
                   key={account._id || account.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+                  onClick={() => openViewDialog(account)}
                 >
                   <div className="flex items-start gap-4 flex-1">
                     <div 
@@ -362,8 +480,7 @@ export function BankAccountSettings() {
                         </h4>
                         {account.isPrimary && (
                           <span 
-                            className="text-xs px-2 py-0.5 rounded-full font-medium"
-                            style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
+                            className="text-xs px-2 py-0.5 rounded-full font-medium bg-purple-600 text-white"
                           >
                             Primary
                           </span>
@@ -382,7 +499,7 @@ export function BankAccountSettings() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-3 sm:mt-0">
+                  <div className="flex items-center gap-2 mt-3 sm:mt-0" onClick={(e) => e.stopPropagation()}>
                     {!account.isPrimary && (
                       <Button
                         variant="ghost"
@@ -398,12 +515,14 @@ export function BankAccountSettings() {
                       size="icon"
                       onClick={() => openEditDialog(account)}
                       className="h-8 w-8"
+                      title="Edit Account"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      title="Delete Account"
                       onClick={() => handleDeleteClick(account._id || account.id || '')}
                       className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
@@ -418,8 +537,13 @@ export function BankAccountSettings() {
       </Card>
 
       {/* Add/Edit Bank Account Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+      <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent className="sm:max-w-lg" onInteractOutside={(e) => {
+          if (hasUnsavedChanges()) {
+            e.preventDefault()
+            setUnsavedChangesDialogOpen(true)
+          }
+        }}>
           <DialogHeader>
             <DialogTitle>
               {editingAccount ? "Edit Bank Account" : "Add Bank Account"}
@@ -436,7 +560,29 @@ export function BankAccountSettings() {
                   type="text"
                   placeholder="Enter account holder name"
                   value={bankForm.holderName}
-                  onChange={e => handleBankChange("holderName", e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    // Only allow letters, spaces, hyphens, apostrophes, and dots
+                    const sanitizedValue = value
+                      .replace(/[^a-zA-Z\s\-'.]/g, '')
+                      .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
+                      .replace(/[\-']{2,}/g, (match) => match[0]) // Prevent consecutive special chars
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "Account holder name can only contain letters, spaces, and valid punctuation (-, ', .)",
+                        variant: "destructive",
+                      })
+                    }
+                    handleBankChange("holderName", sanitizedValue)
+                  }}
+                  onBlur={(e) => {
+                    // Trim leading/trailing spaces and special characters on blur
+                    const trimmed = e.target.value.trim().replace(/^[\-'.]+|[\-'.]+$/g, '')
+                    if (trimmed !== e.target.value) {
+                      handleBankChange("holderName", trimmed)
+                    }
+                  }}
                   required
                 />
               </div>
@@ -449,7 +595,18 @@ export function BankAccountSettings() {
                   type="text"
                   placeholder="Enter account number"
                   value={bankForm.accountNumber}
-                  onChange={e => handleBankChange("accountNumber", e.target.value.replace(/[^0-9]/g, ""))}
+                  onChange={e => {
+                    const value = e.target.value
+                    const sanitizedValue = value.replace(/[^0-9]/g, "")
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "Account number can only contain digits (0-9)",
+                        variant: "destructive",
+                      })
+                    }
+                    handleBankChange("accountNumber", sanitizedValue)
+                  }}
                   required
                   maxLength={20}
                 />
@@ -482,7 +639,29 @@ export function BankAccountSettings() {
                   type="text"
                   placeholder="Enter bank name"
                   value={bankForm.bankName}
-                  onChange={e => handleBankChange("bankName", e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    // Allow letters, spaces, ampersand, hyphens, apostrophes, and dots (e.g., HSBC Bank, State Bank of India)
+                    const sanitizedValue = value
+                      .replace(/[^a-zA-Z\s&\-'.]/g, '')
+                      .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
+                      .replace(/[&\-']{2,}/g, (match) => match[0]) // Prevent consecutive special chars
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "Bank name can only contain letters, spaces, and valid punctuation (&, -, ', .)",
+                        variant: "destructive",
+                      })
+                    }
+                    handleBankChange("bankName", sanitizedValue)
+                  }}
+                  onBlur={(e) => {
+                    // Trim leading/trailing spaces and special characters on blur
+                    const trimmed = e.target.value.trim().replace(/^[&\-'.]+|[&\-'.]+$/g, '')
+                    if (trimmed !== e.target.value) {
+                      handleBankChange("bankName", trimmed)
+                    }
+                  }}
                   required
                 />
               </div>
@@ -496,7 +675,30 @@ export function BankAccountSettings() {
                   placeholder="e.g., SBIN0001234"
                   className="uppercase"
                   value={bankForm.ifsc}
-                  onChange={e => handleBankChange("ifsc", e.target.value.toUpperCase())}
+                  onChange={e => {
+                    const value = e.target.value.toUpperCase()
+                    // Only allow alphanumeric characters for IFSC
+                    const sanitizedValue = value.replace(/[^A-Z0-9]/g, '')
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "IFSC code can only contain letters and numbers",
+                        variant: "destructive",
+                      })
+                    }
+                    handleBankChange("ifsc", sanitizedValue)
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value
+                    // Validate IFSC format: 4 letters, then 0, then 6 alphanumeric
+                    if (value && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(value)) {
+                      toast({
+                        title: "Invalid IFSC Code",
+                        description: "IFSC must be 11 characters: 4 letters, followed by 0, then 6 alphanumeric (e.g., SBIN0001234)",
+                        variant: "destructive",
+                      })
+                    }
+                  }}
                   required
                   maxLength={11}
                   pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
@@ -512,7 +714,29 @@ export function BankAccountSettings() {
                   type="text"
                   placeholder="Enter branch name"
                   value={bankForm.branch}
-                  onChange={e => handleBankChange("branch", e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    // Allow letters, spaces, hyphens, apostrophes, and dots (e.g., Main Branch, St. Mary's Road)
+                    const sanitizedValue = value
+                      .replace(/[^a-zA-Z\s\-'.]/g, '')
+                      .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
+                      .replace(/[\-']{2,}/g, (match) => match[0]) // Prevent consecutive special chars
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "Branch name can only contain letters, spaces, and valid punctuation (-, ', .)",
+                        variant: "destructive",
+                      })
+                    }
+                    handleBankChange("branch", sanitizedValue)
+                  }}
+                  onBlur={(e) => {
+                    // Trim leading/trailing spaces and special characters on blur
+                    const trimmed = e.target.value.trim().replace(/^[\-'.]+|[\-'.]+$/g, '')
+                    if (trimmed !== e.target.value) {
+                      handleBankChange("branch", trimmed)
+                    }
+                  }}
                   required
                 />
               </div>
@@ -521,9 +745,30 @@ export function BankAccountSettings() {
                 <Input
                   id="micr"
                   type="text"
-                  placeholder="Enter MICR code"
+                  placeholder="Enter MICR code (9 digits)"
                   value={bankForm.micr}
-                  onChange={e => handleBankChange("micr", e.target.value.replace(/[^0-9]/g, ""))}
+                  onChange={e => {
+                    const value = e.target.value
+                    const sanitizedValue = value.replace(/[^0-9]/g, "")
+                    if (value !== sanitizedValue) {
+                      toast({
+                        title: "Invalid Characters",
+                        description: "MICR code can only contain digits (0-9)",
+                        variant: "destructive",
+                      })
+                    }
+                    handleBankChange("micr", sanitizedValue)
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value
+                    if (value && value.length !== 9) {
+                      toast({
+                        title: "Invalid MICR Code",
+                        description: "MICR code must be exactly 9 digits",
+                        variant: "destructive",
+                      })
+                    }
+                  }}
                   maxLength={9}
                 />
               </div>
@@ -532,15 +777,24 @@ export function BankAccountSettings() {
               <div className="text-red-600 text-sm">{bankFormError}</div>
             )}
             <DialogFooter className="gap-2 sm:gap-0">
-              <DialogClose asChild>
-                <Button type="button" variant="outline" disabled={isSaving}>
-                  Cancel
-                </Button>
-              </DialogClose>
+              <Button 
+                type="button" 
+                variant="outline" 
+                disabled={isSaving}
+                onClick={() => {
+                  if (hasUnsavedChanges()) {
+                    setUnsavedChangesDialogOpen(true)
+                  } else {
+                    setDialogOpen(false)
+                  }
+                }}
+              >
+                Cancel
+              </Button>
               <Button 
                 type="submit" 
-                disabled={!isFormValid || isSaving}
-                style={{ backgroundColor: isFormValid && !isSaving ? primaryColor : undefined }}
+                disabled={!isFormValid || isSaving || (!!editingAccount && !isFormModified)}
+                style={{ backgroundColor: isFormValid && !isSaving && (editingAccount ? isFormModified : true) ? primaryColor : undefined }}
               >
                 {isSaving ? (
                   <>
@@ -553,6 +807,110 @@ export function BankAccountSettings() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Bank Account Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" style={{ color: primaryColor }} />
+              Bank Account Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewingAccount && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-500 dark:text-gray-400 text-xs">Account Holder Name</Label>
+                  <p className="font-medium">{viewingAccount.holderName}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-500 dark:text-gray-400 text-xs">Account Number</Label>
+                  <p className="font-medium font-mono">{viewingAccount.accountNumber}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-500 dark:text-gray-400 text-xs">Account Type</Label>
+                  <p className="font-medium">{viewingAccount.accountType}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-500 dark:text-gray-400 text-xs">Bank Name</Label>
+                  <p className="font-medium">{viewingAccount.bankName}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-500 dark:text-gray-400 text-xs">IFSC Code</Label>
+                  <p className="font-medium font-mono">{viewingAccount.ifsc}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-500 dark:text-gray-400 text-xs">Branch Name</Label>
+                  <p className="font-medium">{viewingAccount.branch}</p>
+                </div>
+                {viewingAccount.micr && (
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="text-gray-500 dark:text-gray-400 text-xs">MICR Code</Label>
+                    <p className="font-medium font-mono">{viewingAccount.micr}</p>
+                  </div>
+                )}
+                {viewingAccount.isPrimary && (
+                  <div className="md:col-span-2">
+                    <span 
+                      className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full font-medium bg-purple-600 text-white"
+                    >
+                      <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Primary Account
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+        </DialogContent>
+      </Dialog>
+
+      {/* Unsaved Changes Confirmation Dialog */}
+      <Dialog open={unsavedChangesDialogOpen} onOpenChange={setUnsavedChangesDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Unsaved Changes</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            You have unsaved changes. Do you want to save them before closing?
+          </p>
+          <DialogFooter className="gap-2 sm:gap-0 flex-col sm:flex-row">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={discardChanges}
+            >
+              Discard Changes
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => setUnsavedChangesDialogOpen(false)}
+            >
+              Continue Editing
+            </Button>
+            <Button 
+              type="button"
+              style={{ backgroundColor: primaryColor }}
+              onClick={() => {
+                setUnsavedChangesDialogOpen(false)
+                // Trigger form submit programmatically
+                const form = document.querySelector('form') as HTMLFormElement
+                if (form) {
+                  form.requestSubmit()
+                }
+              }}
+              disabled={!isFormValid}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -16,18 +16,22 @@ export function SidebarPositionProvider({ children }: { children: React.ReactNod
   // Try to get the saved position from localStorage, default to "left"
   const [position, setPosition] = useState<SidebarPosition>("left")
 
-  // Load the saved position from localStorage on component mount
+  // Load the saved position from tenant-specific localStorage on component mount
   useEffect(() => {
-    const savedPosition = localStorage.getItem("sidebarPosition") as SidebarPosition | null
-    if (savedPosition) {
-      setPosition(savedPosition)
-    }
+    import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
+      const savedPosition = await getTenantLocalStorage("sidebarPosition") as SidebarPosition | null;
+      if (savedPosition) {
+        setPosition(savedPosition);
+      }
+    });
   }, [])
 
-  // Save the position to localStorage whenever it changes
+  // Save the position to tenant-specific localStorage whenever it changes
   const handleSetPosition = (newPosition: SidebarPosition) => {
     setPosition(newPosition)
-    localStorage.setItem("sidebarPosition", newPosition)
+    import('@/lib/tenant-storage').then(({ setTenantLocalStorage }) => {
+      setTenantLocalStorage("sidebarPosition", newPosition).catch(console.error);
+    });
   }
 
   return (

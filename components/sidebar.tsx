@@ -152,13 +152,17 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
   const [filteredMenuItems, setFilteredMenuItems] = useState<MenuItem[]>([])
   const [openSubmenus, setOpenSubmenus] = useState<string[]>([])
   const [favorites, setFavorites] = useState<string[]>([])
-  const [favoritesExpanded, setFavoritesExpanded] = useState(() => {
+  const [favoritesExpanded, setFavoritesExpanded] = useState(true)
+  
+  // Load tenant-specific favorites expansion state
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem("favoritesExpanded");
-      return stored === null ? true : stored === "true";
+      import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
+        const stored = await getTenantLocalStorage("favoritesExpanded");
+        setFavoritesExpanded(stored === null ? true : stored === "true");
+      });
     }
-    return true;
-  })
+  }, [])
   const [allMenuExpanded, setAllMenuExpanded] = useState(true)
   const [favoritesOpen, setFavoritesOpen] = useState(false)
   const favoritesRef = useRef<HTMLDivElement>(null)
@@ -367,12 +371,14 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
     },
   ]
 
-  // Load favorites from localStorage on component mount
+  // Load favorites from tenant-specific localStorage on component mount
   useEffect(() => {
-    const savedFavorites = localStorage.getItem("favorites")
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites))
-    }
+    import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
+      const savedFavorites = await getTenantLocalStorage("favorites");
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+    });
   }, [])
 
   // Update filtered menu items when search term changes
@@ -475,12 +481,17 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
     setFilteredMenuItems(items)
     // Collapse Favourites section automatically when searching, but only if not manually collapsed
     if (searchTerm.trim() !== "") {
-      if (localStorage.getItem("favoritesExpanded") !== "false") {
-        setFavoritesExpanded(false)
-      }
+      import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
+        const stored = await getTenantLocalStorage("favoritesExpanded");
+        if (stored !== "false") {
+          setFavoritesExpanded(false)
+        }
+      });
     } else {
-      const stored = localStorage.getItem("favoritesExpanded");
-      setFavoritesExpanded(stored === null ? true : stored === "true");
+      import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
+        const stored = await getTenantLocalStorage("favoritesExpanded");
+        setFavoritesExpanded(stored === null ? true : stored === "true");
+      });
     }
   }, [searchTerm, favorites, openSubmenus])
 
@@ -598,7 +609,9 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       };
 
       newFavorites = updateParentFavorites(menuItems, newFavorites);
-      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+      import('@/lib/tenant-storage').then(({ setTenantLocalStorage }) => {
+        setTenantLocalStorage("favorites", JSON.stringify(newFavorites)).catch(console.error);
+      });
       return newFavorites;
     });
   }
@@ -1073,8 +1086,11 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       className="h-6 w-6"
                       onClick={() => {
                         setFavoritesExpanded((prev) => {
-                          localStorage.setItem("favoritesExpanded", (!prev).toString());
-                          return !prev;
+                          const newVal = !prev;
+                          import('@/lib/tenant-storage').then(({ setTenantLocalStorage }) => {
+                            setTenantLocalStorage("favoritesExpanded", newVal.toString()).catch(console.error);
+                          });
+                          return newVal;
                         });
                       }}
                       aria-label={favoritesExpanded ? "Collapse favourites" : "Expand favourites"}

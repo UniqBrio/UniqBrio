@@ -30,7 +30,9 @@ import {
   Trash2,
   Trophy,
   Info,
-  Loader2
+  Loader2,
+  Clock,
+  Cookie
 } from "lucide-react"
 
 export default function UBAdminPage() {
@@ -44,6 +46,9 @@ export default function UBAdminPage() {
   const [dashboardStats, setDashboardStats] = useState<any>(null)
   const [kycQueue, setKycQueue] = useState<any[]>([])
   const [academies, setAcademies] = useState<any[]>([])
+  const [sessions, setSessions] = useState<any[]>([])
+  const [sessionStats, setSessionStats] = useState<any>(null)
+  const [cookieCompliance, setCookieCompliance] = useState<any>(null)
 
   useEffect(() => {
     checkAuthStatus()
@@ -76,6 +81,27 @@ export default function UBAdminPage() {
       if (academiesResponse.ok) {
         const academiesData = await academiesResponse.json()
         setAcademies(academiesData.data)
+      }
+
+      // Fetch sessions
+      const sessionsResponse = await fetch("/api/admin-sessions?action=list&limit=50")
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json()
+        setSessions(sessionsData.data.sessions)
+      }
+
+      // Fetch session stats
+      const sessionStatsResponse = await fetch("/api/admin-sessions?action=stats")
+      if (sessionStatsResponse.ok) {
+        const sessionStatsData = await sessionStatsResponse.json()
+        setSessionStats(sessionStatsData.data)
+      }
+
+      // Fetch cookie compliance
+      const cookieResponse = await fetch("/api/admin-cookie-compliance?action=stats")
+      if (cookieResponse.ok) {
+        const cookieData = await cookieResponse.json()
+        setCookieCompliance(cookieData.data)
       }
     } catch (error) {
       console.error("Failed to fetch admin data:", error)
@@ -272,7 +298,7 @@ export default function UBAdminPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="bg-white rounded-2xl shadow-lg p-2 border-0">
-            <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14">
+            <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14">
               <TabsTrigger 
                 value="dashboard" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
@@ -303,6 +329,18 @@ export default function UBAdminPage() {
               >
                 Analytics
               </TabsTrigger>
+              <TabsTrigger 
+                value="sessions"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
+              >
+                Sessions
+              </TabsTrigger>
+              <TabsTrigger 
+                value="cookies"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
+              >
+                Cookies
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -324,6 +362,14 @@ export default function UBAdminPage() {
 
           <TabsContent value="analytics">
             <AdminAnalytics stats={dashboardStats} />
+          </TabsContent>
+
+          <TabsContent value="sessions">
+            <SessionsManagement sessions={sessions} stats={sessionStats} onRefresh={fetchDashboardData} />
+          </TabsContent>
+
+          <TabsContent value="cookies">
+            <CookieComplianceManagement compliance={cookieCompliance} onRefresh={fetchDashboardData} />
           </TabsContent>
         </Tabs>
       </div>
@@ -1273,6 +1319,506 @@ function AdminAnalytics({ stats }: { stats: any }) {
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">+{stats?.monthlyGrowth || 0}%</div>
               <div className="text-sm text-gray-600 dark:text-white">Monthly Growth</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], stats: any, onRefresh: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const [filter, setFilter] = useState({ tenantId: "", userId: "" })
+  const [selectedSession, setSelectedSession] = useState<any>(null)
+
+  const handleRevokeSession = async (sessionId: string) => {
+    if (!confirm("Are you sure you want to revoke this session? The user will be logged out immediately.")) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/admin-sessions?action=revoke&sessionId=${sessionId}`)
+      const data = await response.json()
+
+      if (data.success) {
+        alert("Session revoked successfully")
+        onRefresh()
+      } else {
+        alert(`Failed to revoke session: ${data.error}`)
+      }
+    } catch (error) {
+      console.error("Failed to revoke session:", error)
+      alert("Failed to revoke session")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleString()
+  }
+
+  const getStatusBadge = (session: any) => {
+    const now = new Date()
+    const expiresAt = new Date(session.expiresAt)
+
+    if (session.isRevoked) {
+      return <Badge variant="destructive">Revoked</Badge>
+    } else if (expiresAt < now) {
+      return <Badge variant="outline" className="text-gray-500">Expired</Badge>
+    } else {
+      return <Badge variant="default" className="bg-green-500">Active</Badge>
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Session Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600">{stats?.totalSessions || 0}</div>
+              <div className="text-sm text-gray-600">Total Sessions</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">{stats?.activeSessions || 0}</div>
+              <div className="text-sm text-gray-600">Active Sessions</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-red-600">{stats?.revokedSessions || 0}</div>
+              <div className="text-sm text-gray-600">Revoked Sessions</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">
+                {stats?.activeSessions && stats?.totalSessions
+                  ? Math.round((stats.activeSessions / stats.totalSessions) * 100)
+                  : 0}%
+              </div>
+              <div className="text-sm text-gray-600">Active Rate</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Sessions Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Active Sessions
+              </CardTitle>
+              <CardDescription>Monitor and manage user sessions across all tenants</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={loading}
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Filters */}
+            <div className="flex gap-4">
+              <Input
+                placeholder="Filter by Tenant ID"
+                value={filter.tenantId}
+                onChange={(e) => setFilter({ ...filter, tenantId: e.target.value })}
+                className="max-w-xs"
+              />
+              <Input
+                placeholder="Filter by User ID"
+                value={filter.userId}
+                onChange={(e) => setFilter({ ...filter, userId: e.target.value })}
+                className="max-w-xs"
+              />
+            </div>
+
+            {/* Sessions List */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3 font-semibold">Status</th>
+                    <th className="text-left p-3 font-semibold">User ID</th>
+                    <th className="text-left p-3 font-semibold">Tenant ID</th>
+                    <th className="text-left p-3 font-semibold">JWT ID</th>
+                    <th className="text-left p-3 font-semibold">Last Active</th>
+                    <th className="text-left p-3 font-semibold">Expires At</th>
+                    <th className="text-left p-3 font-semibold">IP Address</th>
+                    <th className="text-right p-3 font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions
+                    .filter((session) => {
+                      const matchesTenant = !filter.tenantId || session.tenantId.includes(filter.tenantId)
+                      const matchesUser = !filter.userId || session.userId.includes(filter.userId)
+                      return matchesTenant && matchesUser
+                    })
+                    .map((session) => (
+                      <tr key={session._id} className="border-b hover:bg-gray-50">
+                        <td className="p-3">{getStatusBadge(session)}</td>
+                        <td className="p-3">
+                          <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                            {session.userId.substring(0, 12)}...
+                          </code>
+                        </td>
+                        <td className="p-3">
+                          <code className="text-xs bg-purple-100 px-2 py-1 rounded">
+                            {session.tenantId.substring(0, 12)}...
+                          </code>
+                        </td>
+                        <td className="p-3">
+                          <code className="text-xs bg-blue-100 px-2 py-1 rounded">
+                            {session.jwtId.substring(0, 12)}...
+                          </code>
+                        </td>
+                        <td className="p-3 text-sm">{formatDate(session.lastActiveAt)}</td>
+                        <td className="p-3 text-sm">{formatDate(session.expiresAt)}</td>
+                        <td className="p-3 text-sm">{session.ipAddress || "N/A"}</td>
+                        <td className="p-3 text-right">
+                          {!session.isRevoked && new Date(session.expiresAt) > new Date() && (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleRevokeSession(session._id)}
+                              disabled={loading}
+                            >
+                              <XCircle className="w-4 h-4 mr-1" />
+                              Revoke
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+
+              {sessions.length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <p className="font-medium">No sessions found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Sessions by Tenant */}
+      {stats?.sessionsByTenant && stats.sessionsByTenant.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Sessions by Tenant</CardTitle>
+            <CardDescription>Top 10 tenants by session count</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.sessionsByTenant.map((tenant: any, index: number) => (
+                <div key={tenant._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="text-lg font-bold text-gray-400">#{index + 1}</div>
+                    <div>
+                      <code className="text-xs bg-purple-100 px-2 py-1 rounded">
+                        {tenant._id}
+                      </code>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <div className="text-sm text-gray-600">Total</div>
+                      <div className="font-bold">{tenant.total}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-gray-600">Active</div>
+                      <div className="font-bold text-green-600">{tenant.active}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+function CookieComplianceManagement({ compliance, onRefresh }: { compliance: any, onRefresh: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const [selectedTenant, setSelectedTenant] = useState<string>("")
+  const [tenantReport, setTenantReport] = useState<any>(null)
+
+  const fetchTenantReport = async (tenantId: string) => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/admin-cookie-compliance?action=tenant-report&tenantId=${tenantId}`)
+      const data = await response.json()
+      if (data.success) {
+        setTenantReport(data.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch tenant report:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Global Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600">{compliance?.global?.totalTenants || 0}</div>
+              <div className="text-sm text-gray-600">Total Tenants</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{compliance?.global?.totalUsers || 0}</div>
+              <div className="text-sm text-gray-600">Total Users</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">
+                {compliance?.global?.totalUsers && compliance?.global?.globalAnalyticsConsent
+                  ? Math.round((compliance.global.globalAnalyticsConsent / compliance.global.totalUsers) * 100)
+                  : 0}%
+              </div>
+              <div className="text-sm text-gray-600">Analytics Consent</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">
+                {compliance?.global?.totalUsers && compliance?.global?.globalMarketingConsent
+                  ? Math.round((compliance.global.globalMarketingConsent / compliance.global.totalUsers) * 100)
+                  : 0}%
+              </div>
+              <div className="text-sm text-gray-600">Marketing Consent</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Consent by Tenant */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Cookie className="w-5 h-5" />
+                Cookie Compliance by Tenant
+              </CardTitle>
+              <CardDescription>GDPR/DPDP compliance monitoring across all tenants</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={loading}
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-3 font-semibold">Tenant ID</th>
+                  <th className="text-left p-3 font-semibold">Total Users</th>
+                  <th className="text-left p-3 font-semibold">Analytics Consent</th>
+                  <th className="text-left p-3 font-semibold">Marketing Consent</th>
+                  <th className="text-left p-3 font-semibold">Consent Rate</th>
+                  <th className="text-left p-3 font-semibold">Last Updated</th>
+                  <th className="text-right p-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {compliance?.byTenant?.map((tenant: any) => (
+                  <tr key={tenant._id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">
+                      <code className="text-xs bg-purple-100 px-2 py-1 rounded">
+                        {tenant._id.substring(0, 16)}...
+                      </code>
+                    </td>
+                    <td className="p-3 font-medium">{tenant.totalUsers}</td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{tenant.analyticsConsent}</span>
+                        <span className="text-sm text-gray-500">
+                          ({Math.round((tenant.analyticsConsent / tenant.totalUsers) * 100)}%)
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{tenant.marketingConsent}</span>
+                        <span className="text-sm text-gray-500">
+                          ({Math.round((tenant.marketingConsent / tenant.totalUsers) * 100)}%)
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full"
+                          style={{
+                            width: `${Math.round(((tenant.analyticsConsent + tenant.marketingConsent) / (tenant.totalUsers * 2)) * 100)}%`
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td className="p-3 text-sm">
+                      {new Date(tenant.lastUpdated).toLocaleDateString()}
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedTenant(tenant._id)
+                          fetchTenantReport(tenant._id)
+                        }}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View Details
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {(!compliance?.byTenant || compliance.byTenant.length === 0) && (
+              <div className="text-center py-12 text-gray-500">
+                <Cookie className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="font-medium">No cookie preferences data yet</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tenant Detail Report */}
+      {tenantReport && selectedTenant && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Detailed Report for Tenant</CardTitle>
+            <CardDescription>
+              <code className="text-xs bg-purple-100 px-2 py-1 rounded">{selectedTenant}</code>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{tenantReport.totalUsers}</div>
+                <div className="text-sm text-gray-600">Total Users</div>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {Math.round(tenantReport.analyticsConsentRate)}%
+                </div>
+                <div className="text-sm text-gray-600">Analytics Consent Rate</div>
+              </div>
+              <div className="p-4 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {Math.round(tenantReport.marketingConsentRate)}%
+                </div>
+                <div className="text-sm text-gray-600">Marketing Consent Rate</div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Recent Changes</h4>
+              <div className="space-y-2">
+                {tenantReport.recentChanges?.slice(0, 5).map((change: any) => (
+                  <div key={change._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
+                    <div>
+                      <code className="text-xs bg-gray-200 px-2 py-1 rounded">{change.userId.substring(0, 12)}...</code>
+                    </div>
+                    <div className="flex gap-4">
+                      <Badge variant={change.analytics ? "default" : "outline"}>Analytics: {change.analytics ? "✓" : "✗"}</Badge>
+                      <Badge variant={change.marketing ? "default" : "outline"}>Marketing: {change.marketing ? "✓" : "✗"}</Badge>
+                    </div>
+                    <div className="text-gray-500">
+                      {new Date(change.updatedAt).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Compliance Notes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Compliance Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 text-sm text-gray-600">
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+              <p><strong>GDPR Compliant:</strong> All cookie preferences are stored with user consent and can be withdrawn at any time.</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+              <p><strong>DPDP Compliant:</strong> User data is processed lawfully with explicit consent for analytics and marketing.</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+              <p><strong>Privacy by Design:</strong> IP addresses are pseudonymized (hashed) for audit trails.</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+              <p><strong>Tenant Isolation:</strong> All queries are tenant-scoped ensuring data separation.</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+              <p><strong>Essential Cookies:</strong> Always enabled and cannot be disabled (required for authentication and security).</p>
             </div>
           </div>
         </CardContent>

@@ -43,6 +43,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { countryCodes, loading: countryCodesLoading } = useCountryCodes()
   const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: user?.name || "",
     firstName: user?.firstName || "",
@@ -228,7 +229,77 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     return possible
   }
 
+  const validateEmail = (email: string) => {
+    if (!email || !email.trim()) {
+      setEmailError("Email is required.")
+      return false
+    }
+    
+    const trimmedEmail = email.trim()
+    
+    // Check for basic structure first
+    if (!trimmedEmail.includes('@')) {
+      setEmailError("Email must contain @ symbol")
+      return false
+    }
+    
+    const [localPart, ...domainParts] = trimmedEmail.split('@')
+    const domain = domainParts.join('@')
+    
+    // Validate local part (before @)
+    if (!localPart || localPart.length === 0) {
+      setEmailError("Email must have characters before @")
+      return false
+    }
+    
+    // Local part must contain at least one alphanumeric character
+    if (!/[a-zA-Z0-9]/.test(localPart)) {
+      setEmailError("Email must contain at least one letter or number before @")
+      return false
+    }
+    
+    // Local part cannot start or end with a dot
+    if (localPart.startsWith('.') || localPart.endsWith('.')) {
+      setEmailError("Email cannot start or end with a dot before @")
+      return false
+    }
+    
+    // Local part cannot have consecutive dots
+    if (/\.\./.test(localPart)) {
+      setEmailError("Email cannot have consecutive dots")
+      return false
+    }
+    
+    // Validate domain part (after @)
+    if (!domain || domain.length === 0) {
+      setEmailError("Email must have a domain after @")
+      return false
+    }
+    
+    // Domain must have at least one dot
+    if (!domain.includes('.')) {
+      setEmailError("Email domain must include a dot (e.g., example.com)")
+      return false
+    }
+    
+    // RFC 5322 compliant email regex pattern
+    const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]*[a-zA-Z0-9]@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/
+    const isValid = emailRegex.test(trimmedEmail)
+    setEmailError(isValid ? null : "Please enter a valid email address (e.g., user@example.com)")
+    return isValid
+  }
+
   const handleSave = async () => {
+    // Validate email before saving
+    if (!validateEmail(formData.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address before saving.",
+        variant: "destructive",
+      })
+      return
+    }
+    
     try {
       setIsSaving(true)
       
@@ -375,7 +446,19 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 id="firstName"
                 placeholder="First name"
                 value={formData.firstName}
-                onChange={(e) => handleInputChange("firstName", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Only allow letters, spaces, hyphens, and apostrophes
+                  const sanitizedValue = value.replace(/[^a-zA-Z\s\-']/g, '')
+                  if (value !== sanitizedValue) {
+                    toast({
+                      title: "Invalid Characters",
+                      description: "First name can only contain letters, spaces, hyphens, and apostrophes",
+                      variant: "destructive",
+                    })
+                  }
+                  handleInputChange("firstName", sanitizedValue)
+                }}
                 disabled={!isEditing}
                 className="pl-10"
               />
@@ -388,7 +471,19 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               id="middleName"
               placeholder="Middle name"
               value={formData.middleName}
-              onChange={(e) => handleInputChange("middleName", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                // Only allow letters, spaces, hyphens, and apostrophes
+                const sanitizedValue = value.replace(/[^a-zA-Z\s\-']/g, '')
+                if (value !== sanitizedValue) {
+                  toast({
+                    title: "Invalid Characters",
+                    description: "Middle name can only contain letters, spaces, hyphens, and apostrophes",
+                    variant: "destructive",
+                  })
+                }
+                handleInputChange("middleName", sanitizedValue)
+              }}
               disabled={!isEditing}
             />
           </div>
@@ -399,7 +494,19 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               id="lastName"
               placeholder="Last name"
               value={formData.lastName}
-              onChange={(e) => handleInputChange("lastName", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                // Only allow letters, spaces, hyphens, and apostrophes
+                const sanitizedValue = value.replace(/[^a-zA-Z\s\-']/g, '')
+                if (value !== sanitizedValue) {
+                  toast({
+                    title: "Invalid Characters",
+                    description: "Last name can only contain letters, spaces, hyphens, and apostrophes",
+                    variant: "destructive",
+                  })
+                }
+                handleInputChange("lastName", sanitizedValue)
+              }}
               disabled={!isEditing}
             />
           </div>
@@ -413,11 +520,46 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 type="email"
                 placeholder="email@example.com"
                 value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Only allow valid email characters: letters, numbers, @ and valid symbols
+                  // Valid symbols in email: . ! # $ % & ' * + - / = ? ^ _ ` { | } ~
+                  const sanitizedValue = value.replace(/[^a-zA-Z0-9@.!#$%&'*+\-/=?^_`{|}~]/g, '')
+                  
+                  // Ensure only one @ symbol
+                  const atCount = (sanitizedValue.match(/@/g) || []).length
+                  let finalValue = sanitizedValue
+                  if (atCount > 1) {
+                    // Keep only the first @
+                    const parts = sanitizedValue.split('@')
+                    finalValue = parts[0] + '@' + parts.slice(1).join('')
+                  }
+                  
+                  if (value !== finalValue) {
+                    toast({
+                      title: "Invalid Characters",
+                      description: "Email can only contain letters, numbers, @ symbol, and valid punctuation (. - _ + etc.)",
+                      variant: "destructive",
+                    })
+                  }
+                  
+                  handleInputChange("email", finalValue)
+                  if (finalValue) validateEmail(finalValue)
+                }}
+                onBlur={(e) => {
+                  const trimmed = e.target.value.trim()
+                  if (trimmed !== e.target.value) {
+                    handleInputChange("email", trimmed)
+                  }
+                  if (trimmed) validateEmail(trimmed)
+                }}
                 disabled={!isEditing}
-                className="pl-10"
+                className={cn("pl-10", emailError ? "border-red-500 focus:ring-red-400" : "")}
               />
             </div>
+            {emailError && (
+              <p className="mt-1 text-[12px] text-red-600">{emailError}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -568,6 +710,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 setIsEditing(false)
                 setAvatarPreview(profilePictureUrl || user?.avatar || null)
                 setPhoneError(null)
+                setEmailError(null)
                 setFormData({
                   name: user?.name || "",
                   firstName: user?.firstName || "",

@@ -59,7 +59,17 @@ export async function GET(request: NextRequest) {
       role: sessionData.role,
       registrationComplete: dbUser.registrationComplete
     });
-    const sessionToken = await createToken(sessionData);
+    
+    // Get request metadata for session tracking
+    const userAgent = request.headers.get('user-agent') || undefined;
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const ipAddress = forwardedFor?.split(',')[0] || realIp || request.headers.get('x-forwarded-host') || 'unknown';
+    
+    const sessionToken = await createToken(sessionData, '1d', {
+      userAgent,
+      ipAddress,
+    });
     console.log("[Google Redirect] Custom session token created successfully");
 
     // Set cookies BEFORE creating redirect response using the cookies() API
