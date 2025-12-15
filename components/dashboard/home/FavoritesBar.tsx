@@ -80,8 +80,9 @@ export function FavoritesBar() {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
-    const loadFavorites = () => {
-      const savedFavorites = localStorage.getItem("favorites");
+    const loadFavorites = async () => {
+      const { getTenantLocalStorage } = await import('@/lib/tenant-storage');
+      const savedFavorites = await getTenantLocalStorage("favorites");
       if (savedFavorites) {
         setFavorites(JSON.parse(savedFavorites));
       }
@@ -101,6 +102,9 @@ export function FavoritesBar() {
       router.push(href);
     }
   };
+
+  // Don't render if no favorites
+  if (favorites.length === 0) return null;
 
   return (
     <div className="flex gap-4 sm:gap-6 items-start">

@@ -1824,7 +1824,7 @@ export default function CohortManagement({
       {/* Add Cohort Modal */}
       <Dialog open={isAddCohortOpen} onOpenChange={handleCohortDialogOpenChange}>
         <DialogContent 
-          className="max-w-md max-h-[90vh] overflow-hidden flex flex-col w-[95vw] sm:w-full" 
+          className="max-w-md max-h-[90vh] overflow-hidden flex flex-col w-[95vw] sm:w-full [&>button[data-radix-dialog-close]]:hidden" 
           style={{ padding: '18px 16px' }}
           onInteractOutside={(e) => {
             // Show confirmation dialog when clicking outside
@@ -1837,6 +1837,19 @@ export default function CohortManagement({
             handleCohortDialogClose();
           }}
         >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-50 h-6 w-6"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleCohortDialogClose();
+            }}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
           <DialogHeader>
             <DialogTitle className="font-bold text-sm sm:text-base">{newCohortEditId ? 'Edit Cohort' : 'Add New Cohort'}</DialogTitle>
           </DialogHeader>
@@ -1872,82 +1885,104 @@ export default function CohortManagement({
                 }`}
                 placeholder="Enter cohort name (letters, numbers, spaces, -, _ only)"
               />
-            <Label className="text-xs">Associated Course <span style={{ color: 'red' }}>*</span></Label>
-            <div className="relative">
-              <select 
-                className="w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors"
-                style={{
-                  borderColor: missingFields.has('courseId') ? '#ef4444' : '#d1d5db',
-                  ...(missingFields.has('courseId') ? { boxShadow: '0 0 0 2px #fecaca' } : {})
-                }}
-                onFocus={(e) => {
-                  if (!missingFields.has('courseId')) {
-                    e.currentTarget.style.borderColor = primaryColor;
-                    e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
-                  }
-                }}
-                onBlur={(e) => {
-                  if (!missingFields.has('courseId')) {
-                    e.currentTarget.style.borderColor = '#d1d5db';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }
-                }}
-                value={newCohort.courseId} 
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  const selectedCourseId = e.target.value;
-                  const selectedCourse = courses.find(c => c.courseId === selectedCourseId || c.id === selectedCourseId);
-                  
-                  // Clear error when user selects
-                  if (missingFields.has('courseId')) {
-                    setMissingFields(prev => {
-                      const newSet = new Set(prev);
-                      newSet.delete('courseId');
-                      return newSet;
-                    });
-                  }
-                  // Update cohort with course ID and automatically populate dates, instructor, and status
-                  setNewCohort(c => {
-                    const next = { ...c, courseId: selectedCourseId }
-                    if (selectedCourse) {
-                      if (!newCohortEditId) {
-                        if (inheritanceSettings.inheritScheduleFromCourse && !useCustomSchedule) {
-                          next.startDate = selectedCourse.schedulePeriod?.startDate
-                            ? new Date(selectedCourse.schedulePeriod.startDate).toISOString().split('T')[0]
-                            : next.startDate
-                          next.endDate = selectedCourse.schedulePeriod?.endDate
-                            ? new Date(selectedCourse.schedulePeriod.endDate).toISOString().split('T')[0]
-                            : next.endDate
-                        }
-                        if (inheritanceSettings.inheritInstructorFromCourse && selectedCourse.instructor) {
-                          next.instructorName = selectedCourse.instructor
-                        }
-                        if (inheritanceSettings.inheritLocationFromCourse && selectedCourse.location) {
-                          next.location = selectedCourse.location
-                        }
-                        if (inheritanceSettings.syncCapacityWithCourse) {
-                          const derivedCapacity = Number(selectedCourse.maxStudents) || inheritanceSettings.defaultCapacityFallback
-                          if (derivedCapacity) {
-                            next.capacity = String(derivedCapacity)
-                          }
-                        }
+            <Label className="text-xs sm:text-sm">Associated Course <span style={{ color: 'red' }}>*</span></Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="mt-1">
+                  <Button
+                    variant="outline"
+                    className="w-full text-left justify-between text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:outline-none data-[state=open]:ring-2"
+                    style={{
+                      ...(missingFields.has('courseId') 
+                        ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px #fecaca' }
+                        : { borderColor: '#d1d5db' })
+                    }}
+                    onFocus={(e) => {
+                      if (!missingFields.has('courseId')) {
+                        e.currentTarget.style.borderColor = primaryColor;
+                        e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
                       }
-                      next.status = getInheritedCohortStatus(selectedCourse.status) || next.status
-                    }
-                    return next
-                  });
-
-
-                }}
-              >
-                <option value="" disabled hidden>Select course</option>
-                {courses.map((course: Course) => (
-                  <option key={course.id} value={course.courseId || course.id}>
-                    {course.name} - {(course.courseId || course.id)}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
-            </div>
+                    }}
+                    onBlur={(e) => {
+                      if (!missingFields.has('courseId')) {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
+                    }}
+                  >
+                    <span className="truncate">
+                      {newCohort.courseId ? 
+                        (() => {
+                          const selected = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
+                          return selected ? `${selected.name} - ${selected.courseId || selected.id}` : 'Select course';
+                        })()
+                        : 'Select course'
+                      }
+                    </span>
+                    <ChevronDown className="ml-2 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  </Button>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[calc(80vw-1rem)] sm:w-60 md:w-86 max-w-md p-2 text-xs sm:text-sm">
+                <div className="max-h-[300px] overflow-y-auto">
+                  {courses.map((course: Course) => (
+                    <DropdownMenuItem
+                      key={course.id}
+                      className="px-2 py-1.5 cursor-pointer hover:bg-gray-100 text-xs sm:text-sm"
+                      style={{
+                        ...(newCohort.courseId === (course.courseId || course.id) ? { backgroundColor: `${primaryColor}20` } : {})
+                      }}
+                      onSelect={ 
+() => {
+                        const selectedCourseId = course.courseId || course.id;
+                        const selectedCourse = course;
+                        
+                        // Clear error when user selects
+                        if (missingFields.has('courseId')) {
+                          setMissingFields(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete('courseId');
+                            return newSet;
+                          });
+                        }
+                        // Update cohort with course ID and automatically populate dates, instructor, and status
+                        setNewCohort(c => {
+                          const next = { ...c, courseId: selectedCourseId }
+                          if (selectedCourse) {
+                            if (!newCohortEditId) {
+                              if (inheritanceSettings.inheritScheduleFromCourse && !useCustomSchedule) {
+                                next.startDate = selectedCourse.schedulePeriod?.startDate
+                                  ? new Date(selectedCourse.schedulePeriod.startDate).toISOString().split('T')[0]
+                                  : next.startDate
+                                next.endDate = selectedCourse.schedulePeriod?.endDate
+                                  ? new Date(selectedCourse.schedulePeriod.endDate).toISOString().split('T')[0]
+                                  : next.endDate
+                              }
+                              if (inheritanceSettings.inheritInstructorFromCourse && selectedCourse.instructor) {
+                                next.instructorName = selectedCourse.instructor
+                              }
+                              if (inheritanceSettings.inheritLocationFromCourse && selectedCourse.location) {
+                                next.location = selectedCourse.location
+                              }
+                              if (inheritanceSettings.syncCapacityWithCourse) {
+                                const derivedCapacity = Number(selectedCourse.maxStudents) || inheritanceSettings.defaultCapacityFallback
+                                if (derivedCapacity) {
+                                  next.capacity = String(derivedCapacity)
+                                }
+                              }
+                            }
+                            next.status = getInheritedCohortStatus(selectedCourse.status) || next.status
+                          }
+                          return next
+                        });
+                      }}
+                    >
+                      {course.name} - {course.courseId || course.id}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Label className="text-xs">Cohort ID <span className="text-gray-500 dark:text-white text-[10px] ml-1">(auto-generated)</span></Label>
             <div className="flex items-center gap-2">
               <Input 
@@ -1999,7 +2034,7 @@ export default function CohortManagement({
               <p className="text-[11px] text-gray-500 dark:text-white mt-1">ID follows the prefix rule set in Cohort Settings.</p>
             )}
 
-            <Label className="text-xs">
+            <Label className="text-xs sm:text-sm">
               Instructor Name
               {newCohort.courseId && (() => {
                 const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
@@ -2008,40 +2043,54 @@ export default function CohortManagement({
                 ) : null;
               })()}
             </Label>
-            <div className="relative">
-              <select
-                className="w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors"
-                style={{ borderColor: '#d1d5db' }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = primaryColor;
-                  e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#d1d5db';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-                value={newCohort.instructorName || ''}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewCohort(c => ({ ...c, instructorName: e.target.value }))}
-                disabled={instructorsLoading}
-              >
-                <option value="" disabled hidden>
-                  {instructorsLoading ? 'Loading instructors...' : 
-                   (() => {
-                     const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
-                     return selectedCourse?.instructor ? `Use course default: ${selectedCourse.instructor}` : 'Select instructor';
-                   })()
-                  }
-                </option>
-                {instructors.map((instructor) => (
-                  <option key={instructor.id} value={instructor.name}>
-                    {instructor.name} {instructor.instructorId ? `(${instructor.instructorId})` : ''}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="mt-1">
+                  <Button
+                    variant="outline"
+                    className="w-full text-left justify-between text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:outline-none data-[state=open]:ring-2"
+                    style={{ borderColor: '#d1d5db' }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = primaryColor;
+                      e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#d1d5db';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                    disabled={instructorsLoading}
+                  >
+                    <span className="truncate">
+                      {instructorsLoading ? 'Loading instructors...' : 
+                       newCohort.instructorName || (() => {
+                         const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
+                         return selectedCourse?.instructor ? `Use course default: ${selectedCourse.instructor}` : 'Select instructor';
+                       })()
+                      }
+                    </span>
+                    <ChevronDown className="ml-2 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  </Button>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-md p-2 text-xs sm:text-sm">
+                <div className="max-h-[300px] overflow-y-auto">
+                  {instructors.map((instructor) => (
+                    <DropdownMenuItem
+                      key={instructor.id}
+                      className="px-2 py-1.5 cursor-pointer hover:bg-gray-100 text-xs sm:text-sm"
+                      style={{
+                        ...(newCohort.instructorName === instructor.name ? { backgroundColor: `${primaryColor}20` } : {})
+                      }}
+                      onSelect={() => setNewCohort(c => ({ ...c, instructorName: instructor.name }))}
+                    >
+                      {instructor.name} {instructor.instructorId ? `(${instructor.instructorId})` : ''}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <Label className="text-xs">
+            <Label className="text-xs sm:text-sm">
               Status <span style={{ color: 'red' }}>*</span>
               {newCohort.courseId && (() => {
                 const selectedCourse = courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId);
@@ -2052,7 +2101,7 @@ export default function CohortManagement({
             </Label>
             <div className="relative">
               <select
-                className={`w-full p-1 border rounded-sm text-xs h-7 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors ${
+                className={`w-full p-1.5 sm:p-2 border rounded-sm text-xs sm:text-sm h-8 sm:h-9 pr-8 appearance-none focus:outline-none hover:border-gray-400 hover:bg-gray-50 transition-colors ${
                   newCohort.courseId && courses.find(c => c.courseId === newCohort.courseId || c.id === newCohort.courseId)?.status === 'Inactive'
                     ? 'bg-gray-100 cursor-not-allowed' : ''
                 }`}
@@ -2272,7 +2321,7 @@ export default function CohortManagement({
                 <div className="mt-1">
                   <Button
                     variant="outline"
-                    className="w-full text-left justify-between text-xs h-7 px-2 hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:outline-none data-[state=open]:ring-2"
+                    className="w-full text-left justify-between text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:outline-none data-[state=open]:ring-2"
                     style={{
                       ...(missingFields.has('location') 
                         ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px #fecaca' }
@@ -2296,7 +2345,7 @@ export default function CohortManagement({
                   </Button>
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 p-2 text-xs">
+              <DropdownMenuContent className="w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-md p-2 text-xs sm:text-sm">
                 <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                   <Input
                     placeholder="Search or type new location..."
@@ -2546,8 +2595,7 @@ export default function CohortManagement({
             </div>
           </div>
           <div className="flex justify-end mt-4 gap-1 sm:gap-2">
-            <Button variant="outline" onClick={handleCohortDialogClose} className="text-xs sm:text-sm">Cancel</Button>
-            <Button
+                       <Button
               className="text-white text-xs sm:text-sm"
               style={{ backgroundColor: primaryColor }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}

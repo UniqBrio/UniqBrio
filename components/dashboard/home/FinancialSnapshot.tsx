@@ -192,7 +192,8 @@ export function FinancialSnapshot({
         // Take the last 6 entries after filtering and add unique IDs
         const last6Months = filtered.slice(-6).map((item: any, index: number) => ({
           ...item,
-          id: `${item.name || 'month'}-${index}`
+          id: `${item.name || 'month'}-${Date.now()}-${index}`,
+          uniqueKey: `chart-data-${Date.now()}-${index}`
         }));
         setChartData(last6Months);
       } catch (error) {
@@ -342,8 +343,9 @@ export function FinancialSnapshot({
             <ResponsiveChartContainer>
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart 
-                  data={chartData} 
+                  data={chartData}
                   margin={chartConfig.margins}
+                  id="financial-snapshot-chart"
                 >
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis
@@ -397,27 +399,27 @@ export function FinancialSnapshot({
                     iconSize={screenSize === "mobile" ? 12 : 14}
                   />
                   <Bar 
-                    key="income-bar"
                     dataKey="income" 
                     fill="#8b5cf6" 
                     name="Income"
                     radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
+                    isAnimationActive={false}
                   />
                   <Bar 
-                    key="expense-bar"
                     dataKey="expense" 
                     fill="#f97316" 
                     name="Expenses"
                     radius={screenSize === "mobile" ? [2, 2, 0, 0] : [4, 4, 0, 0]}
+                    isAnimationActive={false}
                   />
                   <Line 
-                    key="profit-line"
                     type="monotone" 
                     dataKey="profit" 
                     stroke="#10b981" 
                     strokeWidth={chartConfig.strokeWidth}
                     name="Net Profit"
                     dot={{ r: screenSize === "mobile" ? 3 : 4 }}
+                    isAnimationActive={false}
                     activeDot={{ r: screenSize === "mobile" ? 5 : 6 }}
                   />
                 </ComposedChart>

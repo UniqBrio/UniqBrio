@@ -12,12 +12,11 @@ export function tenantPlugin(schema: Schema) {
       tenantId: {
         type: String,
         required: true,
-        index: true,
       },
     });
   }
 
-  // Add compound indexes for common query patterns
+  // Add compound indexes for common query patterns (these cover tenantId as well)
   schema.index({ tenantId: 1, createdAt: -1 });
   schema.index({ tenantId: 1, updatedAt: -1 });
 

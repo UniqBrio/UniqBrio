@@ -15,7 +15,11 @@ import ShadcnVariablesExposer from "@/components/shadcn-variables-exposer"
 
 const sourceSans = Source_Sans_3({ 
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"]
+  weight: ["300", "400", "500", "600", "700"],
+  display: 'swap',
+  preload: false,
+  fallback: ['system-ui', 'arial'],
+  adjustFontFallback: true
 })
 
 export const metadata = {
@@ -41,6 +45,17 @@ export const metadata = {
   }
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' }
+  ]
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -57,6 +72,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning data-shadcn-ui="true">
       <head>
         <meta name="shadcn-ui" content="configured" />
+        {/* Performance optimizations */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://tweakcn.com" />
         <script
           async
           crossOrigin="anonymous"
@@ -89,20 +108,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-// Correct way to export viewport configuration
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  themeColor: '#ffffff', // Corresponds to the theme-color meta tag
-};
-
-// Optional: Add some basic PWA styling if needed (e.g., for standalone display)
-// You can add this to your globals.css or a dedicated PWA CSS file
-/*
-@media all and (display-mode: standalone) {
-  .pwa-body {
-    // Add styles specific to standalone mode, e.g., padding for notch/status bar
-  }
-}
-*/

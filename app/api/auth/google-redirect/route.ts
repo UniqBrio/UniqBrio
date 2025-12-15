@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     const realIp = request.headers.get('x-real-ip');
     const ipAddress = forwardedFor?.split(',')[0] || realIp || request.headers.get('x-forwarded-host') || 'unknown';
     
-    const sessionToken = await createToken(sessionData, '1d', {
+    const sessionToken = await createToken(sessionData, '30d', {
       userAgent,
       ipAddress,
     });

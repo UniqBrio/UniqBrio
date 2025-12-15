@@ -268,7 +268,7 @@ export async function login(formData: FormData) {
     const realIp = headersList.get('x-real-ip');
     const ipAddress = forwardedFor?.split(',')[0] || realIp || headersList.get('x-forwarded-host') || 'unknown';
     
-    const token = await createToken(sessionData, '1d', {
+    const token = await createToken(sessionData, '30d', {
       userAgent,
       ipAddress,
     });
@@ -811,7 +811,7 @@ export async function refreshSessionToken(): Promise<boolean> {
     const realIp = headersList.get('x-real-ip');
     const ipAddress = forwardedFor?.split(',')[0] || realIp || headersList.get('x-forwarded-host') || 'unknown';
     
-    const token = await createToken(refreshedSessionData, '1d', {
+    const token = await createToken(refreshedSessionData, '30d', {
       userAgent,
       ipAddress,
     }); // Add await

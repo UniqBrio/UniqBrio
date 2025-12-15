@@ -384,52 +384,53 @@ export default function BasicInfoTab({
   }
 
                                       return (
-                                      <div className="space-y-2 compact-form text-[15px] pb-8">
-                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[15px]">
+                                      <div className="space-y-2 sm:space-y-3 md:space-y-4 compact-form text-sm sm:text-[15px] pb-4 sm:pb-6 md:pb-8 px-2 sm:px-0">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 text-sm sm:text-[15px]">
                                             {/* Course ID (read-only, only if editing or available) */}
                                             {(allowManualCourseId || formData.courseId || formData.id) && (
-                                              <div className="space-y-1">
-                                                <Label htmlFor="courseId" className="flex items-center justify-between">
-                                                  <span>Course ID</span>
+                                              <div className="space-y-1 sm:space-y-1.5">
+                                                <Label htmlFor="courseId" className="flex items-center justify-between text-xs sm:text-sm">
+                                                  <span className="text-xs sm:text-sm">Course ID</span>
                                                   {courseIdHint && (
-                                                    <span className="text-[11px] text-gray-500 font-normal">{courseIdHint}</span>
+                                                    <span className="text-[10px] sm:text-[11px] text-gray-500 font-normal hidden sm:inline">{courseIdHint}</span>
                                                   )}
                                                 </Label>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-1.5 sm:gap-2">
                                                   <Input
                                                     id="courseId"
                                                     value={formData.courseId || formData.id || ''}
                                                     readOnly={!allowManualCourseId}
                                                     onChange={allowManualCourseId ? (e) => onFormChange('id', e.target.value) : undefined}
-                                                    className={`${allowManualCourseId ? 'border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500' : 'bg-gray-100 cursor-not-allowed border border-gray-300'} rounded-md px-3 py-2`}
+                                                    className={`${allowManualCourseId ? 'border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500' : 'bg-gray-100 cursor-not-allowed border border-gray-300'} rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px]`}
                                                   />
                                                   {onGenerateCourseId && (
                                                     <Button
                                                       type="button"
                                                       variant="outline"
-                                                      size="sm"
-                                                      className="text-xs"
+                                                      size="icon"
+                                                      className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 flex-shrink-0"
                                                       onClick={(event) => {
                                                         event.preventDefault()
                                                         onGenerateCourseId()
                                                       }}
+                                                      title="Generate new Course ID"
                                                     >
-                                                      Refresh
+                                                      <RefreshCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                                     </Button>
                                                   )}
                                                 </div>
                                                 {allowManualCourseId ? (
-                                                  <p className="text-[11px] text-gray-500">Update the code to match offline or ERP IDs.</p>
+                                                  <p className="text-[10px] sm:text-[11px] text-gray-500">Update the code to match offline or ERP IDs.</p>
                                                 ) : (
-                                                  <p className="text-[11px] text-gray-500">Automatically generated based on your settings.</p>
+                                                  <p className="text-[10px] sm:text-[11px] text-gray-500">Automatically generated based on your settings.</p>
                                                 )}
                                               </div>
                                             )}
                                             <div>
-                                              <Label htmlFor="courseName" className="mb-1 font-medium">Course Name <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="courseName" className="mb-0.5 sm:mb-1 font-medium text-xs sm:text-sm">Course Name <span className="text-red-500">*</span></Label>
                                               <Input
                                                 id="courseName"
-                                                placeholder="Enter course name (letters, numbers, and common symbols)"
+                                                placeholder="Enter course name"
                                                 value={formData.name || ''}
                                                 onChange={e => {
                                                   const newValue = e.target.value;
@@ -440,22 +441,22 @@ export default function BasicInfoTab({
                                                     setCourseNameError('Only letters, numbers, spaces, hyphens, apostrophes, ampersands, and periods allowed');
                                                   }
                                                 }}
-                                                className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                               />
                                               {courseNameError && (
-                                                <p className="text-red-500 text-xs mt-1">{courseNameError}</p>
+                                                <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">{courseNameError}</p>
                                               )}
                                             </div>
                                             <div>
-                                              <Label htmlFor="status" className="mb-1 font-medium">Course Status <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="status" className="mb-0.5 sm:mb-1 font-medium text-xs sm:text-sm">Course Status <span className="text-red-500">*</span></Label>
                                               <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
                                                     variant="outline"
-                                                    className="w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500"
+                                                    className="w-full text-left justify-between text-sm sm:text-[15px] py-1 sm:py-1.5 px-2 sm:px-3 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500"
                                                   >
                                                     {formData.status || 'Active'}
-                                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                                    <ChevronDown className="ml-1 sm:ml-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                                   </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-48 p-2 text-[15px]">
@@ -529,7 +530,7 @@ export default function BasicInfoTab({
                                               />
                                             </div>
                                             <div>
-                                              <Label htmlFor="location" className="font-medium">Location</Label>
+                                              <Label htmlFor="location" className="font-medium text-xs sm:text-sm mb-0.5 sm:mb-1 block">Location</Label>
                                               <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
@@ -609,7 +610,7 @@ export default function BasicInfoTab({
                                               </DropdownMenu>
                                             </div>
                                             <div>
-                                              <Label htmlFor="maxStudents" className="font-medium">Max No. of Students <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="maxStudents" className="font-medium text-xs sm:text-sm mb-0.5 sm:mb-1 block">Max No. of Students <span className="text-red-500">*</span></Label>
                                               <Input
                                                 id="maxStudents"
                                                 type="number"
@@ -640,16 +641,16 @@ export default function BasicInfoTab({
                                                     onFormChange('maxStudents', '');
                                                   }
                                                 }}
-                                                className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                               />
                                             </div>
                                           </div>
 
                                           <div>
-                                      <Label htmlFor="description" className="mb-1 font-medium">Description <span className="text-red-500">*</span></Label>
+                                      <Label htmlFor="description" className="mb-0.5 sm:mb-1 font-medium text-xs sm:text-sm">Description <span className="text-red-500">*</span></Label>
                                             <Textarea
                                               id="description"
-                                              placeholder="Describe your course in detail (comprehensive text with punctuation)..."
+                                              placeholder="Describe your course in detail..."
                                               rows={3}
                                               value={formData.description || ''}
                                               onChange={e => {
@@ -661,21 +662,21 @@ export default function BasicInfoTab({
                                                   setDescriptionError('Only letters, numbers, spaces, and standard punctuation marks allowed');
                                                 }
                                               }}
-                                              className="border border-gray-300 rounded-md px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                              className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                             />
                                             {descriptionError && (
-                                              <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
+                                              <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">{descriptionError}</p>
                                             )}
                                           </div>
 
-                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[15px]">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 text-sm sm:text-[15px]">
                                             <div>
-                                              <Label htmlFor="level" className="mb-1 font-medium">Course Level <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="level" className="mb-0.5 sm:mb-1 font-medium text-xs sm:text-sm">Course Level <span className="text-red-500">*</span></Label>
                                               <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
                                                     variant="outline"
-                                                    className={`w-full text-left justify-between text-[15px] py-1 px-2 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400' : ''}`}
+                                                    className={`w-full text-left justify-between text-sm sm:text-[15px] py-1 sm:py-1.5 px-2 sm:px-3 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400' : ''}`}
                                                   >
                                                     {formData.level || 'Select level'}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
@@ -740,7 +741,7 @@ export default function BasicInfoTab({
                                               </DropdownMenu>
                                             </div>
                                             <div>
-                                              <Label htmlFor="type" className="font-medium">Course Type <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="type" className="font-medium text-xs sm:text-sm mb-0.5 sm:mb-1 block">Course Type <span className="text-red-500">*</span></Label>
                                               <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
@@ -810,7 +811,7 @@ export default function BasicInfoTab({
                                               </DropdownMenu>
                                             </div>
                                             <div>
-                                              <Label htmlFor="courseCategory" className="font-medium">Course Category <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="courseCategory" className="font-medium text-xs sm:text-sm mb-0.5 sm:mb-1 block">Course Category <span className="text-red-500">*</span></Label>
                                               <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
@@ -883,7 +884,7 @@ export default function BasicInfoTab({
 
                                           <div>
                                             <div>
-                                              <Label htmlFor="tags" className="mb-1 font-medium">Tags <span className="text-red-500">*</span></Label>
+                                              <Label htmlFor="tags" className="mb-0.5 sm:mb-1 font-medium text-xs sm:text-sm">Tags <span className="text-red-500">*</span></Label>
                                             </div>
                                             <DropdownMenu>
                                               <DropdownMenuTrigger asChild>

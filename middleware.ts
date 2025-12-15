@@ -221,29 +221,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- Session Activity Check ---
-  const lastActivityValue = request.cookies.get(COOKIE_NAMES.LAST_ACTIVITY)?.value;
+  // --- Session Activity Check (DISABLED for persistent login like Gmail) ---
+  // Users will remain logged in until they explicitly logout or session expires (30 days)
   const now = Date.now();
-  let needsActivityUpdate = true; // Assume we need to update unless proven otherwise
-
-  if (lastActivityValue) {
-    const lastActivity = Number.parseInt(lastActivityValue, 10);
-    const inactiveTime = now - lastActivity;
-    // Using a hardcoded 1 hour (in milliseconds).
-    const maxInactiveTime = 60 * 60 * 1000; // 1 hour in milliseconds
-
-    if (inactiveTime > maxInactiveTime) {
-      console.log(`[Middleware] Session inactive for ${payload.email} (${inactiveTime / 1000}s > ${maxInactiveTime / 1000}s). Redirecting to login and clearing cookies.`);
-      const response = NextResponse.redirect(activityExpiredUrl);
-      response.cookies.delete(COOKIE_NAMES.SESSION);
-      response.cookies.delete(COOKIE_NAMES.LAST_ACTIVITY);
-      return response;
-    }
-    // Activity is valid, but we still update the cookie later
-  } else {
-    console.log(`[Middleware] No activity cookie found for active session (${payload.email}). Will set one.`);
-    // No immediate return, cookie will be set later if access is granted
-  }
+  let needsActivityUpdate = true;
+  
+  // We still track last activity for analytics, but DON'T log users out based on inactivity
+  console.log(`[Middleware] Session active for ${payload.email} - persistent login enabled`);
 
   // --- Role-Based Access Control (RBAC) ---
   const userRole = payload.role; // Role is guaranteed to exist at this point

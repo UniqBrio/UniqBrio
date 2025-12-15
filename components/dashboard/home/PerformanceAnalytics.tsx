@@ -63,7 +63,7 @@ export function PerformanceAnalytics() {
       .catch((err) => console.error("Error fetching students:", err));
 
     // Fetch cohorts
-    fetch("/api/dashboard/cohorts/cohorts", { credentials: 'include' })
+    fetch("/api/dashboard/services/cohorts", { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

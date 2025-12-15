@@ -34,19 +34,16 @@ const sessionSchema = new Schema<ISession>(
     tenantId: {
       type: String,
       required: true,
-      index: true,
       // Tenant ID must always be present for security
     },
     userId: {
       type: String,
       required: true,
-      index: true,
     },
     jwtId: {
       type: String,
       required: true,
       unique: true,
-      index: true,
       // Unique identifier linking JWT to this session record
     },
     issuedAt: {
@@ -56,21 +53,17 @@ const sessionSchema = new Schema<ISession>(
     expiresAt: {
       type: Date,
       required: true,
-      index: true, // For cleanup queries
     },
     lastActiveAt: {
       type: Date,
       required: true,
-      index: true,
     },
     isRevoked: {
       type: Boolean,
       default: false,
-      index: true,
     },
     revokedAt: {
       type: Date,
-      index: true,
     },
     revokedBy: {
       type: String,

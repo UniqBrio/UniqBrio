@@ -12,18 +12,18 @@ interface SettingsTabProps {
 
 export default function SettingsTab({ formData, onFormChange }: SettingsTabProps) {
   return (
-    <div className="space-y-2 compact-form">
-  <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-700 text-center italic">
+    <div className="space-y-2 sm:space-y-3 md:space-y-4 compact-form px-2 sm:px-0">
+  <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-xs sm:text-sm text-blue-700 text-center italic">
           Coming Soon
         </p>
       </div>
       
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Content Security</h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm">Content Security</h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div className="flex items-center space-x-1 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="watermark" 
               checked={formData.contentSecurity?.watermark || false}
@@ -32,9 +32,9 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('contentSecurity', updated);
               }}
             />
-            <Label htmlFor="watermark" className="text-xs">Watermark Protection</Label>
+            <Label htmlFor="watermark" className="text-[10px] sm:text-xs">Watermark Protection</Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="downloadProtection" 
               checked={formData.contentSecurity?.downloadProtection || false}
@@ -43,9 +43,9 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('contentSecurity', updated);
               }}
             />
-            <Label htmlFor="downloadProtection" className="text-xs">Download Protection</Label>
+            <Label htmlFor="downloadProtection" className="text-[10px] sm:text-xs">Download Protection</Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="screenRecording" 
               checked={formData.contentSecurity?.screenRecording || false}
@@ -54,9 +54,9 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('contentSecurity', updated);
               }}
             />
-            <Label htmlFor="screenRecording" className="text-xs">Screen Recording Protection</Label>
+            <Label htmlFor="screenRecording" className="text-[10px] sm:text-xs">Screen Recording Protection</Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="accessLogging" 
               checked={formData.contentSecurity?.accessLogging || false}
@@ -65,17 +65,17 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('contentSecurity', updated);
               }}
             />
-            <Label htmlFor="accessLogging" className="text-xs">Access Logging</Label>
+            <Label htmlFor="accessLogging" className="text-[10px] sm:text-xs">Access Logging</Label>
           </div>
         </div>
       </div>
 
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Offline Access</h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm">Offline Access</h4>
 
-        <div className="flex items-center space-x-1 text-xs">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
           <Switch 
             id="offlineAccess" 
             checked={formData.offlineAccess?.enabled || false}
@@ -84,12 +84,12 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
               onFormChange('offlineAccess', updated);
             }}
           />
-          <Label htmlFor="offlineAccess" className="text-xs">Enable Offline Access</Label>
+          <Label htmlFor="offlineAccess" className="text-[10px] sm:text-xs">Enable Offline Access</Label>
         </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
           <div>
-            <Label htmlFor="downloadLimit" className="mb-1 text-xs">Download Limit (per month)</Label>
+            <Label htmlFor="downloadLimit" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Download Limit (per month)</Label>
             <Input 
               id="downloadLimit" 
               placeholder="5" 
@@ -121,11 +121,11 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                   onFormChange('offlineAccess', updated);
                 }
               }}
-              className="px-2 py-1 text-sm"
+              className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm"
             />
           </div>
           <div>
-            <Label htmlFor="expiryDays" className="mb-1 text-xs">Content Expiry (days)</Label>
+            <Label htmlFor="expiryDays" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Content Expiry (days)</Label>
             <Input 
               id="expiryDays" 
               placeholder="30" 
@@ -157,7 +157,7 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                   onFormChange('offlineAccess', updated);
                 }
               }}
-              className="px-2 py-1 text-sm"
+              className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm"
             />
           </div>
         </div>
@@ -165,11 +165,11 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
 
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Integrations</h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm">Integrations</h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          <div className="flex items-center space-x-1 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="credentialVerification" 
               checked={formData.integrations?.credentialVerification || false}
@@ -178,9 +178,9 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('integrations', updated);
               }}
             />
-            <Label htmlFor="credentialVerification" className="text-xs">Credential Verification API</Label>
+            <Label htmlFor="credentialVerification" className="text-[10px] sm:text-xs">Credential Verification API</Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="marketplace" 
               checked={formData.integrations?.marketplace || false}
@@ -189,9 +189,9 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('integrations', updated);
               }}
             />
-            <Label htmlFor="marketplace" className="text-xs">Content Marketplace</Label>
+            <Label htmlFor="marketplace" className="text-[10px] sm:text-xs">Content Marketplace</Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="ltiIntegration" 
               checked={formData.integrations?.ltiIntegration || false}
@@ -200,17 +200,17 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('integrations', updated);
               }}
             />
-            <Label htmlFor="ltiIntegration" className="text-xs">LTI Integration</Label>
+            <Label htmlFor="ltiIntegration" className="text-[10px] sm:text-xs">LTI Integration</Label>
           </div>
         </div>
       </div>
 
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Gamification</h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm">Gamification</h4>
 
-        <div className="flex items-center space-x-1 text-xs">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
           <Switch 
             id="enableGamification" 
             checked={formData.gamification?.enabled || false}
@@ -219,11 +219,11 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
               onFormChange('gamification', updated);
             }}
           />
-          <Label htmlFor="enableGamification" className="text-xs">Enable Gamification Features</Label>
+          <Label htmlFor="enableGamification" className="text-[10px] sm:text-xs">Enable Gamification Features</Label>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div className="flex items-center space-x-1 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="streakRewards" 
               checked={formData.gamification?.streakRewards || false}
@@ -232,9 +232,9 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('gamification', updated);
               }}
             />
-            <Label htmlFor="streakRewards" className="text-xs">Learning Streak Rewards</Label>
+            <Label htmlFor="streakRewards" className="text-[10px] sm:text-xs">Learning Streak Rewards</Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="instructorBadges" 
               checked={formData.gamification?.instructorBadges || false}
@@ -243,7 +243,7 @@ export default function SettingsTab({ formData, onFormChange }: SettingsTabProps
                 onFormChange('gamification', updated);
               }}
             />
-            <Label htmlFor="instructorBadges" className="text-xs">Instructor Achievement Badges</Label>
+            <Label htmlFor="instructorBadges" className="text-[10px] sm:text-xs">Instructor Achievement Badges</Label>
           </div>
         </div>
       </div>

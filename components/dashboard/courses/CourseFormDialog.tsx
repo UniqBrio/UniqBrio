@@ -423,10 +423,9 @@ export default function CourseFormDialog({
     try {
   // Use instructor name from form
   const selectedInstructor = newCourseForm.instructor || DUMMY_INSTRUCTORS[0].name;
-      // Only allow valid tags
-      const allowedTags = ["Art", "Painting", "Music", "Dance", "Sports", "Technology", "Science"];
+      // Preserve all tags entered by user
       const filteredTags = Array.isArray(newCourseForm.tags)
-        ? newCourseForm.tags.filter((tag: string) => allowedTags.includes(tag))
+        ? newCourseForm.tags
         : [];
       // Remove empty chapters and process PDF files
       const filteredChapters = Array.isArray(newCourseForm.chapters)
@@ -949,21 +948,24 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="content" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col items-center gap-0.5"
               >
-                Content <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
+                <span>Content</span>
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70" />
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col items-center gap-0.5"
               >
-                Settings <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
+                <span>Settings</span>
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70" />
               </TabsTrigger>
               <TabsTrigger 
                 value="marketing" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 inline-flex items-center gap-1"
+                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col items-center gap-0.5"
               >
-                Marketing <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" />
+                <span>Marketing</span>
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70" />
               </TabsTrigger>
             </TabsList>
           </Tabs>

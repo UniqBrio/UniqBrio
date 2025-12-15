@@ -74,9 +74,9 @@ export default function InstructorDropdown({
   }
 
   return (
-    <div className={cn("flex flex-col space-y-2", className)}>
+    <div className={cn("flex flex-col space-y-1 sm:space-y-2", className)}>
       {label && (
-        <Label htmlFor="instructor-dropdown" className="font-medium">
+        <Label htmlFor="instructor-dropdown" className="font-medium text-xs sm:text-sm mb-0.5 sm:mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </Label>
       )}
@@ -89,7 +89,7 @@ export default function InstructorDropdown({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none",
+              "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm h-auto",
               !selectedInstructor && "text-gray-400 dark:text-white"
             )}
             style={open ? { borderColor: primaryColor, boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
@@ -105,27 +105,27 @@ export default function InstructorDropdown({
             }}
             disabled={disabled || loading}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {selectedInstructor ? (
                 <>
-                  <User className="h-4 w-4" />
-                  <span>{selectedInstructor.name}</span>
+                  <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="truncate">{selectedInstructor.name}</span>
                 </>
               ) : (
                 <span>{loading ? "Loading..." : placeholder}</span>
               )}
             </div>
-            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronDown className="ml-1 sm:ml-2 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-full p-2" align="start" sideOffset={5} avoidCollisions={true} collisionPadding={10}>
+        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-full p-1.5 sm:p-2" align="start" sideOffset={5} avoidCollisions={true} collisionPadding={10}>
           <Command>
             <CommandInput
               placeholder="Search instructors..."
               value={searchTerm}
               onValueChange={setSearchTerm}
-              className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-8 sm:h-10 w-full rounded-md bg-transparent py-2 sm:py-3 text-xs sm:text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 px-2 sm:px-3"
               style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
               onFocus={(e) => {
                 e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}`
@@ -137,18 +137,18 @@ export default function InstructorDropdown({
 
             <CommandList>
               {loading ? (
-                <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
+                <div className="flex items-center justify-center py-4 sm:py-6 text-xs sm:text-sm text-muted-foreground">
                   Loading instructors...
                 </div>
               ) : error ? (
-                <div className="flex items-center justify-center py-6 text-sm text-destructive">
+                <div className="flex items-center justify-center py-4 sm:py-6 text-xs sm:text-sm text-destructive">
                   Error: {error}
                 </div>
               ) : (
                 <>
                   <CommandEmpty>
-                    <div className="py-6 text-center">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="py-4 sm:py-6 text-center">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         No instructors found.
                       </p>
                     </div>
@@ -161,7 +161,7 @@ export default function InstructorDropdown({
                         value={instructor.id}
                         onSelect={() => handleSelect(instructor.id)}
                         className={cn(
-                          "cursor-pointer px-4 py-2 hover:bg-gray-100"
+                          "cursor-pointer px-2 sm:px-4 py-1.5 sm:py-2 hover:bg-gray-100"
                         )}
                         style={value === instructor.id ? { backgroundColor: `${primaryColor}20` } : {}}
                         onMouseEnter={(e) => {
@@ -178,12 +178,12 @@ export default function InstructorDropdown({
                         }}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <div>
-                                <div className="font-medium">{instructor.name}</div>
-                                <div className="text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="font-medium text-xs sm:text-sm truncate">{instructor.name}</div>
+                                <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
                                   {instructor.instructorId || instructor.email}
                                 </div>
                               </div>
@@ -192,7 +192,7 @@ export default function InstructorDropdown({
                           
                           <Check
                             className={cn(
-                              "ml-auto h-4 w-4",
+                              "ml-2 h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0",
                               value === instructor.id ? "opacity-100" : "opacity-0"
                             )}
                           />
@@ -213,7 +213,7 @@ export default function InstructorDropdown({
 
       {/* Show selected instructor details */}
       {selectedInstructor && showExpertise && (
-        <div className="text-xs text-muted-foreground">
+        <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
           {selectedInstructor.instructorId || selectedInstructor.email}
         </div>
       )}
@@ -244,7 +244,7 @@ export function SimpleInstructorDropdown({
         <Button 
           variant="outline" 
           className={cn(
-            "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none",
+            "w-full justify-between border-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm h-auto",
             !value && "text-gray-400 dark:text-white",
             className
           )}
@@ -258,32 +258,34 @@ export function SimpleInstructorDropdown({
             e.currentTarget.style.boxShadow = ''
           }}
         >
-          {value ? (
-            instructorOptions.find(inst => inst.id === value)?.name || "Unknown"
-          ) : (
-            placeholder
-          )}
-          <ChevronDown className="ml-2 h-4 w-4" />
+          <span className="truncate">
+            {value ? (
+              instructorOptions.find(inst => inst.id === value)?.name || "Unknown"
+            ) : (
+              placeholder
+            )}
+          </span>
+          <ChevronDown className="ml-1 sm:ml-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-full p-2">
+      <DropdownMenuContent className="w-[calc(100vw-2rem)] sm:w-full p-1.5 sm:p-2">
         {loading ? (
-          <DropdownMenuItem disabled className="px-4 py-2">Loading...</DropdownMenuItem>
+          <DropdownMenuItem disabled className="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">Loading...</DropdownMenuItem>
         ) : (
           instructorOptions.map(instructor => (
             <DropdownMenuItem
               key={instructor.id}
               onClick={() => onChange(instructor.id, instructor.name)}
               className={cn(
-                "px-4 py-2 cursor-pointer hover:bg-gray-100"
+                "px-2 sm:px-4 py-1.5 sm:py-2 cursor-pointer hover:bg-gray-100"
               )}
               style={value === instructor.id ? { backgroundColor: `${primaryColor}20` } : {}}
             >
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <div>
-                  <div>{instructor.name}</div>
-                  <div className="text-xs text-muted-foreground">{instructor.instructorId || instructor.email}</div>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs sm:text-sm truncate">{instructor.name}</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground truncate">{instructor.instructorId || instructor.email}</div>
                 </div>
               </div>
             </DropdownMenuItem>

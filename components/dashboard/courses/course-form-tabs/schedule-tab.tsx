@@ -100,13 +100,13 @@ export default function ScheduleTab({
   };
 
   return (
-    <div className="space-y-2 compact-form">
+    <div className="space-y-2 sm:space-y-3 md:space-y-4 compact-form px-2 sm:px-0">
       {/* Schedule Period */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">Schedule Period</h4>
+      <div className="mb-2 sm:mb-3">
+        <h4 className="font-medium mb-1 sm:mb-1.5 text-xs sm:text-sm">Schedule Period</h4>
         <div className={`grid grid-cols-1 ${formData.courseCategory === 'Ongoing Training' ? 'md:grid-cols-1' : 'md:grid-cols-3'} gap-2`}>
           <div>
-            <Label className="mb-1 text-xs">
+            <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">
               Start Date <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
@@ -116,7 +116,7 @@ export default function ScheduleTab({
                 onChange={e => updateSchedulePeriod('startDate', e.target.value)}
                 onFocus={() => setStartDateFocused(true)}
                 onBlur={() => setStartDateFocused(false)}
-                className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent ${
+                className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent ${
                   !formData.schedulePeriod?.startDate 
                     ? 'border-red-300 bg-red-50' 
                     : 'border-gray-300'
@@ -138,7 +138,7 @@ export default function ScheduleTab({
                 required
               />
               {!startDateFocused && formData.schedulePeriod?.startDate && (
-                <div className="absolute inset-0 flex items-center px-2 text-sm pointer-events-none text-gray-900 dark:text-white">
+                <div className="absolute inset-0 flex items-center px-2 sm:px-3 text-xs sm:text-sm pointer-events-none text-gray-900 dark:text-white">
                   {formatDateForDisplay(formData.schedulePeriod.startDate)}
                 </div>
               )}
@@ -148,7 +148,7 @@ export default function ScheduleTab({
           {formData.courseCategory !== 'Ongoing Training' && (
             <>
               <div>
-                <Label className="mb-1 text-xs">
+                <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">
                   End Date <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
@@ -158,7 +158,7 @@ export default function ScheduleTab({
                     onChange={e => updateSchedulePeriod('endDate', e.target.value)}
                     onFocus={() => setEndDateFocused(true)}
                     onBlur={() => setEndDateFocused(false)}
-                    className={`border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent ${
+                    className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent ${
                       !formData.schedulePeriod?.endDate 
                         ? 'border-red-300 bg-red-50' 
                         : 'border-gray-300'
@@ -180,14 +180,14 @@ export default function ScheduleTab({
                     required
                   />
                   {!endDateFocused && formData.schedulePeriod?.endDate && (
-                    <div className="absolute inset-0 flex items-center px-2 text-sm pointer-events-none text-gray-900 dark:text-white">
+                    <div className="absolute inset-0 flex items-center px-2 sm:px-3 text-xs sm:text-sm pointer-events-none text-gray-900 dark:text-white">
                       {formatDateForDisplay(formData.schedulePeriod.endDate)}
                     </div>
                   )}
                 </div>
               </div>
               <div>
-                <Label className="mb-1 text-xs">Course Duration (weeks)</Label>
+                <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Course Duration (weeks)</Label>
                 <Input
                   type="number"
                   min="0"
@@ -197,7 +197,7 @@ export default function ScheduleTab({
                       : 0
                   }
                   readOnly
-                  className="bg-gray-100 cursor-not-allowed border border-gray-300 rounded-md px-2 py-1 text-sm"
+                  className="bg-gray-100 cursor-not-allowed border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm"
                 />
               </div>
             </>
@@ -205,7 +205,7 @@ export default function ScheduleTab({
         </div>
         
         {formData.courseCategory === 'Ongoing Training' && formData.schedulePeriod?.startDate && (
-          <p className="text-xs text-gray-600 dark:text-white mt-2">
+          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white mt-1.5 sm:mt-2">
             This ongoing training program starts on {formatDateForDisplay(formData.schedulePeriod.startDate)} and continues with monthly billing.
           </p>
         )}
@@ -220,13 +220,13 @@ export default function ScheduleTab({
               
               if (!isStartValid || !isEndValid) {
                 return (
-                  <p className="text-red-500 text-sm mt-2">Please enter valid dates</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1.5 sm:mt-2">Please enter valid dates</p>
                 );
               }
               
               if (startDate > endDate) {
                 return (
-                  <p className="text-red-500 text-sm mt-2">Start date cannot be after end date</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1.5 sm:mt-2">Start date cannot be after end date</p>
                 );
               }
               
@@ -237,11 +237,11 @@ export default function ScheduleTab({
       </div>
 
       {/* Session Details */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">Session Details</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div className="mb-2 sm:mb-3">
+        <h4 className="font-medium mb-1 sm:mb-1.5 text-xs sm:text-sm">Session Details</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
           <div>
-            <Label className="mb-1 text-xs">Session Duration (hours)</Label>
+            <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Session Duration (hours)</Label>
             <Input 
               type="number" 
               min="1" 
@@ -269,7 +269,7 @@ export default function ScheduleTab({
                   updateSessionDetails('sessionDuration', numValue.toString());
                 }
               }} 
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:border-transparent" 
+              className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:border-transparent" 
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = primaryColor;
                 e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -281,7 +281,7 @@ export default function ScheduleTab({
             />
           </div>
           <div>
-            <Label className="mb-1 text-xs">Max Sessions in a week</Label>
+            <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Max Sessions in a week</Label>
             <Input 
               type="number" 
               min="1" 
@@ -308,7 +308,7 @@ export default function ScheduleTab({
                   updateSessionDetails('maxClasses', numValue.toString());
                 }
               }} 
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:border-transparent" 
+              className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:border-transparent" 
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = primaryColor;
                 e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -323,14 +323,14 @@ export default function ScheduleTab({
       </div>
 
       {/* Schedule Frequency */}
-      <div className="mb-2">
-        <div className="flex justify-between items-center mb-1">
-          <h4 className="font-medium text-sm">Schedule Frequencies</h4>
+      <div className="mb-2 sm:mb-3">
+        <div className="flex justify-between items-center mb-1 sm:mb-1.5">
+          <h4 className="font-medium text-xs sm:text-sm">Schedule Frequencies</h4>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="px-2 py-1 text-xs"
+            className="px-1.5 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs"
             onClick={() => updateFrequencies([
               ...(formData.frequencies || []),
               { days: [], start: '', end: '', sessions: '' }
@@ -341,13 +341,13 @@ export default function ScheduleTab({
         </div>
         {(formData.frequencies && formData.frequencies.length > 0)
           ? formData.frequencies.map((freq: any, idx: number) => (
-              <div key={`frequency-${idx}-${freq.name || freq.type || 'new'}`} className="border rounded-lg p-2 bg-gray-50 mb-2 relative text-xs">
+              <div key={`frequency-${idx}-${freq.name || freq.type || 'new'}`} className="border rounded-lg p-2 sm:p-3 bg-gray-50 mb-2 sm:mb-3 relative text-[10px] sm:text-xs">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                        className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 text-red-500 hover:text-red-700"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -365,15 +365,15 @@ export default function ScheduleTab({
                         }}
                         aria-label="Remove Frequency"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>Remove Frequency</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                <div className="flex flex-wrap gap-2 mb-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
                   {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                    <label key={day} className="flex items-center gap-1 text-xs">
+                    <label key={day} className="flex items-center gap-1 text-[10px] sm:text-xs">
                       <input
                         type="checkbox"
                         checked={freq.days?.includes(day) || false}
@@ -396,10 +396,10 @@ export default function ScheduleTab({
                     </label>
                   ))}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 sm:gap-3 items-end">
                   <div>
-                    <Label className="mb-1 text-xs">Start Time</Label>
-                    <div className="space-y-1">
+                    <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Start Time</Label>
+                    <div className="space-y-0.5 sm:space-y-1">
                       <Input
                         type="time"
                         value={freq.start || ''}
@@ -413,16 +413,16 @@ export default function ScheduleTab({
                           );
                           updateFrequencies(updated);
                         }}
-                        className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
+                        className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent"
                       />
                       {freq.start && freq.end && !validateTimeRange(freq.start, freq.end) && (
-                        <p className="text-red-500 text-xs">Start time must be before end time</p>
+                        <p className="text-red-500 text-[9px] sm:text-xs">Start time must be before end time</p>
                       )}
                     </div>
                   </div>
                   <div>
-                    <Label className="mb-1 text-xs">End Time</Label>
-                    <div className="space-y-1">
+                    <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">End Time</Label>
+                    <div className="space-y-0.5 sm:space-y-1">
                       <Input
                         type="time"
                         value={freq.end || ''}
@@ -436,7 +436,7 @@ export default function ScheduleTab({
                           );
                           updateFrequencies(updated);
                         }}
-                        className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                        className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:border-transparent"
                         onFocus={(e) => {
                           e.currentTarget.style.borderColor = primaryColor;
                           e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -447,12 +447,12 @@ export default function ScheduleTab({
                         }}
                       />
                       {freq.start && freq.end && !validateTimeRange(freq.start, freq.end) && (
-                        <p className="text-red-500 text-xs">End time must be after start time</p>
+                        <p className="text-red-500 text-[9px] sm:text-xs">End time must be after start time</p>
                       )}
                     </div>
                   </div>
                   <div>
-                    <Label className="mb-1 text-xs">Sessions (per day)</Label>
+                    <Label className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Sessions (per day)</Label>
                     <Input
                       type="number"
                       min="1"
@@ -488,7 +488,7 @@ export default function ScheduleTab({
                           updateFrequencies(updated);
                         }
                       }}
-                      className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                      className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:border-transparent"
                       onFocus={(e) => {
                         e.currentTarget.style.borderColor = primaryColor;
                         e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -503,8 +503,8 @@ export default function ScheduleTab({
               </div>
             ))
           : (
-              <div className="border rounded-lg p-2 bg-gray-50 mb-2 relative text-xs">
-                <div className="mb-1 font-medium">No frequencies added yet.</div>
+              <div className="border rounded-lg p-2 sm:p-3 bg-gray-50 mb-2 sm:mb-3 relative text-[10px] sm:text-xs">
+                <div className="mb-0.5 sm:mb-1 font-medium">No frequencies added yet.</div>
               </div>
           )}
       </div>
@@ -512,15 +512,15 @@ export default function ScheduleTab({
       <Separator />
 
       {/* Reminder Schedule Section */}
-      <div className="space-y-2">
+      <div className="space-y-2 sm:space-y-3">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium text-sm">Reminder Schedule</h4>
+          <h4 className="font-medium text-xs sm:text-sm">Reminder Schedule</h4>
           {(formData.frequencies && formData.frequencies.length > 0) && (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="px-2 py-1 text-xs"
+              className="px-1.5 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs"
               onClick={() => {
                 const updated = [
                   ...(formData.reminderSettings?.customSchedule || []),
@@ -534,15 +534,15 @@ export default function ScheduleTab({
         {(formData.frequencies && formData.frequencies.length > 0) && (
           <>
             {formData.reminderSettings?.customSchedule?.map((reminder: any, idx: number) => (
-              <div key={`reminder-${idx}-${reminder.type || 'new'}`} className="border rounded-md p-1 mb-1 flex flex-row gap-2 items-center relative text-xs">
+              <div key={`reminder-${idx}-${reminder.type || 'new'}`} className="border rounded-md p-1 sm:p-1.5 mb-1 sm:mb-1.5 flex flex-row gap-1.5 sm:gap-2 items-center relative text-[10px] sm:text-xs">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-32 justify-between text-left text-xs py-1 px-2"
+                      className="w-28 sm:w-32 justify-between text-left text-[10px] sm:text-xs py-1 sm:py-1.5 px-1.5 sm:px-2"
                     >
                       {reminder.type || 'Select Type'}
-                      <ChevronDown className="ml-1 h-3 w-3" />
+                      <ChevronDown className="ml-0.5 sm:ml-1 h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40 p-0">
@@ -562,7 +562,7 @@ export default function ScheduleTab({
                         onClick={(e) => {
                           e.stopPropagation();
                         }}
-                        className="flex h-6 w-full rounded-md border border-input px-2 py-0.5 text-xs shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        className="flex h-5 sm:h-6 w-full rounded-md border border-input px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       />
                     </div>
                     <DropdownMenuGroup>
@@ -608,7 +608,7 @@ export default function ScheduleTab({
                         updateReminderSettings('customSchedule', updated);
                       }}
                       placeholder="Reminder type"
-                      className="w-32 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                      className="w-28 sm:w-32 border border-gray-300 rounded-md px-1.5 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:border-transparent"
                       onFocus={(e) => {
                         e.currentTarget.style.borderColor = primaryColor;
                         e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -652,7 +652,7 @@ export default function ScheduleTab({
                     }
                   }}
                   placeholder="Days before"
-                  className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                  className="w-20 sm:w-24 border border-gray-300 rounded-md px-1.5 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:border-transparent"
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = primaryColor;
                     e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -695,7 +695,7 @@ export default function ScheduleTab({
                     }
                   }}
                   placeholder="Hours before"
-                  className="w-24 border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:border-transparent"
+                  className="w-20 sm:w-24 border border-gray-300 rounded-md px-1.5 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:border-transparent"
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = primaryColor;
                     e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`;
@@ -718,7 +718,7 @@ export default function ScheduleTab({
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                        className="absolute top-1 sm:top-2 right-1 sm:right-2 text-red-500 hover:text-red-700"
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -734,7 +734,7 @@ export default function ScheduleTab({
                         }}
                         aria-label="Remove Reminder"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>Remove Reminder</TooltipContent>
@@ -748,50 +748,50 @@ export default function ScheduleTab({
        
       <Separator />
       
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Notification Settings</h4>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-          <div className="flex items-center space-x-1 text-xs">
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm">Notification Settings</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="pushNotifications" 
               checked={formData.reminderSettings?.pushEnabled || false}
               onCheckedChange={(checked) => updateReminderSettings('pushEnabled', checked)}
             />
-            <Label htmlFor="pushNotifications" className="flex items-center gap-1 text-xs">
-              <Smartphone className="h-3 w-3" />
+            <Label htmlFor="pushNotifications" className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
+              <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               In App 
             </Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="smsNotifications" 
               checked={formData.reminderSettings?.smsEnabled || false}
               onCheckedChange={(checked) => updateReminderSettings('smsEnabled', checked)}
             />
-            <Label htmlFor="smsNotifications" className="flex items-center gap-1 text-xs">
-              <MessageCircle className="h-3 w-3" />
+            <Label htmlFor="smsNotifications" className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
+              <MessageCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               SMS 
             </Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="whatsappNotifications" 
               checked={formData.reminderSettings?.whatsappEnabled || false}
               onCheckedChange={(checked) => updateReminderSettings('whatsappEnabled', checked)}
             />
-            <Label htmlFor="whatsappNotifications" className="flex items-center gap-1 text-xs">
-              <Smartphone className="h-3 w-3 text-green-500" />
+            <Label htmlFor="whatsappNotifications" className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
+              <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-green-500" />
               WhatsApp 
             </Label>
           </div>
-          <div className="flex items-center space-x-1 text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="emailNotifications" 
               checked={formData.reminderSettings?.emailEnabled || false}
               onCheckedChange={(checked) => updateReminderSettings('emailEnabled', checked)}
             />
-            <Label htmlFor="emailNotifications" className="flex items-center gap-1 text-xs">
-              <Mail className="h-3 w-3" />
+            <Label htmlFor="emailNotifications" className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
+              <Mail className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Email 
             </Label>
           </div>

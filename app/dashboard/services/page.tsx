@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useCustomColors } from "@/lib/use-custom-colors"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -64,6 +65,8 @@ interface RecentActivity {
 
 export default function ServicesOverviewPage() {
   const router = useRouter()
+  const { primaryColor, secondaryColor } = useCustomColors()
+  const [currentTab, setCurrentTab] = useState("analytics")
   const [scheduleStats, setScheduleStats] = useState<ScheduleStats>({
     totalSessions: 0,
     upcomingSessions: 0,
@@ -420,32 +423,46 @@ export default function ServicesOverviewPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            className="h-12 border-2 border-orange-300 bg-white dark:bg-gray-900 hover:bg-orange-50 dark:hover:bg-orange-950/30 text-orange-600 dark:text-orange-400 font-semibold"
-            onClick={() => {
-              const analyticsSection = document.getElementById('analytics-section')
-              analyticsSection?.scrollIntoView({ behavior: 'smooth' })
-            }}
-          >
-            <BarChart3 className="mr-2 h-5 w-5" />
-            Analytics
-          </Button>
-          <Button
-            className="h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-md"
-            onClick={() => {
-              const serviceAreasSection = document.getElementById('service-areas-section')
-              serviceAreasSection?.scrollIntoView({ behavior: 'smooth' })
-            }}
-          >
-            <Users className="mr-2 h-5 w-5" />
-            Service Areas
-          </Button>
-        </div>
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
+            <TabsTrigger 
+              value="analytics"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+              style={{
+                borderColor: secondaryColor,
+                color: secondaryColor,
+                ...(currentTab === 'analytics' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+              }}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger 
+              value="service-areas"
+              className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+              style={{
+                borderColor: secondaryColor,
+                color: secondaryColor,
+                ...(currentTab === 'service-areas' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
+              }}
+            >
+              <Users className="h-4 w-4" />
+              Service Areas
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Service Areas Section */}
-        <div id="service-areas-section" className="space-y-4">
+          {/* Analytics Tab Content */}
+          <TabsContent value="analytics" className="space-y-4 mt-6">
+            <ServicesDashboardCharts
+              scheduleStats={scheduleStats}
+              courseStats={courseStats}
+              cohortStats={cohortStats}
+              recentActivities={recentActivities}
+            />
+          </TabsContent>
+
+          {/* Service Areas Tab Content */}
+          <TabsContent value="service-areas" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Schedule Management Card */}
             <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
@@ -563,17 +580,8 @@ export default function ServicesOverviewPage() {
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* Analytics Section */}
-        <div id="analytics-section" className="space-y-4">
-          <ServicesDashboardCharts
-            scheduleStats={scheduleStats}
-            courseStats={courseStats}
-            cohortStats={cohortStats}
-            recentActivities={recentActivities}
-          />
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

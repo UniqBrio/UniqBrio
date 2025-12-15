@@ -86,15 +86,15 @@ export default function PricingTab({
   };
 
   return (
-    <div className="space-y-2 compact-form">
-      <div className="max-w-md">
+    <div className="space-y-2 sm:space-y-3 md:space-y-4 compact-form px-2 sm:px-0">
+      <div className="max-w-full sm:max-w-md md:max-w-lg">
         <div>
-          <Label htmlFor="paymentCategory" className="mb-1 text-xs">
+          <Label htmlFor="paymentCategory" className="mb-0.5 sm:mb-1 text-xs sm:text-sm">
             Payment Category <span className="text-red-500">*</span>
           </Label>
           <select
             id="paymentCategory"
-            className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent mb-2"
+            className="w-full border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base focus:outline-none focus:border-transparent mb-1.5 sm:mb-2"
             style={{ borderColor: '#d1d5db' }}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = primaryColor;
@@ -115,7 +115,7 @@ export default function PricingTab({
           </select>
         </div>
         <div>
-          <Label htmlFor="priceINR" className="mb-1 text-xs">
+          <Label htmlFor="priceINR" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">
             {formData.courseCategory === 'Ongoing Training' 
               ? `Price per Month (${currency})` 
               : `Price (${currency})`} <span className="text-red-500">*</span>
@@ -126,7 +126,7 @@ export default function PricingTab({
               type="number"
               min="1"
               placeholder={formData.courseCategory === 'Ongoing Training' ? '5000' : '25000'}
-              className="pl-8 border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+              className="pl-6 sm:pl-8 border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent"
               style={{ borderColor: '#d1d5db' }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = primaryColor;
@@ -165,7 +165,7 @@ export default function PricingTab({
             />
           </div>
           {formData.courseCategory === 'Ongoing Training' && (
-            <p className="text-xs text-gray-600 dark:text-white mt-1">
+            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white mt-0.5 sm:mt-1">
               This price will be charged monthly
             </p>
           )}
@@ -176,16 +176,16 @@ export default function PricingTab({
       {formData.courseCategory === 'Ongoing Training' && (
         <>
           <Separator />
-          <div className="space-y-4">
-            <h4 className="font-medium text-sm inline-flex items-center gap-2">Ongoing Training Pricing <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="font-medium text-xs sm:text-sm inline-flex items-center gap-1.5 sm:gap-2">Ongoing Training Pricing <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
             
             {/* Payment Frequency */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <Label htmlFor="paymentFrequency" className="mb-1 text-xs">Payment Frequency</Label>
+                <Label htmlFor="paymentFrequency" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Payment Frequency</Label>
                 <select
                   id="paymentFrequency"
-                  className="w-full border rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent"
+                  className="w-full border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent"
                   style={{ borderColor: '#d1d5db' }}
                   value="monthly"
                   disabled
@@ -195,19 +195,19 @@ export default function PricingTab({
               </div>
               
               <div>
-                <Label htmlFor="trainingDuration" className="mb-1 text-xs">Total Training Duration</Label>
-                <div className="flex gap-2">
+                <Label htmlFor="trainingDuration" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Total Training Duration</Label>
+                <div className="flex gap-1.5 sm:gap-2">
                   <Input
                     id="trainingDuration"
                     type="number"
                     placeholder="12"
-                    className="border rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent flex-1"
+                    className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent flex-1"
                     style={{ borderColor: '#d1d5db' }}
                     disabled
                   />
                   <select
                     id="durationUnit"
-                    className="border rounded-md px-2 py-1 text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent min-w-[80px]"
+                    className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-100 cursor-not-allowed focus:outline-none focus:border-transparent min-w-[70px] sm:min-w-[80px]"
                     style={{ borderColor: '#d1d5db' }}
                     value="months"
                     disabled
@@ -219,26 +219,26 @@ export default function PricingTab({
             </div>
 
             {/* Pricing Periods */}
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm inline-flex items-center gap-2">Pricing Periods <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+            <div className="space-y-2 sm:space-y-3">
+              <h4 className="font-medium text-xs sm:text-sm inline-flex items-center gap-1.5 sm:gap-2">Pricing Periods <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
 
-              <div className="flex items-center space-x-1 text-xs">
+              <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
                 <Switch id="enablePricingPeriods" disabled/>
-                <Label htmlFor="enablePricingPeriods" className="text-xs">Enable Pricing Periods</Label>
+                <Label htmlFor="enablePricingPeriods" className="text-[10px] sm:text-xs">Enable Pricing Periods</Label>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
                 <div>
-                  <Label htmlFor="periodDuration" className="mb-1 text-xs">Period Duration (months)</Label>
-                  <Input disabled id="periodDuration" placeholder="4" type="number" className="px-2 py-1 text-sm" />
+                  <Label htmlFor="periodDuration" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Period Duration (months)</Label>
+                  <Input disabled id="periodDuration" placeholder="4" type="number" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
                 </div>
                 <div>
-                  <Label htmlFor="priceEscalation" className="mb-1 text-xs">Price Escalation (%)</Label>
-                  <Input disabled id="priceEscalation" placeholder="5" type="number" step="0.1" className="px-2 py-1 text-sm" />
+                  <Label htmlFor="priceEscalation" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Price Escalation (%)</Label>
+                  <Input disabled id="priceEscalation" placeholder="5" type="number" step="0.1" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
                 </div>
                 <div>
-                  <Label htmlFor="totalPeriods" className="mb-1 text-xs">Total Periods</Label>
-                  <Input disabled id="totalPeriods" placeholder="3" type="number" className="px-2 py-1 text-sm" />
+                  <Label htmlFor="totalPeriods" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Total Periods</Label>
+                  <Input disabled id="totalPeriods" placeholder="3" type="number" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
                 </div>
               </div>
             </div>
@@ -248,25 +248,25 @@ export default function PricingTab({
 
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Affiliate Tracking</h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm">Affiliate Tracking</h4>
 
-        <div className="flex items-center space-x-1 text-xs">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
           <Switch 
             id="enableAffiliate" 
             checked={formData.affiliateEnabled || false}
             onCheckedChange={(checked) => onFormChange('affiliateEnabled', checked)}
           />
-          <Label htmlFor="enableAffiliate" className="text-xs">Enable Affiliate Tracking</Label>
+          <Label htmlFor="enableAffiliate" className="text-[10px] sm:text-xs">Enable Affiliate Tracking</Label>
         </div>
 
         {/* Referral Code Dropdown - Only active codes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
           <div>
-            <Label htmlFor="referralCode" className="mb-1 text-xs">Referral Code</Label>
+            <Label htmlFor="referralCode" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Referral Code</Label>
             <select
               id="referralCode"
-              className="w-full border rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:border-transparent"
+              className="w-full border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-white focus:outline-none focus:border-transparent"
               style={{ borderColor: '#d1d5db' }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = primaryColor;
@@ -330,7 +330,7 @@ export default function PricingTab({
             </select>
           </div> 
           <div>
-            <Label htmlFor="commissionRate" className="mb-1 text-xs">Commission Rate (%)</Label>
+            <Label htmlFor="commissionRate" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Commission Rate (%)</Label>
             <Input
               id="commissionRate"
               placeholder="10"
@@ -360,7 +360,7 @@ export default function PricingTab({
                   onFormChange('commissionRate', numValue.toString());
                 }
               }}
-              className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:border-transparent"
+              className="border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent"
               style={{ borderColor: '#d1d5db' }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = primaryColor;
@@ -375,17 +375,17 @@ export default function PricingTab({
         </div>
 
         {/* Set Referral Code Start/End Date & Time */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3 mt-1.5 sm:mt-2">
           <div>
-            <Label htmlFor="referralStart" className="mb-1 text-xs">Referral Start Date</Label>
-            <div className="space-y-1">
+            <Label htmlFor="referralStart" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Referral Start Date</Label>
+            <div className="space-y-0.5 sm:space-y-1">
               <Popover open={isReferralStartCalendarOpen} onOpenChange={setIsReferralStartCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start text-left font-normal bg-transparent border-gray-300 hover:bg-gray-50"
+                    className="w-full justify-start text-left font-normal bg-transparent border-gray-300 hover:bg-gray-50 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     {formData.referralStart ? format(new Date(formData.referralStart), "dd-MMM-yy") : "Select date"}
                   </Button>
                 </PopoverTrigger>
@@ -415,20 +415,20 @@ export default function PricingTab({
               </Popover>
               {formData.referralStart && formData.referralEnd && 
                 !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
-                <p className="text-red-500 text-xs">Start date must be before end date</p>
+                <p className="text-red-500 text-[9px] sm:text-xs">Start date must be before end date</p>
               )}
             </div>
           </div>
           <div>
-            <Label htmlFor="referralEnd" className="mb-1 text-xs">Referral End Date</Label>
-            <div className="space-y-1">
+            <Label htmlFor="referralEnd" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Referral End Date</Label>
+            <div className="space-y-0.5 sm:space-y-1">
               <Popover open={isReferralEndCalendarOpen} onOpenChange={setIsReferralEndCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start text-left font-normal bg-transparent border-gray-300 hover:bg-gray-50"
+                    className="w-full justify-start text-left font-normal bg-transparent border-gray-300 hover:bg-gray-50 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     {formData.referralEnd ? format(new Date(formData.referralEnd), "dd-MMM-yy") : "Select date"}
                   </Button>
                 </PopoverTrigger>
@@ -458,18 +458,18 @@ export default function PricingTab({
               </Popover>
               {formData.referralStart && formData.referralEnd && 
                 !validateDateTimeRange(formData.referralStart, formData.referralEnd) && (
-                <p className="text-red-500 text-xs">End date must be after start date</p>
+                <p className="text-red-500 text-[9px] sm:text-xs">End date must be after start date</p>
               )}
             </div>
           </div>
           <div>
-            <Label htmlFor="referralDuration" className="mb-1 text-xs">Referral Duration (Days)</Label>
+            <Label htmlFor="referralDuration" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Referral Duration (Days)</Label>
             <Input
               id="referralDuration"
               type="number"
               value={formData.referralDuration || ''}
               readOnly
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-gray-50 cursor-not-allowed focus:outline-none"
+              className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-50 cursor-not-allowed focus:outline-none"
               title="This field is automatically calculated based on start and end dates"
             />
           </div>
@@ -478,60 +478,60 @@ export default function PricingTab({
       
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm inline-flex items-center gap-2">Dynamic Pricing <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm inline-flex items-center gap-1.5 sm:gap-2">Dynamic Pricing <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
 
-        <div className="flex items-center space-x-1 text-xs">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
           <Switch id="enableDynamicPricing" disabled/>
-          <Label htmlFor="enableDynamicPricing" className="text-xs">Enable Dynamic Pricing</Label>
+          <Label htmlFor="enableDynamicPricing" className="text-[10px] sm:text-xs">Enable Dynamic Pricing</Label>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
           <div>
-            <Label htmlFor="demandMultiplier" className="mb-1 text-xs">Demand Multiplier</Label>
-            <Input disabled id="demandMultiplier" placeholder="1.2" type="number" step="0.1" className="px-2 py-1 text-sm" />
+            <Label htmlFor="demandMultiplier" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Demand Multiplier</Label>
+            <Input disabled id="demandMultiplier" placeholder="1.2" type="number" step="0.1" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
           </div>
           <div>
-            <Label htmlFor="performanceBonus" className="mb-1 text-xs">Performance Bonus</Label>
-            <Input disabled id="performanceBonus" placeholder="0.1" type="number" step="0.1" className="px-2 py-1 text-sm" />
+            <Label htmlFor="performanceBonus" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Performance Bonus</Label>
+            <Input disabled id="performanceBonus" placeholder="0.1" type="number" step="0.1" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
           </div>
           <div>
-            <Label htmlFor="enrollmentThreshold" className="mb-1 text-xs">Enrollment Threshold</Label>
-            <Input disabled id="enrollmentThreshold" placeholder="18" type="number" className="px-2 py-1 text-sm" />
+            <Label htmlFor="enrollmentThreshold" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Enrollment Threshold</Label>
+            <Input disabled id="enrollmentThreshold" placeholder="18" type="number" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
           </div>
         </div>
       </div>
 
       <Separator />
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm inline-flex items-center gap-2">EMI Plans <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
+      <div className="space-y-2 sm:space-y-3">
+        <h4 className="font-medium text-xs sm:text-sm inline-flex items-center gap-1.5 sm:gap-2">EMI Plans <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></h4>
 
-        <div className="space-y-2">
-          <div className="border rounded-lg p-2">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div className="space-y-2 sm:space-y-3">
+          <div className="border rounded-lg p-2 sm:p-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 sm:gap-3">
               <div>
-                <Label htmlFor="emi3Name" className="mb-1 text-xs">Plan Name</Label>
-                <Input disabled id="emi3Name" placeholder="3-Month Plan" className="px-2 py-1 text-sm" />
+                <Label htmlFor="emi3Name" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Plan Name</Label>
+                <Input disabled id="emi3Name" placeholder="3-Month Plan" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
               </div>
               <div>
-                <Label htmlFor="emi3Installments" className="mb-1 text-xs">Installments</Label>
-                <Input disabled id="emi3Installments" placeholder="3" type="number" className="px-2 py-1 text-sm" />
+                <Label htmlFor="emi3Installments" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Installments</Label>
+                <Input disabled id="emi3Installments" placeholder="3" type="number" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
               </div>
               <div>
-                <Label htmlFor="emi3Interest" className="mb-1 text-xs">Interest Rate (%)</Label>
-                <Input disabled id="emi3Interest" placeholder="0" type="number" step="0.1" className="px-2 py-1 text-sm" />
+                <Label htmlFor="emi3Interest" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Interest Rate (%)</Label>
+                <Input disabled id="emi3Interest" placeholder="0" type="number" step="0.1" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
               </div>
               <div>
-                <Label htmlFor="emi3Processing" className="mb-1 text-xs">Processing Fee</Label>
-                <Input disabled id="emi3Processing" placeholder="99" type="number" className="px-2 py-1 text-sm" />
+                <Label htmlFor="emi3Processing" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">Processing Fee</Label>
+                <Input disabled id="emi3Processing" placeholder="99" type="number" className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm" />
               </div>
             </div>
           </div>
         </div>
 
-        <Button variant="outline" size="sm" className="px-2 py-1 text-xs" disabled>
-          <Plus className="mr-1 h-3 w-3" />
+        <Button variant="outline" size="sm" className="px-1.5 sm:px-2 py-1 sm:py-1.5 text-[10px] sm:text-xs" disabled>
+          <Plus className="mr-0.5 sm:mr-1 h-3 w-3 sm:h-3.5 sm:w-3.5" />
           Add EMI Plan <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1" />
         </Button>
       </div>

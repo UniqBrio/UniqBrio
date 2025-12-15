@@ -247,7 +247,7 @@ export async function POST(req: Request) {
       const realIp = req.headers.get('x-real-ip');
       const ipAddress = forwardedFor?.split(',')[0] || realIp || req.headers.get('x-forwarded-host') || 'unknown';
       
-      const newSessionToken = await createToken(newSessionData, '1d', {
+      const newSessionToken = await createToken(newSessionData, '30d', {
         userAgent,
         ipAddress,
       });

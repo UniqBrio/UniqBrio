@@ -49,9 +49,10 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 
 // --- Enhanced JWT Creation Function with Session Store ---
 // Creates a JWT token with the provided payload, expiration, and session persistence.
+// Default 30 days expiry for persistent login (like Gmail)
 export async function createToken(
   payload: jose.JWTPayload, 
-  expiresIn: string | number = '1d',
+  expiresIn: string | number = '30d',
   sessionData?: {
     userAgent?: string;
     ipAddress?: string;

@@ -1,3 +1,25 @@
+/**
+ * Course Management Page - Enhanced with Comprehensive Responsive Design
+ * 
+ * Responsive Breakpoints Applied:
+ * - Mobile: < 640px (default styles)
+ * - sm: 640px - 768px (small tablets)
+ * - md: 768px - 1024px (tablets)
+ * - lg: 1024px+ (desktop)
+ * 
+ * Key Responsive Features:
+ * - Adaptive padding and spacing across all screen sizes
+ * - Responsive typography (text sizes scale from xs to base/xl)
+ * - Flexible grid layouts (1 col mobile → 2 cols tablet → 4 cols desktop)
+ * - Responsive navigation tabs with icon sizing
+ * - Adaptive dialog/modal widths for all devices
+ * - Touch-friendly button and interaction sizes on mobile
+ * - Responsive cards, badges, and feature sections
+ * - Optimized statistics dashboard for all viewports
+ * 
+ * All functionality preserved - only visual responsiveness enhanced.
+ */
+
 "use client"
 
 export const dynamic = 'force-dynamic'
@@ -823,7 +845,7 @@ export default function EnhancedCourseManagementPage() {
       schedule: course.schedule || '',
       maxStudents: course.maxStudents !== undefined ? String(course.maxStudents) : '',
       location: course.location || '',
-      tags: Array.isArray(course.tags) ? course.tags : ['Beginner'],
+      tags: Array.isArray(course.tags) && course.tags.length > 0 ? course.tags : ['Beginner'],
       schedulePeriod: course.schedulePeriod || { startDate: '', endDate: '', totalWeeks: '18' },
       sessionDetails: course.sessionDetails || { sessionDuration: '', maxClasses: '18' },
       frequencyDetails: course.frequencyDetails || { selectedDays: [] as string[], dayTimes: {} as Record<string, any> },
@@ -1010,7 +1032,7 @@ export default function EnhancedCourseManagementPage() {
   }
 
   return (
-    <div className="container mx-auto p-2 sm:p-4 space-y-4 max-w-full overflow-x-hidden">
+    <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6 space-y-2 sm:space-y-4 md:space-y-6 max-w-full overflow-x-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -1028,101 +1050,101 @@ export default function EnhancedCourseManagementPage() {
 
             {/* Navigation Tabs */}
             <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 bg-transparent gap-2 p-0 h-auto">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-3 sm:mb-4 md:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
                 <TabsTrigger 
                   value="dashboard" 
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'dashboard' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Analytics
+                  <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  <span className="hidden xs:inline sm:inline">Analytics</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="courses" 
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'courses' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Courses
+                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  <span className="hidden xs:inline sm:inline">Courses</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="cohorts" 
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'cohorts' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Cohorts
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  <span className="hidden xs:inline sm:inline">Cohorts</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="settings" 
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                   style={{
                     borderColor: secondaryColor,
                     color: secondaryColor,
                     ...(currentTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
                   }}
                 >
-                  <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Settings
+                  <Settings className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  <span className="hidden xs:inline sm:inline">Settings</span>
                 </TabsTrigger>
               </TabsList>
 
               {/* Dashboard Tab Content */}
-              <TabsContent value="dashboard" className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <TabsContent value="dashboard" className="space-y-2 sm:space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6">
               <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-500">
-                <CardContent className="p-4">
+                <CardContent className="p-2 sm:p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-green-600">Active Courses</p>
-                      <p className="text-2xl font-bold text-green-900">{Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0}</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-green-600">Active Courses</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-green-900">{Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0}</p>
                     </div>
-                    <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" /></svg>
+                    <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" /></svg>
                   </div>
                 </CardContent>
               </Card>
               <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-500">
-                <CardContent className="p-4">
+                <CardContent className="p-2 sm:p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-purple-600">Total Cohorts</p>
-                      <p className="text-2xl font-bold text-purple-900">{Array.isArray(cohorts) ? cohorts.length : 0}</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-purple-600">Total Cohorts</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-purple-900">{Array.isArray(cohorts) ? cohorts.length : 0}</p>
                     </div>
-                    <svg className="h-8 w-8 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                   </div>
                 </CardContent>
               </Card>
               <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-500">
-                <CardContent className="p-4">
+                <CardContent className="p-2 sm:p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-blue-600">Total Students</p>
-                      <p className="text-2xl font-bold text-blue-900">{studentCount !== null ? studentCount : '-'}</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-blue-600">Total Students</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-blue-900">{studentCount !== null ? studentCount : '-'}</p>
                     </div>
-                    <svg className="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20h6M3 20h5v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20h6M3 20h5v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                   </div>
                 </CardContent>
               </Card>
               <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-500">
-                <CardContent className="p-4">
+                <CardContent className="p-2 sm:p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-orange-600">Revenue ({currency})</p>
-                      <p className="text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.priceINR || c.price || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
+                      <p className="text-xs sm:text-sm md:text-base font-medium text-orange-600">Revenue ({currency})</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.priceINR || c.price || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
                     </div>
-                    <svg className="h-8 w-8 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3s3-1.343 3-3s-1.343-3-3-3zm0 0V4m0 10v4" /></svg>
+                    <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3s3-1.343 3-3s-1.343-3-3-3zm0 0V4m0 10v4" /></svg>
                   </div>
                 </CardContent>
               </Card>
@@ -1132,97 +1154,97 @@ export default function EnhancedCourseManagementPage() {
                 <CourseDashboardCharts courses={courses} currency={currency} />
 
                 {/* Enhanced Coming Soon Features */}
-                <div className="mt-8">
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                <div className="mt-4 sm:mt-6 md:mt-8">
+                  <div className="text-center mb-4 sm:mb-6 md:mb-8">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
                       Coming Soon Features
                     </h3>
-                    <p className="text-gray-600 dark:text-white max-w-2xl mx-auto">
+                    <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-white max-w-2xl mx-auto px-2">
                       Powerful tools to revolutionize your course management experience
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
 
                     <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-yellow-100 to-orange-200 dark:from-yellow-950/30 dark:via-yellow-900/30 dark:to-orange-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <CardContent className="p-5 text-center relative z-10">
                         <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <Bot className="h-7 w-7 text-yellow-600 dark:text-yellow-500" />
+                          <Bot className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-yellow-600 dark:text-yellow-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
+                        <h3 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white mb-2">
                           AI Assistant 
-                          <span className="block mt-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-[10px] sm:text-xs rounded-full font-medium">
                             🤖 Smart
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white leading-relaxed">
                           Intelligent course recommendations
                         </p>
-                        <div className="mt-3 flex justify-center">
-                          <div className="w-10 h-0.5 bg-gradient-to-r from-yellow-400 to-orange-600 rounded-full"></div>
+                        <div className="mt-2 sm:mt-3 flex justify-center">
+                          <div className="w-8 sm:w-10 h-0.5 bg-gradient-to-r from-yellow-400 to-orange-600 rounded-full"></div>
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card className="relative overflow-hidden bg-gradient-to-br from-green-50 via-green-100 to-emerald-200 dark:from-green-950/30 dark:via-green-900/30 dark:to-emerald-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <Target className="h-7 w-7 text-green-600 dark:text-green-500" />
+                      <CardContent className="p-3 sm:p-4 md:p-5 text-center relative z-10">
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <Target className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-green-600 dark:text-green-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
+                        <h3 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white mb-2">
                           Gamification 
-                          <span className="block mt-1 px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-[10px] sm:text-xs rounded-full font-medium">
                             🎯 Rewards
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white leading-relaxed">
                           Badges, points & achievements
                         </p>
-                        <div className="mt-3 flex justify-center">
-                          <div className="w-10 h-0.5 bg-gradient-to-r from-green-400 to-emerald-600 rounded-full"></div>
+                        <div className="mt-2 sm:mt-3 flex justify-center">
+                          <div className="w-8 sm:w-10 h-0.5 bg-gradient-to-r from-green-400 to-emerald-600 rounded-full"></div>
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-pink-100 to-rose-200 dark:from-pink-950/30 dark:via-pink-900/30 dark:to-rose-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-rose-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <ClipboardCheck className="h-7 w-7 text-pink-600 dark:text-pink-500" />
+                      <CardContent className="p-3 sm:p-4 md:p-5 text-center relative z-10">
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <ClipboardCheck className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-pink-600 dark:text-pink-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
+                        <h3 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white mb-2">
                           Assignments 
-                          <span className="block mt-1 px-2 py-1 bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-400 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-400 text-[10px] sm:text-xs rounded-full font-medium">
                             � Auto
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white leading-relaxed">
                           Automated grading system
                         </p>
-                        <div className="mt-3 flex justify-center">
-                          <div className="w-10 h-0.5 bg-gradient-to-r from-pink-400 to-rose-600 rounded-full"></div>
+                        <div className="mt-2 sm:mt-3 flex justify-center">
+                          <div className="w-8 sm:w-10 h-0.5 bg-gradient-to-r from-pink-400 to-rose-600 rounded-full"></div>
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-200 dark:from-blue-950/30 dark:via-blue-900/30 dark:to-cyan-900/30 border-0 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <CardContent className="p-5 text-center relative z-10">
-                        <div className="bg-white dark:bg-gray-800 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                          <Timer className="h-7 w-7 text-blue-600 dark:text-blue-500" />
+                      <CardContent className="p-3 sm:p-4 md:p-5 text-center relative z-10">
+                        <div className="bg-white dark:bg-gray-800 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                          <Timer className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-blue-600 dark:text-blue-500" />
                         </div>
-                        <h3 className="font-bold text-base text-gray-800 dark:text-white mb-2">
+                        <h3 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white mb-2">
                           Time Tracker 
-                          <span className="block mt-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs rounded-full font-medium">
+                          <span className="block mt-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs rounded-full font-medium">
                             ⏱️ Track
                           </span>
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-white leading-relaxed">
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white leading-relaxed">
                           Study duration analytics
                         </p>
-                        <div className="mt-3 flex justify-center">
-                          <div className="w-10 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-600 rounded-full"></div>
+                        <div className="mt-2 sm:mt-3 flex justify-center">
+                          <div className="w-8 sm:w-10 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-600 rounded-full"></div>
                         </div>
                       </CardContent>
                     </Card>
@@ -1232,9 +1254,9 @@ export default function EnhancedCourseManagementPage() {
               </TabsContent>
 
               {/* Courses Tab Content */}
-              <TabsContent value="courses" className="space-y-4">
+              <TabsContent value="courses" className="space-y-2 sm:space-y-4">
                 <Card>
-                  <CardContent className="p-6">
+                  <CardContent className="p-2 sm:p-4 md:p-6">
                     <SearchAndFilters 
                       searchTerm={searchTerm}
                       setSearchTerm={setSearchTerm}
@@ -1280,21 +1302,21 @@ export default function EnhancedCourseManagementPage() {
                     />
                     
                     {/* Results Counter */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 rounded-lg border" style={{ background: `linear-gradient(to right, ${primaryColor}0D, ${secondaryColor}0D)`, borderColor: `${primaryColor}33` }}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }}></div>
-                        <span className="text-sm font-medium" style={{ color: primaryColor }}>
+                    <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 md:gap-4 mb-2 sm:mb-3 md:mb-4 p-2 sm:p-3 rounded-lg border" style={{ background: `linear-gradient(to right, ${primaryColor}0D, ${secondaryColor}0D)`, borderColor: `${primaryColor}33` }}>
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: primaryColor }}></div>
+                        <span className="text-xs sm:text-sm font-medium" style={{ color: primaryColor }}>
                           {filteredAndSortedCourses.length} course{filteredAndSortedCourses.length !== 1 ? 's' : ''} found
                         </span>
                       </div>
                       {/* Column Selection Button - only show in list view */}
                       {viewMode === 'list' && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
                           <Button
                             variant="outline"
                             size="icon"
                             onClick={columnManagement.openColumnSelector}
-                            className="h-8 w-8 bg-opacity-10"
+                            className="h-7 w-7 sm:h-8 sm:w-8 bg-opacity-10"
                             style={{ borderColor: `${primaryColor}33`, backgroundColor: `${primaryColor}0D`, color: primaryColor }}
                             title="Column Selection"
                           >
@@ -1325,7 +1347,7 @@ export default function EnhancedCourseManagementPage() {
               </TabsContent>
 
               {/* Cohorts Tab Content */}
-              <TabsContent value="cohorts" className="space-y-4">
+              <TabsContent value="cohorts" className="space-y-2 sm:space-y-4">
                 <CohortManagement 
                   courses={courses}
                   cohorts={cohorts}
@@ -1336,33 +1358,33 @@ export default function EnhancedCourseManagementPage() {
               </TabsContent>
 
               {/* Settings Tab Content */}
-              <TabsContent value="settings" className="space-y-4">
+              <TabsContent value="settings" className="space-y-2 sm:space-y-4">
                 <Card>
-                  <CardContent className="p-6">
+                  <CardContent className="p-2 sm:p-4 md:p-6">
                     {/* Settings Sub-Tabs */}
                     <Tabs defaultValue="course-settings" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 mb-6 bg-transparent gap-2 p-0 h-auto">
+                      <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 mb-3 sm:mb-4 md:mb-6 bg-transparent gap-2 p-0 h-auto">
                         <TabsTrigger 
                           value="course-settings" 
-                          className="flex items-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                          className="flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                           style={{
                             borderColor: secondaryColor,
                             color: secondaryColor
                           }}
                         >
-                          <BookOpen className="h-4 w-4" />
-                          Course Settings
+                          <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                          <span className="text-xs sm:text-sm md:text-base">Course Settings</span>
                         </TabsTrigger>
                         <TabsTrigger 
                           value="cohort-settings" 
-                          className="flex items-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
+                          className="flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
                           style={{
                             borderColor: secondaryColor,
                             color: secondaryColor
                           }}
                         >
-                          <Users className="h-4 w-4" />
-                          Cohort Settings
+                          <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                          <span className="text-xs sm:text-sm md:text-base">Cohort Settings</span>
                         </TabsTrigger>
                       </TabsList>
 
@@ -1441,13 +1463,13 @@ export default function EnhancedCourseManagementPage() {
 
         {/* Additional Dialog Components */}
         <Dialog open={isViewCourseDialogOpen} onOpenChange={setIsViewCourseDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="w-[95vw] sm:w-[90vw] md:w-[85vw] lg:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold">Course Details</DialogTitle>
+              <DialogTitle className="text-base sm:text-lg md:text-xl font-bold">Course Details</DialogTitle>
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                className="absolute right-2 sm:right-3 md:right-4 top-2 sm:top-3 md:top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
                 onClick={() => setIsViewCourseDialogOpen(false)}
               >
                 <X className="h-4 w-4" />
@@ -1455,17 +1477,17 @@ export default function EnhancedCourseManagementPage() {
               </Button>
             </DialogHeader>
             {selectedCourse && (
-              <div className="space-y-4">
-                <div className="border-b pb-3">
-                  <h3 className="font-semibold text-lg">{selectedCourse.name}</h3>
-                  <p className="text-gray-600 dark:text-white">{selectedCourse.instructor}</p>
-                  <p className="text-sm text-gray-500 dark:text-white mt-1">{selectedCourse.description}</p>
+              <div className="space-y-2 sm:space-y-3 md:space-y-4">
+                <div className="border-b pb-2 sm:pb-3">
+                  <h3 className="font-semibold text-base sm:text-lg md:text-xl">{selectedCourse.name}</h3>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-white">{selectedCourse.instructor}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-white mt-1">{selectedCourse.description}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 sm:gap-x-4 md:gap-x-6 gap-y-2 sm:gap-y-1">
                   <div>
-                    <h4 className="font-semibold mb-2">Course Settings</h4>
-                    <dl className="grid grid-cols-[100px_1fr] gap-y-1 text-sm">
+                    <h4 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2">Course Settings</h4>
+                    <dl className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-y-0.5 sm:gap-y-1 text-xs sm:text-sm">
                       <dt className="text-gray-500 dark:text-white">Level:</dt>
                       <dd>{selectedCourse.level}</dd>
                       <dt className="text-gray-500 dark:text-white">Type:</dt>
@@ -1478,8 +1500,8 @@ export default function EnhancedCourseManagementPage() {
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold mb-2">Capacity & Pricing</h4>
-                    <dl className="grid grid-cols-[120px_1fr] gap-y-1 text-sm">
+                    <h4 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2">Capacity & Pricing</h4>
+                    <dl className="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-y-0.5 sm:gap-y-1 text-xs sm:text-sm">
                       <dt className="text-gray-500 dark:text-white">Price:</dt>
                       <dd className="text-green-600 font-semibold">${currency} {selectedCourse.priceINR?.toLocaleString()}</dd>
                       <dt className="text-gray-500 dark:text-white">Max Students:</dt>
@@ -1488,9 +1510,9 @@ export default function EnhancedCourseManagementPage() {
                   </div>
                 </div>
 
-                <div className="border-t pt-3">
-                  <h4 className="font-semibold mb-2">Schedule</h4>
-                  <div className="grid grid-cols-2 gap-x-6 text-sm">
+                <div className="border-t pt-2 sm:pt-3">
+                  <h4 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2">Schedule</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 sm:gap-x-4 md:gap-x-6 gap-y-2 sm:gap-y-0 text-xs sm:text-sm">
                     <div>
                       <span className="text-gray-500 dark:text-white">Period:</span>
                       <div className="mt-1">
@@ -1514,11 +1536,11 @@ export default function EnhancedCourseManagementPage() {
                 </div>
 
                 {selectedCourse.tags && selectedCourse.tags.length > 0 && (
-                  <div className="border-t pt-3">
-                    <h4 className="font-semibold mb-2">Tags</h4>
-                    <div className="flex flex-wrap gap-1.5">
+                  <div className="border-t pt-2 sm:pt-3">
+                    <h4 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2">Tags</h4>
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5">
                       {selectedCourse.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-0.5 bg-gray-100 text-gray-700 dark:text-white text-xs rounded">
+                        <span key={index} className="px-1.5 sm:px-2 py-0.5 bg-gray-100 text-gray-700 dark:text-white text-[10px] sm:text-xs rounded">
                           {tag}
                         </span>
                       ))}
@@ -1531,37 +1553,37 @@ export default function EnhancedCourseManagementPage() {
         </Dialog>
 
         <Dialog open={isMarketingDialogOpen} onOpenChange={setIsMarketingDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="w-[95vw] sm:w-[90vw] md:w-[85vw] lg:max-w-2xl">
             <DialogHeader>
               <DialogTitle className="inline-flex items-center gap-2">Marketing Tools <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" /></DialogTitle>
             </DialogHeader>
-            <div className="p-8 text-center text-gray-500 dark:text-white">
-              <Megaphone className="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-white" />
-              <p>Marketing tools and promotional features coming soon!</p>
+            <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500 dark:text-white">
+              <Megaphone className="h-10 w-10 sm:h-12 sm:w-12 md:h-16 md:w-16 mx-auto mb-3 sm:mb-4 text-gray-400 dark:text-white" />
+              <p className="text-xs sm:text-sm md:text-base">Marketing tools and promotional features coming soon!</p>
             </div>
           </DialogContent>
         </Dialog>
 
         <Dialog open={isAnalyticsDialogOpen} onOpenChange={setIsAnalyticsDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="w-[95vw] sm:w-[90vw] md:w-[85vw] lg:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Analytics Dashboard</DialogTitle>
             </DialogHeader>
-            <div className="p-8 text-center text-gray-500 dark:text-white">
-              <BarChart3 className="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-white" />
-              <p>Advanced analytics and reporting features would be implemented here.</p>
+            <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500 dark:text-white">
+              <BarChart3 className="h-10 w-10 sm:h-12 sm:w-12 md:h-16 md:w-16 mx-auto mb-3 sm:mb-4 text-gray-400 dark:text-white" />
+              <p className="text-xs sm:text-sm md:text-base">Advanced analytics and reporting features would be implemented here.</p>
             </div>
           </DialogContent>
         </Dialog>
 
         <Dialog open={isFinancialDialogOpen} onOpenChange={setIsFinancialDialogOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="w-[95vw] sm:w-[90vw] md:w-[85vw] lg:max-w-4xl">
             <DialogHeader>
               <DialogTitle>Financial Management</DialogTitle>
             </DialogHeader>
-            <div className="p-8 text-center text-gray-500 dark:text-white">
-              <DollarSign className="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-white" />
-              <p>Financial tracking and revenue management features would be implemented here.</p>
+            <div className="p-4 sm:p-6 md:p-8 text-center text-gray-500 dark:text-white">
+              <DollarSign className="h-10 w-10 sm:h-12 sm:w-12 md:h-16 md:w-16 mx-auto mb-3 sm:mb-4 text-gray-400 dark:text-white" />
+              <p className="text-xs sm:text-sm md:text-base">Financial tracking and revenue management features would be implemented here.</p>
             </div>
           </DialogContent>
         </Dialog>

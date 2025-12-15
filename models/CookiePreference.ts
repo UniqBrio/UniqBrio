@@ -35,13 +35,11 @@ const cookiePreferenceSchema = new Schema<ICookiePreference>(
     tenantId: {
       type: String,
       required: true,
-      index: true,
       // SECURITY: Always set from JWT, never from client
     },
     userId: {
       type: String,
       required: true,
-      index: true,
     },
     essential: {
       type: Boolean,
@@ -93,11 +91,12 @@ const cookiePreferenceSchema = new Schema<ICookiePreference>(
 );
 
 // Apply tenant plugin for automatic tenant isolation
+// Note: tenantPlugin already adds { tenantId: 1, updatedAt: -1 } and { tenantId: 1, createdAt: -1 }
 cookiePreferenceSchema.plugin(tenantPlugin);
 
 // Compound indexes for efficient queries
 cookiePreferenceSchema.index({ tenantId: 1, userId: 1 }, { unique: true });
-cookiePreferenceSchema.index({ tenantId: 1, updatedAt: -1 });
+// Removed duplicate: cookiePreferenceSchema.index({ tenantId: 1, updatedAt: -1 }); - already in tenantPlugin
 cookiePreferenceSchema.index({ tenantId: 1, analytics: 1 });
 cookiePreferenceSchema.index({ tenantId: 1, marketing: 1 });
 

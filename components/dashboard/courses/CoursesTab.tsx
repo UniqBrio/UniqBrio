@@ -72,7 +72,7 @@ export default function CoursesTab({
       const normalized = course.type.trim();
       const match = defaultTypes.find(def => def.toLowerCase() === normalized.toLowerCase());
       return match || normalized;
-    }).filter(Boolean) || [];
+    }).filter((type): type is string => Boolean(type)) || [];
     const allTypes = new Set([...defaultTypes, ...courseTypes]);
     return Array.from(allTypes).sort();
   }, [courses])

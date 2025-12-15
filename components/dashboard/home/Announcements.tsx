@@ -202,28 +202,28 @@ export function Announcements({
         <div className="absolute -top-1 -right-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
         <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
 
-        <div className="relative z-10 flex items-center gap-3 px-6 py-4">
-          <div className="relative">
-            <div className={`p-2.5 rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 ${isHovered ? "rotate-12 scale-110" : ""}`}>
+        <div className="relative z-10 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+          <div className="relative flex-shrink-0">
+            <div className={`p-1.5 sm:p-2 md:p-2.5 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 ${isHovered ? "rotate-12 scale-110" : ""}`}>
               {unreadCount > 0 ? (
-                <BellRing className="w-6 h-6 text-white animate-pulse" />
+                <BellRing className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white animate-pulse" />
               ) : (
-                <Bell className="w-6 h-6 text-white" />
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
               )}
             </div>
-            {unreadCount > 0 && <div className="absolute inset-0 rounded-xl bg-white/30 animate-ping" />}
+            {unreadCount > 0 && <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-white/30 animate-ping" />}
           </div>
 
-          <div className="text-left">
-            <div className="text-base font-bold text-white flex items-center gap-2">Latest Updates</div>
-            <div className="text-xs text-white/90 font-medium">
+          <div className="text-left flex-1 min-w-0">
+            <div className="text-sm sm:text-base font-bold text-white flex items-center gap-1.5 sm:gap-2">Latest Updates</div>
+            <div className="text-[10px] sm:text-xs text-white/90 font-medium truncate">
               {unreadCount > 0 ? `${unreadCount} new announcement${unreadCount > 1 ? "s" : ""}` : "No new updates"}
             </div>
           </div>
 
           {unreadCount > 0 && (
             <div
-              className="ml-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm font-bold text-xs shadow-lg animate-bounce"
+              className="ml-0.5 sm:ml-1 px-1.5 sm:px-2 md:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/90 backdrop-blur-sm font-bold text-[10px] sm:text-xs shadow-lg animate-bounce flex-shrink-0"
               style={{ color: primaryColor }}
             >
               {unreadCount}

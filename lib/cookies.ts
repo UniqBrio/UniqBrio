@@ -11,13 +11,14 @@ export const COOKIE_NAMES = {
 // Cookie expiration times
 export const COOKIE_EXPIRY = {
   CONSENT: 365, // days
-  SESSION: 1, // days
-  LAST_ACTIVITY: 1, // days
-  DEVICE_ID: 30, // days
+  SESSION: 30, // days - Extended for persistent login (like Gmail)
+  LAST_ACTIVITY: 30, // days - Extended to match session duration
+  DEVICE_ID: 365, // days - Extended for better device recognition
 }
 
-// Session timeout in milliseconds (30 minutes)
-export const SESSION_TIMEOUT = 30 * 60 * 1000
+// Session timeout in milliseconds (30 days - effectively persistent until explicit logout)
+// Users will stay logged in like Gmail unless they explicitly log out
+export const SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000
 
 // Set cookie consent
 export function setCookieConsent(consentType: "all" | "essential") {

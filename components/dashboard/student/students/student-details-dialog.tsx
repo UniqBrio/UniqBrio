@@ -57,7 +57,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
     async function load() {
       if (!student?.cohortId) { setCohortInfo(null); return; }
       try {
-        const url = student.enrolledCourse ? `/api/dashboard/cohorts?courseId=${encodeURIComponent(student.enrolledCourse)}` : '/api/dashboard/student/cohorts';
+        const url = student.enrolledCourse ? `/api/dashboard/services/cohorts?courseId=${encodeURIComponent(student.enrolledCourse)}` : '/api/dashboard/student/cohorts';
         const res = await fetch(url, {
           credentials: 'include',
         });
