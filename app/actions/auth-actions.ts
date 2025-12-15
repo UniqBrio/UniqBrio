@@ -34,6 +34,7 @@ import {
 } from "@/lib/validations/auth"
 import { cookies } from "next/headers"
 import { COOKIE_NAMES, COOKIE_EXPIRY } from "@/lib/cookies"
+import { headers } from "next/headers"
 
 // Type for session data
 type SessionData = {
@@ -257,7 +258,17 @@ export async function login(formData: FormData) {
     
     console.log("[AuthAction] login: SessionData created:", { ...sessionData, tenantId: sessionData.tenantId });
     
-    const token = await createToken(sessionData)
+    // Get request metadata for session tracking
+    const headersList = await headers();
+    const userAgent = headersList.get('user-agent') || undefined;
+    const forwardedFor = headersList.get('x-forwarded-for');
+    const realIp = headersList.get('x-real-ip');
+    const ipAddress = forwardedFor?.split(',')[0] || realIp || headersList.get('x-forwarded-host') || 'unknown';
+    
+    const token = await createToken(sessionData, '1d', {
+      userAgent,
+      ipAddress,
+    });
     console.log("[AuthAction] login: Session token created.");
 
     // Set session cookie
@@ -789,7 +800,18 @@ export async function refreshSessionToken(): Promise<boolean> {
         ...session,
         lastActivity: Date.now(),
     }
-    const token = await createToken(refreshedSessionData); // Add await
+    
+    // Get request metadata for session tracking
+    const headersList = await headers();
+    const userAgent = headersList.get('user-agent') || undefined;
+    const forwardedFor = headersList.get('x-forwarded-for');
+    const realIp = headersList.get('x-real-ip');
+    const ipAddress = forwardedFor?.split(',')[0] || realIp || headersList.get('x-forwarded-host') || 'unknown';
+    
+    const token = await createToken(refreshedSessionData, '1d', {
+      userAgent,
+      ipAddress,
+    }); // Add await
 
     console.log("[AuthAction] refreshSessionToken: Setting new session cookie.");
     await setSessionCookie(token)

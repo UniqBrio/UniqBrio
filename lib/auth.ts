@@ -6,6 +6,13 @@ import UserModel from "@/models/User";
 import { dbConnect } from "./mongodb";
 import crypto from "crypto";
 import { COOKIE_NAMES, COOKIE_EXPIRY } from "./cookies"; // Import cookie constants
+import { 
+  generateJwtId, 
+  createSessionRecord, 
+  validateSession, 
+  extractSessionFromJWT, 
+  type SessionCreationData 
+} from "./session-store";
 
 // Ensure JWT_SECRET is defined and store it securely
 const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
@@ -40,39 +47,110 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return await compare(password, hashedPassword);
 }
 
-// --- Consolidated JWT Creation Function ---
-// Creates a JWT token with the provided payload and expiration.
-export async function createToken(payload: jose.JWTPayload, expiresIn: string | number = '1d'): Promise<string> {
+// --- Enhanced JWT Creation Function with Session Store ---
+// Creates a JWT token with the provided payload, expiration, and session persistence.
+export async function createToken(
+  payload: jose.JWTPayload, 
+  expiresIn: string | number = '1d',
+  sessionData?: {
+    userAgent?: string;
+    ipAddress?: string;
+  }
+): Promise<string> {
   console.log("[AuthLib] createToken: Signing JWT with jose");
-  return await new jose.SignJWT(payload)
+  
+  // Generate unique JWT ID for session tracking
+  const jwtId = generateJwtId();
+  
+  // Add jti claim to payload
+  const enhancedPayload = {
+    ...payload,
+    jti: jwtId,
+  };
+  
+  // Create JWT
+  const token = await new jose.SignJWT(enhancedPayload)
     .setProtectedHeader({ alg: 'HS256' }) // Set algorithm
     .setIssuedAt() // Set issued at timestamp
     .setIssuer(JWT_ISSUER) // Set issuer
     .setAudience(JWT_AUDIENCE) // Set audience
-    .setExpirationTime(expiresIn) // Set expiration time (accepts string like '1d' or number of seconds)
+    .setExpirationTime(expiresIn) // Set expiration time
     .sign(JWT_SECRET_UINT8); // Sign with the encoded secret
+  
+  // Create session record in MongoDB if we have required data
+  if (payload.userId && payload.tenantId) {
+    try {
+      const sessionCreationData: SessionCreationData = {
+        userId: payload.userId as string,
+        tenantId: payload.tenantId as string,
+        userAgent: sessionData?.userAgent,
+        ipAddress: sessionData?.ipAddress,
+        expiresIn,
+      };
+      
+      await createSessionRecord(jwtId, sessionCreationData);
+      console.log("[AuthLib] createToken: Session record created for jwtId:", jwtId);
+    } catch (error) {
+      console.error("[AuthLib] createToken: Failed to create session record:", error);
+      // Continue with JWT creation even if session record fails
+    }
+  } else {
+    console.warn("[AuthLib] createToken: Missing userId or tenantId, session record not created");
+  }
+  
+  return token;
 }
 
 // --- REMOVED createSessionToken function ---
 // It was redundant. Use createToken(payload, '7d') if a 7-day expiry is needed.
 
-// Verify a JWT token. Returns the payload if valid, otherwise null.
+// Verify a JWT token with session store validation. Returns the payload if valid, otherwise null.
 export async function verifyToken(token: string): Promise<jose.JWTPayload | null> {
   console.log("[AuthLib] verifyToken: Verifying JWT with jose");
   if (!token) {
     return null; // Handle cases where token might be undefined/empty
   }
+  
   try {
-    // Verify the token using the encoded secret and check issuer/audience
+    // First verify JWT signature, expiry, issuer, audience
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET_UINT8, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
+    
+    // If JWT is valid, check session store for revocation
+    if (payload.jti || (payload.userId && payload.tenantId)) {
+      const sessionValidation = await validateSession(payload);
+      if (!sessionValidation.isValid) {
+        console.log("[AuthLib] verifyToken: Session validation failed:", sessionValidation.error);
+        return null;
+      }
+      console.log("[AuthLib] verifyToken: Session validated and activity updated");
+    }
+    
+    return payload;
+  } catch (error) {
+    // Handle specific errors if needed (e.g., TokenExpiredError, JsonWebTokenError)
+    console.error("[AuthLib] verifyToken: Token verification failed:", error);
+    return null; // Return null for any verification error (invalid signature, expired, etc.)
+  }
+}
+
+// Verify a JWT token signature only (without session store validation)
+// Used in edge cases where session store access is not available
+export async function verifyTokenSignatureOnly(token: string): Promise<jose.JWTPayload | null> {
+  if (!token) {
+    return null;
+  }
+  
+  try {
     const { payload } = await jose.jwtVerify(token, JWT_SECRET_UINT8, {
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,
     });
     return payload;
   } catch (error) {
-    // Handle specific errors if needed (e.g., TokenExpiredError, JsonWebTokenError)
-    // console.error("Token verification failed:", error.name); // Optional: Log specific error type
-    return null; // Return null for any verification error (invalid signature, expired, etc.)
+    return null;
   }
 }
 

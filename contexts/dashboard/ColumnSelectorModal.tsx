@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ChevronsRight, ChevronsLeft, ArrowRight, ArrowLeft, Save, RotateCcw, X, ChevronUp, ChevronDown } from "lucide-react";
+import { getTenantLocalStorage, setTenantLocalStorage } from "@/lib/tenant-storage";
 
 export interface ColumnSelectorModalProps {
   open: boolean;
@@ -328,8 +329,8 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               aria-label="Displayed columns"
               onFocus={() => setFocusedList('displayed')}
             >
-              {/* Show fixed columns first */}
-              {fixedColumns.map((col) => (
+              {/* Show start fixed columns (Student ID, Student Name, etc.) */}
+              {fixedColumns.filter(col => col !== 'Actions' && col !== 'Invoice' && col !== 'Send Reminder').map((col) => (
                 <label
                   key={col}
                   className="flex items-center gap-2 py-1 rounded px-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-1"
@@ -360,6 +361,40 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                   <span>{col}</span>
                 </label>
               ))}
+              
+              {/* Show action-related fixed columns (Invoice, Send Reminder) before Actions */}
+              {fixedColumns.filter(col => col === 'Invoice' || col === 'Send Reminder').map((col) => (
+                <label
+                  key={col}
+                  className="flex items-center gap-2 py-1 rounded px-2 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 mb-1"
+                  title="This column is required and cannot be removed"
+                >
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    disabled={true}
+                    className="opacity-50"
+                  />
+                  <span className="text-purple-700 dark:text-purple-300 font-medium">{col}*</span>
+                </label>
+              ))}
+              
+              {/* Show Actions fixed column at the end */}
+              {fixedColumns.filter(col => col === 'Actions').map((col) => (
+                <label
+                  key={col}
+                  className="flex items-center gap-2 py-1 rounded px-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-1"
+                  title="This column is required and cannot be removed"
+                >
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    disabled={true}
+                    className="opacity-50"
+                  />
+                  <span className="text-gray-600 dark:text-white font-medium">{col}*</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
@@ -370,15 +405,18 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               // Migrate any legacy "Batch" to "Cohort" and remove duplicates before saving
               const migrated = draftDisplayed.map(col => col === 'Batch' ? 'Cohort' : col);
               const deduplicated = Array.from(new Set(migrated));
-              // Separate fixed columns into start and end
-              const startFixed = fixedColumns.filter(col => col !== 'Actions');
+              // Separate fixed columns: start fixed, middle action-related fixed, and Actions
+              const startFixed = fixedColumns.filter(col => col !== 'Actions' && col !== 'Invoice' && col !== 'Send Reminder');
+              const actionFixed = fixedColumns.filter(col => col === 'Invoice' || col === 'Send Reminder');
               const endFixed = fixedColumns.includes('Actions') ? ['Actions'] : [];
-              // Combine: start fixed + user selected + end fixed
-              const combined = [...startFixed, ...deduplicated, ...endFixed];
+              // Combine: start fixed + user selected + action fixed + Actions
+              const combined = [...startFixed, ...deduplicated, ...actionFixed, ...endFixed];
               const uniqueFinal = Array.from(new Set(combined));
               setDisplayedColumns(uniqueFinal);
               const key = storageKeyPrefix ? `${storageKeyPrefix}DisplayedColumns` : undefined;
-              if (key) localStorage.setItem(key, JSON.stringify(uniqueFinal));
+              if (key) {
+                setTenantLocalStorage(key, JSON.stringify(uniqueFinal)).catch(console.error);
+              }
               onSave();
             }}
             title="Save (Ctrl+S)"

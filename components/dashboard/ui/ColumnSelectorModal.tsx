@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { ChevronsRight, ChevronsLeft, ArrowRight, ArrowLeft, Save, RotateCcw, X, ChevronUp, ChevronDown } from "lucide-react";
 import { useCustomColors } from "@/lib/use-custom-colors";
+import { setTenantLocalStorage } from "@/lib/tenant-storage";
 
 export interface ColumnSelectorModalProps {
   open: boolean;
@@ -190,7 +191,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             const finalDisplayed = includeActionsColumn ? [...draftDisplayed, ACTIONS_COL] : draftDisplayed;
             setDisplayedColumns(finalDisplayed);
             const key = storageKeyPrefix ? `${storageKeyPrefix}DisplayedColumns` : undefined;
-            if (key) localStorage.setItem(key, JSON.stringify(finalDisplayed));
+            if (key) {
+              setTenantLocalStorage(key, JSON.stringify(finalDisplayed)).catch(console.error);
+            }
             onSave();
           }
           break;
@@ -384,7 +387,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               const finalDisplayed = includeActionsColumn ? [...draftDisplayed, ACTIONS_COL] : draftDisplayed;
               setDisplayedColumns(finalDisplayed);
               const key = storageKeyPrefix ? `${storageKeyPrefix}DisplayedColumns` : undefined;
-              if (key) localStorage.setItem(key, JSON.stringify(finalDisplayed));
+              if (key) {
+                setTenantLocalStorage(key, JSON.stringify(finalDisplayed)).catch(console.error);
+              }
               onSave();
             }}
             title="Save (Ctrl+S)"

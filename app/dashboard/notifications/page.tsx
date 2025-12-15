@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Bell, CheckCircle, AlertCircle, Info, Calendar, Settings, Trash2, User, Check, Clock } from "lucide-react"
+import { getReadNotifications, markNotificationAsRead, markNotificationsAsRead } from "@/lib/tenant-notifications"
 
 type Notification = {
   id: string
@@ -34,24 +35,19 @@ export default function DashboardNotificationsPage() {
       }
       
       const data = await response.json()
-      const latestNotifications = Array.isArray(data?.activities)
-        ? data.activities
-        : Array.isArray(data?.notifications)
-          ? data.notifications
-          : Array.isArray(data)
-            ? data
-            : []
-      if (latestNotifications.length) {
-        // Load read status from localStorage
-        const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
-        const notificationsWithReadStatus = latestNotifications.map((n: Notification) => ({
-          ...n,
-          read: readNotifications.includes(n.id) ? true : (n.read || false)
-        }));
-        setNotifications(notificationsWithReadStatus)
-      } else {
-        setNotifications([])
-      }
+      
+      // The API returns data.notifications array
+      const latestNotifications = Array.isArray(data?.notifications)
+        ? data.notifications
+        : []
+      
+      // Load read status from tenant-specific localStorage
+      const readNotifications = await getReadNotifications();
+      const notificationsWithReadStatus = latestNotifications.map((n: Notification) => ({
+        ...n,
+        read: readNotifications.includes(n.id) ? true : (n.read || false)
+      }));
+      setNotifications(notificationsWithReadStatus)
     } catch (error) {
       console.error('Error fetching notifications:', error)
       setNotifications([])
@@ -60,16 +56,13 @@ export default function DashboardNotificationsPage() {
     }
   }
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    // Persist to tenant-specific localStorage
+    await markNotificationAsRead(id);
+    
     setNotifications(
       notifications.map((notification) => {
         if (notification.id === id) {
-          // Persist to localStorage
-          const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
-          if (!readNotifications.includes(id)) {
-            readNotifications.push(id);
-            localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
-          }
           return { ...notification, read: true };
         }
         return notification;
@@ -77,11 +70,12 @@ export default function DashboardNotificationsPage() {
     )
   }
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     const allIds = notifications.map(n => n.id);
-    const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
-    const newReadIds = allIds.filter(id => !readNotifications.includes(id));
-    localStorage.setItem('readNotifications', JSON.stringify([...readNotifications, ...newReadIds]));
+    
+    // Persist all to tenant-specific localStorage
+    await markNotificationsAsRead(allIds);
+    
     setNotifications(notifications.map((notification) => ({ ...notification, read: true })))
   }
 

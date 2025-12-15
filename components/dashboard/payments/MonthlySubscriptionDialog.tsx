@@ -144,7 +144,7 @@ export default function MonthlySubscriptionDialog({
                 }
               </CardDescription>
             </div>
-            <Button variant="ghost" onClick={onClose}>�</Button>
+            <Button variant="ghost" onClick={onClose}>&times;</Button>
           </div>
 
           {/* Month Indicator */}

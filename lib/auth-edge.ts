@@ -51,6 +51,22 @@ export async function getSessionCookieEdge(): Promise<string | null> {
   const sessionCookie = cookieStore.get(COOKIE_NAMES.SESSION);
   return sessionCookie?.value || null;
 }
-
+// Verify a JWT token signature only (without session store validation)
+// Used in edge cases where session store access is not available
+export async function verifyTokenSignatureOnly(token: string): Promise<jose.JWTPayload | null> {
+  if (!token) {
+    return null;
+  }
+  
+  try {
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET_UINT8, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
+    return payload;
+  } catch (error) {
+    return null;
+  }
+}
 // Note: Functions requiring Prisma (like incrementFailedAttempts) remain in lib/auth.ts
 

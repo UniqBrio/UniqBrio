@@ -47,32 +47,32 @@ export async function GET(request: NextRequest) {
       academyId: user.academyId
     }).select('_id createdAt').sort({ createdAt: -1 });
 
-    // Auto-expire logic: if no submission and more than 14 days since account creation and registration complete
-    if (!kycSubmission && user.registrationComplete && user.createdAt) {
-      const registeredAt = new Date(user.createdAt);
-      const now = new Date();
-      const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
-      const daysLeft = Math.max(14 - diffDays, 0);
-      
-      if (diffDays >= 14 && user.kycStatus !== 'expired') {
-        console.log("[kyc-status] Auto-expiring KYC for user:", payload.email, "Days since registration:", diffDays);
-        await UserModel.updateMany({ 
-          email: payload.email 
-        }, {
-          $set: { kycStatus: 'expired' }
-        });
-        
-        return NextResponse.json({
-          status: "expired",
-          hasSubmitted: false,
-          submissionDate: null,
-          daysSinceRegistration: diffDays,
-          daysLeft: 0,
-          registrationDate: user.createdAt,
-          message: "KYC verification period has expired"
-        });
-      }
-    }
+    // COMMENTED OUT: Auto-expire logic - 14 days blocking disabled
+    // if (!kycSubmission && user.registrationComplete && user.createdAt) {
+    //   const registeredAt = new Date(user.createdAt);
+    //   const now = new Date();
+    //   const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
+    //   const daysLeft = Math.max(14 - diffDays, 0);
+    //   
+    //   if (diffDays >= 14 && user.kycStatus !== 'expired') {
+    //     console.log("[kyc-status] Auto-expiring KYC for user:", payload.email, "Days since registration:", diffDays);
+    //     await UserModel.updateMany({ 
+    //       email: payload.email 
+    //     }, {
+    //       $set: { kycStatus: 'expired' }
+    //     });
+    //     
+    //     return NextResponse.json({
+    //       status: "expired",
+    //       hasSubmitted: false,
+    //       submissionDate: null,
+    //       daysSinceRegistration: diffDays,
+    //       daysLeft: 0,
+    //       registrationDate: user.createdAt,
+    //       message: "KYC verification period has expired"
+    //     });
+    //   }
+    // }
 
     // If user already approved, short-circuit
     if (user.kycStatus === 'approved') {

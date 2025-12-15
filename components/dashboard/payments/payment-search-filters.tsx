@@ -87,8 +87,6 @@ export default function PaymentSearchFilters({
     'Payment Category',
     'Cohort',
     'Course Type',
-    'Course Reg Fee',
-    'Student Reg Fee',
     `Course Fee (${currency})`,
     `Course Reg Fee (${currency})`,
     `Student Reg Fee (${currency})`,
@@ -112,8 +110,10 @@ export default function PaymentSearchFilters({
   // Hydrate persisted column selections
   React.useEffect(() => {
     if (typeof window === 'undefined' || !setDisplayedColumns) return;
-    try {
-      const raw = localStorage.getItem('paymentDisplayedColumns');
+    (async () => {
+      try {
+        const { getTenantLocalStorage } = await import('@/lib/tenant-storage');
+        const raw = await getTenantLocalStorage('paymentDisplayedColumns');
       if (raw) {
         const arr = JSON.parse(raw);
         if (Array.isArray(arr)) {
@@ -121,19 +121,25 @@ export default function PaymentSearchFilters({
           
           // Always ensure fixed columns are included
           const startFixed = ['Student ID', 'Student Name'];
+          const actionFixed = ['Invoice', 'Send Reminder'];
           const endFixed = ['Actions'];
           
-          [...startFixed, ...endFixed].forEach(col => {
+          [...startFixed, ...actionFixed, ...endFixed].forEach(col => {
             if (!sanitized.includes(col) && paymentColumns.includes(col)) {
               sanitized.push(col);
             }
           });
           
-          // Reorder: start fixed + user columns + end fixed
-          const userColumns = sanitized.filter(col => !startFixed.includes(col) && !endFixed.includes(col));
+          // Reorder: start fixed + user columns + action fixed + Actions
+          const userColumns = sanitized.filter(col => 
+            !startFixed.includes(col) && 
+            !actionFixed.includes(col) && 
+            !endFixed.includes(col)
+          );
           const reordered = [
             ...startFixed.filter(col => sanitized.includes(col)),
             ...userColumns,
+            ...actionFixed.filter(col => sanitized.includes(col)),
             ...endFixed.filter(col => sanitized.includes(col))
           ];
           
@@ -141,6 +147,7 @@ export default function PaymentSearchFilters({
         }
       }
     } catch {}
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -558,7 +565,7 @@ export default function PaymentSearchFilters({
           }
         }}
         storageKeyPrefix="payment"
-        fixedColumns={["Student ID", "Student Name", "Actions"]}
+        fixedColumns={["Student ID", "Student Name", "Invoice", "Send Reminder", "Actions"]}
       />
     </div>
   );

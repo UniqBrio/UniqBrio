@@ -63,6 +63,18 @@ export async function GET(request: NextRequest) {
         // Fetch payments with only required fields for better performance
         const payments = await Payment.find({ tenantId: session.tenantId }).select('enrolledCourse enrolledCourseName cohortId cohortName courseFee courseRegistrationFee studentRegistrationFee receivedAmount outstandingAmount').lean().exec();
 
+    // Debug: Check data types
+    if (payments.length > 0) {
+      const sample = payments[0] as any;
+      console.log('[Course Summary] Sample payment data types:', {
+        courseFee: `${typeof sample.courseFee} = ${sample.courseFee}`,
+        courseRegistrationFee: `${typeof sample.courseRegistrationFee} = ${sample.courseRegistrationFee}`,
+        studentRegistrationFee: `${typeof sample.studentRegistrationFee} = ${sample.studentRegistrationFee}`,
+        receivedAmount: `${typeof sample.receivedAmount} = ${sample.receivedAmount}`,
+        outstandingAmount: `${typeof sample.outstandingAmount} = ${sample.outstandingAmount}`,
+      });
+    }
+
     // Group by course
     const courseMap = new Map<string, CourseData>();
 
@@ -88,19 +100,23 @@ export async function GET(request: NextRequest) {
       const course = courseMap.get(p.enrolledCourse)!;
       course.totalStudents++;
       
-      // Calculate all fee components
-      const courseFee = p.courseFee || 0;
-      const courseRegFee = p.courseRegistrationFee || 0;
-      const studentRegFee = p.studentRegistrationFee || 0;
+      // Calculate all fee components - ensure numeric values
+      const courseFee = Number(p.courseFee) || 0;
+      const courseRegFee = Number(p.courseRegistrationFee) || 0;
+      const studentRegFee = Number(p.studentRegistrationFee) || 0;
+      const receivedAmt = Number(p.receivedAmount) || 0;
       const totalToBePaid = courseFee + courseRegFee + studentRegFee;
+      
+      // Calculate outstanding amount based on actual fees, not stored value
+      const calculatedOutstanding = Math.max(0, totalToBePaid - receivedAmt);
       
       course.totalAmount += courseFee;
       course.totalCourseFees! += courseFee;
       course.totalCourseRegistrationFees! += courseRegFee;
       course.totalStudentRegistrationFees! += studentRegFee;
       course.totalToBePaid! += totalToBePaid;
-      course.receivedAmount += p.receivedAmount || 0;
-      course.outstandingAmount += p.outstandingAmount || 0;
+      course.receivedAmount += receivedAmt;
+      course.outstandingAmount += calculatedOutstanding;
 
       // Group by cohort within course
       if (p.cohortId) {
@@ -126,8 +142,8 @@ export async function GET(request: NextRequest) {
         cohort.totalCourseRegistrationFees! += courseRegFee;
         cohort.totalStudentRegistrationFees! += studentRegFee;
         cohort.totalToBePaid! += totalToBePaid;
-        cohort.receivedAmount += p.receivedAmount || 0;
-        cohort.outstandingAmount += p.outstandingAmount || 0;
+        cohort.receivedAmount += receivedAmt;
+        cohort.outstandingAmount += calculatedOutstanding;
       }
     });
 

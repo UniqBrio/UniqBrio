@@ -241,7 +241,16 @@ export async function POST(req: Request) {
         tenantId: newSessionData.tenantId
       });
       
-      const newSessionToken = await createToken(newSessionData);
+      // Get request metadata for session tracking
+      const userAgent = req.headers.get('user-agent') || undefined;
+      const forwardedFor = req.headers.get('x-forwarded-for');
+      const realIp = req.headers.get('x-real-ip');
+      const ipAddress = forwardedFor?.split(',')[0] || realIp || req.headers.get('x-forwarded-host') || 'unknown';
+      
+      const newSessionToken = await createToken(newSessionData, '1d', {
+        userAgent,
+        ipAddress,
+      });
       await setSessionCookie(newSessionToken);
       
       console.log("[Registration API] Session token updated successfully");

@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "@/components/ui/use-toast"
-import { Loader2, Save, User, Lock, Bell, Shield, CreditCard } from "lucide-react"
+import { Loader2, Save, User, Lock, Bell, Shield, CreditCard, Cookie } from "lucide-react"
 import { ProfileSettings } from "@/components/dashboard/settings/profile-settings"
 import { BillingSettings } from "@/components/dashboard/settings"
 import { useCustomColors } from '@/lib/use-custom-colors'
+import type { CookiePreferences } from '@/lib/cookie-consent'
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -42,6 +43,9 @@ export default function SettingsPage() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
   const { primaryColor, secondaryColor } = useCustomColors()
   const [buttonHover, setButtonHover] = useState<Record<string, boolean>>({})
+  const [cookiePreferences, setCookiePreferences] = useState<CookiePreferences | null>(null)
+  const [isLoadingCookiePrefs, setIsLoadingCookiePrefs] = useState(false)
+  const [isSavingCookiePrefs, setIsSavingCookiePrefs] = useState(false)
 
   const handleMouseEnter = (key: string) => setButtonHover(prev => ({ ...prev, [key]: true }))
   const handleMouseLeave = (key: string) => setButtonHover(prev => ({ ...prev, [key]: false }))
@@ -71,6 +75,63 @@ export default function SettingsPage() {
     }
     fetchProfile()
   }, [])
+
+  // Fetch cookie preferences when privacy tab is active
+  useEffect(() => {
+    if (activeTab === 'privacy' && !cookiePreferences) {
+      fetchCookiePreferences()
+    }
+  }, [activeTab])
+
+  const fetchCookiePreferences = async () => {
+    setIsLoadingCookiePrefs(true)
+    try {
+      const response = await fetch('/api/cookie-preferences')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setCookiePreferences(data.preferences)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch cookie preferences:', error)
+    } finally {
+      setIsLoadingCookiePrefs(false)
+    }
+  }
+
+  const saveCookiePreferences = async (newPrefs: Partial<CookiePreferences>) => {
+    setIsSavingCookiePrefs(true)
+    try {
+      const response = await fetch('/api/cookie-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferences: { ...cookiePreferences, ...newPrefs } }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setCookiePreferences(data.preferences)
+          toast({
+            title: 'Cookie Preferences Saved',
+            description: 'Your cookie preferences have been updated successfully',
+          })
+        }
+      } else {
+        throw new Error('Failed to save preferences')
+      }
+    } catch (error) {
+      console.error('Failed to save cookie preferences:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to save cookie preferences',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSavingCookiePrefs(false)
+    }
+  }
 
   // Handle profile update
   const handleProfileUpdate = async (updates: any) => {
@@ -386,7 +447,125 @@ export default function SettingsPage() {
 
           {activeTab === "privacy" && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">Privacy Settings</h2>
+              <h2 className="text-xl font-semibold mb-6">Privacy Settings</h2>
+              
+              {/* Cookie Preferences Section */}
+              <div className="mb-8 pb-8 border-b">
+                <div className="flex items-center gap-2 mb-4">
+                  <Cookie size={20} style={{ color: primaryColor }} />
+                  <h3 className="text-lg font-semibold">Cookie Preferences</h3>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Control how we use cookies to improve your experience. You can change your preferences at any time.
+                </p>
+
+                {isLoadingCookiePrefs ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="animate-spin h-6 w-6" style={{ color: primaryColor }} />
+                  </div>
+                ) : cookiePreferences ? (
+                  <div className="space-y-4">
+                    {/* Essential Cookies */}
+                    <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-1">Essential Cookies</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Required for the website to function properly. These cannot be disabled.
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <div className="w-11 h-6 bg-gray-400 rounded-full flex items-center px-1 cursor-not-allowed opacity-50">
+                          <div className="bg-white h-5 w-5 rounded-full translate-x-full"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Analytics Cookies */}
+                    <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-1">Analytics Cookies</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Help us understand how you use our website so we can improve your experience.
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer ml-4">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={cookiePreferences.analytics}
+                          onChange={(e) => {
+                            const newPrefs = { ...cookiePreferences, analytics: e.target.checked }
+                            setCookiePreferences(newPrefs)
+                          }}
+                        />
+                        <div 
+                          className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                          style={{ 
+                            backgroundColor: cookiePreferences.analytics ? primaryColor : '',
+                            ['--tw-ring-color' as any]: `${primaryColor}40` 
+                          }}
+                        ></div>
+                      </label>
+                    </div>
+
+                    {/* Marketing Cookies */}
+                    <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-1">Marketing Cookies</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Used to show you relevant advertisements and measure campaign effectiveness.
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer ml-4">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={cookiePreferences.marketing}
+                          onChange={(e) => {
+                            const newPrefs = { ...cookiePreferences, marketing: e.target.checked }
+                            setCookiePreferences(newPrefs)
+                          }}
+                        />
+                        <div 
+                          className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                          style={{ 
+                            backgroundColor: cookiePreferences.marketing ? primaryColor : '',
+                            ['--tw-ring-color' as any]: `${primaryColor}40` 
+                          }}
+                        ></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4">
+                      <p className="text-xs text-gray-500">
+                        Policy Version: {cookiePreferences.policyVersion}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => saveCookiePreferences(cookiePreferences)}
+                        disabled={isSavingCookiePrefs}
+                        className="py-2 px-4 text-white rounded-lg transition-colors flex items-center"
+                        style={{ backgroundColor: buttonHover.cookieSave ? `${primaryColor}dd` : primaryColor }}
+                        onMouseEnter={() => handleMouseEnter('cookieSave')}
+                        onMouseLeave={() => handleMouseLeave('cookieSave')}
+                      >
+                        {isSavingCookiePrefs ? (
+                          <Loader2 className="mr-2 animate-spin" size={18} />
+                        ) : (
+                          <Save className="mr-2" size={18} />
+                        )}
+                        Save Cookie Preferences
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    No cookie preferences set yet
+                  </div>
+                )}
+              </div>
+
+              {/* Other Privacy Settings */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -430,19 +609,6 @@ export default function SettingsPage() {
                       style={{ backgroundColor: primaryColor, ['--tw-ring-color' as any]: `${primaryColor}40` }}
                     ></div>
                   </label>
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="button"
-                    className="py-2 px-4 text-white rounded-lg transition-colors flex items-center"
-                    style={{ backgroundColor: buttonHover.privacySave ? `${primaryColor}dd` : primaryColor }}
-                    onMouseEnter={() => handleMouseEnter('privacySave')}
-                    onMouseLeave={() => handleMouseLeave('privacySave')}
-                  >
-                    <Save className="mr-2" size={18} />
-                    Save Settings
-                  </button>
                 </div>
               </div>
             </div>

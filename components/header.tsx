@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { createSampleNotifications } from "@/lib/dashboard/notification-utils"
 import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
+import { resetTenantCache, invalidateTenantCache } from "@/lib/tenant-notifications"
 
 interface HeaderNotification {
   id: string
@@ -62,15 +62,24 @@ export default function Header(props: HeaderProps) {
   const notificationHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
 
-  const applyFallbackNotifications = () => {
-    const fallback = createSampleNotifications()
-    setNotificationsList(fallback)
-    setNotifications(fallback.filter((item) => item.read === false).length)
-  }
-
   // Fetch notifications when component mounts
   useEffect(() => {
     fetchNotifications()
+  }, [])
+  
+  // Listen for session changes (login/logout from other tabs or tenant switches)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      // Detect when session changes in another tab
+      if (e.key === 'ub_session_broadcast' || e.key === 'ub_session') {
+        console.log('🔄 Session change detected, invalidating tenant cache and refetching notifications');
+        invalidateTenantCache();
+        fetchNotifications();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [])
 
   const fetchNotifications = async () => {
@@ -81,28 +90,33 @@ export default function Header(props: HeaderProps) {
       const response = await fetch('/api/dashboard/recent-activities?limit=20')
       
       if (!response.ok) {
-        throw new Error('Failed to fetch activities')
+        console.error('Failed to fetch notifications:', response.status, response.statusText)
+        // Don't fall back to sample data - just show empty state
+        setNotificationsList([])
+        setNotifications(0)
+        return
       }
       
       const data = await response.json()
-      const latestNotifications: HeaderNotification[] = (Array.isArray(data?.activities)
-        ? data.activities
-        : Array.isArray(data?.notifications)
-          ? data.notifications
-          : Array.isArray(data)
-            ? data
-            : []) as HeaderNotification[]
-      if (latestNotifications.length) {
-        setNotificationsList(latestNotifications)
-        const unreadFromApi = typeof data?.unreadCount === 'number' ? data.unreadCount : undefined
-        const derivedUnread = latestNotifications.filter((item: HeaderNotification) => item && item.read === false).length
-        setNotifications(unreadFromApi ?? derivedUnread ?? latestNotifications.length)
-      } else {
-        applyFallbackNotifications()
-      }
+      
+      // The API returns data.notifications array
+      const latestNotifications: HeaderNotification[] = (Array.isArray(data?.notifications)
+        ? data.notifications
+        : []) as HeaderNotification[]
+      
+      // Always set the notifications list (even if empty)
+      setNotificationsList(latestNotifications)
+      
+      // Calculate unread count
+      const unreadFromApi = typeof data?.unreadCount === 'number' ? data.unreadCount : undefined
+      const derivedUnread = latestNotifications.filter((item: HeaderNotification) => item && item.read === false).length
+      setNotifications(unreadFromApi ?? derivedUnread)
+      
     } catch (error) {
       console.error('Error fetching notifications:', error)
-      applyFallbackNotifications()
+      // Don't fall back to sample data - just show empty state
+      setNotificationsList([])
+      setNotifications(0)
     } finally {
       setLoadingNotifications(false)
     }
@@ -165,6 +179,9 @@ export default function Header(props: HeaderProps) {
       // Broadcast logout to other tabs before logging out
       clearTabSession()
       broadcastSessionChange("LOGOUT")
+      
+      // Clear tenant-specific cache
+      resetTenantCache()
       
       // Call logout API
       await fetch("/api/auth/logout", { 

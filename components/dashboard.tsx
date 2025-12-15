@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import KYCForm from "./kyc-form"
 import { 
   HomeMetrics, 
@@ -44,11 +44,11 @@ const Dashboard = () => {
           // Track previous KYC status to detect status changes
           const previousKycStatus = sessionStorage.getItem('previousKycStatus');
           
-          // If KYC is expired, immediately redirect without showing dashboard
-          if (data.status === "expired") {
-            window.location.href = "/kyc-blocked";
-            return; // Don't set loading to false, keep showing loading until redirect
-          }
+          // COMMENTED OUT: If KYC is expired, immediately redirect without showing dashboard
+          // if (data.status === "expired") {
+          //   window.location.href = "/kyc-blocked";
+          //   return; // Don't set loading to false, keep showing loading until redirect
+          // }
           
           // Check if KYC just got verified (status changed from non-verified to verified)
           if (data.status === "verified" && previousKycStatus && previousKycStatus !== "verified") {
@@ -254,9 +254,9 @@ const Dashboard = () => {
         </div>
       )}
       
-      {/* Single KYC Status Banner - Consolidated notification logic */}
+      {/* KYC Status Banner */}
       {!showKycSuccessNotification && (
-        <>
+        <div>
           {/* Pending KYC - Show warning with days left (only if NOT rejected) */}
           {kycDaysLeft > 0 && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
             <div className="w-full bg-orange-100 dark:bg-orange-900/30 border-b-2 border-orange-400 dark:border-orange-600 text-orange-800 dark:text-orange-200 py-3 px-4 text-center font-semibold sticky top-0 z-40">
@@ -320,14 +320,14 @@ const Dashboard = () => {
               ⌛ Your KYC window has expired. Please submit your KYC to regain access.
             </div>
           )}
-        </>
+        </div>
       )}
       
-      {/* KYC Popup - only show if KYC status is pending */}
+      {/* COMMENTED OUT: KYC Popup - Continue using Uniqbrio uninterrupted */}
+      
       {showKycPopup && kycStatus !== "submitted" && kycStatus !== "verified" && kycStatus !== "rejected" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-orange-400 dark:border-orange-600 relative">
-            {/* Close Button */}
             <button
               onClick={() => setShowKycPopup(false)}
               className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-colors"
