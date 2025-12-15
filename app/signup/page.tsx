@@ -56,7 +56,11 @@ const signupSchema = z
 
 type FormData = z.infer<typeof signupSchema>
 
-export default function SignupPage() {
+interface SignupPageProps {
+  initialPlan?: 'free' | 'grow' | 'scale';
+}
+
+export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -139,6 +143,10 @@ export default function SignupPage() {
       formData.append("confirmPassword", data.confirmPassword)
       formData.append("role", "admin") // Always assign 'admin' role
       formData.append("termsAccepted", data.termsAccepted ? "true" : "false")
+      // Add plan information if provided from URL
+      if (initialPlan) {
+        formData.append("planChoosed", initialPlan)
+      }
       // TODO: Backend integration - store terms acceptance timestamp in user profile
       // Example: formData.append("termsAcceptedAt", new Date().toISOString())
 
@@ -192,6 +200,15 @@ export default function SignupPage() {
     <AuthLayout>
       <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
+
+        {/* Plan Selection Banner - Show if plan was pre-selected from URL */}
+        {initialPlan && (
+          <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-center animate-in fade-in duration-300">
+            <p className="text-sm text-purple-700 font-medium">
+              You selected the <span className="font-bold capitalize">{initialPlan}</span> plan
+            </p>
+          </div>
+        )}
 
         {/* Full Name */}
         <div className="space-y-1">

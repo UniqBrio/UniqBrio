@@ -59,6 +59,7 @@ export async function signup(formData: FormData) {
   const confirmPassword = formData.get("confirmPassword") as string
   // const role = formData.get("role") as string // Remove role
   const termsAccepted = formData.get("termsAccepted") === "true"
+  const planChoosed = formData.get("planChoosed") as string || "free" // Get plan from form, default to 'free'
 
   // Validate form data
   console.log("[AuthAction] signup: Validating form data for", email);
@@ -121,8 +122,10 @@ export async function signup(formData: FormData) {
       verified: false,
       verificationToken,
       registrationComplete: false,
+      planChoosed: planChoosed, // Store the selected plan
     });
     console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser._id);
+    console.log("[AuthAction] signup: Plan selected:", planChoosed);
 
     // Send verification email with LINK only
     try {

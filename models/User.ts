@@ -37,6 +37,7 @@ export interface IUser extends Document {
   kycStatus: KycStatus;
   kycSubmissionDate?: Date;
   lastLoginAt?: Date;
+  planChoosed?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -72,6 +73,7 @@ const userSchema = new Schema<IUser>(
     },
     kycSubmissionDate: { type: Date },
     lastLoginAt: { type: Date },
+    planChoosed: { type: String, enum: ['free', 'grow', 'scale'], default: 'free' },
   },
   {
     timestamps: true,
