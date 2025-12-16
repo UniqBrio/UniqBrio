@@ -73,7 +73,7 @@ const userSchema = new Schema<IUser>(
     },
     kycSubmissionDate: { type: Date },
     lastLoginAt: { type: Date },
-    planChoosed: { type: String, enum: ['free', 'grow', 'scale'], default: 'free' },
+    planChoosed: { type: String, enum: ['free', 'grow', 'scale', 'beta'], default: 'free' },
   },
   {
     timestamps: true,
