@@ -266,7 +266,7 @@ export default function CourseCohortFilters({
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
         {/* Filter Button and Panel */}
         <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
           <PopoverTrigger asChild>

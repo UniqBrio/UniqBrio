@@ -51,16 +51,8 @@ export function InvoiceDialog({
   const [isDownloading, setIsDownloading] = useState(false);
   const [paymentRecords, setPaymentRecords] = useState<PaymentRecord[]>([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
-  // Generate immediate invoice ID based on payment data
-  const generateImmediateInvoiceId = (payment: Payment | null) => {
-    if (!payment) return '';
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `INV-${year}${month}${day}-${payment.studentId.slice(-4)}`;
-  };
-  const [invoiceId, setInvoiceId] = useState<string>(() => generateImmediateInvoiceId(payment));
+  const [invoiceId, setInvoiceId] = useState<string>('');
+  const [fetchingInvoiceNumber, setFetchingInvoiceNumber] = useState(false);
   // Initialize with cached data or defaults to show immediately
   const [academyInfo, setAcademyInfo] = useState<{
     businessName?: string;
@@ -99,6 +91,38 @@ export function InvoiceDialog({
                          payment?.planType === 'ONE_TIME_WITH_INSTALLMENTS' ||
                          payment?.planType === 'EMI' ||
                          (payment && payment.receivedAmount > 0 && payment.receivedAmount < (payment.courseFee || 0));
+
+  // Fetch sequential invoice number from API
+  useEffect(() => {
+    if (!open || fetchingInvoiceNumber) return;
+    
+    const fetchInvoiceNumber = async () => {
+      setFetchingInvoiceNumber(true);
+      try {
+        const response = await fetch('/api/dashboard/payments/invoices/generate-number', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.invoiceNumber) {
+            setInvoiceId(data.invoiceNumber);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching invoice number:', error);
+        // Fallback to date-based format if API fails
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        setInvoiceId(`INV-${year}${month}-TEMP`);
+      } finally {
+        setFetchingInvoiceNumber(false);
+      }
+    };
+    
+    fetchInvoiceNumber();
+  }, [open]);
 
   // Fetch academy information with caching
   useEffect(() => {
@@ -451,10 +475,10 @@ export function InvoiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-full print:max-h-full p-0">
-        <DialogHeader className="print:hidden sticky top-0 bg-white z-10 p-6 pb-4 border-b">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold">Payment Invoice</DialogTitle>
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-full print:max-h-full p-0">
+        <DialogHeader className="print:hidden sticky top-0 bg-white z-10 p-4 sm:p-6 pb-3 sm:pb-4 border-b">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+            <DialogTitle className="text-xl sm:text-2xl font-bold">Payment Invoice</DialogTitle>
             <Button
               variant="outline"
               size="sm"
@@ -468,12 +492,12 @@ export function InvoiceDialog({
         </DialogHeader>
 
         {/* Invoice Content */}
-        <div className="bg-white p-8 print:p-12 mx-6 mb-6" id="invoice-content">
+        <div className="bg-white p-4 sm:p-8 print:p-12 mx-4 sm:mx-6 mb-4 sm:mb-6" id="invoice-content">
           {/* Header with Logo */}
           <div className="pb-6 mb-6" style={{ borderBottom: '4px solid', borderColor: primaryColor }}>
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-4 mb-2">
+            <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+              <div className="w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-2">
                   {/* Academy Logo */}
                   <div className="relative h-16 w-24">
                     <Image 
@@ -485,15 +509,15 @@ export function InvoiceDialog({
                     />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: primaryColor }}>
                       {academyInfo?.businessName || 'Academy'}
                     </h1>
-                    <p className="text-gray-600 dark:text-white font-medium">
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-white font-medium">
                       {academyInfo?.tagline || 'Empowering Minds, Shaping Futures'}
                     </p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-white mt-4 space-y-1">
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-white mt-4 space-y-1">
                   <p><strong>Email:</strong> {academyInfo?.email || 'contact@academy.com'}</p>
                   <p><strong>Phone:</strong> {academyInfo?.phone || '+XX-XXXXX-XXXXX'}</p>
                   <p><strong>Website:</strong> {academyInfo?.website || 'www.academy.com'}</p>
@@ -511,9 +535,9 @@ export function InvoiceDialog({
                   )}
                 </div>
               </div>
-              <div className="text-right">
-                <h2 className="text-2xl font-bold mb-2" style={{ color: primaryColor }}>INVOICE</h2>
-                <div className="text-sm">
+              <div className="text-left md:text-right w-full md:w-auto">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: primaryColor }}>INVOICE</h2>
+                <div className="text-xs sm:text-sm">
                   <p className="font-semibold">Invoice #: {invoiceId}</p>
                   <p className="text-gray-600 dark:text-white">Date: {invoiceDate}</p>
                 </div>
@@ -524,7 +548,7 @@ export function InvoiceDialog({
           {/* Student Details */}
           <div className="mb-8">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Student Information</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600 dark:text-white">Student ID</p>
                 <p className="font-semibold">{payment.studentId}</p>
@@ -559,48 +583,50 @@ export function InvoiceDialog({
           {/* Payment Details */}
           <div className="mb-8">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Payment Details</h3>
+            <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="text-left p-3 font-semibold border">Description</th>
-                  <th className="text-right p-3 font-semibold border">Amount ({currency})</th>
+                  <th className="text-left p-2 sm:p-3 font-semibold border text-sm sm:text-base">Description</th>
+                  <th className="text-right p-2 sm:p-3 font-semibold border text-sm sm:text-base">Amount ({currency})</th>
                 </tr>
               </thead>
               <tbody>
                 {payment.courseFee > 0 && (
                   <tr className="border">
-                    <td className="p-3 border">Course Fee</td>
-                    <td className="text-right p-3 border">{currency} {payment.courseFee.toLocaleString()}</td>
+                    <td className="p-2 sm:p-3 border text-sm sm:text-base">Course Fee</td>
+                    <td className="text-right p-2 sm:p-3 border text-sm sm:text-base">{currency} {payment.courseFee.toLocaleString()}</td>
                   </tr>
                 )}
                 {payment.studentRegistrationFee > 0 && (
                   <tr className="border">
-                    <td className="p-3 border">Student Registration Fee</td>
-                    <td className="text-right p-3 border">{currency} {payment.studentRegistrationFee.toLocaleString()}</td>
+                    <td className="p-2 sm:p-3 border text-sm sm:text-base">Student Registration Fee</td>
+                    <td className="text-right p-2 sm:p-3 border text-sm sm:text-base">{currency} {payment.studentRegistrationFee.toLocaleString()}</td>
                   </tr>
                 )}
                 {payment.courseRegistrationFee > 0 && (
                   <tr className="border">
-                    <td className="p-3 border">Course Registration Fee</td>
-                    <td className="text-right p-3 border">{currency} {payment.courseRegistrationFee.toLocaleString()}</td>
+                    <td className="p-2 sm:p-3 border text-sm sm:text-base">Course Registration Fee</td>
+                    <td className="text-right p-2 sm:p-3 border text-sm sm:text-base">{currency} {payment.courseRegistrationFee.toLocaleString()}</td>
                   </tr>
                 )}
                 <tr className="border bg-gray-50">
-                  <td className="p-3 font-semibold border">Total Amount</td>
-                  <td className="text-right p-3 font-semibold border">
+                  <td className="p-2 sm:p-3 font-semibold border text-sm sm:text-base">Total Amount</td>
+                  <td className="text-right p-2 sm:p-3 font-semibold border text-sm sm:text-base">
                     {currency} {((payment.courseFee || 0) + (payment.studentRegistrationFee || 0) + (payment.courseRegistrationFee || 0)).toLocaleString()}
                   </td>
                 </tr>
                 <tr className="border bg-green-50">
-                  <td className="p-3 font-semibold text-green-700 border">Amount Paid</td>
-                  <td className="text-right p-3 font-semibold text-green-700 border">{currency} {(payment.receivedAmount || 0).toLocaleString()}</td>
+                  <td className="p-2 sm:p-3 font-semibold text-green-700 border text-sm sm:text-base">Amount Paid</td>
+                  <td className="text-right p-2 sm:p-3 font-semibold text-green-700 border text-sm sm:text-base">{currency} {(payment.receivedAmount || 0).toLocaleString()}</td>
                 </tr>
                 <tr className="bg-red-50 border">
-                  <td className="p-3 font-semibold text-red-700 border">Outstanding Balance</td>
-                  <td className="text-right p-3 font-semibold text-red-700 border">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</td>
+                  <td className="p-2 sm:p-3 font-semibold text-red-700 border text-sm sm:text-base">Outstanding Balance</td>
+                  <td className="text-right p-2 sm:p-3 font-semibold text-red-700 border text-sm sm:text-base">{currency} {(payment.outstandingAmount || 0).toLocaleString()}</td>
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Payment History */}

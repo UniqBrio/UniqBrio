@@ -131,12 +131,8 @@ export async function generateInvoiceNumber(tenantId?: string): Promise<string> 
   const counterName = `invoice_${effectiveTenantId}_${yearMonth}`;
   const sequenceNumber = await CounterModel.getNextSequence(counterName);
   
-  // Add a short random suffix to handle legacy data conflicts
-  // This ensures uniqueness even if old records exist with same sequence
-  const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
-  
-  // Format: INV-yyyymm-0001-ABC
-  return `INV-${yearMonth}-${String(sequenceNumber).padStart(4, '0')}-${randomSuffix}`;
+  // Format: INV-yyyymm-0001 (sequential, no random suffix, no student ID)
+  return `INV-${yearMonth}-${String(sequenceNumber).padStart(4, '0')}`;
 }
 
 /**

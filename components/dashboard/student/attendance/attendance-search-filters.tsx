@@ -533,7 +533,7 @@ export default function AttendanceSearchFilters({
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
             {/* Optional Date Window dropdown (renders between search and filters) */}
             {dateWindow && setDateWindow && (
               <div className="flex items-center gap-2">

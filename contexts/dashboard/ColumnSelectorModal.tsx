@@ -221,25 +221,25 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-  <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-8 min-w-[500px] max-w-[95vw] max-h-[85vh] overflow-hidden flex flex-col border border-gray-100 dark:border-gray-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+  <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-4 sm:p-8 w-full sm:min-w-[500px] max-w-[95vw] max-h-[85vh] overflow-hidden flex flex-col border border-gray-100 dark:border-gray-700">
         <div className="font-bold text-lg mb-4">Select Columns to Display</div>
         
         <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700 flex-shrink-0">
-          <div className="grid grid-cols-4 gap-1 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-xs">
             <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-950 border rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
             <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-950 border rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
             <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-950 border rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
             <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-950 border rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>
           </div>
         </div>
-        <div className="flex gap-8 flex-1 min-h-0 overflow-y-auto pr-1">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 flex-1 min-h-0 overflow-y-auto pr-1">
           {/* Available */}
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             <div className="font-semibold mb-2">Available Columns</div>
             <div
               ref={availableListRef}
-              className={`w-full max-h-[56vh] border rounded p-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 ${focusedList === 'available' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+              className={`w-full h-40 md:max-h-[56vh] border rounded p-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 ${focusedList === 'available' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
               style={{ scrollbarWidth: 'thin' }}
               role="listbox"
               tabIndex={focusedList === 'available' ? 0 : -1}
@@ -263,7 +263,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
           </div>
           {/* Move buttons */}
-          <div className="flex flex-col justify-center gap-2">
+          <div className="flex md:flex-col flex-row justify-center gap-2">
             <button
               className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800/50'}`}
               onClick={handleAdd}
@@ -298,7 +298,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </button>
           </div>
           {/* Displayed */}
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             <div className="flex justify-between items-center mb-2">
               <div className="font-semibold">Displayed Columns</div>
               <div className="flex gap-1">
@@ -322,7 +322,7 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
             <div
               ref={displayedListRef}
-              className={`w-full max-h-[56vh] border rounded p-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 ${focusedList === 'displayed' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
+              className={`w-full h-40 md:max-h-[56vh] border rounded p-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 ${focusedList === 'displayed' ? 'border-purple-300 ring-1 ring-purple-200' : ''}`}
               style={{ scrollbarWidth: 'thin' }}
               role="listbox"
               tabIndex={focusedList === 'displayed' ? 0 : -1}
@@ -398,9 +398,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-2 mt-6 flex-shrink-0">
+        <div className="flex flex-wrap justify-end gap-2 mt-6 flex-shrink-0">
           <button
-            className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2"
+            className="px-4 py-2 rounded bg-purple-600 text-white font-semibold hover:bg-purple-700 flex items-center gap-2 text-sm sm:text-base"
             onClick={() => {
               // Migrate any legacy "Batch" to "Cohort" and remove duplicates before saving
               const migrated = draftDisplayed.map(col => col === 'Batch' ? 'Cohort' : col);

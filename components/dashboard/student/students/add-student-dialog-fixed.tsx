@@ -235,12 +235,12 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
   return (
     <Popover open={open} onOpenChange={(o)=> { setOpen(o); if(o) setQuery(''); }}>
       <PopoverTrigger asChild>
-        <Button ref={triggerRef} variant="outline" role="combobox" aria-expanded={open} className={cn('justify-between mt-1 font-normal w-full h-auto min-h-[44px] py-2', !triggerLabel && 'text-muted-foreground', hasError && 'border-red-500 focus-visible:ring-red-500')}>
-          <span className="truncate text-left">{triggerLabel || (error? 'Error loading courses':'Select course')}</span>
+        <Button ref={triggerRef} variant="outline" role="combobox" aria-expanded={open} className={cn('justify-between mt-1 font-normal w-full h-auto min-h-[44px] py-2 text-xs sm:text-sm', !triggerLabel && 'text-muted-foreground', hasError && 'border-red-500 focus-visible:ring-red-500')}>
+          <span className="truncate text-left leading-tight">{triggerLabel || (error? 'Error loading courses':'Select course')}</span>
           <ChevronDown className="ml-2 h-4 w-4 opacity-70 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-2" align="start" sideOffset={4} style={{ width: Math.max(contentWidth || 0, 440) }}>
+      <PopoverContent className="p-2 w-[calc(100vw-2rem)] sm:w-auto" align="start" sideOffset={4} style={{ width: typeof window !== 'undefined' && window.innerWidth < 640 ? undefined : Math.max(contentWidth || 0, 440) }}>
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
             <input
@@ -249,7 +249,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               onChange={e=> setQuery(e.target.value)}
               placeholder={loading? 'Loading courses...' : 'Search courses...'}
               disabled={loading}
-              className="flex h-10 flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
+              className="flex h-10 flex-1 rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8A2BE2] focus-visible:ring-offset-2 focus:border-[#8A2BE2] transition-colors"
             />
             {onRefresh && (
               <Button
@@ -288,8 +288,8 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
               const isSel = c.id===value;
               return (
                 <div key={c.id} onClick={()=> { onChange(c.id); setOpen(false); }} className={cn('cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100 flex flex-col gap-0.5', isSel && 'bg-gray-100')}>
-                  <span className="font-medium text-[13px] leading-snug">{label}</span>
-                  {sub && <span className="text-xs text-gray-500 dark:text-white">{sub}</span>}
+                  <span className="font-medium text-[11px] sm:text-[13px] leading-snug break-words">{label}</span>
+                  {sub && <span className="text-[10px] sm:text-xs text-gray-500 dark:text-white break-words">{sub}</span>}
                 </div>
               );
             })}
@@ -2186,28 +2186,28 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
               setActiveTab(newTab);
             }} className="space-y-2">
               {/* Styled tabs to match page-level (Dashboard/Students) tab UI */}
-              <TabsList className="grid w-full grid-cols-4 mb-3 bg-transparent gap-2 p-0 h-auto">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-3 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger
                   value="student-info"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
+                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
                 >
                   Student Information
                 </TabsTrigger>
                 <TabsTrigger
                   value="course-details"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
+                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
                 >
                   Course Details
                 </TabsTrigger>
                 <TabsTrigger
                   value="communication"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
+                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
                 >
                   Communication & Referral
                 </TabsTrigger>
                 <TabsTrigger
                   value="guardian-details"
-                  className="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg font-medium text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14]"
+                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
                 >
                   Guardian Details
                 </TabsTrigger>

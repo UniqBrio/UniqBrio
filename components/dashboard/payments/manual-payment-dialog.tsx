@@ -1568,7 +1568,7 @@ export function ManualPaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto p-0" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader className="sticky top-0 bg-white z-10 p-6 pb-4 border-b">
           <button
             onClick={() => onOpenChange(false)}
@@ -1583,7 +1583,7 @@ export function ManualPaymentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6">
           {/* Warning Alert for Zero Fees */}
           {(() => {
           const totalFees = (payment.courseFee || 0) + 
@@ -1606,7 +1606,7 @@ export function ManualPaymentDialog({
           return null;
         })()}
 
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
           {/* Left Column - Student Information */}
           <div className="space-y-3">
             <div className="bg-gray-50 p-3 rounded-lg space-y-1.5">
@@ -2150,7 +2150,7 @@ export function ManualPaymentDialog({
                     </div>
 
                     {/* Commitment Period Selector */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-semibold">
                           Commitment Period <span className="text-red-500">*</span>
@@ -2183,7 +2183,7 @@ export function ManualPaymentDialog({
                     </div>
 
                     {/* Discount Configuration Grid */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Discount Type */}
                       <div className="space-y-2">
                         <Label className="text-sm font-semibold">
@@ -2368,7 +2368,7 @@ export function ManualPaymentDialog({
             )}
 
             {/* Date, Time, Mode */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">
                   Date <span className="text-red-500">*</span>
@@ -2587,7 +2587,7 @@ export function ManualPaymentDialog({
                     <span className="font-medium">Student Registration Fee </span>
                     <span className="text-gray-600 dark:text-white">{currency} {studentRegistrationFee.toLocaleString()}</span>
                     {payment.studentRegistrationFeePaid && (
-                      <span className="ml-2 text-xs text-green-600 font-semibold">? PAID</span>
+                      <span className="ml-2 text-xs text-green-600 font-semibold">✓ PAID</span>
                     )}
                   </label>
                 </div>
@@ -2602,7 +2602,7 @@ export function ManualPaymentDialog({
                     <span className="font-medium">Course Registration Fee </span>
                     <span className="text-gray-600 dark:text-white">{currency} {courseRegistrationFee.toLocaleString()}</span>
                     {payment.courseRegistrationFeePaid && (
-                      <span className="ml-2 text-xs text-green-600 font-semibold">? PAID</span>
+                      <span className="ml-2 text-xs text-green-600 font-semibold">✓ PAID</span>
                     )}
                   </label>
                 </div>
@@ -2782,7 +2782,7 @@ export function ManualPaymentDialog({
                     </div>
                     
                     {/* Summary */}
-                    <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                       <div className="bg-white p-2 rounded border border-indigo-200">
                         <p className="text-gray-600 dark:text-white">Course Fee</p>
                         <p className="font-bold text-indigo-900">{currency} {(payment.courseFee || 0).toLocaleString()}</p>
@@ -2812,7 +2812,7 @@ export function ManualPaymentDialog({
             {/* Payer Details */}
             <div className="space-y-2 p-3 border rounded-lg bg-blue-50">
               <h3 className="font-semibold text-sm">Payer Information</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Payer Type</Label>
                   <Select 
@@ -2911,7 +2911,7 @@ export function ManualPaymentDialog({
                   </div>
                   <div className="flex justify-between font-bold text-base border-t pt-1 mt-1">
                     <span>Final Amount:</span>
-                    <span>?{(
+                    <span>{currency} {(
                       parseFloat(paymentAmount || '0') - 
                       ((parseFloat(paymentAmount || '0') * parseFloat(discount || '0')) / 100)
                     ).toLocaleString()}</span>

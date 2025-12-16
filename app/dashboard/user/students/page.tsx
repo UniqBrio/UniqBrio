@@ -709,15 +709,15 @@ export default function StudentsPage() {
                 <TabsTrigger 
                   key={tab.value}
                   value={tab.value}
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors text-[#DE7D14] border-[#DE7D14] hover:bg-[#DE7D14]/10 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600"
+                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors text-[#DE7D14] border-[#DE7D14] hover:bg-[#DE7D14]/10 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 min-h-[2.5rem] sm:min-h-0"
                 >
-                  <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 text-current" />
+                  <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 text-current flex-shrink-0" />
                   {tab.label !== tab.shortLabel ? (
-                    <><span className="hidden lg:inline">{tab.label}</span><span className="lg:hidden">{tab.shortLabel}</span></>
+                    <><span className="hidden lg:inline text-center">{tab.label}</span><span className="lg:hidden text-center leading-tight">{tab.shortLabel}</span></>
                   ) : (
-                    <span>{tab.label}</span>
+                    <span className="text-center leading-tight">{tab.label}</span>
                   )}
-                  {tab.badge && <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1" />}
+                  {tab.badge && <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1 flex-shrink-0" />}
                 </TabsTrigger>
               ))}
             </TabsList>

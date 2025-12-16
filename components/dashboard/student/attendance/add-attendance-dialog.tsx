@@ -747,17 +747,17 @@ export function AddAttendanceDialog({
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                        className="w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition text-xs sm:text-sm"
                         aria-haspopup="listbox"
                         aria-expanded={studentSearchOpen}
                       >
-                        <span className="truncate">
+                        <span className="truncate leading-tight">
                           {newStudentId ? `${newStudentId} - ${(studentsList.find(s => s.id === newStudentId)?.name) || ''}` : 'Select Student'}
                         </span>
-                        <ChevronDown className="h-4 w-4 opacity-60" />
+                        <ChevronDown className="h-4 w-4 opacity-60 flex-shrink-0" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[340px] p-2" align="start" sideOffset={4}>
+                    <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[340px] p-2" align="start" sideOffset={4}>
                       <div className="flex flex-col gap-2">
                         <input
                           ref={searchInputRef}
@@ -766,7 +766,7 @@ export function AddAttendanceDialog({
                           onChange={(e) => setStudentQuery(e.target.value)}
                           placeholder={studentsLoading ? 'Loading students...' : 'Search students...'}
                           disabled={studentsLoading}
-                          className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
+                          className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-xs sm:text-sm placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus:border-purple-500 transition"
                         />
                         <div className="max-h-[200px] overflow-y-auto text-sm pr-1" onWheelCapture={(e)=>{ e.stopPropagation(); }}>
                           {studentsLoading && <div className="text-xs text-gray-500 dark:text-white py-2 px-2">Loading...</div>}
@@ -860,8 +860,8 @@ export function AddAttendanceDialog({
                                   active ? 'bg-purple-50 border border-purple-300' : ''
                                 )}
                               >
-                                <span className="font-medium text-[13px] leading-snug">{s.id} - {s.name}</span>
-                                {s.cohortId && <span className="text-xs text-gray-500 dark:text-white">{s.cohortId}</span>}
+                                <span className="font-medium text-[11px] sm:text-[13px] leading-snug break-words">{s.id} - {s.name}</span>
+                                {s.cohortId && <span className="text-[10px] sm:text-xs text-gray-500 dark:text-white break-words">{s.cohortId}</span>}
                               </div>
                             );
                           })}
@@ -1075,7 +1075,7 @@ export function AddAttendanceDialog({
                     Status <span className="text-red-500">*</span>
                   </label>
                   <select 
-                    className="w-full p-2 border rounded-md" 
+                    className="w-full p-2 border rounded-md text-xs sm:text-sm" 
                     value={newStatus} 
                     onChange={e => setNewStatus(e.target.value)}
                   >

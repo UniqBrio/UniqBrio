@@ -370,13 +370,13 @@ export function StudentAnalytics({ students, loading = false }: StudentAnalytics
         <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto gap-2">
           <TabsTrigger 
             value="distribution"
-            className="text-[#DE7D14] bg-white dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-700 focus:outline-none shadow-sm"
+            className="text-[#DE7D14] bg-white dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-3 sm:px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-700 focus:outline-none shadow-sm text-xs sm:text-sm md:text-base whitespace-normal leading-tight min-h-[3rem] sm:min-h-[2.5rem] flex items-center justify-center text-center"
           >
             Courses, Cohorts & Levels
           </TabsTrigger>
           <TabsTrigger 
             value="trends"
-            className="text-[#DE7D14] bg-white dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-700 focus:outline-none shadow-sm"
+            className="text-[#DE7D14] bg-white dark:bg-gray-900 border-2 border-[#DE7D14] dark:border-orange-600 rounded-lg transition-all duration-150 font-semibold px-3 sm:px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-700 focus:outline-none shadow-sm text-xs sm:text-sm md:text-base whitespace-normal leading-tight min-h-[3rem] sm:min-h-[2.5rem] flex items-center justify-center text-center"
           >
             Enrollment & Demographics
           </TabsTrigger>
