@@ -57,7 +57,7 @@ const signupSchema = z
 type FormData = z.infer<typeof signupSchema>
 
 interface SignupPageProps {
-  initialPlan?: 'free' | 'grow' | 'scale';
+  initialPlan?: 'free' | 'grow' | 'scale' | 'beta';
 }
 
 export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
@@ -70,7 +70,7 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
 
   // Check for URL parameters - prioritize query param over initialPlan prop
   const error = searchParams?.get("error")
-  const planFromQuery = searchParams?.get("plan") as 'free' | 'grow' | 'scale' | null
+  const planFromQuery = searchParams?.get("plan") as 'free' | 'grow' | 'scale' | 'beta' | null
   const selectedPlan = planFromQuery || initialPlan || 'free' // Query param > Prop > Default
 
   useEffect(() => {

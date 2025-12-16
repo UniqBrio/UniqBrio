@@ -575,3 +575,131 @@ export function generateKYCApprovalEmail(email: string, name?: string, academyNa
   `,
   }
 }
+
+/// --- NEW: generateNewSignupNotification ---
+// Sends an email notification to support when a new user signs up
+export function generateNewSignupNotification(userDetails: {
+  name: string;
+  email: string;
+  phone: string;
+  planChoosed: string;
+  signupDate: Date;
+}) {
+  const { name, email, phone, planChoosed, signupDate } = userDetails;
+  
+  // Format the date and time nicely
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'full',
+    timeStyle: 'long',
+    timeZone: 'Asia/Kolkata' // IST timezone
+  }).format(signupDate);
+
+  // Format plan name with proper casing
+  const formattedPlan = planChoosed.charAt(0).toUpperCase() + planChoosed.slice(1);
+
+  return {
+    to: 'frozen9612345@gmail.com',
+    subject: `🎉 New Signup: ${name} - ${formattedPlan} Plan`,
+    html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <tr>
+          <td>
+            ${getEmailHeader("New User Registration", "A new user has signed up!")}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 40px 30px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="background-color: #dcfce7; border-radius: 50px; width: 80px; height: 80px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 40px;">🎉</span>
+              </div>
+              <h2 style="color: #374151; margin: 0 0 10px 0; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">
+                New Signup Alert!
+              </h2>
+              <p style="color: #6b7280; margin: 0; font-family: Arial, sans-serif; font-size: 14px;">
+                A new user has just registered on UniqBrio
+              </p>
+            </div>
+
+            <!-- User Details Card -->
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 25px; margin: 30px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <h3 style="color: #92400e; margin: 0 0 20px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-align: center;">
+                👤 User Information
+              </h3>
+              
+              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(146, 64, 14, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #92400e; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 140px;">📝 Full Name:</span>
+                      <span style="color: #78350f; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600;">${name}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(146, 64, 14, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #92400e; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 140px;">📧 Email:</span>
+                      <span style="color: #78350f; font-family: Arial, sans-serif; font-size: 14px; word-break: break-all;">
+                        <a href="mailto:${email}" style="color: #8B5CF6; text-decoration: none;">${email}</a>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(146, 64, 14, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #92400e; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 140px;">📱 Phone:</span>
+                      <span style="color: #78350f; font-family: Arial, sans-serif; font-size: 14px;">
+                        <a href="tel:${phone}" style="color: #8B5CF6; text-decoration: none;">${phone}</a>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(146, 64, 14, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #92400e; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 140px;">💎 Plan Selected:</span>
+                      <span style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 4px 12px; border-radius: 20px; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; display: inline-block;">${formattedPlan}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #92400e; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 140px;">📅 Signup Date:</span>
+                      <span style="color: #78350f; font-family: Arial, sans-serif; font-size: 13px;">${formattedDate}</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Next Steps -->
+            <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
+              <h3 style="color: #1e40af; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">📋 Next Steps</h3>
+              <ul style="color: #374151; margin: 0; padding-left: 20px; font-family: Arial, sans-serif; line-height: 1.8; font-size: 14px;">
+                <li style="margin-bottom: 8px;">User will receive an email verification link</li>
+                <li style="margin-bottom: 8px;">After verification, they can complete their profile</li>
+                <li style="margin-bottom: 8px;">Monitor their onboarding progress in the admin dashboard</li>
+                <li>Reach out if assistance is needed with the ${formattedPlan} plan setup</li>
+              </ul>
+            </div>
+
+            <p style="color: #6b7280; font-size: 13px; text-align: center; font-family: Arial, sans-serif; margin-top: 30px; line-height: 1.5;">
+              This is an automated notification from UniqBrio.<br>
+              You're receiving this because you're part of the support team.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            ${getEmailFooter()}
+          </td>
+        </tr>
+      </table>
+    </div>
+  `,
+  };
+}

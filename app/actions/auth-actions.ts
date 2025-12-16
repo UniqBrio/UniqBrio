@@ -22,6 +22,7 @@ import {
   generatePasswordResetEmail,
   generateVerificationEmail, // Now expects only email and token
   generateSupportTicketEmail,
+  generateNewSignupNotification, // New function for support notification
   sendEmail,
 } from "@/lib/email" // Assuming email functions are here
 import {
@@ -140,6 +141,23 @@ export async function signup(formData: FormData) {
       // Decide recovery strategy: Delete user? Allow login attempt later?
       // For now, return specific error but user exists in DB as unverified.
       return { success: false, message: "Signup successful, but failed to send verification email. Please contact support." }
+    }
+
+    // Send signup notification to support team
+    try {
+      console.log("[AuthAction] signup: Sending notification to support team for:", email);
+      const notificationData = generateNewSignupNotification({
+        name,
+        email,
+        phone,
+        planChoosed,
+        signupDate: newUser.createdAt
+      });
+      await sendEmail(notificationData);
+      console.log("[AuthAction] signup: Support notification sent successfully");
+    } catch (notificationError) {
+      // Don't fail signup if notification fails - just log it
+      console.error("[AuthAction] signup: Failed to send support notification:", notificationError);
     }
 
     // --- MODIFICATION: Return success message, NO redirect ---
