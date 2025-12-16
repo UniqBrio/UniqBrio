@@ -67,13 +67,13 @@ export const PhoneCountryCodeSelect: React.FC<PhoneCountryCodeSelectProps> = ({
           role="combobox"
           aria-haspopup="listbox"
           disabled={disabled}
-          className={cn('justify-between w-[110px] font-normal', !sel && 'text-muted-foreground', className)}
+          className={cn('group justify-between w-[110px] font-normal text-black hover:text-white', !sel && 'text-muted-foreground', className)}
         >
           <span className="truncate flex items-center gap-1.5">
             {sel ? (
               <>
-                <span>{sel.code}</span>
-                {sel.iso2 && <span className="text-xs text-black hover:text-white font-medium uppercase">{sel.iso2}</span>}
+                <span className="group-hover:text-white">{sel.code}</span>
+                {sel.iso2 && <span className="text-xs font-medium uppercase group-hover:text-white">{sel.iso2}</span>}
               </>
             ) : placeholder}
           </span>

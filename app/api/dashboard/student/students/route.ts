@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { dbConnect } from '@/lib/mongodb';
 import Student from '@/models/dashboard/student/Student';
 import Achievement from '@/models/dashboard/student/Achievement';
@@ -7,6 +8,47 @@ import { enrollStudentInCohort, removeStudentFromCohort } from '@/lib/dashboard/
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
+
+// Ensure email uniqueness is scoped per tenant by fixing legacy indexes at runtime.
+let ensureStudentIndexesPromise: Promise<void> | null = null;
+async function ensureTenantScopedStudentIndexes() {
+  if (ensureStudentIndexesPromise) return ensureStudentIndexesPromise;
+  ensureStudentIndexesPromise = (async () => {
+    const collection = mongoose.connection.collection('students');
+    const indexes = await collection.indexes();
+
+    // Drop any legacy global unique indexes (email or studentId without tenantId)
+    const legacyIndexes = indexes.filter((idx: any) => {
+      const key = idx.key || {};
+      const hasTenant = Boolean(key.tenantId);
+      const isEmailOnly = key.email === 1 && Object.keys(key).length === 1;
+      const isStudentIdOnly = key.studentId === 1 && Object.keys(key).length === 1;
+      return !hasTenant && (isEmailOnly || isStudentIdOnly);
+    });
+
+    for (const idx of legacyIndexes) {
+      const name = idx.name || 'unknown_legacy_index';
+      try {
+        await collection.dropIndex(name);
+        console.log(`🧹 Dropped legacy global student index: ${name}`);
+      } catch (err: any) {
+        // Ignore if already removed or not found; warn otherwise to aid debugging
+        if (err?.codeName !== 'IndexNotFound') {
+          console.warn(`⚠️ Failed to drop legacy index ${name}:`, err);
+        }
+      }
+    }
+
+    // Ensure tenant-scoped unique indexes exist
+    await collection.createIndex({ tenantId: 1, email: 1 }, { unique: true, name: 'tenantId_1_email_1' });
+    await collection.createIndex({ tenantId: 1, studentId: 1 }, { unique: true, name: 'tenantId_1_studentId_1' });
+  })().catch(err => {
+    ensureStudentIndexesPromise = null; // allow retry on next request
+    throw err;
+  });
+
+  return ensureStudentIndexesPromise;
+}
 
 // Helper: generate the next available (gap-filling) student ID like STU0003.
 // Strategy:
@@ -246,6 +288,7 @@ export async function POST(req: NextRequest) {
     { tenantId: session.tenantId },
     async () => {
       await dbConnect("uniqbrio");
+      await ensureTenantScopedStudentIndexes();
       try {
     const data = await req.json();
 

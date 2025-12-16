@@ -51,6 +51,8 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
 
     // 1. Course-wise attendance distribution (optimized)
     const courseStats = dataToProcess.reduce((acc, record) => {
+      // Skip records with no course context to avoid misleading "Unknown Course" bars
+      if (!record.courseName && !record.courseId) return acc;
       const courseName = record.courseName || 'Unknown Course';
       if (!acc[courseName]) {
         acc[courseName] = { present: 0, absent: 0, total: 0 };
@@ -147,6 +149,8 @@ export function AttendanceAnalytics({ attendanceData = defaultAttendanceData, lo
 
     // 4. Cohort performance (optimized)
     const cohortStats = dataToProcess.reduce((acc, record) => {
+      // Skip records with no cohort metadata; prevents phantom cohorts when none exist
+      if (!record.cohortId && !record.cohortName) return acc;
       const cohortName = record.cohortName || 'Unknown Cohort';
       if (!acc[cohortName]) {
         acc[cohortName] = { present: 0, absent: 0, total: 0 };

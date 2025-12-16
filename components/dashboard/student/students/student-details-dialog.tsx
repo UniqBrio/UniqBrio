@@ -11,14 +11,14 @@ import { X } from "lucide-react";
 
 // Helper to format ISO / YYYY-MM-DD dates consistently
 function formatDate(date?: string | null) {
-  if (!date) return "�";
+  if (!date) return "—";
   try {
     // Accept already formatted date (YYYY-MM-DD) or ISO
     const d = new Date(date);
-    if (isNaN(d.getTime())) return date;
+    if (isNaN(d.getTime())) return "—";
     // Use standardized display format dd-MMM-yyyy
     return formatDateForDisplay(d.toISOString().slice(0,10));
-  } catch { return date; }
+  } catch { return "—"; }
 }
 
 // Field component matching course details style

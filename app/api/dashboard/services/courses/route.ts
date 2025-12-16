@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import { Course } from "@/models/dashboard"
+import Draft from "@/models/dashboard/Draft"
 import type { ICourse } from "@/models/dashboard"
 import { CourseIdManager } from "@/lib/dashboard/courseIdManager"
 import { getAllEnrollments, getCourseEnrollments } from "@/lib/dashboard/studentCohortSync"
@@ -373,6 +374,25 @@ export async function POST(request: Request) {
             await CourseIdManager.updateDraftPreviews();
           }
         );
+
+        // If this course was created from a draft, clean up the draft record
+        let draftDeleted = false;
+        if (body.draftId) {
+          try {
+            const deleteResult = await Draft.deleteOne({
+              _id: body.draftId,
+              tenantId: session.tenantId,
+            });
+
+            draftDeleted = (deleteResult as any).deletedCount > 0;
+
+            if (!draftDeleted) {
+              console.warn(`⚠️ Draft ${body.draftId} not found for cleanup after course creation`);
+            }
+          } catch (draftCleanupError) {
+            console.error('❌ Failed to delete draft after course creation:', draftCleanupError);
+          }
+        }
         
         // Log course creation
         const headers = new Headers(request.headers);
@@ -405,7 +425,8 @@ export async function POST(request: Request) {
           }
           return NextResponse.json({ 
             success: true, 
-            course: transformedCourse 
+            course: transformedCourse,
+            draftDeleted,
           }, { status: 201 })
     
         } catch (error) {

@@ -24,11 +24,11 @@ export async function GET() {
     { tenantId: session.tenantId },
     async () => {
       await dbConnect("uniqbrio")
-      // Only return non-inactive and non-deleted records
+      // Only return active (non-deleted) records - tenant isolation is handled by tenant plugin
+      // Status "Inactive" means deleted (set by DELETE endpoint)
       let items: any[] = await NonInstructorModel.find({
     $and: [
       { $or: [ { status: { $exists: false } }, { status: { $ne: "Inactive" } } ] },
-      { $or: [ { deleted_data: { $exists: false } }, { deleted_data: { $ne: false } } ] },
       { $or: [ { isDeleted: { $exists: false } }, { isDeleted: { $ne: true } } ] }
     ]
   }).lean()

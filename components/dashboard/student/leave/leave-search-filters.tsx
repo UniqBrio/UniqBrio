@@ -468,7 +468,7 @@ export default function LeaveSearchFilters({
                   <Button
                     size="sm"
                     variant="default"
-                    className="flex-1"
+                    className="flex-1 bg-purple-600 text-white hover:bg-purple-700"
                     onClick={() => {
                       setSelectedFilters({ ...pendingFilters });
                       setFilterDropdownOpen(false);

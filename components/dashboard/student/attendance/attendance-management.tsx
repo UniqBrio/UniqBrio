@@ -414,7 +414,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
             // If this attendance was created from a draft, delete the draft
             if (editingDraftId != null && draftsRef.current) {
               try {
-                console.log('??? Attempting to delete draft with ID:', editingDraftId);
+                console.log(' Attempting to delete draft with ID:', editingDraftId);
                 // Use the draftsRef to delete, which handles both API and state
                 await draftsRef.current.deleteDraft(editingDraftId);
                 console.log('? Draft deleted successfully');
@@ -423,7 +423,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                 // Don't throw error - attendance was created successfully
               }
             } else {
-              console.log('?? No draft to delete. editingDraftId:', editingDraftId, 'draftsRef:', draftsRef.current);
+              console.log('No draft to delete. editingDraftId:', editingDraftId, 'draftsRef:', draftsRef.current);
             }
             
             toast({

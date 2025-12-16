@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import StudentAttendance from '@/models/dashboard/student/StudentAttendance';
 import Student from '@/models/dashboard/student/Student';
+import Course from '@/models/dashboard/Course';
 import mongoose from 'mongoose';
 import Cohort from '@/models/dashboard/Cohort';
 import { getUserSession } from '@/lib/tenant/api-helpers';
@@ -50,23 +51,6 @@ const deriveCohortTiming = (cohort: any): string | undefined => {
   const combined = [dayLabel, timeRange].filter(Boolean).join(' • ');
   return combined || cohort?.timing || undefined;
 };
-
-// Define the Course schema for lookup
-const courseSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
-  name: String,
-  courseId: String,
-  description: String,
-  courseCategory: String,
-  type: String,
-  duration: String,
-  level: String,
-}, {
-  collection: 'courses',
-  strict: false
-});
-
-const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
 
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
@@ -130,8 +114,19 @@ export async function GET(request: NextRequest) {
       {
         $lookup: {
           from: 'students',
-          localField: 'studentId',
-          foreignField: 'studentId',
+          let: { sid: "$studentId", tenant: session.tenantId },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$tenantId", "$$tenant"] },
+                    { $eq: ["$studentId", "$$sid"] }
+                  ]
+                }
+              }
+            }
+          ],
           as: 'studentInfo'
         }
       },
@@ -180,14 +175,19 @@ export async function GET(request: NextRequest) {
       {
         $lookup: {
           from: 'courses',
-          let: { courseIdToLookup: "$lookupCourseId" },
+          let: { courseIdToLookup: "$lookupCourseId", tenant: session.tenantId },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $or: [
-                    { $eq: ["$courseId", "$$courseIdToLookup"] },
-                    { $eq: [{ $toString: "$_id" }, "$$courseIdToLookup"] }
+                  $and: [
+                    { $eq: ["$tenantId", "$$tenant"] },
+                    {
+                      $or: [
+                        { $eq: ["$courseId", "$$courseIdToLookup"] },
+                        { $eq: [{ $toString: "$_id" }, "$$courseIdToLookup"] }
+                      ]
+                    }
                   ]
                 }
               }
@@ -200,12 +200,13 @@ export async function GET(request: NextRequest) {
       {
         $lookup: {
           from: 'courses',
-          let: { courseNameToLookup: "$studentEnrolledCourseName" },
+          let: { courseNameToLookup: "$studentEnrolledCourseName", tenant: session.tenantId },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
+                    { $eq: ["$tenantId", "$$tenant"] },
                     { $ne: ["$$courseNameToLookup", null] },
                     { $ne: ["$$courseNameToLookup", ""] },
                     { $eq: [ { $toLower: "$name" }, { $toLower: "$$courseNameToLookup" } ] }

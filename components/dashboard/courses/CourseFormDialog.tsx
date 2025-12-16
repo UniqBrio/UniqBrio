@@ -440,7 +440,7 @@ export default function CourseFormDialog({
             }))
         : [];
       // Prepare course data with all possible fields from the form
-      const courseData = {
+        const courseData = {
   // Mandatory fields
   name: newCourseForm.name || '',
   type: newCourseForm.type || '',
@@ -540,6 +540,10 @@ export default function CourseFormDialog({
         marketing: newCourseForm.marketing || {},
         settings: newCourseForm.settings || {},
       }
+
+      if (isEditingDraft && editCourseId) {
+        courseData.draftId = editCourseId;
+      }
       if (isEditMode && editCourseId) {
         // Check if this is a draft being edited
         const isDraft = courses.every(c => c.id !== editCourseId)
@@ -554,21 +558,27 @@ export default function CourseFormDialog({
           })
           const createResult = await createResponse.json()
           if (createResult.success) {
-            // Delete the draft
-            const deleteResponse = await fetch(`/api/dashboard/services/courses/drafts?id=${editCourseId}`, {
-              method: 'DELETE',
-              credentials: 'include'
-            })
-            const deleteResult = await deleteResponse.json()
-            
-            if (deleteResult.success) {
-              console.log('✅ Draft deleted successfully:', editCourseId);
-              // Dispatch event to remove draft from parent component's state
-              window.dispatchEvent(new CustomEvent('draftDeleted', { 
-                detail: { draftId: editCourseId } 
-              }))
+            const draftAlreadyRemoved = createResult.draftDeleted === true;
+
+            if (draftAlreadyRemoved) {
+              window.dispatchEvent(new CustomEvent('draftDeleted', { detail: { draftId: editCourseId } }))
             } else {
-              console.error('❌ Failed to delete draft:', deleteResult.error);
+              try {
+                const deleteResponse = await fetch(`/api/dashboard/services/courses/drafts?id=${editCourseId}`, {
+                  method: 'DELETE',
+                  credentials: 'include'
+                })
+                const deleteResult = await deleteResponse.json()
+
+                if (deleteResult.success) {
+                  console.log('✅ Draft deleted successfully:', editCourseId);
+                  window.dispatchEvent(new CustomEvent('draftDeleted', { detail: { draftId: editCourseId } }))
+                } else {
+                  console.error('❌ Failed to delete draft:', deleteResult.error);
+                }
+              } catch (deleteError) {
+                console.error('❌ Draft cleanup error:', deleteError)
+              }
             }
             
             // Update courses state

@@ -1023,11 +1023,15 @@ export default function EventsPage() {
                           {events.filter(e => e.status === 'Ongoing').length} events
                         </span>
                         <button
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="ml-4 w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm hover:shadow transition-colors"
+                          style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}10` }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
                           onClick={() => setShowColumnSelector(true)}
-                          title="Select columns"
+                          title="Displayed Columns"
+                          aria-label="Edit displayed event columns"
                         >
-                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-white" />
+                          <GridIcon className="w-6 h-6" />
                         </button>
                       </div>
                     </div>
@@ -1235,11 +1239,15 @@ export default function EventsPage() {
                           {events.filter(e => e.status === 'Upcoming').length} events
                         </span>
                         <button
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="ml-4 w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm hover:shadow transition-colors"
+                          style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}10` }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
                           onClick={() => setShowColumnSelector(true)}
-                          title="Select columns"
+                          title="Displayed Columns"
+                          aria-label="Edit displayed event columns"
                         >
-                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-white" />
+                          <GridIcon className="w-6 h-6" />
                         </button>
                       </div>
                     </div>
@@ -1450,11 +1458,15 @@ export default function EventsPage() {
                           {events.filter(e => e.status === 'Completed').length} events
                         </span>
                         <button
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="ml-4 w-10 h-10 rounded-xl border flex items-center justify-center shadow-sm hover:shadow transition-colors"
+                          style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}10` }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}20`}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
                           onClick={() => setShowColumnSelector(true)}
-                          title="Select columns"
+                          title="Displayed Columns"
+                          aria-label="Edit displayed event columns"
                         >
-                          <GridIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-white" />
+                          <GridIcon className="w-6 h-6" />
                         </button>
                       </div>
                       </div>

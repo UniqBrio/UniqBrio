@@ -509,7 +509,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
         }
         
         toast({
-          title: "??? Event Deleted",
+          title: "Event Deleted",
           description: "Event has been successfully deleted from the database.",
           duration: 3000,
         })
@@ -645,7 +645,7 @@ export const EventManagement: React.FC<EventManagementProps> = (props) => {
           }
 
           toast({
-            title: "?? Event Updated",
+            title: "Event Updated",
             description: "Event has been successfully updated in the database.",
             duration: 3000,
           })
@@ -1347,6 +1347,8 @@ export function EventFormModal({
   const [formData, setFormData] = useState<Partial<Event>>(initialFormData)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [courses, setCourses] = useState<Course[]>([])
+  const [staffSearchOpen, setStaffSearchOpen] = useState(false)
+  const [staffSearchQuery, setStaffSearchQuery] = useState("")
 
   // Fetch available courses to include in the category dropdown
   useEffect(() => {
@@ -1533,28 +1535,82 @@ export function EventFormModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">Staff Incharge <span className="text-red-500">*</span></label>
-                <select
-                  value={formData.staff || ""}
-                  onChange={(e) => setFormData({ ...formData, staff: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${validationErrors.staff ? 'border-red-500' : 'border-gray-300'}`}
-                  disabled={isLoadingStaff}
-                >
-                  <option value="">{isLoadingStaff ? 'Loading staff...' : 'Select a staff member'}</option>
-                  {instructors.length > 0 && (
-                    <optgroup label="Instructors">
-                      {instructors.map((staff, index) => (
-                        <option key={`instructor-${index}-${staff}`} value={staff}>{staff}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {nonInstructors.length > 0 && (
-                    <optgroup label="Non-Instructors">
-                      {nonInstructors.map((staff, index) => (
-                        <option key={`non-instructor-${index}-${staff}`} value={staff}>{staff}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
+                <Popover open={staffSearchOpen} onOpenChange={setStaffSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-left flex items-center justify-between ${validationErrors.staff ? 'border-red-500' : 'border-gray-300'}`}
+                      disabled={isLoadingStaff}
+                    >
+                      <span className={formData.staff ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
+                        {formData.staff || (isLoadingStaff ? 'Loading staff...' : 'Select a staff member')}
+                      </span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" align="start" side="bottom" sideOffset={4}>
+                    <Command>
+                      <CommandInput 
+                        placeholder="Search staff..." 
+                        value={staffSearchQuery}
+                        onValueChange={setStaffSearchQuery}
+                      />
+                      <CommandList className="max-h-[200px]">
+                        <CommandEmpty>No staff member found.</CommandEmpty>
+                        {instructors.length > 0 && (
+                          <CommandGroup heading="Instructors">
+                            {instructors
+                              .filter(staff => staff.toLowerCase().includes(staffSearchQuery.toLowerCase()))
+                              .map((staff, index) => (
+                                <CommandItem
+                                  key={`instructor-${index}-${staff}`}
+                                  value={staff}
+                                  onSelect={(currentValue) => {
+                                    setFormData({ ...formData, staff: currentValue })
+                                    setStaffSearchOpen(false)
+                                    setStaffSearchQuery("")
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.staff === staff ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {staff}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        )}
+                        {nonInstructors.length > 0 && (
+                          <CommandGroup heading="Non-Instructors">
+                            {nonInstructors
+                              .filter(staff => staff.toLowerCase().includes(staffSearchQuery.toLowerCase()))
+                              .map((staff, index) => (
+                                <CommandItem
+                                  key={`non-instructor-${index}-${staff}`}
+                                  value={staff}
+                                  onSelect={(currentValue) => {
+                                    setFormData({ ...formData, staff: currentValue })
+                                    setStaffSearchOpen(false)
+                                    setStaffSearchQuery("")
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.staff === staff ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {staff}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 {validationErrors.staff && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.staff}</p>
                 )}

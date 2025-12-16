@@ -210,153 +210,168 @@ export async function POST(request: NextRequest) {
 
 // PUT /api/drafts - Update a draft
 export async function PUT(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
-    
-    const body = await request.json()
-    const {
-      id,
-      name,
-      instructor,
-      description,
-      level,
-      type,
-      duration,
-      priceINR,
-      schedule,
-      maxStudents,
-      tags,
-      category,
-      subcategory,
-      thumbnail,
-      courseCategory,
-      status,
-      shortDescription,
-      prerequisites,
-      learningOutcomes,
-      materialRequirements
-    } = body
-
-    if (!id) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Draft ID is required for update'
-        },
-        { status: 400 }
-      )
-    }
-
-    // For draft updates, we only validate that we have something to identify the draft
-    // No other fields are required since drafts can be partially filled
-    if (!name && !body.title) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Missing required fields: At least a name or title is required for draft updates',
-          required: ['name or title']
-        },
-        { status: 400 }
-      )
-    }
-
-    const DraftModel = await ensureDraftModel()
-
-    // Check if draft exists
-    const existingDraft = await DraftModel.findById(id)
-    if (!existingDraft) {
-      return NextResponse.json(
-        { success: false, error: 'Draft not found' },
-        { status: 404 }
-      )
-    }
-
-    // Create update object with only provided data (no auto-population)
-    const updateData: any = {}
-    
-    // Only add fields that have actual values
-    if (name) updateData.name = name
-    if (body.title) updateData.title = body.title
-    if (instructor) updateData.instructor = instructor
-    if (body.instructorId) updateData.instructorId = body.instructorId
-    if (description) updateData.description = description
-    if (level) updateData.level = level
-    if (type) updateData.type = type
-    if (duration) updateData.duration = duration
-    if (priceINR) updateData.priceINR = priceINR
-    if (body.price) updateData.price = body.price
-    if (schedule) updateData.schedule = schedule
-    if (maxStudents) updateData.maxStudents = maxStudents
-
-    // Only add optional fields if they are provided and not empty
-    if (tags && Array.isArray(tags) && tags.length > 0) {
-      updateData.tags = tags
-    }
-    if (category && category.trim()) {
-      updateData.category = category.trim()
-    }
-    if (subcategory && subcategory.trim()) {
-      updateData.subcategory = subcategory.trim()
-    }
-    if (thumbnail && thumbnail.trim()) {
-      updateData.thumbnail = thumbnail.trim()
-    }
-    if (courseCategory && courseCategory.trim()) {
-      updateData.courseCategory = courseCategory.trim()
-    }
-    if (status && status.trim()) {
-      updateData.status = status.trim()
-    }
-    if (shortDescription && shortDescription.trim()) {
-      updateData.shortDescription = shortDescription.trim()
-    }
-    if (prerequisites && Array.isArray(prerequisites) && prerequisites.length > 0) {
-      updateData.prerequisites = prerequisites
-    }
-    if (learningOutcomes && Array.isArray(learningOutcomes) && learningOutcomes.length > 0) {
-      updateData.learningOutcomes = learningOutcomes
-    }
-    if (materialRequirements && Array.isArray(materialRequirements) && materialRequirements.length > 0) {
-      updateData.materialRequirements = materialRequirements
-    }
-
-    const updatedDraft = await DraftModel.findByIdAndUpdate(
-      id,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    )
-
-    if (!updatedDraft) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to update draft' },
-        { status: 500 }
-      )
-    }
-
-    // Transform the response to match frontend expectations
-    const transformedDraft = {
-      ...updatedDraft.toObject(),
-      id: updatedDraft._id.toString(),
-      updatedAt: updatedDraft.updatedAt ? new Date(updatedDraft.updatedAt).getTime() : Date.now()
-    }
-
-    return NextResponse.json({
-      success: true,
-      draft: transformedDraft,
-      message: 'Draft updated successfully'
-    })
-
-  } catch (error) {
-    console.error('Error updating draft:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update draft',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        
+        const body = await request.json()
+        const {
+          id,
+          name,
+          instructor,
+          description,
+          level,
+          type,
+          duration,
+          priceINR,
+          schedule,
+          maxStudents,
+          tags,
+          category,
+          subcategory,
+          thumbnail,
+          courseCategory,
+          status,
+          shortDescription,
+          prerequisites,
+          learningOutcomes,
+          materialRequirements
+        } = body
+
+        if (!id) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: 'Draft ID is required for update'
+            },
+            { status: 400 }
+          )
+        }
+
+        // For draft updates, we only validate that we have something to identify the draft
+        // No other fields are required since drafts can be partially filled
+        if (!name && !body.title) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: 'Missing required fields: At least a name or title is required for draft updates',
+              required: ['name or title']
+            },
+            { status: 400 }
+          )
+        }
+
+        const DraftModel = await ensureDraftModel()
+
+        // Check if draft exists AND belongs to this tenant
+        const existingDraft = await DraftModel.findOne({ 
+          _id: id, 
+          tenantId: session.tenantId 
+        })
+        
+        if (!existingDraft) {
+          return NextResponse.json(
+            { success: false, error: 'Draft not found' },
+            { status: 404 }
+          )
+        }
+
+        // Create update object with only provided data (no auto-population)
+        const updateData: any = {}
+        
+        // Only add fields that have actual values
+        if (name) updateData.name = name
+        if (body.title) updateData.title = body.title
+        if (instructor) updateData.instructor = instructor
+        if (body.instructorId) updateData.instructorId = body.instructorId
+        if (description) updateData.description = description
+        if (level) updateData.level = level
+        if (type) updateData.type = type
+        if (duration) updateData.duration = duration
+        if (priceINR) updateData.priceINR = priceINR
+        if (body.price) updateData.price = body.price
+        if (schedule) updateData.schedule = schedule
+        if (maxStudents) updateData.maxStudents = maxStudents
+
+        // Only add optional fields if they are provided and not empty
+        if (tags && Array.isArray(tags) && tags.length > 0) {
+          updateData.tags = tags
+        }
+        if (category && category.trim()) {
+          updateData.category = category.trim()
+        }
+        if (subcategory && subcategory.trim()) {
+          updateData.subcategory = subcategory.trim()
+        }
+        if (thumbnail && thumbnail.trim()) {
+          updateData.thumbnail = thumbnail.trim()
+        }
+        if (courseCategory && courseCategory.trim()) {
+          updateData.courseCategory = courseCategory.trim()
+        }
+        if (status && status.trim()) {
+          updateData.status = status.trim()
+        }
+        if (shortDescription && shortDescription.trim()) {
+          updateData.shortDescription = shortDescription.trim()
+        }
+        if (prerequisites && Array.isArray(prerequisites) && prerequisites.length > 0) {
+          updateData.prerequisites = prerequisites
+        }
+        if (learningOutcomes && Array.isArray(learningOutcomes) && learningOutcomes.length > 0) {
+          updateData.learningOutcomes = learningOutcomes
+        }
+        if (materialRequirements && Array.isArray(materialRequirements) && materialRequirements.length > 0) {
+          updateData.materialRequirements = materialRequirements
+        }
+
+        const updatedDraft = await DraftModel.findOneAndUpdate(
+          { _id: id, tenantId: session.tenantId },
+          { $set: updateData },
+          { new: true, runValidators: true }
+        )
+
+        if (!updatedDraft) {
+          return NextResponse.json(
+            { success: false, error: 'Failed to update draft' },
+            { status: 500 }
+          )
+        }
+
+        // Transform the response to match frontend expectations
+        const transformedDraft = {
+          ...updatedDraft.toObject(),
+          id: updatedDraft._id.toString(),
+          updatedAt: updatedDraft.updatedAt ? new Date(updatedDraft.updatedAt).getTime() : Date.now()
+        }
+
+        return NextResponse.json({
+          success: true,
+          draft: transformedDraft,
+          message: 'Draft updated successfully'
+        })
+
+      } catch (error) {
+        console.error('Error updating draft:', error)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to update draft',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          },
+          { status: 500 }
+        )
+      }
+    }
+  );
 }
 
 // DELETE /api/drafts - Delete a draft
