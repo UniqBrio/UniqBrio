@@ -4,6 +4,8 @@ import { dbConnect } from '@/lib/mongodb';
 import Payment from '@/models/dashboard/payments/Payment';
 import PaymentTransaction from '@/models/dashboard/payments/PaymentTransaction';
 import Student from '@/models/dashboard/student/Student';
+import { IncomeModel } from '@/lib/dashboard/models';
+import { processDropdownValues } from '@/lib/dashboard/dropdown-utils';
 import type { MonthlySubscriptionRecord } from '@/lib/dashboard/payments/monthly-subscription-helper';
 
 // Define the Cohort schema to access course IDs
@@ -43,6 +45,56 @@ import {
   updateReminderSchedule,
 } from '@/lib/dashboard/payments/payment-processing-service';
 
+/**
+ * Helper function to create an income record from a payment transaction
+ */
+async function createIncomeFromPayment(paymentData: any, payment: any, tenantId: string) {
+  try {
+    // Ensure date is properly formatted
+    if (!paymentData.paymentDate) {
+      throw new Error('Payment data has no date');
+    }
+    
+    // Ensure amount is a valid number
+    const amount = Number(paymentData.amount);
+    if (isNaN(amount) || amount <= 0) {
+      throw new Error(`Invalid amount: ${paymentData.amount}`);
+    }
+
+    // Map payment transaction fields to income fields
+    const incomeData = {
+      tenantId: tenantId,
+      date: new Date(paymentData.paymentDate),
+      amount: amount,
+      description: payment.enrolledCourseName 
+        ? `${payment.enrolledCourse || ''} - ${payment.enrolledCourseName}`.trim() 
+        : paymentData.notes || 'Course Payment',
+      incomeCategory: "Course Fees",
+      sourceType: "Students",
+      paymentMode: paymentData.paymentMode || "Cash",
+      status: "Completed",
+      addToAccount: "", // Can be set based on business logic
+      receivedBy: paymentData.receivedBy || "",
+      receivedFrom: payment.studentName 
+        ? `${payment.studentId || ''} - ${payment.studentName}`.trim()
+        : paymentData.payerName || "",
+      receiptNumber: "", // Leave empty when creating from payment transactions
+    };
+
+    // Create the income record
+    const createdIncome = await IncomeModel.create(incomeData);
+    
+    // Auto-add dropdown values to their respective collections
+    await processDropdownValues(incomeData, 'income');
+    
+    console.log("Income record created from payment:", createdIncome._id);
+    return createdIncome;
+  } catch (error: any) {
+    console.error("Failed to create income record from payment:", error);
+    throw error;
+  }
+}
+
 // Helper function for Monthly Subscription
 function getNextMonth(currentMonth: string): string {
   const date = new Date(currentMonth + '-01');
@@ -80,6 +132,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+    
+    const tenantId = session.tenantId;
     
     return await runWithTenantContext(
       { tenantId: session.tenantId },
@@ -367,12 +421,12 @@ export async function POST(request: NextRequest) {
       }
       
       // Update payment record with correct fees
-      const receivedAmount = payment.receivedAmount || 0;
-      const newTotalFees = courseFee + courseRegistrationFee + studentRegistrationFee;
+      const receivedAmount = Number(payment.receivedAmount || 0);
+      const newTotalFees = Number(courseFee) + Number(courseRegistrationFee) + Number(studentRegistrationFee);
       
-      payment.courseFee = courseFee;
-      payment.courseRegistrationFee = courseRegistrationFee;
-      payment.studentRegistrationFee = studentRegistrationFee;
+      payment.courseFee = Number(courseFee);
+      payment.courseRegistrationFee = Number(courseRegistrationFee);
+      payment.studentRegistrationFee = Number(studentRegistrationFee);
       payment.outstandingAmount = newTotalFees - receivedAmount;
       payment.enrolledCourse = courseId || payment.enrolledCourse;
       payment.enrolledCourseId = courseId || payment.enrolledCourseId;
@@ -424,16 +478,17 @@ export async function POST(request: NextRequest) {
     const isFirstPayment = receivedAmount === 0;
     
     // Calculate total fees that should be collected
-    let totalFees = payment.courseFee || 0;
+    // Start with ALL fees (course + both registration fees)
+    let totalFees = calculatedTotalFees;
     
-    // Add registration fees if not already paid (check based on the request data)
+    // Deduct registration fees that are already marked as paid
     const selectedTypes = body.selectedTypes || {};
     
-    if (!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee && payment.studentRegistrationFee) {
-      totalFees += payment.studentRegistrationFee;
+    if (payment.studentRegistrationFeePaid && payment.studentRegistrationFee) {
+      totalFees -= payment.studentRegistrationFee;
     }
-    if (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee && payment.courseRegistrationFee) {
-      totalFees += payment.courseRegistrationFee;
+    if (payment.courseRegistrationFeePaid && payment.courseRegistrationFee) {
+      totalFees -= payment.courseRegistrationFee;
     }
     
     // Maximum allowed is total fees minus what's already been received
@@ -534,6 +589,12 @@ export async function POST(request: NextRequest) {
     
     // Update the transactionId to reference itself
     paymentRecord.transactionId = paymentRecord._id.toString();
+    
+    // Generate receipt number if not set
+    if (!paymentRecord.receiptNumber) {
+      await (paymentRecord as any).generateReceiptNumber();
+    }
+    
     await paymentRecord.save();
     const paymentSequence = previousRecords.length + 1;
     
@@ -582,6 +643,24 @@ export async function POST(request: NextRequest) {
     
     await paymentRecord.save();
     console.log(`PaymentRecord updated with invoice URL: ${invoiceNumber} (Payment ${paymentSequence} for student ${studentId})`);
+
+    // Create corresponding income record in financials
+    let incomeRecord = null;
+    try {
+      incomeRecord = await createIncomeFromPayment({
+        paymentDate: parsedPaymentDate,
+        amount: amount,
+        paymentMode: paymentMode,
+        receivedBy: receivedBy,
+        notes: notes,
+        payerName: payerName
+      }, payment, tenantId);
+      console.log("✓ Income record created for financial tracking:", incomeRecord._id);
+    } catch (incomeErr: any) {
+      console.error("✗ Failed to create income record (payment still recorded):", incomeErr);
+      // Note: Payment is still recorded even if income creation fails
+      // This ensures payment workflow continues but logs the issue
+    }
 
     // Determine if reminders should be auto-enabled for partial One-Time payments
     // Note: 'One Time With Installments' is EMI, not one-time - it has its own schedule

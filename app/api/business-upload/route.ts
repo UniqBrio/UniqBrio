@@ -83,23 +83,6 @@ export async function POST(req: NextRequest) {
   try {
     console.log("[business-upload] Starting business image upload process...");
     
-    // Get the current user's session
-    const sessionToken = await getSessionCookie();
-    if (!sessionToken) {
-      console.log("[business-upload] No session token found");
-      return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 });
-    }
-
-    // Verify the token and get user info
-    const payload = await verifyToken(sessionToken);
-    if (!payload?.email || typeof payload.email !== 'string') {
-      console.log("[business-upload] Invalid session payload");
-      return NextResponse.json({ success: false, error: "Invalid session" }, { status: 401 });
-    }
-
-    const userEmail = payload.email;
-    console.log(`[business-upload] Authenticated user: ${userEmail}`);
-
     const formData = await req.formData();
     console.log("[business-upload] Form data received, processing...");
     
@@ -108,6 +91,34 @@ export async function POST(req: NextRequest) {
     const businessNameUpload = formData.get("businessNameUpload") as File | string | null;
     const profilePicture = formData.get("profilePicture") as File | string | null;
     const businessName = (formData.get("businessName") as string) || "business";
+    const userEmailFromForm = formData.get("userEmail") as string | null;
+    
+    let userEmail: string;
+    
+    // Try to get email from session first (for logged-in users)
+    const sessionToken = await getSessionCookie();
+    if (sessionToken) {
+      console.log("[business-upload] Session token found, verifying...");
+      const payload = await verifyToken(sessionToken);
+      if (payload?.email && typeof payload.email === 'string') {
+        userEmail = payload.email;
+        console.log(`[business-upload] Authenticated user from session: ${userEmail}`);
+      } else if (userEmailFromForm) {
+        // Session exists but invalid, use form email
+        userEmail = userEmailFromForm;
+        console.log(`[business-upload] Using email from form (invalid session): ${userEmail}`);
+      } else {
+        console.log("[business-upload] Invalid session and no email in form");
+        return NextResponse.json({ success: false, error: "Invalid session" }, { status: 401 });
+      }
+    } else if (userEmailFromForm) {
+      // No session - this is a first-time user who verified email but hasn't logged in
+      userEmail = userEmailFromForm;
+      console.log(`[business-upload] No session, using email from form (first-time user): ${userEmail}`);
+    } else {
+      console.log("[business-upload] No session token and no email provided in form");
+      return NextResponse.json({ success: false, error: "Email is required for image upload" }, { status: 400 });
+    }
 
     console.log("[business-upload] Received data:", {
       hasBusinessLogo: !!businessLogo,

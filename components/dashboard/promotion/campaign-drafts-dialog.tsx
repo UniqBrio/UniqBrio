@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog";
 import { Button } from "@/components/dashboard/ui/button";
 import { Edit, Trash2 } from "lucide-react";
@@ -99,6 +99,7 @@ export function CampaignDraftsDialog({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Campaign Drafts</DialogTitle>
+            <DialogDescription className="sr-only">Manage your saved campaign drafts</DialogDescription>
           </DialogHeader>
 
           {loading ? (

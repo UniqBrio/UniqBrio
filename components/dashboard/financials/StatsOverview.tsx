@@ -91,22 +91,22 @@ export function StatsOverview() {
   return (
     <>
       {/* Stats Overview - Mobile-optimized layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3 lg:gap-4 mb-4 sm:mb-4 lg:mb-6">
         {stats.map((stat, index) => {
           const style = statIcons[index] || statIcons[0]
           return (
             <Card key={index} className={`${style.bg} min-h-0 overflow-hidden`}>
-              <CardContent className="p-2 sm:p-3 lg:p-4">
-                <div className="flex flex-col space-y-1 sm:space-y-2">
+              <CardContent className="p-3 sm:p-3 lg:p-4">
+                <div className="flex flex-col space-y-1.5 sm:space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <p className={`text-xs sm:text-sm font-medium leading-tight flex-1 min-w-0 ${index === 0 ? "" : index === 1 ? "text-red-600" : index === 2 ? "text-green-600" : "text-blue-600"}`} style={index === 0 ? { color: `${secondaryColor}cc` } : {}}>{stat.title}</p>
+                    <p className={`text-xs sm:text-sm font-medium leading-snug flex-1 min-w-0 ${index === 0 ? "" : index === 1 ? "text-red-600" : index === 2 ? "text-green-600" : "text-blue-600"}`} style={index === 0 ? { color: `${secondaryColor}cc` } : {}}>{stat.title}</p>
                     <div className="flex-shrink-0">{style.icon}</div>
                   </div>
                   <div className="min-w-0">
-                    <p className={`text-sm sm:text-base lg:text-lg font-bold leading-tight break-words hyphens-auto overflow-wrap-anywhere ${index === 0 ? "" : index === 1 ? "text-red-900" : index === 2 ? "text-green-900" : "text-blue-900"}`} style={index === 0 ? { color: secondaryColor } : {}}>{stat.value}</p>
+                    <p className={`text-base sm:text-base lg:text-lg font-bold leading-snug break-words hyphens-auto overflow-wrap-anywhere ${index === 0 ? "" : index === 1 ? "text-red-900" : index === 2 ? "text-green-900" : "text-blue-900"}`} style={index === 0 ? { color: secondaryColor } : {}}>{stat.value}</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground leading-tight mt-1 truncate">{stat.change}</p>
+                <p className="text-xs text-muted-foreground leading-snug mt-1.5 truncate">{stat.change}</p>
               </CardContent>
             </Card>
           )

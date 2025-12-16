@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dashboard/ui/alert-dialog";
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge } from "@/components/dashboard/ui/badge";
@@ -178,9 +178,9 @@ export function StudentDraftsDialog({
               <DialogTitle className="text-xl font-semibold">
                 Drafts (Add Student)
               </DialogTitle>
-              <p className="text-sm text-gray-600 dark:text-white mt-1">
+              <DialogDescription className="text-sm text-gray-600 dark:text-white mt-1">
                 Manage your saved drafts. Click to create student from draft or delete. ({drafts.length} draft{drafts.length !== 1 ? 's' : ''} found)
-              </p>
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>

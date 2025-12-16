@@ -366,17 +366,26 @@ PaymentRecordSchema.virtual('paidDateFormatted').get(function () {
   return this.paidDate ? this.paidDate.toISOString().split('T')[0] : '';
 });
 
-// Method to generate receipt number
+// Method to generate receipt number with sequential numbering
 PaymentRecordSchema.methods.generateReceiptNumber = async function () {
   if (!this.receiptNumber) {
+    const CounterModel = (await import('./Counter')).default;
+    const { getTenantContext } = await import('@/lib/tenant/tenant-context');
+    
+    // Get tenantId from document or context
+    const effectiveTenantId = this.tenantId || getTenantContext()?.tenantId || 'default';
+    
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, '0');
-    this.receiptNumber = `RCP-${year}${month}${day}-${random}`;
+    
+    // Get next sequence number for this tenant and date
+    const counterName = `receipt_${effectiveTenantId}_${year}${month}${day}`;
+    const sequenceNumber = await CounterModel.getNextSequence(counterName);
+    
+    // Format: RCP-YYYYMMDD-00001 (sequential, 5-digit padded)
+    this.receiptNumber = `RCP-${year}${month}${day}-${String(sequenceNumber).padStart(5, '0')}`;
   }
   return this.receiptNumber;
 };

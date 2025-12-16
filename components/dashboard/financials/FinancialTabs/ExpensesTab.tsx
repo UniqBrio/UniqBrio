@@ -180,11 +180,11 @@ export function ExpensesTab({ expenseFilter, setExpenseFilter }: ExpensesTabProp
 
   return (
     <Card>
-      <CardHeader className="pb-4 sm:pb-6 lg:pb-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-0">
+      <CardHeader className="pb-4 sm:pb-6 lg:pb-8 px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
-          <div className="min-w-0 flex-1 space-y-2">
-            <CardTitle className="text-lg sm:text-xl lg:text-2xl break-words leading-tight font-bold">Expense Management & Analysis</CardTitle>
-            <CardDescription className="text-sm sm:text-base mt-2 leading-relaxed">Advanced expense tracking with category, vendor, and payment analysis</CardDescription>
+          <div className="min-w-0 flex-1 space-y-3 sm:space-y-2">
+            <CardTitle className="text-base sm:text-xl lg:text-2xl break-words leading-snug font-bold">Expense Management & Analysis</CardTitle>
+            <CardDescription className="text-xs sm:text-base leading-relaxed">Advanced expense tracking with category, vendor, and payment analysis</CardDescription>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
             <Label htmlFor="year-select" className="text-sm font-medium sr-only">Year Selection</Label>

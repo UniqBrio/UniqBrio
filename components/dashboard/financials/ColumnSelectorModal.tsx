@@ -220,27 +220,27 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="bg-white rounded-lg shadow-xl p-8 min-w-[500px] max-w-[95vw]">
-        <div className="font-bold text-lg mb-4">Select Columns to Display
-          <div className="text-sm text-gray-600 dark:text-white mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-3 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl p-3 sm:p-6 lg:p-8 w-full max-w-[95vw] sm:min-w-[500px] max-h-[90vh] overflow-y-auto">
+        <div className="font-bold text-sm sm:text-base lg:text-lg mb-3 sm:mb-4">Select Columns to Display
+          <div className="text-xs sm:text-sm text-gray-600 dark:text-white mb-2 sm:mb-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
             
-            <div className="grid grid-cols-4 gap-1 text-xs">
-              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Shift+↑↓</kbd> Multi-select</div>
-              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Tab</kbd> Switch list</div>
-              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+A</kbd> Select all</div>
-              <div><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white">Ctrl+D</kbd> Deselect all</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-[10px] sm:text-xs">
+              <div className="truncate"><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white text-[10px] sm:text-xs">Shift+↑↓</kbd> <span className="hidden sm:inline">Multi-select</span><span className="sm:hidden">Multi</span></div>
+              <div className="truncate"><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white text-[10px] sm:text-xs">Tab</kbd> <span className="hidden sm:inline">Switch list</span><span className="sm:hidden">Switch</span></div>
+              <div className="truncate"><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white text-[10px] sm:text-xs">Ctrl+A</kbd> <span className="hidden sm:inline">Select all</span><span className="sm:hidden">All</span></div>
+              <div className="truncate"><kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-gray-700 dark:text-white text-[10px] sm:text-xs">Ctrl+D</kbd> <span className="hidden sm:inline">Deselect all</span><span className="sm:hidden">Clear</span></div>
               
             </div>
           </div>
         </div>
-        <div className="flex gap-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 lg:gap-8">
           {/* Available */}
-          <div className="flex-1">
-            <div className="font-semibold mb-2">Available Columns</div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold mb-2 text-xs sm:text-sm">Available Columns</div>
             <div
               ref={availableListRef}
-              className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'available' ? 'ring-1' : ''}`}
+              className={`w-full h-32 sm:h-40 border rounded p-2 overflow-y-auto ${focusedList === 'available' ? 'ring-1' : ''}`}
               role="listbox"
               tabIndex={focusedList === 'available' ? 0 : -1}
               aria-label="Available columns"
@@ -258,16 +258,17 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
                     type="checkbox"
                     checked={selectedAvailable.includes(col)}
                     onChange={() => setSelectedAvailable(prev => prev.includes(col) ? prev.filter(v => v !== col) : [...prev, col])}
+                    className="flex-shrink-0"
                   />
-                  <span>{col}</span>
+                  <span className="text-xs sm:text-sm truncate">{col}</span>
                 </label>
               ))}
             </div>
           </div>
           {/* Move buttons */}
-          <div className="flex flex-col justify-center gap-2">
+          <div className="flex sm:flex-col justify-center gap-2 order-3 sm:order-2">
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              className={`px-2 sm:px-3 py-1 rounded flex items-center justify-center transition-colors flex-1 sm:flex-none ${selectedAvailable.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
               onClick={handleAdd}
               disabled={!selectedAvailable.length}
               title="Add Selected (→)"
@@ -275,10 +276,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               onMouseEnter={(e) => { if (selectedAvailable.length) e.currentTarget.style.backgroundColor = `${primaryColor}20` }}
               onMouseLeave={(e) => { if (selectedAvailable.length) e.currentTarget.style.backgroundColor = `${primaryColor}15` }}
             >
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${availableColumns.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              className={`px-2 sm:px-3 py-1 rounded flex items-center justify-center transition-colors flex-1 sm:flex-none ${availableColumns.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
               onClick={() => { setDraftDisplayed(prev => [...prev, ...availableColumns]); setSelectedAvailable([]); }}
               disabled={!availableColumns.length}
               title="Add All"
@@ -286,10 +287,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               onMouseEnter={(e) => { if (availableColumns.length) e.currentTarget.style.backgroundColor = `${primaryColor}20` }}
               onMouseLeave={(e) => { if (availableColumns.length) e.currentTarget.style.backgroundColor = `${primaryColor}15` }}
             >
-              <ChevronsRight className="w-5 h-5" />
+              <ChevronsRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              className={`px-2 sm:px-3 py-1 rounded flex items-center justify-center transition-colors flex-1 sm:flex-none ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
               onClick={handleRemove}
               disabled={!selectedDisplayed.length}
               title="Remove Selected (←)"
@@ -297,10 +298,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               onMouseEnter={(e) => { if (selectedDisplayed.length) e.currentTarget.style.backgroundColor = `${primaryColor}20` }}
               onMouseLeave={(e) => { if (selectedDisplayed.length) e.currentTarget.style.backgroundColor = `${primaryColor}15` }}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
-              className={`px-3 py-1 rounded flex items-center justify-center transition-colors ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
+              className={`px-2 sm:px-3 py-1 rounded flex items-center justify-center transition-colors flex-1 sm:flex-none ${draftDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : ''}`}
               onClick={() => { setDraftDisplayed([]); setSelectedDisplayed([]); }}
               disabled={!draftDisplayed.length}
               title="Remove All (except required)"
@@ -308,35 +309,35 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
               onMouseEnter={(e) => { if (draftDisplayed.length) e.currentTarget.style.backgroundColor = `${primaryColor}20` }}
               onMouseLeave={(e) => { if (draftDisplayed.length) e.currentTarget.style.backgroundColor = `${primaryColor}15` }}
             >
-              <ChevronsLeft className="w-5 h-5" />
+              <ChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
           {/* Displayed */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0 order-2 sm:order-3">
             <div className="flex justify-between items-center mb-2">
-              <div className="font-semibold">Displayed Columns</div>
+              <div className="font-semibold text-xs sm:text-sm">Displayed Columns</div>
               <div className="flex gap-1">
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-1.5 sm:px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                   onClick={() => moveDisplayed('up')}
                   disabled={!selectedDisplayed.length}
                   title="Move Up (Ctrl+PgUp)"
                 >
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
                 <button
-                  className={`text-xs px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                  className={`text-xs px-1.5 sm:px-2 py-1 rounded flex items-center justify-center ${selectedDisplayed.length === 0 ? 'bg-gray-100 text-gray-400 dark:text-white cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                   onClick={() => moveDisplayed('down')}
                   disabled={!selectedDisplayed.length}
                   title="Move Down (Ctrl+PgDn)"
                 >
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
             </div>
             <div
               ref={displayedListRef}
-              className={`w-full h-40 border rounded p-2 overflow-y-auto ${focusedList === 'displayed' ? 'ring-1' : ''}`}
+              className={`w-full h-32 sm:h-40 border rounded p-2 overflow-y-auto ${focusedList === 'displayed' ? 'ring-1' : ''}`}
               role="listbox"
               tabIndex={focusedList === 'displayed' ? 0 : -1}
               aria-label="Displayed columns"
@@ -380,9 +381,9 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-2 mt-6">
+        <div className="flex flex-wrap justify-end gap-2 mt-4 sm:mt-6">
           <button
-            className="px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded text-white font-semibold flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
             style={{ backgroundColor: primaryColor }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}dd`}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor}
@@ -395,10 +396,10 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             }}
             title="Save (Ctrl+S)"
           >
-            <Save className="w-4 h-4" />
+            <Save className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
           <button
-            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
             onClick={() => {
               setDraftDisplayed(columns.filter(c => c !== ACTIONS_COL && !LOCKED_COLUMNS.includes(c)));
               setSelectedAvailable([]);
@@ -407,14 +408,14 @@ export const ColumnSelectorModal: React.FC<ColumnSelectorModalProps> = ({
             }}
             title="Reset (Ctrl+R)"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
           <button
-            className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
             onClick={onClose}
             title="Close (Escape)"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
         </div>
       </div>

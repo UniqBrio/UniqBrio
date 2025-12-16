@@ -55,7 +55,7 @@ export function LeaveTable({
 
   const studentLeaveOrder = useMemo(() => {
     const runningCounts = new Map<string, number>();
-    const order = new Map<number, number>();
+    const order = new Map<string, number>();
 
     [...data].reverse().forEach(record => {
       const nextValue = (runningCounts.get(record.studentId) || 0) + 1;

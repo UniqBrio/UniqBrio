@@ -585,43 +585,43 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
         <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-2 bg-transparent h-auto p-0">
           <TabsTrigger
             value="analytics"
-            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
+            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-2 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-sm data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
           >
-            <LayoutDashboard className="w-4 h-4 mr-2 inline-block" />
+            <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
             Analytics
           </TabsTrigger>
           
           <TabsTrigger
             value="table"
-            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-5 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
+            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-2 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-sm data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
           >
-            <Table2 className="w-4 h-4 mr-2 inline-block" />
+            <Table2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
             Attendance Table
           </TabsTrigger>
           
           <TabsTrigger
             value="notifications"
             className={
-              `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
+              `border-2 rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-sm font-semibold transition-all duration-200
               data-[state=active]:bg-gray-400 data-[state=active]:text-white
               data-[state=active]:border-gray-600
               bg-white text-gray-600 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50`
             }
           >
-            <Bell className="w-4 h-4 mr-2 inline-block" />
-            <span className="inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
+            <Bell className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
+            <span className="inline-flex items-center gap-1">Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="inline-block sm:w-[14px] sm:h-[14px]" /></span>
           </TabsTrigger>
           <TabsTrigger
             value="gamification"
             className={
-              `border-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200
+              `border-2 rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-sm font-semibold transition-all duration-200
               data-[state=active]:bg-gray-400 data-[state=active]:text-white
               data-[state=active]:border-gray-600
               bg-white text-gray-600 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50`
             }
           >
-            <Trophy className="w-4 h-4 mr-2 inline-block" />
-            <span className="inline-flex items-center gap-1">Gamification <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block" /></span>
+            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
+            <span className="inline-flex items-center gap-1">Gamification <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="inline-block sm:w-[14px] sm:h-[14px]" /></span>
           </TabsTrigger>
         </TabsList>
 

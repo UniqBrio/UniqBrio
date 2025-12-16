@@ -874,7 +874,7 @@ export default function CourseFormDialog({
             <TabsList className="grid w-full grid-cols-7 gap-2 bg-transparent p-0 h-auto">
               <TabsTrigger 
                 value="basic" 
-                className="text-xs px-3 py-2 border-2 font-medium"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 font-medium"
                 style={{
                   borderColor: currentTab === 'basic' ? 'transparent' : secondaryColor,
                   backgroundColor: currentTab === 'basic' ? primaryColor : 'transparent',
@@ -895,7 +895,7 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="pricing" 
-                className="text-xs px-3 py-2 border-2 font-medium"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 font-medium"
                 style={{
                   borderColor: currentTab === 'pricing' ? 'transparent' : secondaryColor,
                   backgroundColor: currentTab === 'pricing' ? primaryColor : 'transparent',
@@ -916,7 +916,7 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="chapters" 
-                className="text-xs px-3 py-2 border-2 font-medium"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 font-medium"
                 style={{
                   borderColor: currentTab === 'chapters' ? 'transparent' : secondaryColor,
                   backgroundColor: currentTab === 'chapters' ? primaryColor : 'transparent',
@@ -937,7 +937,7 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="schedule" 
-                className="text-xs px-3 py-2 border-2 font-medium"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 font-medium"
                 style={{
                   borderColor: currentTab === 'schedule' ? 'transparent' : secondaryColor,
                   backgroundColor: currentTab === 'schedule' ? primaryColor : 'transparent',
@@ -958,24 +958,24 @@ export default function CourseFormDialog({
               </TabsTrigger>
               <TabsTrigger 
                 value="content" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col items-center gap-0.5"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1"
               >
                 <span>Content</span>
-                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70" />
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70 hidden sm:inline" />
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col items-center gap-0.5"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1"
               >
                 <span>Settings</span>
-                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70" />
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70 hidden sm:inline" />
               </TabsTrigger>
               <TabsTrigger 
                 value="marketing" 
-                className="text-xs px-3 py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col items-center gap-0.5"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 border-2 border-gray-300 bg-white text-gray-700 dark:text-white font-medium data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700 flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1"
               >
                 <span>Marketing</span>
-                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70" />
+                <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="opacity-70 hidden sm:inline" />
               </TabsTrigger>
             </TabsList>
           </Tabs>

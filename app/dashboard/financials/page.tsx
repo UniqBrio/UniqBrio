@@ -17,11 +17,13 @@ import { DataProvider } from "@/contexts/dashboard/data-context"
 import type { Income, Expense, IncomeFormData, ExpenseFormData } from "@/components/dashboard/financials/types"
 import { useToast } from "@/hooks/dashboard/use-toast"
 import { TopTabs } from "@/components/dashboard/financials/TopTabs"
+import { RefreshCw } from "lucide-react"
 
 function FinancialsPageContent() {
   const { primaryColor, secondaryColor } = useCustomColors();
   // Top-level navigation tabs: Dashboard, Income, Expense, Report, ROI, Forecast
   const [topTab, setTopTab] = useState<'dashboard' | 'income' | 'expense' | 'report' | 'roi' | 'forecast'>('dashboard')
+  const [migratingIncomes, setMigratingIncomes] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const [incomeFilter, setIncomeFilter] = useState("monthly")
   const [expenseFilter, setExpenseFilter] = useState("category")
@@ -93,18 +95,8 @@ function FinancialsPageContent() {
     throw lastError!;
   };
 
-  const defaultIncomes: Income[] = [
-    { id: generateId(), date: "2025-09-15", amount: 45000, incomeCategory: "Course Fees", sourceType: "Students", paymentMode: "UPI", status: "Completed", description: "15 students � 3,000 ${currency}", addToAccount: "HDFC Bank", receivedBy: "Academy Staff", receivedFrom: "Student Fees", receiptNumber: "REC-2025-001" },
-    { id: generateId(), date: "2025-09-10", amount: 25000, incomeCategory: "Workshop Fees", sourceType: "Corporate", paymentMode: "Bank Transfer", status: "Pending", description: "Special event workshop", addToAccount: "ICICI Bank", receivedBy: "Finance Team", receivedFrom: "ABC Corp", receiptNumber: "REC-2025-002" },
-    { id: generateId(), date: "2025-09-08", amount: 12000, incomeCategory: "Equipment Rental", sourceType: "Others", paymentMode: "Cash", status: "Completed", description: "Rental for sound and lighting", addToAccount: "Cash", receivedBy: "Operations Manager", receivedFrom: "Event Organizer", receiptNumber: "REC-2025-003" },
-  ];
-  const defaultExpenses: Expense[] = [
-    { id: generateId(), date: "2025-09-02", amount: 35000, expenseCategory: "Staff Salary", vendorName: "Teaching Staff", vendorType: "Staff", paymentMode: "Bank Transfer", addFromAccount: "HDFC Bank", receivedBy: "HR", receivedFrom: "Academy", receiptNumber: "EXP-2025-001", description: "5 instructors monthly salaries" },
-    { id: generateId(), date: "2025-09-06", amount: 28000, expenseCategory: "Equipment Purchase", vendorName: "SoundPro Suppliers", vendorType: "Supplier", paymentMode: "Credit Card", addFromAccount: "ICICI Bank", receivedBy: "Procurement", receivedFrom: "Academy", receiptNumber: "EXP-2025-002", description: "New sound system purchase" },
-  ];
-
-  const [incomes, setIncomes] = useState<Income[]>(defaultIncomes);
-  const [expenses, setExpenses] = useState<Expense[]>(defaultExpenses);
+  const [incomes, setIncomes] = useState<Income[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
 
   // Load from server on mount
   useEffect(() => {
@@ -163,6 +155,62 @@ function FinancialsPageContent() {
     loadAll();
     return () => { cancelled = true; };
   }, []);
+
+  // One-time migration function to sync payments to income
+  const handleMigratePaymentIncomes = async () => {
+    setMigratingIncomes(true);
+    try {
+      const res = await fetch('/api/dashboard/financial/payments/migrate-incomes', { credentials: 'include' });
+      const data = await res.json();
+      
+      if (res.ok) {
+        toast({
+          title: 'Migration Complete',
+          description: data.message,
+          variant: 'default'
+        });
+        
+        // Reload incomes to show newly created records
+        const incRes = await fetch('/api/dashboard/financial?collection=incomes', { credentials: 'include' });
+        if (incRes.ok) {
+          const incData = await incRes.json();
+          const mapIncome = (d: any): Income => ({
+            id: d._id || d.id,
+            date: (d.date ? new Date(d.date).toISOString().slice(0,10) : ''),
+            amount: Number(d.amount || 0),
+            description: d.description,
+            incomeCategory: d.incomeCategory,
+            sourceType: d.sourceType,
+            paymentMode: d.paymentMode,
+            reference: d.reference,
+            studentId: d.studentId,
+            branch: d.branch,
+            status: d.status,
+            notes: d.notes,
+            addToAccount: d.addToAccount,
+            receivedBy: d.receivedBy,
+            receivedFrom: d.receivedFrom,
+            receiptNumber: d.receiptNumber,
+          });
+          if (Array.isArray(incData)) setIncomes(incData.map(mapIncome));
+        }
+      } else {
+        toast({
+          title: 'Migration Failed',
+          description: data.error || 'Failed to migrate payment incomes',
+          variant: 'destructive'
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Migration Error',
+        description: error.message || 'An error occurred during migration',
+        variant: 'destructive'
+      });
+    } finally {
+      setMigratingIncomes(false);
+    }
+  };
 
   const handleSaveIncome = async (data: IncomeFormData, mode: 'add' | 'edit') => {
     try {
@@ -357,6 +405,32 @@ function FinancialsPageContent() {
 
         {topTab === 'income' && (
           <div className="mt-4 sm:mt-6 lg:mt-10">
+            {/* One-time migration button - can be removed after migration */}
+            {incomes.length === 0 && (
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-blue-900">No income records found</h3>
+                  <p className="text-sm text-blue-700">If you have existing payments, click here to sync them to income records</p>
+                </div>
+                <button
+                  onClick={handleMigratePaymentIncomes}
+                  disabled={migratingIncomes}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {migratingIncomes ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Syncing...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="h-4 w-4" />
+                      Sync Payments
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
             <IncomeExpensesSection
               setShowIncomeDialog={setShowIncomeDialog}
               setShowExpenseDialog={setShowExpenseDialog}

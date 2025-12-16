@@ -14,19 +14,15 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     
-    // Enforce authenticated, verified user and derive identity from session
     console.log("[Registration API] ========== STARTING REGISTRATION REQUEST ==========");
     console.log("[Registration API] Request URL:", req.url);
     console.log("[Registration API] Request method:", req.method);
     
-    // Log all headers for debugging
-    const allHeaders: Record<string, string> = {};
-    req.headers.forEach((value, key) => {
-      allHeaders[key] = key.toLowerCase() === 'cookie' ? value : '[hidden]';
-    });
-    console.log("[Registration API] Request headers:", allHeaders);
+    const body = await req.json();
+    let email: string;
+    let isAuthenticatedSession = false;
     
-    // Try to get cookie from both the cookies() function and request headers
+    // Try to get session token (for logged-in users)
     console.log("[Registration API] Attempting to get session cookie via cookies()...");
     let sessionToken = await getSessionCookie();
     console.log("[Registration API] Session token from cookies():", sessionToken ? 'FOUND' : 'NOT FOUND');
@@ -35,49 +31,45 @@ export async function POST(req: Request) {
     if (!sessionToken) {
       console.log("[Registration API] Trying to parse from request headers...");
       const cookieHeader = req.headers.get('cookie');
-      console.log("[Registration API] Raw cookie header:", cookieHeader || 'NONE');
       
       if (cookieHeader) {
         const cookies = cookieHeader.split(';').map(c => c.trim());
-        console.log("[Registration API] Parsed cookies:", cookies.map(c => {
-          const parts = c.split('=');
-          return parts[0];
-        }));
-        
         const sessionCookie = cookies.find(c => c.startsWith(`${COOKIE_NAMES.SESSION}=`));
         if (sessionCookie) {
           sessionToken = sessionCookie.split('=')[1];
           console.log("[Registration API] Session token found in header cookie");
-        } else {
-          console.log("[Registration API] Session cookie name we're looking for:", COOKIE_NAMES.SESSION);
         }
-      } else {
-        console.log("[Registration API] No cookie header present in request!");
       }
     }
     
-    console.log("[Registration API] Final session token status:", !!sessionToken);
-    
-    if (!sessionToken) {
-      console.error("[Registration API] No session token found - user not authenticated");
-      await session.abortTransaction();
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    // If we have a session token, verify it and use email from session
+    if (sessionToken) {
+      console.log("[Registration API] Verifying session token...");
+      const payload = await verifyToken(sessionToken);
+      console.log("[Registration API] Token payload:", payload ? { email: payload.email, id: payload.id } : null);
+      
+      if (payload?.email && typeof payload.email === "string") {
+        email = payload.email as string;
+        isAuthenticatedSession = true;
+        console.log("[Registration API] Using email from authenticated session:", email);
+      } else {
+        console.log("[Registration API] Invalid session payload, will check for email in body");
+        // Don't return error yet, check if we can get email from body
+        email = body?.adminInfo?.email as string;
+      }
+    } else {
+      // No session token - this is a first-time user who verified email but hasn't logged in
+      // Get email from the request body (should be provided by the form)
+      console.log("[Registration API] No session token - checking for email in request body");
+      email = body?.adminInfo?.email as string;
+      
+      if (!email) {
+        console.error("[Registration API] No email found in session or request body");
+        await session.abortTransaction();
+        return NextResponse.json({ error: "Email is required for registration" }, { status: 400 });
+      }
+      console.log("[Registration API] Using email from request body:", email);
     }
-    
-    console.log("[Registration API] Verifying session token...");
-    const payload = await verifyToken(sessionToken);
-    console.log("[Registration API] Token payload:", payload ? { email: payload.email, id: payload.id } : null);
-    
-    if (!payload?.email || typeof payload.email !== "string") {
-      console.error("[Registration API] Invalid session payload:", payload);
-      await session.abortTransaction();
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-    }
-    
-    console.log("[Registration API] Session verified for email:", payload.email);
-
-    const body = await req.json();
-    const email = payload.email as string;
 
     // Find user by email (Mongoose)
     const existingUser = await UserModel.findOne({ email }).session(session);
@@ -214,9 +206,10 @@ export async function POST(req: Request) {
 
     await session.commitTransaction();
     
-    // CRITICAL: Update session token with new IDs after registration
+    // CRITICAL: Create or update session token with new IDs after registration
     // This ensures subsequent API calls have proper tenant isolation
-    console.log("[Registration API] Updating session token with new IDs...");
+    // For first-time users (no existing session), this creates their first session
+    console.log("[Registration API] Creating/updating session token with new IDs...");
     const { createToken, setSessionCookie } = await import("@/lib/auth");
     
     // Get fresh user data with updated IDs
@@ -235,10 +228,11 @@ export async function POST(req: Request) {
         academyId: updatedUser.academyId,
       };
       
-      console.log("[Registration API] Creating new session with IDs:", {
+      console.log("[Registration API] Creating session with IDs:", {
         userId: newSessionData.userId,
         academyId: newSessionData.academyId,
-        tenantId: newSessionData.tenantId
+        tenantId: newSessionData.tenantId,
+        isFirstTimeUser: !isAuthenticatedSession
       });
       
       // Get request metadata for session tracking
@@ -253,7 +247,21 @@ export async function POST(req: Request) {
       });
       await setSessionCookie(newSessionToken);
       
-      console.log("[Registration API] Session token updated successfully");
+      // Also set last activity cookie
+      const cookieStore = await import("next/headers").then(m => m.cookies());
+      const { COOKIE_EXPIRY } = await import("@/lib/cookies");
+      (await cookieStore).set(COOKIE_NAMES.LAST_ACTIVITY, Date.now().toString(), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: COOKIE_EXPIRY.LAST_ACTIVITY * 24 * 60 * 60,
+        path: "/",
+      });
+      
+      if (!isAuthenticatedSession) {
+        console.log("[Registration API] First-time user session created successfully");
+      } else {
+        console.log("[Registration API] Existing session updated with new IDs");
+      }
     }
     
     return NextResponse.json({ 

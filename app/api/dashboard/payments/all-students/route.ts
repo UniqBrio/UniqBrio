@@ -294,6 +294,14 @@ export async function GET(request: NextRequest) {
           outstandingAmount = Math.max(0, outstandingAmount);
         }
         
+        // Calculate status dynamically based on actual payment amounts
+        let calculatedStatus = 'Pending';
+        if (receivedAmount >= totalFees && totalFees > 0) {
+          calculatedStatus = 'Completed';
+        } else if (receivedAmount > 0) {
+          calculatedStatus = 'Partial';
+        }
+        
         const paymentData = {
           id: String(payment._id),
           studentId: payment.studentId,
@@ -311,7 +319,7 @@ export async function GET(request: NextRequest) {
           receivedAmount: receivedAmount,
           outstandingAmount: outstandingAmount,
           collectionRate: totalFees > 0 ? Math.round((receivedAmount / totalFees) * 100) : 0,
-          status: payment.status || 'Pending',
+          status: calculatedStatus,
           paymentOption: finalPaymentOption || null,
           planType: payment.planType || null,
           installmentsConfig: payment.installmentsConfig || null,

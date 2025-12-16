@@ -42,6 +42,9 @@ const publicPaths = [
   "/api/auth/",
   "/api/admin-auth", // Admin authentication
   "/api/admin-data", // Admin data endpoints
+  "/api/register", // Business registration API - allows first-time users who verified email but haven't logged in
+  "/api/business-upload", // Business image upload - used during registration before session is established
+  "/api/countries", // Country list API - used during registration
   "/api/verify-reset-token", // Verify reset token API
   // Next.js internals and static assets
   "/_next/",

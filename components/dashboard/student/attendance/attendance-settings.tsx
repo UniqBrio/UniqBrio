@@ -25,10 +25,10 @@ export function AttendanceSettings() {
       </div>
 
       <Tabs defaultValue="channels" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="channels">Notification Channels</TabsTrigger>
-          <TabsTrigger value="templates">Message Templates</TabsTrigger>
-          <TabsTrigger value="rules">Automation Rules</TabsTrigger>
+        <TabsList className="h-auto flex-wrap">
+          <TabsTrigger value="channels" className="text-[10px] sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">Notification Channels</TabsTrigger>
+          <TabsTrigger value="templates" className="text-[10px] sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">Message Templates</TabsTrigger>
+          <TabsTrigger value="rules" className="text-[10px] sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">Automation Rules</TabsTrigger>
         </TabsList>
 
         <TabsContent value="channels" className="space-y-4">

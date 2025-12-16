@@ -2189,25 +2189,25 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-3 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger
                   value="student-info"
-                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
+                  className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-[10px] sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal sm:whitespace-nowrap leading-tight min-h-[2.5rem] text-center"
                 >
                   Student Information
                 </TabsTrigger>
                 <TabsTrigger
                   value="course-details"
-                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
+                  className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-[10px] sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal sm:whitespace-nowrap leading-tight min-h-[2.5rem] text-center"
                 >
                   Course Details
                 </TabsTrigger>
                 <TabsTrigger
                   value="communication"
-                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
+                  className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-[10px] sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal sm:whitespace-nowrap leading-tight min-h-[2.5rem] text-center"
                 >
                   Communication & Referral
                 </TabsTrigger>
                 <TabsTrigger
                   value="guardian-details"
-                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-xs sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal leading-tight min-h-[2.5rem] text-center"
+                  className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 rounded-lg font-medium text-[10px] sm:text-sm text-[#DE7D14] border-[#DE7D14] data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 data-[state=inactive]:bg-white data-[state=inactive]:text-[#DE7D14] data-[state=inactive]:hover:bg-[#FFF3E0] data-[state=inactive]:hover:border-[#DE7D14] whitespace-normal sm:whitespace-nowrap leading-tight min-h-[2.5rem] text-center"
                 >
                   Guardian Details
                 </TabsTrigger>

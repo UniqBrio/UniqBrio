@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge } from "@/components/dashboard/ui/badge";
@@ -479,6 +480,7 @@ export function InvoiceDialog({
         <DialogHeader className="print:hidden sticky top-0 bg-white z-10 p-4 sm:p-6 pb-3 sm:pb-4 border-b">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
             <DialogTitle className="text-xl sm:text-2xl font-bold">Payment Invoice</DialogTitle>
+            <DialogDescription className="sr-only">View and download detailed payment invoice</DialogDescription>
             <Button
               variant="outline"
               size="sm"

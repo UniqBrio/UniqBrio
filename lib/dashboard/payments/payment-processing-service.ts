@@ -145,11 +145,11 @@ export function calculatePaymentSummary(payment: any, newAmount: number): {
   collectionRate: number;
 } {
   const totalFees =
-    (payment.courseRegistrationFee || 0) +
-    (payment.studentRegistrationFee || 0) +
-    (payment.courseFee || 0);
+    Number(payment.courseRegistrationFee || 0) +
+    Number(payment.studentRegistrationFee || 0) +
+    Number(payment.courseFee || 0);
 
-  const totalPaid = (payment.receivedAmount || 0) + newAmount;
+  const totalPaid = Number(payment.receivedAmount || 0) + Number(newAmount);
   const outstandingAmount = Math.max(0, totalFees - totalPaid);
   
   // Special case: If no fees are set but payment received, consider it 100% collected

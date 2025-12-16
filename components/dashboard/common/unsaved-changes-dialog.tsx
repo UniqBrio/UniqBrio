@@ -1,7 +1,7 @@
 "use client"
 
 import { useCustomColors } from '@/lib/use-custom-colors';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog";
 import { Button } from "@/components/dashboard/ui/button";
 import { X } from "lucide-react";
 import React from "react";
@@ -31,6 +31,7 @@ export default function UnsavedChangesDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          <DialogDescription className="sr-only">{description}</DialogDescription>
         </DialogHeader>
         <div className="p-2">
           <p className="text-sm text-gray-600 dark:text-white mb-4">{description}</p>

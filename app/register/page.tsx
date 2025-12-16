@@ -171,6 +171,7 @@ export default function RegistrationForm() {
           imageFormData.append("profilePicture", profilePicture);
         }
         imageFormData.append("businessName", businessInfo.businessName || "academy");
+        imageFormData.append("userEmail", rest.adminInfo.email || ""); // Include email for first-time users
 
         console.log("[Registration] Uploading business images...");
         const uploadData = await fetchJson<{

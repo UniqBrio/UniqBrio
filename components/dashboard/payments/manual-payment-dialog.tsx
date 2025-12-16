@@ -165,6 +165,26 @@ export function ManualPaymentDialog({
   const [receivedBySearch, setReceivedBySearch] = useState("");
   const [customPayers, setCustomPayers] = useState<string[]>([]);
   
+  // Load custom payers from database on mount
+  useEffect(() => {
+    const loadCustomPayers = async () => {
+      try {
+        const res = await fetch('/api/dashboard/payments/custom-payers', {
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const payers = await res.json();
+          if (Array.isArray(payers)) {
+            setCustomPayers(payers);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load custom payers from database', e);
+      }
+    };
+    loadCustomPayers();
+  }, []);
+  
   // One Time with Installments fields
   const [installmentsConfig, setInstallmentsConfig] = useState<OneTimeInstallmentsConfig | null>(null);
   const [currentInstallmentNumber, setCurrentInstallmentNumber] = useState<number>(1);
@@ -1475,7 +1495,7 @@ export function ManualPaymentDialog({
     setEmiIndex(0);
     setShowEmiSelector(false);
     setReceivedBySearch("");
-    setCustomPayers([]);
+    // Don't reset customPayers - keep them loaded from database
     
     // One Time with Installments fields - Clear configuration
     setInstallmentsConfig(null);
@@ -2441,12 +2461,25 @@ export function ManualPaymentDialog({
                         ) : receivedBySearch.trim() ? (
                           <div className="p-1">
                             <div 
-                              onClick={() => {
+                              onClick={async () => {
                                 const newPayerName = receivedBySearch.trim();
-                                // Add to custom payers list if not already present
-                                setCustomPayers(prev => 
-                                  prev.includes(newPayerName) ? prev : [...prev, newPayerName]
-                                );
+                                // Save to database
+                                try {
+                                  const res = await fetch('/api/dashboard/payments/custom-payers', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'include',
+                                    body: JSON.stringify({ payerName: newPayerName })
+                                  });
+                                  if (res.ok) {
+                                    // Add to local state if not already present
+                                    setCustomPayers(prev => 
+                                      prev.includes(newPayerName) ? prev : [...prev, newPayerName]
+                                    );
+                                  }
+                                } catch (e) {
+                                  console.error('Failed to save custom payer', e);
+                                }
                                 setReceivedBy(newPayerName);
                                 setOpenCombobox(false);
                                 setReceivedBySearch("");

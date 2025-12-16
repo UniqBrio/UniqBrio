@@ -150,16 +150,16 @@ export function OverviewTab() {
 
   return (
     <Card>
-      <CardHeader className="pb-4 sm:pb-6 lg:pb-8 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-0">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
-          <div className="min-w-0 flex-1 space-y-2">
-            <CardTitle className="text-lg sm:text-xl lg:text-2xl break-words leading-tight font-bold">Financial Overview</CardTitle>
-            <CardDescription className="text-sm sm:text-base mt-2 leading-relaxed">Advanced analytics with filtering and category insights</CardDescription>
+      <CardHeader className="pb-2 sm:pb-6 lg:pb-8 px-3 sm:px-6 lg:px-8 pt-2 sm:pt-6 lg:pt-8 space-y-2 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 sm:gap-6">
+          <div className="min-w-0 flex-1 space-y-0.5 sm:space-y-2">
+            <CardTitle className="text-sm sm:text-xl lg:text-2xl break-words leading-tight font-bold">Financial Overview</CardTitle>
+            <CardDescription className="text-[10px] sm:text-base leading-tight">Advanced analytics with filtering and category insights</CardDescription>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
-            <UILabel htmlFor="year-select" className="text-sm font-medium sr-only">Year Selection</UILabel>
+          <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-1.5 sm:mt-0">
+            <UILabel htmlFor="year-select" className="text-xs sm:text-sm font-medium sr-only">Year Selection</UILabel>
             <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
-              <SelectTrigger className="w-full sm:w-48 lg:w-56 min-w-0 h-10 sm:h-11">
+              <SelectTrigger className="w-full sm:w-48 lg:w-56 min-w-0 h-9 sm:h-11 text-xs sm:text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -174,17 +174,17 @@ export function OverviewTab() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-3 sm:p-6 space-y-4 lg:space-y-6">
+      <CardContent className="p-2 sm:p-6 space-y-3 sm:space-y-4 lg:space-y-6">
 
-        {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded">{error}</div>}
-        {loading && <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded">Loading charts...</div>}
+        {error && <div className="text-red-600 text-xs sm:text-sm p-2 sm:p-3 bg-red-50 rounded">{error}</div>}
+        {loading && <div className="text-xs sm:text-sm text-muted-foreground p-2 sm:p-3 bg-gray-50 rounded">Loading charts...</div>}
         
         {/* Main Income to Profit Flow Chart */}
         <Card className="w-full overflow-hidden shadow-lg border-2">
-          <CardHeader className="pb-3 sm:pb-6 px-3 sm:px-6 bg-gradient-to-r from-purple-50 to-orange-50">
-            <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold break-words">Income to Profit Flow Analysis</CardTitle>
+          <CardHeader className="pb-2 sm:pb-6 px-2 sm:px-6 pt-2 sm:pt-6 bg-gradient-to-r from-purple-50 to-orange-50">
+            <CardTitle className="text-xs sm:text-xl lg:text-2xl font-bold break-words leading-snug">Income to Profit Flow Analysis</CardTitle>
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0 bg-white">
+          <CardContent className="p-2 sm:p-6 pt-0 bg-white">
             <ResponsiveChartContainer>
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart 

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useMemo } from "react"
-import { Dialog, DialogContent, DialogTitle } from "@/components/dashboard/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { LeaveRequest } from "@/types/dashboard/staff/staff/leave"
@@ -190,6 +190,7 @@ export default function LeaveRequestDetailsDialog({ request, open, onOpenChange,
       >
         <VisuallyHidden>
           <DialogTitle>Leave Request Details</DialogTitle>
+          <DialogDescription>View detailed information about this leave request</DialogDescription>
         </VisuallyHidden>
 
         {/* Hero Header */}

@@ -56,10 +56,10 @@ export function AttendanceGamification() {
       </div>
 
       <Tabs defaultValue="badges" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="badges">Badges & Achievements</TabsTrigger>
-          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-          <TabsTrigger value="rewards">Rewards & Certificates</TabsTrigger>
+        <TabsList className="h-auto flex-wrap">
+          <TabsTrigger value="badges" className="text-[10px] sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">Badges & Achievements</TabsTrigger>
+          <TabsTrigger value="leaderboard" className="text-[10px] sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">Leaderboard</TabsTrigger>
+          <TabsTrigger value="rewards" className="text-[10px] sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">Rewards & Certificates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="badges" className="space-y-4">

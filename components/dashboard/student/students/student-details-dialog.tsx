@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Student } from "@/types/dashboard/student";
 import { type Course } from "@/data/dashboard/courses";
@@ -90,6 +90,7 @@ export function StudentDetailsDialog({ student, open, onOpenChange, courses = []
                 <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white">
                   {student.name}
                 </DialogTitle>
+                <DialogDescription className="sr-only">View detailed information about this student</DialogDescription>
                 <p className="text-sm text-gray-500 dark:text-white mt-1">
                   ID: {student.studentId}
                 </p>

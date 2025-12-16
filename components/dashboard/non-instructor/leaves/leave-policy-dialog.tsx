@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog"
 import { Button } from "@/components/dashboard/ui/button"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
@@ -95,7 +95,7 @@ export default function LeavePolicyDialog({ open, onOpenChange, policy, onSave }
       >
         <DialogHeader>
           <DialogTitle>Leave Policy Configuration</DialogTitle>
-          <p className="text-sm text-muted-foreground">Configure advanced leave policies and rules</p>
+          <DialogDescription>Configure advanced leave policies and rules</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
