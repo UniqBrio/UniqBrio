@@ -703,3 +703,175 @@ export function generateNewSignupNotification(userDetails: {
   `,
   };
 }
+
+/// --- NEW: generateRegistrationCompleteNotification ---
+// Sends an email notification to admin when a user completes registration
+export function generateRegistrationCompleteNotification(registrationDetails: {
+  businessName: string;
+  name: string;
+  email: string;
+  phone: string;
+  planChoosed: string;
+  registrationDate: Date;
+  academyId: string;
+  userId: string;
+}) {
+  const { businessName, name, email, phone, planChoosed, registrationDate, academyId, userId } = registrationDetails;
+  
+  // Format the date and time nicely
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'full',
+    timeStyle: 'long',
+    timeZone: 'Asia/Kolkata' // IST timezone
+  }).format(registrationDate);
+
+  // Format plan name with proper casing
+  const formattedPlan = planChoosed ? (planChoosed.charAt(0).toUpperCase() + planChoosed.slice(1)) : 'Free';
+
+  return {
+    to: 'frozen9612345@gmail.com',
+    subject: `✅ Registration Complete: ${businessName} - ${name}`,
+    html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <tr>
+          <td>
+            ${getEmailHeader("Registration Completed", "A user has completed their registration!")}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 40px 30px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="background-color: #d1fae5; border-radius: 50px; width: 80px; height: 80px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 40px;">✅</span>
+              </div>
+              <h2 style="color: #374151; margin: 0 0 10px 0; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">
+                Registration Complete!
+              </h2>
+              <p style="color: #6b7280; margin: 0; font-family: Arial, sans-serif; font-size: 14px;">
+                A new academy has completed their full registration on UniqBrio
+              </p>
+            </div>
+
+            <!-- Business Details Card -->
+            <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 25px; margin: 30px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <h3 style="color: #1e40af; margin: 0 0 20px 0; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-align: center;">
+                🏢 Academy Information
+              </h3>
+              
+              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">🏫 Business Name:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600;">${businessName}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">👤 Owner/Admin Name:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600;">${name}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">📧 Email:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px; word-break: break-all;">
+                        <a href="mailto:${email}" style="color: #8B5CF6; text-decoration: none;">${email}</a>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">📱 Phone:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px;">
+                        <a href="tel:${phone}" style="color: #8B5CF6; text-decoration: none;">${phone}</a>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">💎 Plan:</span>
+                      <span style="background: linear-gradient(135deg, #8B5CF6, #F97316); color: white; padding: 4px 12px; border-radius: 20px; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; display: inline-block;">${formattedPlan}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">🏢 Academy ID:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; font-family: monospace;">${academyId}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">🆔 User ID:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; font-family: monospace;">${userId}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">📅 Completed Date:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 13px;">${formattedDate}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <div style="display: flex; align-items: start;">
+                      <span style="color: #1e40af; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; min-width: 160px;">💳 Create Payment Link:</span>
+                      <span style="color: #1e3a8a; font-family: Arial, sans-serif; font-size: 14px;">
+                        <a href="https://merchant.cashfree.com/merchants/pg/payment-links/all" target="_blank" style="color: #8B5CF6; text-decoration: none; font-weight: 600;">Open Cashfree Dashboard →</a>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Status Badge -->
+            <div style="text-align: center; margin: 30px 0;">
+              <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 30px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                <span style="font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">✅ Full Registration Complete</span>
+              </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
+              <h3 style="color: #92400e; margin: 0 0 15px 0; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">📋 Next Steps</h3>
+              <ul style="color: #78350f; margin: 0; padding-left: 20px; font-family: Arial, sans-serif; line-height: 1.8; font-size: 14px;">
+                <li style="margin-bottom: 8px;">User has full access to the dashboard</li>
+                <li style="margin-bottom: 8px;">They can start adding students, courses, and instructors</li>
+                
+                <li>Reach out to welcome them and offer onboarding assistance</li>
+              </ul>
+            </div>
+
+            <p style="color: #6b7280; font-size: 13px; text-align: center; font-family: Arial, sans-serif; margin-top: 30px; line-height: 1.5;">
+              This is an automated notification from UniqBrio.<br>
+              You're receiving this because you're part of the admin team.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            ${getEmailFooter()}
+          </td>
+        </tr>
+      </table>
+    </div>
+  `,
+  };
+}

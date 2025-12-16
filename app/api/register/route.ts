@@ -257,10 +257,29 @@ export async function POST(req: Request) {
         path: "/",
       });
       
-      if (!isAuthenticatedSession) {
-        console.log("[Registration API] First-time user session created successfully");
-      } else {
-        console.log("[Registration API] Existing session updated with new IDs");
+      console.log("[Registration API] Session token updated successfully");
+      
+      // Send registration completion notification to admin
+      try {
+        console.log("[Registration API] Sending registration completion notification to admin");
+        const { generateRegistrationCompleteNotification, sendEmail } = await import("@/lib/email");
+        
+        const notificationData = generateRegistrationCompleteNotification({
+          businessName: body.businessInfo?.businessName || 'N/A',
+          name: updatedUser.name || body.adminInfo?.fullName || 'N/A',
+          email: updatedUser.email,
+          phone: updatedUser.phone || body.adminInfo?.phone || 'N/A',
+          planChoosed: updatedUser.planChoosed || 'free',
+          registrationDate: new Date(),
+          academyId: finalAcademyId,
+          userId: finalUserId,
+        });
+        
+        await sendEmail(notificationData);
+        console.log("[Registration API] Admin notification sent successfully");
+      } catch (notificationError) {
+        // Don't fail registration if notification fails - just log it
+        console.error("[Registration API] Failed to send admin notification:", notificationError);
       }
     }
     

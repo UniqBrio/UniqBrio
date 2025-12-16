@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import KYCRejectionModal from "@/components/kyc-rejection-modal"
+import PaymentApprovalManagement from "@/components/admin/payment-approval-management"
 import { 
   Users, 
   Shield, 
@@ -32,8 +33,15 @@ import {
   Info,
   Loader2,
   Clock,
-  Cookie
+  Cookie,
+  DollarSign,
+  Calendar,
+  X
 } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { toast } from "@/components/ui/use-toast"
 
 export default function UBAdminPage() {
   const router = useRouter()
@@ -298,7 +306,7 @@ export default function UBAdminPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="bg-white rounded-2xl shadow-lg p-2 border-0">
-            <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14">
+            <TabsList className="grid w-full grid-cols-8 bg-gradient-to-r from-purple-100 to-orange-100 rounded-xl h-14">
               <TabsTrigger 
                 value="dashboard" 
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
@@ -310,6 +318,12 @@ export default function UBAdminPage() {
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
               >
                 KYC Management
+              </TabsTrigger>
+              <TabsTrigger 
+                value="payments"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg font-semibold transition-all duration-300 hover:bg-white/50"
+              >
+                Payment & Approval
               </TabsTrigger>
               <TabsTrigger 
                 value="academies"
@@ -350,6 +364,10 @@ export default function UBAdminPage() {
 
           <TabsContent value="kyc">
             <KYCManagement kycQueue={kycQueue} onRefresh={fetchDashboardData} />
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <PaymentApprovalManagement />
           </TabsContent>
 
           <TabsContent value="academies">
