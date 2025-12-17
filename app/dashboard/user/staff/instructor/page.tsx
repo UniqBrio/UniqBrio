@@ -204,60 +204,35 @@ export default function InstructorPage() {
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 bg-transparent gap-2 p-0 h-auto">
               <TabsTrigger 
                 value="dashboard" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                style={{
-                  borderColor: secondaryColor,
-                  color: secondaryColor,
-                  ...(activeTab === 'dashboard' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                }}
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-purple-600 text-purple-600 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 data-[state=inactive]:bg-transparent transition-all"
               >
                 <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
                 Analytics
               </TabsTrigger>
               <TabsTrigger 
                 value="profile" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                style={{
-                  borderColor: secondaryColor,
-                  color: secondaryColor,
-                  ...(activeTab === 'profile' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                }}
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-purple-600 text-purple-600 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 data-[state=inactive]:bg-transparent transition-all"
               >
                 <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" />
                 Instructors
               </TabsTrigger>
               <TabsTrigger 
                 value="leave" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                style={{
-                  borderColor: secondaryColor,
-                  color: secondaryColor,
-                  ...(activeTab === 'leave' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                }}
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-purple-600 text-purple-600 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 data-[state=inactive]:bg-transparent transition-all"
               >
                 <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4" />
                 Leave Management
               </TabsTrigger>
               <TabsTrigger 
                 value="attendance" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                style={{
-                  borderColor: secondaryColor,
-                  color: secondaryColor,
-                  ...(activeTab === 'attendance' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                }}
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-purple-600 text-purple-600 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 data-[state=inactive]:bg-transparent transition-all"
               >
                 <ClipboardCheck className="h-3 w-3 sm:h-4 sm:w-4" />
                 Attendance Management
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                style={{
-                  borderColor: secondaryColor,
-                  color: secondaryColor,
-                  ...(activeTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                }}
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-purple-600 text-purple-600 bg-transparent text-xs sm:text-sm font-medium data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 data-[state=inactive]:bg-transparent transition-all"
               >
                 <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                 Settings

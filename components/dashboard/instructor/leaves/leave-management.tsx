@@ -92,6 +92,12 @@ export default function LeaveManagement() {
       setDraftsOpen(false)
     }
   }, [draftsOpen, state.drafts.length])
+  
+  // Debug: Log when drafts count changes
+  useEffect(() => {
+    console.log('Drafts count updated:', state.drafts.length)
+  }, [state.drafts.length])
+  
   const [csvMappingData, setCsvMappingData] = useState<{ detectedHeaders: string[] }>({ detectedHeaders: [] })
   const [pendingCSVFile, setPendingCSVFile] = useState<File | null>(null)
   const [policy, setPolicy] = useState<LeavePolicy>({
@@ -102,6 +108,9 @@ export default function LeaveManagement() {
   })
   // Row selection (for export)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  
+  // Compute draft count to ensure reactive updates
+  const draftsCount = useMemo(() => state.drafts.length, [state.drafts])
 
   // Track which dashboard card was clicked to compute highlight set for table
   const [highlightMode, setHighlightMode] = useState<null | 'today' | 'next7' | 'mp'>(null)
@@ -607,7 +616,7 @@ export default function LeaveManagement() {
                 <div className="flex items-center gap-2">
                   <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setDraftsOpen(true)}>
                     <Save className="h-4 w-4 mr-2" />
-                    Drafts ({state.drafts.length})
+                    Drafts ({draftsCount})
                   </Button>
                   <Button onClick={() => setShowNewRequestForm(true)} className="bg-purple-600 hover:bg-purple-700">
                     <Plus className="h-4 w-4 mr-2" />

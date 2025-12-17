@@ -34,7 +34,7 @@ export default function LeaveHubHeader({ activeTab, onTabChange }: Props) {
               <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1 bg-transparent">
                 <TabsTrigger
                   value="dashboard"
-                  className="hexagon-tab border border-[#DE7D14] text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+                  className="hexagon-tab border border-purple-600 text-purple-600 bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-500 focus:outline-none"
                 >
                   <span className="flex items-center gap-2">
                     <LayoutDashboard className="h-4 w-4" />
@@ -43,7 +43,7 @@ export default function LeaveHubHeader({ activeTab, onTabChange }: Props) {
                 </TabsTrigger>
                 <TabsTrigger
                   value="leave-request"
-                  className="hexagon-tab border border-[#DE7D14] text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+                  className="hexagon-tab border border-purple-600 text-purple-600 bg-transparent transition-all duration-150 font-semibold px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-500 focus:outline-none"
                 >
                   <span className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />

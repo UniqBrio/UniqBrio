@@ -101,8 +101,8 @@ export function FormattedDateInput({
 
         {/* Formatted overlay (shows only when not focused and value exists) */}
         {!focused && value ? (
-          <div className="absolute inset-y-0 left-9 right-3 flex items-center text-sm text-foreground pointer-events-none">
-            {formatForDisplay(value)}
+          <div className="absolute inset-y-0 left-9 right-3 flex items-center text-sm text-foreground pointer-events-none overflow-hidden">
+            <span className="truncate">{formatForDisplay(value)}</span>
           </div>
         ) : null}
       </div>

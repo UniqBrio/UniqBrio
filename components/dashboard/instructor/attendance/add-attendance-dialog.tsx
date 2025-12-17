@@ -616,7 +616,7 @@ export function AddAttendanceDialog({
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="attendanceDate" className="block text-sm font-medium mb-2">Date <span className="text-red-500">*</span></label>
                   <FormattedDateInput
                     id="attendanceDate"
@@ -648,7 +648,7 @@ export function AddAttendanceDialog({
                     max={todayIso}
                     displayFormat="dd-MMM-yyyy"
                     placeholder="dd-mmm-yyyy"
-                    className="mt-0"
+                    className="mt-0 w-full"
                   />
                   {dateError && (
                     <p className="mt-1 text-xs text-red-500">{dateError}</p>

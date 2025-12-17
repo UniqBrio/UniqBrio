@@ -268,18 +268,38 @@ function leaveReducer(state: LeaveState, action: LeaveAction): LeaveState {
       return { ...state, drafts: action.payload }
     case "ADD_DRAFT": {
       const payload = action.payload
-      try { createDraft(payload).catch(() => {}) } catch {}
+      // Fire API call (async) and update state immediately for optimistic UI
+      try { 
+        createDraft(payload).then(() => {
+          // Optionally refetch to ensure server state matches
+          console.log('Draft created on server')
+        }).catch((err) => {
+          console.error('Failed to create draft on server:', err)
+        }) 
+      } catch {}
       return { ...state, drafts: [...state.drafts, payload] }
     }
     case "UPDATE_DRAFT": {
-      try { updateDraft({ id: action.payload.id, ...action.payload.updates, updatedAt: new Date().toISOString() }).catch(() => {}) } catch {}
+      try { 
+        updateDraft({ id: action.payload.id, ...action.payload.updates, updatedAt: new Date().toISOString() }).then(() => {
+          console.log('Draft updated on server')
+        }).catch((err) => {
+          console.error('Failed to update draft on server:', err)
+        }) 
+      } catch {}
       return {
         ...state,
         drafts: state.drafts.map(r => r.id === action.payload.id ? { ...r, ...action.payload.updates, updatedAt: new Date().toISOString() } : r)
       }
     }
     case "DELETE_DRAFT": {
-      try { deleteDraft(action.payload.id).catch(() => {}) } catch {}
+      try { 
+        deleteDraft(action.payload.id).then(() => {
+          console.log('Draft deleted on server')
+        }).catch((err) => {
+          console.error('Failed to delete draft on server:', err)
+        }) 
+      } catch {}
       return { ...state, drafts: state.drafts.filter(r => r.id !== action.payload.id) }
     }
     case "CONVERT_DRAFT_TO_LEAVE_REQUEST": {

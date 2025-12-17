@@ -40,7 +40,19 @@ export async function POST(request: NextRequest) {
     await dbConnect("uniqbrio");
     // This endpoint mirrors /api/roles sync behavior: no separate storage required.
     // Custom types are effectively persisted when a leave request uses them.
-    const _ = await request.json();
+    const body = await request.json();
+    
+    // Validate custom leave types - only letters and spaces allowed
+    if (body.customLeaveTypes && Array.isArray(body.customLeaveTypes)) {
+      const invalid = body.customLeaveTypes.filter((type: string) => !/^[a-zA-Z\s]+$/.test(type));
+      if (invalid.length > 0) {
+        return NextResponse.json({ 
+          error: 'Invalid leave type names: only letters and spaces are allowed',
+          invalid 
+        }, { status: 400 });
+      }
+    }
+    
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error('POST /api/leave-types error', e);

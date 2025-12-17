@@ -48,7 +48,19 @@ export async function POST(request: NextRequest) {
       try {
         await dbConnect("uniqbrio")
         // Mirror instructor behavior: no separate storage required
-        const _ = await request.json()
+        const body = await request.json()
+        
+        // Validate custom leave types - only letters and spaces allowed
+        if (body.customLeaveTypes && Array.isArray(body.customLeaveTypes)) {
+          const invalid = body.customLeaveTypes.filter((type: string) => !/^[a-zA-Z\s]+$/.test(type));
+          if (invalid.length > 0) {
+            return NextResponse.json({ 
+              error: 'Invalid leave type names: only letters and spaces are allowed',
+              invalid 
+            }, { status: 400 });
+          }
+        }
+        
         return NextResponse.json({ success: true })
       } catch (e) {
         console.error('POST /api/non-instructor-leave-types error', e)

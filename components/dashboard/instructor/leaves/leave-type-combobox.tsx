@@ -13,6 +13,7 @@ export default function LeaveTypeCombobox({ value, onChange }: { value: string; 
   const { getAllLeaveTypes, addCustomLeaveType, loading } = useCustomLeaveTypes()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
+  const [showError, setShowError] = useState(false)
   const options = getAllLeaveTypes()
   const selected = options.find(o => o.value === value)
 
@@ -32,7 +33,13 @@ export default function LeaveTypeCombobox({ value, onChange }: { value: string; 
       <PopoverContent className="w-full p-0" align="start">
         <Command>
           <CommandInput placeholder="Search or add leave types..." value={query} onValueChange={(value) => {
-            // Only allow letters and spaces
+            // Only allow letters and spaces - reject numbers and symbols
+            const hasInvalidChars = /[^a-zA-Z\s]/.test(value)
+            if (hasInvalidChars) {
+              setShowError(true)
+              // Hide error after 2 seconds
+              setTimeout(() => setShowError(false), 2000)
+            }
             const filtered = value.replace(/[^a-zA-Z\s]/g, '')
             setQuery(filtered)
           }}
@@ -40,11 +47,16 @@ export default function LeaveTypeCombobox({ value, onChange }: { value: string; 
               const q = query.trim()
               if (e.key === 'Enter' && q && !exists) {
                 const created = await addCustomLeaveType(q)
-                if (created) { onChange(created); setOpen(false); setQuery("") }
+                if (created) { onChange(created); setOpen(false); setQuery(""); setShowError(false) }
               }
             }}
             className="h-9"
           />
+          {showError && (
+            <div className="px-3 py-2 text-xs text-red-600 bg-red-50 dark:bg-red-950 dark:text-red-400 border-b border-red-200 dark:border-red-800">
+              Only letters and spaces are allowed in leave type names
+            </div>
+          )}
           <ScrollArea type="always" className="max-h-[260px]">
             <CommandList className="max-h-[260px]" style={{ scrollBehavior: 'smooth' }}>
               {loading ? (

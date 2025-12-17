@@ -105,6 +105,12 @@ export function useCustomLeaveTypes() {
     const trimmed = label.trim();
     if (!trimmed) return null;
 
+    // Validate: only letters and spaces allowed
+    if (!/^[a-zA-Z\s]+$/.test(trimmed)) {
+      console.warn('Invalid leave type: only letters and spaces are allowed');
+      return null;
+    }
+
     const all = getAllLeaveTypes();
     if (all.some((t) => t.label.toLowerCase() === trimmed.toLowerCase())) {
       return trimmed; // already exists; treat as success

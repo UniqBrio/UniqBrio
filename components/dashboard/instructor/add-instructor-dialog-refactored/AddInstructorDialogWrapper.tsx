@@ -89,6 +89,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   const { toast } = useToast()
   const [addTab, setAddTab] = useState("basic")
   const { saveDraft, updateDraft, deleteDraft, drafts } = useInstructorDrafts()
+  const { instructors } = require("@/hooks/dashboard/staff/use-instructors").useInstructors()
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null)
   const [form, setForm] = useState<InstructorFormData>(initialForm)
   const [originalForm, setOriginalForm] = useState<InstructorFormData>(initialForm)
@@ -212,6 +213,48 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
       setAddTab("basic" as any)
       toast({ title: "Invalid email address", description: emailCheck.reason, variant: "destructive" })
       return
+    }
+    // Check for duplicate email
+    const emailLower = form.email.trim().toLowerCase()
+    const duplicateEmail = instructors.find((inst: any) => {
+      // Skip current instructor when editing
+      if (mode === "edit" && inst.id === currentId) return false
+      return inst.email?.toLowerCase() === emailLower
+    })
+    if (duplicateEmail) {
+      setAddTab("basic" as any)
+      toast({ 
+        title: "Duplicate email address", 
+        description: `This email is already used by ${duplicateEmail.name || duplicateEmail.firstName + ' ' + duplicateEmail.lastName || 'another instructor'}.`, 
+        variant: "destructive" 
+      })
+      return
+    }
+    // Phone validation
+    const phoneDigits = form.phone.replace(/[^0-9]/g, "")
+    if (!phoneDigits) {
+      setAddTab("basic" as any)
+      toast({ title: "Phone number required", description: "Please enter a valid phone number.", variant: "destructive" })
+      return
+    }
+    // Validate phone number length and format if country is available
+    if (form.country) {
+      try {
+        const { isPossiblePhoneNumber } = await import("libphonenumber-js")
+        const isValid = isPossiblePhoneNumber(phoneDigits, form.country as any)
+        if (!isValid) {
+          setAddTab("basic" as any)
+          toast({ title: "Invalid phone number", description: `Please enter a valid phone number for ${form.country}.`, variant: "destructive" })
+          return
+        }
+      } catch {
+        // If validation library fails, at least check for digits
+        if (phoneDigits.length < 7) {
+          setAddTab("basic" as any)
+          toast({ title: "Invalid phone number", description: "Phone number is too short.", variant: "destructive" })
+          return
+        }
+      }
     }
     // DOB cannot be in the future
     if (form.dob) {

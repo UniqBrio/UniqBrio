@@ -132,13 +132,23 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
   const [emailError, setEmailError] = React.useState<string | null>(null)
   const runEmailValidation = (value: string) => {
     const res = validateEmail(value)
-    if (res.ok) {
-      setEmailError(null)
-      return true
-    } else {
+    if (!res.ok) {
       setEmailError(res.reason)
       return false
     }
+    // Check for duplicate email
+    const emailLower = value.trim().toLowerCase()
+    const duplicateEmail = instructors.find((inst: any) => {
+      // Skip current instructor when editing
+      if (currentId && inst.id === currentId) return false
+      return inst.email?.toLowerCase() === emailLower
+    })
+    if (duplicateEmail) {
+      setEmailError(`This email is already used by ${duplicateEmail.name || duplicateEmail.firstName + ' ' + duplicateEmail.lastName || 'another instructor'}`)
+      return false
+    }
+    setEmailError(null)
+    return true
   }
 
   // Phone validation (length & structure via libphonenumber-js metadata)
