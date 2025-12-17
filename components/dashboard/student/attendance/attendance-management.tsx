@@ -369,14 +369,20 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
         if (response.ok) {
           const result = await response.json();
           if (result.success) {
-            // Update local state
+            // Map the updated record with proper id field
+            const updatedRecord = {
+              ...result.data,
+              id: result.data?._id ? String(result.data._id) : (result.data?.id != null ? String(result.data.id) : undefined)
+            };
+            
+            // Enrich the updated record with cohort data
+            const enrichedRecord = await enrichWithCohortNames([updatedRecord]);
+            
+            // Update local state with enriched data
             setAttendanceData((prev: StudentAttendanceRecord[]) => {
               return prev.map(r => {
                 if (String(r.id) !== String(editingRecordId)) return r;
-                return {
-                  ...result.data,
-                  id: result.data?._id ? String(result.data._id) : (result.data?.id != null ? String(result.data.id) : undefined)
-                };
+                return enrichedRecord[0];
               });
             });
             toast({

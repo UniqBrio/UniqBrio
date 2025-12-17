@@ -156,12 +156,17 @@ export function AddAttendanceDialog({
       setinstructorsLoading(true);
 
       try {
-        const res = await fetch('/api/dashboard/staff/non-instructor/non-instructors', {
-          credentials: 'include'
-        });
-        if (res.ok) {
-          const json = await res.json();
-          // Support multiple API shapes: [], { data: [] }, { items: [] }, { result: [] }
+        // Fetch both non-instructors and leave requests to ensure complete staff list
+        const [staffRes, leaveRes] = await Promise.all([
+          fetch('/api/dashboard/staff/non-instructor/non-instructors', { credentials: 'include' }),
+          fetch('/api/dashboard/staff/non-instructor/leave-requests', { credentials: 'include' }).catch(() => null)
+        ]);
+        
+        // Process staff from non-instructors API
+        const staffMap = new Map<string, { id: string; name: string; cohortName?: string; instructor?: string; timing?: string }>();
+        
+        if (staffRes.ok) {
+          const json = await staffRes.json();
           const arr = Array.isArray(json)
             ? json
             : Array.isArray((json || {}).data)
@@ -172,37 +177,75 @@ export function AddAttendanceDialog({
                   ? (json as any).result
                   : [];
 
-          if (!cancelled) {
-            if (Array.isArray(arr) && arr.length > 0) {
-              const mapped = arr
-                .filter((s: any) => s.status !== 'Inactive' && s.status !== 'Deleted')
-                .map((s: any) => {
-                  const id = s.externalId || s.id || s._id || s.instructorId || s.code;
-                  const name = s.name || [s.firstName, s.middleName, s.lastName].filter(Boolean).join(" ") || s.fullName || id;
-                  return {
+          if (Array.isArray(arr) && arr.length > 0) {
+            arr
+              .filter((s: any) => {
+                // Only exclude explicitly inactive or deleted staff
+                // Include staff with undefined/null status, or any other status (including those on leave)
+                const status = (s.status || '').toString().toLowerCase();
+                return status !== 'inactive' && status !== 'deleted';
+              })
+              .forEach((s: any) => {
+                const id = s.externalId || s.id || s._id || s.instructorId || s.code;
+                const name = s.name || [s.firstName, s.middleName, s.lastName].filter(Boolean).join(" ") || s.fullName || id;
+                if (id) {
+                  staffMap.set(id, {
                     id,
                     name,
                     cohortName: s.cohortId || s.cohort || '',
                     instructor: s.instructor || undefined,
                     timing: s.timing || undefined,
-                  };
-                });
-              setinstructorsList(mapped.filter(s => s.id));
-            } else {
-              // Fallback to current attendance dataset unique non-instructors
-              const unique: Record<string, string> = {};
-              attendanceData.forEach(r => { if (!unique[r.instructorId]) unique[r.instructorId] = r.instructorName; });
-              setinstructorsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
-            }
+                  });
+                }
+              });
           }
-        } else if (!cancelled) {
-          // fallback to current attendance dataset unique non-instructors
-          const unique: Record<string, string> = {};
-          attendanceData.forEach(r => { if (!unique[r.instructorId]) unique[r.instructorId] = r.instructorName; });
-          setinstructorsList(Object.entries(unique).map(([id, name]) => ({ id, name })));
         }
-      } catch {
+        
+        // Add staff from leave requests who might not be in non-instructors collection
+        if (leaveRes && leaveRes.ok) {
+          try {
+            const leaveJson = await leaveRes.json();
+            const leaveRequests = Array.isArray(leaveJson) ? leaveJson : (leaveJson?.data || []);
+            leaveRequests.forEach((req: any) => {
+              const id = req.instructorId;
+              const name = req.instructorName;
+              if (id && name && !staffMap.has(id)) {
+                staffMap.set(id, {
+                  id,
+                  name,
+                  cohortName: req.cohortId || undefined,
+                  instructor: undefined,
+                  timing: undefined,
+                });
+              }
+            });
+          } catch {
+            // Ignore errors from leave requests
+          }
+        }
+        
+        // Add staff from existing attendance records
+        attendanceData.forEach(r => {
+          if (r.instructorId && r.instructorName && !staffMap.has(r.instructorId)) {
+            staffMap.set(r.instructorId, {
+              id: r.instructorId,
+              name: r.instructorName,
+              cohortName: r.cohortName || '',
+              instructor: r.cohortInstructor || undefined,
+              timing: r.cohortTiming || undefined,
+            });
+          }
+        });
+
         if (!cancelled) {
+          const finalList = Array.from(staffMap.values());
+          console.log(`[Attendance] Loaded ${finalList.length} non-instructors for attendance entry`);
+          setinstructorsList(finalList);
+        }
+      } catch (err) {
+        console.error('Error loading non-instructors:', err);
+        if (!cancelled) {
+          // Final fallback to attendance data
           const unique: Record<string, string> = {};
           attendanceData.forEach(r => { if (!unique[r.instructorId]) unique[r.instructorId] = r.instructorName; });
           setinstructorsList(Object.entries(unique).map(([id, name]) => ({ id, name })));

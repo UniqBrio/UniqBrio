@@ -11,7 +11,7 @@ import { Calendar } from "@/components/dashboard/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
-import { CalendarIcon, Save } from "lucide-react"
+import { CalendarIcon, Save, Check, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/dashboard/utils"
 import { format } from "date-fns"
 import { Task, TaskFormData } from "./types"
@@ -40,6 +40,16 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
   const [createdOnFocused, setCreatedOnFocused] = useState(false)
   const [targetDateFocused, setTargetDateFocused] = useState(false)
   const isEditingDraft = !!loadedDraftId
+  const [assignedToOpen, setAssignedToOpen] = useState(false)
+  const [assignedToSearch, setAssignedToSearch] = useState('')
+  const [assigneeList, setAssigneeList] = useState<string[]>(() => {
+    // Load saved assignees from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('taskAssignees')
+      return saved ? JSON.parse(saved) : ['Self']
+    }
+    return ['Self']
+  })
 
   const resetForm = () => {
     let formState: TaskFormData
@@ -329,6 +339,15 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
             setPendingClose(true)
           }
         }}
+        onCloseClick={(e) => {
+          if (hasUnsavedChanges) {
+            e.preventDefault()
+            setShowUnsavedDialog(true)
+            setPendingClose(true)
+          } else {
+            onOpenChange(false)
+          }
+        }}
       >
           <DialogHeader>
             <DialogTitle>{editTask ? "Edit Task" : "Create Task"}</DialogTitle>
@@ -406,19 +425,85 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
               <Label htmlFor="assignedTo" className="text-sm font-medium">
                 Assigned To
               </Label>
-              <div className="relative">
-                <Input
-                  list="assignedToOptions"
-                  id="assignedTo"
-                  value={formData.assignedTo}
-                  onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                  className="w-full"
-                  placeholder="Enter or select assignee"
-                />
-                <datalist id="assignedToOptions">
-                  <option value="Self" />
-                </datalist>
-              </div>
+              <Popover open={assignedToOpen} onOpenChange={setAssignedToOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={assignedToOpen}
+                    className="w-full justify-between font-normal"
+                  >
+                    <span className="truncate">{formData.assignedTo || "Select or type assignee"}</span>
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <div className="p-2">
+                    <Input
+                      placeholder="Search or type name..."
+                      value={assignedToSearch}
+                      onChange={(e) => setAssignedToSearch(e.target.value)}
+                      className="mb-2"
+                      autoFocus
+                    />
+                    <div className="max-h-[200px] overflow-y-auto">
+                      {/* Show option to add new value if it doesn't exist */}
+                      {assignedToSearch && !assigneeList.some(opt => opt.toLowerCase() === assignedToSearch.toLowerCase()) && (
+                        <div
+                          className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm"
+                          onClick={() => {
+                            const newAssignee = assignedToSearch.trim()
+                            // Add to list and save to localStorage
+                            const updatedList = [...assigneeList, newAssignee]
+                            setAssigneeList(updatedList)
+                            if (typeof window !== 'undefined') {
+                              localStorage.setItem('taskAssignees', JSON.stringify(updatedList))
+                            }
+                            setFormData({ ...formData, assignedTo: newAssignee })
+                            setAssignedToOpen(false)
+                            setAssignedToSearch('')
+                          }}
+                        >
+                          <Check className="h-4 w-4 opacity-0" />
+                          <span>Add "{assignedToSearch.trim()}"</span>
+                        </div>
+                      )}
+                      {/* Existing assignees filtered by search */}
+                      {assigneeList
+                        .filter(opt => !assignedToSearch || opt.toLowerCase().includes(assignedToSearch.toLowerCase()))
+                        .map((option) => {
+                          const isSelected = formData.assignedTo === option
+                          return (
+                            <div
+                              key={option}
+                              className={cn(
+                                "flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer rounded-sm",
+                                isSelected ? "text-white" : "hover:bg-accent"
+                              )}
+                              style={isSelected ? { backgroundColor: primaryColor } : {}}
+                              onClick={() => {
+                                setFormData({ ...formData, assignedTo: option })
+                                setAssignedToOpen(false)
+                                setAssignedToSearch('')
+                              }}
+                            >
+                              <Check className={cn("h-4 w-4", isSelected ? "opacity-100" : "opacity-0")} />
+                              <span>{option}</span>
+                            </div>
+                          )
+                        })}
+                      {/* Show "No results" message if nothing matches */}
+                      {assignedToSearch && 
+                       assigneeList.filter(opt => opt.toLowerCase().includes(assignedToSearch.toLowerCase())).length === 0 && 
+                       assigneeList.some(opt => opt.toLowerCase() === assignedToSearch.toLowerCase()) && (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          No results found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Target Date + Priority side-by-side */}
@@ -505,10 +590,10 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                   <SelectContent>
                     <SelectItem value="open">Open</SelectItem>
                     <SelectItem value="inprogress">In Progress</SelectItem>
-                    <SelectItem value="onhold">On hold</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="onhold">On Hold</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">Use the Complete button in the task list to mark tasks as completed</p>
               </div>
             )}
 

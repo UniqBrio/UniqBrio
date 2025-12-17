@@ -872,7 +872,11 @@ function LeaveTypeCombobox({ value, onChange }: { value: string; onChange: (v: s
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search or add leave types..." value={query} onValueChange={setQuery}
+          <CommandInput placeholder="Search or add leave types..." value={query} onValueChange={(value) => {
+            // Only allow letters and spaces - completely filter out numbers and symbols
+            const filtered = value.replace(/[^a-zA-Z\s]/g, '')
+            setQuery(filtered)
+          }}
             onKeyDown={async (e: React.KeyboardEvent<HTMLInputElement>) => {
               const q = query.trim()
               if (e.key === 'Enter' && q && !exists) {

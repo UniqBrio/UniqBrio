@@ -106,6 +106,8 @@ export default function AttendanceSearchFilters({
 
   // Draft count state (for attendance drafts)
   const [draftCount, setDraftCount] = useState(0);
+  
+  // Load initial draft count
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
@@ -113,6 +115,34 @@ export default function AttendanceSearchFilters({
       if (raw) setDraftCount(Number(raw) || 0);
     } catch {}
   }, []);
+  
+  // Listen for localStorage changes to update draft count in real-time
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'attendanceDraftsCount' && e.newValue !== null) {
+        setDraftCount(Number(e.newValue) || 0);
+      }
+    };
+    
+    // Also listen for custom events (for same-tab updates)
+    const handleCustomEvent = () => {
+      try {
+        const raw = localStorage.getItem('attendanceDraftsCount');
+        if (raw) setDraftCount(Number(raw) || 0);
+      } catch {}
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('attendance-drafts-count-changed', handleCustomEvent);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('attendance-drafts-count-changed', handleCustomEvent);
+    };
+  }, []);
+  
   const effectiveDraftCount = typeof draftCountProp === 'number' ? draftCountProp : draftCount;
 
   // Ensure default sort is by Date when component mounts
@@ -827,17 +857,14 @@ export default function AttendanceSearchFilters({
 
         {/* Add Attendance */}
         {onAddAttendance && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={onAddAttendance} size="sm" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+          
+                <Button onClick={onAddAttendance} size="sm" title="Add attendance" className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Attendance
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Record new attendance entry</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+            
+             
+  
         )}
         </div>
       </div>

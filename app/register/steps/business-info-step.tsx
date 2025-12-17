@@ -9,6 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { MultiSelect } from "@/components/ui/multi-select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { ChevronDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Simple FormValidation component
 const FormValidation = ({ isValid, isInvalid, message }: { isValid: boolean; isInvalid: boolean; message: string }) => {
@@ -169,6 +173,190 @@ const fetchStates = async (countryCode: string): Promise<Option[]> => {
 // Types for select options
 type Option = { value: string; label: string }
 
+// Searchable Country selector component with scrollbar
+function CountrySelect({ 
+  country, 
+  onChange, 
+  countries, 
+  loading, 
+  error, 
+  hasError 
+}: { 
+  country?: string; 
+  onChange: (code: string, label: string) => void; 
+  countries: Option[]; 
+  loading: boolean; 
+  error: string; 
+  hasError?: boolean 
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  
+  const norm = query.trim().toLowerCase();
+  const filtered = norm 
+    ? countries.filter((c: Option) => 
+        c.label.toLowerCase().includes(norm) || 
+        c.value.toLowerCase().includes(norm)
+      ) 
+    : countries;
+  
+  const selectedCountry = countries.find((c: Option) => c.value === country);
+  const placeholder = loading 
+    ? 'Loading countries...' 
+    : error 
+    ? error 
+    : selectedCountry?.label || 'Select country';
+  
+  return (
+    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setQuery(''); }}>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open}
+          disabled={loading || error !== ""}
+          className={cn(
+            'w-full justify-between mt-1 font-normal',
+            hasError && 'border-red-500 focus-visible:ring-red-500'
+          )}
+        >
+          <span className="truncate max-w-full">{placeholder}</span>
+          <ChevronDown className="ml-2 h-4 w-4 opacity-70 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-2" align="start" sideOffset={4}>
+        <div className="flex flex-col gap-2">
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={loading ? 'Loading...' : 'Search countries...'}
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+          />
+          <div className="max-h-60 overflow-y-auto text-sm pr-1">
+            {loading && <div className="text-xs text-gray-500 py-2">Loading...</div>}
+            {!loading && filtered.map((c: Option) => (
+              <div
+                key={c.value}
+                onClick={() => {
+                  onChange(c.value, c.label);
+                  setOpen(false);
+                }}
+                className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-gray-100"
+              >
+                {c.label}
+              </div>
+            ))}
+            {!loading && !filtered.length && (
+              <div className="text-xs text-gray-500 py-2">No countries found</div>
+            )}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// Searchable State selector component with scrollbar
+function StateSelect({ 
+  countryCode, 
+  state, 
+  onChange, 
+  states, 
+  loading, 
+  error, 
+  hasError 
+}: { 
+  countryCode?: string; 
+  state?: string; 
+  onChange: (s: string) => void; 
+  states: Option[]; 
+  loading: boolean; 
+  error: string; 
+  hasError?: boolean 
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  
+  const norm = query.trim().toLowerCase();
+  const filtered = norm 
+    ? states.filter((s: Option) => s.label.toLowerCase().includes(norm)) 
+    : states;
+  
+  const noStates = !!countryCode && !loading && states.length === 0 && !error;
+  const selectedState = states.find((s: Option) => s.value === state);
+  
+  const placeholder = !countryCode
+    ? 'Select country first'
+    : loading
+    ? 'Loading states...'
+    : error
+    ? error
+    : noStates
+    ? 'Not applicable'
+    : selectedState?.label || 'Select state or province';
+  
+  // Automatically set 'Not applicable' for countries without states
+  useEffect(() => {
+    if (!countryCode) return;
+    if (noStates && (!state || state === '')) {
+      onChange('Not applicable');
+    }
+  }, [countryCode, noStates, state]);
+  
+  return (
+    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setQuery(''); }}>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open}
+          disabled={!countryCode || noStates || loading || error !== ""}
+          className={cn(
+            'w-full justify-between mt-1 font-normal',
+            hasError && 'border-red-500 focus-visible:ring-red-500'
+          )}
+        >
+          <span className="truncate max-w-full">{placeholder}</span>
+          <ChevronDown className="ml-2 h-4 w-4 opacity-70 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-2" align="start" sideOffset={4}>
+        <div className="flex flex-col gap-2">
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={loading ? 'Loading...' : 'Search states...'}
+            disabled={!countryCode || loading}
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+          />
+          <div className="max-h-60 overflow-y-auto text-sm pr-1">
+            {loading && <div className="text-xs text-gray-500 py-2">Loading...</div>}
+            {!loading && noStates && (
+              <div className="text-xs text-gray-500 py-2">Not applicable</div>
+            )}
+            {!loading && !noStates && filtered.map((s: Option) => (
+              <div
+                key={s.value}
+                onClick={() => {
+                  onChange(s.value);
+                  setOpen(false);
+                }}
+                className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-gray-100"
+              >
+                {s.label}
+              </div>
+            ))}
+            {!loading && !noStates && !filtered.length && (
+              <div className="text-xs text-gray-500 py-2">No states found</div>
+            )}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 import type { UpdateFormState } from "../use-form-state";
 
@@ -769,25 +957,13 @@ useEffect(() => {
           <Label htmlFor="country">
             Country <span className="text-red-500">*</span>
           </Label>
-          <Select
-            value={formState.businessInfo.country}
-            onValueChange={(value) => handleInputChange("country", value)}
-            disabled={countriesLoading || countriesError !== ""}
-          >
-            <SelectTrigger id="country" aria-required="true">
-              <SelectValue placeholder={countriesLoading ? "Loading countries..." : countriesError ? countriesError : "Select country"} />
-            </SelectTrigger>
-            <SelectContent>
-              {countries.length === 0 && (
-                <div className="px-2 py-2 text-sm text-muted-foreground">No countries found</div>
-              )}
-              {countries.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CountrySelect
+            country={formState.businessInfo.country}
+            onChange={(value, label) => handleInputChange("country", value)}
+            countries={countries}
+            loading={countriesLoading}
+            error={countriesError}
+          />
         </div>
 
         {/* State/Province (Dropdown, Mandatory) */}
@@ -795,33 +971,14 @@ useEffect(() => {
           <Label htmlFor="state">
             State/Province <span className="text-red-500">*</span>
           </Label>
-          <Select
-            value={formState.businessInfo.state}
-            onValueChange={(value) => handleInputChange("state", value)}
-            disabled={statesLoading || statesError !== "" || !formState.businessInfo.country}
-          >
-            <SelectTrigger id="state" aria-required="true">
-              <SelectValue placeholder={
-                !formState.businessInfo.country
-                  ? "Select country first"
-                  : statesLoading
-                  ? "Loading states..."
-                  : statesError
-                  ? statesError
-                  : "Select state or province"
-              } />
-            </SelectTrigger>
-            <SelectContent>
-              {states.length === 0 && (
-                <div className="px-2 py-2 text-sm text-muted-foreground">No states found</div>
-              )}
-              {states.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <StateSelect
+            countryCode={formState.businessInfo.country}
+            state={formState.businessInfo.state}
+            onChange={(value) => handleInputChange("state", value)}
+            states={states}
+            loading={statesLoading}
+            error={statesError}
+          />
         </div>
 
         {/* Address */}

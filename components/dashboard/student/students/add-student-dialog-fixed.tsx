@@ -2559,8 +2559,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       </Dialog>
 
       {/* Unsaved Changes Dialog */}
-      <Dialog open={showUnsavedDialog} onOpenChange={() => {}}>
-        <DialogContent className="max-w-md" data-no-close>
+      <Dialog open={showUnsavedDialog} onOpenChange={(open) => { if (!open) handleContinueEditing(); }}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">Unsaved Changes</DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-white mt-2">

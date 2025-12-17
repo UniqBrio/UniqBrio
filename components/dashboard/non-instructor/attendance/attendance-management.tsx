@@ -295,10 +295,14 @@ function AttendanceManagementInner() {
           const result = await response.json();
           if (result.success) {
             // Update through drafts component
-            draftsRef.current?.updateDraft({
+            const updatedDraft = {
               ...result.data,
               id: result.data._id
-            } as any);
+            } as any;
+            draftsRef.current?.updateDraft(updatedDraft);
+            // Update count immediately (in case it changed)
+            const newCount = (draftsRef.current?.getCount() || 0);
+            setDraftsCount(newCount);
             toast({
               title: 'Success',
               description: 'Draft updated successfully',
@@ -324,10 +328,14 @@ function AttendanceManagementInner() {
           const result = await response.json();
           if (result.success) {
             // Add through drafts component
-            draftsRef.current?.addDraft({
+            const newDraft = {
               ...result.data,
               id: result.data._id
-            } as any);
+            } as any;
+            draftsRef.current?.addDraft(newDraft);
+            // Update count immediately
+            const newCount = (draftsRef.current?.getCount() || 0);
+            setDraftsCount(newCount);
             toast({
               title: 'Success',
               description: 'Draft saved successfully',

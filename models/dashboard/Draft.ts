@@ -3,7 +3,6 @@ import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // Draft Interface (simplified course structure for drafts)
 export interface IDraft extends Document {
-  _id: string;
   courseId?: string; // Reserved courseId for when draft becomes a course
   name: string;
   instructor?: string;

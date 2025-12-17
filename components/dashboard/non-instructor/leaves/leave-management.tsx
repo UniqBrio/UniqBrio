@@ -612,11 +612,11 @@ export default function LeaveManagement() {
                   <p className="text-sm text-muted-foreground">Create and submit a new leave request in just a few steps.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setDraftsOpen(true)}>
+                  <Button className="bg-purple-600 hover:bg-purple-700" title="Drafts" onClick={() => setDraftsOpen(true)}>
                     <Save className="h-4 w-4 mr-2" />
                     Drafts ({state.drafts.length})
                   </Button>
-                  <Button onClick={() => setShowNewRequestForm(true)} className="bg-purple-600 hover:bg-purple-700">
+                  <Button onClick={() => setShowNewRequestForm(true)} className="bg-purple-600 hover:bg-purple-700" title='Create New Leave Request'>
                     <Plus className="h-4 w-4 mr-2" />
                     New Leave Request
                   </Button>
@@ -929,7 +929,8 @@ export default function LeaveManagement() {
                 <Button
                   variant="outline"
                   size="sm"
-                  aria-label="Leave Policies"
+                  title="Leave Policies"
+                
                   onClick={() => setPolicyOpen(true)}
                 >
                   Leave Policies

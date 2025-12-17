@@ -26,39 +26,20 @@ TabsList.displayName = TabsPrimitive.List.displayName
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => {
+>(({ className, style, ...props }, ref) => {
   const { primaryColor, secondaryColor } = useCustomColors()
-  const [isActive, setIsActive] = React.useState(false)
-  
+
   return (
     <TabsPrimitive.Trigger
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold border-2 bg-background transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-        className
+        "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold border-2 bg-transparent transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        className,
       )}
       style={{
-        borderColor: secondaryColor,
-        color: secondaryColor,
-        ...(props['data-state'] === 'active' && {
-          backgroundColor: primaryColor,
-          color: 'white',
-          borderColor: primaryColor
-        })
-      }}
-      onMouseEnter={(e) => {
-        if (props['data-state'] !== 'active') {
-          e.currentTarget.style.backgroundColor = primaryColor
-          e.currentTarget.style.color = 'white'
-          e.currentTarget.style.borderColor = primaryColor
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (props['data-state'] !== 'active') {
-          e.currentTarget.style.backgroundColor = ''
-          e.currentTarget.style.color = secondaryColor
-          e.currentTarget.style.borderColor = secondaryColor
-        }
+        ...(style as React.CSSProperties),
+        ["--ub-primary" as any]: primaryColor,
+        ["--ub-secondary" as any]: secondaryColor,
       }}
       {...props}
     />
@@ -74,7 +55,7 @@ const TabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
+      className,
     )}
     {...props}
   />

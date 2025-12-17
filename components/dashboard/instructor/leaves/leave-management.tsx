@@ -110,7 +110,14 @@ export default function LeaveManagement() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   
   // Compute draft count to ensure reactive updates
-  const draftsCount = useMemo(() => state.drafts.length, [state.drafts])
+  const draftsCount = useMemo(() => state.drafts.length, [state.drafts.length, state.drafts])
+  
+  // Force re-render when drafts change by tracking a refresh key
+  const [draftsRefreshKey, setDraftsRefreshKey] = useState(0)
+  
+  useEffect(() => {
+    setDraftsRefreshKey(prev => prev + 1)
+  }, [state.drafts.length])
 
   // Track which dashboard card was clicked to compute highlight set for table
   const [highlightMode, setHighlightMode] = useState<null | 'today' | 'next7' | 'mp'>(null)
@@ -614,7 +621,7 @@ export default function LeaveManagement() {
                   <p className="text-sm text-muted-foreground">Create and submit a new leave request in just a few steps.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setDraftsOpen(true)}>
+                  <Button key={`drafts-${draftsRefreshKey}`} className="bg-purple-600 hover:bg-purple-700" onClick={() => setDraftsOpen(true)}>
                     <Save className="h-4 w-4 mr-2" />
                     Drafts ({draftsCount})
                   </Button>

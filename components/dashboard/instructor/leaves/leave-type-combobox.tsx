@@ -33,14 +33,16 @@ export default function LeaveTypeCombobox({ value, onChange }: { value: string; 
       <PopoverContent className="w-full p-0" align="start">
         <Command>
           <CommandInput placeholder="Search or add leave types..." value={query} onValueChange={(value) => {
-            // Only allow letters and spaces - reject numbers and symbols
-            const hasInvalidChars = /[^a-zA-Z\s]/.test(value)
-            if (hasInvalidChars) {
+            // Only allow letters and spaces - completely filter out numbers and symbols
+            const filtered = value.replace(/[^a-zA-Z\s]/g, '')
+            
+            // Show error only if user tried to type invalid characters
+            if (filtered !== value) {
               setShowError(true)
               // Hide error after 2 seconds
               setTimeout(() => setShowError(false), 2000)
             }
-            const filtered = value.replace(/[^a-zA-Z\s]/g, '')
+            
             setQuery(filtered)
           }}
             onKeyDown={async (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -92,33 +92,55 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
 
   // Persist draft count for toolbar hydration compatibility
   React.useEffect(() => {
-    try { localStorage.setItem('attendanceDraftsCount', String(drafts.length)); } catch {}
+    try { 
+      localStorage.setItem('attendanceDraftsCount', String(drafts.length)); 
+      // Dispatch custom event to notify other components in same tab
+      window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+    } catch {}
     onCountChange?.(drafts.length);
   }, [drafts.length, onCountChange]);
 
   useImperativeHandle(ref, () => ({
     open: () => {
       setOpen(true);
+      // Refetch to ensure latest data when explicitly opened
+      fetchDrafts();
     },
     close: () => setOpen(false),
     addDraft: (draft: AttendanceDraft) => {
       // Update local state immediately for responsive UI
-      setDrafts(prev => [{ ...draft, savedAt: draft.savedAt || new Date().toISOString() }, ...prev]);
-      setOpen(true);
+      setDrafts(prev => {
+        const newDrafts = [{ ...draft, savedAt: draft.savedAt || new Date().toISOString() }, ...prev];
+        // Update localStorage immediately for count persistence
+        try { 
+          localStorage.setItem('attendanceDraftsCount', String(newDrafts.length)); 
+          window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+        } catch {}
+        return newDrafts;
+      });
+      // Don't auto-open dialog on add - let parent decide
     },
     updateDraft: (draft: AttendanceDraft) => {
       // Update local state immediately for responsive UI
       setDrafts(prev => {
         const idx = prev.findIndex(d => d.id === draft.id);
+        let newDrafts;
         if (idx >= 0) {
           const copy = [...prev];
           copy[idx] = { ...copy[idx], ...draft, savedAt: new Date().toISOString() };
-          return copy;
+          newDrafts = copy;
+        } else {
+          // if not found, treat as add to be safe
+          newDrafts = [{ ...draft, savedAt: new Date().toISOString() }, ...prev];
         }
-        // if not found, treat as add to be safe
-        return [{ ...draft, savedAt: new Date().toISOString() }, ...prev];
+        // Update localStorage immediately for count persistence
+        try { 
+          localStorage.setItem('attendanceDraftsCount', String(newDrafts.length)); 
+          window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+        } catch {}
+        return newDrafts;
       });
-      setOpen(true);
+      // Don't auto-open dialog on update - let parent decide
     },
     deleteDraft: async (id: number | string) => {
       try {
@@ -132,6 +154,11 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
           if (result.success) {
             setDrafts(prev => {
               const next = prev.filter(d => d.id !== id);
+              // Update localStorage immediately for count persistence
+              try { 
+                localStorage.setItem('attendanceDraftsCount', String(next.length)); 
+                window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+              } catch {}
               // Auto-close the drafts dialog if no drafts remain after deletion
               if (next.length === 0) {
                 setOpen(false);
@@ -288,6 +315,11 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                     if (result.success) {
                       setDrafts(prev => {
                         const next = prev.filter(x => x.id !== draftToDelete.id);
+                        // Update localStorage immediately for count persistence
+                        try { 
+                          localStorage.setItem('attendanceDraftsCount', String(next.length)); 
+                          window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+                        } catch {}
                         // Auto-close the drafts dialog if no drafts remain after confirmation delete
                         if (next.length === 0) {
                           setOpen(false);

@@ -26,6 +26,7 @@ export async function GET() {
       await dbConnect("uniqbrio")
       // Only return active (non-deleted) records - tenant isolation is handled by tenant plugin
       // Status "Inactive" means deleted (set by DELETE endpoint)
+      // Include all staff regardless of leave status - attendance can be marked for anyone
       let items: any[] = await NonInstructorModel.find({
     $and: [
       { $or: [ { status: { $exists: false } }, { status: { $ne: "Inactive" } } ] },

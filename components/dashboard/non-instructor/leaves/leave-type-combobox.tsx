@@ -32,7 +32,7 @@ export default function LeaveTypeCombobox({ value, onChange }: { value: string; 
       <PopoverContent className="w-full p-0" align="start">
         <Command>
           <CommandInput placeholder="Search or add leave types..." value={query} onValueChange={(value) => {
-            // Only allow letters and spaces
+            // Only allow letters and spaces - completely filter out numbers and symbols
             const filtered = value.replace(/[^a-zA-Z\s]/g, '')
             setQuery(filtered)
           }}

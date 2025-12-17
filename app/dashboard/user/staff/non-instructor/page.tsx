@@ -181,50 +181,98 @@ export default function NonInstructorPage() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex flex-col gap-2">
-              <TabsList className="grid w-full grid-cols-5 gap-1 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-5 mb-6 bg-transparent gap-2 p-0 h-auto">
                 <TabsTrigger
                   value="dashboard"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs border-2 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{
+                    ...(activeTab === 'dashboard' ? {
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      color: 'white'
+                    } : {
+                      backgroundColor: 'transparent',
+                      borderColor: '#f97316',
+                      color: '#ea580c'
+                    })
+                  }}
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Analytics
                 </TabsTrigger>
                 <TabsTrigger
                   value="profile"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs border-2 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{
+                    ...(activeTab === 'profile' ? {
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      color: 'white'
+                    } : {
+                      backgroundColor: 'transparent',
+                      borderColor: '#f97316',
+                      color: '#ea580c'
+                    })
+                  }}
                 >
                   <GraduationCap className="h-4 w-4 mr-2" />
                   Non-Instructors
                 </TabsTrigger>
                 <TabsTrigger
                   value="leave"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs border-2 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{
+                    ...(activeTab === 'leave' ? {
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      color: 'white'
+                    } : {
+                      backgroundColor: 'transparent',
+                      borderColor: '#f97316',
+                      color: '#ea580c'
+                    })
+                  }}
                 >
                   <CalendarDays className="h-4 w-4 mr-2" />
                   Leave Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="attendance"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs border-2 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{
+                    ...(activeTab === 'attendance' ? {
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      color: 'white'
+                    } : {
+                      backgroundColor: 'transparent',
+                      borderColor: '#f97316',
+                      color: '#ea580c'
+                    })
+                  }}
                 >
                   <ClipboardCheck className="h-4 w-4 mr-2" />
                   Attendance Management
                 </TabsTrigger>
                 <TabsTrigger
                   value="settings"
-                  className="text-xs border-2 bg-white dark:bg-gray-900 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{ borderColor: secondaryColor, color: secondaryColor }}
+                  className="text-xs border-2 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
+                  style={{
+                    ...(activeTab === 'settings' ? {
+                      backgroundColor: '#9333ea',
+                      borderColor: '#9333ea',
+                      color: 'white'
+                    } : {
+                      backgroundColor: 'transparent',
+                      borderColor: '#f97316',
+                      color: '#ea580c'
+                    })
+                  }}
                 >
                   <SettingsIcon className="h-4 w-4 mr-2" />
                   Settings
                 </TabsTrigger>
               </TabsList>
-            </div>
 
             <TabsContent value="dashboard" className="mt-6">
               <Card>
