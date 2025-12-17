@@ -39,23 +39,57 @@ export default function CookieConsent() {
     }
   }, [status]) // Re-run this effect when the authentication status changes
 
-  const acceptAll = () => {
+  const acceptAll = async () => {
     setCookieConsent("all")
     // Store in localStorage so it persists even if cookie is cleared
     if (typeof window !== 'undefined') {
       localStorage.setItem('cookieConsentGiven', 'true')
     }
+    
+    // Save to database for compliance tracking
+    try {
+      await fetch('/api/cookie-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          preferences: { 
+            analytics: true, 
+            marketing: false 
+          } 
+        }),
+      })
+    } catch (error) {
+      console.error('Failed to save cookie preferences to database:', error)
+    }
+    
     setShowConsent(false)
     setShowPreferences(false)
   }
 
-  const savePreferences = () => {
+  const savePreferences = async () => {
     const consentType = preferences.analytics ? "all" : "essential"
     setCookieConsent(consentType)
     // Store in localStorage so it persists even if cookie is cleared
     if (typeof window !== 'undefined') {
       localStorage.setItem('cookieConsentGiven', 'true')
     }
+    
+    // Save to database for compliance tracking
+    try {
+      await fetch('/api/cookie-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          preferences: { 
+            analytics: preferences.analytics, 
+            marketing: preferences.marketing 
+          } 
+        }),
+      })
+    } catch (error) {
+      console.error('Failed to save cookie preferences to database:', error)
+    }
+    
     setShowConsent(false)
     setShowPreferences(false)
   }

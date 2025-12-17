@@ -7,6 +7,7 @@ import NextAuthSessionProvider from "@/components/session-provider"
 import CookieConsent from "@/components/cookie-consent"
 import MultiTabSessionHandler from "../components/multi-tab-session-handler"
 import TokenRefreshHandler from "../components/token-refresh-handler"
+import PWAStatusTracker from "@/components/pwa-status-tracker"
 
 
 import { SidebarPositionProvider } from "./contexts/sidebar-position-context"
@@ -99,6 +100,7 @@ export default function RootLayout({
                   <CookieConsent />
                   {/* <MultiTabSessionHandler /> */}
                   <TokenRefreshHandler />
+                  <PWAStatusTracker />
                 </Suspense>
               </AppProvider>
             </SidebarPositionProvider>

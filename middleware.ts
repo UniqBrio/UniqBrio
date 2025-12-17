@@ -40,6 +40,7 @@ const publicPaths = [
   "/legal/", // Legal pages (terms, privacy, cookies)
   // API Routes - Allow specific prefixes
   "/api/auth/",
+  "/api/session/", // Session management API routes (handle their own auth)
   "/api/admin-auth", // Admin authentication
   "/api/admin-data", // Admin data endpoints
   "/api/register", // Business registration API - allows first-time users who verified email but haven't logged in

@@ -147,6 +147,10 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
       formData.append("termsAccepted", data.termsAccepted ? "true" : "false")
       // Add plan information - use selectedPlan which reads from query param or prop
       formData.append("planChoosed", selectedPlan)
+      // Add client-side device info
+      if (typeof navigator !== 'undefined') {
+        formData.append("userAgent", navigator.userAgent || '')
+      }
       // TODO: Backend integration - store terms acceptance timestamp in user profile
       // Example: formData.append("termsAcceptedAt", new Date().toISOString())
 

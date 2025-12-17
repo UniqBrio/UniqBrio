@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { dbConnect } from '@/lib/mongodb';
 import Session from '@/models/Session';
+import UserModel from '@/models/User';
 import { COOKIE_NAMES } from '@/lib/cookies';
 
 /**
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
       const limit = parseInt(searchParams.get('limit') || '50');
       const skip = (page - 1) * limit;
 
-      const [sessions, total] = await Promise.all([
+      const [rawSessions, total] = await Promise.all([
         Session.find(query)
           .sort({ lastActiveAt: -1 })
           .limit(limit)
@@ -68,6 +69,24 @@ export async function GET(request: NextRequest) {
           .lean(),
         Session.countDocuments({ ...query })
       ]);
+
+      // Fetch user emails for each session
+      const userIdSet = new Set(rawSessions.map(session => session.userId));
+      const userIds = Array.from(userIdSet);
+      const users = await UserModel.find(
+        { userId: { $in: userIds } },
+        { userId: 1, email: 1, name: 1 }
+      ).lean();
+
+      // Create a map for quick lookup
+      const userMap = new Map(users.map(user => [user.userId, user]));
+
+      // Enhance sessions with user information
+      const sessions = rawSessions.map(session => ({
+        ...session,
+        userEmail: userMap.get(session.userId)?.email || 'Unknown',
+        userName: userMap.get(session.userId)?.name || 'Unknown'
+      }));
 
       return NextResponse.json({
         success: true,
@@ -91,6 +110,7 @@ export async function GET(request: NextRequest) {
         totalSessions,
         activeSessions,
         revokedSessions,
+        pwaUsers,
         sessionsByTenant
       ] = await Promise.all([
         Session.countDocuments({ __allowSystemQuery: true }),
@@ -100,6 +120,12 @@ export async function GET(request: NextRequest) {
           expiresAt: { $gt: now }
         }),
         Session.countDocuments({ __allowSystemQuery: true, isRevoked: true }),
+        Session.countDocuments({
+          __allowSystemQuery: true,
+          isRevoked: false,
+          expiresAt: { $gt: now },
+          isPWA: true
+        }),
         Session.aggregate([
           {
             $group: {
@@ -132,6 +158,7 @@ export async function GET(request: NextRequest) {
           totalSessions,
           activeSessions,
           revokedSessions,
+          pwaUsers,
           sessionsByTenant
         }
       });

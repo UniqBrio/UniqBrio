@@ -184,8 +184,12 @@ export default function LoginPage() {
       const formData = new FormData();
       formData.append("emailOrPhone", (data as any).emailOrPhone);
       formData.append("password", (data as any).password);
-      // formData.append("role", data.role); // Remove role from form submission
-
+      
+      // Add client-side device info
+      if (typeof navigator !== 'undefined') {
+        formData.append("userAgent", navigator.userAgent || '');
+      }
+      
       const result = await login(formData);
 
       // --- CRITICAL BROWSER CONSOLE LOG ---

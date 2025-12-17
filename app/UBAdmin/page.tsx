@@ -1347,8 +1347,20 @@ function AdminAnalytics({ stats }: { stats: any }) {
 
 function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], stats: any, onRefresh: () => void }) {
   const [loading, setLoading] = useState(false)
-  const [filter, setFilter] = useState({ tenantId: "", userId: "" })
+  const [refreshing, setRefreshing] = useState(false)
+  const [filter, setFilter] = useState({ tenantId: "", userId: "", userEmail: "" })
   const [selectedSession, setSelectedSession] = useState<any>(null)
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      await onRefresh()
+    } catch (error) {
+      console.error("Failed to refresh:", error)
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   const handleRevokeSession = async (sessionId: string) => {
     if (!confirm("Are you sure you want to revoke this session? The user will be logged out immediately.")) {
@@ -1394,7 +1406,7 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
   return (
     <div className="space-y-6">
       {/* Session Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
@@ -1416,6 +1428,15 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{stats?.pwaUsers || 0}</div>
+              <div className="text-sm text-gray-600">PWA Users</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
               <div className="text-3xl font-bold text-red-600">{stats?.revokedSessions || 0}</div>
               <div className="text-sm text-gray-600">Revoked Sessions</div>
             </div>
@@ -1426,11 +1447,11 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-orange-600">
-                {stats?.activeSessions && stats?.totalSessions
-                  ? Math.round((stats.activeSessions / stats.totalSessions) * 100)
+                {stats?.activeSessions && stats?.pwaUsers
+                  ? Math.round((stats.pwaUsers / stats.activeSessions) * 100)
                   : 0}%
               </div>
-              <div className="text-sm text-gray-600">Active Rate</div>
+              <div className="text-sm text-gray-600">PWA Adoption</div>
             </div>
           </CardContent>
         </Card>
@@ -1450,10 +1471,10 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
             <Button
               variant="outline"
               size="sm"
-              onClick={onRefresh}
-              disabled={loading}
+              onClick={handleRefresh}
+              disabled={refreshing}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh"}
+              {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh"}
             </Button>
           </div>
         </CardHeader>
@@ -1473,6 +1494,12 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
                 onChange={(e) => setFilter({ ...filter, userId: e.target.value })}
                 className="max-w-xs"
               />
+              <Input
+                placeholder="Filter by Email"
+                value={filter.userEmail || ''}
+                onChange={(e) => setFilter({ ...filter, userEmail: e.target.value })}
+                className="max-w-xs"
+              />
             </div>
 
             {/* Sessions List */}
@@ -1482,11 +1509,14 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
                   <tr className="border-b">
                     <th className="text-left p-3 font-semibold">Status</th>
                     <th className="text-left p-3 font-semibold">User ID</th>
+                    <th className="text-left p-3 font-semibold">User Email</th>
+                    <th className="text-left p-3 font-semibold">User Name</th>
                     <th className="text-left p-3 font-semibold">Tenant ID</th>
-                    <th className="text-left p-3 font-semibold">JWT ID</th>
+                    <th className="text-left p-3 font-semibold">Device</th>
+                    <th className="text-left p-3 font-semibold">Browser</th>
+                    <th className="text-left p-3 font-semibold">OS</th>
+                    <th className="text-left p-3 font-semibold">Mode</th>
                     <th className="text-left p-3 font-semibold">Last Active</th>
-                    <th className="text-left p-3 font-semibold">Expires At</th>
-                    <th className="text-left p-3 font-semibold">IP Address</th>
                     <th className="text-right p-3 font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -1495,7 +1525,8 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
                     .filter((session) => {
                       const matchesTenant = !filter.tenantId || session.tenantId.includes(filter.tenantId)
                       const matchesUser = !filter.userId || session.userId.includes(filter.userId)
-                      return matchesTenant && matchesUser
+                      const matchesEmail = !filter.userEmail || (session.userEmail && session.userEmail.toLowerCase().includes(filter.userEmail.toLowerCase()))
+                      return matchesTenant && matchesUser && matchesEmail
                     })
                     .map((session) => (
                       <tr key={session._id} className="border-b hover:bg-gray-50">
@@ -1505,19 +1536,43 @@ function SessionsManagement({ sessions, stats, onRefresh }: { sessions: any[], s
                             {session.userId.substring(0, 12)}...
                           </code>
                         </td>
+                        <td className="p-3 text-sm">
+                          <span className="text-blue-600" title={session.userEmail || 'Unknown'}>
+                            {session.userEmail || 'Unknown'}
+                          </span>
+                        </td>
+                        <td className="p-3 text-sm">
+                          <span title={session.userName || 'Unknown'}>
+                            {(session.userName || 'Unknown').length > 20 
+                              ? (session.userName || 'Unknown').substring(0, 20) + '...' 
+                              : (session.userName || 'Unknown')
+                            }
+                          </span>
+                        </td>
                         <td className="p-3">
                           <code className="text-xs bg-purple-100 px-2 py-1 rounded">
                             {session.tenantId.substring(0, 12)}...
                           </code>
                         </td>
                         <td className="p-3">
-                          <code className="text-xs bg-blue-100 px-2 py-1 rounded">
-                            {session.jwtId.substring(0, 12)}...
-                          </code>
+                          <Badge variant="outline" className="text-xs">
+                            {session.deviceType || 'unknown'}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-sm">{session.browser || 'Unknown'}</td>
+                        <td className="p-3 text-sm">{session.os || 'Unknown'}</td>
+                        <td className="p-3">
+                          {session.isPWA ? (
+                            <Badge className="text-xs bg-green-100 text-green-700 border-green-300">
+                              PWA
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">
+                              Browser
+                            </Badge>
+                          )}
                         </td>
                         <td className="p-3 text-sm">{formatDate(session.lastActiveAt)}</td>
-                        <td className="p-3 text-sm">{formatDate(session.expiresAt)}</td>
-                        <td className="p-3 text-sm">{session.ipAddress || "N/A"}</td>
                         <td className="p-3 text-right">
                           {!session.isRevoked && new Date(session.expiresAt) > new Date() && (
                             <Button

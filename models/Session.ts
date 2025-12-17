@@ -20,6 +20,12 @@ export interface ISession extends Document {
   revokedReason?: string;   // Reason for revocation
   userAgent?: string;       // Browser/client information
   ipAddress?: string;       // IP address of the session
+  deviceType?: string;      // Device type: desktop, mobile, tablet, unknown
+  browser?: string;         // Browser name and version (e.g., "Chrome 120")
+  os?: string;              // Operating system (e.g., "Windows 11")
+  country?: string;         // Country code (coarse geolocation)
+  ipHash?: string;          // Hashed IP for privacy-safe security auditing
+  isPWA?: boolean;          // Whether session is from installed PWA
   createdAt: Date;
   updatedAt: Date;
   
@@ -80,6 +86,33 @@ const sessionSchema = new Schema<ISession>(
     ipAddress: {
       type: String,
       // Store for security audit purposes
+    },
+    deviceType: {
+      type: String,
+      enum: ['desktop', 'mobile', 'tablet', 'unknown'],
+      default: 'unknown',
+      // Parsed from user agent
+    },
+    browser: {
+      type: String,
+      // Browser name and version (e.g., "Chrome 120")
+    },
+    os: {
+      type: String,
+      // Operating system (e.g., "Windows 11", "iOS 17")
+    },
+    country: {
+      type: String,
+      // Country code from IP geolocation (privacy-safe, coarse only)
+    },
+    ipHash: {
+      type: String,
+      // Hashed IP address for security auditing without storing raw IP
+    },
+    isPWA: {
+      type: Boolean,
+      default: false,
+      // Tracks if user is accessing via installed PWA (standalone mode)
     },
   },
   {

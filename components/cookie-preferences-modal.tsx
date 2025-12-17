@@ -27,9 +27,26 @@ export default function CookiePreferencesModal({ onClose }: CookiePreferencesMod
     }
   }, [])
 
-  const savePreferences = () => {
+  const savePreferences = async () => {
     const consentType = preferences.analytics ? "all" : "essential"
     setCookieConsent(consentType)
+    
+    // Save to database for compliance tracking
+    try {
+      await fetch('/api/cookie-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          preferences: { 
+            analytics: preferences.analytics, 
+            marketing: preferences.personalization 
+          } 
+        }),
+      })
+    } catch (error) {
+      console.error('Failed to save cookie preferences to database:', error)
+    }
+    
     onClose()
   }
 

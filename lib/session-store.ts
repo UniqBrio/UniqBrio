@@ -18,6 +18,7 @@ export interface SessionCreationData {
   tenantId: string;
   userAgent?: string;
   ipAddress?: string;
+  isPWA?: boolean; // Whether session is from installed PWA
   expiresIn?: string | number; // JWT expiration (e.g., '1d', 3600)
 }
 
@@ -73,6 +74,17 @@ export async function createSessionRecord(
   const now = new Date();
   const expiresAt = new Date(now.getTime() + expirationMs);
 
+  // Parse device information from user agent and IP
+  const { parseUserAgent, hashIpAddress } = await import('@/lib/device-parser');
+  
+  console.log('[Session Store] Creating session with userAgent:', data.userAgent);
+  console.log('[Session Store] Creating session with ipAddress:', data.ipAddress);
+  
+  const deviceInfo = parseUserAgent(data.userAgent);
+  console.log('[Session Store] Parsed device info:', deviceInfo);
+  
+  const ipHash = data.ipAddress ? hashIpAddress(data.ipAddress) : undefined;
+
   return runWithTenantContext({ tenantId: data.tenantId }, async () => {
     const session = new Session({
       tenantId: data.tenantId,
@@ -84,6 +96,19 @@ export async function createSessionRecord(
       isRevoked: false,
       userAgent: data.userAgent,
       ipAddress: data.ipAddress,
+      deviceType: deviceInfo.deviceType,
+      browser: deviceInfo.browser,
+      os: deviceInfo.os,
+      country: undefined, // Country geolocation can be added later if needed
+      ipHash,
+      isPWA: data.isPWA || false,
+    });
+
+    console.log('[Session Store] Session object before save:', {
+      deviceType: session.deviceType,
+      browser: session.browser,
+      os: session.os,
+      isPWA: session.isPWA
     });
 
     await session.save();

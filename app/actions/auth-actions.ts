@@ -280,11 +280,20 @@ export async function login(formData: FormData) {
     console.log("[AuthAction] login: SessionData created:", { ...sessionData, tenantId: sessionData.tenantId });
     
     // Get request metadata for session tracking
+    // Try to get userAgent from FormData first (client-side), fallback to headers
+    const clientUserAgent = formData.get("userAgent") as string | null;
     const headersList = await headers();
-    const userAgent = headersList.get('user-agent') || undefined;
+    const headerUserAgent = headersList.get('user-agent') || undefined;
+    const userAgent = clientUserAgent || headerUserAgent;
+    
     const forwardedFor = headersList.get('x-forwarded-for');
     const realIp = headersList.get('x-real-ip');
     const ipAddress = forwardedFor?.split(',')[0] || realIp || headersList.get('x-forwarded-host') || 'unknown';
+    
+    console.log("[AuthAction] login: User-Agent (client):", clientUserAgent);
+    console.log("[AuthAction] login: User-Agent (header):", headerUserAgent);
+    console.log("[AuthAction] login: User-Agent (final):", userAgent);
+    console.log("[AuthAction] login: IP Address:", ipAddress);
     
     const token = await createToken(sessionData, '30d', {
       userAgent,
