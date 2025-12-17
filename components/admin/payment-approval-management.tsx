@@ -11,19 +11,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/components/ui/use-toast"
 import { DollarSign, Plus, Loader2, Trash2 } from "lucide-react"
 
+interface RegistrationData {
+  userId: string
+  academyId: string
+  businessName: string
+  ownerName: string
+  email: string
+  phone: string
+}
+
 export default function PaymentApprovalManagement() {
   const [paymentRecords, setPaymentRecords] = useState<any[]>([])
+  const [registrations, setRegistrations] = useState<RegistrationData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<any>(null)
   const [formData, setFormData] = useState({
     businessName: "",
     ownerAdminName: "",
     email: "",
     phone: "",
     plan: "",
+    studentSize: "",
     academyId: "",
     userId: "",
+    numberOfDays: "",
     startDate: "",
     endDate: "",
     status: "pending",
@@ -33,7 +46,35 @@ export default function PaymentApprovalManagement() {
 
   useEffect(() => {
     fetchPaymentRecords()
+    fetchRegistrations()
   }, [])
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const day = String(date.getDate()).padStart(2, '0')
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const month = monthNames[date.getMonth()]
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
+
+  const fetchRegistrations = async () => {
+    try {
+      const response = await fetch("/api/registrations-list")
+      console.log("Registrations API response status:", response.status)
+      if (response.ok) {
+        const data = await response.json()
+        console.log("Registrations data received:", data)
+        console.log("Number of registrations:", data.registrations?.length)
+        setRegistrations(data.registrations || [])
+      } else {
+        const errorText = await response.text()
+        console.error("Registrations API error:", errorText)
+      }
+    } catch (error) {
+      console.error("Error fetching registrations:", error)
+    }
+  }
 
   const fetchPaymentRecords = async () => {
     try {
@@ -61,8 +102,84 @@ export default function PaymentApprovalManagement() {
     }
   }
 
+  const handleRegistrationSelect = (field: string, value: string) => {
+    // Find the registration based on the selected field
+    let registration: RegistrationData | undefined
+
+    if (field === "businessName") {
+      registration = registrations.find((r) => r.businessName === value)
+    } else if (field === "ownerAdminName") {
+      registration = registrations.find((r) => r.ownerName === value)
+    } else if (field === "userId") {
+      registration = registrations.find((r) => r.userId === value)
+    } else if (field === "academyId") {
+      registration = registrations.find((r) => r.academyId === value)
+    }
+
+    if (registration) {
+      setFormData({
+        ...formData,
+        businessName: registration.businessName,
+        ownerAdminName: registration.ownerName,
+        userId: registration.userId,
+        academyId: registration.academyId,
+        email: registration.email,
+        phone: registration.phone,
+      })
+    }
+  }
+
+  const calculateEndDate = (startDate: string, days: number) => {
+    if (!startDate || !days || days <= 0) return ""
+    
+    const start = new Date(startDate)
+    // Subtract 1 because start date is Day 1, not Day 0
+    start.setDate(start.getDate() + days - 1)
+    
+    const year = start.getFullYear()
+    const month = String(start.getMonth() + 1).padStart(2, '0')
+    const day = String(start.getDate()).padStart(2, '0')
+    
+    return `${year}-${month}-${day}`
+  }
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value }
+      
+      // Auto-calculate end date when numberOfDays or startDate changes
+      if (field === "numberOfDays" || field === "startDate") {
+        const days = field === "numberOfDays" ? parseInt(value) : parseInt(prev.numberOfDays)
+        const startDate = field === "startDate" ? value : prev.startDate
+        
+        if (days && startDate) {
+          updated.endDate = calculateEndDate(startDate, days)
+        }
+      }
+      
+      return updated
+    })
+  }
+
+  const handleEdit = (record: any) => {
+    setEditingRecord(record)
+    setFormData({
+      businessName: record.businessName,
+      ownerAdminName: record.ownerAdminName,
+      email: record.email,
+      phone: record.phone,
+      plan: record.plan,
+      studentSize: record.studentSize || "",
+      academyId: record.academyId,
+      userId: record.userId,
+      numberOfDays: "",
+      startDate: new Date(record.startDate).toISOString().split('T')[0],
+      endDate: new Date(record.endDate).toISOString().split('T')[0],
+      status: record.status,
+      amount: record.amount.toString(),
+      dueMonth: record.dueMonth,
+    })
+    setIsModalOpen(true)
   }
 
   const handleSubmit = async () => {
@@ -73,6 +190,7 @@ export default function PaymentApprovalManagement() {
       "email",
       "phone",
       "plan",
+      "studentSize",
       "academyId",
       "userId",
       "startDate",
@@ -94,26 +212,30 @@ export default function PaymentApprovalManagement() {
 
     try {
       setIsSubmitting(true)
+      const isEditing = !!editingRecord
       const response = await fetch("/api/admin-payment-records", {
-        method: "POST",
+        method: isEditing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(isEditing ? { ...formData, id: editingRecord._id } : formData),
       })
 
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Payment record created successfully",
+          description: `Payment record ${isEditing ? 'updated' : 'created'} successfully`,
         })
         setIsModalOpen(false)
+        setEditingRecord(null)
         setFormData({
           businessName: "",
           ownerAdminName: "",
           email: "",
           phone: "",
           plan: "",
+          studentSize: "",
           academyId: "",
           userId: "",
+          numberOfDays: "",
           startDate: "",
           endDate: "",
           status: "pending",
@@ -125,15 +247,15 @@ export default function PaymentApprovalManagement() {
         const errorData = await response.json()
         toast({
           title: "Error",
-          description: errorData.error || "Failed to create payment record",
+          description: errorData.error || `Failed to ${isEditing ? 'update' : 'create'} payment record`,
           variant: "destructive",
         })
       }
     } catch (error) {
-      console.error("Error creating payment record:", error)
+      console.error("Error submitting payment record:", error)
       toast({
         title: "Error",
-        description: "Failed to create payment record",
+        description: `Failed to ${editingRecord ? 'update' : 'create'} payment record`,
         variant: "destructive",
       })
     } finally {
@@ -244,6 +366,12 @@ export default function PaymentApprovalManagement() {
                       Owner/Admin
                     </th>
                     <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                      User ID
+                    </th>
+                    <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                      Academy ID
+                    </th>
+                    <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
                       Email
                     </th>
                     <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
@@ -253,10 +381,7 @@ export default function PaymentApprovalManagement() {
                       Plan
                     </th>
                     <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                      Academy ID
-                    </th>
-                    <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                      User ID
+                      Student Size
                     </th>
                     <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
                       Start Date
@@ -287,6 +412,12 @@ export default function PaymentApprovalManagement() {
                       <td className="border border-gray-200 px-4 py-3 text-sm">
                         {record.ownerAdminName}
                       </td>
+                      <td className="border border-gray-200 px-4 py-3 text-sm font-mono">
+                        {record.userId}
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-sm font-mono">
+                        {record.academyId}
+                      </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm">
                         {record.email}
                       </td>
@@ -298,17 +429,14 @@ export default function PaymentApprovalManagement() {
                           {record.plan}
                         </Badge>
                       </td>
-                      <td className="border border-gray-200 px-4 py-3 text-sm font-mono">
-                        {record.academyId}
-                      </td>
-                      <td className="border border-gray-200 px-4 py-3 text-sm font-mono">
-                        {record.userId}
+                      <td className="border border-gray-200 px-4 py-3 text-sm">
+                        {record.studentSize}
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm">
-                        {new Date(record.startDate).toLocaleDateString()}
+                        {formatDate(record.startDate)}
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm">
-                        {new Date(record.endDate).toLocaleDateString()}
+                        {formatDate(record.endDate)}
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm">
                         {getStatusBadge(record.status)}
@@ -320,14 +448,24 @@ export default function PaymentApprovalManagement() {
                         {record.dueMonth}
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(record._id)}
-                          className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(record)}
+                            className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDelete(record._id)}
+                            className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -339,37 +477,140 @@ export default function PaymentApprovalManagement() {
       </Card>
 
       {/* Create Payment Record Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog open={isModalOpen} onOpenChange={(open) => {
+        setIsModalOpen(open)
+        if (!open) {
+          setEditingRecord(null)
+          setFormData({
+            businessName: "",
+            ownerAdminName: "",
+            email: "",
+            phone: "",
+            plan: "",
+            studentSize: "",
+            academyId: "",
+            userId: "",
+            numberOfDays: "",
+            startDate: "",
+            endDate: "",
+            status: "pending",
+            amount: "",
+            dueMonth: "",
+          })
+        }
+      }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-purple-600" />
-              Create Payment Record
+              {editingRecord ? 'Edit Payment Record' : 'Create Payment Record'}
             </DialogTitle>
             <DialogDescription>
-              Fill in the details to create a new payment record
+              {editingRecord ? 'Update the payment record details' : 'Fill in the details to create a new payment record'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="businessName">Business Name <span className="text-red-500">*</span></Label>
-              <Input
-                id="businessName"
+              <Select
                 value={formData.businessName}
-                onChange={(e) => handleInputChange("businessName", e.target.value)}
-                placeholder="Enter business name"
-              />
+                onValueChange={(value) => {
+                  console.log("Business name selected:", value)
+                  handleRegistrationSelect("businessName", value)
+                }}
+              >
+                <SelectTrigger onClick={() => console.log("Business dropdown opened, registrations count:", registrations.length)}>
+                  <SelectValue placeholder="Select business name" />
+                </SelectTrigger>
+                <SelectContent>
+                  {registrations.length === 0 ? (
+                    <SelectItem value="no-data" disabled>No registrations found</SelectItem>
+                  ) : (
+                    registrations
+                      .filter((reg) => reg.businessName) // Filter out empty business names
+                      .map((reg) => (
+                        <SelectItem key={`business-${reg.academyId}`} value={reg.businessName}>
+                          {reg.businessName}
+                        </SelectItem>
+                      ))
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="ownerAdminName">Owner/Admin Name <span className="text-red-500">*</span></Label>
-              <Input
-                id="ownerAdminName"
+              <Select
                 value={formData.ownerAdminName}
-                onChange={(e) => handleInputChange("ownerAdminName", e.target.value)}
-                placeholder="Enter owner name"
-              />
+                onValueChange={(value) => handleRegistrationSelect("ownerAdminName", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select owner name" />
+                </SelectTrigger>
+                <SelectContent>
+                  {registrations.length === 0 ? (
+                    <SelectItem value="no-data" disabled>No registrations found</SelectItem>
+                  ) : (
+                    registrations
+                      .filter((reg) => reg.ownerName)
+                      .map((reg) => (
+                        <SelectItem key={`owner-${reg.academyId}`} value={reg.ownerName}>
+                          {reg.ownerName}
+                        </SelectItem>
+                      ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="userId">User ID <span className="text-red-500">*</span></Label>
+              <Select
+                value={formData.userId}
+                onValueChange={(value) => handleRegistrationSelect("userId", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select user ID" />
+                </SelectTrigger>
+                <SelectContent>
+                  {registrations.length === 0 ? (
+                    <SelectItem value="no-data" disabled>No registrations found</SelectItem>
+                  ) : (
+                    registrations
+                      .filter((reg) => reg.userId)
+                      .map((reg) => (
+                        <SelectItem key={`user-${reg.academyId}`} value={reg.userId}>
+                          {reg.userId}
+                        </SelectItem>
+                      ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="academyId">Academy ID <span className="text-red-500">*</span></Label>
+              <Select
+                value={formData.academyId}
+                onValueChange={(value) => handleRegistrationSelect("academyId", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select academy ID" />
+                </SelectTrigger>
+                <SelectContent>
+                  {registrations.length === 0 ? (
+                    <SelectItem value="no-data" disabled>No registrations found</SelectItem>
+                  ) : (
+                    registrations
+                      .filter((reg) => reg.academyId)
+                      .map((reg) => (
+                        <SelectItem key={`academy-${reg.academyId}`} value={reg.academyId}>
+                          {reg.academyId}
+                        </SelectItem>
+                      ))
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -379,7 +620,9 @@ export default function PaymentApprovalManagement() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="Enter email"
+                placeholder="Auto-filled from registration"
+                disabled
+                className="bg-gray-50"
               />
             </div>
 
@@ -389,7 +632,9 @@ export default function PaymentApprovalManagement() {
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="Enter phone number"
+                placeholder="Auto-filled from registration"
+                disabled
+                className="bg-gray-50"
               />
             </div>
 
@@ -409,22 +654,14 @@ export default function PaymentApprovalManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="academyId">Academy ID <span className="text-red-500">*</span></Label>
+              <Label htmlFor="studentSize">Student Size <span className="text-red-500">*</span></Label>
               <Input
-                id="academyId"
-                value={formData.academyId}
-                onChange={(e) => handleInputChange("academyId", e.target.value)}
-                placeholder="e.g., AC000001"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="userId">User ID <span className="text-red-500">*</span></Label>
-              <Input
-                id="userId"
-                value={formData.userId}
-                onChange={(e) => handleInputChange("userId", e.target.value)}
-                placeholder="e.g., AD000001"
+                id="studentSize"
+                type="number"
+                min="1"
+                value={formData.studentSize}
+                onChange={(e) => handleInputChange("studentSize", e.target.value)}
+                placeholder="Enter number of students"
               />
             </div>
 
@@ -444,6 +681,18 @@ export default function PaymentApprovalManagement() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="numberOfDays">No of Days <span className="text-red-500">*</span></Label>
+              <Input
+                id="numberOfDays"
+                type="number"
+                min="1"
+                value={formData.numberOfDays}
+                onChange={(e) => handleInputChange("numberOfDays", e.target.value)}
+                placeholder="Enter number of days"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="startDate">Start Date <span className="text-red-500">*</span></Label>
               <Input
                 id="startDate"
@@ -459,7 +708,9 @@ export default function PaymentApprovalManagement() {
                 id="endDate"
                 type="date"
                 value={formData.endDate}
-                onChange={(e) => handleInputChange("endDate", e.target.value)}
+                disabled
+                className="bg-gray-50 cursor-not-allowed"
+                placeholder="Auto-calculated"
               />
             </div>
 
@@ -476,19 +727,35 @@ export default function PaymentApprovalManagement() {
 
             <div className="space-y-2">
               <Label htmlFor="dueMonth">Due Month <span className="text-red-500">*</span></Label>
-              <Input
-                id="dueMonth"
-                value={formData.dueMonth}
-                onChange={(e) => handleInputChange("dueMonth", e.target.value)}
-                placeholder="e.g., January 2025"
-              />
+              <Select value={formData.dueMonth} onValueChange={(value) => handleInputChange("dueMonth", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select due month" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="January">January</SelectItem>
+                  <SelectItem value="February">February</SelectItem>
+                  <SelectItem value="March">March</SelectItem>
+                  <SelectItem value="April">April</SelectItem>
+                  <SelectItem value="May">May</SelectItem>
+                  <SelectItem value="June">June</SelectItem>
+                  <SelectItem value="July">July</SelectItem>
+                  <SelectItem value="August">August</SelectItem>
+                  <SelectItem value="September">September</SelectItem>
+                  <SelectItem value="October">October</SelectItem>
+                  <SelectItem value="November">November</SelectItem>
+                  <SelectItem value="December">December</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => {
+                setIsModalOpen(false)
+                setEditingRecord(null)
+              }}
               disabled={isSubmitting}
             >
               Cancel
@@ -501,13 +768,10 @@ export default function PaymentApprovalManagement() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
+                  {editingRecord ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Record
-                </>
+                editingRecord ? 'Update Record' : 'Create Record'
               )}
             </Button>
           </DialogFooter>

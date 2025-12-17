@@ -6,6 +6,7 @@ export interface IAdminPaymentRecord extends Document {
   email: string;
   phone: string;
   plan: string;
+  studentSize: number;
   academyId: string;
   userId: string;
   startDate: Date;
@@ -24,6 +25,7 @@ const AdminPaymentRecordSchema = new Schema<IAdminPaymentRecord>(
     email: { type: String, required: true },
     phone: { type: String, required: true },
     plan: { type: String, required: true },
+    studentSize: { type: Number, required: true },
     academyId: { type: String, required: true, index: true },
     userId: { type: String, required: true },
     startDate: { type: Date, required: true },
