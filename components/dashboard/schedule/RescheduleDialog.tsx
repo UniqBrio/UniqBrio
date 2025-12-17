@@ -40,14 +40,14 @@ export default function RescheduleDialog({
   const [originalStartTime, setOriginalStartTime] = useState<string>(startTime)
   const [originalEndTime, setOriginalEndTime] = useState<string>(endTime)
 
-  // Track original values when dialog opens
+  // Track original values when dialog opens (only when isOpen changes to true)
   useEffect(() => {
     if (isOpen) {
       setOriginalDate(date)
       setOriginalStartTime(startTime)
       setOriginalEndTime(endTime)
     }
-  }, [isOpen, date, startTime, endTime])
+  }, [isOpen])
 
   // Check if any changes were made
   const hasChanges = () => {

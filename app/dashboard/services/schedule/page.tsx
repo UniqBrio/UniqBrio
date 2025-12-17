@@ -1431,6 +1431,11 @@ export default function EnhancedSchedulePage() {
   const [filteredInstructors, setFilteredInstructors] = useState<any[]>([])
   const [loadingCourseData, setLoadingCourseData] = useState(false)
   
+  // Track form changes for unsaved changes warning
+  const [isFormDirty, setIsFormDirty] = useState(false)
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
+  const [pendingDialogClose, setPendingDialogClose] = useState(false)
+  
   // Form validation errors
   const [titleError, setTitleError] = useState('')
   const [descriptionError, setDescriptionError] = useState('')
@@ -1763,7 +1768,9 @@ export default function EnhancedSchedulePage() {
       }
 
       // Fetch the selected course to get its instructor
-      const selectedCourse = availableCourses.find(c => c._id === courseId)
+      const selectedCourse = availableCourses.find(c =>
+        c.courseId === courseId || c.id === courseId || c._id === courseId
+      )
       
       // Filter instructors based on the course's assigned instructor
       // If course has an instructor, show that instructor, otherwise show all
@@ -1772,6 +1779,7 @@ export default function EnhancedSchedulePage() {
           const fullName = `${instructor.firstName} ${instructor.lastName}`.trim()
           return fullName === selectedCourse.instructor || 
                  instructor._id === selectedCourse.instructorId ||
+                 instructor.id === selectedCourse.instructorId ||
                  instructor.instructorId === selectedCourse.instructorId
         })
         setFilteredInstructors(matchedInstructors.length > 0 ? matchedInstructors : availableInstructors)
@@ -1831,8 +1839,8 @@ export default function EnhancedSchedulePage() {
         sessionId: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         courseId: newSession.courseId === "none" ? null : newSession.courseId,
         cohortId: newSession.cohortId === "none" ? null : newSession.cohortId,
-        courseName: newSession.courseId !== "none" ? availableCourses.find(c => c._id === newSession.courseId)?.title || newSession.title : newSession.title,
-        cohortName: newSession.cohortId !== "none" ? availableCohorts.find(c => c._id === newSession.cohortId)?.name || "" : "",
+        courseName: newSession.courseId !== "none" ? (availableCourses.find(c => c.courseId === newSession.courseId || c.id === newSession.courseId || c._id === newSession.courseId)?.title || availableCourses.find(c => c.courseId === newSession.courseId || c.id === newSession.courseId || c._id === newSession.courseId)?.name || newSession.title) : newSession.title,
+        cohortName: newSession.cohortId !== "none" ? (availableCohorts.find(c => c.cohortId === newSession.cohortId || c.id === newSession.cohortId || c._id === newSession.cohortId)?.name || "") : "",
         students: newSession.students || 0,
         registeredStudents: [],
         waitlist: newSession.waitlist || [],
@@ -1917,6 +1925,7 @@ export default function EnhancedSchedulePage() {
         recurringPattern: null,
         daysOfWeek: []
       })
+      setIsFormDirty(false)
 
       setIsAddSessionDialogOpen(false)
 
@@ -3366,9 +3375,21 @@ export default function EnhancedSchedulePage() {
       </Dialog>
 
       {/* Add Session Dialog */}
-      <Dialog open={isAddSessionDialogOpen} onOpenChange={setIsAddSessionDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
-          <DialogHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-4 border-b dark:border-gray-700">
+      <Dialog open={isAddSessionDialogOpen} onOpenChange={(open) => {
+        if (!open && isFormDirty) {
+          // User is trying to close with unsaved changes
+          setShowUnsavedChangesDialog(true)
+          setPendingDialogClose(true)
+        } else if (!open) {
+          // No unsaved changes, allow close
+          setIsAddSessionDialogOpen(false)
+        } else {
+          // Opening the dialog
+          setIsAddSessionDialogOpen(true)
+        }
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10 px-6 pt-6 pb-4 border-b dark:border-gray-700">
             <DialogTitle className="flex items-center gap-2">
               
               Add New Session
@@ -3378,7 +3399,7 @@ export default function EnhancedSchedulePage() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="overflow-y-auto flex-1 py-4">
+          <div className="overflow-y-auto flex-1 px-6 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
@@ -3402,6 +3423,7 @@ export default function EnhancedSchedulePage() {
                       if (value === '' || titleRegex.test(value)) {
                         setNewSession(prev => ({ ...prev, title: value }))
                         setTitleError('')
+                        setIsFormDirty(true)
                       } else {
                         setTitleError('Only letters, numbers, spaces, and basic punctuation allowed')
                       }
@@ -3431,6 +3453,7 @@ export default function EnhancedSchedulePage() {
                       if (value === '' || descRegex.test(value)) {
                         setNewSession(prev => ({ ...prev, description: value }))
                         setDescriptionError('')
+                        setIsFormDirty(true)
                       } else {
                         setDescriptionError('Only letters, numbers, spaces, and basic punctuation allowed')
                       }
@@ -3455,10 +3478,11 @@ export default function EnhancedSchedulePage() {
                       setNewSession(prev => ({ 
                         ...prev, 
                         courseId: value,
-                        cohortId: "", // Reset cohort when course changes
+                        cohortId: "none", // Reset cohort when course changes
                         instructor: "", // Reset instructor when course changes
                         instructorName: ""
                       }))
+                      setIsFormDirty(true)
                       fetchCourseSpecificData(value)
                     }}
                   >
@@ -3472,16 +3496,19 @@ export default function EnhancedSchedulePage() {
                         <SelectItem key="no-courses" value="no-courses" disabled>No courses available</SelectItem>
                       ) : (
                         <>
-                          <SelectItem key="none" value="none">No specific course</SelectItem>
+                          <SelectItem key="none" value="none">Select specific course</SelectItem>
                           {availableCourses.map((course) => (
-                            <SelectItem key={course._id} value={course._id}>
-                              {course.title || course.name || 'Untitled Course'}
+                            <SelectItem key={course.courseId || course.id || course._id} value={course.courseId || course.id || course._id}>
+                              {course.title || course.name || 'Untitled Course'} ({course.courseId || course.id || course._id})
                             </SelectItem>
                           ))}
                         </>
                       )}
                     </SelectContent>
                   </Select>
+                  {newSession.courseId && newSession.courseId !== "none" && (
+                    <p className="text-xs text-gray-500 dark:text-white mt-1">Selected Course ID: {newSession.courseId}</p>
+                  )}
                 </div>
 
                 <div>
@@ -3490,7 +3517,10 @@ export default function EnhancedSchedulePage() {
                   </Label>
                   <Select
                     value={newSession.cohortId}
-                    onValueChange={(value) => setNewSession(prev => ({ ...prev, cohortId: value }))}
+                    onValueChange={(value) => {
+                      setNewSession(prev => ({ ...prev, cohortId: value }))
+                      setIsFormDirty(true)
+                    }}
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select a cohort" />
@@ -3504,16 +3534,19 @@ export default function EnhancedSchedulePage() {
                         <SelectItem key="no-cohorts" value="no-cohorts" disabled>No cohorts available for this course</SelectItem>
                       ) : (
                         <>
-                          <SelectItem key="none" value="none">No specific cohort</SelectItem>
+                          <SelectItem key="none" value="none">Select specific cohort</SelectItem>
                           {filteredCohorts.map((cohort) => (
-                            <SelectItem key={cohort._id} value={cohort._id}>
-                              {cohort.name}
+                            <SelectItem key={cohort.cohortId || cohort.id || cohort._id} value={cohort.cohortId || cohort.id || cohort._id}>
+                              {cohort.name} ({cohort.cohortId || cohort.id || cohort._id})
                             </SelectItem>
                           ))}
                         </>
                       )}
                     </SelectContent>
                   </Select>
+                  {newSession.cohortId && newSession.cohortId !== "none" && (
+                    <p className="text-xs text-gray-500 dark:text-white mt-1">Selected Cohort ID: {newSession.cohortId}</p>
+                  )}
                 </div>
 
                 <div>
@@ -3523,12 +3556,13 @@ export default function EnhancedSchedulePage() {
                   <Select
                     value={newSession.instructor}
                     onValueChange={(value) => {
-                      const instructor = (filteredInstructors.length > 0 ? filteredInstructors : availableInstructors).find(i => (i._id || i.id) === value)
+                      const instructor = (filteredInstructors.length > 0 ? filteredInstructors : availableInstructors).find(i => (i.instructorId || i._id || i.id) === value)
                       setNewSession(prev => ({ 
                         ...prev, 
                         instructor: value,
                         instructorName: instructor ? (instructor.name || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim()) : ""
                       }))
+                      setIsFormDirty(true)
                     }}
                   >
                     <SelectTrigger className="mt-1">
@@ -3543,15 +3577,18 @@ export default function EnhancedSchedulePage() {
                         <SelectItem key="no-instructors" value="no-instructors" disabled>No instructors available</SelectItem>
                       ) : (
                         (filteredInstructors.length > 0 ? filteredInstructors : availableInstructors)
-                          .filter(instructor => (instructor._id || instructor.id))
+                          .filter(instructor => (instructor.instructorId || instructor._id || instructor.id))
                           .map((instructor) => (
-                            <SelectItem key={instructor._id || instructor.id} value={instructor._id || instructor.id}>
-                              {instructor.name || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim() || 'Unknown Instructor'}
+                            <SelectItem key={instructor.instructorId || instructor._id || instructor.id} value={instructor.instructorId || instructor._id || instructor.id}>
+                              {instructor.name || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim() || 'Unknown Instructor'} ({instructor.instructorId || instructor._id || instructor.id})
                             </SelectItem>
                           ))
                       )}
                     </SelectContent>
                   </Select>
+                  {newSession.instructor && (
+                    <p className="text-xs text-gray-500 dark:text-white mt-1">Selected Instructor ID: {newSession.instructor}</p>
+                  )}
                 </div>
               </div>
 
@@ -3565,9 +3602,10 @@ export default function EnhancedSchedulePage() {
                   </Label>
                   <Select
                     value={newSession.category}
-                    onValueChange={(value: "Fitness" | "Sports" | "Arts" | "Teaching" | "Other") => 
+                    onValueChange={(value: "Fitness" | "Sports" | "Arts" | "Teaching" | "Other") => {
                       setNewSession(prev => ({ ...prev, category: value }))
-                    }
+                      setIsFormDirty(true)
+                    }}
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select a category" />
@@ -3601,6 +3639,7 @@ export default function EnhancedSchedulePage() {
                       } else {
                         setSubcategoryError('Only letters, numbers, spaces, and hyphens allowed')
                       }
+                      setIsFormDirty(true)
                     }}
                     className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
                       subcategoryError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
@@ -3622,7 +3661,10 @@ export default function EnhancedSchedulePage() {
                     max="100"
                     placeholder="30"
                     value={newSession.maxCapacity}
-                    onChange={(e) => setNewSession(prev => ({ ...prev, maxCapacity: parseInt(e.target.value) || 30 }))}
+                    onChange={(e) => {
+                      setNewSession(prev => ({ ...prev, maxCapacity: parseInt(e.target.value) || 30 }))
+                      setIsFormDirty(true)
+                    }}
                     className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                   />
                 </div>
@@ -3647,6 +3689,7 @@ export default function EnhancedSchedulePage() {
                       } else {
                         setTagsError('Only letters, numbers, spaces, commas, and hyphens allowed')
                       }
+                      setIsFormDirty(true)
                     }}
                     className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
                       tagsError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
@@ -3670,7 +3713,10 @@ export default function EnhancedSchedulePage() {
                       min="0"
                       placeholder="0"
                       value={newSession.students}
-                      onChange={(e) => setNewSession(prev => ({ ...prev, students: parseInt(e.target.value) || 0 }))}
+                      onChange={(e) => {
+                        setNewSession(prev => ({ ...prev, students: parseInt(e.target.value) || 0 }))
+                        setIsFormDirty(true)
+                      }}
                       className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                     <p className="text-xs text-gray-500 dark:text-white mt-1">Students currently enrolled</p>
@@ -3707,6 +3753,7 @@ export default function EnhancedSchedulePage() {
                       } else {
                         setSessionNotesError('Only letters, numbers, spaces, and basic punctuation allowed')
                       }
+                      setIsFormDirty(true)
                     }}
                     className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
                       sessionNotesError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
@@ -3748,6 +3795,7 @@ export default function EnhancedSchedulePage() {
                           if (date) {
                             setNewSession(prev => ({ ...prev, date }))
                             setIsDatePickerOpen(false)
+                            setIsFormDirty(true)
                           }
                         }}
                         initialFocus
@@ -3765,7 +3813,10 @@ export default function EnhancedSchedulePage() {
                       id="session-start-time"
                       type="time"
                       value={newSession.startTime}
-                      onChange={(e) => setNewSession(prev => ({ ...prev, startTime: e.target.value }))}
+                      onChange={(e) => {
+                        setNewSession(prev => ({ ...prev, startTime: e.target.value }))
+                        setIsFormDirty(true)
+                      }}
                       className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
@@ -3777,7 +3828,10 @@ export default function EnhancedSchedulePage() {
                       id="session-end-time"
                       type="time"
                       value={newSession.endTime}
-                      onChange={(e) => setNewSession(prev => ({ ...prev, endTime: e.target.value }))}
+                      onChange={(e) => {
+                        setNewSession(prev => ({ ...prev, endTime: e.target.value }))
+                        setIsFormDirty(true)
+                      }}
                       className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
@@ -3787,7 +3841,10 @@ export default function EnhancedSchedulePage() {
                   <Checkbox
                     id="is-recurring"
                     checked={newSession.isRecurring}
-                    onCheckedChange={(checked) => setNewSession(prev => ({ ...prev, isRecurring: !!checked }))}
+                    onCheckedChange={(checked) => {
+                      setNewSession(prev => ({ ...prev, isRecurring: !!checked }))
+                      setIsFormDirty(true)
+                    }}
                   />
                   <Label htmlFor="is-recurring" className="text-sm font-medium">
                     Recurring Session
@@ -3815,6 +3872,7 @@ export default function EnhancedSchedulePage() {
                                   daysOfWeek: prev.daysOfWeek.filter(d => d !== index)
                                 }))
                               }
+                              setIsFormDirty(true)
                             }}
                           />
                           <Label htmlFor={`day-${index}`} className="text-xs mt-1">
@@ -3837,9 +3895,10 @@ export default function EnhancedSchedulePage() {
                   </Label>
                   <Select
                     value={newSession.type}
-                    onValueChange={(value: "online" | "offline" | "hybrid") => 
+                    onValueChange={(value: "online" | "offline" | "hybrid") => {
                       setNewSession(prev => ({ ...prev, type: value }))
-                    }
+                      setIsFormDirty(true)
+                    }}
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select session type" />
@@ -3858,9 +3917,10 @@ export default function EnhancedSchedulePage() {
                   </Label>
                   <Select
                     value={newSession.mode}
-                    onValueChange={(value: "live" | "recorded" | "hybrid") => 
+                    onValueChange={(value: "live" | "recorded" | "hybrid") => {
                       setNewSession(prev => ({ ...prev, mode: value }))
-                    }
+                      setIsFormDirty(true)
+                    }}
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select mode" />
@@ -3893,6 +3953,7 @@ export default function EnhancedSchedulePage() {
                         } else {
                           setLocationError('Only letters, numbers, spaces, hyphens, commas, and periods are allowed')
                         }
+                        setIsFormDirty(true)
                       }}
                       className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
                         locationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
@@ -3924,6 +3985,7 @@ export default function EnhancedSchedulePage() {
                         } else {
                           setVirtualUrlError('Please enter a valid URL format')
                         }
+                        setIsFormDirty(true)
                       }}
                       className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
                         virtualUrlError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
@@ -3944,7 +4006,10 @@ export default function EnhancedSchedulePage() {
                   <Checkbox
                     id="payment-required"
                     checked={newSession.paymentRequired}
-                    onCheckedChange={(checked) => setNewSession(prev => ({ ...prev, paymentRequired: !!checked }))}
+                    onCheckedChange={(checked) => {
+                      setNewSession(prev => ({ ...prev, paymentRequired: !!checked }))
+                      setIsFormDirty(true)
+                    }}
                   />
                   <Label htmlFor="payment-required" className="text-sm font-medium">
                     Payment Required
@@ -3964,7 +4029,10 @@ export default function EnhancedSchedulePage() {
                         step="0.01"
                         placeholder="0.00"
                         value={newSession.price}
-                        onChange={(e) => setNewSession(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                        onChange={(e) => {
+                          setNewSession(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))
+                          setIsFormDirty(true)
+                        }}
                         className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
                       />
                     </div>
@@ -3974,7 +4042,10 @@ export default function EnhancedSchedulePage() {
                       </Label>
                       <Select
                         value={newSession.currency}
-                        onValueChange={(value) => setNewSession(prev => ({ ...prev, currency: value }))}
+                        onValueChange={(value) => {
+                          setNewSession(prev => ({ ...prev, currency: value }))
+                          setIsFormDirty(true)
+                        }}
                       >
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Currency" />
@@ -3994,7 +4065,10 @@ export default function EnhancedSchedulePage() {
                   <Checkbox
                     id="attendance-required"
                     checked={newSession.attendanceRequired}
-                    onCheckedChange={(checked) => setNewSession(prev => ({ ...prev, attendanceRequired: !!checked }))}
+                    onCheckedChange={(checked) => {
+                      setNewSession(prev => ({ ...prev, attendanceRequired: !!checked }))
+                      setIsFormDirty(true)
+                    }}
                   />
                   <Label htmlFor="attendance-required" className="text-sm font-medium">
                     Attendance Required
@@ -4005,10 +4079,17 @@ export default function EnhancedSchedulePage() {
           </div>
           </div>
 
-          <DialogFooter className="sticky bottom-0 bg-white dark:bg-gray-900 z-10 pt-4 border-t dark:border-gray-700">
+          <DialogFooter className="flex-shrink-0 bg-white dark:bg-gray-900 px-6 pb-6 pt-4 border-t dark:border-gray-700">
             <Button 
               variant="outline" 
-              onClick={() => setIsAddSessionDialogOpen(false)}
+              onClick={() => {
+                if (isFormDirty) {
+                  setShowUnsavedChangesDialog(true)
+                  setPendingDialogClose(true)
+                } else {
+                  setIsAddSessionDialogOpen(false)
+                }
+              }}
             >
               Cancel
             </Button>
@@ -4017,6 +4098,74 @@ export default function EnhancedSchedulePage() {
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               Create Session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unsaved Changes Confirmation Dialog */}
+      <Dialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-orange-500" />
+              Unsaved Changes
+            </DialogTitle>
+            <DialogDescription>
+              You have unsaved changes in the form. Are you sure you want to discard them?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowUnsavedChangesDialog(false)
+                setPendingDialogClose(false)
+              }}
+            >
+              Continue Editing
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={() => {
+                setShowUnsavedChangesDialog(false)
+                setIsAddSessionDialogOpen(false)
+                setPendingDialogClose(false)
+                setIsFormDirty(false)
+                // Reset form
+                setNewSession({
+                  title: "",
+                  description: "",
+                  courseId: "none",
+                  cohortId: "none",
+                  instructor: "",
+                  instructorName: "",
+                  date: new Date(),
+                  startTime: "09:00",
+                  endTime: "10:00",
+                  duration: 60,
+                  location: "",
+                  virtualClassroomUrl: "",
+                  mode: "live",
+                  type: "online",
+                  category: "Teaching",
+                  subcategory: "",
+                  tags: [],
+                  sessionNotes: "",
+                  maxCapacity: 30,
+                  students: 0,
+                  waitlist: [],
+                  price: 0,
+                  currency: "",
+                  paymentRequired: false,
+                  attendanceRequired: true,
+                  isRecurring: false,
+                  recurringPattern: null,
+                  daysOfWeek: []
+                })
+              }}
+            >
+              Discard Changes
             </Button>
           </DialogFooter>
         </DialogContent>

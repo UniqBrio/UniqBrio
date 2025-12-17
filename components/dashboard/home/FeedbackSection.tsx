@@ -150,6 +150,7 @@ export function FeedbackSection() {
             <div className="space-y-3">
               <Label className="text-base font-semibold">
                 What would you like to provide feedback on?
+                <span className="text-destructive"> *</span>
               </Label>
               <RadioGroup value={feedbackType} onValueChange={setFeedbackType}>
                 <label 
@@ -204,6 +205,7 @@ export function FeedbackSection() {
                   <div className="space-y-2">
                     <Label htmlFor="new-feature-name" className="font-medium">
                       Feature/Page Name
+                      <span className="text-destructive"> *</span>
                     </Label>
                     <input
                       id="new-feature-name"
@@ -218,6 +220,7 @@ export function FeedbackSection() {
                   <div className="space-y-2">
                     <Label htmlFor="page-select" className="font-medium">
                       Select Page
+                      <span className="text-destructive"> *</span>
                     </Label>
                     <Select value={selectedPage} onValueChange={setSelectedPage}>
                       <SelectTrigger id="page-select">
@@ -247,6 +250,7 @@ export function FeedbackSection() {
                       : feedbackType === "coming-soon"
                       ? "Share your expectations or requirements"
                       : "Describe the new feature"}
+                    <span className="text-destructive"> *</span>
                   </Label>
                   <Textarea
                     id="remarks"
@@ -269,7 +273,7 @@ export function FeedbackSection() {
 
                 {/* File Upload Section */}
                 <div className="space-y-3">
-                  <Label htmlFor="file-upload-button" className="font-medium">
+                  <Label htmlFor="file-upload-button" className="font-medium ">
                     Upload Screenshots or CSV (Optional)
                   </Label>
                   <div className="space-y-3">
@@ -290,8 +294,7 @@ export function FeedbackSection() {
                       id="file-upload-button"
                       type="button"
                       variant="outline"
-                      className="justify-center gap-2 h-9 text-sm px-3 md:w-auto hover:bg-muted hover:text-foreground"
-                      onClick={() => {
+                      className="justify-center gap-2 h-9 text-sm px-3 md:w-auto  bg-purple-600 text-white hover:bg-purple-700 hover:text-white "                      onClick={() => {
                         const el = document.getElementById('file-upload') as HTMLInputElement | null;
                         el?.click();
                       }}
@@ -347,10 +350,7 @@ export function FeedbackSection() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!isFormValid()}
-                  style={{
-                    backgroundColor: isFormValid() ? primaryColor : undefined,
-                  }}
-                  className="gap-2"
+                  className="gap-2 bg-purple-600 text-white hover:bg-purple-700 hover:text-white"
                 >
                   <Send className="w-4 h-4" />
                   Submit Feedback
