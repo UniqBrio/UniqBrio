@@ -1,6 +1,12 @@
 export interface Invoice {
+  _id: string;
   id: string;
+  academyId: string;
   academyName: string;
+  userId: string;
+  ownerAdminName: string;
+  email: string;
+  phone: string;
   planType: "Monthly" | "Yearly";
   invoiceNumber: string;
   dateIssued: string;
@@ -8,6 +14,13 @@ export interface Invoice {
   status: "Paid" | "Failed" | "Pending" | "Overdue";
   paymentMethod: "Card" | "UPI" | "Net Banking" | "Bank Transfer";
   description: string;
+  paymentRecordId: string;
+  startDate: string;
+  endDate: string;
+  studentSize: number;
+  dueMonth: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Payment {

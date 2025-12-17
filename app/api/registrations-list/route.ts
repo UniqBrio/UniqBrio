@@ -2,20 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import Registration from "@/models/Registration"
 import { verifyToken, getSessionCookie } from "@/lib/auth"
+import { jwtVerify } from "jose"
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'fallback-secret-change-in-production');
 
 export async function GET(req: NextRequest) {
   try {
-    // Verify admin authentication
-    const sessionToken = await getSessionCookie()
-    if (!sessionToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const payload = await verifyToken(sessionToken)
-    if (!payload?.email || payload.email !== "frozen9612345@gmail.com") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
     await dbConnect()
 
     // Fetch all registrations with userId and academyId

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { FileText, Download, CheckCircle, Mail, Printer, Search, List, Grid, Receipt } from "lucide-react"
 import { InvoiceFiltersComponent } from "./InvoiceFilters"
 import { InvoiceSort } from "./InvoiceSort"
@@ -12,6 +12,12 @@ import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { ColumnSelectorModal } from "@/contexts/dashboard/ColumnSelectorModal"
 
 export function Invoices() {
+  // Data state
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [isLoadingInvoices, setIsLoadingInvoices] = useState(true)
+  const [isLoadingPayments, setIsLoadingPayments] = useState(true)
+  const [academyId, setAcademyId] = useState<string | null>(null)
   // Invoice state
   const [invoiceSearchTerm, setInvoiceSearchTerm] = useState("")
   const [invoiceSortBy, setInvoiceSortBy] = useState("dateIssued")
@@ -39,11 +45,11 @@ export function Invoices() {
   // View mode states
   const [invoiceViewMode, setInvoiceViewMode] = useState<"list" | "grid">("list")
   const [paymentViewMode, setPaymentViewMode] = useState<"list" | "grid">("list")
-  // Column management
-  const invoiceColumns = ['Academy Name', 'Plan Type', 'Invoice Number', 'Date Issued', 'Amount', 'Status', 'Actions']
-  const paymentColumns = ['Academy Name', 'Date', 'Amount', 'Payment Method', 'Transaction ID', 'Refunds/Adjustments', 'Actions']
-  const defaultInvoiceColumns = ['Academy Name', 'Invoice Number', 'Date Issued', 'Amount', 'Status', 'Actions']
-  const defaultPaymentColumns = ['Academy Name', 'Date', 'Amount', 'Payment Method', 'Actions']
+  // Column management (matching admin panel columns - all visible by default)
+  const invoiceColumns = ['Business Name', 'Owner/Admin', 'User ID', 'Academy ID', 'Email', 'Phone', 'Plan', 'Student Size', 'Start Date', 'End Date', 'Status', 'Amount', 'Due Month', 'Invoice Number', 'Actions']
+  const paymentColumns = ['Business Name', 'Owner/Admin', 'User ID', 'Academy ID', 'Email', 'Phone', 'Plan', 'Student Size', 'Start Date', 'End Date', 'Amount', 'Payment Method', 'Due Month', 'Actions']
+  const defaultInvoiceColumns = ['Business Name', 'Owner/Admin', 'User ID', 'Academy ID', 'Email', 'Phone', 'Plan', 'Student Size', 'Start Date', 'End Date', 'Status', 'Amount', 'Due Month', 'Invoice Number', 'Actions']
+  const defaultPaymentColumns = ['Business Name', 'Owner/Admin', 'User ID', 'Academy ID', 'Email', 'Phone', 'Plan', 'Student Size', 'Start Date', 'End Date', 'Amount', 'Payment Method', 'Due Month', 'Actions']
   const [displayedInvoiceColumns, setDisplayedInvoiceColumns] = useState<string[]>(defaultInvoiceColumns)
   const [displayedPaymentColumns, setDisplayedPaymentColumns] = useState<string[]>(defaultPaymentColumns)
   const [showInvoiceColumnSelector, setShowInvoiceColumnSelector] = useState(false)
@@ -145,64 +151,107 @@ export function Invoices() {
       exportPaymentsToCSV(filteredAndSortedPayments)
     }
   }
-  // Mock Invoice Data
-  const invoices: Invoice[] = [
-    { 
-      id: "1",
-      academyName: "Main Academy", 
-      planType: "Yearly",
-      invoiceNumber: "INV-2025-001234", 
-      dateIssued: "2025-01-15", 
-      amount: 11988, 
-      status: "Paid", 
-      paymentMethod: "Card", 
-      description: "Annual Subscription - Grow Plan" 
-    },
-    { 
-      id: "2",
-      academyName: "Main Academy", 
-      planType: "Yearly",
-      invoiceNumber: "INV-2024-005678", 
-      dateIssued: "2024-01-15", 
-      amount: 11988, 
-      status: "Paid", 
-      paymentMethod: "UPI", 
-      description: "Annual Subscription - Grow Plan" 
-    },
-    { 
-      id: "3",
-      academyName: "North Branch", 
-      planType: "Monthly",
-      invoiceNumber: "INV-2025-001235", 
-      dateIssued: "2025-02-01", 
-      amount: 1199, 
-      status: "Failed", 
-      paymentMethod: "Card", 
-      description: "Monthly Subscription - Grow Plan" 
-    },
-  ]
 
-  // Mock Payment Data
-  const payments: Payment[] = [
-    {
-      id: "1",
-      academyName: "Main Academy",
-      date: "2025-01-15",
-      amount: 11988,
-      paymentMethod: "Card",
-      transactionId: "TXN-2025-ABC123",
-      refundsAdjustments: "-",
-    },
-    {
-      id: "2",
-      academyName: "Main Academy",
-      date: "2024-01-15",
-      amount: 11988,
-      paymentMethod: "UPI",
-      transactionId: "TXN-2024-XYZ789",
-      refundsAdjustments: "-",
-    },
-  ]
+  // Fetch academy info and invoices
+  useEffect(() => {
+    const fetchAcademyInfo = async () => {
+      try {
+        const response = await fetch("/api/dashboard/academy-info")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.academyId) {
+            setAcademyId(data.academyId)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching academy info:", error)
+      }
+    }
+
+    fetchAcademyInfo()
+  }, [])
+
+  // Fetch invoices when academyId is available
+  useEffect(() => {
+    if (!academyId) return
+
+    const fetchInvoices = async () => {
+      setIsLoadingInvoices(true)
+      try {
+        const response = await fetch(`/api/invoices?academyId=${academyId}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.data) {
+            // Transform the data to match the expected format
+            const transformedInvoices = data.data.map((inv: any) => ({
+              ...inv,
+              id: inv._id || inv.id,
+              dateIssued: inv.dateIssued || inv.createdAt,
+            }))
+            setInvoices(transformedInvoices)
+          }
+        } else {
+          console.error("Failed to fetch invoices:", response.status)
+          setInvoices([])
+        }
+      } catch (error) {
+        console.error("Error fetching invoices:", error)
+        setInvoices([])
+      } finally {
+        setIsLoadingInvoices(false)
+      }
+    }
+
+    fetchInvoices()
+  }, [academyId])
+
+  // Fetch payments (same as invoices - paid payment records)
+  useEffect(() => {
+    if (!academyId) return
+
+    const fetchPayments = async () => {
+      setIsLoadingPayments(true)
+      try {
+        const response = await fetch(`/api/invoices?academyId=${academyId}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.data) {
+            // Transform invoices to payment format (matching admin panel columns)
+            const transformedPayments = data.data.map((inv: any) => ({
+              id: inv._id || inv.id,
+              academyName: inv.businessName,
+              businessName: inv.businessName,
+              ownerAdminName: inv.ownerAdminName,
+              userId: inv.userId,
+              academyId: inv.academyId,
+              email: inv.email,
+              phone: inv.phone,
+              plan: inv.plan,
+              studentSize: inv.studentSize,
+              startDate: inv.startDate,
+              endDate: inv.endDate,
+              date: inv.dateIssued || inv.createdAt,
+              amount: inv.amount,
+              paymentMethod: inv.paymentMethod,
+              dueMonth: inv.dueMonth,
+              transactionId: inv.invoiceNumber,
+            }))
+            setPayments(transformedPayments)
+          }
+        } else {
+          console.error("Failed to fetch payments:", response.status)
+          setPayments([])
+        }
+      } catch (error) {
+        console.error("Error fetching payments:", error)
+        setPayments([])
+      } finally {
+        setIsLoadingPayments(false)
+      }
+    }
+
+    fetchPayments()
+  }, [academyId])
 
   // Filter and Sort Invoices
   const filteredAndSortedInvoices = useMemo(() => {
@@ -448,7 +497,14 @@ export function Invoices() {
         </div>
 
       {/* Invoices Display */}
-      {invoiceViewMode === "list" ? (
+      {isLoadingInvoices ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading invoices...</p>
+          </div>
+        </div>
+      ) : invoiceViewMode === "list" ? (
         <div className="border border-gray-200 rounded-xl shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -474,7 +530,7 @@ export function Invoices() {
                     <td colSpan={displayedInvoiceColumns.length + 1} className="px-6 py-12 text-center">
                       <FileText className="mx-auto text-gray-300 mb-3" size={48} />
                       <p className="text-gray-500 font-medium">No invoices found</p>
-                      <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filters</p>
+                      <p className="text-sm text-gray-400 mt-1">{invoices.length === 0 ? "No paid invoices yet. Invoices will appear here when payment records are marked as paid." : "Try adjusting your search or filters"}</p>
                     </td>
                   </tr>
                 ) : (
@@ -493,35 +549,41 @@ export function Invoices() {
                       </td>
                       {displayedInvoiceColumns.map(column => (
                         <td key={column} className={`px-6 py-4 whitespace-nowrap ${column === 'Actions' ? 'text-right' : ''}`}>
-                          {column === 'Academy Name' && <span className="text-sm font-semibold text-gray-900">{inv.academyName}</span>}
-                          {column === 'Plan Type' && (
+                          {column === 'Business Name' && <span className="text-sm font-semibold text-gray-900">{inv.businessName}</span>}
+                          {column === 'Owner/Admin' && <span className="text-sm text-gray-700">{inv.ownerAdminName}</span>}
+                          {column === 'User ID' && <span className="text-sm text-gray-700">{inv.userId}</span>}
+                          {column === 'Academy ID' && <span className="text-sm text-gray-700">{inv.academyId}</span>}
+                          {column === 'Email' && <span className="text-sm text-gray-700">{inv.email}</span>}
+                          {column === 'Phone' && <span className="text-sm text-gray-700">{inv.phone}</span>}
+                          {column === 'Plan' && (
                             <span className={`inline-flex px-2 py-1 rounded-md text-xs font-semibold ${
-                              inv.planType === "Yearly" 
+                              inv.plan === "grow" 
                                 ? "bg-purple-100 text-purple-700" 
+                                : inv.plan === "scale"
+                                ? "bg-orange-100 text-orange-700"
                                 : "bg-blue-100 text-blue-700"
                             }`}>
-                              {inv.planType}
+                              {inv.plan}
                             </span>
                           )}
-                          {column === 'Invoice Number' && (
-                            <div className="flex items-center gap-2">
-                              <FileText className="text-purple-600" size={16} />
-                              <span className="text-sm font-medium text-gray-900">{inv.invoiceNumber}</span>
-                            </div>
-                          )}
-                          {column === 'Date Issued' && (
+                          {column === 'Student Size' && <span className="text-sm text-gray-700">{inv.studentSize}</span>}
+                          {column === 'Start Date' && (
                             <span className="text-sm text-gray-700">
-                              {new Date(inv.dateIssued).toLocaleDateString('en-IN', { 
-                                day: 'numeric', 
+                              {new Date(inv.startDate).toLocaleDateString('en-IN', { 
+                                day: '2-digit', 
                                 month: 'short', 
                                 year: 'numeric' 
                               })}
                             </span>
                           )}
-                          {column === 'Amount' && (
-                            <div className="flex items-center gap-1 text-sm font-bold text-gray-900">
-                              ₹{inv.amount.toLocaleString()}
-                            </div>
+                          {column === 'End Date' && (
+                            <span className="text-sm text-gray-700">
+                              {new Date(inv.endDate).toLocaleDateString('en-IN', { 
+                                day: '2-digit', 
+                                month: 'short', 
+                                year: 'numeric' 
+                              })}
+                            </span>
                           )}
                           {column === 'Status' && (
                             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
@@ -536,6 +598,18 @@ export function Invoices() {
                               {inv.status === "Paid" && <CheckCircle size={12} />}
                               {inv.status}
                             </span>
+                          )}
+                          {column === 'Amount' && (
+                            <div className="flex items-center gap-1 text-sm font-bold text-gray-900">
+                              ₹{inv.amount.toLocaleString()}
+                            </div>
+                          )}
+                          {column === 'Due Month' && <span className="text-sm text-gray-700">{inv.dueMonth}</span>}
+                          {column === 'Invoice Number' && (
+                            <div className="flex items-center gap-2">
+                              <FileText className="text-purple-600" size={16} />
+                              <span className="text-sm font-medium text-gray-900">{inv.invoiceNumber}</span>
+                            </div>
                           )}
                           {column === 'Actions' && (
                             <div className="flex items-center justify-end gap-2">
@@ -563,7 +637,7 @@ export function Invoices() {
               <div className="w-full py-12 text-center">
                 <FileText className="mx-auto text-gray-300 mb-3" size={48} />
                 <p className="text-gray-500 font-medium">No invoices found</p>
-                <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filters</p>
+                <p className="text-sm text-gray-400 mt-1">{invoices.length === 0 ? "No paid invoices yet. Invoices will appear here when payment records are marked as paid." : "Try adjusting your search or filters"}</p>
               </div>
             ) : (
               filteredAndSortedInvoices.map((inv, idx) => (
@@ -785,11 +859,37 @@ export function Invoices() {
                       </td>
                       {displayedPaymentColumns.map(column => (
                         <td key={column} className={`px-6 py-4 whitespace-nowrap ${column === 'Actions' ? 'text-right' : ''}`}>
-                          {column === 'Academy Name' && <span className="text-sm font-semibold text-gray-900">{pay.academyName}</span>}
-                          {column === 'Date' && (
+                          {column === 'Business Name' && <span className="text-sm font-semibold text-gray-900">{pay.businessName}</span>}
+                          {column === 'Owner/Admin' && <span className="text-sm text-gray-700">{pay.ownerAdminName}</span>}
+                          {column === 'User ID' && <span className="text-sm text-gray-700">{pay.userId}</span>}
+                          {column === 'Academy ID' && <span className="text-sm text-gray-700">{pay.academyId}</span>}
+                          {column === 'Email' && <span className="text-sm text-gray-700">{pay.email}</span>}
+                          {column === 'Phone' && <span className="text-sm text-gray-700">{pay.phone}</span>}
+                          {column === 'Plan' && (
+                            <span className={`inline-flex px-2 py-1 rounded-md text-xs font-semibold ${
+                              pay.plan === "grow" 
+                                ? "bg-purple-100 text-purple-700" 
+                                : pay.plan === "scale"
+                                ? "bg-orange-100 text-orange-700"
+                                : "bg-blue-100 text-blue-700"
+                            }`}>
+                              {pay.plan}
+                            </span>
+                          )}
+                          {column === 'Student Size' && <span className="text-sm text-gray-700">{pay.studentSize}</span>}
+                          {column === 'Start Date' && (
                             <span className="text-sm text-gray-700">
-                              {new Date(pay.date).toLocaleDateString('en-IN', { 
-                                day: 'numeric', 
+                              {new Date(pay.startDate).toLocaleDateString('en-IN', { 
+                                day: '2-digit', 
+                                month: 'short', 
+                                year: 'numeric' 
+                              })}
+                            </span>
+                          )}
+                          {column === 'End Date' && (
+                            <span className="text-sm text-gray-700">
+                              {new Date(pay.endDate).toLocaleDateString('en-IN', { 
+                                day: '2-digit', 
                                 month: 'short', 
                                 year: 'numeric' 
                               })}
@@ -813,12 +913,7 @@ export function Invoices() {
                               {pay.paymentMethod}
                             </span>
                           )}
-                          {column === 'Transaction ID' && (
-                            <span className="text-sm font-medium text-gray-600 font-mono">{pay.transactionId}</span>
-                          )}
-                          {column === 'Refunds/Adjustments' && (
-                            <span className="text-sm text-gray-600">{pay.refundsAdjustments}</span>
-                          )}
+                          {column === 'Due Month' && <span className="text-sm text-gray-700">{pay.dueMonth}</span>}
                           {column === 'Actions' && (
                             <button 
                               className="p-2 hover:bg-blue-100 rounded-lg transition-colors group/btn"

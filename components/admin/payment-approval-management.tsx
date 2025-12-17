@@ -220,9 +220,10 @@ export default function PaymentApprovalManagement() {
       })
 
       if (response.ok) {
+        const responseData = await response.json()
         toast({
           title: "Success",
-          description: `Payment record ${isEditing ? 'updated' : 'created'} successfully`,
+          description: responseData.message || `Payment record ${isEditing ? 'updated' : 'created'} successfully`,
         })
         setIsModalOpen(false)
         setEditingRecord(null)
@@ -269,9 +270,13 @@ export default function PaymentApprovalManagement() {
     }
 
     try {
+      console.log("Attempting to delete payment record:", id)
       const response = await fetch(`/api/admin-payment-records?id=${id}`, {
         method: "DELETE",
       })
+
+      const data = await response.json()
+      console.log("Delete response:", data)
 
       if (response.ok) {
         toast({
@@ -280,9 +285,11 @@ export default function PaymentApprovalManagement() {
         })
         fetchPaymentRecords()
       } else {
+        const errorMessage = data.details || data.error || "Failed to delete payment record"
+        console.error("Delete failed:", errorMessage)
         toast({
           title: "Error",
-          description: "Failed to delete payment record",
+          description: errorMessage,
           variant: "destructive",
         })
       }
@@ -290,11 +297,13 @@ export default function PaymentApprovalManagement() {
       console.error("Error deleting payment record:", error)
       toast({
         title: "Error",
-        description: "Failed to delete payment record",
+        description: error instanceof Error ? error.message : "Failed to delete payment record",
         variant: "destructive",
       })
     }
   }
+
+
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { color: string; label: string }> = {
@@ -325,13 +334,15 @@ export default function PaymentApprovalManagement() {
                 Manage payment records and billing for all academies
               </CardDescription>
             </div>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Payment Record
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Payment Record
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
