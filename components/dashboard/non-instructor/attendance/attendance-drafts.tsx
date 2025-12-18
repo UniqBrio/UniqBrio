@@ -93,9 +93,9 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
   // Persist draft count for toolbar hydration compatibility
   React.useEffect(() => {
     try { 
-      localStorage.setItem('attendanceDraftsCount', String(drafts.length)); 
+      localStorage.setItem('nonInstructorAttendanceDraftsCount', String(drafts.length)); 
       // Dispatch custom event to notify other components in same tab
-      window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+      window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
     } catch {}
     onCountChange?.(drafts.length);
   }, [drafts.length, onCountChange]);
@@ -113,8 +113,8 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
         const newDrafts = [{ ...draft, savedAt: draft.savedAt || new Date().toISOString() }, ...prev];
         // Update localStorage immediately for count persistence
         try { 
-          localStorage.setItem('attendanceDraftsCount', String(newDrafts.length)); 
-          window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+          localStorage.setItem('nonInstructorAttendanceDraftsCount', String(newDrafts.length)); 
+          window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
         } catch {}
         return newDrafts;
       });
@@ -135,8 +135,8 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
         }
         // Update localStorage immediately for count persistence
         try { 
-          localStorage.setItem('attendanceDraftsCount', String(newDrafts.length)); 
-          window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+          localStorage.setItem('nonInstructorAttendanceDraftsCount', String(newDrafts.length)); 
+          window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
         } catch {}
         return newDrafts;
       });
@@ -156,8 +156,8 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
               const next = prev.filter(d => d.id !== id);
               // Update localStorage immediately for count persistence
               try { 
-                localStorage.setItem('attendanceDraftsCount', String(next.length)); 
-                window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+                localStorage.setItem('nonInstructorAttendanceDraftsCount', String(next.length)); 
+                window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
               } catch {}
               // Auto-close the drafts dialog if no drafts remain after deletion
               if (next.length === 0) {
@@ -317,8 +317,8 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
                         const next = prev.filter(x => x.id !== draftToDelete.id);
                         // Update localStorage immediately for count persistence
                         try { 
-                          localStorage.setItem('attendanceDraftsCount', String(next.length)); 
-                          window.dispatchEvent(new Event('attendance-drafts-count-changed'));
+                          localStorage.setItem('nonInstructorAttendanceDraftsCount', String(next.length)); 
+                          window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
                         } catch {}
                         // Auto-close the drafts dialog if no drafts remain after confirmation delete
                         if (next.length === 0) {

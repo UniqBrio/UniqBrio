@@ -18,9 +18,10 @@ interface AttendanceSummaryProps {
     status: 'present' | 'absent' | string;
     notes?: string;
   }>;
+  loading?: boolean;
 }
 
-export function AttendanceSummary({ attendanceData = [] }: AttendanceSummaryProps) {
+export function AttendanceSummary({ attendanceData = [], loading = false }: AttendanceSummaryProps) {
   // Process attendance data for summary metrics
   const summaryMetrics = useMemo(() => {
     // Normalize a JS Date to yyyy-mm-dd local string
@@ -52,7 +53,13 @@ export function AttendanceSummary({ attendanceData = [] }: AttendanceSummaryProp
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-emerald-800">Today Present</p>
-                <h3 className="text-2xl font-bold text-emerald-900 mt-1">{summaryMetrics.todayPresent}</h3>
+                <h3 className="text-2xl font-bold text-emerald-900 mt-1">
+                  {loading ? (
+                    <span className="text-base font-normal text-emerald-600">Loading...</span>
+                  ) : (
+                    summaryMetrics.todayPresent
+                  )}
+                </h3>
                 <p className="text-xs text-emerald-700 mt-1">Count from today's records</p>
               </div>
               <div className="h-10 w-10 bg-emerald-200 rounded-full flex items-center justify-center">
@@ -68,7 +75,13 @@ export function AttendanceSummary({ attendanceData = [] }: AttendanceSummaryProp
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-rose-800">Today Absent</p>
-                <h3 className="text-2xl font-bold text-rose-900 mt-1">{summaryMetrics.todayAbsent}</h3>
+                <h3 className="text-2xl font-bold text-rose-900 mt-1">
+                  {loading ? (
+                    <span className="text-base font-normal text-rose-600">Loading...</span>
+                  ) : (
+                    summaryMetrics.todayAbsent
+                  )}
+                </h3>
                 <p className="text-xs text-rose-700 mt-1">Count from today's records</p>
               </div>
               <div className="h-10 w-10 bg-rose-200 rounded-full flex items-center justify-center">

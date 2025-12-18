@@ -442,7 +442,12 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                     <Input
                       placeholder="Search or type name..."
                       value={assignedToSearch}
-                      onChange={(e) => setAssignedToSearch(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Only allow letters, spaces, and hyphens for names
+                        const filteredValue = value.replace(/[^a-zA-Z\s-]/g, '')
+                        setAssignedToSearch(filteredValue)
+                      }}
                       className="mb-2"
                       autoFocus
                     />

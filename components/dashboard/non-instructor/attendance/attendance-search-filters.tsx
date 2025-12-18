@@ -111,7 +111,7 @@ export default function AttendanceSearchFilters({
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const raw = localStorage.getItem('attendanceDraftsCount');
+      const raw = localStorage.getItem('nonInstructorAttendanceDraftsCount');
       if (raw) setDraftCount(Number(raw) || 0);
     } catch {}
   }, []);
@@ -121,25 +121,31 @@ export default function AttendanceSearchFilters({
     if (typeof window === 'undefined') return;
     
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'attendanceDraftsCount' && e.newValue !== null) {
-        setDraftCount(Number(e.newValue) || 0);
+      if (e.key === 'nonInstructorAttendanceDraftsCount' && e.newValue !== null) {
+        // Defer state update to avoid updating during render
+        setTimeout(() => {
+          setDraftCount(Number(e.newValue) || 0);
+        }, 0);
       }
     };
     
     // Also listen for custom events (for same-tab updates)
     const handleCustomEvent = () => {
-      try {
-        const raw = localStorage.getItem('attendanceDraftsCount');
-        if (raw) setDraftCount(Number(raw) || 0);
-      } catch {}
+      // Defer state update to avoid updating during render
+      setTimeout(() => {
+        try {
+          const raw = localStorage.getItem('nonInstructorAttendanceDraftsCount');
+          if (raw) setDraftCount(Number(raw) || 0);
+        } catch {}
+      }, 0);
     };
     
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('attendance-drafts-count-changed', handleCustomEvent);
+    window.addEventListener('non-instructor-attendance-drafts-count-changed', handleCustomEvent);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('attendance-drafts-count-changed', handleCustomEvent);
+      window.removeEventListener('non-instructor-attendance-drafts-count-changed', handleCustomEvent);
     };
   }, []);
   

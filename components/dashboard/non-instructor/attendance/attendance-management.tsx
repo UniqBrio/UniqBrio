@@ -56,9 +56,10 @@ function AttendanceManagementInner() {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [recordToView, setRecordToView] = useState<NonInstructorAttendanceRecord | null>(null);
 
-  // Fetch attendance data on component mount
+  // Fetch attendance data and draft count on component mount
   React.useEffect(() => {
     fetchAttendanceData();
+    fetchDraftCount();
   }, []);
 
   // Listen for event to reopen drafts dialog after converting from a draft
@@ -105,7 +106,12 @@ function AttendanceManagementInner() {
       }
     }
     const onCustom = () => fetchAttendanceData()
-    const onVisibility = () => { if (document.visibilityState === 'visible') fetchAttendanceData() }
+    const onVisibility = () => { 
+      if (document.visibilityState === 'visible') {
+        fetchAttendanceData();
+        fetchDraftCount(); // Also refresh draft count when page becomes visible
+      }
+    }
     try {
       window.addEventListener('storage', onStorage)
       window.addEventListener('ni_attendance_updated' as any, onCustom as any)
@@ -119,6 +125,33 @@ function AttendanceManagementInner() {
       } catch {}
     }
   }, [])
+
+  // Fetch draft count from API
+  const fetchDraftCount = async () => {
+    try {
+      const response = await fetch('/api/dashboard/staff/non-instructor/attendance-drafts', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Non-Instructor Draft count fetch result:', result);
+        if (result.success && Array.isArray(result.data)) {
+          const count = result.data.length;
+          console.log('Non-Instructor Draft count:', count);
+          setDraftsCount(count);
+          // Update localStorage for the filters component
+          try {
+            localStorage.setItem('nonInstructorAttendanceDraftsCount', String(count));
+            window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
+          } catch {}
+        }
+      } else {
+        console.error('Non-Instructor Draft count fetch failed with status:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching non-instructor draft count:', error);
+    }
+  };
 
   const fetchAttendanceData = async () => {
     try {
@@ -539,8 +572,8 @@ function AttendanceManagementInner() {
                 const analyticsSource = (filteredAttendance && filteredAttendance.length > 0) ? filteredAttendance : attendanceData;
                 return (
                   <>
-                    <AttendanceSummary attendanceData={analyticsSource as any} />
-                    <AttendanceAnalytics attendanceData={analyticsSource as any} />
+                    <AttendanceSummary attendanceData={analyticsSource as any} loading={loading} />
+                    <AttendanceAnalytics attendanceData={analyticsSource as any} loading={loading} />
                   </>
                 )
               })()}

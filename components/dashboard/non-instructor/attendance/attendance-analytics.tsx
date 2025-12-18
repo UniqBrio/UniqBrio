@@ -32,7 +32,7 @@ function normalizeRecordDayKey(value: string | undefined): string | null {
   return dayKeyFromDate(d)
 }
 
-export function AttendanceAnalytics({ attendanceData }: { attendanceData: AttendanceItem[] }) {
+export function AttendanceAnalytics({ attendanceData, loading = false }: { attendanceData: AttendanceItem[]; loading?: boolean }) {
   // Build last 7 days (oldest -> newest)
   const last7 = React.useMemo(() => {
     const days: { key: string; label: string }[] = []
@@ -82,6 +82,27 @@ export function AttendanceAnalytics({ attendanceData }: { attendanceData: Attend
       <text x={cx} y={cy} textAnchor="middle" fontSize={12} fill="#111827">
         {value}
       </text>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="mt-4 space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="text-sm text-emerald-700 font-medium">Past 7 days (Present count)</div>
+            <div className="w-full h-[260px] flex items-center justify-center bg-gray-50 rounded-lg">
+              <span className="text-gray-500">Loading chart data...</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm text-rose-700 font-medium">Past 7 days (Absent count)</div>
+            <div className="w-full h-[260px] flex items-center justify-center bg-gray-50 rounded-lg">
+              <span className="text-gray-500">Loading chart data...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     )
   }
 
