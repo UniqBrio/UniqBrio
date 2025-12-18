@@ -33,7 +33,7 @@ function parseCSV(csvText: string): string[][] {
 // Helper function to validate required fields
 function validateCourseData(courseData: any): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
-  const requiredFields = ['name', 'instructor', 'description', 'level', 'type', 'courseCategory', 'maxStudents', 'priceINR'];
+  const requiredFields = ['name', 'instructor', 'description', 'level', 'type', 'courseCategory', 'maxStudents', 'price'];
   
   requiredFields.forEach(field => {
     if (!courseData[field] || courseData[field].toString().trim() === '') {
@@ -46,8 +46,8 @@ function validateCourseData(courseData: any): { isValid: boolean; errors: string
     errors.push('maxStudents must be a valid number');
   }
   
-  if (courseData.priceINR && isNaN(Number(courseData.priceINR))) {
-    errors.push('priceINR must be a valid number');
+  if (courseData.price && isNaN(Number(courseData.price))) {
+    errors.push('price must be a valid number');
   }
 
   if (courseData.level && !['Beginner', 'Intermediate', 'Advanced'].includes(courseData.level)) {
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
               }
             } else {
               // Handle direct fields
-              if (['maxStudents', 'priceINR'].includes(header) && value) {
+              if (['maxStudents', 'price'].includes(header) && value) {
                 courseData[header] = Number(value);
               } else if (header === 'tags' && value) {
                 courseData[header] = value.split(',').map(tag => tag.trim());

@@ -10,7 +10,7 @@ interface DraftType {
   updatedAt: number
   level?: string
   type?: string
-  priceINR?: number
+  price?: number
   schedule?: string
   maxStudents?: number
   location?: string

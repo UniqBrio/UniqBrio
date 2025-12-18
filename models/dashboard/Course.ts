@@ -39,7 +39,7 @@ export interface ICourse extends Document {
   }[];
 
   // Pricing Tab
-  priceINR: number;
+  price: number;
   paymentCategory: string;
   affiliateEnabled?: boolean;
   referralCode?: string;
@@ -208,7 +208,7 @@ const courseSchema = new Schema<ICourse>({
   }],
 
   // Pricing Tab Fields
-  priceINR: {
+  price: {
     type: Number,
     required: true,
     min: 1,
@@ -325,7 +325,7 @@ courseSchema.index({ instructor: 1 });
 courseSchema.index({ status: 1 });
 courseSchema.index({ courseCategory: 1 });
 courseSchema.index({ tags: 1 });
-courseSchema.index({ priceINR: 1 });
+courseSchema.index({ price: 1 });
 courseSchema.index({ "schedulePeriod.startDate": 1 });
 courseSchema.index({ "schedulePeriod.endDate": 1 });
 courseSchema.index({ createdAt: -1 });

@@ -11,7 +11,7 @@ const courseSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: String,
   courseId: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
   type: String,
 }, {
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       if (courseId) {
         const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
         if (course) {
-          courseFee = (course as any).priceINR || 0;
+          courseFee = (course as any).price || 0;
           courseType = (course as any).type || 'Individual';
           courseName = (course as any).name || courseName;
         }

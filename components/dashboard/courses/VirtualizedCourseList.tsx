@@ -102,7 +102,7 @@ const GridCourseCard = React.memo<{
   isSelected: boolean;
   onToggleSelection?: (courseId: string) => void;
 }>(({ course, currency, onCourseClick, onEditCourse, onDeleteCourse, isSelected, onToggleSelection }) => {
-  const price = course.priceINR || course.price;
+  const price = course.price || course.priceINR;
   const currencySymbol = `${currency} `;
 
   const handleClick = useCallback(() => {
@@ -209,7 +209,7 @@ const ListCourseCard = React.memo<{
   isSelected: boolean;
   onToggleSelection?: (courseId: string) => void;
 }>(({ course, currency, onCourseClick, onEditCourse, onDeleteCourse, isSelected, onToggleSelection }) => {
-  const price = course.priceINR || course.price;
+  const price = course.price || course.priceINR;
   const currencySymbol = `${currency} `;
 
   const handleClick = useCallback(() => {
@@ -302,6 +302,8 @@ const ListCourseCard = React.memo<{
 
 ListCourseCard.displayName = 'ListCourseCard';
 
+const { primaryColor, secondaryColor } = useCustomColors();
+
 // Main virtualized course list component
 export const VirtualizedCourseList: React.FC<VirtualizedCourseListProps> = ({
   courses,
@@ -314,7 +316,6 @@ export const VirtualizedCourseList: React.FC<VirtualizedCourseListProps> = ({
   onToggleSelection,
   height = 600
 }) => {
-  const { primaryColor, secondaryColor } = useCustomColors();
   const { itemCount, itemSize, itemsPerRow } = useMemo(() => {
     if (viewMode === 'grid') {
       const itemsPerRow = 3; // 3 cards per row in grid mode

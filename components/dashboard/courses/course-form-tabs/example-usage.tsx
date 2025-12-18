@@ -43,7 +43,7 @@ export default function CourseFormExample({ initialData = {}, onSave }: CourseFo
     faqs: [],
     
     // Pricing
-    priceINR: '',
+    price: '',
     paymentCategory: '',
     affiliateEnabled: false,
     referralCode: '',

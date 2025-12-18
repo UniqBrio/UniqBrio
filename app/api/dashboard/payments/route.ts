@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
         const Course = mongoose.connection.collection('courses');
         const course = await Course.findOne({ courseId: cohort.courseId, tenantId: session.tenantId });
         if (course) {
-          courseFee = course.priceINR || 0;
+          courseFee = course.price || 0;
           courseName = course.name || courseName;
         }
       }

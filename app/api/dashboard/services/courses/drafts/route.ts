@@ -7,7 +7,6 @@ import { getUserSession } from '@/lib/tenant/api-helpers'
 import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 
 const ensureDraftModel = async () => {
-  await dbConnect("uniqbrio")
   if (!mongoose.models.Draft) {
     await import('@/models/dashboard/Draft')
   }
@@ -114,7 +113,7 @@ export async function POST(request: NextRequest) {
       level,
       type,
       duration,
-      priceINR,
+      price,
       schedule,
       maxStudents,
       tags,
@@ -149,7 +148,7 @@ export async function POST(request: NextRequest) {
     if (level) draftData.level = level
     if (type) draftData.type = type
     if (duration) draftData.duration = duration
-    if (priceINR) draftData.priceINR = priceINR
+    if (price) draftData.price = price
     if (body.price) draftData.price = body.price
     if (schedule) draftData.schedule = schedule
     if (maxStudents) draftData.maxStudents = maxStudents
@@ -210,19 +209,28 @@ export async function POST(request: NextRequest) {
 
 // PUT /api/drafts - Update a draft
 export async function PUT(request: NextRequest) {
-  try {
-    await dbConnect("uniqbrio")
-    
-    const body = await request.json()
-    const {
-      id,
-      name,
-      instructor,
+  const session = await getUserSession();
+  
+  if (!session?.tenantId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  return runWithTenantContext(
+    { tenantId: session.tenantId },
+    async () => {
+      try {
+        await dbConnect("uniqbrio")
+        
+        const body = await request.json()
+        const {
+          id,
+          name,
+          instructor,
       description,
       level,
       type,
       duration,
-      priceINR,
+      price,
       schedule,
       maxStudents,
       tags,
@@ -261,9 +269,10 @@ export async function PUT(request: NextRequest) {
     }
 
     const DraftModel = await ensureDraftModel()
+    const tenantId = session.tenantId;
 
     // Check if draft exists
-    const existingDraft = await DraftModel.findById(id)
+    const existingDraft = await DraftModel.findOne({ _id: id, tenantId })
     if (!existingDraft) {
       return NextResponse.json(
         { success: false, error: 'Draft not found' },
@@ -283,7 +292,7 @@ export async function PUT(request: NextRequest) {
     if (level) updateData.level = level
     if (type) updateData.type = type
     if (duration) updateData.duration = duration
-    if (priceINR) updateData.priceINR = priceINR
+    if (price) updateData.price = price
     if (body.price) updateData.price = body.price
     if (schedule) updateData.schedule = schedule
     if (maxStudents) updateData.maxStudents = maxStudents
@@ -320,8 +329,8 @@ export async function PUT(request: NextRequest) {
       updateData.materialRequirements = materialRequirements
     }
 
-    const updatedDraft = await DraftModel.findByIdAndUpdate(
-      id,
+    const updatedDraft = await DraftModel.findOneAndUpdate(
+      { _id: id, tenantId },
       { $set: updateData },
       { new: true, runValidators: true }
     )
@@ -346,17 +355,19 @@ export async function PUT(request: NextRequest) {
       message: 'Draft updated successfully'
     })
 
-  } catch (error) {
-    console.error('Error updating draft:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update draft',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
-  }
+      } catch (error) {
+        console.error('Error updating draft:', error)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to update draft',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          },
+          { status: 500 }
+        )
+      }
+    }
+  );
 }
 
 // DELETE /api/drafts - Delete a draft
@@ -384,8 +395,9 @@ export async function DELETE(request: NextRequest) {
         }
 
         const DraftModel = await ensureDraftModel()
+        const tenantId = session.tenantId;
 
-        const draft = await DraftModel.findById(id)
+        const draft = await DraftModel.findOne({ _id: id, tenantId })
         if (!draft) {
           return NextResponse.json(
             { success: false, error: 'Draft not found' },
@@ -393,7 +405,7 @@ export async function DELETE(request: NextRequest) {
           )
         }
 
-        await DraftModel.findByIdAndDelete(id)
+        await DraftModel.findOneAndDelete({ _id: id, tenantId })
 
         return NextResponse.json({
           success: true,

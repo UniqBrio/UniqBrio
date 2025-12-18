@@ -11,7 +11,7 @@ const courseSchema = new mongoose.Schema({
   paymentCategory: String,
   type: String,
   courseType: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
   level: String,
   duration: String,
@@ -30,7 +30,7 @@ export interface CoursePaymentDetails {
   paymentCategory: string;
   courseCategory: string;
   courseType: string;
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
   level?: string;
   duration?: string;
@@ -52,7 +52,7 @@ export async function fetchCoursePaymentDetails(courseId: string): Promise<Cours
     console.log('[fetchCoursePaymentDetails] Fetching details for courseId:', courseId);
 
     const course = await Course.findOne({ courseId })
-      .select('courseId name courseName category courseCategory paymentCategory type courseType priceINR registrationFee level duration status')
+      .select('courseId name courseName category courseCategory paymentCategory type courseType price registrationFee level duration status')
       .lean()
       .exec();
 
@@ -71,7 +71,7 @@ export async function fetchCoursePaymentDetails(courseId: string): Promise<Cours
       paymentCategory: courseData.paymentCategory || courseData.courseCategory || courseData.category || 'Not Specified',
       courseCategory: courseData.courseCategory || courseData.category || 'Not Specified',
       courseType: courseData.type || courseData.courseType || 'Not Specified',
-      priceINR: courseData.priceINR,
+      price: courseData.price,
       registrationFee: courseData.registrationFee,
       level: courseData.level,
       duration: courseData.duration,
@@ -107,7 +107,7 @@ export async function fetchMultipleCoursePaymentDetails(courseIds: string[]): Pr
     const courses = await Course.find({ 
       courseId: { $in: courseIds } 
     })
-      .select('courseId name courseName category courseCategory paymentCategory type courseType priceINR registrationFee level duration status')
+      .select('courseId name courseName category courseCategory paymentCategory type courseType price registrationFee level duration status')
       .lean()
       .exec();
 
@@ -118,7 +118,7 @@ export async function fetchMultipleCoursePaymentDetails(courseIds: string[]): Pr
       paymentCategory: course.paymentCategory || course.courseCategory || course.category || 'Not Specified',
       courseCategory: course.courseCategory || course.category || 'Not Specified',
       courseType: course.courseType || course.type || 'Not Specified',
-      priceINR: course.priceINR,
+      price: course.price,
       registrationFee: course.registrationFee,
       level: course.level,
       duration: course.duration,
@@ -165,17 +165,17 @@ export async function getCourseType(courseId: string): Promise<string | null> {
 /**
  * Get course fees for a course (shorthand helper)
  * @param courseId - The course ID
- * @returns Object with priceINR and registrationFee or null
+ * @returns Object with price and registrationFee or null
  */
 export async function getCourseFees(courseId: string): Promise<{
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
 } | null> {
   const details = await fetchCoursePaymentDetails(courseId);
   if (!details) return null;
   
   return {
-    priceINR: details.priceINR,
+    price: details.price,
     registrationFee: details.registrationFee
   };
 }

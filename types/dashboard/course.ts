@@ -78,7 +78,7 @@ export interface Course {
   maxStudents: number;
   location?: string;
   price: number;
-  priceINR: number;
+  price: number;
   paymentCategory?: string;
   currency: string;
   rating: number;
@@ -104,7 +104,7 @@ export interface Course {
   referralStatus?: string;
   
   // Ongoing Training Pricing
-  // Note: For Ongoing Training courses, price (priceINR) is per payment frequency (not one-time)
+  // Note: For Ongoing Training courses, price is per payment frequency (not one-time)
   paymentFrequency?: string;  // Required for Ongoing Training: biweekly, monthly, quarterly, yearly
   trainingDuration?: number;  // Optional: Total duration for Ongoing Training
   pricingPeriods?: {

@@ -27,7 +27,7 @@ export interface ICourse extends Document {
   frequencies?: string[]
   location?: string
   virtualClassroomUrl?: string
-  priceINR?: number
+  price?: number
   discountPrice?: number
   referralCode?: string
   commissionRate?: number
@@ -66,7 +66,7 @@ const CourseSchema = new Schema<ICourse>({
   frequencies: [String],
   location: String,
   virtualClassroomUrl: String,
-  priceINR: Number,
+  price: Number,
   discountPrice: Number,
   referralCode: String,
   commissionRate: Number,

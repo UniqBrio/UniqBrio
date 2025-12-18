@@ -104,52 +104,7 @@ export default function AttendanceSearchFilters({
 }: AttendanceSearchFiltersProps) {
   const { toast } = useToast();
 
-  // Draft count state (for attendance drafts)
-  const [draftCount, setDraftCount] = useState(0);
-  
-  // Load initial draft count
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const raw = localStorage.getItem('nonInstructorAttendanceDraftsCount');
-      if (raw) setDraftCount(Number(raw) || 0);
-    } catch {}
-  }, []);
-  
-  // Listen for localStorage changes to update draft count in real-time
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'nonInstructorAttendanceDraftsCount' && e.newValue !== null) {
-        // Defer state update to avoid updating during render
-        setTimeout(() => {
-          setDraftCount(Number(e.newValue) || 0);
-        }, 0);
-      }
-    };
-    
-    // Also listen for custom events (for same-tab updates)
-    const handleCustomEvent = () => {
-      // Defer state update to avoid updating during render
-      setTimeout(() => {
-        try {
-          const raw = localStorage.getItem('nonInstructorAttendanceDraftsCount');
-          if (raw) setDraftCount(Number(raw) || 0);
-        } catch {}
-      }, 0);
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('non-instructor-attendance-drafts-count-changed', handleCustomEvent);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('non-instructor-attendance-drafts-count-changed', handleCustomEvent);
-    };
-  }, []);
-  
-  const effectiveDraftCount = typeof draftCountProp === 'number' ? draftCountProp : draftCount;
+  // Draft count is passed as prop from parent - no local state needed
 
   // Ensure default sort is by Date when component mounts
   React.useEffect(() => {
@@ -854,10 +809,10 @@ export default function AttendanceSearchFilters({
             onClick={onOpenDrafts}
             size="sm"
             className="h-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
-            title={`Drafts (${effectiveDraftCount})`}
+            title={`Drafts (${draftCountProp || 0})`}
           >
             <FileText className="h-4 w-4 mr-2" />
-            Drafts ({effectiveDraftCount})
+            Drafts ({draftCountProp || 0})
           </Button>
         )}
 

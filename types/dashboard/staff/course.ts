@@ -24,7 +24,7 @@ export interface Course {
   frequencies?: string[];
   location?: string;
   virtualClassroomUrl?: string;
-  priceINR?: number;
+  price?: number;
   discountPrice?: number;
   referralCode?: string;
   commissionRate?: number;

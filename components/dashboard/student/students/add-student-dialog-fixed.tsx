@@ -178,7 +178,7 @@ function CourseSearchCombobox({ value, onChange, courses, loading, error, width,
         prerequisites: [],
         learningOutcomes: [],
         materialRequirements: [],
-        priceINR: "0" // Default price
+        price: "0" // Default price
       };
 
       console.log('Creating course draft:', courseDraftData);

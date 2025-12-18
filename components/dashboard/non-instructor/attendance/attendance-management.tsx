@@ -56,11 +56,49 @@ function AttendanceManagementInner() {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [recordToView, setRecordToView] = useState<NonInstructorAttendanceRecord | null>(null);
 
-  // Fetch attendance data and draft count on component mount
+  const fetchAttendanceData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/dashboard/staff/non-instructor/attendance', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Map MongoDB _id to id for frontend compatibility
+          const mappedData = result.data.map((record: any) => ({
+            ...record,
+            id: record._id
+          }));
+          setAttendanceData(mappedData);
+        } else {
+          console.error('Failed to fetch attendance data:', result.error);
+          toast({
+            title: 'Error',
+            description: 'Failed to load attendance data',
+            variant: 'destructive'
+          });
+        }
+      } else {
+        throw new Error('Failed to fetch attendance data');
+      }
+    } catch (error) {
+      console.error('Error fetching attendance data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load attendance data',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch attendance data on component mount (draft count is fetched by AttendanceDrafts component)
   React.useEffect(() => {
+    console.log('🚀 Non-Instructor Attendance Management mounted');
     fetchAttendanceData();
-    fetchDraftCount();
-  }, []);
+  }, []); // Empty dependency array - run once on mount
 
   // Listen for event to reopen drafts dialog after converting from a draft
   React.useEffect(() => {
@@ -109,7 +147,6 @@ function AttendanceManagementInner() {
     const onVisibility = () => { 
       if (document.visibilityState === 'visible') {
         fetchAttendanceData();
-        fetchDraftCount(); // Also refresh draft count when page becomes visible
       }
     }
     try {
@@ -125,71 +162,6 @@ function AttendanceManagementInner() {
       } catch {}
     }
   }, [])
-
-  // Fetch draft count from API
-  const fetchDraftCount = async () => {
-    try {
-      const response = await fetch('/api/dashboard/staff/non-instructor/attendance-drafts', {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Non-Instructor Draft count fetch result:', result);
-        if (result.success && Array.isArray(result.data)) {
-          const count = result.data.length;
-          console.log('Non-Instructor Draft count:', count);
-          setDraftsCount(count);
-          // Update localStorage for the filters component
-          try {
-            localStorage.setItem('nonInstructorAttendanceDraftsCount', String(count));
-            window.dispatchEvent(new Event('non-instructor-attendance-drafts-count-changed'));
-          } catch {}
-        }
-      } else {
-        console.error('Non-Instructor Draft count fetch failed with status:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching non-instructor draft count:', error);
-    }
-  };
-
-  const fetchAttendanceData = async () => {
-    try {
-      setLoading(true);
-  const response = await fetch('/api/dashboard/staff/non-instructor/attendance', {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          // Map MongoDB _id to id for frontend compatibility
-          const mappedData = result.data.map((record: any) => ({
-            ...record,
-            id: record._id
-          }));
-          setAttendanceData(mappedData);
-        } else {
-          console.error('Failed to fetch attendance data:', result.error);
-          toast({
-            title: 'Error',
-            description: 'Failed to load attendance data',
-            variant: 'destructive'
-          });
-        }
-      } else {
-        throw new Error('Failed to fetch attendance data');
-      }
-    } catch (error) {
-      console.error('Error fetching attendance data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load attendance data',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Safely parse a response as JSON if possible; otherwise return text
   const safeParseResponse = async (response: Response): Promise<{ json: any | null; text: string | null }> => {

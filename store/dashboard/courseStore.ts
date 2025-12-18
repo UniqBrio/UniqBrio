@@ -10,7 +10,7 @@ export interface Course {
   category: string;
   level: string;
   price: number;
-  priceINR?: number;
+  price?: number;
   rating: number;
   enrolledStudents: number;
   status: string;
@@ -227,8 +227,8 @@ export const useCourseStore = create<CourseState>()(
               selectedFilters.status.includes(course.status);
             
             // Price filter
-            // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
-            const price = course.priceINR || course.price || 0;
+            // Get the course price (supporting both old and new field names during migration)
+            const price = course.price || course.priceINR || 0;
             const matchesPrice = price >= selectedFilters.priceRange[0] && 
               price <= selectedFilters.priceRange[1];
             
@@ -277,8 +277,8 @@ export const useCourseStore = create<CourseState>()(
             activeCourses: courses.filter(c => c.status === "Active").length,
             totalStudents: courses.reduce((sum, c) => sum + (c.enrolledStudents || 0), 0),
             totalRevenue: courses.reduce((sum, c) => {
-              // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
-              const price = c.priceINR || c.price || 0;
+              // Get the course price (supporting both old and new field names during migration)
+              const price = c.price || c.priceINR || 0;
               return sum + price * (c.enrolledStudents || 0);
             }, 0),
             averageRating: courses.length > 0 

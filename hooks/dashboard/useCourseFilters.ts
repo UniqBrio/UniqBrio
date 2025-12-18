@@ -34,8 +34,8 @@ export function useCourseFilters(courses: Course[], currency: string) {
       const matchesType = selectedFilters.type.length === 0 || selectedFilters.type.includes(course.type)
       const matchesStatus = selectedFilters.status.length === 0 || selectedFilters.status.includes(course.status)
 
-      // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
-      const price = course.priceINR || course.price || 0
+      // Get the course price (supporting both old and new field names during migration)
+      const price = course.price || course.priceINR || 0
       const matchesPrice = price >= selectedFilters.priceRange[0] && price <= selectedFilters.priceRange[1]
 
       const matchesTab = activeTab === "all" || course.status?.toLowerCase() === activeTab.toLowerCase()

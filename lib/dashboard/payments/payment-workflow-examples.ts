@@ -36,7 +36,7 @@ export async function createPaymentRecordWithCourseData(paymentData: {
       courseCategory: courseDetails.courseCategory,
       courseType: courseDetails.courseType,
       courseName: courseDetails.name,
-      courseFee: courseDetails.priceINR,
+      courseFee: courseDetails.price,
       registrationFee: courseDetails.registrationFee,
       // Add other course-related fields as needed
     };
@@ -173,7 +173,7 @@ export async function validatePaymentAmount(courseId: string, paymentAmount: num
       throw new Error(`Course fees not found for course: ${courseId}`);
     }
 
-    const totalCourseFee = (courseFees.priceINR || 0) + (courseFees.registrationFee || 0);
+    const totalCourseFee = (courseFees.price || 0) + (courseFees.registrationFee || 0);
 
     switch (paymentType) {
       case 'full':
@@ -256,7 +256,7 @@ export async function processBulkCoursePayments(coursePayments: Array<{
         courseCategory: courseDetails.courseCategory,
         courseType: courseDetails.courseType,
         courseName: courseDetails.name,
-        courseFee: courseDetails.priceINR,
+        courseFee: courseDetails.price,
         registrationFee: courseDetails.registrationFee,
         status: 'processed'
       };

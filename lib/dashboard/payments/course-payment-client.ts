@@ -11,7 +11,7 @@ export interface CoursePaymentDetails {
   paymentCategory: string;
   courseCategory: string;
   courseType: string;
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
   level?: string;
   duration?: string;
@@ -127,17 +127,17 @@ export async function getCourseType(courseId: string): Promise<string | null> {
 /**
  * Get course fees for a course (shorthand helper)
  * @param courseId - The course ID
- * @returns Object with priceINR and registrationFee or null
+ * @returns Object with price and registrationFee or null
  */
 export async function getCourseFees(courseId: string): Promise<{
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
 } | null> {
   const details = await fetchCoursePaymentDetails(courseId);
   if (!details) return null;
   
   return {
-    priceINR: details.priceINR,
+    price: details.price,
     registrationFee: details.registrationFee
   };
 }

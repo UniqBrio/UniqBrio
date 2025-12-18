@@ -14,7 +14,7 @@ const courseSchema = new mongoose.Schema({
   paymentCategory: String,
   type: String,
   courseType: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
   level: String,
   duration: String,
@@ -30,7 +30,7 @@ interface CoursePaymentDetails {
   paymentCategory: string;
   courseCategory: string;
   courseType: string;
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
   level?: string;
   duration?: string;
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
 
     // Find course by courseId
     const course = await Course.findOne({ courseId, tenantId: session.tenantId })
-      .select('courseId name courseName courseCategory paymentCategory type courseType priceINR registrationFee level duration status')
+      .select('courseId name courseName courseCategory paymentCategory type courseType price registrationFee level duration status')
       .lean()
       .exec();
 
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
       paymentCategory: courseData.paymentCategory || 'Not Specified',
       courseCategory: courseData.courseCategory || 'Not Specified',
       courseType: courseData.courseType || courseData.type || 'Not Specified',
-      priceINR: courseData.priceINR,
+      price: courseData.price,
       registrationFee: courseData.registrationFee,
       level: courseData.level,
       duration: courseData.duration,
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       courseId: { $in: courseIds },
       tenantId: session.tenantId
     })
-      .select('courseId name courseName courseCategory paymentCategory type courseType priceINR registrationFee level duration status')
+      .select('courseId name courseName courseCategory paymentCategory type courseType price registrationFee level duration status')
       .lean()
       .exec();
 
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
       paymentCategory: course.paymentCategory || 'Not Specified',
       courseCategory: course.courseCategory || 'Not Specified',
       courseType: course.courseType || course.type || 'Not Specified',
-      priceINR: course.priceINR,
+      price: course.price,
       registrationFee: course.registrationFee,
       level: course.level,
       duration: course.duration,

@@ -10,7 +10,7 @@ export interface IDraft extends Document {
   level?: 'Beginner' | 'Intermediate' | 'Advanced';
   type?: 'Online' | 'Offline' | 'Hybrid';
   duration?: string;
-  priceINR?: string;
+  price?: string;
   schedule?: string;
   maxStudents?: string;
   tags?: string[];
@@ -65,7 +65,7 @@ const draftSchema = new Schema<IDraft>({
     type: String,
     required: false
   },
-  priceINR: {
+  price: {
     type: String,
     required: false
   },

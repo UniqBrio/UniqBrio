@@ -6,7 +6,7 @@ const courseSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: String,
   courseId: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
   type: String,
 }, {
@@ -40,8 +40,8 @@ export async function createPaymentForStudent(studentData: any): Promise<boolean
     if (studentData.enrolledCourse) {
       try {
         const course = await Course.findOne({ courseId: studentData.enrolledCourse }).lean();
-        if (course && (course as any).priceINR) {
-          courseFee = (course as any).priceINR;
+        if (course && (course as any).price) {
+          courseFee = (course as any).price;
           console.log(`Using course fee ${courseFee} for course ${studentData.enrolledCourse}`);
         }
         if (course && (course as any).type) {

@@ -15,7 +15,7 @@ interface CoursePaymentDetails {
   name: string;
   courseCategory: string;
   courseType: string;
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
   level?: string;
   duration?: string;
@@ -198,12 +198,12 @@ export default function CoursePaymentFetcher() {
                     {courseDetails.courseType}
                   </Badge>
                 </div>
-                {courseDetails.priceINR && (
+                {courseDetails.price && (
                   <div>
                     <Label className="text-xs text-muted-foreground">Course Fee ({currency})</Label>
                     <div className="text-sm font-semibold flex items-center gap-1">
                       <DollarSign className="h-3 w-3" />
-                      ?{courseDetails.priceINR.toLocaleString()}
+                      ?{courseDetails.price.toLocaleString()}
                     </div>
                   </div>
                 )}
@@ -278,12 +278,12 @@ export default function CoursePaymentFetcher() {
                         </Badge>
                       </div>
                     </div>
-                    {(course.priceINR || course.registrationFee) && (
+                    {(course.price || course.registrationFee) && (
                       <div className="flex gap-4 text-sm">
-                        {course.priceINR && (
+                        {course.price && (
                           <span className="flex items-center gap-1">
                             <DollarSign className="h-3 w-3" />
-                            Course: ?{course.priceINR.toLocaleString()}
+                            Course: ?{course.price.toLocaleString()}
                           </span>
                         )}
                         {course.registrationFee && (
@@ -321,7 +321,7 @@ const courseDetails = await fetchCoursePaymentDetails('COURSE0001');
 if (courseDetails) {
   console.log('Payment Category:', courseDetails.courseCategory);
   console.log('Course Type:', courseDetails.courseType);
-  console.log('Price:', courseDetails.priceINR);
+  console.log('Price:', courseDetails.price);
 }`}
               </pre>
             </div>

@@ -15,7 +15,7 @@ const courseSchema = new mongoose.Schema({
   type: String,
   duration: String,
   level: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
   status: String
 }, {
@@ -31,7 +31,7 @@ interface CourseDocument extends mongoose.Document {
   type: string;
   duration: string;
   level: string;
-  priceINR?: number;
+  price?: number;
   registrationFee?: number;
   status: string;
 }
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       {
         courseId: (course as any).courseId,
         courseName: (course as any).name,
-        courseFee: (course as any).priceINR || 0,
+        courseFee: (course as any).price || 0,
         registrationFee: (course as any).registrationFee || 0,
       },
       { status: 200 }
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     const courseFees = courses.map((course: any) => ({
       courseId: course.courseId,
       courseName: course.name,
-      courseFee: course.priceINR || 0,
+      courseFee: course.price || 0,
       registrationFee: course.registrationFee || 0,
       category: course.courseCategory,
       type: course.type,

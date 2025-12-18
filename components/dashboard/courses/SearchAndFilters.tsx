@@ -328,7 +328,7 @@ export default function SearchAndFilters({
                 const label = [
                   { value: "courseId", label: "Course ID" },
                   { value: "name", label: "Course Name" },
-                  { value: "priceINR", label: `Price (${currency})` },
+                  { value: "price", label: `Price (${currency})` },
                   { value: "duration", label: "Duration" },
                 ].find(o => o.value === sortBy)?.label;
                 return label ? <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white">{label}</span> : null;
@@ -341,7 +341,7 @@ export default function SearchAndFilters({
             {[
               { value: "courseId", label: "Course ID" },
               { value: "name", label: "Course Name" },
-              { value: "priceINR", label: `Price (${currency})` },                                
+              { value: "price", label: `Price (${currency})` },                                
               { value: "duration", label: "Duration" },
             ].map((option) => (
               <DropdownMenuItem
@@ -466,7 +466,7 @@ export default function SearchAndFilters({
             { header: 'Location', key: 'location' },
             { header: 'Virtual Classroom URL', key: 'virtualClassroomUrl' },
             // Pricing and referral related fields
-            { header: `Price (${currency})`, key: 'priceINR' },
+            { header: `Price (${currency})`, key: 'price' },
             { header: `Discount Price (${currency})`, key: 'discountPrice' },
             { header: 'Referral Code', key: 'referralCode' },
             { header: 'Commission Rate (%)', key: 'commissionRate' },
@@ -540,7 +540,7 @@ export default function SearchAndFilters({
             }
             
             // Handle prices
-            if (key === 'priceINR' || key === 'discountPrice') {
+            if (key === 'price' || key === 'discountPrice') {
               return typeof value === 'number' ? value.toLocaleString('en-IN') : '';
             }
             

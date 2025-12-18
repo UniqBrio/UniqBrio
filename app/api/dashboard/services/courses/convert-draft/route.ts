@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       id: updatedCourse.courseId || updatedCourse._id?.toString?.() || String(updatedCourse._id),
       name: updatedCourse.name,
       instructor: updatedCourse.instructor || 'Unknown Instructor',
-      priceINR: updatedCourse.priceINR,
+      price: updatedCourse.price,
       type: updatedCourse.type,
       status: updatedCourse.status
     }

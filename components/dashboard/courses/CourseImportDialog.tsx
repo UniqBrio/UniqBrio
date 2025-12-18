@@ -37,7 +37,7 @@ export default function CourseImportDialog({
       'courseCategory',
       'location',
       'maxStudents',
-      'priceINR',
+      'price',
       'tags',
       'studentGuidelines',
       'schedulePeriod_startDate',

@@ -115,14 +115,14 @@ export default function PricingTab({
           </select>
         </div>
         <div>
-          <Label htmlFor="priceINR" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">
+          <Label htmlFor="price" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">
             {formData.courseCategory === 'Ongoing Training' 
               ? `Price per Month (${currency})` 
               : `Price (${currency})`} <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
             <Input
-              id="priceINR"
+              id="price"
               type="number"
               min="1"
               placeholder={formData.courseCategory === 'Ongoing Training' ? '5000' : '25000'}
@@ -136,14 +136,14 @@ export default function PricingTab({
                 e.currentTarget.style.borderColor = '#d1d5db';
                 e.currentTarget.style.boxShadow = 'none';
               }}
-              value={formData.priceINR || ''}
+              value={formData.price || ''}
               onKeyDown={e => {
                 if (e.key === '-') {
                   e.preventDefault();
                 }
                 // Allow clearing the field with backspace/delete
                 if ((e.key === 'Backspace' || e.key === 'Delete') && e.currentTarget.value.length === 1) {
-                  onFormChange('priceINR', '');
+                  onFormChange('price', '');
                   e.preventDefault();
                 }
               }}
@@ -151,15 +151,15 @@ export default function PricingTab({
                 const value = e.target.value;
                 // Allow empty value for clearing
                 if (value === '') {
-                  onFormChange('priceINR', '');
+                  onFormChange('price', '');
                   return;
                 }
                 const numValue = parseInt(value);
                 if (!isNaN(numValue) && numValue > 0) {
-                  onFormChange('priceINR', numValue.toString());
+                  onFormChange('price', numValue.toString());
                 } else if (value === '0' || numValue === 0) {
                   // Don't set 0 values, keep field empty
-                  onFormChange('priceINR', '');
+                  onFormChange('price', '');
                 }
               }}
             />

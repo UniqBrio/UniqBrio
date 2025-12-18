@@ -60,8 +60,8 @@ export default function CourseDashboardCharts({ courses, currency = "INR" }: Cou
     }
   })
   const getPrice = (c: Course) => {
-    // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
-    const price = (c.priceINR as any) || (c as any).price || 0
+    // Note: price field stores the price in the academy's selected currency
+    const price = (c.price as any) || (c as any).priceINR || 0
     return typeof price === "number" ? price : Number(price || 0)
   }
 

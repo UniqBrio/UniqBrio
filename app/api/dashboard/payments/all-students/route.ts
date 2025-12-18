@@ -12,7 +12,7 @@ const courseSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: String,
   courseId: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
 }, {
   collection: 'courses',
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     const courses = await Course.find({ courseId: { $in: courseIds }, tenantId: session.tenantId }).lean();
     const courseFeeMap = new Map(
       courses.map((c: any) => [c.courseId, { 
-        fee: c.priceINR || 0,
+        fee: c.price || 0,
         registrationFee: c.registrationFee || 1000,
         name: c.name
       }])

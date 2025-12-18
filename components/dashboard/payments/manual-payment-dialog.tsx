@@ -479,12 +479,12 @@ export function ManualPaymentDialog({
           // Store fetched fees if payment record has zero/missing fees
           if (!payment.courseFee || payment.courseFee === 0) {
             console.log('Storing course fees:', {
-              courseFee: courseData.priceINR,
+              courseFee: courseData.price,
               courseRegistrationFee: courseData.registrationFee
             });
             
             setFetchedFees({
-              courseFee: Number(courseData.priceINR || 0),
+              courseFee: Number(courseData.price || 0),
               courseRegistrationFee: Number(courseData.registrationFee || 1000),
               studentRegistrationFee: Number(500)
             });

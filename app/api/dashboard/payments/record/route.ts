@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
           const Course = mongoose.connection.collection('courses');
           const course = await Course.findOne({ courseId: cohort.courseId, tenantId: session.tenantId });
           if (course) {
-            fetchedCourseFee = course.priceINR || courseFee || 0;
+            fetchedCourseFee = course.price || courseFee || 0;
             fetchedCourseRegFee = course.registrationFee || courseRegistrationFee || 1000;
             courseName = course.name || courseName;
           }

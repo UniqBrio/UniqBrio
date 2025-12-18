@@ -10,7 +10,7 @@ const columnDefinitions = {
       { id: 'location', label: 'Location' },
       { id: 'type', label: 'Type' },
       { id: 'level', label: 'Level' },
-      { id: 'priceINR', label: 'Price' },
+      { id: 'price', label: 'Price' },
       { id: 'status', label: 'Status' },
       { id: 'courseCategory', label: 'Category' },
       { id: 'maxStudents', label: 'Max Students' },
@@ -20,7 +20,7 @@ const columnDefinitions = {
       { id: 'skills', label: 'Skills' },
       { id: 'prerequisites', label: 'Prerequisites' }
     ],
-    default: ['courseId', 'name', 'instructor', 'location', 'type', 'level', 'priceINR', 'status']
+    default: ['courseId', 'name', 'instructor', 'location', 'type', 'level', 'price', 'status']
   },
   cohorts: {
     all: [

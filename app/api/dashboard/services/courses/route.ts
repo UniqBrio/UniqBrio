@@ -127,7 +127,7 @@ export async function POST(request: Request) {
             maxStudents: 1,
             type: 'Online',
             courseCategory: 'Regular',
-            priceINR: 0,
+            price: 0,
             isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
             [config.field]: [...config.defaults, trimmedValue].sort(),
             tenantId: session.tenantId
@@ -219,7 +219,7 @@ export async function POST(request: Request) {
             maxStudents: 1,
             type: 'Online',
             courseCategory: 'Regular',
-            priceINR: 0,
+            price: 0,
             isDeleted: true, // Mark as deleted so it doesn't appear in normal queries
             availableLocations: [...DEFAULT_LOCATIONS, locationName].sort(),
             tenantId: session.tenantId
@@ -269,7 +269,7 @@ export async function POST(request: Request) {
           id: courseObj.courseId || courseObj._id?.toString?.() || String(courseObj._id),
           name: courseObj.name,
           instructor: courseObj.instructor || 'Unknown Instructor',
-          priceINR: courseObj.priceINR,
+          price: courseObj.price,
           type: courseObj.type,
           status: courseObj.status || 'Active'
             }
@@ -329,7 +329,7 @@ export async function POST(request: Request) {
             id: updatedCourse.courseId || updatedCourse._id?.toString?.() || String(updatedCourse._id),
             name: updatedCourse.name,
             instructor: updatedCourse.instructor || 'Unknown Instructor',
-            priceINR: updatedCourse.priceINR,
+            price: updatedCourse.price,
             type: updatedCourse.type,
             status: updatedCourse.status || 'Active'
             } : null
@@ -399,7 +399,7 @@ export async function POST(request: Request) {
             id: course.courseId || course._id?.toString?.() || String(course._id),
             name: course.name,
             instructor: course.instructor || 'Unknown Instructor',
-            priceINR: course.priceINR,
+            price: course.price,
             type: course.type,
             status: course.status || 'Active'
           }
@@ -791,7 +791,7 @@ export async function GET(request: Request) {
         id: course.courseId || course.customId || course._id?.toString?.() || String(course._id),
         name: course.name,
         instructor: instructorName,
-        priceINR: course.priceINR,
+        price: course.price,
         type: course.type,
         status: course.status || 'Active'
       }
@@ -923,10 +923,10 @@ export async function PUT(request: Request) {
     // Transform the response to match frontend expectations
     const transformedCourse = {
       ...course.toObject(),
-      id: course.courseId || course.customId || course._id?.toString?.() || String(course._id),
+      id: course.courseId || course.customId || course._id?.toString() || String(course._id),
       name: course.name,
       instructor: course.instructor || 'Unknown Instructor',
-      priceINR: course.priceINR,
+      price: course.price,
       type: course.type,
       status: course.status || 'Active'
     }

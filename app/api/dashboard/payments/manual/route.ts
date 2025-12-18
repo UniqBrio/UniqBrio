@@ -29,7 +29,7 @@ const courseSchema = new mongoose.Schema({
   tenantId: String,
   name: String,
   courseId: String,
-  priceINR: Number,
+  price: Number,
   registrationFee: Number,
   type: String,
 }, {
@@ -333,11 +333,11 @@ export async function POST(request: NextRequest) {
       if (courseId) {
         try {
           const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
-          if (course && (course as any).priceINR) {
-            courseFee = (course as any).priceINR;
+          if (course && (course as any).price) {
+            courseFee = (course as any).price;
             console.log(`Fetched course fee for ${courseId}: ${courseFee}`);
           } else {
-            console.warn(`Course ${courseId} not found or has no priceINR`);
+            console.warn(`Course ${courseId} not found or has no price`);
           }
           if (course && (course as any).type) {
             courseType = (course as any).type;
@@ -408,8 +408,8 @@ export async function POST(request: NextRequest) {
       if (courseId) {
         try {
           const course = await Course.findOne({ courseId, tenantId: session.tenantId }).lean();
-          if (course && (course as any).priceINR) {
-            courseFee = (course as any).priceINR;
+          if (course && (course as any).price) {
+            courseFee = (course as any).price;
             console.log(`Fetched course fee for ${courseId}: ${courseFee}`);
           }
           if (course && (course as any).type) {

@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         level,
         type,
         duration,
-        priceINR,
+        price,
         schedule,
         maxStudents,
         tags,
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       if (level) draftData.level = level
       if (type) draftData.type = type
       if (duration) draftData.duration = duration
-      if (priceINR) draftData.priceINR = priceINR
+      if (price) draftData.price = price
       if (body.price) draftData.price = body.price
       if (schedule) draftData.schedule = schedule
       if (maxStudents) draftData.maxStudents = maxStudents
@@ -221,7 +221,7 @@ export async function PUT(request: NextRequest) {
       level,
       type,
       duration,
-      priceINR,
+      price,
       schedule,
       maxStudents,
       tags,
@@ -282,7 +282,7 @@ export async function PUT(request: NextRequest) {
     if (level) updateData.level = level
     if (type) updateData.type = type
     if (duration) updateData.duration = duration
-    if (priceINR) updateData.priceINR = priceINR
+    if (price) updateData.price = price
     if (body.price) updateData.price = body.price
     if (schedule) updateData.schedule = schedule
     if (maxStudents) updateData.maxStudents = maxStudents

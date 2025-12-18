@@ -187,7 +187,7 @@ export default function CourseFormDialog({
   const validatePricing = () => {
     const errors: string[] = [];
     
-    if (!newCourseForm?.priceINR || parseFloat(newCourseForm.priceINR) <= 0) {
+    if (!newCourseForm?.price || parseFloat(newCourseForm.price) <= 0) {
       errors.push('Price');
     }
     
@@ -445,7 +445,7 @@ export default function CourseFormDialog({
   name: newCourseForm.name || '',
   type: newCourseForm.type || '',
   courseCategory: newCourseForm.courseCategory || '',
-  priceINR: newCourseForm.priceINR || '',
+  price: newCourseForm.price || '',
   paymentCategory: newCourseForm.paymentCategory || '',
   maxStudents: newCourseForm.maxStudents || '',
   // Basic Info
@@ -460,7 +460,7 @@ export default function CourseFormDialog({
         duration: parseInt(newCourseForm.duration) || 30,
         totalSessions: parseInt(newCourseForm.totalSessions) || 10,
         completedSessions: parseInt(newCourseForm.completedSessions) || 0,
-        price: parseFloat(newCourseForm.priceINR) || parseFloat(newCourseForm.price) || 0,
+        price: parseFloat(newCourseForm.price) || 0,
         currency: newCourseForm.currency,
         discountPrice: parseFloat(newCourseForm.discountPrice) || 0,
         thumbnail: newCourseForm.thumbnail || 'https://via.placeholder.com/400x300',
@@ -687,7 +687,7 @@ export default function CourseFormDialog({
       if (newCourseForm.level) draftData.level = newCourseForm.level
       if (newCourseForm.type) draftData.type = newCourseForm.type
       if (newCourseForm.duration) draftData.duration = newCourseForm.duration
-      if (newCourseForm.priceINR) draftData.priceINR = newCourseForm.priceINR
+      if (newCourseForm.price) draftData.price = newCourseForm.price
       if (newCourseForm.paymentCategory) draftData.paymentCategory = newCourseForm.paymentCategory
       if (newCourseForm.price) draftData.price = newCourseForm.price
       if (newCourseForm.schedule) draftData.schedule = newCourseForm.schedule
@@ -736,7 +736,9 @@ export default function CourseFormDialog({
       console.log('Draft save result:', result)
 
       if (!response.ok) {
-        throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`)
+        const errorMsg = result.details || result.error || `HTTP ${response.status}: ${response.statusText}`
+        console.error('Draft save error:', errorMsg)
+        throw new Error(errorMsg)
       }
 
       if (result.success) {
@@ -756,7 +758,9 @@ export default function CourseFormDialog({
         // Open drafts dialog
         window.dispatchEvent(new CustomEvent('openDraftsDialog'))
       } else {
-        throw new Error(result.error || 'Failed to save draft')
+        const errorMsg = result.details || result.error || 'Failed to save draft'
+        console.error('Draft save error:', errorMsg)
+        throw new Error(errorMsg)
       }
     } catch (error) {
       console.error('Draft save error:', error)

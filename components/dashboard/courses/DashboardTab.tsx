@@ -19,7 +19,7 @@ export default function DashboardTab({ courses, cohorts, studentCount, currency 
     totalCourses: Array.isArray(courses) ? courses.length : 0,
     activeCourses: Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0,
     totalStudents: studentCount,
-    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + (c.priceINR || c.price || 0) * (c.enrolledStudents || 0), 0) : 0,
+    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + (c.price || c.priceINR || 0) * (c.enrolledStudents || 0), 0) : 0,
     averageRating: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.rating || 0), 0) / courses.length : 0,
     completionRate: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length : 0,
   }), [courses, cohorts, studentCount, currency])

@@ -43,7 +43,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
   const { currency } = useCurrency();
   const { primaryColor, secondaryColor } = useCustomColors();
   const formatCurrency = (amount: number, currencyCode: string) => {
-    // Note: priceINR is a legacy field name, but now stores price in academy's selected currency
+    // Note: price field stores price in academy's selected currency
     try {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -241,7 +241,7 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <span className="text-gray-600 dark:text-white">{course.name || 'Untitled Course'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg" style={{ color: primaryColor }}>{course.priceINR ? `${currency} ${course.priceINR}` : currency}</span>
+              <span className="font-bold text-lg" style={{ color: primaryColor }}>{course.price ? `${currency} ${course.price}` : currency}</span>
             </div>
           </div>
 
@@ -279,10 +279,10 @@ export default function CourseCard({ course, onView }: CourseCardProps) {
               <span className="text-sm text-gray-500 dark:text-white">({course.enrolledStudents} reviews)</span>
             </div>
             <div className="text-right">
-              <div className="font-bold text-lg" style={{ color: primaryColor }}>{formatCurrency(course.priceINR, currency)}</div>
+              <div className="font-bold text-lg" style={{ color: primaryColor }}>{formatCurrency(course.price, currency)}</div>
                  {course.dynamicPricing?.enabled &&
                 course.dynamicPricing.suggestedPrice !== undefined &&
-                course.dynamicPricing.suggestedPrice !== course.priceINR && (
+                course.dynamicPricing.suggestedPrice !== course.price && (
                   <div className="text-xs text-gray-500 dark:text-white line-through">
                     {formatCurrency(course.dynamicPricing.suggestedPrice, currency)}
                   </div>

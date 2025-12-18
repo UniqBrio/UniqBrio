@@ -32,7 +32,7 @@ interface CourseListProps {
   };
 }
 
-export default function CourseList({ courses, viewMode, onCourseClick, onEditCourse, onDeleteCourse, onAddCourse, cohorts = [], displayedColumns = ['courseId', 'name', 'instructor', 'location', 'type', 'level', 'priceINR', 'status'], selectedCourseIds = [], onToggleCourseSelect, onToggleAllVisible, showIdBadges = false, enrollmentSettings }: CourseListProps) {
+export default function CourseList({ courses, viewMode, onCourseClick, onEditCourse, onDeleteCourse, onAddCourse, cohorts = [], displayedColumns = ['courseId', 'name', 'instructor', 'location', 'type', 'level', 'price', 'status'], selectedCourseIds = [], onToggleCourseSelect, onToggleAllVisible, showIdBadges = false, enrollmentSettings }: CourseListProps) {
   const { currency } = useCurrency();
   const { primaryColor, secondaryColor } = useCustomColors();
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
@@ -111,7 +111,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
     location: { label: 'Location', render: (course: Course) => course.location || '-' },
     type: { label: 'Type', render: (course: Course) => course.type },
     level: { label: 'Level', render: (course: Course) => course.level },
-    priceINR: { label: `Price (${currency})`, render: (course: Course) => `${currency} ${course.priceINR?.toLocaleString()}` },
+    price: { label: `Price (${currency})`, render: (course: Course) => `${currency} ${course.price?.toLocaleString()}` },
     status: { 
       label: 'Status', 
       render: (course: Course) => (
@@ -448,7 +448,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     {course.description && <p className="text-xs text-gray-500 dark:text-white line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
-                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currency} {course.priceINR?.toLocaleString()}</span>
+                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currency} {course.price?.toLocaleString()}</span>
                         {renderCapacityIndicator(course, true)}
                       </div>
                     </div>
@@ -558,7 +558,7 @@ export default function CourseList({ courses, viewMode, onCourseClick, onEditCou
                     {course.description && <p className="text-xs text-gray-500 dark:text-white line-clamp-2 mb-2">{course.description}</p>}
                     <div className="flex justify-between items-end mt-2">
                       <div>
-                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currency} {course.priceINR?.toLocaleString()}</span>
+                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currency} {course.price?.toLocaleString()}</span>
                       </div>
                     </div>
                   </CardContent>

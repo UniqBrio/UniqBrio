@@ -73,7 +73,7 @@ type DraftType = {
   updatedAt: number
   level?: string
   type?: string
-  priceINR?: number
+  price?: number
   schedule?: string
   maxStudents?: number
   location?: string
@@ -518,7 +518,7 @@ export default function EnhancedCourseManagementPage() {
   }
 
   const coursesToCsv = (rows: Course[]) => {
-    const headers = ["id","courseId","name","instructor","location","type","level","priceINR","status","courseCategory","maxStudents","duration"]
+    const headers = ["id","courseId","name","instructor","location","type","level","price","status","courseCategory","maxStudents","duration"]
     const escape = (v: any) => {
       if (v === null || v === undefined) return ""
       const s = String(v)
@@ -560,7 +560,7 @@ export default function EnhancedCourseManagementPage() {
     level: 'Beginner',
     type: 'Online',
     duration: '',
-    priceINR: '',
+    price: '',
     paymentCategory: '',
     schedule: '',
     maxStudents: '',
@@ -750,8 +750,8 @@ export default function EnhancedCourseManagementPage() {
     totalCourses: Array.isArray(courses) ? courses.length : 0,
     activeCourses: Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0,
     totalStudents: studentCount,
-    // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
-    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.priceINR || c.price || 0) * (c.enrolledStudents || 0)), 0) : 0,
+    // Note: price stores the amount in the academy's selected currency
+    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.price || c.priceINR || 0) * (c.enrolledStudents || 0)), 0) : 0,
     averageRating: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.rating || 0), 0) / courses.length : 0,
     completionRate: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length : 0,
   }
@@ -787,8 +787,8 @@ export default function EnhancedCourseManagementPage() {
       const matchesType = selectedFilters.type.length === 0 || selectedFilters.type.includes(course.type)
       const matchesStatus = selectedFilters.status.length === 0 || selectedFilters.status.includes(course.status)
 
-      // Note: priceINR is a legacy field name, but it now stores price in the academy's selected currency
-      const price = course.priceINR || course.price || 0
+      // Note: price stores the amount in the academy's selected currency
+      const price = course.price || course.priceINR || 0
       const matchesPrice = price >= selectedFilters.priceRange[0] && price <= selectedFilters.priceRange[1]
 
       const matchesTab = activeTab === "all" || course.status?.toLowerCase() === activeTab.toLowerCase()
@@ -840,7 +840,7 @@ export default function EnhancedCourseManagementPage() {
       level: course.level || 'Beginner',
       type: course.type || 'Online',
       duration: course.duration !== undefined ? String(course.duration) : '',
-      priceINR: course.priceINR !== undefined ? String(course.priceINR) : '',
+      price: course.price !== undefined ? String(course.price) : '',
       paymentCategory: course.paymentCategory || '',
       schedule: course.schedule || '',
       maxStudents: course.maxStudents !== undefined ? String(course.maxStudents) : '',
@@ -909,8 +909,8 @@ export default function EnhancedCourseManagementPage() {
     if (draft.level) formData.level = draft.level;
     if (draft.type) formData.type = draft.type;
     if (draft.duration !== undefined && draft.duration !== null) formData.duration = String(draft.duration);
-    if (draft.priceINR !== undefined && draft.priceINR !== null) formData.priceINR = String(draft.priceINR);
     if (draft.price !== undefined && draft.price !== null) formData.price = String(draft.price);
+    if (draft.priceINR !== undefined && draft.priceINR !== null) formData.price = String(draft.priceINR);
     if (draft.paymentCategory) formData.paymentCategory = draft.paymentCategory;
     if (draft.schedule) formData.schedule = draft.schedule;
     if (draft.maxStudents !== undefined && draft.maxStudents !== null) formData.maxStudents = String(draft.maxStudents);
@@ -1142,7 +1142,7 @@ export default function EnhancedCourseManagementPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs sm:text-sm md:text-base font-medium text-orange-600">Revenue ({currency})</p>
-                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.priceINR || c.price || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.price || c.priceINR || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
                     </div>
                     <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3s3-1.343 3-3s-1.343-3-3-3zm0 0V4m0 10v4" /></svg>
                   </div>
@@ -1503,7 +1503,7 @@ export default function EnhancedCourseManagementPage() {
                     <h4 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2">Capacity & Pricing</h4>
                     <dl className="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-y-0.5 sm:gap-y-1 text-xs sm:text-sm">
                       <dt className="text-gray-500 dark:text-white">Price:</dt>
-                      <dd className="text-green-600 font-semibold">${currency} {selectedCourse.priceINR?.toLocaleString()}</dd>
+                      <dd className="text-green-600 font-semibold">${currency} {selectedCourse.price?.toLocaleString()}</dd>
                       <dt className="text-gray-500 dark:text-white">Max Students:</dt>
                       <dd>{selectedCourse.maxStudents}</dd>
                     </dl>

@@ -83,6 +83,11 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
     }
   };
 
+  // Fetch drafts count on component mount (for initial count display)
+  React.useEffect(() => {
+    fetchDrafts();
+  }, []); // Run once on mount
+
   // Fetch drafts when dialog opens
   React.useEffect(() => {
     if (open) {
