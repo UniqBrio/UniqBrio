@@ -24,6 +24,9 @@ export interface IAdminPaymentRecord extends Document {
   planStatus: "upcoming" | "active" | "expired";
   daysRemaining: number;
   isOverdue: boolean;
+  // Expiry reminder tracking
+  expiryRemindersSent?: string[]; // Array of reminder identifiers like "10days", "7days", "6days", etc.
+  lastExpiryReminderSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   // Method to update plan status
@@ -65,6 +68,12 @@ const AdminPaymentRecordSchema = new Schema<IAdminPaymentRecord>(
     },
     daysRemaining: { type: Number },
     isOverdue: { type: Boolean, default: false },
+    // Expiry reminder tracking
+    expiryRemindersSent: {
+      type: [String],
+      default: [],
+    },
+    lastExpiryReminderSentAt: { type: Date },
   },
   {
     timestamps: true,

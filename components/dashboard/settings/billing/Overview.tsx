@@ -29,6 +29,7 @@ interface PaymentRecord {
   cancellationDate?: string
   cancellationType?: "immediate" | "end_of_cycle"
   cancellationReason?: string
+  isDefault?: boolean
 }
 
 interface ActivePaymentData {
@@ -75,6 +76,10 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
   const renewalDate = activePayment.record ? new Date(activePayment.record.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : nextRenewal
 
   const daysUntilRenewal = activePayment.record?.daysRemaining || 0
+  
+  // Check if free plan has exceeded student limit
+  const isFreePlanExceeded = currentPlan === "free" && usageStats.totalStudents > 14
+  const isDefaultFreePlan = activePayment.record?.isDefault || false
 
   // Fetch active payment record
   useEffect(() => {
@@ -145,11 +150,22 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
         </div>
       )}
 
-      {/* No Active Plan */}
-      {!activePayment.loading && !activePayment.record && (
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
-          <p className="text-sm text-amber-700 font-semibold">No active subscription found</p>
-          <p className="text-sm text-amber-600 mt-1">Contact admin to activate your subscription.</p>
+      {/* Free Plan Student Limit Exceeded */}
+      {!activePayment.loading && isFreePlanExceeded && (
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm animate-in slide-in-from-top duration-300">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-red-900">Student Limit Exceeded - Plan Expired</p>
+              <p className="text-sm text-red-700 mt-1">
+                Your Free plan allows up to 14 students, but you currently have {usageStats.totalStudents} enrolled. 
+                <span className="font-bold"> Please upgrade to Grow plan to continue utilizing this application.</span>
+              </p>
+              <button className="mt-3 text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-orange-500 px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                Upgrade to Grow Plan Now →
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -235,19 +251,25 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <Badge color={primaryColor}>{activePayment.record.plan.charAt(0).toUpperCase() + activePayment.record.plan.slice(1)}</Badge>
-                    <Badge color="#fd9c2d">{cycle === "monthly" ? "Monthly" : "Yearly"}</Badge>
-                    {activePayment.record.isCancelled && <Badge color="#ef4444">Cancelled</Badge>}
-                    {!activePayment.record.isCancelled && activePayment.isUpcoming && <Badge color="#3b82f6">Upcoming</Badge>}
-                    {!activePayment.record.isCancelled && !activePayment.isUpcoming && <Badge color="#10b981">Active</Badge>}
+                    {!isDefaultFreePlan && <Badge color="#fd9c2d">{cycle === "monthly" ? "Monthly" : "Yearly"}</Badge>}
+                    {isFreePlanExceeded && <Badge color="#ef4444">Expired - Limit Exceeded</Badge>}
+                    {!isFreePlanExceeded && activePayment.record.isCancelled && <Badge color="#ef4444">Cancelled</Badge>}
+                    {!isFreePlanExceeded && !activePayment.record.isCancelled && activePayment.isUpcoming && <Badge color="#3b82f6">Upcoming</Badge>}
+                    {!isFreePlanExceeded && !activePayment.record.isCancelled && !activePayment.isUpcoming && <Badge color="#10b981">Active</Badge>}
+                    {isDefaultFreePlan && <Badge color="#6b7280">Default Plan</Badge>}
                   </div>
                   <p className="text-sm text-gray-600">
-                    {activePayment.record.isCancelled 
-                      ? activePayment.record.cancellationType === "immediate" 
-                        ? "Cancelled immediately" 
-                        : "Cancels at end of cycle"
-                      : activePayment.isUpcoming 
-                        ? "Scheduled subscription" 
-                        : "Active subscription"}
+                    {isFreePlanExceeded
+                      ? "Upgrade required to continue"
+                      : activePayment.record.isCancelled 
+                        ? activePayment.record.cancellationType === "immediate" 
+                          ? "Cancelled immediately" 
+                          : "Cancels at end of cycle"
+                        : activePayment.isUpcoming 
+                          ? "Scheduled subscription" 
+                          : isDefaultFreePlan
+                            ? "Default free tier"
+                            : "Active subscription"}
                   </p>
                 </div>
               </div>
@@ -260,7 +282,7 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className={`grid grid-cols-2 ${isDefaultFreePlan ? 'md:grid-cols-3' : 'md:grid-cols-4'} gap-4 mb-4`}>
               <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <Calendar className="text-green-600" size={16} />
@@ -269,34 +291,45 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
                 <p className="text-sm font-bold text-gray-900">{startDate}</p>
                 <p className="text-xs text-gray-500 mt-1">Subscription started</p>
               </div>
-              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-2 mb-1">
-                  <Calendar className="text-purple-600" size={16} />
-                  <p className="text-xs font-medium text-gray-600">{activePayment.isUpcoming ? "Starts On" : "End Date"}</p>
+              {!isDefaultFreePlan && (
+                <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="text-purple-600" size={16} />
+                    <p className="text-xs font-medium text-gray-600">{activePayment.isUpcoming ? "Starts On" : "End Date"}</p>
+                  </div>
+                  <p className="text-sm font-bold text-gray-900">{renewalDate}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {activePayment.isUpcoming 
+                      ? `Starts in ${Math.abs(daysUntilRenewal)} days` 
+                      : "Subscription ends"}
+                  </p>
                 </div>
-                <p className="text-sm font-bold text-gray-900">{renewalDate}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {activePayment.isUpcoming 
-                    ? `Starts in ${Math.abs(daysUntilRenewal)} days` 
-                    : "Subscription ends"}
-                </p>
-              </div>
+              )}
               <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <Activity className="text-blue-600" size={16} />
                   <p className="text-xs font-medium text-gray-600">Days Remaining</p>
                 </div>
-                <p className={`text-sm font-bold ${daysUntilRenewal <= 3 ? 'text-orange-600' : daysUntilRenewal < 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                  {daysUntilRenewal > 0 ? `${daysUntilRenewal} days` : daysUntilRenewal === 0 ? "Expires today" : "Expired"}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {daysUntilRenewal > 0 ? "Until renewal" : "Renew now"}
-                </p>
+                {isDefaultFreePlan ? (
+                  <>
+                    <p className="text-sm font-bold text-gray-900">Unlimited</p>
+                    <p className="text-xs text-gray-500 mt-1">No expiration</p>
+                  </>
+                ) : (
+                  <>
+                    <p className={`text-sm font-bold ${daysUntilRenewal <= 3 ? 'text-orange-600' : daysUntilRenewal < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                      {daysUntilRenewal > 0 ? `${daysUntilRenewal} days` : daysUntilRenewal === 0 ? "Expires today" : "Expired"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {daysUntilRenewal > 0 ? "Until renewal" : "Renew now"}
+                    </p>
+                  </>
+                )}
               </div>
               <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <Users className="text-orange-600" size={16} />
-                  <p className="text-xs font-medium text-gray-600">Student Enrolled</p>
+                  <p className="text-xs font-medium text-gray-600">Student Limit</p>
                 </div>
                 <p className="text-sm font-bold text-gray-900">
                   {activePayment.record.studentSize}

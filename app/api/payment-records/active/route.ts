@@ -84,10 +84,32 @@ export async function GET(req: NextRequest) {
       startDate: { $gt: now },
     }).sort({ startDate: 1 }).lean();
 
+    if (upcomingRecord) {
+      return NextResponse.json({
+        success: true,
+        data: upcomingRecord,
+        isUpcoming: true,
+        nextCycle: null,
+      });
+    }
+
+    // No payment record found - return default free plan
     return NextResponse.json({
       success: true,
-      data: upcomingRecord,
-      isUpcoming: true,
+      data: {
+        _id: 'default-free',
+        plan: 'free',
+        amount: 0,
+        startDate: new Date(),
+        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 100)), // Far future date
+        status: 'paid',
+        planStatus: 'active',
+        daysRemaining: 36500, // ~100 years
+        studentSize: 14,
+        isCancelled: false,
+        isDefault: true, // Flag to indicate this is a default free plan
+      },
+      isUpcoming: false,
       nextCycle: null,
     });
   } catch (error) {

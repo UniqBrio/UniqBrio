@@ -503,6 +503,329 @@ This is an automated confirmation message.
 }
 
 /**
+ * Send subscription plan expiry reminder email
+ */
+export async function sendPlanExpiryReminderEmail(
+  recipientEmail: string,
+  businessName: string,
+  ownerName: string,
+  planDetails: {
+    planName: string;
+    endDate: Date;
+    daysRemaining: number;
+    studentSize: number;
+  }
+): Promise<boolean> {
+  const { planName, endDate, daysRemaining, studentSize } = planDetails;
+
+  const subject = `⏰ Subscription Reminder: Your ${planName} Plan Expires in ${daysRemaining} ${daysRemaining === 1 ? 'Day' : 'Days'}`;
+
+  const formattedEndDate = new Date(endDate).toLocaleDateString('en-IN', { 
+    day: '2-digit', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #7C3AED; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
+        .alert-box { background: linear-gradient(135deg, #ff9800 0%, #ff6b35 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .alert-box h2 { margin: 0 0 10px 0; font-size: 28px; }
+        .alert-box p { margin: 5px 0; font-size: 18px; }
+        .details-box { background-color: #fff; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #7C3AED; }
+        .details-box p { margin: 10px 0; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; font-size: 16px; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .urgent-notice { background-color: #fff3cd; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .benefits { background-color: #e8f5e9; padding: 15px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #4caf50; }
+        .benefits ul { margin: 10px 0; padding-left: 25px; }
+        .benefits li { margin: 8px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h2>⏰ Subscription Expiry Reminder</h2>
+        </div>
+        <div class="content">
+          <p>Dear ${ownerName},</p>
+          <p>This is an important reminder about your <strong>UniqBrio ${planName}</strong> subscription for <strong>${businessName}</strong>.</p>
+          
+          <div class="alert-box">
+            <h2>⏰ ${daysRemaining} ${daysRemaining === 1 ? 'Day' : 'Days'} Remaining</h2>
+            <p>Your subscription expires on ${formattedEndDate}</p>
+          </div>
+          
+          <div class="details-box">
+            <h3>📋 Current Subscription Details</h3>
+            <p><strong>Plan:</strong> ${planName.charAt(0).toUpperCase() + planName.slice(1)}</p>
+            <p><strong>Academy:</strong> ${businessName}</p>
+            <p><strong>Expiry Date:</strong> ${formattedEndDate}</p>
+            <p><strong>Days Remaining:</strong> ${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'}</p>
+            <p><strong>Student Capacity:</strong> ${studentSize} students</p>
+          </div>
+          
+          <div class="urgent-notice">
+            <h3 style="margin-top: 0; color: #ff9800;">⚠️ Action Required</h3>
+            <p style="margin-bottom: 0;">To avoid any interruption to your academy management services, please renew your subscription before the expiry date. After expiration, you may lose access to premium features and student data management capabilities.</p>
+          </div>
+
+          <div class="benefits">
+            <h3 style="margin-top: 0; color: #4caf50;">✨ Continue Enjoying These Benefits</h3>
+            <ul>
+              <li><strong>Unlimited Access</strong> to all premium features</li>
+              <li><strong>Student Management</strong> tools and analytics</li>
+              <li><strong>Payment Tracking</strong> and automated reminders</li>
+              <li><strong>Course & Batch Management</strong> capabilities</li>
+              <li><strong>Priority Support</strong> from our team</li>
+            </ul>
+          </div>
+          
+          <p>If you have any questions or need assistance with the renewal process, please don't hesitate to contact our support team.</p>
+          
+          <p>Thank you for being a valued UniqBrio customer!</p>
+          
+          <p>Best regards,<br>
+          <strong>UniqBrio Team</strong></p>
+        </div>
+        <div class="footer">
+          <p>This is an automated reminder. Please do not reply to this email.</p>
+          <p>© ${new Date().getFullYear()} UniqBrio. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+Subscription Expiry Reminder
+
+Dear ${ownerName},
+
+This is an important reminder about your UniqBrio ${planName} subscription for ${businessName}.
+
+⏰ ${daysRemaining} ${daysRemaining === 1 ? 'Day' : 'Days'} Remaining
+
+Your subscription expires on ${formattedEndDate}
+
+Current Subscription Details:
+- Plan: ${planName.charAt(0).toUpperCase() + planName.slice(1)}
+- Academy: ${businessName}
+- Expiry Date: ${formattedEndDate}
+- Days Remaining: ${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'}
+- Student Capacity: ${studentSize} students
+
+⚠️ Action Required
+To avoid any interruption to your academy management services, please renew your subscription before the expiry date. After expiration, you may lose access to premium features and student data management capabilities.
+
+✨ Continue Enjoying These Benefits:
+- Unlimited Access to all premium features
+- Student Management tools and analytics
+- Payment Tracking and automated reminders
+- Course & Batch Management capabilities
+- Priority Support from our team
+
+Renew your subscription now: https://app.uniqbrio.in/dashboard/settings/billing
+
+If you have any questions or need assistance with the renewal process, please don't hesitate to contact our support team.
+
+Thank you for being a valued UniqBrio customer!
+
+Best regards,
+UniqBrio Team
+
+---
+This is an automated reminder. Please do not reply to this email.
+© ${new Date().getFullYear()} UniqBrio. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send subscription plan EXPIRED reminder email (after expiry date)
+ */
+export async function sendPlanExpiredReminderEmail(
+  recipientEmail: string,
+  businessName: string,
+  ownerName: string,
+  planDetails: {
+    planName: string;
+    endDate: Date;
+    daysAfterExpiry: number;
+    studentSize: number;
+    currentStudents?: number;
+  }
+): Promise<boolean> {
+  const { planName, endDate, daysAfterExpiry, studentSize, currentStudents } = planDetails;
+
+  const subject = `🚨 URGENT: Your ${planName} Plan Expired ${daysAfterExpiry} ${daysAfterExpiry === 1 ? 'Day' : 'Days'} Ago - Renew Now`;
+
+  const formattedEndDate = new Date(endDate).toLocaleDateString('en-IN', { 
+    day: '2-digit', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
+        .alert-box { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .alert-box h2 { margin: 0 0 10px 0; font-size: 28px; }
+        .alert-box p { margin: 5px 0; font-size: 18px; }
+        .details-box { background-color: #fff; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc2626; }
+        .details-box p { margin: 10px 0; }
+        .urgent-notice { background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .urgent-notice h3 { margin-top: 0; color: #dc2626; }
+        .consequences { background-color: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #f59e0b; }
+        .consequences ul { margin: 10px 0; padding-left: 25px; }
+        .consequences li { margin: 8px 0; color: #92400e; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h2>🚨 Subscription Expired</h2>
+        </div>
+        <div class="content">
+          <p>Dear ${ownerName},</p>
+          <p><strong>URGENT NOTICE:</strong> Your <strong>UniqBrio ${planName}</strong> subscription for <strong>${businessName}</strong> has expired.</p>
+          
+          <div class="alert-box">
+            <h2>🚨 Expired ${daysAfterExpiry} ${daysAfterExpiry === 1 ? 'Day' : 'Days'} Ago</h2>
+            <p>Your subscription expired on ${formattedEndDate}</p>
+          </div>
+          
+          <div class="details-box">
+            <h3>📋 Expired Subscription Details</h3>
+            <p><strong>Plan:</strong> ${planName.charAt(0).toUpperCase() + planName.slice(1)}</p>
+            <p><strong>Academy:</strong> ${businessName}</p>
+            <p><strong>Expiry Date:</strong> ${formattedEndDate}</p>
+            <p><strong>Days Since Expiry:</strong> ${daysAfterExpiry} ${daysAfterExpiry === 1 ? 'day' : 'days'}</p>
+            <p><strong>Previous Capacity:</strong> ${studentSize} students</p>
+            ${currentStudents ? `<p><strong>Current Enrolled Students:</strong> ${currentStudents}</p>` : ''}
+          </div>
+          
+          <div class="urgent-notice">
+            <h3>⚠️ Immediate Action Required</h3>
+            <p>Your academy is currently operating <strong>without an active subscription</strong>. To restore full access to all premium features and ensure uninterrupted service, please renew your subscription immediately.</p>
+          </div>
+
+          <div class="consequences">
+            <h3 style="margin-top: 0; color: #f59e0b;">⚠️ Impact of Expired Subscription</h3>
+            <ul>
+              <li>Limited access to premium features</li>
+              <li>Student management capabilities may be restricted</li>
+              <li>Payment tracking and reminders may be disabled</li>
+              <li>Course and batch management limitations</li>
+              <li>Risk of data access interruption</li>
+            </ul>
+          </div>
+          
+          <p><strong>Renew now to:</strong></p>
+          <ul>
+            <li>Restore full access to all premium features</li>
+            <li>Continue managing ${currentStudents || studentSize} students without interruption</li>
+            <li>Maintain your academy's operational efficiency</li>
+            <li>Access priority support</li>
+          </ul>
+          
+          <p>Please log in to your UniqBrio account and navigate to Settings → Billing to renew your subscription.</p>
+          
+          <p>If you have already renewed, please disregard this message. If you're experiencing any issues or need assistance, our support team is here to help.</p>
+          
+          <p>Thank you for your prompt attention to this matter.</p>
+          
+          <p>Best regards,<br>
+          <strong>UniqBrio Team</strong></p>
+        </div>
+        <div class="footer">
+          <p>This is an automated reminder. Please do not reply to this email.</p>
+          <p>© ${new Date().getFullYear()} UniqBrio. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `
+URGENT: Subscription Expired
+
+Dear ${ownerName},
+
+URGENT NOTICE: Your UniqBrio ${planName} subscription for ${businessName} has expired.
+
+🚨 Expired ${daysAfterExpiry} ${daysAfterExpiry === 1 ? 'Day' : 'Days'} Ago
+
+Your subscription expired on ${formattedEndDate}
+
+Expired Subscription Details:
+- Plan: ${planName.charAt(0).toUpperCase() + planName.slice(1)}
+- Academy: ${businessName}
+- Expiry Date: ${formattedEndDate}
+- Days Since Expiry: ${daysAfterExpiry} ${daysAfterExpiry === 1 ? 'day' : 'days'}
+- Previous Capacity: ${studentSize} students
+${currentStudents ? `- Current Enrolled Students: ${currentStudents}` : ''}
+
+⚠️ Immediate Action Required
+Your academy is currently operating without an active subscription. To restore full access to all premium features and ensure uninterrupted service, please renew your subscription immediately.
+
+⚠️ Impact of Expired Subscription:
+- Limited access to premium features
+- Student management capabilities may be restricted
+- Payment tracking and reminders may be disabled
+- Course and batch management limitations
+- Risk of data access interruption
+
+Renew now to:
+- Restore full access to all premium features
+- Continue managing ${currentStudents || studentSize} students without interruption
+- Maintain your academy's operational efficiency
+- Access priority support
+
+Please log in to your UniqBrio account and navigate to Settings → Billing to renew your subscription.
+
+If you have already renewed, please disregard this message. If you're experiencing any issues or need assistance, our support team is here to help.
+
+Thank you for your prompt attention to this matter.
+
+Best regards,
+UniqBrio Team
+
+---
+This is an automated reminder. Please do not reply to this email.
+© ${new Date().getFullYear()} UniqBrio. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+    text,
+  });
+}
+
+/**
  * Test email connection
  */
 export async function testEmailConnection(): Promise<boolean> {
