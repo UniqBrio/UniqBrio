@@ -17,13 +17,14 @@ function isValidUrl(url: string | undefined): boolean {
 
 interface Announcement {
   id: string;
-  type: "update" | "achievement" | "alert" | "info";
+  type: "update" | "achievement" | "alert" | "info" | "payment";
   title: string;
   message: string;
   timestamp: Date;
   isRead: boolean;
   link?: string;
   priority: "low" | "medium" | "high";
+  paymentId?: string;
 }
 
 interface AnnouncementsProps {
@@ -49,12 +50,20 @@ export function Announcements({
     const fetchAnnouncements = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/announcements");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data) {
-            setAnnouncements(
-              data.data.map((ann: any) => ({
+        // Fetch both announcements and payment updates
+        const [announcementsResponse, paymentsResponse] = await Promise.all([
+          fetch("/api/announcements").catch(() => null),
+          fetch("/api/payment-updates").catch(() => null),
+        ]);
+
+        const allAnnouncements: Announcement[] = [];
+
+        // Process regular announcements
+        if (announcementsResponse?.ok) {
+          const announcementData = await announcementsResponse.json();
+          if (announcementData.success && announcementData.data) {
+            allAnnouncements.push(
+              ...announcementData.data.map((ann: any) => ({
                 ...ann,
                 timestamp: new Date(ann.timestamp),
                 isRead: false,
@@ -62,6 +71,49 @@ export function Announcements({
             );
           }
         }
+
+        // Process payment updates
+        if (paymentsResponse?.ok) {
+          const paymentData = await paymentsResponse.json();
+          if (paymentData.success && paymentData.data) {
+            const paymentAnnouncements = paymentData.data.map((payment: any) => {
+              // Custom message for beta plan
+              const isBeta = payment.plan?.toLowerCase() === "beta";
+              const title = isBeta ? "Beta Access Approved" : "Payment Received";
+              const message = isBeta
+                ? "You can now access this app as a beta user approved by Sugumar"
+                : `Your payment of INR ${payment.amount.toFixed(2)} for ${payment.plan} plan has been successfully processed.`;
+
+              return {
+                id: payment._id,
+                paymentId: payment._id,
+                type: "payment" as const,
+                title,
+                message,
+                timestamp: new Date(payment.updatedAt || payment.createdAt),
+                isRead: payment.isRead || false,
+                priority: "high" as const,
+                link: undefined,
+              };
+            });
+            allAnnouncements.push(...paymentAnnouncements);
+          }
+        }
+
+        // Sort by timestamp (newest first)
+        allAnnouncements.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+        setAnnouncements(allAnnouncements.length > 0 ? allAnnouncements : [
+          {
+            id: "1",
+            type: "info",
+            title: "Welcome to UniqBrio",
+            message: "Stay tuned for the latest updates and announcements from your academy.",
+            timestamp: new Date(),
+            isRead: false,
+            priority: "medium",
+          },
+        ]);
       } catch (error) {
         console.error("Failed to fetch announcements:", error);
         // Fallback to default announcements if API fails
@@ -90,6 +142,7 @@ export function Announcements({
       achievement: <Trophy className="w-4 h-4" />,
       alert: <AlertCircle className="w-4 h-4" />,
       info: <Info className="w-4 h-4" />,
+      payment: <Bell className="w-4 h-4" />,
     };
     return iconMap[type];
   };
@@ -116,6 +169,11 @@ export function Announcements({
         border: "border-blue-200 dark:border-blue-800",
         gradient: "from-blue-500 to-cyan-500",
       },
+      payment: {
+        bg: "bg-emerald-100 dark:bg-emerald-950",
+        border: "border-emerald-200 dark:border-emerald-800",
+        gradient: "from-emerald-500 to-teal-500",
+      },
     };
     return colorMap[type];
   };
@@ -137,10 +195,32 @@ export function Announcements({
     setAnnouncements((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    const announcement = announcements.find((a) => a.id === id);
+    
+    // Update UI immediately for better UX
     setAnnouncements((prev) =>
       prev.map((a) => (a.id === id ? { ...a, isRead: true } : a))
     );
+
+    // If it's a payment announcement, update the backend
+    if (announcement?.type === "payment" && announcement.paymentId) {
+      try {
+        await fetch("/api/payment-updates/mark-read", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ paymentId: announcement.paymentId }),
+        });
+      } catch (error) {
+        console.error("Failed to mark payment as read:", error);
+        // Revert UI update on error
+        setAnnouncements((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, isRead: false } : a))
+        );
+      }
+    }
   };
 
   const displayedAnnouncements = announcements.slice(0, maxItems);

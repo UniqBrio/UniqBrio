@@ -227,21 +227,28 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Update payment record
-    const updatedRecord = await AdminPaymentRecordModel.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedRecord) {
-      return NextResponse.json(
-        { error: "Payment record not found" },
-        { status: 404 }
-      );
+    // Update fields manually and call save() to trigger pre-save hook
+    Object.assign(originalRecord, updateData);
+    
+    // Ensure dates are Date objects
+    if (updateData.startDate) {
+      originalRecord.startDate = new Date(updateData.startDate);
     }
+    if (updateData.endDate) {
+      originalRecord.endDate = new Date(updateData.endDate);
+    }
+    if (updateData.studentSize) {
+      originalRecord.studentSize = Number(updateData.studentSize);
+    }
+    if (updateData.amount) {
+      originalRecord.amount = Number(updateData.amount);
+    }
+    
+    // Save will trigger the pre-save hook to recalculate status fields
+    const updatedRecord = await originalRecord.save();
 
     console.log("[PUT Payment Record] Original status:", originalRecord.status, "New status:", updatedRecord.status);
+    console.log("[PUT Payment Record] Calculated planStatus:", updatedRecord.planStatus, "daysRemaining:", updatedRecord.daysRemaining);
 
     return NextResponse.json({
       success: true,

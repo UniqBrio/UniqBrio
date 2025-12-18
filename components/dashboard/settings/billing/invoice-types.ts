@@ -3,11 +3,13 @@ export interface Invoice {
   id: string;
   academyId: string;
   academyName: string;
+  businessName?: string;
   userId: string;
   ownerAdminName: string;
   email: string;
   phone: string;
   planType: "Monthly" | "Yearly";
+  plan?: "free" | "grow" | "scale" | string;
   invoiceNumber: string;
   dateIssued: string;
   amount: number;
@@ -26,9 +28,20 @@ export interface Invoice {
 export interface Payment {
   id: string;
   academyName: string;
+  businessName?: string;
+  ownerAdminName?: string;
+  userId?: string;
+  academyId?: string;
+  email?: string;
+  phone?: string;
+  plan?: "free" | "grow" | "scale" | string;
+  studentSize?: number;
+  startDate?: string;
+  endDate?: string;
   date: string;
   amount: number;
   paymentMethod: "Card" | "UPI" | "Net Banking" | "Bank Transfer";
+  dueMonth?: string;
   transactionId: string;
   refundsAdjustments: string;
 }

@@ -6,6 +6,7 @@ import { InvoiceSort } from "./InvoiceSort"
 import { PaymentFiltersComponent } from "./PaymentFilters"
 import { PaymentSort } from "./PaymentSort"
 import type { Invoice, InvoiceFilters, Payment, PaymentFilters } from "./invoice-types"
+import { downloadInvoicePdf, downloadPaymentReceiptPdf, type BuyerBusinessInfo } from "./billing-documents"
 import { Input } from "@/components/dashboard/ui/input"
 import { Button } from "@/components/dashboard/ui/button"
 import { Checkbox } from "@/components/dashboard/ui/checkbox"
@@ -18,6 +19,7 @@ export function Invoices() {
   const [isLoadingInvoices, setIsLoadingInvoices] = useState(true)
   const [isLoadingPayments, setIsLoadingPayments] = useState(true)
   const [academyId, setAcademyId] = useState<string | null>(null)
+  const [buyerBusinessInfo, setBuyerBusinessInfo] = useState<BuyerBusinessInfo | null>(null)
   // Invoice state
   const [invoiceSearchTerm, setInvoiceSearchTerm] = useState("")
   const [invoiceSortBy, setInvoiceSortBy] = useState("dateIssued")
@@ -162,6 +164,9 @@ export function Invoices() {
           if (data.academyId) {
             setAcademyId(data.academyId)
           }
+          if (data.businessInfo) {
+            setBuyerBusinessInfo(data.businessInfo)
+          }
         }
       } catch (error) {
         console.error("Error fetching academy info:", error)
@@ -170,6 +175,22 @@ export function Invoices() {
 
     fetchAcademyInfo()
   }, [])
+
+  const handleDownloadInvoice = async (invoice: Invoice) => {
+    try {
+      await downloadInvoicePdf({ invoice, buyer: buyerBusinessInfo ?? undefined })
+    } catch (error) {
+      console.error("Failed to download invoice PDF:", error)
+    }
+  }
+
+  const handleDownloadReceipt = async (payment: Payment) => {
+    try {
+      await downloadPaymentReceiptPdf({ payment, buyer: buyerBusinessInfo ?? undefined })
+    } catch (error) {
+      console.error("Failed to download payment receipt PDF:", error)
+    }
+  }
 
   // Fetch invoices when academyId is available
   useEffect(() => {
@@ -616,6 +637,10 @@ export function Invoices() {
                               <button 
                                 className="p-2 hover:bg-purple-100 rounded-lg transition-colors group/btn"
                                 title="Download PDF"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  void handleDownloadInvoice(inv)
+                                }}
                               >
                                 <Download size={16} className="text-gray-600 group-hover/btn:text-purple-600" />
                               </button>
@@ -701,6 +726,7 @@ export function Invoices() {
                   <button 
                     className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
                     title="Download PDF"
+                    onClick={() => void handleDownloadInvoice(inv)}
                   >
                     <Download size={18} className="text-gray-600 hover:text-purple-600" />
                   </button>
@@ -918,6 +944,10 @@ export function Invoices() {
                             <button 
                               className="p-2 hover:bg-blue-100 rounded-lg transition-colors group/btn"
                               title="Download Receipt"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                void handleDownloadReceipt(pay)
+                              }}
                             >
                               <Download size={16} className="text-gray-600 group-hover/btn:text-blue-600" />
                             </button>
@@ -994,6 +1024,7 @@ export function Invoices() {
                   <button 
                     className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
                     title="Download Receipt"
+                    onClick={() => void handleDownloadReceipt(pay)}
                   >
                     <Download size={18} className="text-gray-600 hover:text-blue-600" />
                   </button>

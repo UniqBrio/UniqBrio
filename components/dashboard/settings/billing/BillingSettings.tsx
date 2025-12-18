@@ -465,18 +465,46 @@ export default function BillingSettings() {
           <>
             <button className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200" onClick={() => setShowCancelModal(false)}>Keep Subscription</button>
             <button 
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" 
-              onClick={() => {
-                toast({ 
-                  title: "Subscription Cancelled", 
-                  description: cancelOption === "end" 
-                    ? `Your access will continue until ${nextRenewal}. You'll then be moved to the Free Plan with 14-student limit.`
-                    : "Your subscription has been cancelled immediately. You're now on Free Plan with 14-student limit."
-                })
-                setShowCancelModal(false)
-                setCancelReason("")
-                setCancelOption("end")
-                if (cancelOption === "immediate") setCurrentPlan("free")
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+              onClick={async () => {
+                try {
+                  const response = await fetch('/api/subscription/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                      cancellationType: cancelOption === "end" ? "end_of_cycle" : "immediate",
+                      cancellationReason: cancelReason
+                    })
+                  });
+
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    toast({ 
+                      title: "Subscription Cancelled", 
+                      description: data.message
+                    });
+                    setShowCancelModal(false);
+                    setCancelReason("");
+                    setCancelOption("end");
+                    // Reload the page to reflect changes
+                    window.location.reload();
+                  } else {
+                    toast({
+                      title: "Error",
+                      description: data.error || "Failed to cancel subscription",
+                      variant: "destructive"
+                    });
+                  }
+                } catch (error) {
+                  console.error('Error cancelling subscription:', error);
+                  toast({
+                    title: "Error",
+                    description: "Failed to cancel subscription. Please try again.",
+                    variant: "destructive"
+                  });
+                }
               }}
             >
               Confirm Cancellation

@@ -90,6 +90,7 @@ export default function CourseFormDialog({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [initialFormData, setInitialFormData] = useState<any>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Track form changes to detect unsaved changes
   useEffect(() => {
@@ -388,11 +389,18 @@ export default function CourseFormDialog({
   // - Must have valid pricing and schedule
   // - If creating new course and status is Draft, disable (save as draft instead)
   // - If editing draft, allow if all mandatory fields are filled
+  // - If currently submitting, disable to prevent duplicates
   const isCreateCourseDisabled = currentTab !== "schedule" || !isPricingValid || !isScheduleValid || 
     (!isEditMode && newCourseForm.status === 'Draft') || 
-    (isEditingDraft && (!isBasicInfoValid || !isScheduleValid))
+    (isEditingDraft && (!isBasicInfoValid || !isScheduleValid)) ||
+    isSubmitting
 
   const handleCreateCourse = async () => {
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     // Validate all mandatory fields before submission
     const allValidations = [
       { name: 'Basic Info', validation: basicInfoValidation },
@@ -412,12 +420,14 @@ export default function CourseFormDialog({
         description: allErrors,
         variant: "destructive"
       });
+      setIsSubmitting(false);
       return;
     }
     
     // If creating new course and status is Draft, save as draft instead
     if (!isEditMode && newCourseForm.status === 'Draft') {
       await handleSaveDraft()
+      setIsSubmitting(false);
       return
     }
     try {
@@ -445,7 +455,7 @@ export default function CourseFormDialog({
   name: newCourseForm.name || '',
   type: newCourseForm.type || '',
   courseCategory: newCourseForm.courseCategory || '',
-  price: newCourseForm.price || '',
+  price: parseFloat(newCourseForm.price) || 0,
   paymentCategory: newCourseForm.paymentCategory || '',
   maxStudents: newCourseForm.maxStudents || '',
   // Basic Info
@@ -460,7 +470,7 @@ export default function CourseFormDialog({
         duration: parseInt(newCourseForm.duration) || 30,
         totalSessions: parseInt(newCourseForm.totalSessions) || 10,
         completedSessions: parseInt(newCourseForm.completedSessions) || 0,
-        price: parseFloat(newCourseForm.price) || 0,
+        
         currency: newCourseForm.currency,
         discountPrice: parseFloat(newCourseForm.discountPrice) || 0,
         thumbnail: newCourseForm.thumbnail || 'https://via.placeholder.com/400x300',
@@ -656,6 +666,8 @@ export default function CourseFormDialog({
         description: error instanceof Error ? error.message : "Failed to save course. Please try again.",
         variant: "destructive"
       })
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -689,7 +701,6 @@ export default function CourseFormDialog({
       if (newCourseForm.duration) draftData.duration = newCourseForm.duration
       if (newCourseForm.price) draftData.price = newCourseForm.price
       if (newCourseForm.paymentCategory) draftData.paymentCategory = newCourseForm.paymentCategory
-      if (newCourseForm.price) draftData.price = newCourseForm.price
       if (newCourseForm.schedule) draftData.schedule = newCourseForm.schedule
       if (newCourseForm.maxStudents) draftData.maxStudents = newCourseForm.maxStudents
       if (newCourseForm.tags && newCourseForm.tags.length > 0) draftData.tags = newCourseForm.tags
@@ -800,9 +811,8 @@ export default function CourseFormDialog({
                 <Button
                   variant="outline"
                   title={isEditingDraft ? "Update Draft" : "Save Draft"}
-                  className="px-1 py-0.5 text-xs min-h-6 min-w-[65px] h-7 w-[90px]"
+                  className="px-2 py-1 text-xs min-h-7 h-7 flex items-center justify-center gap-1"
                   style={{
-                    lineHeight: '1.1',
                     borderColor: `${primaryColor}50`,
                     color: primaryColor,
                     backgroundColor: 'transparent'
@@ -811,8 +821,8 @@ export default function CourseFormDialog({
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   onClick={handleSaveDraft}
                 >
-                  <Save className="h-3 w-3 mr-1" />
-                  {isEditingDraft ? 'Update Draft' : 'Save Draft'}
+                  <Save className="h-3 w-3" />
+                  <span className="whitespace-nowrap">{isEditingDraft ? 'Update Draft' : 'Save Draft'}</span>
                 </Button>
               )}
             </div>
@@ -1197,7 +1207,14 @@ export default function CourseFormDialog({
                 }}
                 onClick={handleCreateCourse}
               >
-                {isEditMode ? (courses.every(c => c.id !== editCourseId) ? 'Create Course' : 'Save Changes') : 'Create Course'}
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Saving...
+                  </>
+                ) : (
+                  isEditMode ? (courses.every(c => c.id !== editCourseId) ? 'Create Course' : 'Save Changes') : 'Create Course'
+                )}
               </Button>
             )}
           </div>
@@ -1233,7 +1250,7 @@ export default function CourseFormDialog({
             <Button
               variant="outline"
               onClick={handleSaveAsDraft}
-              className="px-4 py-2"
+              className="px-4 py-2 flex items-center justify-center"
               style={{
                 borderColor: `${primaryColor}50`,
                 color: primaryColor,
@@ -1242,7 +1259,7 @@ export default function CourseFormDialog({
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}10`}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              {isEditingDraft ? 'Update Draft' : 'Save as Draft'}
+              <span className="whitespace-nowrap">{isEditingDraft ? 'Update Draft' : 'Save as Draft'}</span>
             </Button>
           )}
           <Button

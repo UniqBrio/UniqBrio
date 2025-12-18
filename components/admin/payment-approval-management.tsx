@@ -147,6 +147,11 @@ export default function PaymentApprovalManagement() {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value }
       
+      // Auto-set amount to 0 when plan is beta
+      if (field === "plan" && value === "beta") {
+        updated.amount = "0"
+      }
+      
       // Auto-calculate end date when numberOfDays or startDate changes
       if (field === "numberOfDays" || field === "startDate") {
         const days = field === "numberOfDays" ? parseInt(value) : parseInt(prev.numberOfDays)
@@ -305,16 +310,59 @@ export default function PaymentApprovalManagement() {
 
 
 
-  const getStatusBadge = (status: string) => {
+  const getPaymentStatusBadge = (status: string, isOverdue: boolean) => {
+    if (isOverdue) {
+      return (
+        <Badge className="bg-red-100 text-red-800 border border-red-200">
+          Overdue
+        </Badge>
+      );
+    }
+    
     const variants: Record<string, { color: string; label: string }> = {
-      pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
-      paid: { color: "bg-green-100 text-green-800", label: "Paid" },
-      overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
-      cancelled: { color: "bg-gray-100 text-gray-800", label: "Cancelled" },
+      pending: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", label: "Pending" },
+      paid: { color: "bg-green-100 text-green-800 border-green-200", label: "Paid" },
     }
     const variant = variants[status] || variants.pending
     return (
-      <Badge className={`${variant.color} border-0`}>
+      <Badge className={`${variant.color} border`}>
+        {variant.label}
+      </Badge>
+    )
+  }
+
+  const getPlanStatusBadge = (planStatus: string | undefined, daysRemaining: number | undefined) => {
+    // Handle undefined/null values
+    if (!planStatus) {
+      return (
+        <Badge className="bg-gray-100 text-gray-600 border border-gray-200">
+          Not Calculated
+        </Badge>
+      );
+    }
+    
+    if (planStatus === "active") {
+      if (daysRemaining !== undefined && daysRemaining <= 3) {
+        return (
+          <Badge className="bg-orange-100 text-orange-800 border border-orange-200">
+            Active (Expiring Soon)
+          </Badge>
+        );
+      }
+      return (
+        <Badge className="bg-green-100 text-green-800 border border-green-200">
+          Active
+        </Badge>
+      );
+    }
+    
+    const variants: Record<string, { color: string; label: string }> = {
+      upcoming: { color: "bg-blue-100 text-blue-800 border-blue-200", label: "Upcoming" },
+      expired: { color: "bg-gray-100 text-gray-800 border-gray-200", label: "Expired" },
+    }
+    const variant = variants[planStatus] || { color: "bg-gray-100 text-gray-600 border-gray-200", label: "Unknown" }
+    return (
+      <Badge className={`${variant.color} border`}>
         {variant.label}
       </Badge>
     )
@@ -401,7 +449,13 @@ export default function PaymentApprovalManagement() {
                       End Date
                     </th>
                     <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                      Status
+                      Payment Status
+                    </th>
+                    <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                      Plan Status
+                    </th>
+                    <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                      Days Left
                     </th>
                     <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
                       Amount
@@ -450,7 +504,19 @@ export default function PaymentApprovalManagement() {
                         {formatDate(record.endDate)}
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm">
-                        {getStatusBadge(record.status)}
+                        {getPaymentStatusBadge(record.status, record.isOverdue)}
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-sm">
+                        {getPlanStatusBadge(record.planStatus, record.daysRemaining)}
+                      </td>
+                      <td className="border border-gray-200 px-4 py-3 text-sm">
+                        {record.daysRemaining !== undefined ? (
+                          <span className={record.daysRemaining < 0 ? "text-red-600 font-semibold" : record.daysRemaining <= 3 ? "text-orange-600 font-semibold" : "text-gray-700"}>
+                            {record.daysRemaining} days
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="border border-gray-200 px-4 py-3 text-sm font-semibold">
                         ₹{record.amount.toLocaleString()}
@@ -677,18 +743,19 @@ export default function PaymentApprovalManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status">Status <span className="text-red-500">*</span></Label>
+              <Label htmlFor="status">Payment Status <span className="text-red-500">*</span></Label>
               <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Select payment status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="overdue">Overdue</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Plan status (active/upcoming/expired) will be calculated automatically based on dates
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -732,7 +799,9 @@ export default function PaymentApprovalManagement() {
                 type="number"
                 value={formData.amount}
                 onChange={(e) => handleInputChange("amount", e.target.value)}
-                placeholder="Enter amount"
+                placeholder={formData.plan === "beta" ? "Auto-set to 0 for beta" : "Enter amount"}
+                disabled={formData.plan === "beta"}
+                className={formData.plan === "beta" ? "bg-gray-50 cursor-not-allowed" : ""}
               />
             </div>
 
