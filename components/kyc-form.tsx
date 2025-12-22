@@ -129,7 +129,8 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
 
   // Helper function to check if all required images are provided
   const areAllImagesProvided = () => {
-    return !!(ownerImage && bannerImage && ownerWithBannerImage);
+    // DISABLED: Third section removed, only checking first two images
+    return !!(ownerImage && bannerImage);
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,9 +156,10 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
       errors.bannerImage = "Capture or upload an image of the academy banner.";
     }
 
-    if (!ownerWithBannerImage) {
-      errors.ownerWithBannerImage = "Capture an image of the owner standing beside the banner.";
-    }
+    // DISABLED: Third section validation removed
+    // if (!ownerWithBannerImage) {
+    //   errors.ownerWithBannerImage = "Capture an image of the owner standing beside the banner.";
+    // }
 
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
@@ -398,44 +400,8 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
             </div>
           </div>
         </div>
-        {/* 3. Capture image of Owner standing beside banner with location, time, date */}
-        <div className={`mb-6 ${fieldErrors.ownerWithBannerImage ? 'border-2 border-red-500 rounded-lg p-3 bg-red-50' : ''}`}>
-          <label className="block font-semibold mb-2 text-purple-700">
-            3. Capture Image of Owner Beside Banner
-            {!ownerWithBannerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
-          </label>
-          <div className="flex flex-col md:flex-row items-center gap-4 mb-2">
-            {/* Reference image for Owner beside Banner capture, now on the left */}
-            <div className="flex flex-col items-center">
-              <img
-                src="/Owner%20and%20Banner.png"
-                alt="Reference Owner and Banner"
-                className="rounded-lg shadow border"
-                style={{ width: '160px', height: '200px', objectFit: 'cover', background: '#fff' }}
-              />
-              <span className="text-xs mt-2">Reference: Owner beside Banner</span>
-            </div>
-            <button
-              type="button"
-              className={`flex items-center justify-center gap-2 px-4 py-2 rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gradient-to-r from-orange-500 to-purple-500 text-white shadow-lg hover:from-orange-600 hover:to-purple-600 disabled:opacity-60 disabled:cursor-not-allowed`}
-              onClick={handleCapture}
-            >
-              <span className="font-semibold">Capture Image</span>
-            </button>
-          </div>
-          {ownerWithBannerImage && (
-            <div className="mt-2">
-              <img src={ownerWithBannerImage} alt="Owner with Banner" className="rounded shadow w-full max-w-xs" />
-              <div className="text-xs mt-1"><b>Location:</b> {location}</div>
-              <div className="text-xs"><b>Date & Time:</b> {dateTime}</div>
-            </div>
-          )}
-          {fieldErrors.ownerWithBannerImage && (
-            <p className="text-xs text-red-600 mt-2">{fieldErrors.ownerWithBannerImage}</p>
-          )}
-          
-          
-        </div>
+        {/* 3. Capture image of Owner standing beside banner with location, time, date - DISABLED */}
+        {/* This section has been disabled and is no longer required for KYC submission */}
         
         {/* Validation message for missing images */}
         {!areAllImagesProvided() && (
@@ -444,7 +410,8 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
             <ul className="text-red-600 text-xs space-y-1">
               {!ownerImage && <li>• Capture or upload owner image</li>}
               {!bannerImage && <li>• Capture or upload academy banner image</li>}
-              {!ownerWithBannerImage && <li>• Capture image of owner beside banner</li>}
+              {/* DISABLED: Third section removed */}
+              {/* {!ownerWithBannerImage && <li>• Capture image of owner beside banner</li>} */}
             </ul>
           </div>
         )}

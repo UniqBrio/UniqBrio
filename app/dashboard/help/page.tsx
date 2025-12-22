@@ -22,6 +22,8 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 import { getSession } from "@/app/actions/auth-actions"
 
+const FIELD_ERROR_MESSAGE = "Please resolve the highlighted fields and try again."
+
 export default function HelpPage() {
   const { primaryColor, secondaryColor } = useCustomColors()
   const [userEmail, setUserEmail] = useState("")
@@ -279,6 +281,9 @@ export default function HelpPage() {
           }
           const next = { ...prevErrors }
           delete next.attachments
+          if (Object.keys(next).length === 0) {
+            setTicketFormError("")
+          }
           return next
         })
       }
@@ -636,6 +641,30 @@ export default function HelpPage() {
            
           </div>
 
+          {helpFeedback && (
+            <Alert
+              variant={helpFeedback.variant === "error" ? "destructive" : "default"}
+              className={`${helpFeedback.variant === "success" ? "border-green-200 bg-green-50 text-green-900" : ""}`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <AlertTitle>{helpFeedback.title}</AlertTitle>
+                  {helpFeedback.description && (
+                    <AlertDescription>{helpFeedback.description}</AlertDescription>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHelpFeedback(null)}
+                  className="text-sm text-muted-foreground hover:text-foreground mt-1"
+                  aria-label="Dismiss notification"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </Alert>
+          )}
+
           {/* Main Content Tabs */}
           <Tabs defaultValue="tickets" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 bg-transparent gap-2 p-0 h-auto">
@@ -682,7 +711,7 @@ export default function HelpPage() {
                       </CardDescription>
                     </div>
                     <Button 
-                      onClick={() => setCreatingTicket(true)}
+                      onClick={() => handleTicketDialogToggle(true)}
                       className="text-white"
                       style={{ backgroundColor: primaryColor }}
                       onMouseEnter={(e) => {
@@ -1151,7 +1180,7 @@ export default function HelpPage() {
       </Dialog>
 
       {/* Create Ticket Dialog */}
-      <Dialog open={creatingTicket} onOpenChange={setCreatingTicket}>
+      <Dialog open={creatingTicket} onOpenChange={handleTicketDialogToggle}>
         <DialogContent 
           className="max-w-2xl max-h-[90vh] overflow-y-auto"
           onInteractOutside={(e) => {
@@ -1248,18 +1277,20 @@ export default function HelpPage() {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setCreatingTicket(false)}>
+              <Button type="button" variant="outline" onClick={() => handleTicketDialogToggle(false)} disabled={isSubmittingTicket}>
                 Cancel
               </Button>
               <Button type="submit" className="text-white" style={{ backgroundColor: primaryColor }}
+                disabled={isSubmittingTicket}
                 onMouseEnter={(e) => {
+                  if (isSubmittingTicket) return
                   e.currentTarget.style.opacity = '0.9'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.opacity = '1'
                 }}
               >
-                Submit Ticket
+                {isSubmittingTicket ? "Submitting..." : "Submit Ticket"}
               </Button>
             </DialogFooter>
           </form>
