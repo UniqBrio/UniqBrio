@@ -7,8 +7,130 @@ import mongoose from 'mongoose';
 import Cohort from '@/models/dashboard/Cohort';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
+import Registration from '@/models/Registration';
+import { sendAttendanceMessage, normalizePhoneToE164 } from '@/lib/whatsapp';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/**
+ * Helper function to send WhatsApp attendance notification
+ * This is a non-blocking operation - errors are logged but don't affect the main flow
+ */
+async function sendAttendanceWhatsAppNotification(params: {
+  tenantId: string;
+  studentId: string;
+  sessionId: string;
+  cohortId?: string;
+  cohortName?: string;
+  date: string;
+  startTime?: string;
+  endTime?: string;
+}): Promise<void> {
+  const { tenantId, studentId, sessionId, cohortId, cohortName, date, startTime, endTime } = params;
+
+  try {
+    // Get student details with guardian info
+    const student = await Student.findOne({ tenantId, studentId }).lean() as any;
+    if (!student) {
+      console.log(`[WhatsApp Notification] Student not found: ${studentId}`);
+      return;
+    }
+
+    // Get guardian phone number
+    const guardianContact = student.guardian?.contact;
+    const guardianCountryCode = student.guardianCountryCode;
+    
+    if (!guardianContact) {
+      console.log(`[WhatsApp Notification] No guardian contact for student: ${studentId}`);
+      return;
+    }
+
+    // Normalize phone to E.164 format
+    const parentPhone = normalizePhoneToE164(guardianContact, guardianCountryCode);
+    if (!parentPhone) {
+      console.log(`[WhatsApp Notification] Invalid guardian phone for student: ${studentId}`);
+      return;
+    }
+
+    // Get guardian name
+    const guardianFirstName = student.guardianFirstName || '';
+    const guardianMiddleName = student.guardianMiddleName || '';
+    const guardianLastName = student.guardianLastName || '';
+    const guardianFullName = student.guardian?.fullName;
+    const parentName = guardianFullName || 
+      [guardianFirstName, guardianMiddleName, guardianLastName].filter(Boolean).join(' ') || 
+      'Parent';
+
+    // Get batch/cohort name
+    let batchName = cohortName || '';
+    if (!batchName && cohortId) {
+      const cohort = await Cohort.findOne({ tenantId, cohortId }).lean() as any;
+      batchName = cohort?.name || cohortId;
+    }
+    batchName = batchName || 'Class';
+
+    // Get academy name from Registration
+    let academyName = 'Academy';
+    try {
+      const registration = await Registration.findOne({ academyId: tenantId }).lean() as any;
+      if (registration?.businessInfo?.businessName) {
+        academyName = registration.businessInfo.businessName;
+      }
+    } catch (regError) {
+      console.log(`[WhatsApp Notification] Could not fetch academy name for tenant: ${tenantId}`);
+    }
+
+    // Format date and time
+    const sessionDate = formatDateForDisplay(date);
+    const sessionTime = formatTimeRange(startTime, endTime);
+
+    // Send the WhatsApp message
+    await sendAttendanceMessage(
+      {
+        parentPhone,
+        parentName,
+        studentName: student.name || studentId,
+        batchName,
+        sessionDate,
+        sessionTime,
+        academyName,
+      },
+      studentId,
+      sessionId
+    );
+
+    console.log(`[WhatsApp Notification] Successfully queued notification for student: ${studentId}`);
+  } catch (error) {
+    console.error(`[WhatsApp Notification] Error sending notification for student ${studentId}:`, error);
+    // Error is logged but not re-thrown - this is non-blocking
+  }
+}
+
+/**
+ * Format date string for display (e.g., "22 Dec 2025")
+ */
+function formatDateForDisplay(dateStr: string): string {
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Format time range for display (e.g., "09:00 - 10:30" or "09:00")
+ */
+function formatTimeRange(startTime?: string, endTime?: string): string {
+  if (startTime && endTime) {
+    return `${startTime} - ${endTime}`;
+  }
+  return startTime || endTime || 'Scheduled time';
+}
 
 const formatDayRanges = (days?: number[]): string => {
   if (!Array.isArray(days) || days.length === 0) return '';
@@ -538,6 +660,23 @@ export async function POST(request: NextRequest) {
     });
 
     const savedRecord = await attendanceRecord.save();
+
+    // Send WhatsApp notification for present students (non-blocking)
+    if (normalizedStatus === 'present') {
+      // Fire and forget - don't block the response
+      sendAttendanceWhatsAppNotification({
+        tenantId: session.tenantId,
+        studentId,
+        sessionId: String(savedRecord._id),
+        cohortId,
+        cohortName,
+        date,
+        startTime,
+        endTime,
+      }).catch((error) => {
+        console.error('[Attendance] WhatsApp notification error (non-blocking):', error);
+      });
+    }
 
     return NextResponse.json({
       success: true,

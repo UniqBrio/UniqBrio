@@ -6,6 +6,7 @@ export { default as Schedule } from './Schedule';
 export { default as Enrollment } from './Enrollment';
 export { default as HelpTicket } from './HelpTicket';
 export { default as HelpChat } from './HelpChat';
+export { default as WhatsAppLog } from './WhatsAppLog';
 
 // Export interfaces for type checking
 export type { IUser, IUserPreferences } from './User';
@@ -15,6 +16,7 @@ export type { ISchedule, IRecurringPattern } from './Schedule';
 export type { IEnrollment, ILessonProgress, IModuleProgress, IAssignment } from './Enrollment';
 export type { IHelpTicket } from './HelpTicket';
 export type { IHelpChat, IChatMessage } from './HelpChat';
+export type { IWhatsAppLog } from './WhatsAppLog';
 
 // Database connection
 export { default as connectDB } from '../../lib/mongodb';

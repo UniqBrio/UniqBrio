@@ -4,12 +4,14 @@ import { type Student } from "@/types/dashboard/student";
 import { type Course } from "@/data/dashboard/courses";
 import { Card, CardContent } from "@/components/dashboard/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/dashboard/ui/table";
-import { Users, Pencil, Trash2 } from "lucide-react";
+import { Users, Pencil, Trash2, MessageCircle } from "lucide-react";
 import { Checkbox } from "@/components/dashboard/ui/checkbox";
 import { useState, useEffect } from "react";
 import { fetchCohorts, type Cohort } from "@/data/dashboard/cohorts";
 import { cn, formatDateForDisplay } from "@/lib/dashboard/student/utils";
 import { useCustomColors } from "@/lib/use-custom-colors";
+import { openWhatsAppChat, getStudentGuardianPhone } from "@/lib/whatsapp-utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface StudentListProps {
   students: Student[];
@@ -27,8 +29,35 @@ interface StudentListProps {
 
 export function StudentList({ students, viewMode, onSelectStudent, onEditStudent, onDeleteStudent, selectedIds = [], onToggleSelect, onToggleSelectAll, courses = [], displayedColumns = ['Student ID', 'Name', 'Course', 'Actions'], loading = false }: StudentListProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
+  const { toast } = useToast();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [cohortsLoading, setCohortsLoading] = useState(false);
+
+  // Handler for opening WhatsApp chat with student's parent/guardian
+  const handleOpenWhatsAppChat = (student: Student, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const guardianPhone = getStudentGuardianPhone(student);
+    
+    if (!guardianPhone) {
+      toast({
+        title: 'No Contact Available',
+        description: `No guardian phone number found for ${student.name}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const success = openWhatsAppChat(guardianPhone.phone, guardianPhone.countryCode);
+    
+    if (!success) {
+      toast({
+        title: 'Invalid Phone Number',
+        description: `The guardian phone number for ${student.name} appears to be invalid`,
+        variant: 'destructive',
+      });
+    }
+  };
 
   // Fetch all cohorts - extracted as a reusable function
   const loadCohorts = async () => {
@@ -287,6 +316,21 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
       case 'Actions':
         return (
           <div className="flex gap-2 justify-center items-center">
+            {/* WhatsApp Chat Button */}
+            <span 
+              role="button" 
+              aria-label="Open WhatsApp Chat"
+              title={student.guardian?.contact ? "Open WhatsApp Chat with Parent" : "No guardian contact available"}
+              className={cn(
+                "cursor-pointer text-sm p-2 rounded transition-colors inline-block",
+                student.guardian?.contact 
+                  ? "hover:bg-green-100" 
+                  : "opacity-40 cursor-not-allowed"
+              )}
+              onClick={(e) => handleOpenWhatsAppChat(student, e)}
+            >
+              <MessageCircle className="h-4 w-4 text-green-600" />
+            </span>
             <span 
               role="button" 
               aria-label="Edit"
@@ -353,17 +397,34 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
             onMouseLeave={(e) => e.currentTarget.style.borderColor = secondaryColor}
             onClick={() => onSelectStudent(student)}
           >
-            {/* Edit Button */}
-            <button 
-              className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/90 hover:bg-gray-100 transition-colors shadow-sm"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                onEditStudent(student);
-              }}
-              aria-label="Edit student"
-            >
-              <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
-            </button>
+            {/* Action Buttons */}
+            <div className="absolute top-3 right-3 z-10 flex gap-1">
+              {/* WhatsApp Button */}
+              <button 
+                className={cn(
+                  "p-1.5 rounded-full bg-white/90 transition-colors shadow-sm",
+                  student.guardian?.contact 
+                    ? "hover:bg-green-100" 
+                    : "opacity-40 cursor-not-allowed"
+                )}
+                onClick={(e) => handleOpenWhatsAppChat(student, e)}
+                aria-label="Open WhatsApp chat with parent"
+                title={student.guardian?.contact ? "Open WhatsApp Chat with Parent" : "No guardian contact available"}
+              >
+                <MessageCircle className="h-4 w-4 text-green-600" />
+              </button>
+              {/* Edit Button */}
+              <button 
+                className="p-1.5 rounded-full bg-white/90 hover:bg-gray-100 transition-colors shadow-sm"
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  onEditStudent(student);
+                }}
+                aria-label="Edit student"
+              >
+                <Pencil className="h-4 w-4" style={{ color: primaryColor }} />
+              </button>
+            </div>
 
             <CardContent className="p-6">
               <div className="flex flex-col space-y-4">

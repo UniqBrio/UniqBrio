@@ -81,6 +81,7 @@ import { useApp } from "@/contexts/dashboard/app-context"
 import QRCodeGenerator from "@/components/dashboard/qr-code-generator"
 // NotificationSystem removed per requirements
 import AnalyticsDashboard from "@/components/dashboard/analytics-dashboard"
+import { openWhatsAppBatchChat } from "@/lib/whatsapp-utils"
 import ScheduleCalendarView from "@/components/dashboard/schedule/ScheduleCalendarView"
 import ScheduleGridView from "@/components/dashboard/schedule/ScheduleGridView"
 import ScheduleListView from "@/components/dashboard/schedule/ScheduleListView"
@@ -2140,6 +2141,132 @@ export default function EnhancedSchedulePage() {
     }
   }
 
+  // Handle opening WhatsApp for cohort session
+  const handleOpenCohortWhatsApp = (event: ScheduleEvent, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+    }
+
+    if (!event.cohortName) {
+      toast({
+        title: "No Cohort Information",
+        description: "This session is not associated with a cohort.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const officialNumber = process.env.NEXT_PUBLIC_WHATSAPP_OFFICIAL_NUMBER
+    if (!officialNumber) {
+      toast({
+        title: "WhatsApp Not Configured",
+        description: "WhatsApp official number is not configured. Please contact support.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const sessionDate = format(event.date, 'dd-MMM-yy')
+
+    openWhatsAppBatchChat(officialNumber, event.cohortName, sessionDate)
+
+    toast({
+      title: "Opening WhatsApp",
+      description: `Opening WhatsApp chat for ${event.cohortName} session.`,
+    })
+  }
+
+  // Handle sending WhatsApp attendance notifications for a session
+  const handleSendAttendanceNotifications = async (event: ScheduleEvent, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+    }
+
+    if (!event.cohortId) {
+      toast({
+        title: "No Cohort Information",
+        description: "This session is not associated with a cohort.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Show loading toast
+    toast({
+      title: "Sending Notifications...",
+      description: "Fetching attendance and sending WhatsApp notifications to parents.",
+    })
+
+    try {
+      // Fetch attendance records for this session
+      const response = await fetch(`/api/dashboard/student/attendance?cohortId=${event.cohortId}&date=${format(event.date, 'yyyy-MM-dd')}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch attendance records')
+      }
+
+      const attendanceData = await response.json()
+      const attendanceRecords = attendanceData.data || []
+
+      // Filter for present students only
+      const presentRecords = attendanceRecords.filter((record: any) => 
+        record.status?.toLowerCase() === 'present'
+      )
+
+      if (presentRecords.length === 0) {
+        toast({
+          title: "No Present Students",
+          description: "No students marked as present for this session.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Send bulk notifications via API route
+      const sessionDate = format(event.date, 'dd-MMM-yy')
+      const notificationResponse = await fetch('/api/dashboard/attendance/send-notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          attendanceRecords: presentRecords.map((record: any) => ({
+            studentId: record.studentId,
+            studentName: record.studentName,
+            status: 'present',
+            guardianContact: record.guardianContact,
+            guardianFullName: record.guardianFullName || 'Parent/Guardian',
+            guardianCountryCode: record.guardianCountryCode || '+91',
+          })),
+          sessionId: event.id,
+          sessionDate: sessionDate,
+          sessionTime: `${event.startTime} - ${event.endTime}`,
+          batchName: event.cohortName || 'Batch',
+          academyName: 'Your Academy', // You can fetch this from settings/context
+        }),
+      })
+
+      if (!notificationResponse.ok) {
+        throw new Error('Failed to send notifications')
+      }
+
+      const result = await notificationResponse.json()
+
+      toast({
+        title: "Notifications Sent",
+        description: `Successfully sent ${result.sent} notification(s). Failed: ${result.failed}, Skipped: ${result.skipped}`,
+      })
+
+    } catch (error) {
+      console.error('Error sending attendance notifications:', error)
+      toast({
+        title: "Notification Failed",
+        description: error instanceof Error ? error.message : "Failed to send WhatsApp notifications. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Handle bulk actions
   const handleBulkAction = (action: string) => {
     const selectedCohortObjects = events.filter((e) => selectedCohorts.includes(e.id))
@@ -2965,6 +3092,24 @@ export default function EnhancedSchedulePage() {
                                     >
                                       <UserCheck className="h-3.5 w-3.5" />
                                     </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                      onClick={(e) => handleOpenCohortWhatsApp(event, e)}
+                                      title="Open WhatsApp for Cohort Session"
+                                    >
+                                      <MessageSquare className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-7 w-7 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                      onClick={(e) => handleSendAttendanceNotifications(event, e)}
+                                      title="Send Attendance Notifications to Parents"
+                                    >
+                                      <Bell className="h-3.5 w-3.5" />
+                                    </Button>
                                   </div>
                                 </div>
                                 
@@ -3230,6 +3375,24 @@ export default function EnhancedSchedulePage() {
                                           disabled={event.status === "Completed" || event.status === "Cancelled"}
                                         >
                                           <UserCheck className="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                          onClick={(e) => handleOpenCohortWhatsApp(event, e)}
+                                          title="Open WhatsApp for Cohort Session"
+                                        >
+                                          <MessageSquare className="h-3.5 w-3.5" />
+                                        </Button>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-7 w-7 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                          onClick={(e) => handleSendAttendanceNotifications(event, e)}
+                                          title="Send Attendance Notifications to Parents"
+                                        >
+                                          <Bell className="h-3.5 w-3.5" />
                                         </Button>
                                       </div>
                                     </td>
