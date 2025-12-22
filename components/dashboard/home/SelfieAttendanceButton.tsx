@@ -5,6 +5,9 @@ import { useCustomColors } from "@/lib/use-custom-colors";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { useRouter } from "next/navigation";
 
+// FEATURE FLAG: Set to true to enable Selfie Attendance button
+const ENABLE_SELFIE_ATTENDANCE = false;
+
 interface SelfieAttendanceButtonProps {
   className?: string;
 }
@@ -18,6 +21,11 @@ export function SelfieAttendanceButton({ className = "" }: SelfieAttendanceButto
     // Navigate to instructor page with attendance tab
     router.push('/dashboard/user/staff/instructor?tab=attendance');
   };
+
+  // Return null if feature is disabled
+  if (!ENABLE_SELFIE_ATTENDANCE) {
+    return null;
+  }
 
   return (
     <div className={`${className} relative`}>
