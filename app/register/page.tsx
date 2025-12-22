@@ -6,150 +6,337 @@ declare global {
   }
 }
 
-import { useState, useEffect, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import BusinessInfoStep from "./steps/business-info-step"
 import AdminInfoStep from "./steps/admin-info-step"
 import PreferencesStep from "./steps/preferences-step"
 import SuccessStep from "./steps/success-step"
-// import { Logo } from "@/components/logo"
 import { Logo } from "@/components/ui/logo"
 import { useFormState, type FormState, type UpdateFormState } from "./use-form-state"
 import Confetti from "react-confetti"
 import { businessInfoSchema, adminInfoSchema, preferencesSchema } from "@/lib/validations/registration"
 import { z } from "zod"
 import TourPage from "../tour/page"
-import { fetchJson } from "@/lib/fetch-json"
+import { motion } from "framer-motion"
 
 export default function RegistrationForm() {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
-  const [readyToSubmit, setReadyToSubmit] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter()
   useEffect(() => {
-    if (showWelcomePopup) {
-      const timer = setTimeout(() => {
-        setShowWelcomePopup(false);
-        if (readyToSubmit) {
-          setReadyToSubmit(false);
-          handleSubmit();
-        }
-      }, 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcomePopup, readyToSubmit]);
-  const [currentStep, setCurrentStep] = useState(0)
+    if (!showWelcomePopup) return;
+    const timer = setTimeout(() => setShowWelcomePopup(false), 4000);
+    return () => clearTimeout(timer);
+  }, [showWelcomePopup]);
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
   const [registrationComplete, setRegistrationComplete] = useState(false)
   const [showHomeTour, setShowHomeTour] = useState(false);
   const { formState, updateFormState, resetForm } = useFormState()
+  const { businessInfo, adminInfo, preferences } = formState
+  const [previewValues, setPreviewValues] = useState<Record<string, string>>({})
 
-  // Load saved progress from localStorage on component mount
+  // Fetch user data from session and prefill form
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/auth/session', {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.authenticated && data.session) {
+            console.log("[Registration] Prefilling form with session data:", data.session);
+            
+            // Prefill admin info from session
+            updateFormState((prev) => ({
+              adminInfo: {
+                ...prev.adminInfo,
+                fullName: data.session.name || prev.adminInfo.fullName || "",
+                email: data.session.email || prev.adminInfo.email || "",
+                phone: data.session.phone || prev.adminInfo.phone || "",
+              },
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user session data:", error);
+      }
+    };
+
+    // Load saved progress from localStorage on component mount
     const savedProgress = localStorage.getItem("uniqbrio_registration_progress")
     if (savedProgress) {
       try {
         const parsedProgress = JSON.parse(savedProgress)
+        if (parsedProgress?.businessInfo) {
+          parsedProgress.businessInfo.logo = null
+          parsedProgress.businessInfo.profilePicture = null
+          parsedProgress.businessInfo.businessNameFile = null
+        }
         updateFormState(parsedProgress)
       } catch (error) {
         console.error("Failed to parse saved progress:", error)
       }
     }
+
+    // Fetch and prefill user data from session
+    fetchUserData();
   }, [])
 
   // Save progress to localStorage whenever formState changes
   useEffect(() => {
-    localStorage.setItem("uniqbrio_registration_progress", JSON.stringify(formState))
+    const stateToPersist = {
+      ...formState,
+      businessInfo: {
+        ...formState.businessInfo,
+        logo: null,
+        profilePicture: null,
+        businessNameFile: null,
+      },
+    }
+
+    localStorage.setItem("uniqbrio_registration_progress", JSON.stringify(stateToPersist))
   }, [formState])
 
-  const steps = [
-    { name: "Business Information", component: BusinessInfoStep },
-    { name: "Owner/Admin Information", component: AdminInfoStep },
-    { name: "Setup Preferences", component: PreferencesStep },
-  ]
-
-  const validateStep = useCallback(
-    async (step: number) => {
-      try {
-        if (step === 0) {
-          await businessInfoSchema.parseAsync(formState.businessInfo)
-        } else if (step === 1) {
-          await adminInfoSchema.parseAsync(formState.adminInfo)
-        } else if (step === 2) {
-          await preferencesSchema.parseAsync(formState.preferences)
-        }
-        return true
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          // Group errors by field for more comprehensive feedback
-          const errorsByField: Record<string | number, string[]> = {}
-          error.errors.forEach((err) => {
-            const field = err.path[err.path.length - 1]
-            if (!errorsByField[field]) {
-              errorsByField[field] = []
-            }
-            errorsByField[field].push(err.message)
-          })
-
-          // Show toast with the first error
-          const firstError = error.errors[0]
-          toast({
-            title: "Validation Error",
-            description: (
-              <div className="space-y-2">
-                <p>{firstError.message}</p>
-                {Object.keys(errorsByField).length > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    {Object.keys(errorsByField).length - 1} more field(s) need attention
-                  </p>
-                )}
-              </div>
-            ),
-            variant: "destructive",
-          })
-        }
-        return false
+  const validateAllSteps = useCallback(async () => {
+    try {
+      await businessInfoSchema.parseAsync(formState.businessInfo)
+      await adminInfoSchema.parseAsync(formState.adminInfo)
+      await preferencesSchema.parseAsync(formState.preferences)
+      setFieldErrors({})
+      return { valid: true as const }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const flattened: Record<string, string> = {}
+        error.errors.forEach((err) => {
+          const field = err.path[err.path.length - 1]
+          if (typeof field === "string" && !flattened[field]) {
+            flattened[field] = err.message
+          }
+        })
+        setFieldErrors(flattened)
+        return { valid: false as const, errors: flattened }
       }
-    },
-    [formState, toast],
-  )
 
-  const handleNext = async () => {
-    const isValid = await validateStep(currentStep)
-
-    if (isValid) {
-      if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1)
-      } else {
-        // Show welcome popup before submitting
-        setShowWelcomePopup(true)
-        setReadyToSubmit(true)
-      }
+      return { valid: false as const, errors: {} }
     }
+  }, [formState])
+
+  const clearFieldError = (field: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev
+      const { [field]: _, ...rest } = prev
+      return rest
+    })
   }
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+  const formatValue = (value: string | null | undefined) => {
+    if (typeof value !== "string") return value ? String(value) : "-"
+    const trimmed = value.trim()
+    return trimmed ? trimmed : "-"
+  }
+
+  const formatLabel = (value: string | null | undefined) => {
+    const base = formatValue(value)
+    if (typeof base !== "string" || base === "-") return base
+    return base
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+  }
+
+  const formatLabelList = (items: string[] | undefined | null) => {
+    if (!items || items.length === 0) return "-"
+    return items
+      .map((item) => formatLabel(item) as string)
+      .join(", ")
+  }
+
+  const fieldFocusSelectors = useMemo<Record<string, string[]>>(
+    () => ({
+      businessName: ["#businessName"],
+      businessEmail: ["#businessEmail"],
+      phoneNumber: ["#phoneNumber"],
+      industryType: ["#industryType", '[data-field="industryType"]'],
+      servicesOffered: ["#servicesOffered", '[data-field="servicesOffered"]'],
+      studentSize: ["#studentSize", '[data-field="studentSize"]'],
+      staffCount: ["#staffCount", '[data-field="staffCount"]'],
+      country: ["#country", '[data-field="country"]'],
+      state: ["#state", '[data-field="state"]'],
+      city: ["#city"],
+      address: ["#address"],
+      pincode: ["#pincode"],
+      preferredLanguage: ["#preferredLanguage", '[data-field="preferredLanguage"]'],
+      fullName: ["#fullName"],
+      email: ["#email"],
+      phone: ["#phone"],
+      referralSource: ["#referralSource", '[data-field="referralSource"]'],
+      otherReferral: ["#otherReferral", '[data-field="otherReferral"]'],
+    }),
+    [],
+  )
+
+  const focusFirstInvalidField = useCallback(
+    (entries: Array<[string, string]>) => {
+      if (typeof window === "undefined") return
+
+      for (const [field] of entries) {
+        const selectors = fieldFocusSelectors[field] ?? [`#${field}`, `[data-field="${field}"]`]
+        for (const selector of selectors) {
+          if (!selector) continue
+          const element = document.querySelector<HTMLElement>(selector)
+          if (!element) continue
+
+          try {
+            element.focus({ preventScroll: true })
+          } catch {
+            element.focus()
+          }
+
+          element.scrollIntoView({ behavior: "smooth", block: "center" })
+          return
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    },
+    [fieldFocusSelectors],
+  )
+
+  const readVisibleField = (field: string) => {
+    const selectors = fieldFocusSelectors[field] ?? [`#${field}`, `[data-field="${field}"]`]
+    for (const selector of selectors) {
+      const el = document.querySelector<HTMLElement>(selector)
+      if (!el) continue
+      // prefer input/textarea value when available
+      if ((el as HTMLInputElement).value) return (el as HTMLInputElement).value
+      const text = el.textContent?.trim()
+      if (text && text !== "") return text
     }
+    return ""
+  }
+
+  const getFriendlyErrorMessage = (err: unknown): string => {
+    if (err instanceof Error) {
+      const rawMessage = err.message || ""
+      const trimmedMessage = rawMessage.trim()
+      const normalized = trimmedMessage.toLowerCase()
+
+      if (normalized.includes("413")) {
+        return "Your documents look a little large. Please upload images under 2 MB and try again."
+      }
+
+      if (normalized.includes("timeout")) {
+        return "The request is taking longer than expected. Please try again in a moment."
+      }
+
+      if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+        return "We couldn't reach the server. Please check your connection and try again."
+      }
+
+      if (
+        normalized.includes("request failed with status") ||
+        normalized.includes("expected json response") ||
+        normalized.includes("server returned")
+      ) {
+        return "We couldn't complete your registration right now. Please try again shortly or contact support."
+      }
+
+      if (trimmedMessage) {
+        return trimmedMessage
+      }
+    }
+
+    return "We couldn't complete your registration right now. Please try again shortly or contact support."
+  }
+
+  const handleRegister = async () => {
+    if (isSubmitting) return
+    // Quick guard: if state is empty, don't open review — focus state first
+    if (!formState.businessInfo.state || String(formState.businessInfo.state).trim() === "") {
+      const msg = "Please select a state or province."
+      setFieldErrors((prev) => ({ ...prev, state: msg }))
+      focusFirstInvalidField([["state", msg]])
+      return
+    }
+
+    const result = await validateAllSteps()
+
+    if (result.valid) {
+      // Build preview values from formState (authoritative) so modal reflects actual data
+      try {
+        const preview: Record<string, string> = {
+          businessName: formatValue(businessInfo.businessName),
+          legalEntityName: formatValue(businessInfo.legalEntityName),
+          businessEmail: formatValue(businessInfo.businessEmail),
+          phoneNumber: formatValue(businessInfo.phoneNumber),
+          industryType: formatLabel(businessInfo.industryType),
+          servicesOffered: formatLabelList(businessInfo.servicesOffered),
+          studentSize: formatLabel(businessInfo.studentSize),
+          staffCount: formatLabel(businessInfo.staffCount),
+          country: formatLabel(businessInfo.country),
+          state: formatLabel(businessInfo.state),
+          city: formatValue(businessInfo.city),
+          pincode: formatValue(businessInfo.pincode),
+          address: formatValue(businessInfo.address),
+          website: formatValue(businessInfo.website),
+          preferredLanguage: formatLabel(businessInfo.preferredLanguage),
+          taxId: formatValue(businessInfo.taxId),
+          fullName: formatValue(adminInfo.fullName),
+          email: formatValue(adminInfo.email),
+          phone: formatValue(adminInfo.phone),
+          referralSource: formatLabel(preferences.referralSource),
+          otherReferral: formatValue(preferences.otherReferral),
+        }
+
+        setPreviewValues(preview)
+      } catch (e) {
+        console.warn("[Registration] Failed to build preview values", e)
+      }
+
+      setReviewOpen(true)
+      return
+    }
+
+    const errors = result.errors ?? {}
+    const entries = Object.entries(errors)
+
+    if (entries.length > 0) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        ...Object.fromEntries(entries),
+      }))
+    }
+
+    focusFirstInvalidField(entries)
   }
 
   const handleSubmit = async () => {
+    setReviewOpen(false)
     setIsSubmitting(true)
 
     try {
       // Upload images to R2 bucket first
-      const { businessInfo, ...rest } = formState;
+      const { businessInfo, adminInfo, preferences } = formState;
       const {
         logo,
         profilePicture,
         businessNameFile,
         ...serializableBusinessInfo
       } = businessInfo;
+
+      const logoFile = logo instanceof File ? logo : null;
+      const profilePictureFile = profilePicture instanceof File ? profilePicture : null;
+      const businessNameUploadFile = businessNameFile instanceof File ? businessNameFile : null;
 
       let uploadedImageUrls: {
         businessLogoUrl?: string;
@@ -158,35 +345,40 @@ export default function RegistrationForm() {
       } = {};
 
       // Upload business images if any are provided
-      if (logo || businessNameFile || profilePicture) {
+      if (logoFile || businessNameUploadFile || profilePictureFile) {
         const imageFormData = new FormData();
         
-        if (logo) {
-          imageFormData.append("businessLogo", logo);
+        if (logoFile) {
+          imageFormData.append("businessLogo", logoFile);
         }
-        if (businessNameFile) {
-          imageFormData.append("businessNameUpload", businessNameFile);
+        if (businessNameUploadFile) {
+          imageFormData.append("businessNameUpload", businessNameUploadFile);
         }
-        if (profilePicture) {
-          imageFormData.append("profilePicture", profilePicture);
+        if (profilePictureFile) {
+          imageFormData.append("profilePicture", profilePictureFile);
         }
         imageFormData.append("businessName", businessInfo.businessName || "academy");
-        imageFormData.append("userEmail", rest.adminInfo.email || ""); // Include email for first-time users
+        imageFormData.append("userEmail", adminInfo.email || ""); // Include email for first-time users
 
         console.log("[Registration] Uploading business images...");
-        const uploadData = await fetchJson<{
-          success: boolean;
-          error?: string;
-          businessLogoUrl?: string;
-          businessNameUploadUrl?: string;
-          profilePictureUrl?: string;
-        }>("/api/business-upload", {
+        // Use raw fetch here to capture raw response body for diagnostics when server returns non-JSON
+        const resp = await fetch("/api/business-upload", {
           method: "POST",
           body: imageFormData,
+          credentials: "include",
         });
-        
-        if (!uploadData.success) {
-          throw new Error(uploadData.error || "Failed to upload images");
+        const respText = await resp.text();
+        console.log("[Registration] /api/business-upload status:", resp.status, "response:", respText);
+
+        let uploadData: any = null;
+        try {
+          uploadData = respText ? JSON.parse(respText) : null;
+        } catch (e) {
+          throw new Error(`Upload failed: ${resp.status} - ${respText}`);
+        }
+
+        if (!resp.ok || !uploadData || !uploadData.success) {
+          throw new Error(uploadData?.error || `Failed to upload images (status ${resp.status})`);
         }
 
         uploadedImageUrls = {
@@ -199,12 +391,15 @@ export default function RegistrationForm() {
       }
 
       // Prepare payload with uploaded image URLs
+      const { socialProfile: _socialProfile, agreeToTerms: _agreeToTerms, newsletter: _newsletter, ...serializableAdminInfo } = adminInfo;
+
       const payload = {
         businessInfo: {
           ...serializableBusinessInfo,
           ...uploadedImageUrls,
         },
-        ...rest,
+        adminInfo: serializableAdminInfo,
+        preferences,
       };
 
       console.log("[Registration] Submitting registration with image URLs...");
@@ -214,12 +409,28 @@ export default function RegistrationForm() {
       console.log("[Registration Client] Readable cookies (non-httpOnly):", document.cookie);
       console.log("[Registration Client] Note: Session cookie is httpOnly and won't appear above, but should be sent automatically");
       
-      const data = await fetchJson("/api/register", {
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Important: Send cookies with the request
         body: JSON.stringify(payload),
-      });
+      })
+
+      const responseText = await response.text()
+      console.log("[Registration] /api/register status:", response.status, "body:", responseText)
+
+      let data: any = null
+      try {
+        data = responseText ? JSON.parse(responseText) : null
+      } catch (e) {
+        throw new Error(`Registration failed: ${response.status} - ${responseText}`)
+      }
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || `Registration failed with status ${response.status}`)
+      }
+
+      setShowWelcomePopup(true);
       toast({
         title: "Registration Successful!",
         description: (
@@ -250,27 +461,11 @@ export default function RegistrationForm() {
       // Redirect to dashboard after successful registration
       router.push("/dashboard");
     } catch (error) {
-      let errorMsg = "There was an error creating your business. Please try again.";
-      if (error instanceof Error) {
-        errorMsg = error.message;
-      }
-      // Try to get backend error message from response
-      if (
-        error &&
-        typeof error === "object" &&
-        "response" in error &&
-        error.response &&
-        error.response instanceof Response
-      ) {
-        try {
-          const data = await error.response.json();
-          if (data.error) errorMsg = data.error;
-        } catch {}
-      }
-      console.error("Registration failed:", errorMsg);
+      const friendlyMessage = getFriendlyErrorMessage(error);
+      console.error("Registration failed:", error);
       toast({
-        title: "Registration Failed",
-        description: errorMsg,
+        title: "We couldn't complete registration",
+        description: friendlyMessage,
         variant: "destructive",
       })
     } finally {
@@ -278,68 +473,81 @@ export default function RegistrationForm() {
     }
   }
 
-  const progressPercentage = ((currentStep + 1) / (steps.length + 1)) * 100
-
-  let CurrentStepComponent = steps[currentStep].component;
   if (registrationComplete && showHomeTour) {
-    CurrentStepComponent = TourPage;
-  } else if (registrationComplete) {
-    CurrentStepComponent = SuccessStep;
+    return <TourPage />;
+  }
+  
+  if (registrationComplete) {
+    return <SuccessStep />;
   }
 
   return (
-    <Card className="w-full max-w-5xl mx-auto shadow-lg relative">
-      <CardHeader className="space-y-2 text-center">
-        <div className="flex justify-center mb-0">
-          <Logo className="h-24 w-auto" />
-        </div>
-        <CardTitle className="text-2xl md:text-3xl font-bold">Please Register Your Academy</CardTitle>
-        <CardDescription className="text-base">Mentoring Businesses, Nurturing Learners</CardDescription>
-        <CardDescription className="text-sm">Join UniqBrio to streamline your academy management</CardDescription>
-        <div className="pt-2">
-          <Progress value={progressPercentage} className="h-2" />
-          <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-            {steps.map((step, index) => (
-              <span key={index} className={`${currentStep >= index ? "text-primary font-medium" : ""}`}>
-                Step {index + 1}
-              </span>
-            ))}
+    <>
+      <Card className="w-full max-w-5xl mx-auto shadow-lg relative">
+        <CardHeader className="space-y-2 text-center">
+          <div className="flex justify-center mb-0">
+            <Logo className="h-24 w-auto" />
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="px-6 py-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <CurrentStepComponent formState={formState} updateFormState={updateFormState as UpdateFormState} />
-            
-          </motion.div>
-        </AnimatePresence>
-        {showWelcomePopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            {/* Confetti animation */}
-            <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={250} recycle={false} />
-            <motion.div
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center relative"
-              style={{ minWidth: 320 }}
-            >
-              {/* Popper animation */}
-              <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
-                <motion.div
-                  initial={{ y: -40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.5 }}
-                  className="flex gap-2"
-                >
+          <CardTitle className="text-2xl md:text-3xl font-bold">Please Register Your Academy</CardTitle>
+          <CardDescription className="text-base">Mentoring Businesses, Nurturing Learners</CardDescription>
+          <CardDescription className="text-sm">Join UniqBrio to streamline your academy management</CardDescription>
+        </CardHeader>
+        <CardContent className="px-6 py-4">
+          <div className="space-y-8">
+            {/* Business Information Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold border-b pb-2">Business Information</h3>
+              <BusinessInfoStep
+                formState={formState}
+                updateFormState={updateFormState as UpdateFormState}
+                externalErrors={fieldErrors}
+                clearFieldError={clearFieldError}
+              />
+            </div>
+
+            {/* Admin Information Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold border-b pb-2">Owner/Admin Information</h3>
+              <AdminInfoStep
+                formState={formState}
+                updateFormState={updateFormState as UpdateFormState}
+                externalErrors={fieldErrors}
+                clearFieldError={clearFieldError}
+              />
+            </div>
+
+            {/* Preferences Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold border-b pb-2">Setup Preferences</h3>
+              <PreferencesStep
+                formState={formState}
+                updateFormState={updateFormState as UpdateFormState}
+                externalErrors={fieldErrors}
+                clearFieldError={clearFieldError}
+              />
+            </div>
+          </div>
+
+          {showWelcomePopup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+              {/* Confetti animation */}
+              <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={250} recycle={false} />
+              <motion.div
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center relative"
+                style={{ minWidth: 320 }}
+              >
+                {/* Popper animation */}
+                <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
+                  <motion.div
+                    initial={{ y: -40, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.5 }}
+                    className="flex gap-2"
+                  >
                   <span className="text-4xl">🎉</span>
                   <span className="text-4xl">🎊</span>
                   <span className="text-4xl">🎉</span>
@@ -348,84 +556,178 @@ export default function RegistrationForm() {
               <h2 className="text-2xl font-bold mb-2 mt-6 text-center">Welcome to UniqBrio!</h2>
               <p className="text-lg text-muted-foreground text-center">We're excited to have you onboard!</p>
               <p className="text-lg text-muted-foreground text-center">We love to serve you</p>
-              
             </motion.div>
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between px-6 py-4 border-t">
-        {!registrationComplete && (
-          <>
-            <Button variant="outline" className="hover:text-white" onClick={handleBack} disabled={currentStep === 0 || isSubmitting || showWelcomePopup}>
-              Back
-            </Button>
-            {currentStep === steps.length - 1 ? (
-              <Button
-                disabled={isSubmitting || showWelcomePopup}
-                onClick={() => {
-                  setShowWelcomePopup(true);
-                  setReadyToSubmit(true);
-                }}
-                className="bg-primary text-white border-2 border-primary hover:bg-primary/90 transition font-semibold px-6 py-2 rounded-lg"
+      <CardFooter className="flex justify-end px-6 py-4 border-t">
+        <Button
+          disabled={isSubmitting || showWelcomePopup}
+          onClick={handleRegister}
+          className="bg-primary text-white border-2 border-primary hover:bg-primary/90 transition font-semibold px-8 py-2 rounded-lg"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
               >
-                {isSubmitting ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Creating your workspace...
-                  </span>
-                ) : "Welcome to UniqBrio"}
-              </Button>
-            ) : (
-              <Button onClick={handleNext} disabled={isSubmitting || showWelcomePopup}>
-                {isSubmitting ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Creating your workspace...
-                  </span>
-                ) : "Next"}
-              </Button>
-            )}
-          </>
-        )}
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Creating your workspace...
+            </span>
+          ) : "Register Your Academy"}
+        </Button>
       </CardFooter>
-    </Card>
+      </Card>
+
+      <Dialog open={reviewOpen} onOpenChange={(open) => {
+        if (isSubmitting) return
+        setReviewOpen(open)
+      }}>
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Review your details</DialogTitle>
+            <DialogDescription>
+              Confirm everything looks right before you submit. You can close this dialog to make changes.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 overflow-y-auto pr-4 flex-1">
+            <section className="space-y-3">
+              <h4 className="text-lg font-semibold">Business Information</h4>
+              <div className="grid grid-cols-1 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Business Name</p>
+                  <p className="font-medium">{previewValues.businessName ?? formatValue(businessInfo.businessName)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Legal Entity Name</p>
+                  <p className="font-medium">{previewValues.legalEntityName ?? formatValue(businessInfo.legalEntityName)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Business Email</p>
+                  <p className="font-medium">{previewValues.businessEmail ?? formatValue(businessInfo.businessEmail)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Contact Number</p>
+                  <p className="font-medium">{previewValues.phoneNumber ?? formatValue(businessInfo.phoneNumber)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Industry Type</p>
+                  <p className="font-medium">{previewValues.industryType ?? formatLabel(businessInfo.industryType)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Services Offered</p>
+                  <p className="font-medium">{previewValues.servicesOffered ?? formatLabelList(businessInfo.servicesOffered)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Student Size</p>
+                  <p className="font-medium">{previewValues.studentSize ?? formatLabel(businessInfo.studentSize)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Staff Count</p>
+                  <p className="font-medium">{previewValues.staffCount ?? formatLabel(businessInfo.staffCount)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Country</p>
+                  <p className="font-medium">{previewValues.country ?? formatLabel(businessInfo.country)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">State</p>
+                  <p className="font-medium">{previewValues.state ?? formatLabel(businessInfo.state)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">City</p>
+                  <p className="font-medium">{previewValues.city ?? formatValue(businessInfo.city)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Postal Code</p>
+                  <p className="font-medium">{previewValues.pincode ?? formatValue(businessInfo.pincode)}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-muted-foreground">Address</p>
+                  <p className="font-medium">{previewValues.address ?? formatValue(businessInfo.address)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Website</p>
+                  <p className="font-medium">{previewValues.website ?? formatValue(businessInfo.website)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Preferred Language</p>
+                  <p className="font-medium">{previewValues.preferredLanguage ?? formatLabel(businessInfo.preferredLanguage)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Tax ID</p>
+                  <p className="font-medium">{previewValues.taxId ?? formatValue(businessInfo.taxId)}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h4 className="text-lg font-semibold">Owner/Admin Information</h4>
+              <div className="grid grid-cols-1 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Full Name</p>
+                  <p className="font-medium">{formatValue(adminInfo.fullName)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium">{formatValue(adminInfo.email)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Phone Number</p>
+                  <p className="font-medium">{formatValue(adminInfo.phone)}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h4 className="text-lg font-semibold">Setup Preferences</h4>
+              <div className="grid grid-cols-1 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground">How did you hear about us?</p>
+                  <p className="font-medium">{formatLabel(preferences.referralSource)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Other Referral Details</p>
+                  <p className="font-medium">{formatValue(preferences.otherReferral)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Features of Interest</p>
+                  <p className="font-medium">{formatLabelList(preferences.featuresOfInterest)}</p>
+                </div>
+              </div>
+            </section>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setReviewOpen(false)}
+              disabled={isSubmitting}
+            >
+              Back to form
+            </Button>
+            <Button onClick={handleSubmit} disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit registration"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

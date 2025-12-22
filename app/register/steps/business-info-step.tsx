@@ -8,11 +8,14 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { MultiSelect } from "@/components/ui/multi-select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { ChevronDown } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ChevronDown, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { PhoneCountryCodeSelect } from "@/components/dashboard/student/common/phone-country-code-select"
+import { getPhoneCodeByCountry, getCountryByPhoneCode } from "@/lib/dashboard/student/countries-api"
 
 // Simple FormValidation component
 const FormValidation = ({ isValid, isInvalid, message }: { isValid: boolean; isInvalid: boolean; message: string }) => {
@@ -180,14 +183,16 @@ function CountrySelect({
   countries, 
   loading, 
   error, 
-  hasError 
+  hasError, 
+  id,
 }: { 
   country?: string; 
   onChange: (code: string, label: string) => void; 
   countries: Option[]; 
   loading: boolean; 
   error: string; 
-  hasError?: boolean 
+  hasError?: boolean; 
+  id?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -211,6 +216,8 @@ function CountrySelect({
     <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setQuery(''); }}>
       <PopoverTrigger asChild>
         <Button 
+          id={id}
+          data-field={id}
           variant="outline" 
           role="combobox" 
           aria-expanded={open}
@@ -265,7 +272,8 @@ function StateSelect({
   states, 
   loading, 
   error, 
-  hasError 
+  hasError, 
+  id,
 }: { 
   countryCode?: string; 
   state?: string; 
@@ -273,7 +281,8 @@ function StateSelect({
   states: Option[]; 
   loading: boolean; 
   error: string; 
-  hasError?: boolean 
+  hasError?: boolean; 
+  id?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -299,15 +308,22 @@ function StateSelect({
   // Automatically set 'Not applicable' for countries without states
   useEffect(() => {
     if (!countryCode) return;
-    if (noStates && (!state || state === '')) {
-      onChange('Not applicable');
+    if (noStates && (!state || state === "")) {
+      onChange("Not applicable");
+      return;
     }
-  }, [countryCode, noStates, state]);
+
+    if (!loading && states.length > 0 && state && state.toLowerCase() === "not applicable") {
+      onChange("");
+    }
+  }, [countryCode, noStates, state, loading, states, onChange]);
   
   return (
     <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setQuery(''); }}>
       <PopoverTrigger asChild>
         <Button 
+          id={id}
+          data-field={id}
           variant="outline" 
           role="combobox" 
           aria-expanded={open}
@@ -363,16 +379,23 @@ import type { UpdateFormState } from "../use-form-state";
 type BusinessInfoStepProps = {
   formState: FormState;
   updateFormState: UpdateFormState;
+  externalErrors?: Record<string, string>;
+  clearFieldError?: (field: string) => void;
 };
 
-export default function BusinessInfoStep({ formState, updateFormState }: BusinessInfoStepProps) {
+export default function BusinessInfoStep({ formState, updateFormState, externalErrors = {}, clearFieldError }: BusinessInfoStepProps) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
+  const [businessNamePreview, setBusinessNamePreview] = useState<string | null>(null)
   const [states, setStates] = useState<Option[]>([])
   const [statesLoading, setStatesLoading] = useState<boolean>(false);
   const [statesError, setStatesError] = useState<string>("");
   const [cities, setCities] = useState<Option[]>([])
   const [businessNameSuggestions, setBusinessNameSuggestions] = useState<string[]>([])
+  const [countryCode, setCountryCode] = useState("+91") // Default to India
+  const logoInputRef = useRef<HTMLInputElement | null>(null)
+  const businessNameFileInputRef = useRef<HTMLInputElement | null>(null)
+  const profilePictureInputRef = useRef<HTMLInputElement | null>(null)
   // Add state for field validation
   const [validationState, setValidationState] = useState({
     businessName: { isValid: false, isInvalid: false, message: "" },
@@ -393,6 +416,77 @@ export default function BusinessInfoStep({ formState, updateFormState }: Busines
   const [languages, setLanguages] = useState<Option[]>([]);
   const [languagesLoading, setLanguagesLoading] = useState<boolean>(false);
   const [languagesError, setLanguagesError] = useState<string>("");
+  const [availableServiceOptions, setAvailableServiceOptions] = useState<Option[]>(() => getServiceOptions(formState.businessInfo.industryType))
+  const [customServiceOptions, setCustomServiceOptions] = useState<Option[]>([])
+  const [serviceSearchTerm, setServiceSearchTerm] = useState("")
+  const [serviceInputError, setServiceInputError] = useState("")
+  const MAX_UPLOAD_SIZE_BYTES = 2 * 1024 * 1024
+  const MAX_UPLOAD_SIZE_LABEL = "2 MB"
+  const formatSizeInMb = (bytes: number) => (bytes / (1024 * 1024)).toFixed(1)
+  type UploadField = "logo" | "profilePicture" | "businessNameFile"
+  const [uploadErrors, setUploadErrors] = useState<Record<UploadField, string>>({
+    logo: "",
+    profilePicture: "",
+    businessNameFile: "",
+  })
+
+  const ensureFileSizeWithinLimit = (file: File, field: UploadField, fieldLabel: string) => {
+    if (file.size <= MAX_UPLOAD_SIZE_BYTES) {
+      setUploadErrors((prev) => {
+        if (!prev[field]) return prev
+        return { ...prev, [field]: "" }
+      })
+      return true
+    }
+
+    setUploadErrors((prev) => ({
+      ...prev,
+      [field]: `${fieldLabel} is ${formatSizeInMb(file.size)} MB. Please upload an image under ${MAX_UPLOAD_SIZE_LABEL}.`,
+    }))
+    return false
+  }
+
+  useEffect(() => {
+    const logoFile = formState.businessInfo.logo;
+    if (logoFile instanceof File && !logoPreview) {
+      const reader = new FileReader();
+      reader.onloadend = () => setLogoPreview(reader.result as string);
+      reader.readAsDataURL(logoFile);
+      return;
+    }
+
+    if (!logoFile && formState.businessInfo.businessLogoUrl && !logoPreview) {
+      setLogoPreview(formState.businessInfo.businessLogoUrl);
+    }
+  }, [formState.businessInfo.logo, formState.businessInfo.businessLogoUrl, logoPreview]);
+
+  useEffect(() => {
+    const profileFile = formState.businessInfo.profilePicture;
+    if (profileFile instanceof File && !profilePicturePreview) {
+      const reader = new FileReader();
+      reader.onloadend = () => setProfilePicturePreview(reader.result as string);
+      reader.readAsDataURL(profileFile);
+      return;
+    }
+
+    if (!profileFile && formState.businessInfo.profilePictureUrl && !profilePicturePreview) {
+      setProfilePicturePreview(formState.businessInfo.profilePictureUrl);
+    }
+  }, [formState.businessInfo.profilePicture, formState.businessInfo.profilePictureUrl, profilePicturePreview]);
+
+  useEffect(() => {
+    const nameFile = formState.businessInfo.businessNameFile;
+    if (nameFile instanceof File && !businessNamePreview) {
+      const reader = new FileReader();
+      reader.onloadend = () => setBusinessNamePreview(reader.result as string);
+      reader.readAsDataURL(nameFile);
+      return;
+    }
+
+    if (!nameFile && formState.businessInfo.businessNameUploadUrl && !businessNamePreview) {
+      setBusinessNamePreview(formState.businessInfo.businessNameUploadUrl);
+    }
+  }, [formState.businessInfo.businessNameFile, formState.businessInfo.businessNameUploadUrl, businessNamePreview]);
 
   useEffect(() => {
     setCountriesLoading(true);
@@ -400,6 +494,16 @@ export default function BusinessInfoStep({ formState, updateFormState }: Busines
       .then((data) => {
         setCountries(data);
         setCountriesLoading(false);
+        
+        // Set India as default country if not already set
+        if (!formState.businessInfo.country) {
+          updateFormState({
+            businessInfo: {
+              ...formState.businessInfo,
+              country: "IN", // India's ISO code
+            },
+          });
+        }
       })
       .catch(() => {
         setCountriesError("Failed to load countries");
@@ -493,6 +597,61 @@ useEffect(() => {
       }
     }
   }, [languages]);
+
+  // Refresh available services when industry or manual entries change
+  useEffect(() => {
+    const defaults = getServiceOptions(formState.businessInfo.industryType);
+    const manualCustoms = customServiceOptions.filter(
+      (option) => !defaults.some((def) => def.value === option.value)
+    );
+
+    const selectedCustoms = (formState.businessInfo.servicesOffered || []).map((value) => {
+      const defaultMatch = defaults.find((def) => def.value === value);
+      if (defaultMatch) return defaultMatch;
+      const manualMatch = manualCustoms.find((opt) => opt.value === value);
+      return manualMatch || { value, label: value };
+    });
+
+    const mergedOptions = new Map<string, Option>();
+    [...defaults, ...manualCustoms, ...selectedCustoms].forEach((option) => {
+      const key = option.value.toLowerCase();
+      if (!mergedOptions.has(key)) {
+        mergedOptions.set(key, option);
+      }
+    });
+
+    setAvailableServiceOptions(Array.from(mergedOptions.values()))
+  }, [customServiceOptions, formState.businessInfo.industryType, formState.businessInfo.servicesOffered]);
+
+  useEffect(() => {
+    setServiceSearchTerm("")
+    setServiceInputError("")
+  }, [formState.businessInfo.industryType])
+
+  // Refresh available services when industry type or selections change
+  useEffect(() => {
+    setAvailableServiceOptions((prev) => {
+      const defaults = getServiceOptions(formState.businessInfo.industryType);
+      const customOptions = prev.filter((opt) => !defaults.some((def) => def.value === opt.value));
+      const selectedCustoms = (formState.businessInfo.servicesOffered || [])
+        .filter((value) => !defaults.some((def) => def.value === value))
+        .filter((value) => !customOptions.some((opt) => opt.value === value))
+        .map((value) => ({ value, label: value }));
+      return [...defaults, ...customOptions, ...selectedCustoms];
+    });
+    setServiceSearchTerm("");
+    setServiceInputError("");
+  }, [formState.businessInfo.industryType, formState.businessInfo.servicesOffered]);
+
+  // Sync country code when country changes
+  useEffect(() => {
+    if (formState.businessInfo.country) {
+      const phoneCode = getPhoneCodeByCountry(formState.businessInfo.country);
+      if (phoneCode) {
+        setCountryCode(phoneCode);
+      }
+    }
+  }, [formState.businessInfo.country]);
 
   // Mock AI suggestions for business name
   useEffect(() => {
@@ -616,16 +775,20 @@ useEffect(() => {
         }
         break
       case "pincode":
-        const pincodeRegex = /^[0-9]+$/; // Only numbers allowed
-        if (value.length < 4) {
+        const pincodeRegex = /^[a-zA-Z0-9\s\-]+$/; // Alphanumeric with spaces and hyphens
+        const trimmedPincode = value.trim();
+        if (trimmedPincode.length < 3) {
           isInvalid = true
-          message = "Pincode must be at least 4 digits"
-        } else if (!pincodeRegex.test(value)) {
+          message = "Postal code must be at least 3 characters"
+        } else if (trimmedPincode.length > 10) {
           isInvalid = true
-          message = "Pincode should only contain numbers"
+          message = "Postal code cannot exceed 10 characters"
+        } else if (!pincodeRegex.test(trimmedPincode)) {
+          isInvalid = true
+          message = "Postal code should only contain letters, numbers, spaces, and hyphens"
         } else {
           isValid = true
-          message = "Valid pincode"
+          message = "Valid postal code"
         }
         break
       case "address":
@@ -665,19 +828,37 @@ useEffect(() => {
         }
         break
       case "website":
-        const urlRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?(\/.*)?(\?.*)?(#.*)?$/
-        
-        if (value.trim().length === 0) {
+        const trimmedUrl = value.trim()
+        if (trimmedUrl.length === 0) {
           // Website is optional
           isValid = false
           isInvalid = false
           message = ""
-        } else if (!urlRegex.test(value)) {
+          break
+        }
+
+        const normalizedUrl = /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`
+        try {
+          const url = new URL(normalizedUrl)
+          const hostnameParts = url.hostname.split('.')
+          const tld = hostnameParts.pop()
+          const baseParts = hostnameParts
+          const hasDomain =
+            baseParts.length >= 1 &&
+            baseParts.every((part) => /^[a-zA-Z0-9-]{1,63}$/.test(part) && !part.startsWith('-') && !part.endsWith('-')) &&
+            baseParts.some((part) => part.toLowerCase() !== 'www')
+          const validTld = !!tld && /^[a-zA-Z]{2,}$/.test(tld)
+
+          if (!hasDomain || !validTld) {
+            isInvalid = true
+            message = "Please enter a valid website URL (e.g., https://example.com)"
+          } else {
+            isValid = true
+            message = "Valid website URL"
+          }
+        } catch (error) {
           isInvalid = true
           message = "Please enter a valid website URL (e.g., https://example.com)"
-        } else {
-          isValid = true
-          message = "Valid website URL"
         }
         break
     }
@@ -688,8 +869,26 @@ useEffect(() => {
     }))
   }
 
+  // Handle phone code change and sync with country
+  const handlePhoneCodeChange = (phoneCode: string) => {
+    setCountryCode(phoneCode);
+    
+    // Auto-update country based on selected phone code
+    const countryIso = getCountryByPhoneCode(phoneCode);
+    if (countryIso && countryIso !== formState.businessInfo.country) {
+      updateFormState({
+        businessInfo: {
+          ...formState.businessInfo,
+          country: countryIso,
+          state: "", // Reset state when country changes
+        },
+      });
+    }
+  };
+
   // Modify the handleInputChange function to include validation
   const handleInputChange = (field: keyof BusinessInfo, value: any) => {
+    if (clearFieldError) clearFieldError(field as string)
     updateFormState({
       businessInfo: {
         ...formState.businessInfo,
@@ -706,6 +905,14 @@ useEffect(() => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     if (file) {
+      if (!ensureFileSizeWithinLimit(file, "logo", "Business logo")) {
+        setLogoPreview(null)
+        handleInputChange("logo", null)
+        if (logoInputRef.current) {
+          logoInputRef.current.value = ""
+        }
+        return
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoPreview(reader.result as string);
@@ -719,6 +926,14 @@ useEffect(() => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     if (file) {
+      if (!ensureFileSizeWithinLimit(file, "profilePicture", "Profile picture")) {
+        setProfilePicturePreview(null)
+        handleInputChange("profilePicture", null)
+        if (profilePictureInputRef.current) {
+          profilePictureInputRef.current.value = ""
+        }
+        return
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePicturePreview(reader.result as string);
@@ -732,8 +947,90 @@ useEffect(() => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     if (file) {
-      handleInputChange("businessNameFile", file);
+      if (!ensureFileSizeWithinLimit(file, "businessNameFile", "Business name proof")) {
+        setBusinessNamePreview(null)
+        handleInputChange("businessNameFile", null)
+        if (businessNameFileInputRef.current) {
+          businessNameFileInputRef.current.value = ""
+        }
+        return
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBusinessNamePreview(reader.result as string)
+        handleInputChange("businessNameFile", file);
+      }
+      reader.readAsDataURL(file)
     }
+  }
+
+  const handleLogoRemove = () => {
+    setLogoPreview(null)
+    handleInputChange("logo", null)
+    setUploadErrors((prev) => ({ ...prev, logo: "" }))
+    if (logoInputRef.current) {
+      logoInputRef.current.value = ""
+    }
+  }
+
+  const handleBusinessNameFileRemove = () => {
+    handleInputChange("businessNameFile", null)
+    setBusinessNamePreview(null)
+    setUploadErrors((prev) => ({ ...prev, businessNameFile: "" }))
+    if (businessNameFileInputRef.current) {
+      businessNameFileInputRef.current.value = ""
+    }
+  }
+
+  const handleProfilePictureRemove = () => {
+    setProfilePicturePreview(null)
+    handleInputChange("profilePicture", null)
+    setUploadErrors((prev) => ({ ...prev, profilePicture: "" }))
+    if (profilePictureInputRef.current) {
+      profilePictureInputRef.current.value = ""
+    }
+  }
+
+  const getServiceLabel = (value: string) => {
+    const match = availableServiceOptions.find((option) => option.value === value)
+    return match ? match.label : value
+  }
+
+  const addCustomService = (rawValue: string) => {
+    const sanitizedValue = rawValue.trim().replace(/\s+/g, " ")
+    if (!sanitizedValue) return
+    const allowedPattern = /^[a-zA-Z\s]+$/
+    if (!allowedPattern.test(sanitizedValue)) {
+      setServiceInputError("Only letters and spaces allowed")
+      return
+    }
+
+    const existing = availableServiceOptions.find(
+      (option) => option.value.toLowerCase() === sanitizedValue.toLowerCase()
+    )
+    const normalizedValue = existing ? existing.value : sanitizedValue
+
+    if (!existing) {
+      setCustomServiceOptions((prev) => {
+        const existsInCustom = prev.some(
+          (option) => option.value.toLowerCase() === sanitizedValue.toLowerCase()
+        )
+        return existsInCustom ? prev : [...prev, { value: sanitizedValue, label: sanitizedValue }]
+      })
+    }
+
+    const currentServices = formState.businessInfo.servicesOffered || []
+    const alreadySelected = currentServices.some(
+      (service) => service.toLowerCase() === normalizedValue.toLowerCase()
+    )
+
+    if (!alreadySelected) {
+      handleInputChange("servicesOffered", [...currentServices, normalizedValue])
+      clearFieldError?.("servicesOffered")
+    }
+
+    setServiceInputError("")
+    setServiceSearchTerm("")
   }
 
   const handleServiceToggle = (service: string) => {
@@ -743,10 +1040,12 @@ useEffect(() => {
       : [...currentServices, service]
 
     handleInputChange("servicesOffered", updatedServices)
+    clearFieldError?.("servicesOffered")
   }
 
   const clearServices = () => {
     handleInputChange("servicesOffered", [])
+    clearFieldError?.("servicesOffered")
   }
 
   const applyBusinessNameSuggestion = (suggestion: string) => {
@@ -754,13 +1053,11 @@ useEffect(() => {
     setBusinessNameSuggestions([])
   }
 
+  const selectedServiceLabels = (formState.businessInfo.servicesOffered || []).map(getServiceLabel)
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Business Information</h3>
-        <p className="text-sm text-muted-foreground">Tell us about your academy or class-based business</p>
-      </div>
-
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {/* Business Name */}
         <div className="space-y-2">
@@ -777,11 +1074,12 @@ useEffect(() => {
             onChange={(e) => handleInputChange("businessName", e.target.value)}
             aria-required="true"
             onBlur={() => validateField("businessName", formState.businessInfo.businessName)}
+            className={cn(externalErrors.businessName && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
-            isValid={validationState.businessName.isValid}
-            isInvalid={validationState.businessName.isInvalid}
-            message={validationState.businessName.message}
+            isValid={validationState.businessName.isValid && !externalErrors.businessName}
+            isInvalid={validationState.businessName.isInvalid || !!externalErrors.businessName}
+            message={externalErrors.businessName || validationState.businessName.message}
           />
           {businessNameSuggestions.length > 0 && (
             <div className="mt-2">
@@ -811,11 +1109,12 @@ useEffect(() => {
             value={formState.businessInfo.legalEntityName}
             onChange={(e) => handleInputChange("legalEntityName", e.target.value)}
             onBlur={() => validateField("legalEntityName", formState.businessInfo.legalEntityName)}
+            className={cn(externalErrors.legalEntityName && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
-            isValid={validationState.legalEntityName.isValid}
-            isInvalid={validationState.legalEntityName.isInvalid}
-            message={validationState.legalEntityName.message}
+            isValid={validationState.legalEntityName.isValid && !externalErrors.legalEntityName}
+            isInvalid={validationState.legalEntityName.isInvalid || !!externalErrors.legalEntityName}
+            message={externalErrors.legalEntityName || validationState.legalEntityName.message}
           />
         </div>
 
@@ -832,11 +1131,33 @@ useEffect(() => {
             onChange={(e) => handleInputChange("businessEmail", e.target.value)}
             aria-required="true"
             onBlur={() => validateField("businessEmail", formState.businessInfo.businessEmail)}
+            className={cn(externalErrors.businessEmail && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
-            isValid={validationState.businessEmail.isValid}
-            isInvalid={validationState.businessEmail.isInvalid}
-            message={validationState.businessEmail.message}
+            isValid={validationState.businessEmail.isValid && !externalErrors.businessEmail}
+            isInvalid={validationState.businessEmail.isInvalid || !!externalErrors.businessEmail}
+            message={externalErrors.businessEmail || validationState.businessEmail.message}
+          />
+        </div>
+
+        {/* Country (Dropdown with Search) */}
+        <div className="space-y-2">
+          <Label htmlFor="country">
+            Country <span className="text-red-500">*</span>
+          </Label>
+          <CountrySelect
+            country={formState.businessInfo.country}
+            onChange={(value, label) => handleInputChange("country", value)}
+            countries={countries}
+            loading={countriesLoading}
+            error={countriesError}
+            hasError={!!externalErrors.country}
+            id="country"
+          />
+          <FormValidation
+            isValid={!!formState.businessInfo.country && !externalErrors.country}
+            isInvalid={!!externalErrors.country}
+            message={externalErrors.country || ""}
           />
         </div>
 
@@ -845,19 +1166,31 @@ useEffect(() => {
           <Label htmlFor="phoneNumber">
             Phone Number <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            placeholder="+1 (555) 123-4567"
-            value={formState.businessInfo.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-            aria-required="true"
-            onBlur={() => validateField("phoneNumber", formState.businessInfo.phoneNumber)}
-          />
+          <div className="flex gap-2">
+            <PhoneCountryCodeSelect 
+              value={countryCode} 
+              onChange={handlePhoneCodeChange}
+              className="w-[130px]"
+            />
+            <Input
+              id="phoneNumber"
+              type="tel"
+              placeholder="9876543210"
+              value={formState.businessInfo.phoneNumber}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^0-9]/g, '');
+                handleInputChange("phoneNumber", sanitized);
+              }}
+              aria-required="true"
+              onBlur={() => validateField("phoneNumber", formState.businessInfo.phoneNumber)}
+              className={cn("flex-1", externalErrors.phoneNumber && "border-red-500 focus-visible:ring-red-500")}
+              maxLength={15}
+            />
+          </div>
           <FormValidation
-            isValid={validationState.phoneNumber.isValid}
-            isInvalid={validationState.phoneNumber.isInvalid}
-            message={validationState.phoneNumber.message}
+            isValid={validationState.phoneNumber.isValid && !externalErrors.phoneNumber}
+            isInvalid={validationState.phoneNumber.isInvalid || !!externalErrors.phoneNumber}
+            message={externalErrors.phoneNumber || validationState.phoneNumber.message}
           />
         </div>
 
@@ -870,7 +1203,12 @@ useEffect(() => {
             value={formState.businessInfo.industryType}
             onValueChange={(value) => handleInputChange("industryType", value)}
           >
-            <SelectTrigger id="industryType" aria-required="true">
+            <SelectTrigger
+              id="industryType"
+              data-field="industryType"
+              aria-required="true"
+              className={cn(externalErrors.industryType && "border-red-500 focus-visible:ring-red-500")}
+            >
               <SelectValue placeholder="Select industry type" />
             </SelectTrigger>
             <SelectContent>
@@ -881,6 +1219,11 @@ useEffect(() => {
               ))}
             </SelectContent>
           </Select>
+          <FormValidation
+            isValid={!!formState.businessInfo.industryType && !externalErrors.industryType}
+            isInvalid={!!externalErrors.industryType}
+            message={externalErrors.industryType || ""}
+          />
         </div>
 
         {/* Services Offered */}
@@ -889,17 +1232,147 @@ useEffect(() => {
             <Label htmlFor="servicesOffered">
               Services Offered <span className="text-red-500">*</span>
             </Label>
-            
           </div>
-          <MultiSelect
-            options={getServiceOptions(formState.businessInfo.industryType)}
-            selected={formState.businessInfo.servicesOffered}
-            onChange={(selected: string[]) => handleInputChange("servicesOffered", selected)}
-            placeholder={
-              formState.businessInfo.industryType 
-                ? "Select services offered" 
-                : "Please select Industry Type first"
-            }
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                id="servicesOffered"
+                data-field="servicesOffered"
+                variant="outline"
+                className={cn(
+                  "mt-2 text-left text-[15px] border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500",
+                  externalErrors.servicesOffered && "border-red-500 focus:!ring-red-500 focus:!border-red-500"
+                )}
+                style={{
+                  minWidth: "120px",
+                  width: selectedServiceLabels.length === 0
+                    ? "120px"
+                    : `${Math.min(480, 120 + selectedServiceLabels.join(', ').length * 8)}px`,
+                  maxWidth: "100%",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  transition: "width 0.2s",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <span
+                  style={{ overflow: "hidden", textOverflow: "ellipsis" }}
+                  className={!selectedServiceLabels.length ? "text-gray-400" : ""}
+                >
+                  {selectedServiceLabels.length > 0
+                    ? selectedServiceLabels.join(", ")
+                    : formState.businessInfo.industryType
+                      ? "Select services"
+                      : "Select industry to load services"}
+                </span>
+                <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="bottom" align="start" className="w-48 p-2 text-[15px]">
+              <div className="flex items-center mb-2 gap-1">
+                <Input
+                  placeholder="Search or add service..."
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  value={serviceSearchTerm}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    const allowedPattern = /^[a-zA-Z\s]*$/
+                    if (allowedPattern.test(value)) {
+                      setServiceSearchTerm(value)
+                      setServiceInputError("")
+                    } else {
+                      setServiceInputError("Only letters and spaces allowed")
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      addCustomService(serviceSearchTerm)
+                    }
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs px-1 py-1 border border-gray-300"
+                  onClick={clearServices}
+                  disabled={(formState.businessInfo.servicesOffered || []).length === 0}
+                >
+                  Clear All
+                </Button>
+              </div>
+              {serviceInputError && (
+                <p className="text-red-500 text-xs mb-2">{serviceInputError}</p>
+              )}
+              <div
+                style={{
+                  minHeight: "32px",
+                  maxHeight:
+                    ((formState.businessInfo.servicesOffered?.length || 0) + availableServiceOptions.length) <= 2
+                      ? "48px"
+                      : `${Math.min(160, ((formState.businessInfo.servicesOffered?.length || 0) + availableServiceOptions.length) * 32)}px`,
+                  overflowY:
+                    ((formState.businessInfo.servicesOffered?.length || 0) + availableServiceOptions.length) > 4
+                      ? "auto"
+                      : "visible",
+                  transition: "max-height 0.2s"
+                }}
+                className="overflow-y-auto text-[15px]"
+              >
+                {availableServiceOptions
+                  .filter((service) =>
+                    service.label.toLowerCase().includes(serviceSearchTerm.toLowerCase())
+                  )
+                  .map((service) => (
+                    <div key={service.value} className="flex items-center gap-1 py-1 text-[15px]">
+                      <Checkbox
+                        checked={(formState.businessInfo.servicesOffered || []).includes(service.value)}
+                        onCheckedChange={() => handleServiceToggle(service.value)}
+                        id={`service-${service.value}`}
+                        className="border-purple-300 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 data-[state=checked]:text-white"
+                      />
+                      <Label htmlFor={`service-${service.value}`}>{service.label}</Label>
+                    </div>
+                  ))}
+                {(formState.businessInfo.servicesOffered || [])
+                  .filter((value) => !availableServiceOptions.some((opt) => opt.value === value))
+                  .filter((value) => value.toLowerCase().includes(serviceSearchTerm.toLowerCase()))
+                  .map((value) => (
+                    <div key={`custom-${value}`} className="flex items-center gap-1 py-1 text-[15px]">
+                      <Checkbox
+                        checked={(formState.businessInfo.servicesOffered || []).includes(value)}
+                        onCheckedChange={() => handleServiceToggle(value)}
+                        id={`service-custom-${value}`}
+                        className="border-purple-300 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500 data-[state=checked]:text-white"
+                      />
+                      <Label htmlFor={`service-custom-${value}`}>{value}</Label>
+                    </div>
+                  ))}
+                {availableServiceOptions.filter((service) =>
+                  service.label.toLowerCase().includes(serviceSearchTerm.toLowerCase())
+                ).length === 0 && serviceSearchTerm.trim() !== "" && (
+                  <div className="flex items-center gap-2 py-1 text-[15px]">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-2 py-1 text-[15px]"
+                      onClick={() => addCustomService(serviceSearchTerm)}
+                    >
+                      Add "{serviceSearchTerm.trim()}" as new service
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="text-[13px] text-gray-500 mt-0.5">Select one or more services.</div>
+          <FormValidation
+            isValid={formState.businessInfo.servicesOffered.length > 0 && !externalErrors.servicesOffered}
+            isInvalid={!!externalErrors.servicesOffered}
+            message={externalErrors.servicesOffered || ""}
           />
           {!formState.businessInfo.industryType && (
             <p className="text-xs text-amber-600 mt-1">
@@ -917,7 +1390,12 @@ useEffect(() => {
             value={formState.businessInfo.studentSize}
             onValueChange={(value) => handleInputChange("studentSize", value)}
           >
-            <SelectTrigger id="studentSize" aria-required="true">
+            <SelectTrigger
+              id="studentSize"
+              data-field="studentSize"
+              aria-required="true"
+              className={cn(externalErrors.studentSize && "border-red-500 focus-visible:ring-red-500")}
+            >
               <SelectValue placeholder="Select size" />
             </SelectTrigger>
             <SelectContent>
@@ -928,6 +1406,11 @@ useEffect(() => {
               ))}
             </SelectContent>
           </Select>
+          <FormValidation
+            isValid={!!formState.businessInfo.studentSize && !externalErrors.studentSize}
+            isInvalid={!!externalErrors.studentSize}
+            message={externalErrors.studentSize || ""}
+          />
         </div>
 
         {/* Staff/Instructor Count */}
@@ -939,7 +1422,12 @@ useEffect(() => {
             value={formState.businessInfo.staffCount}
             onValueChange={(value) => handleInputChange("staffCount", value)}
           >
-            <SelectTrigger id="staffCount" aria-required="true">
+            <SelectTrigger
+              id="staffCount"
+              data-field="staffCount"
+              aria-required="true"
+              className={cn(externalErrors.staffCount && "border-red-500 focus-visible:ring-red-500")}
+            >
               <SelectValue placeholder="Select count" />
             </SelectTrigger>
             <SelectContent>
@@ -950,19 +1438,10 @@ useEffect(() => {
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        {/* Country (Dropdown with Search) */}
-        <div className="space-y-2">
-          <Label htmlFor="country">
-            Country <span className="text-red-500">*</span>
-          </Label>
-          <CountrySelect
-            country={formState.businessInfo.country}
-            onChange={(value, label) => handleInputChange("country", value)}
-            countries={countries}
-            loading={countriesLoading}
-            error={countriesError}
+          <FormValidation
+            isValid={!!formState.businessInfo.staffCount && !externalErrors.staffCount}
+            isInvalid={!!externalErrors.staffCount}
+            message={externalErrors.staffCount || ""}
           />
         </div>
 
@@ -978,6 +1457,13 @@ useEffect(() => {
             states={states}
             loading={statesLoading}
             error={statesError}
+            hasError={!!externalErrors.state}
+            id="state"
+          />
+          <FormValidation
+            isValid={!!formState.businessInfo.state && !externalErrors.state}
+            isInvalid={!!externalErrors.state}
+            message={externalErrors.state || ""}
           />
         </div>
 
@@ -988,17 +1474,18 @@ useEffect(() => {
           </Label>
           <Textarea
             id="address"
-            placeholder="Enter your business address"
+            placeholder="Enter your complete business address"
             value={formState.businessInfo.address}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("address", e.target.value)}
             onBlur={() => validateField("address", formState.businessInfo.address)}
             rows={2}
             aria-required="true"
+            className={cn(externalErrors.address && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
-            isValid={validationState.address.isValid}
-            isInvalid={validationState.address.isInvalid}
-            message={validationState.address.message}
+            isValid={validationState.address.isValid && !externalErrors.address}
+            isInvalid={validationState.address.isInvalid || !!externalErrors.address}
+            message={externalErrors.address || validationState.address.message}
           />
         </div>
 
@@ -1012,29 +1499,35 @@ useEffect(() => {
             onChange={(e) => handleInputChange("city", e.target.value)}
             onBlur={() => validateField("city", formState.businessInfo.city)}
             aria-required="true"
+            className={cn(externalErrors.city && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation 
-            isValid={validationState.city.isValid} 
-            isInvalid={validationState.city.isInvalid} 
-            message={validationState.city.message} 
+            isValid={validationState.city.isValid && !externalErrors.city}
+            isInvalid={validationState.city.isInvalid || !!externalErrors.city}
+            message={externalErrors.city || validationState.city.message}
           />
         </div>
 
-        {/* Pincode (Input, after city, Mandatory) */}
+        {/* Postal/Zip/Pin Code (Input, after city, Mandatory) */}
         <div className="space-y-2">
-          <Label htmlFor="pincode">Pincode <span className="text-red-500">*</span></Label>
+          <Label htmlFor="pincode">Postal/Zip/Pin Code <span className="text-red-500">*</span></Label>
           <Input
             id="pincode"
-            placeholder="Enter your pincode"
+            placeholder="e.g., 110001 or K1A 0B1"
             value={formState.businessInfo.pincode || ""}
-            onChange={(e) => handleInputChange("pincode", e.target.value)}
+            onChange={(e) => {
+              const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, "");
+              handleInputChange("pincode", sanitized);
+            }}
             onBlur={() => validateField("pincode", formState.businessInfo.pincode || "")}
             aria-required="true"
+            maxLength={10}
+            className={cn(externalErrors.pincode && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation 
-            isValid={validationState.pincode.isValid} 
-            isInvalid={validationState.pincode.isInvalid} 
-            message={validationState.pincode.message} 
+            isValid={validationState.pincode.isValid && !externalErrors.pincode}
+            isInvalid={validationState.pincode.isInvalid || !!externalErrors.pincode}
+            message={externalErrors.pincode || validationState.pincode.message}
           />
         </div>
 
@@ -1047,6 +1540,7 @@ useEffect(() => {
             value={formState.businessInfo.taxId || ""}
             onChange={(e) => handleInputChange("taxId", e.target.value)}
             onBlur={() => validateField("taxId", formState.businessInfo.taxId || "")}
+            className={cn(externalErrors.taxId && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
             isValid={validationState.taxId.isValid}
@@ -1065,6 +1559,7 @@ useEffect(() => {
             value={formState.businessInfo.website}
             onChange={(e) => handleInputChange("website", e.target.value)}
             onBlur={() => validateField("website", formState.businessInfo.website)}
+            className={cn(externalErrors.website && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
             isValid={validationState.website.isValid}
@@ -1083,7 +1578,12 @@ useEffect(() => {
             onValueChange={(value) => handleInputChange("preferredLanguage", value)}
             disabled={languagesLoading || languagesError !== ""}
           >
-            <SelectTrigger id="preferredLanguage" aria-required="true">
+            <SelectTrigger
+              id="preferredLanguage"
+              data-field="preferredLanguage"
+              aria-required="true"
+              className={cn(externalErrors.preferredLanguage && "border-red-500 focus-visible:ring-red-500")}
+            >
               <SelectValue placeholder={languagesLoading ? "Loading languages..." : languagesError ? languagesError : "Select language"} />
             </SelectTrigger>
             <SelectContent>
@@ -1097,6 +1597,11 @@ useEffect(() => {
               ))}
             </SelectContent>
           </Select>
+          <FormValidation
+            isValid={!!formState.businessInfo.preferredLanguage && !externalErrors.preferredLanguage}
+            isInvalid={!!externalErrors.preferredLanguage}
+            message={externalErrors.preferredLanguage || ""}
+          />
         </div>
 
         {/* Logo, Profile Picture, and Business Name Upload */}
@@ -1110,16 +1615,37 @@ useEffect(() => {
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleLogoChange}
+                ref={logoInputRef}
                 className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: 2MB</p>
+              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: {MAX_UPLOAD_SIZE_LABEL}</p>
+              {uploadErrors.logo && (
+                <p className="text-xs text-red-600 mt-1">{uploadErrors.logo}</p>
+              )}
+              {(formState.businessInfo.logo || formState.businessInfo.businessLogoUrl) && (
+                <div className="mt-2 flex items-center gap-3 text-xs text-green-600">
+                  <span>
+                    Uploaded: {formState.businessInfo.logo ? formState.businessInfo.logo.name : "Existing logo on file"}
+                  </span>
+                </div>
+              )}
               {logoPreview && (
-                <div className="w-16 h-16 rounded border overflow-hidden flex items-center justify-center bg-gray-50 mt-2">
-                  <img
-                    src={logoPreview || "/placeholder.svg"}
-                    alt="Logo preview"
-                    className="max-w-full max-h-full object-contain"
-                  />
+                <div className="relative w-20 h-20 mt-2">
+                  <div className="w-full h-full rounded border overflow-hidden flex items-center justify-center bg-gray-50">
+                    <img
+                      src={logoPreview || "/placeholder.svg"}
+                      alt="Logo preview"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogoRemove}
+                    className="absolute -top-3 -right-3 bg-white border rounded-full shadow-sm h-7 w-7 flex items-center justify-center text-gray-600 hover:text-red-600"
+                    aria-label="Remove business logo"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
             </div>
@@ -1132,11 +1658,36 @@ useEffect(() => {
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleBusinessNameFileChange}
+                ref={businessNameFileInputRef}
                 className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: 2MB</p>
+              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: {MAX_UPLOAD_SIZE_LABEL}</p>
+              {uploadErrors.businessNameFile && (
+                <p className="text-xs text-red-600 mt-1">{uploadErrors.businessNameFile}</p>
+              )}
               {formState.businessInfo.businessNameFile && (
-                <div className="mt-2 text-xs text-green-600">Uploaded: {formState.businessInfo.businessNameFile.name}</div>
+                <div className="mt-2 flex items-center gap-3 text-xs text-green-600">
+                  <span>Uploaded: {formState.businessInfo.businessNameFile.name}</span>
+                </div>
+              )}
+              {businessNamePreview && (
+                <div className="relative w-20 h-20 mt-2">
+                  <div className="w-full h-full rounded border overflow-hidden flex items-center justify-center bg-gray-50">
+                    <img
+                      src={businessNamePreview}
+                      alt="Business name preview"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleBusinessNameFileRemove}
+                    className="absolute -top-3 -right-3 bg-white border rounded-full shadow-sm h-7 w-7 flex items-center justify-center text-gray-600 hover:text-red-600"
+                    aria-label="Remove business name upload"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               )}
             </div>
 
@@ -1148,16 +1699,35 @@ useEffect(() => {
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleProfilePictureChange}
+                ref={profilePictureInputRef}
                 className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: 2MB</p>
+              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: {MAX_UPLOAD_SIZE_LABEL}</p>
+              {uploadErrors.profilePicture && (
+                <p className="text-xs text-red-600 mt-1">{uploadErrors.profilePicture}</p>
+              )}
               {profilePicturePreview && (
-                <div className="w-16 h-16 rounded-full border overflow-hidden flex items-center justify-center bg-gray-50 mt-2">
-                  <img
-                    src={profilePicturePreview || "/placeholder-user.jpg"}
-                    alt="Profile preview"
-                    className="max-w-full max-h-full object-cover"
-                  />
+                <div className="relative w-20 h-20 mt-2">
+                  <div className="w-full h-full rounded-full border overflow-hidden flex items-center justify-center bg-gray-50">
+                    <img
+                      src={profilePicturePreview || "/placeholder-user.jpg"}
+                      alt="Profile preview"
+                      className="max-w-full max-h-full object-cover"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleProfilePictureRemove}
+                    className="absolute -top-3 -right-3 bg-white border rounded-full shadow-sm h-7 w-7 flex items-center justify-center text-gray-600 hover:text-red-600"
+                    aria-label="Remove profile picture"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              {formState.businessInfo.profilePicture && (
+                <div className="mt-2 flex items-center gap-3 text-xs text-green-600">
+                  <span>Uploaded: {formState.businessInfo.profilePicture.name}</span>
                 </div>
               )}
             </div>

@@ -8,18 +8,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
 import { Save, ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select";
-import { useToast } from "@/hooks/dashboard/use-toast";
 import UnsavedChangesDialog from "@/components/dashboard/common/unsaved-changes-dialog";
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input";
 
-// Helper function to compare times in HH:mm format
-// Helper function to validate time range
-function isTimeAfter(time1: string, time2: string): boolean {
-  if (!time1 || !time2) return false;
-  const [h1, m1] = time1.split(':').map(Number);
-  const [h2, m2] = time2.split(':').map(Number);
-  return (h1 * 60 + m1) > (h2 * 60 + m2);
-}
+const DATE_ERROR_MESSAGES = [
+  "Please enter a valid date (yyyy-mm-dd)",
+  "Future dates are not allowed",
+  "Only dates up to 14 days in the past are allowed"
+] as const;
 
 // Unified attendance record type (mirrors search filters + table expectations)
 export interface InstructorAttendanceRecord {
@@ -61,11 +57,17 @@ export function AddAttendanceDialog({
   onSaveAttendance,
   onSaveDraft
 }: AddAttendanceDialogProps) {
-  const { toast } = useToast();
   // Ensure popovers portal inside the dialog to keep wheel/touch scrolling working
   const dialogContentRef = useRef<HTMLDivElement | null>(null)
   const [unsavedOpen, setUnsavedOpen] = useState(false);
   const pendingCloseRef = useRef<null | (() => void)>(null);
+  const [formError, setFormError] = useState("");
+  type FieldErrors = {
+    instructorId?: string;
+    notes?: string;
+    time?: string;
+  };
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   // Form state
   const [newInstructorId, setNewInstructorId] = useState("");
@@ -147,6 +149,9 @@ export function AddAttendanceDialog({
     setNewCohortTiming("");
     setStartAutoFilled(false);
     setEndAutoFilled(false);
+    setFormError("");
+    setFieldErrors({});
+    setDateError("");
   }
 
   // Load instructors when modal opens
@@ -359,29 +364,53 @@ export function AddAttendanceDialog({
       // Reset cohort resolution tracking for fresh data
       setCohortResolvedFor('');
     }
+    if (isOpen) {
+      setFormError("");
+      setFieldErrors({});
+      setDateError("");
+    }
   }, [editingRecord, editingDraft, isOpen]);
 
   const handleSaveAttendance = () => {
+    const errors: FieldErrors = {};
+
     if (!newInstructorId) {
-      onOpenChange(false);
+      errors.instructorId = "Select an instructor to continue.";
+    }
+
+    if (newStatus === 'absent' && !newNotes.trim()) {
+      errors.notes = "Remarks are required when marking an instructor absent.";
+    }
+
+    if (newStart && newEnd && newStart >= newEnd) {
+      errors.time = "Start time must be before end time.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setFormError("Please fix the highlighted fields.");
       return;
     }
 
-    // Check for duplicate records (only for new records, not when editing)
+    if (dateError) {
+      setFieldErrors(errors);
+      setFormError(dateError);
+      return;
+    }
+
     if (!editingRecord) {
       const existingRecord = attendanceData.find(
         record => record.instructorId === newInstructorId && record.date === newDate
       );
-      
       if (existingRecord) {
-        toast({
-          title: 'Duplicate Record',
-          description: `Attendance record already exists for ${newInstructorId} on ${newDate}. Please edit the existing record or choose a different date.`,
-          variant: 'destructive'
-        });
+        setFieldErrors(errors);
+        setFormError(`Attendance record already exists for ${newInstructorId} on ${newDate}. Please edit the existing entry or pick another date.`);
         return;
       }
     }
+
+    setFieldErrors({});
+    setFormError("");
 
     const recordData = {
       instructorId: newInstructorId,
@@ -417,23 +446,22 @@ export function AddAttendanceDialog({
       cohortTiming: "",
     };
 
-    const actionType = editingRecord ? 'updated' : 'added';
-    toast({
-      title: editingRecord ? 'Changes Saved' : 'Attendance Added',
-      description: `Attendance ${actionType} for ${newInstructorId}.`,
-    });
   };
 
   const handleSaveDraft = () => {
-    // Validate that an instructor is selected
+    const errors: FieldErrors = {};
     if (!newInstructorId?.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please select an instructor before saving the draft.',
-        variant: 'destructive',
-      });
+      errors.instructorId = "Select an instructor before saving the draft.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setFormError("Please fix the highlighted fields before saving the draft.");
       return;
     }
+
+    setFormError("");
+    setFieldErrors({});
 
     const recordData = {
       id: editingDraftId ?? Date.now(),
@@ -454,15 +482,6 @@ export function AddAttendanceDialog({
     
     // Close modal
     onOpenChange(false);
-    
-    // Toast success
-    const labelName = recordData.instructorName || recordData.instructorId || 'Untitled Attendance';
-    toast({
-      title: editingDraftId != null ? 'Draft Updated' : 'Draft Saved',
-      description: editingDraftId != null
-        ? `Attendance draft "${labelName}" has been updated.`
-        : `Attendance draft "${labelName}" has been saved successfully.`,
-    });
     
     // reset state after saving draft
     resetFormToInitial();
@@ -516,7 +535,12 @@ export function AddAttendanceDialog({
             </div>
           </DialogHeader>
           <div className="p-4">
-            <div className="space-y-4">
+              {formError && (
+                <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {formError}
+                </div>
+              )}
+              <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Instructor <span className="text-red-500">*</span></label>
@@ -524,7 +548,7 @@ export function AddAttendanceDialog({
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                          className={`w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 transition ${fieldErrors.instructorId ? 'border-red-400 focus:ring-red-500' : 'focus:ring-purple-500'}`}
                         aria-haspopup="listbox"
                         aria-expanded={instructorSearchOpen}
                       >
@@ -600,6 +624,17 @@ export function AddAttendanceDialog({
                                   }
                                   
                                   setInstructorSearchOpen(false);
+                                  setFieldErrors(prev => {
+                                    if (!prev.instructorId) return prev;
+                                    const next = { ...prev };
+                                    delete next.instructorId;
+                                    if (!Object.keys(next).length && formError === "Please fix the highlighted fields.") {
+                                      setFormError("");
+                                    } else if (formError && formError.toLowerCase().includes('select')) {
+                                      setFormError("");
+                                    }
+                                    return next;
+                                  });
                                 }}
                                 className={`cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100 flex flex-col ${active ? 'bg-purple-50 border border-purple-300' : ''}`}
                               >
@@ -615,6 +650,9 @@ export function AddAttendanceDialog({
                       </div>
                     </PopoverContent>
                   </Popover>
+                    {fieldErrors.instructorId && (
+                      <p className="mt-1 text-xs text-red-500">{fieldErrors.instructorId}</p>
+                    )}
                 </div>
                 <div className="min-w-0">
                   <label htmlFor="attendanceDate" className="block text-sm font-medium mb-2">Date <span className="text-red-500">*</span></label>
@@ -626,22 +664,34 @@ export function AddAttendanceDialog({
                       setNewDate(iso);
                     }}
                     onBlur={(iso) => {
-                      if (!iso) { setDateError(""); return; }
+                      if (!iso) {
+                        setDateError("");
+                        if (formError && DATE_ERROR_MESSAGES.includes(formError as typeof DATE_ERROR_MESSAGES[number])) {
+                          setFormError("");
+                        }
+                        return;
+                      }
                       const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
                       const isParsable = !isNaN(new Date(iso).getTime());
                       if (!isoPattern.test(iso) || !isParsable) {
                         setDateError("Please enter a valid date (yyyy-mm-dd)");
+                        setFormError("Please enter a valid date (yyyy-mm-dd)");
                         return;
                       }
                       if (iso > todayIso) {
                         setDateError("Future dates are not allowed");
+                        setFormError("Future dates are not allowed");
                         return;
                       }
                       if (iso < minDateIso) {
                         setDateError("Only dates up to 14 days in the past are allowed");
+                        setFormError("Only dates up to 14 days in the past are allowed");
                         return;
                       }
                       setDateError("");
+                      if (formError && DATE_ERROR_MESSAGES.includes(formError as typeof DATE_ERROR_MESSAGES[number])) {
+                        setFormError("");
+                      }
                     }}
                     error={!!dateError}
                     min={minDateIso}
@@ -697,20 +747,25 @@ export function AddAttendanceDialog({
                     value={newStart || ''}
                     onChange={(e) => {
                       const rawTime = e.target.value;
-                      if (newEnd && rawTime >= newEnd) {
-                        alert('Start time must be before end time');
-                        return;
-                      }
                       setNewStart(rawTime);
                       setStartAutoFilled(false);
+                      setFieldErrors(prev => {
+                        const next = { ...prev };
+                        if (newEnd && rawTime && rawTime >= newEnd) {
+                          next.time = "Start time must be before end time.";
+                        } else {
+                          delete next.time;
+                          if (!Object.keys(next).length && formError === "Please fix the highlighted fields.") {
+                            setFormError("");
+                          }
+                        }
+                        return next;
+                      });
                     }}
-                    className={`${newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-300 bg-red-50' : ''}`}
+                    className={`${fieldErrors.time ? 'border-red-300 bg-red-50' : ''}`}
                   />
                   {startAutoFilled && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
-                  )}
-                  {newStart && newEnd && isTimeAfter(newStart, newEnd) && (
-                    <p className="mt-1 text-xs text-red-500">Start time must be before end time</p>
                   )}
                 </div>
                 <div>
@@ -720,25 +775,46 @@ export function AddAttendanceDialog({
                     value={newEnd || ''}
                     onChange={(e) => {
                       const rawTime = e.target.value;
-                      if (newStart && rawTime <= newStart) {
-                        alert('End time must be after start time');
-                        return;
-                      }
                       setNewEnd(rawTime);
                       setEndAutoFilled(false);
+                      setFieldErrors(prev => {
+                        const next = { ...prev };
+                        if (newStart && rawTime && rawTime <= newStart) {
+                          next.time = "End time must be after start time.";
+                        } else {
+                          delete next.time;
+                          if (!Object.keys(next).length && formError === "Please fix the highlighted fields.") {
+                            setFormError("");
+                          }
+                        }
+                        return next;
+                      });
                     }}
-                    className={`${newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-300 bg-red-50' : ''}`}
+                    className={`${fieldErrors.time ? 'border-red-300 bg-red-50' : ''}`}
                   />
                   {endAutoFilled && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
                   )}
-                  {newStart && newEnd && isTimeAfter(newStart, newEnd) && (
-                    <p className="mt-1 text-xs text-red-500">End time must be after start time</p>
+                  {fieldErrors.time && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.time}</p>
                   )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Status <span className="text-red-500">*</span></label>
-                  <Select value={newStatus} onValueChange={(v) => setNewStatus(v)}>
+                  <Select value={newStatus} onValueChange={(v) => {
+                    setNewStatus(v);
+                    if (v !== 'absent') {
+                      setFieldErrors(prev => {
+                        if (!prev.notes) return prev;
+                        const next = { ...prev };
+                        delete next.notes;
+                        if (!Object.keys(next).length && formError === "Please fix the highlighted fields.") {
+                          setFormError("");
+                        }
+                        return next;
+                      });
+                    }
+                  }}>
                     <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -755,14 +831,30 @@ export function AddAttendanceDialog({
                   Remarks {newStatus === 'absent' ? <span className="text-red-500">*</span> : null}
                 </label>
                 <textarea
-                  className={`w-full p-2 border rounded-md h-20 ${newStatus === 'absent' && !newNotes.trim() ? 'border-red-300' : ''}`}
+                  className={`w-full p-2 border rounded-md h-20 ${fieldErrors.notes ? 'border-red-300 bg-red-50' : ''}`}
                   placeholder="Add any remarks about the attendance..."
                   value={newNotes}
-                  onChange={e => setNewNotes(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value;
+                    setNewNotes(value);
+                    if (fieldErrors.notes && value.trim()) {
+                      setFieldErrors(prev => {
+                        const next = { ...prev };
+                        delete next.notes;
+                        if (!Object.keys(next).length && formError === "Please fix the highlighted fields.") {
+                          setFormError("");
+                        }
+                        return next;
+                      });
+                    }
+                  }}
                   required={newStatus === 'absent'}
                   aria-required={newStatus === 'absent'}
                   aria-invalid={newStatus === 'absent' && !newNotes.trim() ? true : undefined}
                 />
+                {fieldErrors.notes && (
+                  <p className="mt-1 text-xs text-red-500">{fieldErrors.notes}</p>
+                )}
               </div>
 
               <div className="flex gap-2 justify-end">
@@ -779,7 +871,7 @@ export function AddAttendanceDialog({
                 </Button>
                 {(() => {
                   const noChanges = !!editingRecord && !isDirty;
-                  const invalidRange = !!(newStart && newEnd && isTimeAfter(newStart, newEnd));
+                  const invalidRange = !!(newStart && newEnd && (newStart >= newEnd));
                   const duplicateAdd = !editingRecord && !!potentialDuplicate;
                   const requiredMissing = !newInstructorId || !newDate || !newStatus || (newStatus === 'absent' && !newNotes.trim());
                   const invalidDate = !!dateError;

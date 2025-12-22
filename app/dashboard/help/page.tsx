@@ -19,12 +19,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/dashboard/ui/dialog"
-import { useToast } from "@/hooks/dashboard/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 import { getSession } from "@/app/actions/auth-actions"
 
 export default function HelpPage() {
   const { primaryColor, secondaryColor } = useCustomColors()
-  const { toast } = useToast()
   const [userEmail, setUserEmail] = useState("")
   const [ticketTitle, setTicketTitle] = useState("")
   const [ticketDescription, setTicketDescription] = useState("")
@@ -95,6 +94,10 @@ export default function HelpPage() {
   const [tickets, setTickets] = useState<any[]>([])
   const [isLoadingTickets, setIsLoadingTickets] = useState(false)
   const [isLoadingChats, setIsLoadingChats] = useState(false)
+  const [helpFeedback, setHelpFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
+  const [ticketFormError, setTicketFormError] = useState("")
+  const [ticketFieldErrors, setTicketFieldErrors] = useState<{ title?: string; description?: string; attachments?: string }>({})
+  const [isSubmittingTicket, setIsSubmittingTicket] = useState(false)
 
   // Fetch user session
   useEffect(() => {
@@ -116,6 +119,12 @@ export default function HelpPage() {
   useEffect(() => {
     fetchChats()
   }, [])
+
+  useEffect(() => {
+    if (!helpFeedback) return
+    const timer = window.setTimeout(() => setHelpFeedback(null), 6000)
+    return () => window.clearTimeout(timer)
+  }, [helpFeedback])
 
   const fetchTickets = async () => {
     setIsLoadingTickets(true)
@@ -222,89 +231,111 @@ export default function HelpPage() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'text/csv', 'video/mp4']
-      const allowedExtensions = ['.png', '.jpg', '.jpeg', '.csv', '.mp4']
-      
-      const newFiles = Array.from(e.target.files).filter(file => {
-        const isTypeAllowed = allowedTypes.includes(file.type)
-        const hasAllowedExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
-        
-        if (!isTypeAllowed && !hasAllowedExtension) {
-          toast({
-            title: "Invalid file type",
-            description: `${file.name} is not allowed. Only PNG, JPG, JPEG, CSV, and MP4 files are accepted.`,
-            variant: "destructive",
-            duration: 3000,
-          })
-          return false
-        }
-        return true
-      })
-      
-      if (newFiles.length > 0) {
-        setAttachments(prev => [...prev, ...newFiles])
+    if (!e.target.files) return
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'text/csv', 'video/mp4']
+    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.csv', '.mp4']
+    const incomingFiles = Array.from(e.target.files)
+
+    let attachmentError: string | undefined
+    const validFiles: File[] = []
+
+    incomingFiles.forEach(file => {
+      const isTypeAllowed = allowedTypes.includes(file.type)
+      const hasAllowedExtension = allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+
+      if (!isTypeAllowed && !hasAllowedExtension) {
+        attachmentError = `${file.name} is not allowed. Only PNG, JPG, JPEG, CSV, and MP4 files are accepted.`
+        return
       }
+
+      validFiles.push(file)
+    })
+
+    setTicketFieldErrors(prev => {
+      const next = { ...prev }
+      if (attachmentError) {
+        next.attachments = attachmentError
+      } else {
+        delete next.attachments
+      }
+      return next
+    })
+
+    if (validFiles.length > 0) {
+      setAttachments(prev => [...prev, ...validFiles])
     }
+
+    e.target.value = ""
   }
 
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index))
+    setAttachments(prev => {
+      const updated = prev.filter((_, i) => i !== index)
+      if (updated.length === 0) {
+        setTicketFieldErrors(prevErrors => {
+          if (!prevErrors.attachments) {
+            return prevErrors
+          }
+          const next = { ...prevErrors }
+          delete next.attachments
+          return next
+        })
+      }
+      return updated
+    })
+  }
+
+  const resetTicketForm = () => {
+    setTicketTitle("")
+    setTicketDescription("")
+    setAttachments([])
+    setTicketFormError("")
+    setTicketFieldErrors({})
+    setIsSubmittingTicket(false)
+  }
+
+  const handleTicketDialogToggle = (open: boolean) => {
+    resetTicketForm()
+    setCreatingTicket(open)
   }
 
   const handleSubmitTicket = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Validate required fields
+    setTicketFormError("")
+    setTicketFieldErrors({})
+
     if (!userEmail) {
-      toast({
-        title: "❌ Email Required",
-        description: "Unable to fetch your email. Please refresh the page and try again.",
-        duration: 5000,
-      })
+      setTicketFormError("Unable to fetch your email. Please refresh the page and try again.")
       return
     }
 
-    if (!ticketTitle.trim()) {
-      toast({
-        title: "❌ Title Required",
-        description: "Please enter a ticket title.",
-        duration: 5000,
-      })
+    const trimmedTitle = ticketTitle.trim()
+    const trimmedDescription = ticketDescription.trim()
+
+    const errors: { title?: string; description?: string; attachments?: string } = {}
+
+    if (!trimmedTitle) {
+      errors.title = "Please enter a ticket title."
+    } else if (trimmedTitle.length < 3) {
+      errors.title = "Ticket title must be at least 3 characters."
+    }
+
+    if (!trimmedDescription) {
+      errors.description = "Please enter a ticket description."
+    } else if (trimmedDescription.length < 5) {
+      errors.description = "Ticket description must be at least 5 characters."
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setTicketFieldErrors(errors)
+      setTicketFormError("Please resolve the highlighted fields and try again.")
       return
     }
 
-    if (!ticketDescription.trim()) {
-      toast({
-        title: "❌ Description Required",
-        description: "Please enter a ticket description.",
-        duration: 5000,
-      })
-      return
-    }
+    setIsSubmittingTicket(true)
 
-    if (ticketTitle.trim().length < 3) {
-      toast({
-        title: "❌ Title Too Short",
-        description: "Ticket title must be at least 3 characters.",
-        duration: 5000,
-      })
-      return
-    }
-
-    if (ticketDescription.trim().length < 5) {
-      toast({
-        title: "❌ Description Too Short",
-        description: "Ticket description must be at least 5 characters.",
-        duration: 5000,
-      })
-      return
-    }
-
-    setCreatingTicket(true)
-    
     try {
-      // Prepare attachments data (file metadata)
       const attachmentsData = attachments.map(file => ({
         name: file.name,
         size: file.size,
@@ -318,59 +349,36 @@ export default function HelpPage() {
         },
         body: JSON.stringify({
           customerEmail: userEmail,
-          title: ticketTitle,
-          description: ticketDescription,
+          title: trimmedTitle,
+          description: trimmedDescription,
           attachments: attachmentsData
         })
       })
 
       const data = await response.json()
 
-      if (data.success) {
-        console.log('Ticket created successfully:', data.ticket)
-        
-        // Show success toast
-        toast({
-          title: "✅ Ticket Created Successfully!",
-          description: `Your ticket ${data.ticket.ticketId} has been created. We'll get back to you soon.`,
-          duration: 5000,
-        })
-        
-        // Refresh tickets list
-        await fetchTickets()
-        
-        // Highlight the new ticket
-        setHighlightedTicketId(data.ticket.ticketId)
-        
-        // Remove highlight after 3 seconds
-        setTimeout(() => {
-          setHighlightedTicketId(null)
-        }, 3000)
-        
-        // Reset form
-        setTicketTitle("")
-        setTicketDescription("")
-        setAttachments([])
-        setCreatingTicket(false)
-      } else {
+      if (!data.success) {
         console.error('Error creating ticket:', data.error)
-        toast({
-          title: "❌ Failed to Create Ticket",
-          description: data.error,
-          variant: "destructive",
-          duration: 5000,
-        })
-        setCreatingTicket(false)
+        setTicketFormError(data.error || "Failed to create ticket. Please try again.")
+        return
       }
+
+      await fetchTickets()
+      setHelpFeedback({
+        variant: "success",
+        title: "Ticket created successfully",
+        description: `Your ticket ${data.ticket.ticketId} has been created. We'll get back to you soon.`,
+      })
+      setHighlightedTicketId(data.ticket.ticketId)
+      window.setTimeout(() => {
+        setHighlightedTicketId(null)
+      }, 3000)
+      handleTicketDialogToggle(false)
     } catch (error) {
       console.error('Error submitting ticket:', error)
-      toast({
-        title: "❌ Error",
-        description: "Failed to submit ticket. Please try again.",
-        variant: "destructive",
-        duration: 5000,
-      })
-      setCreatingTicket(false)
+      setTicketFormError("Failed to submit ticket. Please try again.")
+    } finally {
+      setIsSubmittingTicket(false)
     }
   }
 

@@ -44,8 +44,8 @@ interface Cohort {
 
 interface CohortIdentitySettings {
   prefixSource: 'course-name' | 'course-id' | 'custom'
-  customPrefix: string
-  idNumberPadding: number
+  customPrefix?: string
+  idNumberPadding?: number
   allowManualIds: boolean
   enforceUppercase: boolean
 }
@@ -375,6 +375,8 @@ export default function CohortManagement({
   
   // Track missing fields for validation highlighting
   const [missingFields, setMissingFields] = useState<Set<string>>(new Set());
+  const [formError, setFormError] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   
   // Date input focus states for custom formatting display
   const [startDateFocused, setStartDateFocused] = useState(false);
@@ -1088,6 +1090,9 @@ export default function CohortManagement({
     setNewCohortEditId(null);
     setUseCustomSchedule(false);
     setSelectedDays([1, 2, 3, 4, 5]); // Reset selected days to default
+    setMissingFields(new Set());
+    setFormError('');
+    setFieldErrors({});
   };
 
   // Function to render table cell content based on column id
@@ -1853,6 +1858,11 @@ export default function CohortManagement({
           <DialogHeader>
             <DialogTitle className="font-bold text-sm sm:text-base">{newCohortEditId ? 'Edit Cohort' : 'Add New Cohort'}</DialogTitle>
           </DialogHeader>
+          {formError && (
+            <div className="mb-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+              {formError}
+            </div>
+          )}
           <div className="flex-1 overflow-y-auto px-2">
             <div className="space-y-0.5">
               <Label className="text-xs">Cohort Name <span style={{ color: 'red' }}>*</span></Label>
@@ -1862,6 +1872,8 @@ export default function CohortManagement({
                   const newValue = e.target.value;
                   if (newValue === '' || validateCohortName(newValue)) {
                     setNewCohort(c => ({ ...c, name: newValue }));
+                    setFormError('');
+                    setFieldErrors(prev => ({ ...prev, name: '' }));
                     // Clear error when user starts typing
                     if (missingFields.has('name')) {
                       setMissingFields(prev => {
@@ -1871,11 +1883,12 @@ export default function CohortManagement({
                       });
                     }
                   } else {
-                    toast({
-                      title: "Invalid Cohort Name",
-                      description: "Cohort name must start with a letter and can only contain letters, numbers, spaces, hyphens, and underscores.",
-                      variant: "destructive",
-                    });
+                    setFieldErrors(prev => ({
+                      ...prev,
+                      name: 'Cohort name must start with a letter and only use letters, numbers, spaces, hyphens, or underscores'
+                    }))
+                    setFormError('Please fix the highlighted fields.');
+                    setMissingFields(prev => new Set(prev).add('name'))
                   }
                 }} 
                 className={`text-xs p-1 h-7 border rounded-sm focus:border-transparent focus:ring-1 focus:outline-none focus:ring-offset-0 ${
@@ -1885,6 +1898,9 @@ export default function CohortManagement({
                 }`}
                 placeholder="Enter cohort name (letters, numbers, spaces, -, _ only)"
               />
+              {(fieldErrors.name || missingFields.has('name')) && (
+                <p className="text-red-600 text-[11px] mt-0.5">{fieldErrors.name || 'Cohort name is required'}</p>
+              )}
             <Label className="text-xs sm:text-sm">Associated Course <span style={{ color: 'red' }}>*</span></Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -1945,6 +1961,8 @@ export default function CohortManagement({
                             return newSet;
                           });
                         }
+                        setFormError('');
+                        setFieldErrors(prev => ({ ...prev, courseId: '' }));
                         // Update cohort with course ID and automatically populate dates, instructor, and status
                         setNewCohort(c => {
                           const next = { ...c, courseId: selectedCourseId }
@@ -1983,6 +2001,9 @@ export default function CohortManagement({
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+            {missingFields.has('courseId') && (
+              <p className="text-red-600 text-[11px] mt-0.5">Associated course is required</p>
+            )}
             <Label className="text-xs">Cohort ID <span className="text-gray-500 dark:text-white text-[10px] ml-1">(auto-generated)</span></Label>
             <div className="flex items-center gap-2">
               <Input 
@@ -2133,6 +2154,8 @@ export default function CohortManagement({
                       return newSet;
                     });
                   }
+                  setFormError('');
+                  setFieldErrors(prev => ({ ...prev, status: '' }));
                   
                   // Prevent status change if course is inactive
                   if (selectedCourse?.status === 'Inactive' && e.target.value !== 'On Hold') {
@@ -2161,6 +2184,9 @@ export default function CohortManagement({
                 return null;
               })()}
             </div>
+            {(fieldErrors.status || missingFields.has('status')) && (
+              <p className="text-red-600 text-[11px] mt-0.5">{fieldErrors.status || 'Status is required'}</p>
+            )}
 
             {/* Custom Schedule Toggle */}
             {newCohort.courseId && (() => {
@@ -2398,6 +2424,8 @@ export default function CohortManagement({
                                 return newSet;
                               });
                             }
+                            setFormError('');
+                            setFieldErrors(prev => ({ ...prev, location: '' }));
                           }}
                         >
                           {location}
@@ -2417,6 +2445,8 @@ export default function CohortManagement({
                           setLocationSearchTerm('');
                           // Add to database and refresh list
                           await addNewLocation(newLocation);
+                            setFormError('');
+                            setFieldErrors(prev => ({ ...prev, location: '' }));
                         }}
                       >
                         Add "{locationSearchTerm}" as new location
@@ -2425,6 +2455,9 @@ export default function CohortManagement({
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+            {(fieldErrors.location || missingFields.has('location')) && (
+              <p className="text-red-600 text-[11px] mt-0.5">{fieldErrors.location || 'Location is required'}</p>
+            )}
 
             <div className="grid grid-cols-3 gap-2">
               <div>
@@ -2443,6 +2476,8 @@ export default function CohortManagement({
                         return newSet;
                       });
                     }
+                    setFieldErrors(prev => ({ ...prev, startTime: '' }));
+                    setFormError('');
                     
                     if (!rawTime) {
                       setNewCohort(c => ({ ...c, startTime: '' }));
@@ -2451,7 +2486,9 @@ export default function CohortManagement({
                     
                     // Validate time format and range
                     if (newCohort.endTime && rawTime >= newCohort.endTime) {
-                      alert('Start time must be before end time');
+                      setFieldErrors(prev => ({ ...prev, startTime: 'Start time must be before end time', endTime: prev.endTime }));
+                      setFormError('Please fix the highlighted fields.');
+                      setMissingFields(prev => new Set(prev).add('startTime').add('endTime'));
                       return;
                     }
                     
@@ -2464,6 +2501,9 @@ export default function CohortManagement({
                       : 'border-gray-300 focus:ring-blue-500'
                   }`}
                 />
+                {fieldErrors.startTime && (
+                  <p className="text-red-600 text-[11px] mt-0.5">{fieldErrors.startTime}</p>
+                )}
               </div>
               <div>
                 <Label className="text-xs">End Time <span style={{ color: 'red' }}>*</span></Label>
@@ -2481,6 +2521,8 @@ export default function CohortManagement({
                         return newSet;
                       });
                     }
+                    setFieldErrors(prev => ({ ...prev, endTime: '' }));
+                    setFormError('');
                     
                     if (!rawTime) {
                       setNewCohort(c => ({ ...c, endTime: '' }));
@@ -2489,7 +2531,9 @@ export default function CohortManagement({
                     
                     // Validate time format and range
                     if (newCohort.startTime && rawTime <= newCohort.startTime) {
-                      alert('End time must be after start time');
+                      setFieldErrors(prev => ({ ...prev, endTime: 'End time must be after start time', startTime: prev.startTime }));
+                      setFormError('Please fix the highlighted fields.');
+                      setMissingFields(prev => new Set(prev).add('startTime').add('endTime'));
                       return;
                     }
                     
@@ -2502,6 +2546,9 @@ export default function CohortManagement({
                       : 'border-gray-300 focus:ring-blue-500'
                   }`}
                 />
+                {fieldErrors.endTime && (
+                  <p className="text-red-600 text-[11px] mt-0.5">{fieldErrors.endTime}</p>
+                )}
               </div>
               <div>
                 <Label className="text-xs">Capacity <span style={{ color: 'red' }}>*</span></Label>
@@ -2519,11 +2566,15 @@ export default function CohortManagement({
                         return newSet;
                       });
                     }
+                    setFieldErrors(prev => ({ ...prev, capacity: '' }));
+                    setFormError('');
                     
                     if (newCohortEditId) {
                       const currentCohort = cohorts.find(c => c.id === newCohortEditId);
                       if (currentCohort && currentCohort.members.length > newCapacity) {
-                        alert(`Cannot reduce capacity below current member count (${currentCohort.members.length}). Please remove some members first.`);
+                        setFieldErrors(prev => ({ ...prev, capacity: `Cannot set below current members (${currentCohort.members.length})` }));
+                        setFormError('Please fix the highlighted fields.');
+                        setMissingFields(prev => new Set(prev).add('capacity'));
                         return;
                       }
                     }
@@ -2536,13 +2587,21 @@ export default function CohortManagement({
                   }`}
                   min="1"
                 />
+                {(fieldErrors.capacity || missingFields.has('capacity')) && (
+                  <p className="text-red-600 text-[11px] mt-0.5">{fieldErrors.capacity || 'Capacity is required'}</p>
+                )}
               </div>
             </div>
             
             {/* Days of the Week Selection */}
             <div className="space-y-2">
               <Label className="text-xs">Schedule Days <span style={{ color: 'red' }}>*</span></Label>
-              <div className="flex flex-wrap gap-2">
+              <div
+                className={cn(
+                  "flex flex-wrap gap-2 rounded-md p-2 border transition-colors",
+                  (fieldErrors.days || missingFields.has('days')) ? "border-red-500 bg-red-50" : "border-transparent"
+                )}
+              >
                 {daysOfWeek.map((day) => {
                   const isSelected = selectedDays.includes(day.value);
                   return (
@@ -2555,6 +2614,15 @@ export default function CohortManagement({
                         } else {
                           setSelectedDays(prev => [...prev, day.value].sort());
                         }
+                        setMissingFields(prev => {
+                          const next = new Set(prev);
+                          next.delete('days');
+                          return next;
+                        });
+                        setFieldErrors(prev => {
+                          const { days, ...rest } = prev;
+                          return rest;
+                        });
                       }}
                       className={cn(
                         "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border",
@@ -2569,6 +2637,9 @@ export default function CohortManagement({
                   );
                 })}
               </div>
+              {(fieldErrors.days || missingFields.has('days')) && (
+                <p className="text-red-600 text-[11px]">{fieldErrors.days || 'Select at least one day'}</p>
+              )}
               <div className="text-xs text-gray-500 dark:text-white">
                 Select the days when this cohort will have sessions
               </div>
@@ -2616,6 +2687,8 @@ export default function CohortManagement({
               onClick={async () => {
                 // Clear previous validation errors
                 setMissingFields(new Set());
+                setFormError('');
+                setFieldErrors({});
                 
                 // Validate mandatory fields
                 type RequiredField = {
@@ -2641,55 +2714,45 @@ export default function CohortManagement({
                 if (missingFieldsList.length > 0) {
                   // Set missing fields for highlighting
                   setMissingFields(new Set(missingFieldsList.map(f => f.field)));
-                  
-                  toast({
-                    title: "Missing Required Fields",
-                    description: `Please fill in the following mandatory fields: ${missingFieldsList.map(f => f.label).join(', ')}`,
-                    variant: "destructive"
-                  });
+                  const nextFieldErrors: Record<string, string> = {};
+                  missingFieldsList.forEach(f => { nextFieldErrors[f.field] = `${f.label} is required`; });
+                  setFieldErrors(nextFieldErrors);
+                  setFormError(`Please fill in the following mandatory fields: ${missingFieldsList.map(f => f.label).join(', ')}`);
                   return;
                 }
                 
                 // Validate cohort name has at least 4 letters
                 const alphabetCount = (newCohort.name?.match(/[a-zA-Z]/g) || []).length;
                 if (alphabetCount < 4) {
-                  toast({
-                    title: "Invalid Cohort Name",
-                    description: "Cohort name must start with a letter and contain at least 4 letters",
-                    variant: "destructive"
-                  });
+                  setMissingFields(prev => new Set(prev).add('name'));
+                  setFieldErrors(prev => ({ ...prev, name: 'Cohort name must start with a letter and have at least 4 letters' }));
+                  setFormError('Please fix the highlighted fields.');
                   return;
                 }
                 
                 // Validate cohort name starts with a letter
                 if (newCohort.name && !/^[a-zA-Z]/.test(newCohort.name)) {
-                  toast({
-                    title: "Invalid Cohort Name",
-                    description: "Cohort name must start with a letter",
-                    variant: "destructive"
-                  });
+                  setMissingFields(prev => new Set(prev).add('name'));
+                  setFieldErrors(prev => ({ ...prev, name: 'Cohort name must start with a letter' }));
+                  setFormError('Please fix the highlighted fields.');
                   return;
                 }
                 
                 // Validate location has at least 4 letters
                 const locationAlphabetCount = (newCohort.location?.match(/[a-zA-Z]/g) || []).length;
                 if (locationAlphabetCount < 4) {
-                  toast({
-                    title: "Invalid Location",
-                    description: "Location must contain at least 4 letters",
-                    variant: "destructive"
-                  });
+                  setMissingFields(prev => new Set(prev).add('location'));
+                  setFieldErrors(prev => ({ ...prev, location: 'Location must contain at least 4 letters' }));
+                  setFormError('Please fix the highlighted fields.');
                   return;
                 }
 
                 // Validate capacity is a positive number
                 const newCapacity = Number(newCohort.capacity);
                 if (isNaN(newCapacity) || newCapacity <= 0) {
-                  toast({
-                    title: "Invalid Capacity",
-                    description: "Capacity must be a positive number",
-                    variant: "destructive"
-                  });
+                  setMissingFields(prev => new Set(prev).add('capacity'));
+                  setFieldErrors(prev => ({ ...prev, capacity: 'Capacity must be a positive number' }));
+                  setFormError('Please fix the highlighted fields.');
                   return;
                 }
 
@@ -2697,22 +2760,18 @@ export default function CohortManagement({
                 if (newCohortEditId) {
                   const currentCohort = cohorts.find(c => c.id === newCohortEditId);
                   if (currentCohort && currentCohort.members.length > newCapacity) {
-                    toast({
-                      title: "Invalid Capacity",
-                      description: `Cannot reduce capacity below current member count (${currentCohort.members.length}). Please remove some members first.`,
-                      variant: "destructive"
-                    });
+                    setMissingFields(prev => new Set(prev).add('capacity'));
+                    setFieldErrors(prev => ({ ...prev, capacity: `Cannot set below current members (${currentCohort.members.length})` }));
+                    setFormError('Please fix the highlighted fields.');
                     return;
                   }
                 }
 
                 // Validate at least one day is selected
                 if (selectedDays.length === 0) {
-                  toast({
-                    title: "No Days Selected",
-                    description: "Please select at least one day for the cohort schedule",
-                    variant: "destructive"
-                  });
+                  setMissingFields(prev => new Set(prev).add('days'));
+                  setFieldErrors(prev => ({ ...prev, days: 'Select at least one day' }));
+                  setFormError('Please select at least one day for the cohort schedule.');
                   return;
                 }
                 
@@ -2723,11 +2782,9 @@ export default function CohortManagement({
                   const start = new Date(`2000-01-01T${newCohort.startTime}`);
                   const end = new Date(`2000-01-01T${newCohort.endTime}`);
                   if (end <= start) {
-                    toast({
-                      title: "Invalid Time Range",
-                      description: "End time must be after start time",
-                      variant: "destructive"
-                    });
+                    setMissingFields(prev => new Set(prev).add('startTime').add('endTime'));
+                    setFieldErrors(prev => ({ ...prev, endTime: 'End time must be after start time', startTime: prev.startTime }));
+                    setFormError('Please fix the highlighted fields.');
                     return;
                   }
                 }
@@ -2737,11 +2794,9 @@ export default function CohortManagement({
                   const startDate = new Date(newCohort.startDate);
                   const endDate = new Date(newCohort.endDate);
                   if (endDate <= startDate) {
-                    toast({
-                      title: "Invalid Date Range",
-                      description: "End date must be after start date",
-                      variant: "destructive"
-                    });
+                    setMissingFields(prev => new Set(prev).add('startDate').add('endDate'));
+                    setFieldErrors(prev => ({ ...prev, endDate: 'End date must be after start date', startDate: prev.startDate }));
+                    setFormError('Please fix the highlighted fields.');
                     return;
                   }
                 }
@@ -2752,11 +2807,9 @@ export default function CohortManagement({
                 
                 // Validate instructor is available
                 if (!finalInstructor) {
-                  toast({
-                    title: "Instructor Required",
-                    description: "Please select an instructor or choose a course that has a default instructor assigned.",
-                    variant: "destructive"
-                  });
+                  setMissingFields(prev => new Set(prev).add('instructorName'));
+                  setFieldErrors(prev => ({ ...prev, instructorName: 'Instructor is required' }));
+                  setFormError('Please select an instructor or choose a course with an assigned instructor.');
                   return;
                 }
 

@@ -21,6 +21,7 @@ export type Student = {
   countryCode?: string;
   email: string;
   address: string;
+  pincode?: string;
   country?: string; // Country ISO2 code or full name
   stateProvince?: string; // State / Province name
   // Course fields
@@ -31,7 +32,8 @@ export type Student = {
   courseType?: string;
   courseLevel?: string;
   registrationDate: string; // Registration Date (replaces memberSince)
-  courseStartDate: string;
+  courseStartDate?: string;
+  photoUrl?: string;
   // Updated to allow multiple selections; maintain backward compatibility (string | string[])
   referredBy: string;
   referringStudentName?: string;

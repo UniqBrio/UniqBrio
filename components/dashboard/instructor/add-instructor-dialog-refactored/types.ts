@@ -10,7 +10,10 @@ export interface InstructorFormData {
   phone: string
   phoneCountryCode?: string // added: selected dialing code (e.g. +1)
   maritalStatus: string
+  bloodGroup: string
   dob: string
+  temporaryPassword: string
+  permissionsLevel: string
   // Employment Tab Fields
   joiningDate: string
   contractType: string
@@ -20,10 +23,18 @@ export interface InstructorFormData {
   gender: string
   genderOther: string
   address: string
+  pincode: string
   country: string
   state: string
+  branch: string
+  department: string
+  reportingManager: string
   // Professional
   yearsOfExperience: string
+  certifications: string[]
+  specializations: string[]
+  awards: string[]
+  careerGoals: string
   paymentInfo: {
     classCount: string
     frequency: string
@@ -54,6 +65,19 @@ export interface InstructorFormData {
     upiProvider?: string
     upiId?: string
   }
+  upcomingClasses: Array<{ title: string; date: string; time: string; location: string }>
+  branches: string[]
+  shifts: {
+    primary: Array<{ start: string; end: string }>
+    secondary: Array<{ start: string; end: string }>
+  }
+  employmentHistory: Array<{
+    position: string
+    institution: string
+    startDate: string
+    endDate: string
+    responsibilities: string
+  }>
 }
 
 export interface AddInstructorDialogProps {

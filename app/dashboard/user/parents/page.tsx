@@ -342,7 +342,7 @@ export default function ParentsPage() {
       { header: 'Country', getter: p => p.country || '' },
       { header: 'State/Province', getter: p => p.stateProvince || '' },
       { header: 'City', getter: p => p.city || '' },
-      { header: 'Pincode', getter: p => p.pincode || '' },
+      { header: 'Postal/Zip/Pin Code', getter: p => p.pincode || '' },
       { header: 'Address', getter: p => p.address || '' },
       { header: 'Date of Birth', getter: p => formatDateForDisplay(dateToString(p.dob)) },
       { header: 'Linked Student ID', getter: p => p.linkedStudentId || '' },

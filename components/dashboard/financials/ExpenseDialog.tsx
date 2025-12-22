@@ -16,6 +16,7 @@ import { ChevronDown, FileText } from "lucide-react";
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input";
 import { ExpenseDraftsAPI } from "@/lib/dashboard/expense-drafts-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
+import { FINANCIAL_FORM_MESSAGES, getRequiredFieldsMessage } from "./financial-form-messages";
 
 import type { Expense } from "./types";
 
@@ -245,7 +246,15 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
       }
 
       // Update field errors and form
-      setFieldErrors(prev => ({ ...prev, [field]: error }))
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        if (error) {
+          next[field] = error;
+        } else {
+          delete next[field];
+        }
+        return next;
+      })
       
       // Handle special logic for payment mode changes
       if (field === 'paymentMode') {
@@ -260,11 +269,6 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
       }
       
     setExpenseFormError("")
-
-      // Show immediate toast for invalid input if there's an error
-      if (error) {
-        toast({ title: 'Invalid input', description: error })
-      }
   }
 
   // Memoize filtered options to prevent recalculation on every render
@@ -329,84 +333,98 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
 
   function handleExpenseSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    // Final validation before submit
-    if (!expenseForm.date || !expenseForm.amount || !expenseForm.expenseCategory || 
-        (expenseForm.paymentMode?.toLowerCase() !== 'cash' && !expenseForm.addFromAccount)) {
-      setExpenseFormError("Date, Amount, Category" + (expenseForm.paymentMode?.toLowerCase() !== 'cash' ? ", and From Account" : "") + " are required.")
-      toast({ title: 'Validation error', description: 'Date, Amount, Category' + (expenseForm.paymentMode?.toLowerCase() !== 'cash' ? ', and From Account' : '') + ' are required.' })
+    setExpenseFormError("")
+    const requiresAccount = expenseForm.paymentMode?.toLowerCase() !== 'cash'
+    let missingRequired = false
+
+    const updatedErrors: { [key: string]: string } = { ...fieldErrors }
+    const ensureMissing = (fieldKey: keyof ExpenseFormData, missing: boolean, message: string) => {
+      if (missing) {
+        missingRequired = true
+        if (!updatedErrors[fieldKey]) {
+          updatedErrors[fieldKey] = message
+        }
+      } else if (updatedErrors[fieldKey] === message) {
+        delete updatedErrors[fieldKey]
+      }
+    }
+
+    ensureMissing('date', !expenseForm.date?.trim(), 'Date is required.')
+    ensureMissing('amount', !expenseForm.amount?.toString().trim(), 'Amount is required.')
+    ensureMissing('expenseCategory', !expenseForm.expenseCategory?.trim(), 'Category is required.')
+    ensureMissing('addFromAccount', requiresAccount && !expenseForm.addFromAccount?.trim(), 'From Account is required for non-cash payments.')
+
+    setFieldErrors(updatedErrors)
+
+    if (missingRequired) {
+      setExpenseFormError(getRequiredFieldsMessage(requiresAccount))
       return
     }
-    // Check for any field errors
-    const anyErrors = Object.values(fieldErrors).some(err => err)
-    if (anyErrors) {
-      setExpenseFormError('Please fix the highlighted errors before submitting.')
-      toast({ title: 'Validation error', description: 'Please fix invalid fields.' })
+
+    if (Object.values(updatedErrors).some(Boolean)) {
+      setExpenseFormError(FINANCIAL_FORM_MESSAGES.genericError)
       return
     }
+
     onSave?.(expenseForm, initialExpense ? 'edit' : 'add')
     setHasJustSaved(true);
     onOpenChange(false)
     toast({ title: initialExpense ? "Expense Saved" : "Expense Added", description: initialExpense ? "Expense entry changes have been saved." : "Expense entry has been recorded." })
-    // Reset form
+    setFieldErrors({})
+    setExpenseFormError("")
     setExpenseForm(emptyExpenseForm)
   }
 
   // Save Draft function
   async function handleSaveDraft() {
-    if (savingDraft) return; // guard against double clicks
+    if (savingDraft) return false; // guard against double clicks
+    setExpenseFormError("")
     try {
       setSavingDraft(true);
-      // Immediately close dialog to avoid double clicks
-      onOpenChange(false);
       const draftName = ExpenseDraftsAPI.generateDraftName(expenseForm);
-      
+
       if (draftId) {
-        // Update existing draft
-        const updatedDraft = await ExpenseDraftsAPI.updateDraft(draftId, {
+        await ExpenseDraftsAPI.updateDraft(draftId, {
           name: draftName,
           category: expenseForm.expenseCategory || 'Uncategorized',
           amount: expenseForm.amount || '0',
-          data: expenseForm
+          data: expenseForm,
         });
         toast({
           title: "✅ Draft Updated",
           description: `Expense draft "${draftName}" has been updated successfully.`,
           duration: 3000,
         });
-        
-        // Trigger event to update draft counts
+
         const allDrafts = await ExpenseDraftsAPI.getAllDrafts();
         ExpenseDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'updated');
       } else {
-        // Create new draft
-        const newDraft = await ExpenseDraftsAPI.createDraft({
+        await ExpenseDraftsAPI.createDraft({
           name: draftName,
           category: expenseForm.expenseCategory || 'Uncategorized',
           amount: expenseForm.amount || '0',
-          data: expenseForm
+          data: expenseForm,
         });
         toast({
           title: "✅ Draft Saved",
           description: `Expense draft "${draftName}" has been saved successfully.`,
           duration: 3000,
         });
-        
-        // Trigger event to update draft counts
+
         const allDrafts = await ExpenseDraftsAPI.getAllDrafts();
         ExpenseDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'created');
       }
-      
+
       setHasJustSaved(true);
       onDraftSave?.(draftId || undefined);
+      setFieldErrors({})
       setExpenseForm(emptyExpenseForm);
+      onOpenChange(false);
+      return true;
     } catch (error) {
       console.error('Error saving expense draft:', error);
-      toast({
-        title: "❌ Save Failed",
-        description: "Unable to save expense draft. Please try again.",
-        variant: "destructive",
-        duration: 4000,
-      });
+      setExpenseFormError(FINANCIAL_FORM_MESSAGES.draftSaveFailed)
+      return false;
     } finally {
       setSavingDraft(false);
     }
@@ -791,7 +809,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                       tabIndex={12}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving�' : 'Update Draft'}
+                      {savingDraft ? 'Saving...' : 'Update Draft'}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -830,7 +848,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                       tabIndex={13}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving�' : 'Save Draft'}
+                      {savingDraft ? 'Saving...' : 'Save Draft'}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -882,6 +900,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                 setShowUnsavedAlert(false);
                 await handleSaveDraft();
               }}
+              disabled={savingDraft}
               style={{ backgroundColor: primaryColor, color: 'white' }} className="h-10 px-4 border-0"
             >
               <FileText className="h-4 w-4 mr-2" />

@@ -143,25 +143,14 @@ export default function InstructorPage() {
     setAddDialogOpen(true)
   }
 
-  const [instructorSettings, setInstructorSettings] = useState<InstructorSettingsState>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = window.localStorage.getItem(INSTRUCTOR_SETTINGS_KEY)
-      if (saved) {
-        try {
-          return JSON.parse(saved)
-        } catch (error) {
-          console.error('Failed to parse instructor settings from storage', error)
-        }
-      }
-    }
-    return getDefaultInstructorSettings()
-  })
+  const [instructorSettings, setInstructorSettings] = useState<InstructorSettingsState>(getDefaultInstructorSettings)
+  const isSettingsTabDisabled = true
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(INSTRUCTOR_SETTINGS_KEY, JSON.stringify(instructorSettings))
+      window.localStorage.removeItem(INSTRUCTOR_SETTINGS_KEY)
     }
-  }, [instructorSettings])
+  }, [])
 
   const handleUpdateSetting = (category: string, key: string, value: any) => {
     setInstructorSettings(prev => {
@@ -179,6 +168,9 @@ export default function InstructorPage() {
   const handleResetSettings = () => {
     const defaults = getDefaultInstructorSettings()
     setInstructorSettings(defaults)
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(INSTRUCTOR_SETTINGS_KEY)
+    }
     toast({
       title: 'Instructor settings reset',
       description: 'All instructor preferences are back to their defaults.',
@@ -276,18 +268,8 @@ export default function InstructorPage() {
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all"
-                style={{
-                  ...(activeTab === 'settings' ? {
-                    backgroundColor: '#9333ea',
-                    borderColor: '#9333ea',
-                    color: 'white'
-                  } : {
-                    backgroundColor: 'transparent',
-                    borderColor: '#f97316',
-                    color: '#ea580c'
-                  })
-                }}
+                aria-disabled={isSettingsTabDisabled}
+                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all border-black/60 bg-gray-100 text-gray-700 data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
               >
                 <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                 Settings
@@ -318,8 +300,16 @@ export default function InstructorPage() {
             <TabsContent value="attendance" className="mt-6">
               <AttendanceManagement />
             </TabsContent>
-            <TabsContent value="settings" className="mt-6">
-              <Card>
+            <TabsContent value="settings" className="relative mt-6">
+              {isSettingsTabDisabled && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                  <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">Instructor settings are locked to organizational defaults.</p>
+                    <p className="text-xs text-muted-foreground/80">Please contact an administrator to request changes.</p>
+                  </div>
+                </div>
+              )}
+              <Card className={isSettingsTabDisabled ? 'pointer-events-none opacity-60' : ''}>
                 <CardContent className="p-6">
                   <InstructorSettings
                     settings={instructorSettings}

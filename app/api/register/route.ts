@@ -7,6 +7,42 @@ import { getSessionCookie, verifyToken } from "@/lib/auth";
 import { COOKIE_NAMES } from "@/lib/cookies";
 import mongoose from "mongoose";
 
+const businessInfoFields = [
+  "businessName",
+  "legalEntityName",
+  "businessEmail",
+  "phoneNumber",
+  "industryType",
+  "servicesOffered",
+  "studentSize",
+  "staffCount",
+  "country",
+  "state",
+  "city",
+  "address",
+  "website",
+  "preferredLanguage",
+  "pincode",
+  "taxId",
+  "businessLogoUrl",
+  "businessNameUploadUrl",
+  "profilePictureUrl",
+] as const;
+
+const adminInfoFields = ["fullName", "email", "phone"] as const;
+
+const preferencesFields = ["referralSource", "otherReferral", "featuresOfInterest"] as const;
+
+const pickAllowed = (source: unknown, keys: readonly string[]) => {
+  if (!source || typeof source !== "object") return {} as Record<string, unknown>;
+  return keys.reduce<Record<string, unknown>>((acc, key) => {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
+      acc[key] = (source as Record<string, unknown>)[key];
+    }
+    return acc;
+  }, {});
+};
+
 export async function POST(req: Request) {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -88,13 +124,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Registration already completed." }, { status: 400 });
     }
 
-    // Validate required fields from request body
-    if (!body?.adminInfo?.fullName) {
+    const sanitizedBusinessInfo = pickAllowed(body?.businessInfo, businessInfoFields);
+    const sanitizedAdminInfo = pickAllowed(body?.adminInfo, adminInfoFields);
+    const sanitizedPreferences = pickAllowed(body?.preferences, preferencesFields);
+
+    console.log("[Registration API] Sanitized business info keys:", Object.keys(sanitizedBusinessInfo));
+    console.log("[Registration API] Sanitized admin info:", sanitizedAdminInfo);
+    console.log("[Registration API] Sanitized preferences keys:", Object.keys(sanitizedPreferences));
+
+    const servicesOffered = sanitizedBusinessInfo["servicesOffered"];
+    if (servicesOffered !== undefined && !Array.isArray(servicesOffered)) {
+      delete sanitizedBusinessInfo["servicesOffered"];
+    }
+
+    const featuresOfInterest = sanitizedPreferences["featuresOfInterest"];
+    if (featuresOfInterest !== undefined && !Array.isArray(featuresOfInterest)) {
+      delete sanitizedPreferences["featuresOfInterest"];
+    }
+
+    // Validate required fields from sanitized payload
+    if (!sanitizedAdminInfo["fullName"]) {
+      console.error("[Registration API] Validation failed: missing fullName", sanitizedAdminInfo);
       await session.abortTransaction();
       return NextResponse.json({ error: "Full name is required." }, { status: 400 });
     }
     
-    if (!body?.businessInfo?.businessName) {
+    if (!sanitizedBusinessInfo["businessName"]) {
+      console.error("[Registration API] Validation failed: missing businessName", sanitizedBusinessInfo);
       await session.abortTransaction();
       return NextResponse.json({ error: "Business name is required." }, { status: 400 });
     }
@@ -162,8 +218,8 @@ export async function POST(req: Request) {
       { email },
       {
         $set: {
-          name: body.adminInfo.fullName,
-          phone: body?.adminInfo?.phone || existingUser.phone,
+          name: sanitizedAdminInfo["fullName"] as string,
+          phone: (sanitizedAdminInfo["phone"] as string | undefined) || existingUser.phone,
           userId: finalUserId,
           academyId: finalAcademyId,
           tenantId: finalAcademyId, // Set tenantId = academyId for multi-tenant isolation
@@ -179,15 +235,9 @@ export async function POST(req: Request) {
         $set: {
           userId: finalUserId!,
           tenantId: finalAcademyId!,
-          businessInfo: body?.businessInfo || {},
-          adminInfo: body?.adminInfo || {},
-          preferences: {
-            ...(body?.preferences || {}),
-            currency: (body?.preferences as any)?.currency || 'INR',
-            dateFormat: (body?.preferences as any)?.dateFormat || 'dd-MMM-yyyy',
-            timeFormat: (body?.preferences as any)?.timeFormat || '12h',
-            timeZone: (body?.preferences as any)?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-          },
+          businessInfo: sanitizedBusinessInfo,
+          adminInfo: sanitizedAdminInfo,
+          preferences: sanitizedPreferences,
         }
       },
       { 
@@ -265,10 +315,10 @@ export async function POST(req: Request) {
         const { generateRegistrationCompleteNotification, sendEmail } = await import("@/lib/email");
         
         const notificationData = generateRegistrationCompleteNotification({
-          businessName: body.businessInfo?.businessName || 'N/A',
-          name: updatedUser.name || body.adminInfo?.fullName || 'N/A',
+          businessName: (sanitizedBusinessInfo["businessName"] as string) || 'N/A',
+          name: updatedUser.name || (sanitizedAdminInfo["fullName"] as string) || 'N/A',
           email: updatedUser.email,
-          phone: updatedUser.phone || body.adminInfo?.phone || 'N/A',
+          phone: updatedUser.phone || (sanitizedAdminInfo["phone"] as string) || 'N/A',
           planChoosed: updatedUser.planChoosed || 'free',
           registrationDate: new Date(),
           academyId: finalAcademyId,

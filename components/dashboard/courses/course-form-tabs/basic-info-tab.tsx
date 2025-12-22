@@ -28,6 +28,8 @@ interface BasicInfoTabProps {
   allowManualCourseId?: boolean
   onGenerateCourseId?: () => void
   courseIdHint?: string
+  errorFields?: string[]
+  clearErrorField?: (field: string) => void
 }
 
 export default function BasicInfoTab({ 
@@ -40,7 +42,9 @@ export default function BasicInfoTab({
   showDeleteConfirmation = () => {},
   allowManualCourseId = false,
   onGenerateCourseId,
-  courseIdHint
+  courseIdHint,
+  errorFields = [],
+  clearErrorField
 }: BasicInfoTabProps) {
   
   const [searchTerm, setSearchTerm] = useState('')
@@ -437,14 +441,22 @@ export default function BasicInfoTab({
                                                   if (validateCourseName(newValue)) {
                                                     onFormChange('name', newValue);
                                                     setCourseNameError('');
+                                                    clearErrorField?.('name');
                                                   } else {
                                                     setCourseNameError('Only letters, numbers, spaces, hyphens, apostrophes, ampersands, and periods allowed');
                                                   }
                                                 }}
-                                                className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                onBlur={() => {
+                                                  if (!formData.name || !formData.name.trim()) {
+                                                    setCourseNameError('Course name is required');
+                                                  }
+                                                }}
+                                                className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                                                  courseNameError || errorFields.includes('name') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                                                }`}
                                               />
-                                              {courseNameError && (
-                                                <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">{courseNameError}</p>
+                                              {(courseNameError || errorFields.includes('name')) && (
+                                                <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">{courseNameError || 'Course name is required'}</p>
                                               )}
                                             </div>
                                             <div>
@@ -453,7 +465,7 @@ export default function BasicInfoTab({
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
                                                     variant="outline"
-                                                    className="w-full text-left justify-between text-sm sm:text-[15px] py-1 sm:py-1.5 px-2 sm:px-3 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500"
+                                                    className={`w-full text-left justify-between text-sm sm:text-[15px] py-1 sm:py-1.5 px-2 sm:px-3 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${errorFields.includes('status') ? 'border-red-500 focus:!ring-red-500 focus:!border-red-500' : ''}`}
                                                   >
                                                     {formData.status || 'Active'}
                                                     <ChevronDown className="ml-1 sm:ml-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -494,6 +506,7 @@ export default function BasicInfoTab({
                                                           onSelect={() => {
                                                             onFormChange('status', status);
                                                             setStatusSearchTerm('');
+                                                            clearErrorField?.('status');
                                                           }}
                                                         >
                                                           {status}
@@ -502,6 +515,9 @@ export default function BasicInfoTab({
                                                   </div>
                                                 </DropdownMenuContent>
                                               </DropdownMenu>
+                                                {errorFields.includes('status') && (
+                                                  <p className="text-red-500 text-[10px] sm:text-xs mt-0.5">Status is required</p>
+                                                )}
                                             </div>
                                             <div>
                                               <InstructorDropdown
@@ -528,6 +544,9 @@ export default function BasicInfoTab({
                                                 placeholder="Select instructor"
                                                 required={true}
                                               />
+                                                {errorFields.includes('instructor') && (
+                                                  <p className="text-red-500 text-[10px] sm:text-xs mt-0.5">Instructor is required</p>
+                                                )}
                                             </div>
                                             <div>
                                               <Label htmlFor="location" className="font-medium text-xs sm:text-sm mb-0.5 sm:mb-1 block">Location</Label>
@@ -582,6 +601,7 @@ export default function BasicInfoTab({
                                                             onSelect={() => {
                                                               onFormChange('location', location);
                                                               setLocationSearchTerm('');
+                                                              clearErrorField?.('location');
                                                             }}
                                                           >
                                                             {location}
@@ -636,13 +656,19 @@ export default function BasicInfoTab({
                                                   const numValue = parseInt(value);
                                                   if (!isNaN(numValue) && numValue > 0) {
                                                     onFormChange('maxStudents', numValue.toString());
+                                                    clearErrorField?.('maxStudents');
                                                   } else if (value === '0' || numValue === 0) {
                                                     // Don't set 0 values, keep field empty
                                                     onFormChange('maxStudents', '');
                                                   }
                                                 }}
-                                                className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                                                  errorFields.includes('maxStudents') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                                                }`}
                                               />
+                                              {errorFields.includes('maxStudents') && (
+                                                <p className="text-red-500 text-[10px] sm:text-xs mt-0.5">Max students is required</p>
+                                              )}
                                             </div>
                                           </div>
 
@@ -658,14 +684,22 @@ export default function BasicInfoTab({
                                                 if (validateDescription(newValue)) {
                                                   onFormChange('description', newValue);
                                                   setDescriptionError('');
+                                                    clearErrorField?.('description');
                                                 } else {
                                                   setDescriptionError('Only letters, numbers, spaces, and standard punctuation marks allowed');
                                                 }
                                               }}
-                                              className="border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                              onBlur={() => {
+                                                if (!formData.description || !formData.description.trim()) {
+                                                  setDescriptionError('Description is required');
+                                                }
+                                              }}
+                                              className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-[15px] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                                                descriptionError || errorFields.includes('description') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                                              }`}
                                             />
-                                            {descriptionError && (
-                                              <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">{descriptionError}</p>
+                                            {(descriptionError || errorFields.includes('description')) && (
+                                              <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">{descriptionError || 'Description is required'}</p>
                                             )}
                                           </div>
 
@@ -676,7 +710,7 @@ export default function BasicInfoTab({
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
                                                     variant="outline"
-                                                    className={`w-full text-left justify-between text-sm sm:text-[15px] py-1 sm:py-1.5 px-2 sm:px-3 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400' : ''}`}
+                                                    className={`w-full text-left justify-between text-sm sm:text-[15px] py-1 sm:py-1.5 px-2 sm:px-3 border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.level ? 'text-gray-400' : ''} ${errorFields.includes('level') ? 'border-red-500 focus:!ring-red-500 focus:!border-red-500' : ''}`}
                                                   >
                                                     {formData.level || 'Select level'}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
@@ -716,6 +750,7 @@ export default function BasicInfoTab({
                                                           onSelect={() => {
                                                             onFormChange('level', level);
                                                             setLevelSearchTerm('');
+                                                            clearErrorField?.('level');
                                                           }}
                                                         >
                                                           {level}
@@ -746,7 +781,7 @@ export default function BasicInfoTab({
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
                                                     variant="outline"
-                                                    className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.type ? 'text-gray-400' : ''}`}
+                                                    className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.type ? 'text-gray-400' : ''} ${errorFields.includes('type') ? 'border-red-500 focus:!ring-red-500 focus:!border-red-500' : ''}`}
                                                   >
                                                     {formData.type || 'Select type'}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
@@ -786,6 +821,7 @@ export default function BasicInfoTab({
                                                           onSelect={() => {
                                                             onFormChange('type', type);
                                                             setTypeSearchTerm('');
+                                                            clearErrorField?.('type');
                                                           }}
                                                         >
                                                           {type}
@@ -816,7 +852,7 @@ export default function BasicInfoTab({
                                                 <DropdownMenuTrigger asChild>
                                                   <Button
                                                     variant="outline"
-                                                    className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.courseCategory ? 'text-gray-400' : ''}`}
+                                                    className={`w-full text-left justify-between border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${!formData.courseCategory ? 'text-gray-400' : ''} ${errorFields.includes('courseCategory') ? 'border-red-500 focus:!ring-red-500 focus:!border-red-500' : ''}`}
                                                   >
                                                     {formData.courseCategory || 'Select category'}
                                                     <ChevronDown className="ml-2 h-4 w-4" />
@@ -856,6 +892,7 @@ export default function BasicInfoTab({
                                                           onSelect={() => {
                                                             onFormChange('courseCategory', category);
                                                             setCategorySearchTerm('');
+                                                            clearErrorField?.('courseCategory');
                                                           }}
                                                         >
                                                           {category}
@@ -890,7 +927,7 @@ export default function BasicInfoTab({
                                               <DropdownMenuTrigger asChild>
                                                 <Button
                                                   variant="outline"
-                                                  className="mt-2 text-left text-[15px] border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500"
+                                                  className={`mt-2 text-left text-[15px] border-2 hover:bg-gray-50 hover:border-gray-400 focus:!border-purple-500 focus:!ring-2 focus:!ring-purple-500 focus:outline-none data-[state=open]:!border-purple-500 data-[state=open]:!ring-2 data-[state=open]:!ring-purple-500 ${errorFields.includes('tags') ? 'border-red-500 focus:!ring-red-500 focus:!border-red-500' : ''}`}
                                                   style={{
                                                     minWidth: '120px',
                                                     width: (formData.tags?.length || 0) === 0
@@ -965,6 +1002,7 @@ export default function BasicInfoTab({
                                                               ? [...currentTags, tag]
                                                               : currentTags.filter((t: string) => t !== tag);
                                                             onFormChange('tags', newTags);
+                                                            clearErrorField?.('tags');
                                                           }}
                                                           id={`tag-${tag}`}
                                                         />
@@ -984,6 +1022,7 @@ export default function BasicInfoTab({
                                                               ? [...currentTags, tag]
                                                               : currentTags.filter((t: string) => t !== tag);
                                                             onFormChange('tags', newTags);
+                                                            clearErrorField?.('tags');
                                                           }}
                                                           id={`tag-user-${tag}`}
                                                         />
@@ -1000,6 +1039,7 @@ export default function BasicInfoTab({
                                                           await addNewDropdownOption('tags', searchTerm.trim());
                                                           const currentTags = formData.tags || [];
                                                           onFormChange('tags', [...currentTags, searchTerm.trim()]);
+                                                          clearErrorField?.('tags');
                                                         }}
                                                       >
                                                         Add "{searchTerm.trim()}" as new tag
@@ -1010,7 +1050,7 @@ export default function BasicInfoTab({
                                               </DropdownMenuContent>
                                             </DropdownMenu>
                                       <div className="text-[13px] text-gray-500 mt-0.5">Select one or more tags.</div>
-                                      {tagsError && <p className="text-red-500 text-xs mt-1">{tagsError}</p>}
+                                      {(tagsError || errorFields.includes('tags')) && <p className="text-red-500 text-xs mt-1">{tagsError || 'At least one tag is required'}</p>}
                                           </div>
 
                                       <Separator className="my-2" />

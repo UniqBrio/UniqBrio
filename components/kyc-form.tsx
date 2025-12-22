@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { cn } from "@/lib/utils";
 import OwnerBannerCapture from "@/components/owner-banner-capture";
 
 interface KYCFormProps {
@@ -16,12 +17,15 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
   const [showSelfieDialog, setShowSelfieDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [formError, setFormError] = useState<string>("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Capture only owner image
   const handleOwnerCaptureSubmit = (data: any) => {
     console.log("[KYC] Owner capture submitted:", { hasPhoto: !!data.photo });
     // data.photo is base64 string
     setOwnerImage(data.photo);
+    clearFieldError("ownerImage");
     setShowOwnerDialog(false);
     setIsLoading(false);
   };
@@ -29,6 +33,7 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
   const handleBannerCaptureSubmit = (data: any) => {
     console.log("[KYC] Banner capture submitted:", { hasPhoto: !!data.photo });
     setBannerImage(data.photo);
+    clearFieldError("bannerImage");
     setShowBannerDialog(false);
     setIsLoading(false);
   };
@@ -41,6 +46,7 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
       hasTimestamp: !!data.timestamp
     });
     setOwnerWithBannerImage(data.photo);
+    clearFieldError("ownerWithBannerImage");
     setLocation(`${data.location.latitude}, ${data.location.longitude} (${data.location.address || "No address"})`);
     setDateTime(data.timestamp);
     setLatitude(data.location.latitude);
@@ -48,6 +54,15 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
     setAddress(data.location.address || "");
     setShowSelfieDialog(false);
     setIsLoading(false);
+  };
+  
+  const clearFieldError = (field: string) => {
+    setFieldErrors((prev) => {
+      if (!(field in prev)) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
   // Add state for latitude, longitude, address, userId, academyId
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -118,6 +133,8 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
+    setFieldErrors({});
     setIsLoading(true);
     
     console.log("[KYC] Starting form submission...", {
@@ -129,20 +146,22 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
     });
 
     // Validate that all required images are provided
+    const errors: Record<string, string> = {};
     if (!ownerImage) {
-      alert("Please capture or upload an image of the owner before submitting.");
-      setIsLoading(false);
-      return;
+      errors.ownerImage = "Capture or upload an image of the owner.";
     }
 
     if (!bannerImage) {
-      alert("Please capture or upload an image of the academy banner before submitting.");
-      setIsLoading(false);
-      return;
+      errors.bannerImage = "Capture or upload an image of the academy banner.";
     }
 
     if (!ownerWithBannerImage) {
-      alert("Please capture an image of the owner standing beside the banner before submitting.");
+      errors.ownerWithBannerImage = "Capture an image of the owner standing beside the banner.";
+    }
+
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      setFormError("Please complete the required captures before submitting.");
       setIsLoading(false);
       return;
     }
@@ -151,7 +170,8 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
       // Test authentication first
       const isAuthenticated = await testAuthentication();
       if (!isAuthenticated) {
-        alert("Authentication failed. Please log out and log back in, then try again.");
+        setFormError("Authentication failed. Please log out and log back in, then try again.");
+        setIsLoading(false);
         return;
       }
       
@@ -226,11 +246,11 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
         }
         
         console.error("[KYC] Submission failed:", errorMessage);
-        alert("KYC submission failed: " + errorMessage);
+        setFormError("KYC submission failed: " + errorMessage);
       }
     } catch (error) {
       console.error("[KYC] Submission error:", error);
-      alert("KYC submission failed: " + (error as Error).message);
+      setFormError("KYC submission failed: " + (error as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -243,8 +263,13 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
         <p className="text-md text-red-600 mb-6 font-semibold">
           No fake info should be uploaded. If done, after verification your account will be blocked.
         </p>
+        {formError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            {formError}
+          </div>
+        )}
         {/* 1. Capture or Upload image of user/owner */}
-        <div className={`mb-6 ${!ownerImage ? 'border-2 border-red-200 rounded-lg p-3 bg-red-50' : ''}`}>
+        <div className={`mb-6 ${fieldErrors.ownerImage ? 'border-2 border-red-500 rounded-lg p-3 bg-red-50' : ''}`}>
           <label className="block font-semibold mb-2 text-purple-700">
             1. Capture or Upload Image of Owner
             {!ownerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
@@ -272,8 +297,14 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/jpg"
-                    className="block w-full text-sm text-transparent border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
-                    onChange={e => setOwnerImage(e.target.files?.[0] || null)}
+                    className={cn(
+                      "block w-full text-sm text-transparent border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer",
+                      fieldErrors.ownerImage && "border-red-500 focus:border-red-500 focus-visible:ring-red-500"
+                    )}
+                    onChange={e => {
+                      setOwnerImage(e.target.files?.[0] || null);
+                      clearFieldError("ownerImage");
+                    }}
                   />
                 </div>
               ) : null}
@@ -296,11 +327,14 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                   )}
                 </div>
               )}
+              {fieldErrors.ownerImage && (
+                <p className="text-xs text-red-600 mt-2">{fieldErrors.ownerImage}</p>
+              )}
             </div>
           </div>
         </div>
         {/* 2. Upload image of banner of the academy */}
-        <div className={`mb-6 ${!bannerImage ? 'border-2 border-red-200 rounded-lg p-3 bg-red-50' : ''}`}>
+        <div className={`mb-6 ${fieldErrors.bannerImage ? 'border-2 border-red-500 rounded-lg p-3 bg-red-50' : ''}`}>
           <label className="block font-semibold mb-2 text-purple-700">
             2. Capture or Upload Image of Academy Banner
             {!bannerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
@@ -328,8 +362,14 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/jpg"
-                    className="block w-full text-sm text-transparent border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
-                    onChange={e => setBannerImage(e.target.files?.[0] || null)}
+                    className={cn(
+                      "block w-full text-sm text-transparent border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer",
+                      fieldErrors.bannerImage && "border-red-500 focus:border-red-500 focus-visible:ring-red-500"
+                    )}
+                    onChange={e => {
+                      setBannerImage(e.target.files?.[0] || null);
+                      clearFieldError("bannerImage");
+                    }}
                   />
                 </div>
               ) : null}
@@ -352,11 +392,14 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
                   )}
                 </div>
               )}
+              {fieldErrors.bannerImage && (
+                <p className="text-xs text-red-600 mt-2">{fieldErrors.bannerImage}</p>
+              )}
             </div>
           </div>
         </div>
         {/* 3. Capture image of Owner standing beside banner with location, time, date */}
-        <div className={`mb-6 ${!ownerWithBannerImage ? 'border-2 border-red-200 rounded-lg p-3 bg-red-50' : ''}`}>
+        <div className={`mb-6 ${fieldErrors.ownerWithBannerImage ? 'border-2 border-red-500 rounded-lg p-3 bg-red-50' : ''}`}>
           <label className="block font-semibold mb-2 text-purple-700">
             3. Capture Image of Owner Beside Banner
             {!ownerWithBannerImage && <span className="text-red-500 text-sm ml-2">* Required</span>}
@@ -386,6 +429,9 @@ const KYCForm: React.FC<KYCFormProps> = ({ onSubmit }) => {
               <div className="text-xs mt-1"><b>Location:</b> {location}</div>
               <div className="text-xs"><b>Date & Time:</b> {dateTime}</div>
             </div>
+          )}
+          {fieldErrors.ownerWithBannerImage && (
+            <p className="text-xs text-red-600 mt-2">{fieldErrors.ownerWithBannerImage}</p>
           )}
           
           

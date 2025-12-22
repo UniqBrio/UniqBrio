@@ -11,13 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/dashboard/use-toast";
 import UnsavedChangesDialog from "@/components/dashboard/common/unsaved-changes-dialog";
 import { FormattedDateInput } from "@/components/dashboard/common/formatted-date-input";
+import { cn } from "@/lib/dashboard/utils";
 
-// Helper function to validate time range
+// Helper to flag invalid time sequences (start >= end)
 function isTimeAfter(time1: string, time2: string): boolean {
   if (!time1 || !time2) return false;
   const [h1, m1] = time1.split(':').map(Number);
   const [h2, m2] = time2.split(':').map(Number);
-  return (h1 * 60 + m1) > (h2 * 60 + m2);
+  return (h1 * 60 + m1) >= (h2 * 60 + m2);
 }
 
 // Unified attendance record type (mirrors search filters + table expectations)
@@ -60,6 +61,8 @@ export function AddAttendanceDialog({
   onSaveAttendance,
   onSaveDraft
 }: AddAttendanceDialogProps) {
+  const GENERIC_ERROR = "Please fix the highlighted fields before continuing.";
+  const DUPLICATE_ERROR = "Attendance record already exists for the selected non-instructor on this date.";
   const { toast } = useToast();
   const [unsavedOpen, setUnsavedOpen] = useState(false);
   const pendingCloseRef = useRef<null | (() => void)>(null);
@@ -83,7 +86,6 @@ export function AddAttendanceDialog({
     d.setDate(d.getDate() - 14);
     return d.toISOString().slice(0, 10);
   }, []);
-  const [dateError, setDateError] = useState("");
   
   // Cohort/instructor auto-populated fields
   const [newCohortName, setNewCohortName] = useState("");
@@ -97,6 +99,71 @@ export function AddAttendanceDialog({
   const [instructorsLoading, setinstructorsLoading] = useState(false);
   const [cohortResolvedFor, setCohortResolvedFor] = useState<string>("");
   const [cohortResolving, setCohortResolving] = useState(false);
+  type FieldErrors = {
+    instructorId?: string;
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+    status?: string;
+    notes?: string;
+  };
+  const [formError, setFormError] = useState<string>("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const setFieldError = (field: keyof FieldErrors, message?: string) => {
+    setFieldErrors(prev => {
+      const next = { ...prev };
+      if (message) {
+        next[field] = message;
+      } else {
+        delete next[field];
+      }
+      if (Object.keys(next).length === 0) {
+        setFormError("");
+      }
+      return next;
+    });
+  };
+
+  const resetValidationState = () => {
+    setFormError("");
+    setFieldErrors({});
+  };
+
+  const ensureFormError = (message: string) => {
+    setFormError(prev => (prev ? prev : message));
+  };
+
+  const validateTimeOrder = (start?: string | null, end?: string | null) => {
+    if (!start || !end) {
+      return true;
+    }
+    if (start >= end) {
+      setFieldError('startTime', 'Start time must be before end time');
+      setFieldError('endTime', 'End time must be after start time');
+      return false;
+    }
+    setFieldError('startTime');
+    setFieldError('endTime');
+    return true;
+  };
+  const validateDateValue = (iso: string): string => {
+    if (!iso) {
+      return "Select a date.";
+    }
+    const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
+    const isParsable = !Number.isNaN(new Date(iso).getTime());
+    if (!isoPattern.test(iso) || !isParsable) {
+      return "Please enter a valid date (yyyy-mm-dd)";
+    }
+    if (iso > todayIso) {
+      return "Future dates are not allowed";
+    }
+    if (iso < minDateIso) {
+      return "Only dates up to 14 days in the past are allowed";
+    }
+    return "";
+  };
 
   // Track initial snapshot to detect dirty state
   const initialSnapshotRef = useRef({
@@ -346,6 +413,7 @@ export function AddAttendanceDialog({
   // Initialize form when editing record or draft
   useEffect(() => {
     if (isOpen) {
+      resetValidationState();
       const dataToLoad = editingRecord || editingDraft;
       if (dataToLoad) {
         setnewInstructorId(dataToLoad.instructorId || '');
@@ -401,32 +469,97 @@ export function AddAttendanceDialog({
     }
   }, [editingRecord, editingDraft, isOpen]);
 
-  const handleSaveAttendance = () => {
+  const handleSaveAttendance = (): boolean => {
+    resetValidationState();
+
+    let hasError = false;
+    let formMessage: string | null = null;
+
+    const markError = (message?: string) => {
+      hasError = true;
+      if (!formMessage) {
+        formMessage = message || GENERIC_ERROR;
+      }
+    };
+
     if (!newInstructorId) {
-      onOpenChange(false);
-      return;
+      setFieldError('instructorId', 'Select a non-instructor.');
+      markError(GENERIC_ERROR);
+    } else {
+      setFieldError('instructorId');
     }
 
-    // Check for duplicate records (only for new records, not when editing)
-    if (!editingRecord) {
-      const existingRecord = attendanceData.find(
-        record => record.instructorId === newInstructorId && record.date === newDate
-      );
-      
-      if (existingRecord) {
-        toast({
-          title: 'Duplicate Record',
-          description: `Attendance record already exists for ${newInstructorId} on ${newDate}. Please edit the existing record or choose a different date.`,
-          variant: 'destructive'
-        });
-        return;
+    const dateValidation = validateDateValue(newDate);
+    if (dateValidation) {
+      setFieldError('date', dateValidation);
+      markError(GENERIC_ERROR);
+    } else {
+      setFieldError('date');
+    }
+
+    if (!newStatus) {
+      setFieldError('status', 'Select a status.');
+      markError(GENERIC_ERROR);
+    } else {
+      setFieldError('status');
+    }
+
+    let startHasError = false;
+    let endHasError = false;
+
+    if (newStart && !newEnd) {
+      setFieldError('endTime', 'Provide an end time or clear the start time.');
+      endHasError = true;
+      markError(GENERIC_ERROR);
+    }
+
+    if (!newStart && newEnd) {
+      setFieldError('startTime', 'Provide a start time when an end time is set.');
+      startHasError = true;
+      markError(GENERIC_ERROR);
+    }
+
+    if (newStart && newEnd) {
+      const validRange = validateTimeOrder(newStart, newEnd);
+      if (!validRange) {
+        startHasError = true;
+        endHasError = true;
+        markError(GENERIC_ERROR);
       }
+    }
+
+    if (!startHasError && !(newStart && newEnd)) {
+      setFieldError('startTime');
+    }
+    if (!endHasError && !(newStart && newEnd)) {
+      setFieldError('endTime');
+    }
+
+    if (newStatus === 'absent' && !newNotes.trim()) {
+      setFieldError('notes', 'Remarks are required when marking absent.');
+      markError(GENERIC_ERROR);
+    } else {
+      setFieldError('notes');
+    }
+
+    if (!editingRecord && newInstructorId && !dateValidation) {
+      const duplicateRecord = potentialDuplicate;
+      if (duplicateRecord) {
+        setFieldError('date', DUPLICATE_ERROR);
+        formMessage = DUPLICATE_ERROR;
+        hasError = true;
+      }
+    }
+
+    if (hasError) {
+      setFormError(formMessage || GENERIC_ERROR);
+      return false;
     }
 
     const recordData = {
       instructorId: newInstructorId,
-      instructorName: instructorsList.find(s => s.id === newInstructorId)?.name || 
-                   attendanceData.find(r => r.instructorId === newInstructorId)?.instructorName || 
+      instructorName: instructorsList.find(s => s.id === newInstructorId)?.name ||
+                   attendanceData.find(r => r.instructorId === newInstructorId)?.instructorName ||
                    newInstructorId,
       cohortName: newCohortName,
       cohortInstructor: newCohortInstructor,
@@ -439,12 +572,11 @@ export function AddAttendanceDialog({
     };
 
     onSaveAttendance(recordData);
-    
-    // Reset & close
+
     resetFormToInitial();
     onOpenChange(false);
-    
-    // Reset initial snapshot
+    resetValidationState();
+
     initialSnapshotRef.current = {
       instructorId: "",
       date: new Date().toISOString().slice(0,10),
@@ -457,22 +589,50 @@ export function AddAttendanceDialog({
       cohortTiming: "",
     };
 
-    const actionType = editingRecord ? 'updated' : 'added';
-    toast({
-      title: editingRecord ? 'Changes Saved' : 'Attendance Added',
-      description: `Attendance ${actionType} for ${newInstructorId}.`,
-    });
+    return true;
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = (): boolean => {
+    resetValidationState();
+
     // Validate that an instructor is selected
     if (!newInstructorId?.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please select an instructor before saving the draft.',
-        variant: 'destructive',
-      });
-      return;
+      setFieldError('instructorId', 'Select a non-instructor before saving a draft.');
+      setFormError('Select a non-instructor before saving a draft.');
+      return false;
+    }
+
+    let hasError = false;
+    let formMessage: string | null = null;
+
+    const markDraftError = (message?: string) => {
+      hasError = true;
+      if (!formMessage) {
+        formMessage = message || GENERIC_ERROR;
+      }
+    };
+
+    const dateValidation = validateDateValue(newDate);
+    if (dateValidation) {
+      setFieldError('date', dateValidation);
+      markDraftError(GENERIC_ERROR);
+    } else {
+      setFieldError('date');
+    }
+
+    if (newStart && newEnd) {
+      const validRange = validateTimeOrder(newStart, newEnd);
+      if (!validRange) {
+        markDraftError(GENERIC_ERROR);
+      }
+    } else {
+      setFieldError('startTime');
+      setFieldError('endTime');
+    }
+
+    if (hasError) {
+      setFormError(formMessage || GENERIC_ERROR);
+      return false;
     }
 
     const recordData = {
@@ -491,6 +651,7 @@ export function AddAttendanceDialog({
     };
 
     onSaveDraft(recordData);
+    resetValidationState();
     
     // Close modal
     onOpenChange(false);
@@ -517,6 +678,7 @@ export function AddAttendanceDialog({
       cohortInstructor: "",
       cohortTiming: "",
     };
+    return true;
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -551,7 +713,11 @@ export function AddAttendanceDialog({
                   variant="outline"
                   size="sm"
                   className="h-9 gap-1 mr-10 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm font-medium pl-2 pr-3"
-                  onClick={handleSaveDraft}
+                  onClick={() => {
+                    if (!handleSaveDraft()) {
+                      return;
+                    }
+                  }}
                   title={editingDraftId != null ? "Update Draft" : "Save Draft"}
                 >
                   <Save className="w-4 h-4" />
@@ -562,6 +728,13 @@ export function AddAttendanceDialog({
           </DialogHeader>
           <div className="p-4">
             <div className="space-y-4">
+              {formError && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 flex items-start gap-2">
+                  <div className="mt-0.5">⚠️</div>
+                  <div>{formError}</div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Non-Instructor <span className="text-red-500">*</span></label>
@@ -569,7 +742,10 @@ export function AddAttendanceDialog({
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                        className={cn(
+                          "w-full p-2 border rounded-md flex items-center justify-between text-left hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition",
+                          fieldErrors.instructorId ? "border-red-500 focus:ring-red-400" : ""
+                        )}
                         aria-haspopup="listbox"
                         aria-expanded={instructorSearchOpen}
                       >
@@ -598,6 +774,7 @@ export function AddAttendanceDialog({
                                 key={s.id}
                                 onClick={async () => {
                                   setnewInstructorId(s.id);
+                                  setFieldError('instructorId');
                                   // Attempt to derive cohort data from existing records first
                                   const existing = attendanceData.find(r => r.instructorId === s.id);
                                   const cohortName = existing?.cohortName || s.cohortName || "";
@@ -660,6 +837,9 @@ export function AddAttendanceDialog({
                       </div>
                     </PopoverContent>
                   </Popover>
+                  {fieldErrors.instructorId && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.instructorId}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Date <span className="text-red-500">*</span></label>
@@ -667,35 +847,28 @@ export function AddAttendanceDialog({
                     id="attendanceDate"
                     value={newDate}
                     onChange={(iso) => {
-                      // Let the user type freely. We'll validate on blur.
                       setNewDate(iso);
+                      if (fieldErrors.date) {
+                        setFieldError('date');
+                      }
                     }}
                     onBlur={(iso) => {
-                      if (!iso) { setDateError(""); return; }
-                      const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
-                      const isParsable = !isNaN(new Date(iso).getTime());
-                      if (!isoPattern.test(iso) || !isParsable) {
-                        setDateError("Please enter a valid date (yyyy-mm-dd)");
-                        return;
+                      const validation = validateDateValue(iso);
+                      if (validation) {
+                        setFieldError('date', validation);
+                        ensureFormError(GENERIC_ERROR);
+                      } else {
+                        setFieldError('date');
                       }
-                      if (iso > todayIso) {
-                        setDateError("Future dates are not allowed");
-                        return;
-                      }
-                      if (iso < minDateIso) {
-                        setDateError("Only dates up to 14 days in the past are allowed");
-                        return;
-                      }
-                      setDateError("");
                     }}
-                    error={!!dateError}
+                    error={!!fieldErrors.date}
                     min={minDateIso}
                     max={todayIso}
                     displayFormat="dd-MMM-yyyy"
                     placeholder="dd-mmm-yyyy"
                   />
-                  {dateError && (
-                    <p className="mt-1 text-xs text-red-500">{dateError}</p>
+                  {fieldErrors.date && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.date}</p>
                   )}
                 </div>
               </div>
@@ -741,20 +914,22 @@ export function AddAttendanceDialog({
                     value={newStart || ''}
                     onChange={(e) => {
                       const rawTime = e.target.value;
-                      if (newEnd && rawTime >= newEnd) {
-                        alert('Start time must be before end time');
-                        return;
-                      }
                       setNewStart(rawTime);
                       setStartAutoFilled(false);
+                      if (fieldErrors.startTime) {
+                        setFieldError('startTime');
+                      }
                     }}
-                    className={`${newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-300 bg-red-50' : ''}`}
+                    className={cn(
+                      newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-500 bg-red-50' : '',
+                      fieldErrors.startTime ? 'border-red-500 bg-red-50 focus:ring-red-400' : ''
+                    )}
                   />
                   {startAutoFilled && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
                   )}
-                  {newStart && newEnd && isTimeAfter(newStart, newEnd) && (
-                    <p className="mt-1 text-xs text-red-500">Start time must be before end time</p>
+                  {fieldErrors.startTime && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.startTime}</p>
                   )}
                 </div>
                 <div>
@@ -764,26 +939,31 @@ export function AddAttendanceDialog({
                     value={newEnd || ''}
                     onChange={(e) => {
                       const rawTime = e.target.value;
-                      if (newStart && rawTime <= newStart) {
-                        alert('End time must be after start time');
-                        return;
-                      }
                       setNewEnd(rawTime);
                       setEndAutoFilled(false);
+                      if (fieldErrors.endTime) {
+                        setFieldError('endTime');
+                      }
                     }}
-                    className={`${newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-300 bg-red-50' : ''}`}
+                    className={cn(
+                      newStart && newEnd && isTimeAfter(newStart, newEnd) ? 'border-red-500 bg-red-50' : '',
+                      fieldErrors.endTime ? 'border-red-500 bg-red-50 focus:ring-red-400' : ''
+                    )}
                   />
                   {endAutoFilled && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-white">Auto-filled from schedule</p>
                   )}
-                  {newStart && newEnd && isTimeAfter(newStart, newEnd) && (
-                    <p className="mt-1 text-xs text-red-500">End time must be after start time</p>
+                  {fieldErrors.endTime && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.endTime}</p>
                   )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Status <span className="text-red-500">*</span></label>
-                  <Select value={newStatus} onValueChange={(v) => setNewStatus(v)}>
-                    <SelectTrigger className="h-9">
+                  <Select value={newStatus} onValueChange={(v) => {
+                    setNewStatus(v);
+                    setFieldError('status');
+                  }}>
+                    <SelectTrigger className={cn('h-9', fieldErrors.status ? 'border-red-500 focus:ring-red-400' : '')}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -791,6 +971,9 @@ export function AddAttendanceDialog({
                       <SelectItem value="absent">Unplanned Leave</SelectItem>
                     </SelectContent>
                   </Select>
+                  {fieldErrors.status && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.status}</p>
+                  )}
                 </div>
               </div>
 
@@ -799,14 +982,26 @@ export function AddAttendanceDialog({
                   Remarks {newStatus === 'absent' ? <span className="text-red-500">*</span> : null}
                 </label>
                 <textarea
-                  className={`w-full p-2 border rounded-md h-20 ${newStatus === 'absent' && !newNotes.trim() ? 'border-red-300' : ''}`}
+                  className={cn(
+                    'w-full p-2 border rounded-md h-20',
+                    (newStatus === 'absent' && !newNotes.trim()) ? 'border-red-500' : '',
+                    fieldErrors.notes ? 'border-red-500' : ''
+                  )}
                   placeholder="Add any remarks about the attendance..."
                   value={newNotes}
-                  onChange={e => setNewNotes(e.target.value)}
+                  onChange={e => {
+                    setNewNotes(e.target.value);
+                    if (fieldErrors.notes) {
+                      setFieldError('notes');
+                    }
+                  }}
                   required={newStatus === 'absent'}
                   aria-required={newStatus === 'absent'}
                   aria-invalid={newStatus === 'absent' && !newNotes.trim() ? true : undefined}
                 />
+                {fieldErrors.notes && (
+                  <p className="mt-1 text-xs text-red-500">{fieldErrors.notes}</p>
+                )}
               </div>
 
               <div className="flex gap-2 justify-end">
@@ -815,7 +1010,11 @@ export function AddAttendanceDialog({
                   variant="outline"
                   size="sm"
                   className="h-9 gap-1 border border-purple-300/70 bg-white text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm font-medium pl-2 pr-3"
-                  onClick={handleSaveDraft}
+                  onClick={() => {
+                    if (!handleSaveDraft()) {
+                      return;
+                    }
+                  }}
                   title={editingDraftId != null ? "Update Draft" : "Save Draft"}
                 >
                   <Save className="w-4 h-4" />
@@ -826,7 +1025,7 @@ export function AddAttendanceDialog({
                   const invalidRange = !!(newStart && newEnd && isTimeAfter(newStart, newEnd));
                   const duplicateAdd = !editingRecord && !!potentialDuplicate;
                   const requiredMissing = !newInstructorId || !newDate || !newStatus || (newStatus === 'absent' && !newNotes.trim());
-                  const invalidDate = !!dateError;
+                  const invalidDate = !!fieldErrors.date;
                   const disabled = noChanges || invalidRange || duplicateAdd || requiredMissing || invalidDate;
                   const tip = requiredMissing
                     ? 'Please fill all the mandatory fields.'
@@ -837,14 +1036,18 @@ export function AddAttendanceDialog({
                         : invalidRange
                           ? 'Invalid time range'
                           : invalidDate
-                            ? dateError
+                            ? fieldErrors.date
                             : undefined;
 
                   const button = (
                     <Button
                       size="sm"
                       className="h-9"
-                      onClick={handleSaveAttendance}
+                      onClick={() => {
+                        if (!handleSaveAttendance()) {
+                          return;
+                        }
+                      }}
                       disabled={disabled}
                     >
                       {editingRecord ? 'Save Changes' : 'Add Attendance'}
@@ -876,8 +1079,11 @@ export function AddAttendanceDialog({
         onOpenChange={setUnsavedOpen}
         onContinueEditing={() => setUnsavedOpen(false)}
         onSaveAsDraft={() => {
+          const saved = handleSaveDraft();
+          if (!saved) {
+            return;
+          }
           setUnsavedOpen(false);
-          handleSaveDraft();
           pendingCloseRef.current?.();
           pendingCloseRef.current = null;
         }}

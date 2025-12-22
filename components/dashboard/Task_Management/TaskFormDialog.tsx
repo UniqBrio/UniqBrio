@@ -10,15 +10,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/
 import { Calendar } from "@/components/dashboard/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Textarea } from "@/components/dashboard/ui/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { CalendarIcon, Save, Check, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/dashboard/utils"
 import { format } from "date-fns"
 import { Task, TaskFormData } from "./types"
 import { resetFormData } from "./utils"
-import { toast } from "@/components/dashboard/ui/use-toast"
-// crudSuccess intentionally not used here for add/update to centralize toasts in parent component
-import { ToastAction } from "@/components/dashboard/ui/toast"
+import { Alert, AlertDescription } from "@/components/dashboard/ui/alert"
 
 interface TaskFormDialogProps {
   isOpen: boolean
@@ -50,6 +47,8 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
     }
     return ['Self']
   })
+  const [formError, setFormError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const resetForm = () => {
     let formState: TaskFormData
@@ -88,6 +87,8 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
     setFormData(formState)
     setInitialFormData(formState)
     setHasUnsavedChanges(false)
+    setFormError("")
+    setFieldErrors({})
   }
 
   // Reset form when dialog opens OR switching between draft/edit/new
@@ -111,65 +112,79 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
 
   // Validate that target date is not before created on date
   const validateTargetDate = (targetDate: Date | undefined): boolean => {
-    if (!targetDate || !formData.createdOn) return true
-    
-    // Compare dates without time (only compare the date part)
-    const targetDateOnly = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
-    const createdOnDateOnly = new Date(formData.createdOn.getFullYear(), formData.createdOn.getMonth(), formData.createdOn.getDate())
-    
-    if (targetDateOnly < createdOnDateOnly) {
-      toast({
-        title: "Invalid Target Date",
-        description: "Target date cannot be before the task created date.",
-        variant: "destructive",
-      })
+    if (!targetDate) {
+      setFieldErrors(prev => ({ ...prev, targetDate: "Target date is required." }))
+      setFormError("Please resolve the highlighted fields and try again.")
       return false
     }
+    if (!formData.createdOn) {
+      return true
+    }
+
+    const targetDateOnly = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
+    const createdOnDateOnly = new Date(formData.createdOn.getFullYear(), formData.createdOn.getMonth(), formData.createdOn.getDate())
+
+    if (targetDateOnly < createdOnDateOnly) {
+      setFieldErrors(prev => ({ ...prev, targetDate: "Target date cannot be before the created date." }))
+      setFormError("Please resolve the highlighted fields and try again.")
+      return false
+    }
+
+    setFieldErrors(prev => {
+      const next = { ...prev }
+      delete next.targetDate
+      return next
+    })
     return true
   }
 
   const handleSaveTask = () => {
+    setFormError("")
+
+    const missingFields: Array<keyof typeof fieldErrors> = []
+
     if (!formData.taskName.trim()) {
-      toast({
-        title: "Task name required",
-        description: "Please provide a task name before saving.",
-        variant: "destructive",
-      })
-      return
+      missingFields.push("taskName")
     }
-    
-    // Validate target date
+
     if (!validateTargetDate(formData.targetDate)) {
-      return
+      missingFields.push("targetDate")
     }
-    
-    // Use targetDate as both start and target date since start date is not needed
-    const targetDate = formData.targetDate || new Date()
+
     if (!formData.taskPriority) {
-      toast({
-        title: "Priority required",
-        description: "Select a priority before saving.",
-        variant: "destructive",
-      })
-      return
+      missingFields.push("taskPriority")
     }
+
     if (isEditMode && !formData.taskStatus) {
-      toast({
-        title: "Status required",
-        description: "Select a status while editing.",
-        variant: "destructive",
-      })
-      return
+      missingFields.push("taskStatus")
     }
-    // Make remarks mandatory for completed tasks (current selection)
+
     if (isEditMode && isRemarksRequired && !formData.taskRemarks.trim()) {
-      toast({
-        title: "Remarks required",
-        description: "Remarks are required when setting task status to completed.",
-        variant: "destructive",
-      })
+      missingFields.push("taskRemarks")
+    }
+
+    if (missingFields.length > 0) {
+      setFieldErrors(prev => ({
+        ...prev,
+        ...(missingFields.includes("taskName") ? { taskName: "Task name is required." } : {}),
+        ...(missingFields.includes("taskPriority") ? { taskPriority: "Priority is required." } : {}),
+        ...(missingFields.includes("taskStatus") ? { taskStatus: "Status is required in edit mode." } : {}),
+        ...(missingFields.includes("taskRemarks") ? { taskRemarks: "Remarks are required when completing a task." } : {}),
+      }))
+      setFormError("Please resolve the highlighted fields and try again.")
       return
     }
+
+    setFieldErrors(prev => {
+      const next = { ...prev }
+      delete next.taskName
+      delete next.taskPriority
+      delete next.taskStatus
+      delete next.taskRemarks
+      return next
+    })
+
+    const targetDate = formData.targetDate || new Date()
     const finalStatus = isEditMode ? formData.taskStatus : "open"
     const taskData: Task = {
       id: editTask?.id ?? Date.now().toString(),
@@ -184,7 +199,9 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
       isCompleted: finalStatus === "completed",
       completedAt: finalStatus === "completed" ? (editTask?.completedAt || new Date().toISOString()) : undefined,
     }
-  onSave(taskData) // parent will show toast
+    onSave(taskData) // parent will show toast
+    setFormError("")
+    setFieldErrors({})
     setHasUnsavedChanges(false)
     onOpenChange(false)
   }
@@ -196,14 +213,13 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
       return
     }
     if (!formData.taskName.trim()) {
-      toast({
-        title: "Task name required",
-        description: "Please provide at least a task name to save as draft",
-        variant: "destructive",
-      })
+      setFieldErrors(prev => ({ ...prev, taskName: "Task name is required to save a draft." }))
+      setFormError("Please resolve the highlighted fields and try again.")
       return
     }
     onSaveDraft(formData, loadedDraftId) // parent (if needed) may show toast
+    setFormError("")
+    setFieldErrors({})
     setHasUnsavedChanges(false)
     onOpenChange(false)
   }
@@ -353,6 +369,12 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
             <DialogTitle>{editTask ? "Edit Task" : "Create Task"}</DialogTitle>
           </DialogHeader>
 
+          {formError && (
+            <Alert variant="destructive" className="mb-2">
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid gap-6 py-4">
             {/* Task Created On */}
             <div className="space-y-2">
@@ -400,10 +422,24 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
               <Input
                 id="taskName"
                 value={formData.taskName}
-                onChange={(e) => setFormData({ ...formData, taskName: e.target.value })}
-                className="w-full"
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, taskName: value })
+                  setFieldErrors(prev => {
+                    if (!prev.taskName) return prev
+                    const next = { ...prev }
+                    if (value.trim()) {
+                      delete next.taskName
+                    }
+                    return next
+                  })
+                }}
+                className={cn("w-full", fieldErrors.taskName ? "border-red-500 focus-visible:ring-red-400" : "")}
                 placeholder="Enter task name"
               />
+              {fieldErrors.taskName && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.taskName}</p>
+              )}
             </div>
 
             {/* Description */}
@@ -528,6 +564,13 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                       const parsed = value ? new Date(`${value}T00:00:00`) : undefined
                       // Allow the user to type freely; validate later on blur or on save
                       setFormData({ ...formData, targetDate: parsed })
+                      setFieldErrors(prev => {
+                        if (!prev.targetDate) return prev
+                        if (!parsed) return prev
+                        const next = { ...prev }
+                        delete next.targetDate
+                        return next
+                      })
                     }}
                     onFocus={() => setTargetDateFocused(true)}
                     onBlur={(e) => {
@@ -542,7 +585,7 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                     }}
                     min={formData.createdOn ? format(formData.createdOn, "yyyy-MM-dd") : undefined}
                     className={`border rounded-md px-3 py-2 text-sm focus:outline-none ${
-                      !formData.targetDate ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      (!formData.targetDate || fieldErrors.targetDate) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     } ${targetDateFocused || !formData.targetDate ? '' : 'text-transparent'}`}
                     style={targetDateFocused ? {
                       boxShadow: `0 0 0 2px ${primaryColor}66`,
@@ -565,9 +608,17 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                 </Label>
                 <Select 
                   value={formData.taskPriority}
-                  onValueChange={(value) => setFormData({ ...formData, taskPriority: value as "low" | "medium" | "high" })}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, taskPriority: value as "low" | "medium" | "high" })
+                    setFieldErrors(prev => {
+                      if (!prev.taskPriority) return prev
+                      const next = { ...prev }
+                      delete next.taskPriority
+                      return next
+                    })
+                  }}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className={cn("w-full", fieldErrors.taskPriority ? "border-red-500 focus:ring-red-400" : "")}>
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
                   <SelectContent>
@@ -576,6 +627,9 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                     <SelectItem value="high">High</SelectItem>
                   </SelectContent>
                 </Select>
+                {fieldErrors.taskPriority && (
+                  <p className="mt-1 text-xs text-red-600">{fieldErrors.taskPriority}</p>
+                )}
               </div>
             </div>
 
@@ -587,9 +641,17 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                 </Label>
                 <Select 
                   value={formData.taskStatus}
-                  onValueChange={(value) => setFormData({ ...formData, taskStatus: value as "open" | "inprogress" | "onhold" | "completed" })}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, taskStatus: value as "open" | "inprogress" | "onhold" | "completed" })
+                    setFieldErrors(prev => {
+                      if (!prev.taskStatus) return prev
+                      const next = { ...prev }
+                      delete next.taskStatus
+                      return next
+                    })
+                  }}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className={cn("w-full", fieldErrors.taskStatus ? "border-red-500 focus:ring-red-400" : "")}>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -599,6 +661,9 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">Use the Complete button in the task list to mark tasks as completed</p>
+                {fieldErrors.taskStatus && (
+                  <p className="mt-1 text-xs text-red-600">{fieldErrors.taskStatus}</p>
+                )}
               </div>
             )}
 
@@ -610,10 +675,24 @@ export function TaskFormDialog({ isOpen, onOpenChange, onSave, onSaveDraft, edit
               <Textarea
                 id="taskRemarks"
                 value={formData.taskRemarks}
-                onChange={(e) => setFormData({ ...formData, taskRemarks: e.target.value })}
-                className="w-full min-h-[80px]"
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, taskRemarks: value })
+                  setFieldErrors(prev => {
+                    if (!prev.taskRemarks) return prev
+                    const next = { ...prev }
+                    if (value.trim()) {
+                      delete next.taskRemarks
+                    }
+                    return next
+                  })
+                }}
+                className={cn("w-full min-h-[80px]", fieldErrors.taskRemarks ? "border-red-500 focus-visible:ring-red-400" : "")}
                 placeholder="Add any additional remarks or notes..."
               />
+              {fieldErrors.taskRemarks && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.taskRemarks}</p>
+              )}
             </div>
           </div>
 

@@ -42,6 +42,7 @@ const StudentSchema = new mongoose.Schema(
     courseLevel: { type: String }, // Course Level
     registrationDate: { type: Date }, // Registration Date (formerly memberSince)
     courseStartDate: { type: Date },
+    photoUrl: { type: String },
     cohortId: { type: String }, // Cohort ID (formerly batch/cohort)
     referredBy: { type: String },
     referringStudentName: { type: String },

@@ -7,7 +7,7 @@ export type BuyerBusinessInfo = {
   state?: string;
   city?: string;
   address?: string;
-  pincode?: string | number;
+  pincode?: string;
   taxId?: string; // GSTIN
 };
 

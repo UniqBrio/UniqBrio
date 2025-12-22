@@ -902,53 +902,46 @@ export default function EnhancedSchedulePage() {
   })
   const [activeTab, setActiveTab] = useState<"analytics" | "schedule" | "settings">("schedule")
 
-  // Schedule Settings State with localStorage persistence
-  const [scheduleSettings, setScheduleSettings] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('scheduleSettings')
-      if (saved) {
-        return JSON.parse(saved)
-      }
-    }
-    return {
-      display: {
-        defaultView: 'list',
-        calendarDefaultView: 'week',
-        listViewMode: 'table',
-        showWeekNumbers: false,
-        highlightToday: true,
-        showWeekends: true,
-        compactMode: false,
-        colorCodeByStatus: true,
-      },
-      filters: {
-        rememberLastFilters: true,
-        autoApplyFilters: false,
-        showAdvancedFilters: true,
-        defaultInstructor: 'all',
-        defaultStatus: 'upcoming',
-      },
-      modifications: {
-        trackReschedules: true,
-        trackCancellations: true,
-        trackReassignments: true,
-        highlightModified: true,
-        showModificationHistory: true,
-        requireReasonForReschedule: true,
-        requireReasonForCancellation: true,
-        requireReasonForReassignment: true,
-        autoNotifyInstructorOnReassignment: true,
-        minimumReasonLength: 10,
-      },
-    }
+  const createScheduleSettingsDefaults = () => ({
+    display: {
+      defaultView: 'list',
+      calendarDefaultView: 'week',
+      listViewMode: 'table',
+      showWeekNumbers: false,
+      highlightToday: true,
+      showWeekends: true,
+      compactMode: false,
+      colorCodeByStatus: true,
+    },
+    filters: {
+      rememberLastFilters: true,
+      autoApplyFilters: false,
+      showAdvancedFilters: true,
+      defaultInstructor: 'all',
+      defaultStatus: 'upcoming',
+    },
+    modifications: {
+      trackReschedules: true,
+      trackCancellations: true,
+      trackReassignments: true,
+      highlightModified: true,
+      showModificationHistory: true,
+      requireReasonForReschedule: true,
+      requireReasonForCancellation: true,
+      requireReasonForReassignment: true,
+      autoNotifyInstructorOnReassignment: true,
+      minimumReasonLength: 10,
+    },
   })
 
-  // Save settings to localStorage whenever they change
+  const [scheduleSettings, setScheduleSettings] = useState(createScheduleSettingsDefaults)
+  const isSettingsTabDisabled = true
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings))
+      localStorage.removeItem('scheduleSettings')
     }
-  }, [scheduleSettings])
+  }, [])
 
   // Update a specific setting
   const updateScheduleSetting = (category: string, key: string, value: any) => {
@@ -963,38 +956,11 @@ export default function EnhancedSchedulePage() {
 
   // Reset all settings to defaults
   const resetScheduleSettings = () => {
-    const defaults = {
-      display: {
-        defaultView: 'list',
-        calendarDefaultView: 'week',
-        listViewMode: 'table',
-        showWeekNumbers: false,
-        highlightToday: true,
-        showWeekends: true,
-        compactMode: false,
-        colorCodeByStatus: true,
-      },
-      filters: {
-        rememberLastFilters: true,
-        autoApplyFilters: false,
-        showAdvancedFilters: true,
-        defaultInstructor: 'all',
-        defaultStatus: 'upcoming',
-      },
-      modifications: {
-        trackReschedules: true,
-        trackCancellations: true,
-        trackReassignments: true,
-        highlightModified: true,
-        showModificationHistory: true,
-        requireReasonForReschedule: true,
-        requireReasonForCancellation: true,
-        requireReasonForReassignment: true,
-        autoNotifyInstructorOnReassignment: true,
-        minimumReasonLength: 10,
-      },
-    }
+    const defaults = createScheduleSettingsDefaults()
     setScheduleSettings(defaults)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('scheduleSettings')
+    }
     toast({
       title: "Settings Reset",
       description: "All schedule settings have been reset to defaults.",
@@ -1439,12 +1405,24 @@ export default function EnhancedSchedulePage() {
   
   // Form validation errors
   const [titleError, setTitleError] = useState('')
-  const [descriptionError, setDescriptionError] = useState('')
-  const [subcategoryError, setSubcategoryError] = useState('')
+  const [instructorError, setInstructorError] = useState('')
+  const [startTimeError, setStartTimeError] = useState('')
+  const [endTimeError, setEndTimeError] = useState('')
   const [locationError, setLocationError] = useState('')
   const [virtualUrlError, setVirtualUrlError] = useState('')
+  const [descriptionError, setDescriptionError] = useState('')
+  const [subcategoryError, setSubcategoryError] = useState('')
   const [sessionNotesError, setSessionNotesError] = useState('')
   const [tagsError, setTagsError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  const clearFieldError = (field: string) => {
+    setFieldErrors(prev => {
+      const { [field]: _, ...rest } = prev
+      return rest
+    })
+  }
 
   // Check for instructor conflicts across cohorts
   const checkForInstructorConflicts = (cohortData: Partial<ScheduleEvent>) => {
@@ -1799,35 +1777,54 @@ export default function EnhancedSchedulePage() {
 
   // Handle new session creation
   const handleCreateSession = async () => {
+    const errors: Record<string, string> = {}
+
+    setTitleError('')
+    setInstructorError('')
+    setStartTimeError('')
+    setEndTimeError('')
+    setFormError('')
+    setFieldErrors({})
+
+    if (!newSession.title.trim()) {
+      errors.title = "Session title is required."
+    }
+
+    if (!newSession.instructor || !newSession.instructorName) {
+      errors.instructor = "Please select an instructor."
+    }
+
+    if (!newSession.startTime) {
+      errors.startTime = "Start time is required."
+    }
+
+    if (!newSession.endTime) {
+      errors.endTime = "End time is required."
+    }
+
+    if (newSession.startTime && newSession.endTime && newSession.startTime >= newSession.endTime) {
+      errors.endTime = "End time must be after start time."
+    }
+
+    if (newSession.type === 'offline' && !newSession.location.trim()) {
+      errors.location = "Location is required for offline sessions."
+    }
+
+    if (newSession.type === 'online' && !newSession.virtualClassroomUrl.trim()) {
+      errors.virtualClassroomUrl = "Virtual classroom URL is required for online sessions."
+    }
+
+    if (newSession.isRecurring && newSession.daysOfWeek.length === 0) {
+      errors.daysOfWeek = "Select at least one day for recurring sessions."
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      setFormError('Please fix the highlighted fields.')
+      return
+    }
+
     try {
-      // Basic validation
-      if (!newSession.title.trim()) {
-        toast({
-          title: "Validation Error",
-          description: "Session title is required.",
-          variant: "destructive",
-        })
-        return
-      }
-
-      if (!newSession.instructor || !newSession.instructorName) {
-        toast({
-          title: "Validation Error", 
-          description: "Please select an instructor.",
-          variant: "destructive",
-        })
-        return
-      }
-
-      if (newSession.startTime >= newSession.endTime) {
-        toast({
-          title: "Validation Error",
-          description: "End time must be after start time.",
-          variant: "destructive",
-        })
-        return
-      }
-
       // Calculate duration
       const start = new Date(`2000-01-01 ${newSession.startTime}:00`)
       const end = new Date(`2000-01-01 ${newSession.endTime}:00`)
@@ -1926,6 +1923,8 @@ export default function EnhancedSchedulePage() {
         recurringPattern: null,
         daysOfWeek: []
       })
+      setFieldErrors({})
+      setFormError('')
       setIsFormDirty(false)
 
       setIsAddSessionDialogOpen(false)
@@ -2309,39 +2308,6 @@ export default function EnhancedSchedulePage() {
     }, 2000)
   }
 
-  // Show festive banner for holidays
-  const getFestiveBanner = () => {
-    const today = new Date()
-    const month = today.getMonth()
-    const day = today.getDate()
-
-    // Christmas
-    if (month === 11 && day >= 20 && day <= 25) {
-      return {
-        message: "🎄 Merry Christmas! Special holiday classes available.",
-        color: "bg-red-100 border-red-300 text-red-800",
-      }
-    }
-    // Diwali (approximate date)
-    if (month === 10 && day >= 10 && day <= 15) {
-      return {
-        message: "🪔 Happy Diwali! Celebrate with our special festive classes.",
-        color: "bg-orange-100 border-orange-300 text-orange-800",
-      }
-    }
-    // New Year
-    if (month === 0 && day <= 7) {
-      return {
-        message: "🎉 Happy New Year! Start your fitness journey with us.",
-        color: "bg-purple-100 border-purple-300 text-purple-800",
-      }
-    }
-
-    return null
-  }
-
-  const festiveBanner = getFestiveBanner()
-
   // Milestone celebration
   const checkMilestones = () => {
     if (events.length === 100) {
@@ -2380,13 +2346,6 @@ export default function EnhancedSchedulePage() {
           </div>
         ) : (
         <div className="flex flex-col space-y-6">
-          {/* Festive Banner */}
-          {festiveBanner && (
-            <div className={`p-4 rounded-lg border ${festiveBanner.color} animate-pulse`}>
-              <p className="text-center font-medium">{festiveBanner.message}</p>
-            </div>
-          )}
-
           {/* Error Indicator */}
           {error && (
             <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2">
@@ -2474,12 +2433,8 @@ export default function EnhancedSchedulePage() {
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                style={{
-                  borderColor: secondaryColor,
-                  color: secondaryColor,
-                  ...(activeTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                }}
+                aria-disabled={isSettingsTabDisabled}
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-black/60 bg-gray-100 text-gray-700 font-medium transition-colors data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
               >
                 <Settings className="h-4 w-4" />
                 Settings
@@ -2594,8 +2549,16 @@ export default function EnhancedSchedulePage() {
             </TabsContent>
 
             {/* Settings Tab Content */}
-            <TabsContent value="settings" className="mt-6">
-              <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <TabsContent value="settings" className="relative mt-6">
+              {isSettingsTabDisabled && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                  <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">Schedule settings are managed centrally.</p>
+                    <p className="text-xs text-muted-foreground/80">Please reach out to your administrator for updates.</p>
+                  </div>
+                </div>
+              )}
+              <Card className={`${isSettingsTabDisabled ? 'pointer-events-none opacity-60' : ''} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900`}>
                 <CardContent className="p-6">
                   <ScheduleSettings 
                     settings={scheduleSettings}
@@ -3549,6 +3512,8 @@ export default function EnhancedSchedulePage() {
         } else {
           // Opening the dialog
           setIsAddSessionDialogOpen(true)
+          setFormError('')
+          setFieldErrors({})
         }
       }}>
         <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
@@ -3560,6 +3525,11 @@ export default function EnhancedSchedulePage() {
             <DialogDescription>
               Create a new session by filling out the details below. All fields marked with * are required.
             </DialogDescription>
+            {formError && (
+              <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {formError}
+              </div>
+            )}
           </DialogHeader>
           
           <div className="overflow-y-auto flex-1 px-6 py-4">
@@ -3585,18 +3555,19 @@ export default function EnhancedSchedulePage() {
                       
                       if (value === '' || titleRegex.test(value)) {
                         setNewSession(prev => ({ ...prev, title: value }))
-                        setTitleError('')
+                        if (titleError) setTitleError('') // Clear error if input becomes valid
+                        clearFieldError('title')
                         setIsFormDirty(true)
                       } else {
                         setTitleError('Only letters, numbers, spaces, and basic punctuation allowed')
                       }
                     }}
                     className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
-                      titleError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      (titleError || fieldErrors.title) ? 'border-red-500' : ''
                     }`}
                   />
-                  {titleError && (
-                    <p className="text-red-500 text-xs mt-1">{titleError}</p>
+                  {(titleError || fieldErrors.title) && (
+                    <p className="text-red-500 text-xs mt-1">{fieldErrors.title || titleError}</p>
                   )}
                 </div>
 
@@ -3622,7 +3593,7 @@ export default function EnhancedSchedulePage() {
                       }
                     }}
                     className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
-                      descriptionError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      descriptionError ? 'border-red-500' : ''
                     }`}
                     rows={3}
                   />
@@ -3726,9 +3697,11 @@ export default function EnhancedSchedulePage() {
                         instructorName: instructor ? (instructor.name || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim()) : ""
                       }))
                       setIsFormDirty(true)
+                      if (instructorError) setInstructorError('')
+                      clearFieldError('instructor')
                     }}
                   >
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className={`mt-1 ${(instructorError || fieldErrors.instructor) ? 'border-red-500 focus:ring-red-500' : ''}`}>
                       <SelectValue placeholder="Select an instructor" />
                     </SelectTrigger>
                     <SelectContent>
@@ -3749,7 +3722,9 @@ export default function EnhancedSchedulePage() {
                       )}
                     </SelectContent>
                   </Select>
-                  {newSession.instructor && (
+                  {(instructorError || fieldErrors.instructor) ? (
+                    <p className="text-red-500 text-xs mt-1">{fieldErrors.instructor || instructorError}</p>
+                  ) : newSession.instructor && (
                     <p className="text-xs text-gray-500 dark:text-white mt-1">Selected Instructor ID: {newSession.instructor}</p>
                   )}
                 </div>
@@ -3979,9 +3954,16 @@ export default function EnhancedSchedulePage() {
                       onChange={(e) => {
                         setNewSession(prev => ({ ...prev, startTime: e.target.value }))
                         setIsFormDirty(true)
+                        if (startTimeError) setStartTimeError('')
+                        clearFieldError('startTime')
                       }}
-                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                      className={`mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500 ${
+                        (startTimeError || fieldErrors.startTime) ? 'border-red-500 focus:ring-red-500' : ''
+                      }`}
                     />
+                    {(startTimeError || fieldErrors.startTime) && (
+                      <p className="text-red-500 text-xs mt-1">{fieldErrors.startTime || startTimeError}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="session-end-time" className="text-sm font-medium">
@@ -3994,9 +3976,16 @@ export default function EnhancedSchedulePage() {
                       onChange={(e) => {
                         setNewSession(prev => ({ ...prev, endTime: e.target.value }))
                         setIsFormDirty(true)
+                        if (endTimeError) setEndTimeError('')
+                        clearFieldError('endTime')
                       }}
-                      className="mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500"
+                      className={`mt-1 border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500 ${
+                        (endTimeError || fieldErrors.endTime) ? 'border-red-500 focus:ring-red-500' : ''
+                      }`}
                     />
+                    {(endTimeError || fieldErrors.endTime) && (
+                      <p className="text-red-500 text-xs mt-1">{fieldErrors.endTime || endTimeError}</p>
+                    )}
                   </div>
                 </div>
 
@@ -4005,7 +3994,10 @@ export default function EnhancedSchedulePage() {
                     id="is-recurring"
                     checked={newSession.isRecurring}
                     onCheckedChange={(checked) => {
-                      setNewSession(prev => ({ ...prev, isRecurring: !!checked }))
+                      setNewSession(prev => ({ ...prev, isRecurring: !!checked, daysOfWeek: checked ? prev.daysOfWeek : [] }))
+                      if (!checked) {
+                        clearFieldError('daysOfWeek')
+                      }
                       setIsFormDirty(true)
                     }}
                   />
@@ -4017,7 +4009,7 @@ export default function EnhancedSchedulePage() {
                 {newSession.isRecurring && (
                   <div>
                     <Label className="text-sm font-medium">Days of Week</Label>
-                    <div className="grid grid-cols-7 gap-1 mt-2">
+                    <div className={`grid grid-cols-7 gap-1 mt-2 rounded-md ${fieldErrors.daysOfWeek ? 'border border-red-500 bg-red-50 p-2' : ''}`}>
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
                         <div key={day} className="flex flex-col items-center">
                           <Checkbox
@@ -4036,6 +4028,7 @@ export default function EnhancedSchedulePage() {
                                 }))
                               }
                               setIsFormDirty(true)
+                              clearFieldError('daysOfWeek')
                             }}
                           />
                           <Label htmlFor={`day-${index}`} className="text-xs mt-1">
@@ -4044,6 +4037,9 @@ export default function EnhancedSchedulePage() {
                         </div>
                       ))}
                     </div>
+                    {fieldErrors.daysOfWeek && (
+                      <p className="text-red-500 text-xs mt-1">{fieldErrors.daysOfWeek}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -4060,6 +4056,12 @@ export default function EnhancedSchedulePage() {
                     value={newSession.type}
                     onValueChange={(value: "online" | "offline" | "hybrid") => {
                       setNewSession(prev => ({ ...prev, type: value }))
+                      if (value !== 'offline') {
+                        clearFieldError('location')
+                      }
+                      if (value === 'offline') {
+                        clearFieldError('virtualClassroomUrl')
+                      }
                       setIsFormDirty(true)
                     }}
                   >
@@ -4113,18 +4115,19 @@ export default function EnhancedSchedulePage() {
                         if (value === '' || locationRegex.test(value)) {
                           setNewSession(prev => ({ ...prev, location: value }))
                           setLocationError('')
+                          clearFieldError('location')
                         } else {
                           setLocationError('Only letters, numbers, spaces, hyphens, commas, and periods are allowed')
                         }
                         setIsFormDirty(true)
                       }}
                       className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
-                        locationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        (locationError || fieldErrors.location) ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                     />
-                    {locationError && (
-                      <p className="text-red-500 text-xs mt-1">{locationError}</p>
-                    )}
+                      {(locationError || fieldErrors.location) && (
+                        <p className="text-red-500 text-xs mt-1">{fieldErrors.location || locationError}</p>
+                      )}
                   </div>
                 )}
 
@@ -4145,18 +4148,19 @@ export default function EnhancedSchedulePage() {
                         if (value === '' || urlRegex.test(value)) {
                           setNewSession(prev => ({ ...prev, virtualClassroomUrl: value }))
                           setVirtualUrlError('')
+                          clearFieldError('virtualClassroomUrl')
                         } else {
                           setVirtualUrlError('Please enter a valid URL format')
                         }
                         setIsFormDirty(true)
                       }}
                       className={`mt-1 focus:border-purple-500 focus:ring-purple-500 ${
-                        virtualUrlError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        (virtualUrlError || fieldErrors.virtualClassroomUrl) ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                     />
-                    {virtualUrlError && (
-                      <p className="text-red-500 text-xs mt-1">{virtualUrlError}</p>
-                    )}
+                      {(virtualUrlError || fieldErrors.virtualClassroomUrl) && (
+                        <p className="text-red-500 text-xs mt-1">{fieldErrors.virtualClassroomUrl || virtualUrlError}</p>
+                      )}
                   </div>
                 )}
               </div>
@@ -4326,6 +4330,8 @@ export default function EnhancedSchedulePage() {
                   recurringPattern: null,
                   daysOfWeek: []
                 })
+                setFieldErrors({})
+                setFormError('')
               }}
             >
               Discard Changes

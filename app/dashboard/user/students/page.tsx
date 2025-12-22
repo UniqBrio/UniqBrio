@@ -69,102 +69,99 @@ export default function StudentsPage() {
   const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
 
-  // Student Settings State with localStorage persistence
-  const [studentSettings, setStudentSettings] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('studentSettings')
-      if (saved) {
-        return JSON.parse(saved)
-      }
-    }
-    return {
-      identity: {
-        customIdPrefix: 'STU',
-        numberingStrategy: 'sequential',
-        idNumberPadding: 4,
-        sequenceStart: 1,
-        allowManualIds: false,
-        enforceUppercase: true,
-        showIdBadges: true,
-      },
-      enrollment: {
-        requireCourseSelection: true,
-        requireCohortAssignment: false,
-        warnBeforeCohortChange: true,
-        autoSyncCohortMembers: true,
-        preventDuplicateEnrollment: true,
-      },
-      validation: {
-        requireEmail: true,
-        requireMobile: true,
-        requireDOB: true,
-        requireAddress: false,
-        requireGuardianForMinors: true,
-        minAge: 0,
-        allowFutureDOB: false,
-        validateEmailFormat: true,
-        validateMobileDuplicates: true,
-      },
-      display: {
-        defaultView: 'list',
-        cardsPerPage: 25,
-        showAvatars: true,
-        showCohortInfo: true,
-        showEnrollmentDate: true,
-        compactMode: false,
-        colorCodeByStatus: true,
-        showProgressBars: true,
-      },
-      filters: {
-        rememberLastFilters: true,
-        autoApplyFilters: false,
-        showAdvancedFilters: true,
-        defaultCourse: 'all',
-        defaultCohort: 'all',
-        defaultStatus: 'active',
-      },
-      notifications: {
-        studentAdded: true,
-        studentUpdated: true,
-        studentDeleted: true,
-        enrollmentChanges: true,
-        paymentReminders: true,
-        attendanceAlerts: true,
-        leaveRequests: true,
-        soundEnabled: false,
-      },
-      export: {
-        defaultFormat: 'csv',
-        includeMetadata: true,
-        includePaymentInfo: false,
-        includeAttendance: false,
-        autoDownload: true,
-      },
-      automation: {
-        autoSaveDrafts: true,
-        autoDraftInterval: 3,
-        confirmBeforeDelete: true,
-        showDeletedCount: true,
-        autoRefresh: false,
-        refreshInterval: 5,
-      },
-      advanced: {
-        enableDebugMode: false,
-        cacheEnabled: true,
-        maxCacheSize: 100,
-        showStudentIds: true,
-        enableBulkOperations: true,
-        cohortAutoSync: true,
-      },
-    }
+  const createStudentSettingsDefaults = () => ({
+    identity: {
+      customIdPrefix: 'STU',
+      numberingStrategy: 'sequential' as StudentNumberingStrategy,
+      idNumberPadding: 4,
+      sequenceStart: 1,
+      allowManualIds: false,
+      enforceUppercase: true,
+      showIdBadges: true,
+    },
+    enrollment: {
+      requireCourseSelection: true,
+      requireCohortAssignment: false,
+      warnBeforeCohortChange: true,
+      autoSyncCohortMembers: true,
+      preventDuplicateEnrollment: true,
+    },
+    validation: {
+      requireEmail: true,
+      requireMobile: true,
+      requireDOB: true,
+      requireAddress: false,
+      requireGuardianForMinors: true,
+      minAge: 0,
+      allowFutureDOB: false,
+      validateEmailFormat: true,
+      validateMobileDuplicates: true,
+    },
+    display: {
+      defaultView: 'list',
+      cardsPerPage: 25,
+      showAvatars: true,
+      showCohortInfo: true,
+      showEnrollmentDate: true,
+      compactMode: false,
+      colorCodeByStatus: true,
+      showProgressBars: true,
+    },
+    filters: {
+      rememberLastFilters: true,
+      autoApplyFilters: false,
+      showAdvancedFilters: true,
+      defaultCourse: 'all',
+      defaultCohort: 'all',
+      defaultStatus: 'active',
+    },
+    notifications: {
+      studentAdded: true,
+      studentUpdated: true,
+      studentDeleted: true,
+      enrollmentChanges: true,
+      paymentReminders: true,
+      attendanceAlerts: true,
+      leaveRequests: true,
+      soundEnabled: false,
+    },
+    export: {
+      defaultFormat: 'csv',
+      includeMetadata: true,
+      includePaymentInfo: false,
+      includeAttendance: false,
+      autoDownload: true,
+    },
+    automation: {
+      autoSaveDrafts: true,
+      autoDraftInterval: 3,
+      confirmBeforeDelete: true,
+      showDeletedCount: true,
+      autoRefresh: false,
+      refreshInterval: 5,
+    },
+    advanced: {
+      enableDebugMode: false,
+      cacheEnabled: true,
+      maxCacheSize: 100,
+      showStudentIds: true,
+      enableBulkOperations: true,
+      cohortAutoSync: true,
+    },
   })
 
-  // Save settings to localStorage whenever they change
+  type StudentSettings = ReturnType<typeof createStudentSettingsDefaults>
+
+  const [studentSettings, setStudentSettings] = useState<StudentSettings>(createStudentSettingsDefaults)
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('studentSettings', JSON.stringify(studentSettings))
+      localStorage.removeItem('studentSettings')
     }
-  }, [studentSettings])
+  }, [])
+
+  const isSettingsTabDisabled = true
+  const isAchievementsTabDisabled = true
 
   // Update a specific setting
   const updateStudentSetting = (category: string, key: string, value: any) => {
@@ -187,87 +184,11 @@ export default function StudentsPage() {
 
   // Reset all settings to defaults
   const resetStudentSettings = () => {
-    const defaults = {
-      identity: {
-        customIdPrefix: 'STU',
-        numberingStrategy: 'sequential' as 'sequential' | 'uuid',
-        idNumberPadding: 4,
-        sequenceStart: 1,
-        allowManualIds: false,
-        enforceUppercase: true,
-        showIdBadges: true,
-      },
-      enrollment: {
-        requireCourseSelection: true,
-        requireCohortAssignment: false,
-        warnBeforeCohortChange: true,
-        autoSyncCohortMembers: true,
-        preventDuplicateEnrollment: true,
-      },
-      validation: {
-        requireEmail: true,
-        requireMobile: true,
-        requireDOB: true,
-        requireAddress: false,
-        requireGuardianForMinors: true,
-        minAge: 0,
-        allowFutureDOB: false,
-        validateEmailFormat: true,
-        validateMobileDuplicates: true,
-      },
-      display: {
-        defaultView: 'list',
-        cardsPerPage: 25,
-        showAvatars: true,
-        showCohortInfo: true,
-        showEnrollmentDate: true,
-        compactMode: false,
-        colorCodeByStatus: true,
-        showProgressBars: true,
-      },
-      filters: {
-        rememberLastFilters: true,
-        autoApplyFilters: false,
-        showAdvancedFilters: true,
-        defaultCourse: 'all',
-        defaultCohort: 'all',
-        defaultStatus: 'active',
-      },
-      notifications: {
-        studentAdded: true,
-        studentUpdated: true,
-        studentDeleted: true,
-        enrollmentChanges: true,
-        paymentReminders: true,
-        attendanceAlerts: true,
-        leaveRequests: true,
-        soundEnabled: false,
-      },
-      export: {
-        defaultFormat: 'csv',
-        includeMetadata: true,
-        includePaymentInfo: false,
-        includeAttendance: false,
-        autoDownload: true,
-      },
-      automation: {
-        autoSaveDrafts: true,
-        autoDraftInterval: 3,
-        confirmBeforeDelete: true,
-        showDeletedCount: true,
-        autoRefresh: false,
-        refreshInterval: 5,
-      },
-      advanced: {
-        enableDebugMode: false,
-        cacheEnabled: true,
-        maxCacheSize: 100,
-        showStudentIds: true,
-        enableBulkOperations: true,
-        cohortAutoSync: true,
-      },
-    }
+    const defaults = createStudentSettingsDefaults()
     setStudentSettings(defaults)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('studentSettings')
+    }
     toast({
       title: "Settings Reset",
       description: "All student settings have been reset to defaults.",
@@ -705,21 +626,31 @@ export default function StudentsPage() {
                 { value: 'student-leaves', icon: Calendar, label: 'Leaves', shortLabel: 'Leaves' },
                 { value: 'settings', icon: Settings, label: 'Settings', shortLabel: 'Config' },
                 { value: 'achievements', icon: Trophy, label: 'Achievements', shortLabel: 'Awards', badge: true },
-              ].map((tab) => (
-                <TabsTrigger 
-                  key={tab.value}
-                  value={tab.value}
-                  className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors text-[#DE7D14] border-[#DE7D14] hover:bg-[#DE7D14]/10 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 min-h-[2.5rem] sm:min-h-0"
-                >
-                  <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 text-current flex-shrink-0" />
-                  {tab.label !== tab.shortLabel ? (
-                    <><span className="hidden lg:inline text-center">{tab.label}</span><span className="lg:hidden text-center leading-tight">{tab.shortLabel}</span></>
-                  ) : (
-                    <span className="text-center leading-tight">{tab.label}</span>
-                  )}
-                  {tab.badge && <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1 flex-shrink-0" />}
-                </TabsTrigger>
-              ))}
+              ].map((tab) => {
+                const lockedTab = tab.value === 'settings' || tab.value === 'achievements'
+                const disabledState = tab.value === 'settings' ? isSettingsTabDisabled : tab.value === 'achievements' ? isAchievementsTabDisabled : undefined
+                return (
+                  <TabsTrigger 
+                    key={tab.value}
+                    value={tab.value}
+                    aria-disabled={disabledState}
+                    className={lockedTab
+                      ? "flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 border-black/60 bg-gray-100 font-medium text-xs sm:text-sm responsive-text-xs text-gray-700 transition-colors min-h-[2.5rem] sm:min-h-0 data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
+                      : "flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 bg-transparent font-medium text-xs sm:text-sm responsive-text-xs transition-colors text-[#DE7D14] border-[#DE7D14] hover:bg-[#DE7D14]/10 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 min-h-[2.5rem] sm:min-h-0"}
+                  >
+                    <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 text-current flex-shrink-0" />
+                    {tab.label !== tab.shortLabel ? (
+                      <>
+                        <span className="hidden lg:inline text-center">{tab.label}</span>
+                        <span className="lg:hidden text-center leading-tight">{tab.shortLabel}</span>
+                      </>
+                    ) : (
+                      <span className="text-center leading-tight">{tab.label}</span>
+                    )}
+                    {tab.badge && <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1 flex-shrink-0" />}
+                  </TabsTrigger>
+                )
+              })}
             </TabsList>
 
             {/* Dashboard Tab Content */}
@@ -888,8 +819,16 @@ export default function StudentsPage() {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings">
-            <div className="bg-card rounded-3xl shadow-xl p-6 animate-fade-in border">
+          <TabsContent value="settings" className="relative">
+            {isSettingsTabDisabled && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                  <p className="text-sm font-medium text-muted-foreground">Student settings are locked to defaults.</p>
+                  <p className="text-xs text-muted-foreground/80">Please contact an administrator to update configuration.</p>
+                </div>
+              </div>
+            )}
+            <div className={`bg-card rounded-3xl shadow-xl p-6 animate-fade-in border ${isSettingsTabDisabled ? 'pointer-events-none opacity-60' : ''}`}>
               <StudentSettings 
                 settings={studentSettings}
                 onUpdateSetting={updateStudentSetting}
@@ -899,13 +838,23 @@ export default function StudentsPage() {
             </div>
           </TabsContent>
  
-          <TabsContent value="achievements">
-            {/* Content stays disabled even if the trigger is clickable */}
-            <StudentAchievements 
-              achievements={achievements}
-              onAchievementAction={handleAchievementAction}
-              disabled={true}
-            />
+          <TabsContent value="achievements" className="relative">
+            {isAchievementsTabDisabled && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                  <p className="text-sm font-medium text-muted-foreground">Achievements management is coming soon.</p>
+                  <p className="text-xs text-muted-foreground/80">Stay tuned for updates from your administrator.</p>
+                </div>
+              </div>
+            )}
+            <div className={isAchievementsTabDisabled ? "pointer-events-none opacity-60" : ""}>
+              {/* Content stays disabled even if the trigger is clickable */}
+              <StudentAchievements 
+                achievements={achievements}
+                onAchievementAction={handleAchievementAction}
+                disabled={true}
+              />
+            </div>
           </TabsContent>
         </Tabs>
 
@@ -945,7 +894,7 @@ export default function StudentsPage() {
               <Button
                 onClick={() => {
                   setShowPaymentPrompt(false);
-                  window.open("https://uniq-brio-uniq-brio-payments.vercel.app/payments", "_blank");
+                  window.open("/dashboard/payments", "_blank");
                 }}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >

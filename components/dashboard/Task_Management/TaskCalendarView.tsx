@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { cn } from "@/lib/dashboard/utils"
 import { Task } from "./types"
 import { InlineRemarksEditor } from "./InlineRemarksEditor"
-import { toast } from "@/components/dashboard/ui/use-toast"
 
 type CalendarViewMode = "day" | "week" | "month"
 

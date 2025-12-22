@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,26 +9,39 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { InfoIcon, EyeIcon, EyeOffIcon } from "lucide-react"
-// Import the FormValidation component at the top of the file
 import { FormValidation } from "@/components/ui/form-validation"
+import { PhoneCountryCodeSelect } from "@/components/dashboard/student/common/phone-country-code-select"
+import { getPhoneCodeByCountry } from "@/lib/dashboard/student/countries-api"
+import { cn } from "@/lib/utils"
 import type { FormState, UpdateFormState } from "../use-form-state"
 
 type AdminInfoStepProps = {
   formState: FormState;
   updateFormState: UpdateFormState;
+  externalErrors?: Record<string, string>;
+  clearFieldError?: (field: string) => void;
 };
 
-export default function AdminInfoStep({ formState, updateFormState }: AdminInfoStepProps) {
+export default function AdminInfoStep({ formState, updateFormState, externalErrors = {}, clearFieldError }: AdminInfoStepProps) {
   // Removed password and confirm password fields
+  const [countryCode, setCountryCode] = useState("+91") // Default to India
 
   // Add state for field validation
   const [validationState, setValidationState] = useState({
     fullName: { isValid: false, isInvalid: false, message: "" },
     email: { isValid: false, isInvalid: false, message: "" },
     phone: { isValid: false, isInvalid: false, message: "" },
-    socialProfile: { isValid: false, isInvalid: false, message: "" },
-    agreeToTerms: { isValid: false, isInvalid: false, message: "" },
   })
+
+  // Sync country code when business country changes
+  useEffect(() => {
+    if (formState.businessInfo?.country) {
+      const phoneCode = getPhoneCodeByCountry(formState.businessInfo.country);
+      if (phoneCode) {
+        setCountryCode(phoneCode);
+      }
+    }
+  }, [formState.businessInfo?.country]);
 
   // Add validation function
   const validateField = (field: string, value: any) => {
@@ -113,38 +126,6 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
           message = "Valid phone number"
         }
         break
-      case "socialProfile":
-        const socialUrlRegex = /^(https?:\/\/)?(www\.)?(linkedin\.com\/in\/|twitter\.com\/|facebook\.com\/|instagram\.com\/|github\.com\/|youtube\.com\/|tiktok\.com\/@?)[a-zA-Z0-9._-]+\/?$/
-        const generalUrlRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?(\/.*)?(\?.*)?(#.*)?$/
-        
-        if (!value || value.trim().length === 0) {
-          // Social profile is optional
-          isValid = false
-          isInvalid = false
-          message = ""
-        } else if (value.trim().length < 10) {
-          isInvalid = true
-          message = "Social profile URL seems too short"
-        } else if (socialUrlRegex.test(value)) {
-          isValid = true
-          message = "Valid social profile URL"
-        } else if (generalUrlRegex.test(value)) {
-          isValid = true
-          message = "Valid profile URL"
-        } else {
-          isInvalid = true
-          message = "Please enter a valid social media or website URL"
-        }
-        break
-      case "agreeToTerms":
-        if (!value) {
-          isInvalid = true
-          message = "You must agree to the terms and conditions"
-        } else {
-          isValid = true
-          message = "Agreed to terms"
-        }
-        break
       default:
         break
     }
@@ -157,6 +138,7 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
 
   // Modify the handleInputChange function to include validation
   const handleInputChange = (field: string, value: any) => {
+    if (clearFieldError) clearFieldError(field)
     updateFormState({
       adminInfo: {
         ...formState.adminInfo,
@@ -165,7 +147,7 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
     })
 
     // Validate fields that need immediate feedback
-    if (["fullName", "email", "phone", "socialProfile", "agreeToTerms"].includes(field)) {
+    if (["fullName", "email", "phone"].includes(field)) {
       validateField(field, value)
     }
   }
@@ -174,10 +156,7 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Owner/Admin Information</h3>
-        <p className="text-sm text-muted-foreground">Set up the primary administrator account for your business</p>
-      </div>
+     
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {/* Full Name */}
@@ -192,11 +171,12 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
             onChange={(e) => handleInputChange("fullName", e.target.value)}
             aria-required="true"
             onBlur={() => validateField("fullName", formState.adminInfo.fullName)}
+            className={cn(externalErrors.fullName && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
-            isValid={validationState.fullName.isValid}
-            isInvalid={validationState.fullName.isInvalid}
-            message={validationState.fullName.message}
+              isValid={validationState.fullName.isValid && !externalErrors.fullName}
+              isInvalid={validationState.fullName.isInvalid || !!externalErrors.fullName}
+              message={externalErrors.fullName || validationState.fullName.message}
           />
         </div>
 
@@ -216,11 +196,12 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
             onChange={(e) => handleInputChange("email", e.target.value)}
             aria-required="true"
             onBlur={() => validateField("email", formState.adminInfo.email)}
+            className={cn(externalErrors.email && "border-red-500 focus-visible:ring-red-500")}
           />
           <FormValidation
-            isValid={validationState.email.isValid}
-            isInvalid={validationState.email.isInvalid}
-            message={validationState.email.message}
+            isValid={validationState.email.isValid && !externalErrors.email}
+            isInvalid={validationState.email.isInvalid || !!externalErrors.email}
+            message={externalErrors.email || validationState.email.message}
           />
         </div>
 
@@ -231,88 +212,32 @@ export default function AdminInfoStep({ formState, updateFormState }: AdminInfoS
         {/* Phone */}
         <div className="space-y-2">
           <Label htmlFor="phone">Phone <span className="text-red-500">*</span></Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="+1 (555) 123-4567"
-            value={formState.adminInfo.phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
-            aria-required="true"
-            onBlur={() => validateField("phone", formState.adminInfo.phone)}
-          />
-          <FormValidation
-            isValid={validationState.phone.isValid}
-            isInvalid={validationState.phone.isInvalid}
-            message={validationState.phone.message}
-          />
-        </div>
-
-        {/* Social Profile */}
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="socialProfile">Social Profile URL </Label>
-          <Input
-            id="socialProfile"
-            type="url"
-            placeholder="https://linkedin.com/in/yourprofile"
-            value={formState.adminInfo.socialProfile}
-            onChange={(e) => handleInputChange("socialProfile", e.target.value)}
-            onBlur={() => validateField("socialProfile", formState.adminInfo.socialProfile)}
-          />
-          <FormValidation
-            isValid={validationState.socialProfile.isValid}
-            isInvalid={validationState.socialProfile.isInvalid}
-            message={validationState.socialProfile.message}
-          />
-        </div>
-
-        {/* Terms and Newsletter */}
-        <div className="space-y-4 md:col-span-2">
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              id="agreeToTerms"
-              checked={formState.adminInfo.agreeToTerms}
-              onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked)}
+          <div className="flex gap-2">
+            <PhoneCountryCodeSelect 
+              value={countryCode} 
+              onChange={setCountryCode}
+              className="w-[130px]"
+            />
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="9876543210"
+              value={formState.adminInfo.phone}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^0-9]/g, '');
+                handleInputChange("phone", sanitized);
+              }}
               aria-required="true"
-              onBlur={() => validateField("agreeToTerms", formState.adminInfo.agreeToTerms)}
+              onBlur={() => validateField("phone", formState.adminInfo.phone)}
+              className={cn("flex-1", externalErrors.phone && "border-red-500 focus-visible:ring-red-500")}
+              maxLength={15}
             />
-            <div className="grid gap-1.5 leading-none">
-              <Label
-                htmlFor="agreeToTerms"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                I agree to the{" "}
-                <a href="#" className="text-primary underline">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-primary underline">
-                  Privacy Policy
-                </a>{" "}
-                <span className="text-red-500">*</span>
-              </Label>
-              <FormValidation
-                isValid={validationState.agreeToTerms.isValid}
-                isInvalid={validationState.agreeToTerms.isInvalid}
-                message={validationState.agreeToTerms.message}
-              />
-            </div>
           </div>
-
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              id="newsletter"
-              checked={formState.adminInfo.newsletter}
-              onCheckedChange={(checked) => handleInputChange("newsletter", checked)}
-            />
-            <div className="grid gap-1.5 leading-none">
-              <Label
-                htmlFor="newsletter"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Subscribe to our Daily BrioPulse for Latest News, Inspiration Stories and more.
-              </Label>
-            </div>
-          </div>
+          <FormValidation
+            isValid={validationState.phone.isValid && !externalErrors.phone}
+            isInvalid={validationState.phone.isInvalid || !!externalErrors.phone}
+            message={externalErrors.phone || validationState.phone.message}
+          />
         </div>
       </div>
     </div>

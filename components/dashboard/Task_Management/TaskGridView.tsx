@@ -11,7 +11,6 @@ import { cn } from "@/lib/dashboard/utils"
 import { Task } from "./types"
 import { safeParse, priorityVariant, statusVariant } from "./utils"
 import { InlineRemarksEditor } from "./InlineRemarksEditor"
-import { toast } from "@/components/dashboard/ui/use-toast"
 
 interface TaskGridViewProps {
   tasks: Task[]

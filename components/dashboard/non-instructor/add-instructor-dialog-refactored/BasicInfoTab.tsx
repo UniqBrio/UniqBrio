@@ -12,13 +12,12 @@ import { useCountryCodes } from "@/hooks/dashboard/staff/use-country-codes"
 import { Textarea } from "@/components/dashboard/ui/textarea"
 import { CountryStateDropdown } from "@/components/dashboard/ui/staff/country-state-dropdown"
 import { formatDateToDisplay } from "./date-utils"
-import type { InstructorFormData } from "./types"
+import type { BasicInfoFieldErrors, InstructorFormData } from "./types"
 import { useNonInstructors } from "@/hooks/dashboard/staff/use-non-instructors"
 import { useCustomContractTypes } from "@/hooks/dashboard/staff/use-custom-contract-types"
 import { useCustomJobLevels } from "@/hooks/dashboard/staff/use-custom-job-levels"
 import { useCustomRoles } from "@/hooks/dashboard/staff/use-custom-roles"
 import { cn } from "@/lib/dashboard/staff/utils"
-import { useToast } from "@/hooks/dashboard/use-toast"
 import { apiGet } from "@/lib/dashboard/staff/api"
 import { validateEmail } from "./validators"
 
@@ -26,10 +25,14 @@ interface BasicInfoTabProps {
   form: InstructorFormData
   setForm: React.Dispatch<React.SetStateAction<InstructorFormData>>
   currentId?: string
+  fieldErrors: BasicInfoFieldErrors
+  setFieldErrors: React.Dispatch<React.SetStateAction<BasicInfoFieldErrors>>
+  setFormError: React.Dispatch<React.SetStateAction<string>>
+  genericErrorMessage: string
+  dobFutureMessage: string
 }
 
-const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId }) => {
-  const { toast } = useToast()
+const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId, fieldErrors, setFieldErrors, setFormError, genericErrorMessage, dobFutureMessage }) => {
   const { instructors } = useNonInstructors()
   const { countryCodes, loading: countryCodesLoading } = useCountryCodes()
   const { getAllContractTypes, addCustomContractType, loading } = useCustomContractTypes()
@@ -51,6 +54,35 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
   // Local 'today' in YYYY-MM-DD for date input constraints
   const toYMD = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
   const todayISO = toYMD(new Date())
+
+  const updateFieldError = (field: keyof BasicInfoFieldErrors, message?: string, formMessage?: string) => {
+    setFieldErrors(prev => {
+      const next = { ...prev }
+      const previousMessage = next[field]
+      if (message) {
+        next[field] = message
+      } else {
+        delete next[field]
+      }
+
+      setFormError((current) => {
+        if (message) {
+          if (formMessage) return formMessage
+          return message === dobFutureMessage ? dobFutureMessage : genericErrorMessage
+        }
+        if (Object.keys(next).length === 0) {
+          return ""
+        }
+        if (current === previousMessage) {
+          const priority = Object.values(next).find(msg => msg === dobFutureMessage)
+          return priority || genericErrorMessage
+        }
+        return current
+      })
+
+      return next
+    })
+  }
 
 
   // Compute the next ID (mirrors NI store logic by scanning existing NON INS ids)
@@ -98,18 +130,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
   }, [currentId, nextId])
 
   // Name validation helpers: allow only letters and spaces
-  const [lastInvalidToastAt, setLastInvalidToastAt] = React.useState(0)
-  const triggerInvalidNameToast = (label: string) => {
-    const now = Date.now()
-    if (now - lastInvalidToastAt < 1200) return // throttle to avoid spam
-    setLastInvalidToastAt(now)
-    toast({
-      variant: "destructive",
-      title: `Invalid ${label}`,
-      description: `${label} can only contain letters and spaces. Numbers and special characters are not allowed.`,
-    })
-  }
-
   const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, label: string) => {
     const k = e.key
     const isControl =
@@ -118,44 +138,68 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
     if (isControl) return
     if (k.length === 1 && !/[A-Za-z ]/.test(k)) {
       e.preventDefault()
-      triggerInvalidNameToast(label)
     }
   }
 
   const sanitizeName = (value: string, label: string) => {
-    const sanitized = value.replace(/[^A-Za-z ]/g, "")
-    if (sanitized !== value) triggerInvalidNameToast(label)
-    return sanitized
+    return value.replace(/[^A-Za-z ]/g, "")
   }
 
   // Email validation state
-  const [emailError, setEmailError] = React.useState<string | null>(null)
   const runEmailValidation = (value: string) => {
     const res = validateEmail(value)
     if (res.ok) {
-      setEmailError(null)
+      updateFieldError("email")
       return true
     } else {
-      setEmailError(res.reason)
+      updateFieldError("email", res.reason, res.reason)
       return false
     }
   }
 
   // Phone validation (length & structure via libphonenumber-js metadata)
-  const [phoneError, setPhoneError] = React.useState<string | null>(null)
   const validatePhone = (raw: string, countryIso?: string, dial?: string) => {
     const digits = raw.replace(/[^0-9]/g, "")
-    if (!digits) { setPhoneError("Phone is required."); return false }
+    if (!digits) { updateFieldError("phone", "Phone is required."); return false }
     let iso = countryIso
     if (!iso && dial && countryCodes?.length) {
       const match = countryCodes.find((c: any) => c.dial === dial)
       iso = match?.code
     }
-    if (!iso) { setPhoneError(null); return true }
+    if (!iso) { updateFieldError("phone"); return true }
     const possible = isPossiblePhoneNumber(digits, iso as any)
-    setPhoneError(possible ? null : `Invalid phone number length for ${iso}`)
+    if (possible) updateFieldError("phone")
+    else updateFieldError("phone", `Invalid phone number length for ${iso}`)
     return possible
   }
+
+  const validatePostalInline = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) {
+      updateFieldError("pincode", "Postal/Zip/Pin Code is required.")
+      return false
+    }
+    if (trimmed.length < 3) {
+      updateFieldError("pincode", "Postal/Zip/Pin Code must be at least 3 characters.")
+      return false
+    }
+    if (trimmed.length > 10) {
+      updateFieldError("pincode", "Postal/Zip/Pin Code cannot exceed 10 characters.")
+      return false
+    }
+    if (!/^[A-Za-z0-9\s-]+$/.test(trimmed)) {
+      updateFieldError("pincode", "Postal/Zip/Pin Code can only contain letters, numbers, spaces, and hyphens.")
+      return false
+    }
+    updateFieldError("pincode")
+    return true
+  }
+
+  useEffect(() => {
+    if (fieldErrors.pincode) {
+      validatePostalInline(form.pincode || '')
+    }
+  }, [form.pincode])
 
 
   return (
@@ -176,7 +220,15 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             onChange={(e) => setForm(f => ({ ...f, firstName: sanitizeName(e.target.value, "First Name") }))}
             inputMode="text"
             autoComplete="given-name"
+            className={cn(fieldErrors.firstName ? "border-red-500 focus:ring-red-400" : "")}
+            onBlur={() => {
+              if (!form.firstName.trim()) updateFieldError("firstName", "First name is required.")
+              else updateFieldError("firstName")
+            }}
           />
+          {fieldErrors.firstName && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.firstName}</p>
+          )}
         </div>
         <div>
           <Label>Middle Name</Label>
@@ -198,7 +250,15 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             onChange={(e) => setForm(f => ({ ...f, lastName: sanitizeName(e.target.value, "Last Name") }))}
             inputMode="text"
             autoComplete="family-name"
+            className={cn(fieldErrors.lastName ? "border-red-500 focus:ring-red-400" : "")}
+            onBlur={() => {
+              if (!form.lastName.trim()) updateFieldError("lastName", "Last name is required.")
+              else updateFieldError("lastName")
+            }}
           />
+          {fieldErrors.lastName && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.lastName}</p>
+          )}
         </div>
         
         {/* Date of Birth */}
@@ -211,22 +271,36 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               value={form.dob || ''}
               onChange={(e) => {
                 const v = e.target.value
-                if (v && v > todayISO) {
-                  toast({ variant: 'destructive', title: 'Invalid date of birth', description: 'Date of birth cannot be in the future.' })
+                if (!v) {
+                  setForm(f => ({ ...f, dob: '' }))
+                  updateFieldError("dob", "Date of birth is required.")
+                  return
+                }
+                if (v > todayISO) {
+                  updateFieldError("dob", dobFutureMessage, dobFutureMessage)
                   return
                 }
                 setForm(f => ({ ...f, dob: v }))
+                updateFieldError("dob")
               }}
               onFocus={() => setDobFocused(true)}
               onBlur={(e) => {
                 setDobFocused(false)
                 const v = e.target.value
-                if (v && v > todayISO) {
-                  toast({ variant: 'destructive', title: 'Invalid date of birth', description: 'Please select a date on or before today.' })
+                if (!v) {
+                  updateFieldError("dob", "Date of birth is required.")
+                } else if (v > todayISO) {
+                  updateFieldError("dob", dobFutureMessage, dobFutureMessage)
+                } else {
+                  updateFieldError("dob")
                 }
               }}
               required
-              className={`px-3 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${dobFocused ? '' : 'text-transparent'}`}
+              className={cn(
+                "px-3 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent",
+                dobFocused ? '' : 'text-transparent',
+                fieldErrors.dob ? "border-red-500 focus:ring-red-400" : ""
+              )}
             />
             {!dobFocused && (
               <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.dob ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white'} z-0`}>
@@ -234,19 +308,28 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               </div>
             )}
           </div>
+          {fieldErrors.dob && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.dob}</p>
+          )}
         </div>
 
         {/* Gender */}
         <div>
           <Label>Gender <span className="text-red-500">*</span></Label>
-          <Select value={form.gender} onValueChange={v => setForm(f => ({ ...f, gender: v, genderOther: "" }))}>
-            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+          <Select value={form.gender} onValueChange={v => {
+            setForm(f => ({ ...f, gender: v, genderOther: "" }))
+            updateFieldError("gender")
+          }}>
+            <SelectTrigger className={cn(fieldErrors.gender ? "border-red-500 focus:ring-red-400" : "")}><SelectValue placeholder="Select gender" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="Male">Male</SelectItem>
               <SelectItem value="Female">Female</SelectItem>
               <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
+          {fieldErrors.gender && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.gender}</p>
+          )}
         </div>
 
         {/* Marital Status */}
@@ -268,32 +351,23 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             placeholder="emily.carter@artsacademy.com"
             type="email"
             value={form.email}
-            aria-invalid={!!emailError}
+            aria-invalid={!!fieldErrors.email}
             aria-describedby="email-help email-error"
             onChange={e => {
               const v = e.target.value.trim()
               setForm(f => ({ ...f, email: v }))
-              
-              // Immediate validation on every keystroke for better UX
-              if (v.length > 0) {
-                // Basic regex check for immediate feedback
-                const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                if (!basicEmailRegex.test(v)) {
-                  setEmailError("Please enter a valid email address")
-                } else {
-                  // Run full validation if basic regex passes
-                  runEmailValidation(v)
-                }
-              } else {
-                setEmailError("Email is required.")
+              if (!v) {
+                updateFieldError("email", "Email is required.", "Email is required.")
+                return
               }
+              runEmailValidation(v)
             }}
             onBlur={e => {
               const v = e.target.value.trim()
               if (v) {
                 runEmailValidation(v)
               } else {
-                setEmailError("Email is required.")
+                updateFieldError("email", "Email is required.", "Email is required.")
               }
             }}
             onKeyDown={e => {
@@ -303,13 +377,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               }
             }}
             className={cn(
-              emailError ? "border-red-500 focus:ring-red-400" : "border-gray-300",
+              fieldErrors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300",
               "transition-colors duration-200"
             )}
           />
           <p className="mt-1 text-[11px] text-gray-500">Must be a valid email address (e.g., user@domain.com)</p>
-          {emailError && (
-            <p id="email-error" className="mt-1 text-[12px] text-red-600 font-medium">{emailError}</p>
+          {fieldErrors.email && (
+            <p id="email-error" className="mt-1 text-[12px] text-red-600 font-medium">{fieldErrors.email}</p>
           )}
         </div>
 
@@ -362,7 +436,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                   countryCodes={countryCodes}
                 />
                 <Input
-                  className={cn("flex-1", phoneError ? "border-red-500 focus:ring-red-400" : "")}
+                  className={cn("flex-1", fieldErrors.phone ? "border-red-500 focus:ring-red-400" : "")}
                   type="tel"
                   inputMode="tel"
                   placeholder="555 987 6543"
@@ -400,8 +474,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                 />
               </div>
               <p className="mt-1 text-[11px] text-gray-500 dark:text-white"></p>
-              {phoneError && (
-                <p className="mt-1 text-[12px] text-red-600">{phoneError}</p>
+              {fieldErrors.phone && (
+                <p className="mt-1 text-[12px] text-red-600">{fieldErrors.phone}</p>
               )}
             </div>
             {/* State remains on the right */}
@@ -416,6 +490,28 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               }}
               mode="state"
             />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <div>
+              <Label>Postal/Zip/Pin Code <span className="text-red-500">*</span></Label>
+              <Input
+                value={form.pincode}
+                onChange={(e) => {
+                  const sanitized = e.target.value.replace(/[^A-Za-z0-9\s-]/g, "");
+                  const normalized = sanitized.replace(/\s+/g, ' ');
+                  const valueToStore = normalized.startsWith(' ') ? normalized.trimStart() : normalized;
+                  setForm(f => ({ ...f, pincode: valueToStore }));
+                  if (fieldErrors.pincode) validatePostalInline(valueToStore);
+                }}
+                onBlur={(e) => validatePostalInline(e.target.value)}
+                placeholder="e.g. 560001"
+                className={cn(fieldErrors.pincode ? "border-red-500 focus-visible:ring-red-500" : "")}
+                maxLength={10}
+              />
+              {fieldErrors.pincode && (
+                <p className="mt-1 text-[12px] text-red-600">{fieldErrors.pincode}</p>
+              )}
+            </div>
           </div>
           <Label>Address</Label>
           <Textarea placeholder="456 Creative Avenue, Art City, AC 67890" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
@@ -437,7 +533,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                   variant="outline"
                   role="combobox"
                   aria-expanded={contractTypeOpen}
-                  className="w-full justify-between"
+                  className={cn("w-full justify-between", fieldErrors.contractType ? "border-red-500 focus-visible:ring-red-500" : "")}
                 >
                   {form.contractType 
                     ? getAllContractTypes().find(type => type.value === form.contractType)?.label 
@@ -482,6 +578,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                                   setShowCustomContractType(false)
                                   setContractTypeOpen(false)
                                   setContractTypeSearch("")
+                                  updateFieldError("contractType")
                                 }
                               }}
                               className="text-blue-600 font-medium"
@@ -510,6 +607,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                             }))
                             setShowCustomContractType(false)
                             setContractTypeOpen(false)
+                            updateFieldError("contractType")
                           }}
                         >
                           <div className="flex items-center">
@@ -532,6 +630,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                 </Command>
               </PopoverContent>
             </Popover>
+            {fieldErrors.contractType && (
+              <p className="mt-1 text-xs text-red-600">{fieldErrors.contractType}</p>
+            )}
             {showCustomContractType && null}
           </div>
           <div className="flex-1">
@@ -543,7 +644,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               }
             }}>
               <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" className="w-full justify-between">
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className={cn("w-full justify-between", fieldErrors.jobLevel ? "border-red-500 focus-visible:ring-red-500" : "")}
+                >
                   {form.jobLevel ? getAllJobLevels().find(level => level.value === form.jobLevel)?.label || form.jobLevel : "Select job level"}
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -565,6 +670,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                           setShowCustomJobLevel(false)
                           setJobLevelOpen(false)
                           setJobLevelSearch("")
+                          updateFieldError("jobLevel")
                         }
                       }
                     }}
@@ -627,6 +733,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                                   }))
                                   setShowCustomJobLevel(false)
                                   setJobLevelOpen(false)
+                                  updateFieldError("jobLevel")
                                 }}
                             >
                               <div className="flex items-center">
@@ -649,6 +756,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                 </Command>
               </PopoverContent>
             </Popover>
+            {fieldErrors.jobLevel && (
+              <p className="mt-1 text-xs text-red-600">{fieldErrors.jobLevel}</p>
+            )}
             {showCustomJobLevel && null}
           </div>
         </div>
@@ -663,7 +773,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             }
           }}>
             <PopoverTrigger asChild>
-              <Button variant="outline" role="combobox" className="w-full justify-between">
+              <Button
+                variant="outline"
+                role="combobox"
+                className={cn("w-full justify-between", fieldErrors.role ? "border-red-500 focus-visible:ring-red-500" : "")}
+              >
                 {form.role ? getAllRoles().find(role => role.value === form.role)?.label || form.role : "Select instructor role"}
                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -717,6 +831,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                                 setForm(f => ({ ...f, role: query, roleOther: '' }))
                                 setRoleOpen(false)
                                 setRoleSearch("")
+                                updateFieldError("role")
                               }
                             }}
                             className="text-blue-600 font-medium"
@@ -751,6 +866,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
                                     roleOther: role.value === 'custom' ? f.roleOther : ''
                                   }))
                                   setRoleOpen(false)
+                                  updateFieldError("role")
                                 }}
                               >
                                 <div className="flex items-center">
@@ -775,6 +891,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               </Command>
             </PopoverContent>
           </Popover>
+          {fieldErrors.role && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.role}</p>
+          )}
           {false && form.role === 'custom'}
         </div>
 
@@ -787,6 +906,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             value={form.yearsOfExperience}
             inputMode="numeric"
             pattern="[0-9]*"
+            className={cn(fieldErrors.yearsOfExperience ? "border-red-500 focus:ring-red-400" : "")}
             onKeyDown={(e) => {
               const k = e.key
               const isControl =
@@ -811,14 +931,27 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               const value = e.target.value
               if (value === '' || /^\d+$/.test(value)) {
                 setForm(f => ({ ...f, yearsOfExperience: value }))
+                if (value === '') {
+                  updateFieldError("yearsOfExperience", "Years of experience is required.")
+                } else {
+                  updateFieldError("yearsOfExperience")
+                }
               }
             }}
             onBlur={() => {
               const currentValue = parseInt(form.yearsOfExperience) || 0
               setForm(f => ({ ...f, yearsOfExperience: String(Math.max(0, currentValue)) }))
+              if (form.yearsOfExperience.trim() === '') {
+                updateFieldError("yearsOfExperience", "Years of experience is required.")
+              } else {
+                updateFieldError("yearsOfExperience")
+              }
             }}
             min="0"
           />
+          {fieldErrors.yearsOfExperience && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.yearsOfExperience}</p>
+          )}
         </div>
 
         {/* Joining Date (moved to end of form) */}
@@ -828,11 +961,30 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             <Input
               type="date"
               value={form.joiningDate || ''}
-              onChange={(e) => setForm(f => ({ ...f, joiningDate: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm(f => ({ ...f, joiningDate: value }))
+                if (!value) {
+                  updateFieldError("joiningDate", "Joining date is required.")
+                } else {
+                  updateFieldError("joiningDate")
+                }
+              }}
               onFocus={() => setJoiningDateFocused(true)}
-              onBlur={() => setJoiningDateFocused(false)}
+              onBlur={() => {
+                setJoiningDateFocused(false)
+                if (!form.joiningDate.trim()) {
+                  updateFieldError("joiningDate", "Joining date is required.")
+                } else {
+                  updateFieldError("joiningDate")
+                }
+              }}
               required
-              className={`px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${joiningDateFocused ? '' : 'text-transparent'}`}
+              className={cn(
+                "px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent",
+                joiningDateFocused ? '' : 'text-transparent',
+                fieldErrors.joiningDate ? "border-red-500 focus:ring-red-400" : ""
+              )}
             />
             {!joiningDateFocused && (
               <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.joiningDate ? 'text-gray-900' : 'text-gray-500 dark:text-white'}`}>
@@ -840,6 +992,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               </div>
             )}
           </div>
+          {fieldErrors.joiningDate && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.joiningDate}</p>
+          )}
         </div>
       </div>
     </div>

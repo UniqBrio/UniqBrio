@@ -178,6 +178,7 @@ export default function EnhancedCourseManagementPage() {
   
   // Navigation tab state
   const [currentTab, setCurrentTab] = useState("dashboard")
+  const isSettingsTabDisabled = true
   
   const createCourseSettingsDefaults = () => ({
     display: {
@@ -233,44 +234,8 @@ export default function EnhancedCourseManagementPage() {
 
   type CourseSettings = ReturnType<typeof createCourseSettingsDefaults>
 
-  const mergeCourseSettings = (saved?: Partial<CourseSettings>): CourseSettings => {
-    const defaults = createCourseSettingsDefaults()
-    if (!saved || typeof saved !== 'object') {
-      return defaults
-    }
-    return {
-      display: { ...defaults.display, ...(saved.display || {}) },
-      identity: { ...defaults.identity, ...(saved.identity || {}) },
-      filters: { ...defaults.filters, ...(saved.filters || {}) },
-      notifications: { ...defaults.notifications, ...(saved.notifications || {}) },
-      export: { ...defaults.export, ...(saved.export || {}) },
-      automation: { ...defaults.automation, ...(saved.automation || {}) },
-      advanced: { ...defaults.advanced, ...(saved.advanced || {}) },
-      enrollment: { ...defaults.enrollment, ...(saved.enrollment || {}) },
-    }
-  }
-
-  // Settings state with localStorage persistence
-  const [courseSettings, setCourseSettings] = useState<CourseSettings>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('courseSettings');
-      if (saved) {
-        try {
-          return mergeCourseSettings(JSON.parse(saved) as Partial<CourseSettings>);
-        } catch (e) {
-          console.error('Failed to parse saved settings:', e);
-        }
-      }
-    }
-    return createCourseSettingsDefaults();
-  });
-
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('courseSettings', JSON.stringify(courseSettings));
-    }
-  }, [courseSettings]);
+  // Settings state now always uses defaults
+  const [courseSettings, setCourseSettings] = useState<CourseSettings>(createCourseSettingsDefaults);
 
   // Function to update specific setting
   const updateSetting = (category: string, key: string, value: any) => {
@@ -298,6 +263,9 @@ export default function EnhancedCourseManagementPage() {
   const resetSettings = () => {
     const defaultSettings = createCourseSettingsDefaults();
     setCourseSettings(defaultSettings);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('courseSettings');
+    }
     toast({
       title: "Settings Reset",
       description: "All settings have been restored to defaults.",
@@ -369,45 +337,15 @@ export default function EnhancedCourseManagementPage() {
 
   type CohortSettings = ReturnType<typeof createCohortSettingsDefaults>
 
-  const mergeCohortSettings = (saved?: Partial<CohortSettings>): CohortSettings => {
-    const defaults = createCohortSettingsDefaults()
-    if (!saved || typeof saved !== 'object') {
-      return defaults
-    }
-    return {
-      display: { ...defaults.display, ...(saved.display || {}) },
-      sorting: { ...defaults.sorting, ...(saved.sorting || {}) },
-      capacity: { ...defaults.capacity, ...(saved.capacity || {}) },
-      members: { ...defaults.members, ...(saved.members || {}) },
-      sync: { ...defaults.sync, ...(saved.sync || {}) },
-      notifications: { ...defaults.notifications, ...(saved.notifications || {}) },
-      advanced: { ...defaults.advanced, ...(saved.advanced || {}) },
-      identity: { ...defaults.identity, ...(saved.identity || {}) },
-      inheritance: { ...defaults.inheritance, ...(saved.inheritance || {}) },
-    }
-  }
+  // Cohort settings state now always uses defaults
+  const [cohortSettings, setCohortSettings] = useState<CohortSettings>(createCohortSettingsDefaults);
 
-  // Cohort Settings state with localStorage persistence
-  const [cohortSettings, setCohortSettings] = useState<CohortSettings>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('cohortSettings');
-      if (saved) {
-        try {
-          return mergeCohortSettings(JSON.parse(saved) as Partial<CohortSettings>);
-        } catch (e) {
-          console.error('Failed to parse saved cohort settings:', e);
-        }
-      }
-    }
-    return createCohortSettingsDefaults();
-  });
-
-  // Save cohort settings to localStorage whenever they change
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('cohortSettings', JSON.stringify(cohortSettings));
+      localStorage.removeItem('courseSettings');
+      localStorage.removeItem('cohortSettings');
     }
-  }, [cohortSettings]);
+  }, []);
 
   // Function to update specific cohort setting
   const updateCohortSetting = (category: string, key: string, value: any) => {
@@ -435,6 +373,9 @@ export default function EnhancedCourseManagementPage() {
   const resetCohortSettings = () => {
     const defaultSettings = createCohortSettingsDefaults();
     setCohortSettings(defaultSettings);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cohortSettings');
+    }
     toast({
       title: "Cohort Settings Reset",
       description: "All cohort settings have been restored to defaults.",
@@ -1089,12 +1030,8 @@ export default function EnhancedCourseManagementPage() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="settings" 
-                  className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 bg-transparent text-xs sm:text-sm md:text-base font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-                  style={{
-                    borderColor: secondaryColor,
-                    color: secondaryColor,
-                    ...(currentTab === 'settings' ? { backgroundColor: primaryColor, color: 'white', borderColor: 'transparent' } : {})
-                  }}
+                  aria-disabled={isSettingsTabDisabled}
+                  className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 text-xs sm:text-sm md:text-base font-medium border-2 border-black/60 bg-gray-100 text-gray-700 transition-colors data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
                 >
                   <Settings className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                   <span className="hidden xs:inline sm:inline">Settings</span>
@@ -1358,8 +1295,16 @@ export default function EnhancedCourseManagementPage() {
               </TabsContent>
 
               {/* Settings Tab Content */}
-              <TabsContent value="settings" className="space-y-2 sm:space-y-4">
-                <Card>
+              <TabsContent value="settings" className="relative space-y-2 sm:space-y-4">
+                {isSettingsTabDisabled && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                    <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                      <p className="text-sm font-medium text-muted-foreground">Settings are locked to defaults.</p>
+                      <p className="text-xs text-muted-foreground/80">Contact your administrator to make changes.</p>
+                    </div>
+                  </div>
+                )}
+                <Card className={isSettingsTabDisabled ? "pointer-events-none opacity-60" : ""}>
                   <CardContent className="p-2 sm:p-4 md:p-6">
                     {/* Settings Sub-Tabs */}
                     <Tabs defaultValue="course-settings" className="w-full">

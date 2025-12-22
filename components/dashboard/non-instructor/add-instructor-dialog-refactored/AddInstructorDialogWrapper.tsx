@@ -11,13 +11,33 @@ import PaymentTab from "./PaymentTab"
 import ProfessionalTab from "./ProfessionalTab"
 import EmploymentTab from "./EmploymentTab"
 import UnsavedChangesDialog from "./UnsavedChangesDialog"
-import type { AddInstructorDialogProps, InstructorFormData } from "./types"
+import type { AddInstructorDialogProps, InstructorFormData, BasicInfoFieldErrors } from "./types"
 import { useToast } from "@/hooks/dashboard/use-toast"
 import { validateEmail } from "./validators"
 
 // Helper to format today's date as YYYY-MM-DD
 const __toYMD = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 const __today = __toYMD(new Date())
+
+const GENERIC_FIELD_ERROR = "Please fix the highlighted fields before continuing.";
+const DOB_FUTURE_ERROR = "Date of birth cannot be in the future.";
+const EMAIL_REQUIRED_ERROR = "Email is required.";
+const PHONE_REQUIRED_ERROR = "Phone is required.";
+const FIRST_NAME_REQUIRED = "First name is required.";
+const LAST_NAME_REQUIRED = "Last name is required.";
+const DOB_REQUIRED = "Date of birth is required.";
+const GENDER_REQUIRED = "Gender is required.";
+const COUNTRY_REQUIRED = "Country is required.";
+const STATE_REQUIRED = "State is required.";
+const PINCODE_REQUIRED = "Postal/Zip/Pin Code is required.";
+const PINCODE_MIN_ERROR = "Postal/Zip/Pin Code must be at least 3 characters.";
+const PINCODE_MAX_ERROR = "Postal/Zip/Pin Code cannot exceed 10 characters.";
+const PINCODE_FORMAT_ERROR = "Postal/Zip/Pin Code can only contain letters, numbers, spaces, and hyphens.";
+const CONTRACT_REQUIRED = "Contract type is required.";
+const JOB_LEVEL_REQUIRED = "Job level is required.";
+const ROLE_REQUIRED = "Role is required.";
+const EXPERIENCE_REQUIRED = "Years of experience is required.";
+const JOINING_DATE_REQUIRED = "Joining date is required.";
 
 const initialForm: InstructorFormData = {
   avatar: "",
@@ -39,6 +59,7 @@ const initialForm: InstructorFormData = {
   gender: "",
   genderOther: "",
   address: "",
+  pincode: "",
   country: "IN",
   state: "",
   yearsOfExperience: "",
@@ -81,6 +102,8 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
   const [pendingClose, setPendingClose] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [formError, setFormError] = useState<string>("")
+  const [fieldErrors, setFieldErrors] = useState<BasicInfoFieldErrors>({})
   const isEditingDraft = Boolean(draftId || currentDraftId)
 
   const tabOrder = ["basic", "payment", "professional", "employment"] as const
@@ -92,22 +115,8 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   const goToNextTab = () => {
     const currentIndex = getCurrentTabIndex()
     if (currentIndex < tabOrder.length - 1) {
-      if (addTab === "basic") {
-        const emailCheck = validateEmail(form.email)
-        if (!emailCheck.ok) {
-          toast({ title: "Invalid email address", description: emailCheck.reason, variant: "destructive" })
-          return
-        }
-        // Disallow future DOB
-        if (form.dob) {
-          const today = new Date(); today.setHours(0,0,0,0)
-          const dob = new Date(form.dob); dob.setHours(0,0,0,0)
-          if (dob.getTime() > today.getTime()) {
-            toast({ title: "Invalid date of birth", description: "Date of birth cannot be in the future.", variant: "destructive" })
-            return
-          }
-        }
-      }
+      const currentTab = tabOrder[currentIndex]
+      if (!runValidationForTab(currentTab, true)) return
       setAddTab(tabOrder[currentIndex + 1] as any)
     }
   }
@@ -116,49 +125,87 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
     if (currentIndex > 0) setAddTab(tabOrder[currentIndex - 1] as any)
   }
 
-  const isCurrentTabValid = () => {
-    if (addTab === "basic") {
-      return (
-        !!form.firstName &&
-        !!form.lastName &&
-        !!form.dob &&
-        !!form.gender &&
-        !!form.email && validateEmail(form.email).ok &&
-        !!form.phone &&
-        !!form.country &&
-        !!form.state &&
-        !!form.contractType &&
-        !!form.jobLevel &&
-        !!form.role &&
-        !!form.yearsOfExperience &&
-        !!form.joiningDate
-      )
+  const validateBasicInfo = (showErrors = true) => {
+    const errors: BasicInfoFieldErrors = {}
+    const trimmedFirst = form.firstName.trim()
+    const trimmedLast = form.lastName.trim()
+    const trimmedEmail = form.email.trim()
+    const trimmedPhone = form.phone.trim()
+    const trimmedRole = form.role.trim()
+    const trimmedExperience = form.yearsOfExperience.trim()
+    const trimmedContract = form.contractType.trim()
+    const trimmedJobLevel = form.jobLevel.trim()
+    const trimmedGender = form.gender.trim()
+    const trimmedCountry = form.country?.trim()
+    const trimmedState = form.state?.trim()
+    const trimmedPincode = form.pincode?.trim()
+    const dobValue = form.dob?.trim()
+    const joiningValue = form.joiningDate?.trim()
+
+    if (!trimmedFirst) errors.firstName = FIRST_NAME_REQUIRED
+    if (!trimmedLast) errors.lastName = LAST_NAME_REQUIRED
+
+    if (!dobValue) {
+      errors.dob = DOB_REQUIRED
+    } else if (dobValue > __today) {
+      errors.dob = DOB_FUTURE_ERROR
     }
-    // Employment tab validation removed - fields not in type
+
+    if (!trimmedGender) errors.gender = GENDER_REQUIRED
+
+    if (!trimmedEmail) {
+      errors.email = EMAIL_REQUIRED_ERROR
+    } else {
+      const emailCheck = validateEmail(trimmedEmail)
+      if (!emailCheck.ok) errors.email = emailCheck.reason
+    }
+
+    if (!trimmedPhone) errors.phone = PHONE_REQUIRED_ERROR
+    if (!trimmedPincode) {
+      errors.pincode = PINCODE_REQUIRED
+    } else if (trimmedPincode.length < 3) {
+      errors.pincode = PINCODE_MIN_ERROR
+    } else if (trimmedPincode.length > 10) {
+      errors.pincode = PINCODE_MAX_ERROR
+    } else if (!/^[A-Za-z0-9\s-]+$/.test(trimmedPincode)) {
+      errors.pincode = PINCODE_FORMAT_ERROR
+    }
+    if (!trimmedCountry) errors.country = COUNTRY_REQUIRED
+    if (!trimmedState) errors.state = STATE_REQUIRED
+    if (!trimmedContract) errors.contractType = CONTRACT_REQUIRED
+    if (!trimmedJobLevel) errors.jobLevel = JOB_LEVEL_REQUIRED
+    if (!trimmedRole) errors.role = ROLE_REQUIRED
+    if (!trimmedExperience) errors.yearsOfExperience = EXPERIENCE_REQUIRED
+    if (!joiningValue) errors.joiningDate = JOINING_DATE_REQUIRED
+
+    if (showErrors) {
+      setFieldErrors(errors)
+      if (Object.values(errors).length) {
+        const preferred = Object.values(errors).find(message => message === DOB_FUTURE_ERROR)
+        setFormError(preferred || GENERIC_FIELD_ERROR)
+      } else {
+        setFormError("")
+      }
+    }
+
+    return Object.keys(errors).length === 0
+  }
+
+  const runValidationForTab = (tab: typeof tabOrder[number], showErrors = true) => {
+    if (tab === "basic") return validateBasicInfo(showErrors)
     return true
   }
 
-  // Basic Info mandatory validation reused for disabling Add Instructor on Payment tab
-  const isBasicInfoValid = () => (
-    !!form.firstName &&
-    !!form.lastName &&
-    !!form.dob &&
-    !!form.gender &&
-    !!form.email && validateEmail(form.email).ok &&
-    !!form.phone &&
-    !!form.country &&
-    !!form.state &&
-    !!form.contractType &&
-    !!form.jobLevel &&
-    !!form.role &&
-    !!form.yearsOfExperience &&
-    !!form.joiningDate
-  )
+  const isCurrentTabValid = () => runValidationForTab(addTab as typeof tabOrder[number], false)
+
+  const isBasicInfoValid = () => validateBasicInfo(false)
 
   useEffect(() => {
     if (open) {
       // Always start on Basic tab whenever the dialog (re)opens
       setAddTab("basic")
+      setFormError("")
+      setFieldErrors({})
       if (draftData) {
         setForm(draftData)
         setOriginalForm(draftData)
@@ -193,22 +240,9 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   }
 
   const handleSave = async () => {
-    // Global validation guard: ensure email remains valid even if user left the Basic tab
-    const emailCheck = validateEmail(form.email)
-    if (!emailCheck.ok) {
+    if (!validateBasicInfo(true)) {
       setAddTab("basic" as any)
-      toast({ title: "Invalid email address", description: emailCheck.reason, variant: "destructive" })
       return
-    }
-    // DOB cannot be in the future
-    if (form.dob) {
-      const today = new Date(); today.setHours(0,0,0,0)
-      const dob = new Date(form.dob); dob.setHours(0,0,0,0)
-      if (dob.getTime() > today.getTime()) {
-        setAddTab("basic" as any)
-        toast({ title: "Invalid date of birth", description: "Please select a date on or before today.", variant: "destructive" })
-        return
-      }
     }
     if (isSaving) return
     setIsSaving(true)
@@ -295,22 +329,22 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
             </Button>
           </DialogHeader>
 
+          {formError && (
+            <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {formError}
+            </div>
+          )}
+
           <UITabs value={addTab} onValueChange={(newTab) => {
-            // Prevent tab change if trying to move forward without validation
-            const currentIndex = tabOrder.indexOf(addTab as any);
-            const newIndex = tabOrder.indexOf(newTab as any);
-            
-            // If moving forward, validate current tab
-            if (newIndex > currentIndex && !isCurrentTabValid()) {
-              toast({
-                title: "Missing Required Fields",
-                description: "Please fill all mandatory fields before proceeding.",
-                variant: "destructive"
-              });
-              return;
+            const currentIndex = tabOrder.indexOf(addTab as any)
+            const newIndex = tabOrder.indexOf(newTab as any)
+            if (newIndex > currentIndex) {
+              const currentTab = tabOrder[currentIndex]
+              if (!runValidationForTab(currentTab, true)) {
+                return
+              }
             }
-            
-            setAddTab(newTab);
+            setAddTab(newTab)
           }} className="w-full">
             <UITabsList className="flex justify-between gap-1 mb-6 w-full bg-transparent">
               <UITabsTrigger value="basic" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-transparent transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Basic Info</UITabsTrigger>
@@ -322,7 +356,16 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
             {/* Prevent implicit form submission via Enter key causing duplicate onSave */}
             <form onSubmit={(e) => { e.preventDefault() }}>
               <UITabsContent value="basic">
-                <BasicInfoTab form={form} setForm={setForm} currentId={mode === 'edit' ? currentId : undefined} />
+                <BasicInfoTab
+                  form={form}
+                  setForm={setForm}
+                  currentId={mode === 'edit' ? currentId : undefined}
+                  fieldErrors={fieldErrors}
+                  setFieldErrors={setFieldErrors}
+                  setFormError={setFormError}
+                  genericErrorMessage={GENERIC_FIELD_ERROR}
+                  dobFutureMessage={DOB_FUTURE_ERROR}
+                />
               </UITabsContent>
               <UITabsContent value="payment">
                 <PaymentTab form={form} setForm={setForm} />

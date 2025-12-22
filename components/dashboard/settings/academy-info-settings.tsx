@@ -1158,12 +1158,24 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="zipCode">ZIP/Postal Code</Label>
+              <Label htmlFor="zipCode">Postal/Zip/Pin Code</Label>
               <Input
                 id="zipCode"
-                placeholder="10001"
+                placeholder="e.g., 10001 or SW1A 1AA"
                 value={formData.zipCode}
-                onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                onChange={(e) => {
+                  const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, "");
+                  const normalized = sanitized.replace(/\s+/g, " ");
+                  const valueToStore = normalized.startsWith(" ") ? normalized.trimStart() : normalized;
+                  handleInputChange("zipCode", valueToStore);
+                }}
+                onBlur={() => {
+                  const trimmed = formData.zipCode.trim();
+                  if (trimmed !== formData.zipCode) {
+                    handleInputChange("zipCode", trimmed);
+                  }
+                }}
+                maxLength={10}
                 disabled={!isEditing}
               />
             </div>

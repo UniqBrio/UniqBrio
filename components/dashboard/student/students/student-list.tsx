@@ -228,8 +228,6 @@ export function StudentList({ students, viewMode, onSelectStudent, onEditStudent
       }
       case 'Registration Date':
         return formatDate(student.registrationDate);
-      case 'Course Start Date':
-        return formatDate(student.courseStartDate);
       case 'Address':
         return student.address ? (
           <span className="max-w-xs truncate" title={student.address}>

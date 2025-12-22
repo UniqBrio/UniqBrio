@@ -18,7 +18,6 @@ import { useCustomContractTypes } from "@/hooks/dashboard/staff/use-custom-contr
 import { useCustomJobLevels } from "@/hooks/dashboard/staff/use-custom-job-levels"
 import { useCustomRoles } from "@/hooks/dashboard/staff/use-custom-roles"
 import { cn } from "@/lib/dashboard/staff/utils"
-import { useToast } from "@/hooks/dashboard/use-toast"
 import { apiGet } from "@/lib/dashboard/staff/api"
 import { validateEmail } from "./validators"
 
@@ -29,7 +28,6 @@ interface BasicInfoTabProps {
 }
 
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId }) => {
-  const { toast } = useToast()
   const { instructors } = useInstructors()
   const { countryCodes, loading: countryCodesLoading } = useCountryCodes()
   const { getAllContractTypes, addCustomContractType, loading } = useCustomContractTypes()
@@ -98,19 +96,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
   }, [currentId, nextId])
 
   // Name validation helpers: allow only letters and spaces
-  const [lastInvalidToastAt, setLastInvalidToastAt] = React.useState(0)
-  const triggerInvalidNameToast = (label: string) => {
-    const now = Date.now()
-    if (now - lastInvalidToastAt < 1200) return // throttle to avoid spam
-    setLastInvalidToastAt(now)
-    toast({
-      variant: "destructive",
-      title: `Invalid ${label}`,
-      description: `${label} can only contain letters and spaces. Numbers and special characters are not allowed.`,
-    })
-  }
+  const [nameErrors, setNameErrors] = useState<{ firstName?: string; middleName?: string; lastName?: string }>({})
+  const [postalError, setPostalError] = useState<string | null>(null)
+  const [dobError, setDobError] = useState<string | null>(null)
 
-  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, label: string) => {
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, label: string, field: 'firstName' | 'middleName' | 'lastName') => {
     const k = e.key
     const isControl =
       e.ctrlKey || e.metaKey || e.altKey ||
@@ -118,13 +108,21 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
     if (isControl) return
     if (k.length === 1 && !/[A-Za-z ]/.test(k)) {
       e.preventDefault()
-      triggerInvalidNameToast(label)
+      setNameErrors(prev => ({ ...prev, [field]: `${label} can only contain letters and spaces` }))
     }
   }
 
-  const sanitizeName = (value: string, label: string) => {
+  const sanitizeName = (value: string, label: string, field: 'firstName' | 'middleName' | 'lastName') => {
     const sanitized = value.replace(/[^A-Za-z ]/g, "")
-    if (sanitized !== value) triggerInvalidNameToast(label)
+    if (sanitized !== value) {
+      setNameErrors(prev => ({ ...prev, [field]: `${label} can only contain letters and spaces` }))
+    } else {
+      setNameErrors(prev => {
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
+    }
     return sanitized
   }
 
@@ -168,6 +166,34 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
     return possible
   }
 
+  const validatePostalCode = (value: string) => {
+  useEffect(() => {
+    if (!form.pincode || !form.pincode.trim()) {
+      setPostalError(null)
+    }
+  }, [form.pincode])
+
+    const trimmed = value.trim()
+    if (!trimmed) {
+      setPostalError("Postal/Zip/Pin Code is required")
+      return false
+    }
+    if (trimmed.length < 3) {
+      setPostalError("Postal/Zip/Pin Code must be at least 3 characters")
+      return false
+    }
+    if (trimmed.length > 10) {
+      setPostalError("Postal/Zip/Pin Code cannot exceed 10 characters")
+      return false
+    }
+    if (!/^[A-Za-z0-9\s-]+$/.test(trimmed)) {
+      setPostalError("Postal/Zip/Pin Code can only contain letters, numbers, spaces, and hyphens")
+      return false
+    }
+    setPostalError(null)
+    return true
+  }
+
 
   return (
     <div>
@@ -183,33 +209,45 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Input
             placeholder="Michael "
             value={form.firstName}
-            onKeyDown={(e) => handleNameKeyDown(e, "First Name")}
-            onChange={(e) => setForm(f => ({ ...f, firstName: sanitizeName(e.target.value, "First Name") }))}
+            onKeyDown={(e) => handleNameKeyDown(e, "First Name", 'firstName')}
+            onChange={(e) => setForm(f => ({ ...f, firstName: sanitizeName(e.target.value, "First Name", 'firstName') }))}
             inputMode="text"
             autoComplete="given-name"
+            className={cn(nameErrors.firstName ? "border-red-500 focus:ring-red-400" : "")}
           />
+          {nameErrors.firstName && (
+            <p className="mt-1 text-[12px] text-red-600">{nameErrors.firstName}</p>
+          )}
         </div>
         <div>
           <Label>Middle Name</Label>
           <Input
             placeholder="James"
             value={form.middleName}
-            onKeyDown={(e) => handleNameKeyDown(e, "Middle Name")}
-            onChange={(e) => setForm(f => ({ ...f, middleName: sanitizeName(e.target.value, "Middle Name") }))}
+            onKeyDown={(e) => handleNameKeyDown(e, "Middle Name", 'middleName')}
+            onChange={(e) => setForm(f => ({ ...f, middleName: sanitizeName(e.target.value, "Middle Name", 'middleName') }))}
             inputMode="text"
             autoComplete="additional-name"
+            className={cn(nameErrors.middleName ? "border-red-500 focus:ring-red-400" : "")}
           />
+          {nameErrors.middleName && (
+            <p className="mt-1 text-[12px] text-red-600">{nameErrors.middleName}</p>
+          )}
         </div>
         <div>
           <Label>Last Name <span className="text-red-500">*</span></Label>
           <Input
             placeholder="Jordan"
             value={form.lastName}
-            onKeyDown={(e) => handleNameKeyDown(e, "Last Name")}
-            onChange={(e) => setForm(f => ({ ...f, lastName: sanitizeName(e.target.value, "Last Name") }))}
+            onKeyDown={(e) => handleNameKeyDown(e, "Last Name", 'lastName')}
+            onChange={(e) => setForm(f => ({ ...f, lastName: sanitizeName(e.target.value, "Last Name", 'lastName') }))}
             inputMode="text"
             autoComplete="family-name"
+            className={cn(nameErrors.lastName ? "border-red-500 focus:ring-red-400" : "")}
           />
+          {nameErrors.lastName && (
+            <p className="mt-1 text-[12px] text-red-600">{nameErrors.lastName}</p>
+          )}
         </div>
         
         {/* Date of Birth */}
@@ -223,21 +261,22 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               onChange={(e) => {
                 const v = e.target.value
                 if (v && v > todayISO) {
-                  toast({ variant: 'destructive', title: 'Invalid date of birth', description: 'Date of birth cannot be in the future.' })
+                  setDobError('Date of birth cannot be in the future.')
                   return
                 }
                 setForm(f => ({ ...f, dob: v }))
+                setDobError(null)
               }}
               onFocus={() => setDobFocused(true)}
               onBlur={(e) => {
                 setDobFocused(false)
                 const v = e.target.value
                 if (v && v > todayISO) {
-                  toast({ variant: 'destructive', title: 'Invalid date of birth', description: 'Please select a date on or before today.' })
+                  setDobError('Please select a date on or before today.')
                 }
               }}
               required
-              className={`px-3 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${dobFocused ? '' : 'text-transparent'}`}
+              className={`px-3 pr-10 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 focus:border-transparent ${dobFocused ? '' : 'text-transparent'} ${dobError ? 'border-red-500 focus:ring-red-400' : ''}`}
             />
             {!dobFocused && (
               <div className={`absolute inset-0 flex items-center px-3 text-sm pointer-events-none ${form.dob ? 'text-gray-900' : 'text-gray-500 dark:text-white'} z-0`}>
@@ -245,6 +284,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               </div>
             )}
           </div>
+          {dobError && (
+            <p className="mt-1 text-[12px] text-red-600">{dobError}</p>
+          )}
         </div>
 
         {/* Gender */}
@@ -405,6 +447,28 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
             }}
             mode="state"
           />
+        </div>
+
+        {/* Postal/Zip/Pin Code */}
+        <div>
+          <Label>Postal/Zip/Pin Code <span className="text-red-500">*</span></Label>
+          <Input
+            value={form.pincode}
+            onChange={(e) => {
+              const sanitized = e.target.value.replace(/[^A-Za-z0-9\s-]/g, "");
+              const normalized = sanitized.replace(/\s+/g, ' ');
+              const valueToStore = normalized.startsWith(' ') ? normalized.trimStart() : normalized;
+              setForm(f => ({ ...f, pincode: valueToStore }));
+              if (postalError) validatePostalCode(valueToStore);
+            }}
+            onBlur={() => validatePostalCode(form.pincode || '')}
+            placeholder="e.g. 560001"
+            className={cn(postalError ? "border-red-500 focus:ring-red-400" : "")}
+            maxLength={10}
+          />
+          {postalError && (
+            <p className="mt-1 text-[12px] text-red-600">{postalError}</p>
+          )}
         </div>
 
         {/* Address */}

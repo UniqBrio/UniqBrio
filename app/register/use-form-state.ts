@@ -1,4 +1,4 @@
-export type UpdateFormState = (update: Partial<FormState>) => void;
+export type UpdateFormState = (update: Partial<FormState> | ((prev: FormState) => Partial<FormState>)) => void;
 
 import { useState } from "react";
 
@@ -61,7 +61,7 @@ export function useFormState() {
       servicesOffered: [],
       studentSize: "",
       staffCount: "",
-      country: "",
+      country: "IN",
       state: "",
       city: "",
       address: "",
@@ -89,11 +89,14 @@ export function useFormState() {
     },
   });
 
-  function updateFormState(update: Partial<FormState>) {
-    setFormState((prev) => ({
-      ...prev,
-      ...update,
-    }));
+  function updateFormState(update: Partial<FormState> | ((prev: FormState) => Partial<FormState>)) {
+    setFormState((prev) => {
+      const patch = typeof update === "function" ? update(prev) : update;
+      return {
+        ...prev,
+        ...patch,
+      };
+    });
   }
 
   function resetForm() {
@@ -107,7 +110,7 @@ export function useFormState() {
         servicesOffered: [],
         studentSize: "",
         staffCount: "",
-        country: "",
+        country: "IN",
         state: "",
         city: "",
         address: "",

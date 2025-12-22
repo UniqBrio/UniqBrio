@@ -19,13 +19,17 @@ interface PricingTabProps {
   onFormChange: (field: string, value: any) => void
   mockReferralCodes?: any[]
   courses?: any[]
+  errorFields?: string[]
+  clearErrorField?: (field: string) => void
 }
 
 export default function PricingTab({ 
   formData, 
   onFormChange, 
   mockReferralCodes = [], 
-  courses = [] 
+  courses = [],
+  errorFields = [],
+  clearErrorField
 }: PricingTabProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
   const { currency } = useCurrency();
@@ -94,7 +98,7 @@ export default function PricingTab({
           </Label>
           <select
             id="paymentCategory"
-            className="w-full border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base focus:outline-none focus:border-transparent mb-1.5 sm:mb-2"
+            className={`w-full border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base focus:outline-none focus:border-transparent mb-1.5 sm:mb-2 ${errorFields.includes('paymentCategory') ? 'border-red-500 focus:ring-red-500' : ''}`}
             style={{ borderColor: '#d1d5db' }}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = primaryColor;
@@ -105,7 +109,10 @@ export default function PricingTab({
               e.currentTarget.style.boxShadow = 'none';
             }}
             value={formData.paymentCategory || ''}
-            onChange={e => onFormChange('paymentCategory', e.target.value)}
+            onChange={e => {
+              clearErrorField?.('paymentCategory')
+              onFormChange('paymentCategory', e.target.value)
+            }}
           >
             <option value="">Select Payment Category</option>
             <option value="One-time">One-time</option>
@@ -113,6 +120,9 @@ export default function PricingTab({
             <option value="Monthly subscription">Monthly subscription</option>
             <option value="Monthly subscription with discounts">Monthly subscription with discounts</option>
           </select>
+          {errorFields.includes('paymentCategory') && (
+            <p className="text-red-500 text-[10px] sm:text-xs">Payment category is required</p>
+          )}
         </div>
         <div>
           <Label htmlFor="price" className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs">
@@ -126,7 +136,9 @@ export default function PricingTab({
               type="number"
               min="1"
               placeholder={formData.courseCategory === 'Ongoing Training' ? '5000' : '25000'}
-              className="pl-6 sm:pl-8 border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent"
+              className={`pl-6 sm:pl-8 border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent ${
+                errorFields.includes('price') ? 'border-red-500 focus:ring-red-500' : ''
+              }`}
               style={{ borderColor: '#d1d5db' }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = primaryColor;
@@ -157,6 +169,7 @@ export default function PricingTab({
                 const numValue = parseInt(value);
                 if (!isNaN(numValue) && numValue > 0) {
                   onFormChange('price', numValue.toString());
+                  clearErrorField?.('price')
                 } else if (value === '0' || numValue === 0) {
                   // Don't set 0 values, keep field empty
                   onFormChange('price', '');
@@ -164,6 +177,9 @@ export default function PricingTab({
               }}
             />
           </div>
+          {errorFields.includes('price') && (
+            <p className="text-red-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1">Price must be greater than 0</p>
+          )}
           {formData.courseCategory === 'Ongoing Training' && (
             <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white mt-0.5 sm:mt-1">
               This price will be charged monthly

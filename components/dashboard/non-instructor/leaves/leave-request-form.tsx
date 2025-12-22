@@ -9,25 +9,29 @@ import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
 import { Label } from "@/components/dashboard/ui/label"
 import { Textarea } from "@/components/dashboard/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
-import { ChevronsUpDown, Check, ChevronDown, Save, X } from "lucide-react"
+import { Check, ChevronDown, Save, X } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/dashboard/ui/hover-card"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Progress } from "@/components/dashboard/ui/progress"
 import { CalendarDays, Info } from "lucide-react"
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/dashboard/ui/command"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/dashboard/ui/command"
 import { ScrollArea } from "@/components/dashboard/ui/scroll-area"
 import { format, addDays } from "date-fns"
 import { cn } from "@/lib/dashboard/staff/utils"
 import { useLeave } from "@/contexts/dashboard/leave-context"
-import { useToast } from "@/hooks/dashboard/use-toast"
 import type { LeaveRequest } from "@/types/dashboard/staff/leave"
 import { crudSuccess } from "@/lib/dashboard/staff/crud-toast"
 import { convertDraftToLeaveRequest, createLeaveRequest, createDraft, fetchDrafts, fetchLeaveRequests, fetchLeavePolicy, updateDraft } from "@/lib/dashboard/staff/api"
 import { useCustomLeaveTypes } from "@/hooks/dashboard/staff/use-custom-leave-types"
+
+const GENERIC_FIELD_ERROR = "Please fix the highlighted fields before submitting.";
+const RANGE_ERROR = "End date cannot be before the start date.";
+const WORKING_DAYS_ERROR = "Selected range contains no working days based on current configuration.";
+const JOB_LEVEL_REQUIRED = "Job level is required.";
+const REASON_REQUIRED = "Provide a reason for the leave request.";
 
 // Normalize backend job level variations into standardized option labels
 function normalizeLevelToOption(level?: string): string {
@@ -55,7 +59,6 @@ interface LeaveRequestFormProps {
 
 export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormProps) {
   const { state, dispatch } = useLeave()
-  const { toast } = useToast()
   // No default instructor selection; user should choose explicitly
   const [formData, setFormData] = useState({
     instructorId: (draft?.instructorId || "") as string,
@@ -75,6 +78,21 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
   const [contractType, setContractType] = useState<string>(deriveContractType(initialInstructor) || "")
   const [unsavedOpen, setUnsavedOpen] = useState(false)
   const [policy, setPolicy] = useState<any>(null)
+  const [formError, setFormError] = useState<string>("")
+  type FieldErrors = {
+    instructorId?: string;
+    leaveType?: string;
+    startDate?: string;
+    endDate?: string;
+    reason?: string;
+    jobLevel?: string;
+  }
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+
+  useEffect(() => {
+    setFormError("")
+    setFieldErrors({})
+  }, [draft])
   // Non-instructor: no post-create scheduling prompt (instructor-only feature)
   // Track whether we should reopen the drafts dialog after converting a draft (computed per-submit)
   // Note: we avoid relying on React state here to prevent races on immediate close
@@ -114,6 +132,8 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
   }
 
   const saveDraft = async () => {
+    setFormError("")
+    setFieldErrors({})
     const toYmd = (d?: Date) => (d ? format(d, "yyyy-MM-dd") : undefined)
     const draftData = {
       id: draft?.id || `draft_${Date.now()}`,
@@ -138,11 +158,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           dispatch({ type: 'UPDATE_DRAFT', payload: { id: draft.id, updates: draftData } })
           crudSuccess('draft leave request', 'updated')
         } else {
-          toast({
-            title: "Failed to Update Draft",
-            description: result.error || 'Unknown error',
-            variant: "destructive",
-          })
+          setFormError(result.error || 'Failed to update draft. Please try again.')
           return
         }
       } else {
@@ -153,21 +169,13 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           dispatch({ type: 'ADD_DRAFT', payload: result.data || draftData })
           crudSuccess('draft leave request', 'created')
         } else {
-          toast({
-            title: "Failed to Create Draft",
-            description: result.error || 'Unknown error',
-            variant: "destructive",
-          })
+          setFormError(result.error || 'Failed to create draft. Please try again.')
           return
         }
       }
     } catch (err) {
       console.error('Error saving draft:', err)
-      toast({
-        title: "Failed to Save Draft",
-        description: err instanceof Error ? err.message : 'Unknown error',
-        variant: "destructive",
-      })
+      setFormError(err instanceof Error ? err.message : 'Failed to save draft. Please try again.')
       return
     }
     
@@ -187,8 +195,8 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
       if (inst.name && inst.name !== formData.instructorName) {
         setFormData(prev => ({ ...prev, instructorName: inst.name }))
       }
-  const derived = deriveContractType(inst)
-  if (derived !== contractType) setContractType(derived)
+      const derived = deriveContractType(inst)
+      if (derived !== contractType) setContractType(derived)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.instructorId, state.instructors])
@@ -216,20 +224,12 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     return count
   }
 
-  // Helper to know if both dates are selected and are the same day
-  const isSameDay = !!(formData.startDate && formData.endDate &&
-    format(formData.startDate, "yyyy-MM-dd") === format(formData.endDate, "yyyy-MM-dd"))
-
-  // Derived inline error for time ordering on same day
-  // Time selection feature removed
-  const timeError = ""
-
   // Registered date should match table format (dd-MMM-yyyy)
   const formatNiceDate = (d: Date) => format(d, 'dd-MMM-yyyy')
 
   // Compute Create button enabled/disabled state and tooltip text
   const workingDaysInRange = formData.startDate && formData.endDate
-    ? countWorkingDays(formData.startDate, formData.endDate)
+    ? countWorkingDays(formData.startDate as Date, formData.endDate as Date)
     : 0
   const hasOrderingError = !!(formData.startDate && formData.endDate && formData.endDate < formData.startDate)
   const hasMandatory = !!(
@@ -256,37 +256,56 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     // Tracks whether we should auto-reopen the drafts dialog after closing this form
     let reopenAfterClose = false
 
-    if (!formData.instructorId || !formData.instructorName || !formData.leaveType || !formData.startDate || !formData.endDate || !formData.reason || !selectedJobLevel) {
-      toast({
-        title: "Missing Required Fields",
-        description: "Please fill in all required fields, including Job Level.",
-        variant: "destructive",
-      })
+    const errors: FieldErrors = {}
+
+    if (!formData.instructorId) {
+      errors.instructorId = "Select a non-instructor."
+    }
+
+    if (!formData.leaveType) {
+      errors.leaveType = "Select a leave type."
+    }
+
+    if (!formData.startDate) {
+      errors.startDate = "Select a start date."
+    }
+
+    if (!formData.endDate) {
+      errors.endDate = "Select an end date."
+    }
+
+    if (!formData.reason.trim()) {
+      errors.reason = REASON_REQUIRED
+    }
+
+    if (!selectedJobLevel) {
+      errors.jobLevel = JOB_LEVEL_REQUIRED
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      setFormError(GENERIC_FIELD_ERROR)
       return
     }
 
-    // Date range validation: end date must not be before start date
-    if (formData.startDate && formData.endDate && formData.endDate < formData.startDate) {
-      toast({
-        title: "Invalid Date Range",
-        description: "End date cannot be before the start date.",
-        variant: "destructive",
-      })
+    const startDate = formData.startDate as Date
+    const endDate = formData.endDate as Date
+
+    if (endDate < startDate) {
+      setFieldErrors({ endDate: RANGE_ERROR })
+      setFormError(RANGE_ERROR)
       return
     }
 
-    // If either time is provided, both must be, and end must be after start for the same day
-    // Preferred time inputs removed
-
-    const days = countWorkingDays(formData.startDate, formData.endDate)
+    const days = countWorkingDays(startDate, endDate)
     if (days <= 0) {
-      toast({
-        title: "No Working Days",
-        description: 'Selected range contains no working days based on current configuration.',
-        variant: "destructive",
-      })
+      setFieldErrors({ endDate: WORKING_DAYS_ERROR })
+      setFormError(WORKING_DAYS_ERROR)
       return
     }
+
+    setFieldErrors({})
+    setFormError("")
 
     // --- Remaining balance calculation (client-side estimate; server recomputes) ---
     const instForAllocation = state.instructors.find(i => i.id === (formData.instructorId || state.currentUser?.id))
@@ -305,7 +324,7 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
 
     // Period key (monthly) for usage aggregation (can adjust if you add other quota modes later)
     const periodKey = (() => {
-      const d = formData.startDate!
+      const d = startDate
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
     })()
     const priorUsed = state.leaveRequests.filter(r => r.instructorId === formData.instructorId && r.status === 'APPROVED')
@@ -316,8 +335,8 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         const e = new Date(r.endDate as string)
         return sum + countWorkingDays(s, e)
       }, 0)
-  const remainingAfter = allocation !== undefined ? Math.max(0, allocation - priorUsed - days) : 0
-  const limitReached = allocation !== undefined ? (remainingAfter === 0) : false
+    const remainingAfter = allocation !== undefined ? Math.max(0, allocation - priorUsed - days) : 0
+    const limitReached = allocation !== undefined ? (remainingAfter === 0) : false
 
     // Two paths: new submission or promotion of an existing draft.
     let requestInstructorId = formData.instructorId || state.currentUser?.id || 'unknown'
@@ -329,32 +348,23 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         instructorName: formData.instructorName,
         leaveType: formData.leaveType,
         jobLevel: selectedJobLevel,
-        startDate: format(formData.startDate, 'yyyy-MM-dd'),
-        endDate: format(formData.endDate, 'yyyy-MM-dd'),
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
         halfDay: formData.halfDay,
         reason: formData.reason,
         title: `${formData.instructorName} - ${formData.leaveType || 'Draft'}`,
         updatedAt: new Date().toISOString(),
       }
       try {
-        // Persist update and wait for completion to ensure convert uses latest
         const updateResult = await updateDraft(updatedDraftData)
         if (!updateResult.ok) {
           console.error('Failed to update draft before conversion', updateResult.error)
-          toast({
-            title: "Failed to Update Draft",
-            description: updateResult.error || 'Unknown error',
-            variant: "destructive",
-          })
+          setFormError(updateResult.error || 'Failed to update draft. Please try again.')
           return
         }
       } catch (err) {
         console.error('Failed to update draft before conversion', err)
-        toast({
-          title: "Failed to Update Draft",
-          description: err instanceof Error ? err.message : 'Unknown error',
-          variant: "destructive",
-        })
+        setFormError(err instanceof Error ? err.message : 'Failed to update draft. Please try again.')
         return
       }
 
@@ -374,20 +384,12 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           }
           if (requestsRes.ok) dispatch({ type: 'SET_LEAVE_REQUESTS', payload: requestsRes.data })
         } else {
-          toast({
-            title: "Failed to Submit Draft",
-            description: result.error || 'Unknown error',
-            variant: "destructive",
-          })
+          setFormError(result.error || 'Failed to submit draft. Please try again.')
           return
         }
       } catch (err) {
         console.error('Error converting draft:', err)
-        toast({
-          title: "Failed to Submit Draft",
-          description: err instanceof Error ? err.message : 'Unknown error',
-          variant: "destructive",
-        })
+        setFormError(err instanceof Error ? err.message : 'Failed to submit draft. Please try again.')
         return
       }
       requestInstructorId = formData.instructorId
@@ -398,15 +400,15 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
         instructorName: formData.instructorName || state.currentUser?.name || 'Unknown',
         leaveType: formData.leaveType as any,
         jobLevel: selectedJobLevel,
-        startDate: format(formData.startDate, 'yyyy-MM-dd'),
-        endDate: format(formData.endDate, 'yyyy-MM-dd'),
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
         days,
         halfDay: formData.halfDay,
         reason: formData.reason,
         status: 'APPROVED',
         submittedAt: new Date().toISOString(),
         approvedAt: new Date().toISOString(),
-  registeredDate: formatNiceDate(new Date()),
+        registeredDate: formatNiceDate(new Date()),
         carriedOver: 0,
         balance: remainingAfter,
         prorated: 'Full',
@@ -421,20 +423,12 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           dispatch({ type: 'ADD_LEAVE_REQUEST', payload: result.data })
           crudSuccess('leave request', 'created')
         } else {
-          toast({
-            title: "Failed to Create Leave Request",
-            description: result.error || 'Unknown error',
-            variant: "destructive",
-          })
+          setFormError(result.error || 'Failed to create leave request. Please try again.')
           return
         }
       } catch (err) {
         console.error('Error creating leave request:', err)
-        toast({
-          title: "Failed to Create Leave Request",
-          description: err instanceof Error ? err.message : 'Unknown error',
-          variant: "destructive",
-        })
+        setFormError(err instanceof Error ? err.message : 'Failed to create leave request. Please try again.')
         return
       }
       
@@ -446,8 +440,8 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
     }
     // After creating the leave request, auto-create planned attendance entries for today/future dates in range
     try {
-      const startYmd = format(formData.startDate as Date, 'yyyy-MM-dd')
-      const endYmd = format(formData.endDate as Date, 'yyyy-MM-dd')
+      const startYmd = format(startDate, 'yyyy-MM-dd')
+      const endYmd = format(endDate, 'yyyy-MM-dd')
       const todayYmd = format(new Date(), 'yyyy-MM-dd')
       let cur = new Date(startYmd)
       const end = new Date(endYmd)
@@ -510,6 +504,12 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           <DialogTitle>New Leave Request</DialogTitle>
         </DialogHeader>
 
+        {formError && (
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {formError}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Instructor + Leave Type Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -519,17 +519,33 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
                 value={formData.instructorId}
                 onChange={(id) => {
                   const inst = state.instructors.find((i) => i.id === id)
+                  const normalized = normalizeLevelToOption(inst?.jobLevel)
                   setFormData((prev) => ({
                     ...prev,
                     instructorId: id,
                     instructorName: (inst?.displayName || inst?.fullName || inst?.name || inst?.externalId || inst?.instructorId || id || "").trim(),
                   }))
-                  const normalized = normalizeLevelToOption(inst?.jobLevel)
                   setSelectedJobLevel(normalized)
                   setContractType(deriveContractType(inst) || "")
+                  setFieldErrors((prev) => {
+                    if (!prev.instructorId && !prev.jobLevel) return prev
+                    const next = { ...prev }
+                    if (prev.instructorId) delete next.instructorId
+                    if (prev.jobLevel && normalized) delete next.jobLevel
+                    if (!Object.keys(next).length) {
+                      setFormError((prevError) =>
+                        prevError === GENERIC_FIELD_ERROR || prevError === JOB_LEVEL_REQUIRED ? "" : prevError
+                      )
+                    }
+                    return next
+                  })
                 }}
+                hasError={!!fieldErrors.instructorId}
                 instructors={state.instructors
-                  .filter((inst) => inst.status !== 'Inactive' && inst.status !== 'Deleted')
+                  .filter((inst) => {
+                    const status = (inst as { status?: string }).status
+                    return status !== 'Inactive' && status !== 'Deleted'
+                  })
                   .slice(0, 500)
                   .map((inst) => ({
                     id: inst.id,
@@ -537,16 +553,36 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
                     code: inst.displayCode || inst.externalId || inst.instructorId || inst.id,
                   }))}
               />
+              {fieldErrors.instructorId && (
+                <p className="text-xs text-red-600">{fieldErrors.instructorId}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="leaveType">Leave Type <span className="text-red-500">*</span></Label>
               <LeaveTypeCombobox
                 value={formData.leaveType}
-                onChange={(value) => setFormData((prev) => {
-                  const shouldOverwrite = prev.reason.trim() === '' || prev.reason === prev.leaveType
-                  return { ...prev, leaveType: value, reason: shouldOverwrite ? value : prev.reason }
-                })}
+                onChange={(value) => {
+                  setFormData((prev) => {
+                    const shouldOverwrite = prev.reason.trim() === '' || prev.reason === prev.leaveType
+                    return { ...prev, leaveType: value, reason: shouldOverwrite ? value : prev.reason }
+                  })
+                  if (fieldErrors.leaveType || fieldErrors.reason) {
+                    setFieldErrors((prev) => {
+                      const next = { ...prev }
+                      if (prev.leaveType) delete next.leaveType
+                      if (prev.reason && prev.reason === REASON_REQUIRED) delete next.reason
+                      if (!Object.keys(next).length) {
+                        setFormError((prevError) => (prevError === GENERIC_FIELD_ERROR ? "" : prevError))
+                      }
+                      return next
+                    })
+                  }
+                }}
+                hasError={!!fieldErrors.leaveType}
               />
+              {fieldErrors.leaveType && (
+                <p className="text-xs text-red-600">{fieldErrors.leaveType}</p>
+              )}
             </div>
           </div>
 
@@ -554,7 +590,15 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Job Level <span className="text-red-500">*</span></Label>
-              <Input value={selectedJobLevel || ''} readOnly disabled className="bg-muted/40" />
+              <Input
+                value={selectedJobLevel || 'N/A'}
+                readOnly
+                disabled
+                className={cn("bg-muted/40", fieldErrors.jobLevel ? "border-red-400 bg-red-50 text-red-700" : "")}
+              />
+              {fieldErrors.jobLevel && (
+                <p className="text-xs text-red-600">{fieldErrors.jobLevel}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Employee Type <span className="text-red-500">*</span></Label>
@@ -655,16 +699,31 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
                 id="startDate"
                 label={"Start Date"}
                 value={formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : ""}
-                onChange={(iso) =>
-                  setFormData((prev) => {
-                    const newStart = iso ? new Date(iso) : undefined
-                    // Always mirror end date to start date whenever start changes
-                    const newEnd = newStart
-                    return { ...prev, startDate: newStart, endDate: newEnd }
+                onChange={(iso) => {
+                  const newStart = iso ? new Date(iso) : undefined
+                  const newEnd = newStart
+                  setFormData((prev) => ({ ...prev, startDate: newStart, endDate: newEnd }))
+                  setFieldErrors((prev) => {
+                    if (!prev.startDate && !prev.endDate) return prev
+                    const next = { ...prev }
+                    if (prev.startDate) delete next.startDate
+                    if (prev.endDate) delete next.endDate
+                    if (!Object.keys(next).length) {
+                      setFormError((prevError) =>
+                        prevError === GENERIC_FIELD_ERROR || prevError === RANGE_ERROR || prevError === WORKING_DAYS_ERROR
+                          ? ""
+                          : prevError
+                      )
+                    }
+                    return next
                   })
-                }
+                }}
                 required
+                error={!!fieldErrors.startDate}
               />
+              {fieldErrors.startDate && (
+                <p className="text-xs text-red-600">{fieldErrors.startDate}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -672,15 +731,51 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
                 id="endDate"
                 label={"End Date"}
                 value={formData.endDate ? format(formData.endDate, "yyyy-MM-dd") : ""}
-                onChange={(iso) =>
-                  setFormData((prev) => ({ ...prev, endDate: iso ? new Date(iso) : undefined }))
-                }
+                onChange={(iso) => {
+                  const nextEnd = iso ? new Date(iso) : undefined
+                  setFormData((prev) => ({ ...prev, endDate: nextEnd }))
+                  const currentStart = formData.startDate
+
+                  let computedError = ""
+                  if (currentStart && nextEnd) {
+                    if (nextEnd < currentStart) {
+                      computedError = RANGE_ERROR
+                    } else if (countWorkingDays(currentStart, nextEnd) <= 0) {
+                      computedError = WORKING_DAYS_ERROR
+                    }
+                  }
+
+                  setFieldErrors((prev) => {
+                    const next = { ...prev }
+                    if (computedError) {
+                      next.endDate = computedError
+                    } else {
+                      delete next.endDate
+                    }
+                    if (!computedError && !Object.keys(next).length) {
+                      setFormError((prevError) =>
+                        prevError === GENERIC_FIELD_ERROR || prevError === RANGE_ERROR || prevError === WORKING_DAYS_ERROR
+                          ? ""
+                          : prevError
+                      )
+                    }
+                    return next
+                  })
+
+                  if (computedError) {
+                    setFormError(computedError)
+                  } else {
+                    setFormError((prevError) =>
+                      prevError === RANGE_ERROR || prevError === WORKING_DAYS_ERROR ? "" : prevError
+                    )
+                  }
+                }}
                 required
                 min={formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : undefined}
-                error={!!(formData.startDate && formData.endDate && formData.endDate < formData.startDate)}
+                error={!!fieldErrors.endDate}
               />
-              {formData.startDate && formData.endDate && formData.endDate < formData.startDate && (
-                <p className="text-xs text-red-600">End date cannot be before the start date.</p>
+              {fieldErrors.endDate && (
+                <p className="text-xs text-red-600">{fieldErrors.endDate}</p>
               )}
             </div>
           </div>
@@ -690,10 +785,27 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
             <Textarea
               id="reason"
               value={formData.reason}
-              onChange={(e) => setFormData((prev) => ({ ...prev, reason: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value
+                setFormData((prev) => ({ ...prev, reason: value }))
+                if (fieldErrors.reason && value.trim()) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev }
+                    delete next.reason
+                    if (!Object.keys(next).length) {
+                      setFormError((prevError) => (prevError === GENERIC_FIELD_ERROR ? "" : prevError))
+                    }
+                    return next
+                  })
+                }
+              }}
               placeholder="Please provide a reason for your leave request"
               rows={3}
+              className={cn(fieldErrors.reason ? "border-red-400 bg-red-50" : "")}
             />
+            {fieldErrors.reason && (
+              <p className="text-xs text-red-600">{fieldErrors.reason}</p>
+            )}
           </div>
 
           {/* Suggested substitute removed */}
@@ -775,10 +887,12 @@ function InstructorCombobox({
   value,
   onChange,
   instructors,
+  hasError = false,
 }: {
   value: string
   onChange: (id: string) => void
   instructors: InstructorOption[]
+  hasError?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const selected = instructors.find((i) => i.id === value)
@@ -789,7 +903,7 @@ function InstructorCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between min-w-0"
+          className={cn("w-full justify-between min-w-0", hasError ? "border-red-400 focus-visible:ring-red-500" : "")}
         >
           <span className="flex-1 truncate text-left">
             {selected ? `${selected.name}${selected.code ? ` (${selected.code})` : ''}` : "Select any non-instructor"}
@@ -850,7 +964,7 @@ function InstructorCombobox({
 }
 
 // Leave Type combobox with search, scroll, and "add custom" behavior
-function LeaveTypeCombobox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function LeaveTypeCombobox({ value, onChange, hasError = false }: { value: string; onChange: (v: string) => void; hasError?: boolean }) {
   const { getAllLeaveTypes, addCustomLeaveType, loading } = useCustomLeaveTypes()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
@@ -863,7 +977,12 @@ function LeaveTypeCombobox({ value, onChange }: { value: string; onChange: (v: s
   return (
     <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setQuery("") }}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn("w-full justify-between", hasError ? "border-red-400 focus-visible:ring-red-500" : "")}
+        >
           <span className="truncate">
             {selected ? selected.label : "Select leave type"}
           </span>

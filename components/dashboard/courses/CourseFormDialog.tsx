@@ -91,6 +91,10 @@ export default function CourseFormDialog({
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [initialFormData, setInitialFormData] = useState<any>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [basicErrorFields, setBasicErrorFields] = useState<string[]>([])
+  const [pricingErrorFields, setPricingErrorFields] = useState<string[]>([])
+  const [scheduleErrorFields, setScheduleErrorFields] = useState<string[]>([])
+  const [validationMessage, setValidationMessage] = useState("")
 
   // Track form changes to detect unsaved changes
   useEffect(() => {
@@ -137,6 +141,10 @@ export default function CourseFormDialog({
     setNewCourseForm({})
     setInitialFormData({})
     setHasUnsavedChanges(false)
+    setBasicErrorFields([])
+    setPricingErrorFields([])
+    setScheduleErrorFields([])
+    setValidationMessage("")
   }
 
   // Reset form and set Course ID when opening in create mode (not edit)
@@ -168,37 +176,47 @@ export default function CourseFormDialog({
   // Tab-specific validation functions
   const validateBasicInfo = () => {
     const errors: string[] = [];
+    const errorFields: string[] = [];
+    const addError = (field: string, label: string) => {
+      errorFields.push(field);
+      errors.push(label);
+    };
     
-    if (!newCourseForm?.name?.trim()) errors.push('Course Name');
-    if (!newCourseForm?.instructor) errors.push('Instructor');
-    if (!newCourseForm?.maxStudents || parseInt(newCourseForm.maxStudents) <= 0) errors.push('Max Students');
-    if (!newCourseForm?.description?.trim()) errors.push('Description');
-    if (!newCourseForm?.level) errors.push('Course Level');
-    if (!newCourseForm?.type) errors.push('Course Type');
-    if (!newCourseForm?.courseCategory) errors.push('Course Category');
-    if (!newCourseForm?.tags?.length) errors.push('Tags');
-    if (!newCourseForm?.status) errors.push('Course Status');
+    if (!newCourseForm?.name?.trim()) addError('name', 'Course Name');
+    if (!newCourseForm?.instructor && !newCourseForm?.instructorId) addError('instructor', 'Instructor');
+    if (!newCourseForm?.maxStudents || parseInt(newCourseForm.maxStudents) <= 0) addError('maxStudents', 'Max Students');
+    if (!newCourseForm?.description?.trim()) addError('description', 'Description');
+    if (!newCourseForm?.level) addError('level', 'Course Level');
+    if (!newCourseForm?.type) addError('type', 'Course Type');
+    if (!newCourseForm?.courseCategory) addError('courseCategory', 'Course Category');
+    if (!newCourseForm?.tags?.length) addError('tags', 'Tags');
+    if (!newCourseForm?.status) addError('status', 'Course Status');
     
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
+      errorFields
     };
   }
 
   const validatePricing = () => {
     const errors: string[] = [];
+    const errorFields: string[] = [];
     
     if (!newCourseForm?.price || parseFloat(newCourseForm.price) <= 0) {
       errors.push('Price');
+      errorFields.push('price');
     }
     
     if (!newCourseForm?.paymentCategory) {
       errors.push('Payment Category');
+      errorFields.push('paymentCategory');
     }
     
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
+      errorFields
     };
   }
 
@@ -207,64 +225,79 @@ export default function CourseFormDialog({
     // User can skip chapters or add them as needed
     return {
       isValid: true,
-      errors: []
+      errors: [],
+      errorFields: []
     };
   }
 
   const validateSchedule = () => {
     const errors: string[] = [];
+    const errorFields: string[] = [];
     
     // Start Date is always required
-    if (!newCourseForm?.schedulePeriod?.startDate) errors.push('Start Date');
+    if (!newCourseForm?.schedulePeriod?.startDate) {
+      errors.push('Start Date');
+      errorFields.push('startDate');
+    }
     
     // End Date is only required for non-Ongoing Training courses
     if (newCourseForm?.courseCategory !== 'Ongoing Training' && !newCourseForm?.schedulePeriod?.endDate) {
       errors.push('End Date');
+      errorFields.push('endDate');
     }
     
     // Validate date range only if both dates are present
     if (newCourseForm?.schedulePeriod?.startDate && newCourseForm?.schedulePeriod?.endDate) {
       if (new Date(newCourseForm.schedulePeriod.startDate) > new Date(newCourseForm.schedulePeriod.endDate)) {
         errors.push('Valid Date Range (End Date must be after Start Date)');
+        errorFields.push('startDate', 'endDate');
       }
     }
     
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
+      errorFields
     };
+  }
+
+  const clearTabErrors = (tab: string) => {
+    if (tab === 'basic') setBasicErrorFields([])
+    if (tab === 'pricing') setPricingErrorFields([])
+    if (tab === 'schedule') setScheduleErrorFields([])
+  }
+
+  const applyTabErrors = (tab: string, errorFields: string[]) => {
+    if (tab === 'basic') setBasicErrorFields(errorFields)
+    if (tab === 'pricing') setPricingErrorFields(errorFields)
+    if (tab === 'schedule') setScheduleErrorFields(errorFields)
+  }
+
+  const getValidationForTab = (tab: string) => {
+    switch (tab) {
+      case 'basic':
+        return validateBasicInfo();
+      case 'pricing':
+        return validatePricing();
+      case 'chapters':
+        return validateChapters();
+      case 'schedule':
+        return validateSchedule();
+      default:
+        return { isValid: true, errors: [], errorFields: [] };
+    }
   }
 
   // Navigation functions
   const handleNextTab = () => {
     // Validate current tab before moving to next
-    let validation: { isValid: boolean; errors: string[] };
-    
-    switch (currentTab) {
-      case 'basic':
-        validation = validateBasicInfo();
-        break;
-      case 'pricing':
-        validation = validatePricing();
-        break;
-      case 'chapters':
-        validation = validateChapters();
-        break;
-      case 'schedule':
-        validation = validateSchedule();
-        break;
-      default:
-        validation = { isValid: true, errors: [] };
-    }
-    
+    const validation = getValidationForTab(currentTab)
+    applyTabErrors(currentTab, validation.errorFields || [])
     if (!validation.isValid) {
-      toast({
-        title: "Missing Required Fields",
-        description: `Please fill in the following mandatory fields: ${validation.errors.join(', ')}`,
-        variant: "destructive"
-      });
+      setValidationMessage('Please complete the highlighted fields before continuing.')
       return;
     }
+    setValidationMessage("")
     
     if (currentTabIndex < tabOrder.length - 1) {
       const nextTab = tabOrder[currentTabIndex + 1]
@@ -283,6 +316,10 @@ export default function CourseFormDialog({
   useEffect(() => {
     if (isOpen) {
       setCurrentTab("basic")
+      setValidationMessage("")
+      clearTabErrors('basic')
+      clearTabErrors('pricing')
+      clearTabErrors('schedule')
     }
   }, [isOpen])
 
@@ -395,6 +432,21 @@ export default function CourseFormDialog({
     (isEditingDraft && (!isBasicInfoValid || !isScheduleValid)) ||
     isSubmitting
 
+  const handleTabChange = (newTab: string) => {
+    const currentTabIndex = tabOrder.indexOf(currentTab);
+    const newTabIndex = tabOrder.indexOf(newTab);
+    if (newTabIndex > currentTabIndex) {
+      const validation = getValidationForTab(currentTab)
+      applyTabErrors(currentTab, validation.errorFields || [])
+      if (!validation.isValid) {
+        setValidationMessage('Please complete the highlighted fields before proceeding.')
+        return
+      }
+    }
+    setValidationMessage("")
+    setCurrentTab(newTab);
+  }
+
   const handleCreateCourse = async () => {
     // Prevent multiple submissions
     if (isSubmitting) return;
@@ -410,19 +462,23 @@ export default function CourseFormDialog({
     
     const failedValidations = allValidations.filter(v => !v.validation.isValid);
     
+    setBasicErrorFields(basicInfoValidation.errorFields || [])
+    setPricingErrorFields(pricingValidation.errorFields || [])
+    setScheduleErrorFields(scheduleValidation.errorFields || [])
+    
     if (failedValidations.length > 0) {
-      const allErrors = failedValidations.map(v => 
-        `${v.name}: ${v.validation.errors.join(', ')}`
-      ).join('\n');
-      
-      toast({
-        title: "Missing Required Fields",
-        description: allErrors,
-        variant: "destructive"
-      });
+      const tabKeyMap: Record<string, string> = {
+        'Basic Info': 'basic',
+        'Pricing': 'pricing',
+        'Schedule': 'schedule'
+      }
+      const firstInvalid = tabKeyMap[failedValidations[0].name] || 'basic'
+      setCurrentTab(firstInvalid)
+      setValidationMessage('Please complete all required fields before creating the course.')
       setIsSubmitting(false);
       return;
     }
+    setValidationMessage("")
     
     // If creating new course and status is Draft, save as draft instead
     if (!isEditMode && newCourseForm.status === 'Draft') {
@@ -835,46 +891,14 @@ export default function CourseFormDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {validationMessage && (
+          <div className="mb-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            {validationMessage}
+          </div>
+        )}
+
         <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-700 pb-2">
-          <Tabs value={currentTab} onValueChange={(newTab) => {
-            // Prevent tab change if trying to move forward without validation
-            const currentTabIndex = tabOrder.indexOf(currentTab);
-            const newTabIndex = tabOrder.indexOf(newTab);
-            
-            // If moving forward (to a higher index tab), validate current tab first
-            if (newTabIndex > currentTabIndex) {
-              let validation: { isValid: boolean; errors: string[] };
-              
-              switch (currentTab) {
-                case 'basic':
-                  validation = validateBasicInfo();
-                  break;
-                case 'pricing':
-                  validation = validatePricing();
-                  break;
-                case 'chapters':
-                  validation = validateChapters();
-                  break;
-                case 'schedule':
-                  validation = validateSchedule();
-                  break;
-                default:
-                  validation = { isValid: true, errors: [] };
-              }
-              
-              if (!validation.isValid) {
-                toast({
-                  title: "Missing Required Fields",
-                  description: `Please fill in the following mandatory fields before proceeding: ${validation.errors.join(', ')}`,
-                  variant: "destructive"
-                });
-                return; // Prevent tab change
-              }
-            }
-            
-            // Allow tab change if validation passed or moving backward
-            setCurrentTab(newTab);
-          }} className="w-full tabs-purple">
+          <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full tabs-purple">
             <TabsList className="grid w-full grid-cols-7 gap-2 bg-transparent p-0 h-auto">
               <TabsTrigger 
                 value="basic" 
@@ -986,59 +1010,28 @@ export default function CourseFormDialog({
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <Tabs value={currentTab} onValueChange={(newTab) => {
-            // Prevent tab change if trying to move forward without validation
-            const currentTabIndex = tabOrder.indexOf(currentTab);
-            const newTabIndex = tabOrder.indexOf(newTab);
-            
-            // If moving forward (to a higher index tab), validate current tab first
-            if (newTabIndex > currentTabIndex) {
-              let validation: { isValid: boolean; errors: string[] };
-              
-              switch (currentTab) {
-                case 'basic':
-                  validation = validateBasicInfo();
-                  break;
-                case 'pricing':
-                  validation = validatePricing();
-                  break;
-                case 'chapters':
-                  validation = validateChapters();
-                  break;
-                case 'schedule':
-                  validation = validateSchedule();
-                  break;
-                default:
-                  validation = { isValid: true, errors: [] };
-              }
-              
-              if (!validation.isValid) {
-                toast({
-                  title: "Missing Required Fields",
-                  description: `Please fill in the following mandatory fields before proceeding: ${validation.errors.join(', ')}`,
-                  variant: "destructive"
-                });
-                return; // Prevent tab change
-              }
-            }
-            
-            // Allow tab change if validation passed or moving backward
-            setCurrentTab(newTab);
-          }} className="w-full tabs-purple">
+          <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full tabs-purple">
 
           {/* Basic Info Tab */}
           <TabsContent value="basic" className="space-y-2 p-1">
             <BasicInfoTab
               formData={newCourseForm}
+              errorFields={basicErrorFields}
               onFormChange={(field: string, value: any) => {
                 if (field === 'id' && !manualCourseIdEnabled) {
                   return;
                 }
+                setValidationMessage("")
+                setBasicErrorFields((prev) => prev.filter(f => f !== field))
                 setNewCourseForm((f: any) => ({
                   ...f,
                   [field]: value,
                   ...(field === 'id' ? { courseId: value } : {})
                 }));
+              }}
+              clearErrorField={(field) => {
+                setValidationMessage("")
+                setBasicErrorFields((prev) => prev.filter(f => f !== field))
               }}
               showDeleteConfirmation={showDeleteConfirmation}
               instructorOptions={DUMMY_INSTRUCTORS}
@@ -1052,7 +1045,16 @@ export default function CourseFormDialog({
           <TabsContent value="pricing" className="space-y-2 p-1">
             <PricingTab
               formData={newCourseForm}
-              onFormChange={(field: string, value: any) => setNewCourseForm((f: any) => ({ ...f, [field]: value }))}
+              errorFields={pricingErrorFields}
+              onFormChange={(field: string, value: any) => {
+                setValidationMessage("")
+                setPricingErrorFields((prev) => prev.filter(f => f !== field))
+                setNewCourseForm((f: any) => ({ ...f, [field]: value }))
+              }}
+              clearErrorField={(field) => {
+                setValidationMessage("")
+                setPricingErrorFields((prev) => prev.filter(f => f !== field))
+              }}
               courses={courses}
             />
           </TabsContent>
@@ -1070,7 +1072,16 @@ export default function CourseFormDialog({
           <TabsContent value="schedule" className="space-y-2 p-1">
             <ScheduleTab
               formData={newCourseForm}
-              onFormChange={(field: string, value: any) => setNewCourseForm((f: any) => ({ ...f, [field]: value }))}
+              errorFields={scheduleErrorFields}
+              onFormChange={(field: string, value: any) => {
+                setValidationMessage("")
+                setScheduleErrorFields((prev) => prev.filter(f => f !== field))
+                setNewCourseForm((f: any) => ({ ...f, [field]: value }))
+              }}
+              clearErrorField={(field) => {
+                setValidationMessage("")
+                setScheduleErrorFields((prev) => prev.filter(f => f !== field))
+              }}
               showDeleteConfirmation={showDeleteConfirmation}
             />
           </TabsContent>

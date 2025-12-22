@@ -240,7 +240,7 @@ export default function PaymentSettings() {
       category: category as any,
       name: templates[category as keyof typeof templates]?.name || 'Default Invoice',
       companyName: 'UniqBrio Education',
-      companyAddress: 'Your Company Address\nCity, State, ZIP Code\nCountry',
+      companyAddress: 'Your Company Address\nCity, State, Postal/Zip/Pin Code\nCountry',
       companyPhone: '+1 (555) 123-4567',
       companyEmail: 'billing@uniqbrio.com',
       invoiceTitle: 'INVOICE',

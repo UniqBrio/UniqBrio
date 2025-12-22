@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
 import { useCurrency } from "@/contexts/currency-context"
@@ -16,6 +16,7 @@ import { ChevronDown, FileText } from "lucide-react";
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input";
 import { IncomeDraftsAPI } from "@/lib/dashboard/income-drafts-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
+import { FINANCIAL_FORM_MESSAGES, getRequiredFieldsMessage } from "./financial-form-messages";
 
 import type { Income } from "./types";
 
@@ -237,7 +238,15 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
     }
 
     // Update field errors and form
-    setFieldErrors(prev => ({ ...prev, [field]: error }));
+    setFieldErrors(prev => {
+      const next = { ...prev };
+      if (error) {
+        next[field] = error;
+      } else {
+        delete next[field];
+      }
+      return next;
+    });
     
     // Handle special logic for payment mode changes
     if (field === 'paymentMode') {
@@ -310,77 +319,99 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
 
   function handleIncomeSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!incomeForm.date || !incomeForm.amount || !incomeForm.incomeCategory || 
-        (incomeForm.paymentMode?.toLowerCase() !== 'cash' && !incomeForm.addToAccount)) {
-      setIncomeFormError("Date, Amount, Category" + (incomeForm.paymentMode?.toLowerCase() !== 'cash' ? ", and To Account" : "") + " are required.");
+    setIncomeFormError("");
+    const requiresAccount = incomeForm.paymentMode?.toLowerCase() !== 'cash';
+    let missingRequired = false;
+
+    const updatedErrors: { [key: string]: string } = { ...fieldErrors };
+    const ensureMissing = (fieldKey: keyof IncomeFormData | 'addToAccount', missing: boolean, message: string) => {
+      if (missing) {
+        missingRequired = true;
+        if (!updatedErrors[fieldKey]) {
+          updatedErrors[fieldKey] = message;
+        }
+      } else if (updatedErrors[fieldKey] === message) {
+        delete updatedErrors[fieldKey];
+      }
+    };
+
+    ensureMissing('date', !incomeForm.date?.trim(), 'Date is required.');
+    ensureMissing('amount', !incomeForm.amount?.toString().trim(), 'Amount is required.');
+    ensureMissing('incomeCategory', !incomeForm.incomeCategory?.trim(), 'Category is required.');
+    ensureMissing('addToAccount', requiresAccount && !incomeForm.addToAccount?.trim(), 'From Account is required for non-cash payments.');
+
+    setFieldErrors(updatedErrors);
+
+    if (missingRequired) {
+      setIncomeFormError(getRequiredFieldsMessage(requiresAccount));
       return;
     }
-    // Emit to parent BEFORE closing/resetting (so it can reference initialIncome for replace logic)
+
+    if (Object.values(updatedErrors).some(Boolean)) {
+      setIncomeFormError(FINANCIAL_FORM_MESSAGES.genericError);
+      return;
+    }
+
     onSave?.(incomeForm, initialIncome ? 'edit' : 'add');
     setHasJustSaved(true);
     onOpenChange(false);
     toast({ title: initialIncome ? "Income Saved" : "Income Added", description: initialIncome ? "Income entry changes have been saved." : "Income entry has been recorded." });
+    setFieldErrors({});
+    setIncomeFormError("");
     setIncomeForm(emptyIncomeForm);
   }
 
   // Save Draft function
   async function handleSaveDraft() {
-    if (savingDraft) return; // guard against double clicks
+    if (savingDraft) return false; // guard against double clicks
+    setIncomeFormError("");
     try {
       setSavingDraft(true);
-      // Immediately close dialog to avoid double clicks
-      onOpenChange(false);
       const draftName = IncomeDraftsAPI.generateDraftName(incomeForm);
-      
+
       if (draftId) {
-        // Update existing draft
-        const updatedDraft = await IncomeDraftsAPI.updateDraft(draftId, {
+        await IncomeDraftsAPI.updateDraft(draftId, {
           name: draftName,
           category: incomeForm.incomeCategory || 'Uncategorized',
           amount: incomeForm.amount || '0',
-          data: incomeForm
+          data: incomeForm,
         });
         toast({
           title: "✅ Draft Updated",
           description: `Income draft "${draftName}" has been updated successfully.`,
           duration: 3000,
         });
-        
-        // Trigger event to update draft counts
+
         const allDrafts = await IncomeDraftsAPI.getAllDrafts();
         IncomeDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'updated');
       } else {
-        // Create new draft
-        const newDraft = await IncomeDraftsAPI.createDraft({
+        await IncomeDraftsAPI.createDraft({
           name: draftName,
           category: incomeForm.incomeCategory || 'Uncategorized',
           amount: incomeForm.amount || '0',
-          data: incomeForm
+          data: incomeForm,
         });
         toast({
           title: "✅ Draft Saved",
           description: `Income draft "${draftName}" has been saved successfully.`,
           duration: 3000,
         });
-        
-        // Trigger event to update draft counts
+
         const allDrafts = await IncomeDraftsAPI.getAllDrafts();
         IncomeDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'created');
       }
-      
+
       setHasJustSaved(true);
       onDraftSave?.(draftId || undefined);
+      setFieldErrors({});
       setIncomeForm(emptyIncomeForm);
+      onOpenChange(false);
+      return true;
     } catch (error) {
       console.error('Error saving income draft:', error);
-      toast({
-        title: "❌ Save Failed",
-        description: "Unable to save income draft. Please try again.",
-        variant: "destructive",
-        duration: 4000,
-      });
-    }
-    finally {
+      setIncomeFormError(FINANCIAL_FORM_MESSAGES.draftSaveFailed);
+      return false;
+    } finally {
       setSavingDraft(false);
     }
   }
@@ -698,7 +729,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                       tabIndex={12}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving�' : 'Update Draft'}
+                      {savingDraft ? 'Saving...' : 'Update Draft'}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -761,7 +792,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                       tabIndex={13}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving�' : 'Save Draft'}
+                      {savingDraft ? 'Saving...' : 'Save Draft'}
                     </Button>
                   </>
                 )}
@@ -799,6 +830,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 setShowUnsavedAlert(false);
                 await handleSaveDraft();
               }}
+              disabled={savingDraft}
               style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
             >
               <FileText className="h-4 w-4 mr-2" />

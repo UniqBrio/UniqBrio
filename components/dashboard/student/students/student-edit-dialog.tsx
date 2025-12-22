@@ -137,19 +137,6 @@ export function StudentEditDialog({ student, open, onOpenChange, onSave }: Stude
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="courseStartDate">Course Start Date</Label>
-                <Input
-                  id="courseStartDate"
-                  type="date"
-                  value={editedStudent.courseStartDate}
-                  onChange={(e) => setEditedStudent({ ...editedStudent, courseStartDate: e.target.value })}
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="enrolledCourseName">Course</Label>
               <Select 

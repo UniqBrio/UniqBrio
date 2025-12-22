@@ -20,6 +20,7 @@ export interface InstructorFormData {
   gender: string
   genderOther: string
   address: string
+  pincode: string
   country: string
   state: string
   // Professional
@@ -54,7 +55,26 @@ export interface InstructorFormData {
     upiProvider?: string
     upiId?: string
   }
-}export interface AddInstructorDialogProps {
+}
+
+export type BasicInfoFieldErrors = {
+  firstName?: string
+  lastName?: string
+  dob?: string
+  gender?: string
+  email?: string
+  phone?: string
+  pincode?: string
+  country?: string
+  state?: string
+  contractType?: string
+  jobLevel?: string
+  role?: string
+  yearsOfExperience?: string
+  joiningDate?: string
+}
+
+export interface AddInstructorDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   draftData?: any

@@ -10,7 +10,12 @@ export type TaskDraft<TData = any> = {
   updatedAt: string // ISO
 }
 
-export function useTaskDraftsApi(type: string = "task") {
+type DraftApiOptions = {
+  suppressToasts?: boolean
+}
+
+export function useTaskDraftsApi(type: string = "task", options: DraftApiOptions = {}) {
+  const { suppressToasts = false } = options
   const [drafts, setDrafts] = useState<TaskDraft[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +35,7 @@ export function useTaskDraftsApi(type: string = "task") {
     } finally {
       setLoading(false)
     }
-  }, [type])
+  }, [type, suppressToasts])
 
   useEffect(() => { load() }, [load])
 
@@ -47,10 +52,12 @@ export function useTaskDraftsApi(type: string = "task") {
         const json = await res.json()
         if (!res.ok || !json.success) throw new Error(json.message || "Failed to update draft")
         setDrafts(prev => prev.map(d => d.id === id ? { ...d, title, data, type, updatedAt: new Date().toISOString() } : d))
-        toast({
-          title: "Draft Updated Successfully",
-          description: `Draft "${title}" has been successfully updated.`,
-        })
+        if (!suppressToasts) {
+          toast({
+            title: "Draft Updated Successfully",
+            description: `Draft "${title}" has been successfully updated.`,
+          })
+        }
       } else {
         const res = await fetch(`/api/dashboard/task-management/task-drafts`, {
           method: "POST",
@@ -61,18 +68,22 @@ export function useTaskDraftsApi(type: string = "task") {
         const json = await res.json()
         if (!res.ok || !json.success) throw new Error(json.message || "Failed to create draft")
         setDrafts(prev => [{ id: json.id, title, data, type, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, ...prev])
-        toast({
-          title: "Draft Saved Successfully", 
-          description: `Draft "${title}" has been successfully saved.`,
-        })
+        if (!suppressToasts) {
+          toast({
+            title: "Draft Saved Successfully", 
+            description: `Draft "${title}" has been successfully saved.`,
+          })
+        }
       }
     } catch (e: any) {
       setError(e.message || "Failed to save draft")
-      toast({
-        title: "Error Saving Draft",
-        description: e.message || "Failed to save draft",
-        variant: "destructive"
-      })
+      if (!suppressToasts) {
+        toast({
+          title: "Error Saving Draft",
+          description: e.message || "Failed to save draft",
+          variant: "destructive"
+        })
+      }
       throw e
     } finally {
       setLoading(false)
@@ -93,23 +104,27 @@ export function useTaskDraftsApi(type: string = "task") {
       const json = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message || "Failed to delete draft")
       setDrafts(prev => prev.filter(d => d.id !== id))
-      toast({
-        title: "Draft Deleted Successfully",
-        description: `Draft "${draftTitle}" has been successfully deleted.`,
-        variant: "destructive"
-      })
+      if (!suppressToasts) {
+        toast({
+          title: "Draft Deleted Successfully",
+          description: `Draft "${draftTitle}" has been successfully deleted.`,
+          variant: "destructive"
+        })
+      }
     } catch (e: any) {
       setError(e.message || "Failed to delete draft")
-      toast({
-        title: "Error Deleting Draft",
-        description: e.message || "Failed to delete draft",
-        variant: "destructive"
-      })
+      if (!suppressToasts) {
+        toast({
+          title: "Error Deleting Draft",
+          description: e.message || "Failed to delete draft",
+          variant: "destructive"
+        })
+      }
       throw e
     } finally {
       setLoading(false)
     }
-  }, [drafts])
+  }, [drafts, suppressToasts])
 
   return { drafts, loading, error, load, save, remove, setDrafts }
 }

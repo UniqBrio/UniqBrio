@@ -12,7 +12,8 @@ import { Textarea } from '@/components/dashboard/ui/textarea';
 import { Checkbox } from '@/components/dashboard/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/dashboard/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/dashboard/ui/popover';
-import { ChevronDown, Save, RefreshCw, X } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/dashboard/ui/avatar';
+import { ChevronDown, Save, RefreshCw, X, ImagePlus, Trash2, Loader2 } from 'lucide-react';
 import { PhoneCountryCodeSelect } from '@/components/dashboard/student/common/phone-country-code-select';
 import { cn } from '@/lib/dashboard/student/utils';
 import { useToast } from '@/hooks/dashboard/use-toast';
@@ -426,8 +427,7 @@ function StateSelect({ countryName, state, onChange, hasError }: { countryName?:
     }
     // Note: We don't clear the state when states become available, as this causes
     // the selected state to be lost when switching tabs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryName, noStates]);
+  }, [countryName, noStates, state, onChange]);
   return (
     <Popover open={open} onOpenChange={(o)=>{ setOpen(o); if(o) setQuery(''); }}>
       <PopoverTrigger asChild>
@@ -855,12 +855,14 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   const { primaryColor } = useCustomColors();
   const { open,onOpenChange,onAdd,initialStudent,courses:prefetchedCourses,coursesLoading,draftId } = props;
   const { toast } = useToast();
+  const MAX_PHOTO_SIZE = 2 * 1024 * 1024;
+  const ALLOWED_PHOTO_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId || null);
   const todayLocal=()=>{ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
   const emptyGuardian: Parent={ fullName:'', relationship:'', contact:'', linkedStudentId:'' };
   const splitName=(full?:string|null)=>{ const parts=(full||'').trim().split(/\s+/).filter(Boolean); return { first:parts[0]||'', last:parts.length>1?parts[parts.length-1]:'', middle:parts.length>2?parts.slice(1,-1).join(' '):'' }; };
   const composeInitial=():NewStudentType=>{
-    const base:NewStudentType={ guardian:emptyGuardian,name:'',firstName:'',middleName:'',lastName:'',email:'',courseOfInterestId:'',guardianFirstName:'',guardianMiddleName:'',guardianLastName:'',communicationPreferences:{enabled:true,channels:['Email','SMS','WhatsApp']},registrationDate:todayLocal(), cohortId:'', country: 'IN' };
+    const base:NewStudentType={ guardian:emptyGuardian,name:'',firstName:'',middleName:'',lastName:'',email:'',courseOfInterestId:'',guardianFirstName:'',guardianMiddleName:'',guardianLastName:'',communicationPreferences:{enabled:true,channels:['Email','SMS','WhatsApp']},registrationDate:todayLocal(), cohortId:'', country: 'IN', photoUrl: '', pincode: '' };
   if(!initialStudent) return {...base, cohortId: ''};
     const sn=splitName(initialStudent.name);
     const gn=splitName(initialStudent.guardian?.fullName);
@@ -922,6 +924,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   const [guardianCountryCode, setGuardianCountryCode] = useState('+91'); // Default to India for guardian
   const [selectedCountryName, setSelectedCountryName] = useState<string|undefined>();
   const [nextStudentId, setNextStudentId] = useState<string>('STU####');
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   
   // Fetch next available student ID for new students
   useEffect(() => {
@@ -965,6 +970,15 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     if (currentDraftId) return `${nextStudentId}`;
     return nextStudentId;
   }, [initialStudent?.studentId, initialStudent?.id, currentDraftId, nextStudentId]);
+
+  const studentInitials = useMemo(() => {
+    const first = (newStudent.firstName || newStudent.name || '').trim();
+    const last = (newStudent.lastName || '').trim();
+    const firstInitial = first ? first[0] : '';
+    const lastInitial = last ? last[0] : '';
+    const initials = `${firstInitial}${lastInitial}`.trim().toUpperCase();
+    return initials || 'ST';
+  }, [newStudent.firstName, newStudent.lastName, newStudent.name]);
   
   // Track form changes for unsaved changes detection
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -989,6 +1003,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     stateProvince?: string;
     registrationDate?: string;
     address?: string;
+    pincode?: string;
+    photoUrl?: string;
   }>({});
   
   // Tab management
@@ -1000,7 +1016,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     const i = tabKeys.indexOf(activeTab);
     if(i===-1) return;
     const tabRequired: Record<string,string[]> = {
-      'student-info': ['firstName','lastName','email','dob','mobile','gender','country','stateProvince','courseOfInterestId'],
+      'student-info': ['firstName','lastName','email','dob','mobile','gender','country','stateProvince','courseOfInterestId','pincode'],
       'course-details': ['registrationDate'],
       'communication': [],
       'guardian-details': []
@@ -1045,6 +1061,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         cohortId: initial.cohortId
       });
       setNewStudent(initial);
+      setPhotoPreviewUrl(initial.photoUrl || null);
       
       if (!initialStudent) {
         // Creating new student
@@ -1070,7 +1087,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
           country: (initial as any).country || '',
           stateProvince: (initial as any).stateProvince || '',
           registrationDate: initial.registrationDate || '',
-          address: initial.address || ''
+          address: initial.address || '',
+          pincode: initial.pincode || '',
+          photoUrl: initial.photoUrl || ''
         };
       } else {
         // Editing existing student
@@ -1096,6 +1115,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         
         setErrorFields(new Set());
         setShowValidationAlert(false);
+        setPhotoPreviewUrl(initialStudent.photoUrl || null);
         
         initialSnapshotRef.current = {
           firstName: initialStudent.firstName || initialStudent.name || '',
@@ -1110,7 +1130,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
           country: (initialStudent as any).country || '',
           stateProvince: (initialStudent as any).stateProvince || '',
           registrationDate: initialStudent.registrationDate || '',
-          address: initialStudent.address || ''
+          address: initialStudent.address || '',
+          pincode: initialStudent.pincode || '',
+          photoUrl: initialStudent.photoUrl || ''
         };
       }
     }
@@ -1136,7 +1158,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         (newStudent.mobile || '').trim() !== '' ||
         (newStudent.gender || '') !== '' ||
         (newStudent.courseOfInterestId || '') !== '' ||
-        (newStudent.address || '').trim() !== ''
+        (newStudent.address || '').trim() !== '' ||
+        (((newStudent as any).pincode || '').trim() !== '')
       );
       return hasUserInput;
     }
@@ -1155,7 +1178,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       ((newStudent as any).country || '') !== (s.country || '') ||
       ((newStudent as any).stateProvince || '') !== (s.stateProvince || '') ||
       (newStudent.registrationDate || '') !== (s.registrationDate || '') ||
-      (newStudent.address || '') !== (s.address || '')
+      (newStudent.address || '') !== (s.address || '') ||
+      ((newStudent as any).pincode || '') !== (s.pincode || '')
     );
   }, [newStudent, open, initialStudent]);
 
@@ -1359,6 +1383,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       gender: 'Gender',
       courseOfInterestId: 'Course of Interest',
       address: 'Address',
+        pincode: 'Postal/Zip/Pin Code',
   country: 'Country',
   stateProvince: 'State/Province',
       registrationDate: 'Registration Date',
@@ -1378,6 +1403,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     // Regex validation patterns
     const nameRegex = /^[a-zA-Z\s\-'\.]{2,50}$/; // Letters, spaces, hyphens, apostrophes, dots, 2-50 chars
     const addressRegex = /^[a-zA-Z0-9\s\-,\.#/()]{5,100}$/; // Alphanumeric with common address characters
+    const pincodeRegex = /^[a-zA-Z0-9\s\-]+$/; // Letters, numbers, spaces, hyphens
     // Email: RFC-compliant validation - alphanumeric at start/end, special chars (._-) only between alphanumerics, no consecutive special chars
     const emailRegex = /^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
     const phoneRegex = /^[\d\s\-\+()]{10,}$/; // Flexible phone format
@@ -1393,6 +1419,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       { key:'courseOfInterestId', value:newStudent.courseOfInterestId },
       { key:'country', value:(newStudent as any).country },
       { key:'stateProvince', value:(newStudent as any).stateProvince },
+      { key:'pincode', value:(newStudent as any).pincode },
       { key:'registrationDate', value:newStudent.registrationDate }
     ];
     baseRequired.forEach(f => { if(!f.value) addError(f.key); });
@@ -1464,6 +1491,18 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       const address = newStudent.address.trim();
       if (!addressRegex.test(address)) {
         addError('address', 'Address contains invalid characters. Use letters, numbers, and common address symbols (5-100 characters)');
+      }
+    }
+
+    // Postal/Zip/Pin Code validation
+    const rawPostal = ((newStudent as any).pincode || '').trim();
+    if (rawPostal) {
+      if (rawPostal.length < 3) {
+        addError('pincode', 'Postal/Zip/Pin Code must be at least 3 characters');
+      } else if (rawPostal.length > 10) {
+        addError('pincode', 'Postal/Zip/Pin Code cannot exceed 10 characters');
+      } else if (!pincodeRegex.test(rawPostal)) {
+        addError('pincode', 'Postal/Zip/Pin Code can only contain letters, numbers, spaces, and hyphens');
       }
     }
 
@@ -1552,22 +1591,6 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     })(); 
   },[(newStudent as any).enrolledCourse]);
   
-  // Auto-fill course start date when cohorts are loaded and the student has a cohort selected
-  // This handles the case when editing an existing student with a cohort already assigned
-  useEffect(() => {
-    if (cohortList.length > 0 && newStudent.cohortId && !cohortsLoading) {
-      const selectedCohort = cohortList.find(c => c.id === newStudent.cohortId);
-      if (selectedCohort && selectedCohort.startDate) {
-        // Always update to ensure we display the cohort's start date
-        // This is especially important when editing existing students who may not have courseStartDate saved
-        setNewStudent(p => ({
-          ...p,
-          courseStartDate: selectedCohort.startDate
-        }));
-      }
-    }
-  }, [cohortList, newStudent.cohortId, cohortsLoading, newStudent.courseStartDate]);
-  
   // Sanitize name input to allow only letters, spaces, hyphens, apostrophes, and dots (NO commas, numbers, or special characters)
   const setNamePart = (part: 'firstName' | 'middleName' | 'lastName', value: string) => {
     setNewStudent(prev => {
@@ -1594,6 +1617,11 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   };
   
   const updateGuardian=(changes:Partial<Parent>)=> setNewStudent(prev=>({...prev,guardian:{...prev.guardian,...changes}}));
+  const revokePreviewUrl = (url?: string | null) => {
+    if (url && url.startsWith('blob:')) {
+      URL.revokeObjectURL(url);
+    }
+  };
   const handleCourseSelect=(courseId:string)=>{ 
     if(courseId.startsWith('__placeholder__')) return; 
     const sel=courseList.find(c=>c.id===courseId); 
@@ -1606,6 +1634,85 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       }));
     } else {
   setNewStudent(p=>({...p,courseOfInterestId:courseId,enrolledCourseName:p.enrolledCourseName,cohortId:''}));
+    }
+  };
+
+  const handlePhotoInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+      toast({
+        title: 'Unsupported file type',
+        description: 'Please choose a JPG, PNG, GIF, or WebP image.',
+        variant: 'destructive',
+        duration: 3000,
+      });
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_PHOTO_SIZE) {
+      toast({
+        title: 'File too large',
+        description: 'Please select an image smaller than 2 MB.',
+        variant: 'destructive',
+        duration: 3000,
+      });
+      event.target.value = '';
+      return;
+    }
+
+    const previousPreview = photoPreviewUrl;
+    const tempPreview = URL.createObjectURL(file);
+    revokePreviewUrl(previousPreview);
+    setPhotoPreviewUrl(tempPreview);
+    setPhotoUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/dashboard/student/upload-photo', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.url) {
+        const message = data?.error || 'Failed to upload photo.';
+        throw new Error(message);
+      }
+
+      revokePreviewUrl(tempPreview);
+      setPhotoPreviewUrl(data.url);
+      setNewStudent(prev => ({ ...prev, photoUrl: data.url }));
+    } catch (error) {
+      console.error('Failed to upload student photo', error);
+      revokePreviewUrl(tempPreview);
+      setPhotoPreviewUrl(previousPreview || null);
+      toast({
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'Could not upload the selected image. Please try again.',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    } finally {
+      setPhotoUploading(false);
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
+      event.target.value = '';
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    revokePreviewUrl(photoPreviewUrl);
+    setPhotoPreviewUrl(null);
+    setNewStudent(prev => ({ ...prev, photoUrl: '' }));
+    setPhotoUploading(false);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = '';
     }
   };
   
@@ -1813,14 +1920,15 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       countryCode: countryCode,
       email: newStudent.email!,
       address: newStudent.address || '',
+      pincode: ((newStudent as any).pincode || '').trim(),
       courseOfInterestId: newStudent.courseOfInterestId!, // Course of Interest ID
       enrolledCourse: (newStudent as any).enrolledCourse || '', // Enrolled Course ID
       enrolledCourseName: (newStudent as any).enrolledCourseName || '', // Enrolled Course Name
       category: (newStudent as any).category || '',
       courseType: (newStudent as any).courseType || '',
       courseLevel: (newStudent as any).courseLevel || '',
-      registrationDate: newStudent.registrationDate || todayLocal(),
-      courseStartDate: newStudent.courseStartDate || '',
+        registrationDate: newStudent.registrationDate || todayLocal(),
+      photoUrl: newStudent.photoUrl || undefined,
   cohortId: newStudent.cohortId || '',
   country: (newStudent as any).country || '',
   stateProvince: (newStudent as any).stateProvince || '',
@@ -2216,7 +2324,62 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                 <TabsContent value="student-info">
                   <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
                    
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handlePhotoInputChange}
+                    />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                      <div className="md:col-span-2 lg:col-span-3">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Student Photo</Label>
+                        <div className="flex flex-wrap items-center gap-4 mt-2">
+                          <Avatar className="h-20 w-20 border border-dashed border-gray-300 bg-gray-50 dark:border-gray-600">
+                            {newStudent.photoUrl ? (
+                              <AvatarImage src={newStudent.photoUrl} alt="Student photo preview" />
+                            ) : (
+                              <AvatarFallback className="text-sm font-medium text-gray-600 dark:text-white">
+                                {studentInitials}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => photoInputRef.current?.click()}
+                                disabled={photoUploading}
+                                className="flex items-center"
+                              >
+                                {photoUploading ? (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <ImagePlus className="mr-2 h-4 w-4" />
+                                )}
+                                {newStudent.photoUrl ? 'Replace Photo' : 'Upload Photo'}
+                              </Button>
+                              {newStudent.photoUrl && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={handleRemovePhoto}
+                                  className="flex items-center"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Remove
+                                </Button>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-gray-500 dark:text-white">
+                              Supported formats: JPG, PNG, GIF. Max size 2&nbsp;MB.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       {/* Student ID - Non-editable field */}
                       <div>
                         <Label className="text-sm font-medium text-black ">Student ID</Label>
@@ -2350,10 +2513,27 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                           </div>
                         </div>
                       </div>
-                      <div className="md:col-span-2 lg:col-span-3">
-                        <Label className="text-sm font-medium text-gray-700 dark:text-white">Address</Label>
-                        <Textarea name="address" value={newStudent.address||''} onChange={e=> setNewStudent(p=>({...p,address:e.target.value}))} className={cn('mt-1 w-full', showFieldError('address') && 'border-red-500 focus-visible:ring-red-500')} rows={3} placeholder="e.g. 123 Main St, City" />
-                        {showFieldError('address') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.address}</p>}
+                      <div className="md:col-span-2 lg:col-span-3 space-y-3">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700 dark:text-white">Address</Label>
+                          <Textarea name="address" value={newStudent.address||''} onChange={e=> setNewStudent(p=>({...p,address:e.target.value}))} className={cn('mt-1 w-full', showFieldError('address') && 'border-red-500 focus-visible:ring-red-500')} rows={3} placeholder="e.g. 123 Main St, City" />
+                          {showFieldError('address') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.address}</p>}
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700 dark:text-white">Postal/Zip/Pin Code <span className="text-red-500">*</span></Label>
+                          <Input
+                            name="pincode"
+                            value={(newStudent as any).pincode || ''}
+                            onChange={e => {
+                              const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, '');
+                              setNewStudent(p => ({ ...p, pincode: sanitized }));
+                            }}
+                            placeholder="e.g. 94105"
+                            className={cn('mt-1', showFieldError('pincode') && 'border-red-500 focus-visible:ring-red-500')}
+                            maxLength={10}
+                          />
+                          {showFieldError('pincode') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.pincode}</p>}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2376,8 +2556,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                                   ...p,
                                   enrolledCourse: '',
                                   enrolledCourseName: '',
-                                  cohortId: '', // Clear cohort when enrolled course is removed
-                                  courseStartDate: '' // Clear course start date too
+                                  cohortId: '' // Clear cohort when enrolled course is removed
                                 }));
                                 return;
                               }
@@ -2391,8 +2570,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                                   category: sel.category || p.category,
                                   courseType: sel.type || p.courseType,
                                   courseLevel: sel.level || p.courseLevel,
-                                  cohortId: '', // Clear cohort when enrolled course changes
-                                  courseStartDate: '' // Clear course start date when course changes
+                                  cohortId: '' // Clear cohort when enrolled course changes
                                 }));
                               }
                             }}
@@ -2409,38 +2587,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                           <CohortSearchCombobox
                             value={newStudent.cohortId || ''}
                             onChange={(cohortId)=> {
-                              // Find the selected cohort
-                              const selectedCohort = cohortList.find(c => c.id === cohortId);
-                              
-                              // Auto-fill course start date from cohort (always update since field is read-only)
-                              if (selectedCohort && selectedCohort.startDate) {
-                                setNewStudent(p => ({
-                                  ...p,
-                                  cohortId: cohortId,
-                                  courseStartDate: selectedCohort.startDate
-                                }));
-                              } else {
-                                setNewStudent(p => ({...p, cohortId: cohortId}));
-                              }
+                              setNewStudent(p => ({...p, cohortId: cohortId}));
                             }}
                             cohorts={cohortList}
                             loading={cohortsLoading}
                             disabled={!(newStudent as any).enrolledCourse}
                           />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <FormattedDateInput
-                              id="courseStartDate"
-                              label="Course Start Date"
-                              value={newStudent.courseStartDate || ''}
-                              onChange={(isoDate) => setNewStudent(p => ({...p, courseStartDate: isoDate}))}
-                              disabled
-                              displayFormat="dd-MMM-yyyy"
-                              placeholder="Auto-filled from cohort"
-                              className="bg-gray-50 cursor-not-allowed"
-                            />
-                          </div>
                         </div>
                       </div>
                     </div>

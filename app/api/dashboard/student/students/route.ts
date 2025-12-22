@@ -247,6 +247,7 @@ export async function GET(req: NextRequest) {
         courseLevel: s.courseLevel,
         registrationDate: toIso(s.registrationDate),
         courseStartDate: toIso(s.courseStartDate),
+        photoUrl: s.photoUrl,
         referredBy: s.referredBy,
         referringStudentName: s.referringStudentName,
         referringStudentId: s.referringStudentId,
@@ -357,6 +358,7 @@ export async function POST(req: NextRequest) {
       guardianCountryCode: s.guardianCountryCode,
       communicationPreferences: s.communicationPreferences,
       cohortId: s.cohortId,
+      photoUrl: s.photoUrl,
     }))(data);
 
     // Normalize email: trim whitespace and convert to lowercase for consistent storage

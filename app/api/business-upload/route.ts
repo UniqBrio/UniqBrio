@@ -85,6 +85,18 @@ export async function POST(req: NextRequest) {
     
     const formData = await req.formData();
     console.log("[business-upload] Form data received, processing...");
+    // Diagnostic: list formData keys and basic info
+    try {
+      const keys: string[] = [];
+      for (const pair of formData.entries()) {
+        // pair is [key, value]
+        const key = String(pair[0]);
+        keys.push(key);
+      }
+      console.log("[business-upload] formData keys:", keys.join(", "));
+    } catch (err) {
+      console.warn('[business-upload] Failed to enumerate formData keys', err);
+    }
     
     // Get images - could be Files or base64 strings
     const businessLogo = formData.get("businessLogo") as File | string | null;
@@ -127,6 +139,34 @@ export async function POST(req: NextRequest) {
       businessName,
       userEmail
     });
+
+    // Diagnostic: log details of file-like entries
+    const logFileLike = (val: any, label: string) => {
+      if (!val) {
+        console.log(`[business-upload] ${label}: <empty>`);
+        return;
+      }
+      try {
+        if (typeof File !== 'undefined' && val instanceof File) {
+          console.log(`[business-upload] ${label}: File name=${val.name} type=${val.type} size=${val.size}`);
+        } else if (typeof val === 'string' && val.startsWith('data:')) {
+          console.log(`[business-upload] ${label}: base64 string, length=${val.length}`);
+        } else {
+          // Could be platform-specific File polyfill
+          if (val && typeof val === 'object' && 'size' in val && 'name' in val) {
+            console.log(`[business-upload] ${label}: object with name=${(val as any).name} size=${(val as any).size} type=${(val as any).type}`);
+          } else {
+            console.log(`[business-upload] ${label}:`, typeof val);
+          }
+        }
+      } catch (e) {
+        console.warn(`[business-upload] Could not inspect ${label}`, e);
+      }
+    }
+
+    logFileLike(businessLogo, 'businessLogo');
+    logFileLike(businessNameUpload, 'businessNameUpload');
+    logFileLike(profilePicture, 'profilePicture');
 
     // Convert base64 strings to Files if needed
     let logoFile: File | null = null;

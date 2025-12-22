@@ -13,7 +13,6 @@ import { Task } from "./types"
 import { safeParse, priorityVariant, statusVariant, isTaskOverdue } from "./utils"
 import { TaskColId } from "./TaskColumnSelector"
 import { InlineRemarksEditor } from "./InlineRemarksEditor"
-import { toast } from "@/components/dashboard/ui/use-toast"
 
 interface TaskListProps {
   tasks: Task[]

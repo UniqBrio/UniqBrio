@@ -23,12 +23,16 @@ interface ScheduleTabProps {
   formData: any
   onFormChange: (field: string, value: any) => void
   showDeleteConfirmation?: (title: string, description: string, onConfirm: () => void, itemName: string) => void
+  errorFields?: string[]
+  clearErrorField?: (field: string) => void
 }
 
 export default function ScheduleTab({ 
   formData, 
   onFormChange,
-  showDeleteConfirmation = () => {}
+  showDeleteConfirmation = () => {},
+  errorFields = [],
+  clearErrorField
 }: ScheduleTabProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
   const [reminderTypeSearch, setReminderTypeSearch] = useState('');
@@ -113,12 +117,15 @@ export default function ScheduleTab({
               <Input
                 type="date"
                 value={formData.schedulePeriod?.startDate || ''}
-                onChange={e => updateSchedulePeriod('startDate', e.target.value)}
+                onChange={e => {
+                  clearErrorField?.('startDate')
+                  updateSchedulePeriod('startDate', e.target.value)
+                }}
                 onFocus={() => setStartDateFocused(true)}
                 onBlur={() => setStartDateFocused(false)}
                 className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent ${
-                  !formData.schedulePeriod?.startDate 
-                    ? 'border-red-300 bg-red-50' 
+                  (!formData.schedulePeriod?.startDate || errorFields.includes('startDate'))
+                    ? 'border-red-300 bg-red-50'
                     : 'border-gray-300'
                 } ${startDateFocused || !formData.schedulePeriod?.startDate ? '' : 'text-transparent'}`}
                 style={!formData.schedulePeriod?.startDate ? undefined : { borderColor: '#d1d5db' }}
@@ -155,12 +162,15 @@ export default function ScheduleTab({
                   <Input
                     type="date"
                     value={formData.schedulePeriod?.endDate || ''}
-                    onChange={e => updateSchedulePeriod('endDate', e.target.value)}
+                    onChange={e => {
+                      clearErrorField?.('endDate')
+                      updateSchedulePeriod('endDate', e.target.value)
+                    }}
                     onFocus={() => setEndDateFocused(true)}
                     onBlur={() => setEndDateFocused(false)}
                     className={`border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:border-transparent ${
-                      !formData.schedulePeriod?.endDate 
-                        ? 'border-red-300 bg-red-50' 
+                      (!formData.schedulePeriod?.endDate || errorFields.includes('endDate'))
+                        ? 'border-red-300 bg-red-50'
                         : 'border-gray-300'
                     } ${endDateFocused || !formData.schedulePeriod?.endDate ? '' : 'text-transparent'}`}
                     style={!formData.schedulePeriod?.endDate ? undefined : { borderColor: '#d1d5db' }}
@@ -233,6 +243,12 @@ export default function ScheduleTab({
               return null;
             })()}
           </>
+        )}
+        {(errorFields.includes('startDate') || errorFields.includes('endDate')) && !formData.schedulePeriod?.startDate && (
+          <p className="text-red-500 text-[10px] sm:text-xs mt-1">Start date is required</p>
+        )}
+        {errorFields.includes('endDate') && formData.courseCategory !== 'Ongoing Training' && !formData.schedulePeriod?.endDate && (
+          <p className="text-red-500 text-[10px] sm:text-xs mt-1">End date is required</p>
         )}
       </div>
 

@@ -100,7 +100,7 @@ export default function StudentSearchFilters({
   const todayIso = React.useMemo(() => new Date().toISOString().split('T')[0], []);
 
   // Column management
-  const studentColumns = ['Student ID', 'Name', 'Email', 'Mobile', 'Gender', 'Date of Birth', 'Course of Interest', 'Course (Enrolled)', 'Registration Date', 'Course Start Date', 'Address', 'Referred By', 'Cohort', 'Actions'];
+  const studentColumns = ['Student ID', 'Name', 'Email', 'Mobile', 'Gender', 'Date of Birth', 'Course of Interest', 'Course (Enrolled)', 'Registration Date', 'Address', 'Referred By', 'Cohort', 'Actions'];
   const defaultDisplayedColumns = ['Student ID', 'Name', 'Course (Enrolled)', 'Actions'];
   const currentDisplayedColumns = displayedColumns || defaultDisplayedColumns;
   const [showStudentColumnSelector, setShowStudentColumnSelector] = useState(false);
@@ -418,9 +418,8 @@ export default function StudentSearchFilters({
       { header: 'Enrolled Course Name', getter: s => getEnrichedCourseData(s).enrolledCourseName },
       { header: 'Course Category', getter: s => getEnrichedCourseData(s).category },
       { header: 'Course Type', getter: s => getEnrichedCourseData(s).courseType },
-      { header: 'Course Level', getter: s => getEnrichedCourseData(s).courseLevel },
-  { header: 'Registration Date', getter: s => formatDateForDisplay(s.registrationDate || '') },
-  { header: 'Course Start Date', getter: s => formatDateForDisplay(s.courseStartDate || '') },
+        { header: 'Course Level', getter: s => getEnrichedCourseData(s).courseLevel },
+      { header: 'Registration Date', getter: s => formatDateForDisplay(s.registrationDate || '') },
       { header: 'Cohort', getter: s => s.cohortId || '' },
       
       // Communication & Referral Information
@@ -576,7 +575,6 @@ export default function StudentSearchFilters({
       courseType: String(o.courseType || o["Course Type"] || "").trim(),
       courseLevel: String(o.courseLevel || o["Course Level"] || "").trim(),
       registrationDate: convertDateFormat(String(o.registrationDate || o.memberSince || o.MemberSince || o.member_since || o["Registration Date"] || "")),
-      courseStartDate: convertDateFormat(String(o.courseStartDate || o.CourseStartDate || o["Course Start Date"] || "")),
       cohortId: String(o.cohortId || o.batch || o.Batch || o.cohort || o.Cohorts || o.Cohort || "").trim(),
       
       // Communication & Referral Information

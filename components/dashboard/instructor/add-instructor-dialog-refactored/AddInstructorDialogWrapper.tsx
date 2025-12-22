@@ -42,6 +42,7 @@ const initialForm: InstructorFormData = {
   gender: "",
   genderOther: "",
   address: "",
+  pincode: "",
   country: "IN",
   state: "",
   branch: "",
@@ -96,6 +97,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
   const [pendingClose, setPendingClose] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [formError, setFormError] = useState<string>("")
   // Only show "Update draft" when editing a draft, not when editing an existing instructor
   const isEditingDraft = mode !== "edit" && Boolean(draftId || currentDraftId)
 
@@ -111,7 +113,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
       if (addTab === "basic") {
         const emailCheck = validateEmail(form.email)
         if (!emailCheck.ok) {
-          toast({ title: "Invalid email address", description: emailCheck.reason, variant: "destructive" })
+          setFormError(emailCheck.reason)
           return
         }
         // Disallow future DOB
@@ -119,11 +121,12 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
           const today = new Date(); today.setHours(0,0,0,0)
           const dob = new Date(form.dob); dob.setHours(0,0,0,0)
           if (dob.getTime() > today.getTime()) {
-            toast({ title: "Invalid date of birth", description: "Date of birth cannot be in the future.", variant: "destructive" })
+            setFormError("Date of birth cannot be in the future.")
             return
           }
         }
       }
+      setFormError("")
       setAddTab(tabOrder[currentIndex + 1] as any)
     }
   }
@@ -144,6 +147,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         !!form.phone &&
         !!form.dob &&
         !!form.gender &&
+        !!form.pincode?.trim() &&
         !!form.country &&
         !!form.state
       )
@@ -165,6 +169,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
     !!form.phone &&
     !!form.dob &&
     !!form.gender &&
+    !!form.pincode?.trim() &&
     !!form.country &&
     !!form.state
   )
@@ -207,11 +212,12 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
   }
 
   const handleSave = async () => {
+    setFormError("")
     // Global validation guard: ensure email remains valid even if user left the Basic tab
     const emailCheck = validateEmail(form.email)
     if (!emailCheck.ok) {
       setAddTab("basic" as any)
-      toast({ title: "Invalid email address", description: emailCheck.reason, variant: "destructive" })
+      setFormError(emailCheck.reason)
       return
     }
     // Check for duplicate email
@@ -223,18 +229,14 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
     })
     if (duplicateEmail) {
       setAddTab("basic" as any)
-      toast({ 
-        title: "Duplicate email address", 
-        description: `This email is already used by ${duplicateEmail.name || duplicateEmail.firstName + ' ' + duplicateEmail.lastName || 'another instructor'}.`, 
-        variant: "destructive" 
-      })
+      setFormError(`This email is already used by ${duplicateEmail.name || duplicateEmail.firstName + ' ' + duplicateEmail.lastName || 'another instructor'}.`)
       return
     }
     // Phone validation
     const phoneDigits = form.phone.replace(/[^0-9]/g, "")
     if (!phoneDigits) {
       setAddTab("basic" as any)
-      toast({ title: "Phone number required", description: "Please enter a valid phone number.", variant: "destructive" })
+      setFormError("Please enter a valid phone number.")
       return
     }
     // Validate phone number length and format if country is available
@@ -244,14 +246,14 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         const isValid = isPossiblePhoneNumber(phoneDigits, form.country as any)
         if (!isValid) {
           setAddTab("basic" as any)
-          toast({ title: "Invalid phone number", description: `Please enter a valid phone number for ${form.country}.`, variant: "destructive" })
+          setFormError(`Please enter a valid phone number for ${form.country}.`)
           return
         }
       } catch {
         // If validation library fails, at least check for digits
         if (phoneDigits.length < 7) {
           setAddTab("basic" as any)
-          toast({ title: "Invalid phone number", description: "Phone number is too short.", variant: "destructive" })
+          setFormError("Phone number is too short.")
           return
         }
       }
@@ -262,7 +264,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
       const dob = new Date(form.dob); dob.setHours(0,0,0,0)
       if (dob.getTime() > today.getTime()) {
         setAddTab("basic" as any)
-        toast({ title: "Invalid date of birth", description: "Please select a date on or before today.", variant: "destructive" })
+        setFormError("Please select a date on or before today.")
         return
       }
     }
@@ -353,6 +355,12 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
             </Button>
           </DialogHeader>
 
+          {formError && (
+            <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {formError}
+            </div>
+          )}
+
           <UITabs value={addTab} onValueChange={(newTab) => {
             // Prevent tab change if trying to move forward without validation
             const tabOrder = ['basic', 'payment', 'professional', 'employment'];
@@ -361,15 +369,12 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
             
             // If moving forward, validate current tab
             if (newIndex > currentIndex && !isCurrentTabValid()) {
-              toast({
-                title: "Missing Required Fields",
-                description: "Please fill all mandatory fields before proceeding.",
-                variant: "destructive"
-              });
+              setFormError("Please fill all mandatory fields before proceeding.")
               return;
             }
             
             setAddTab(newTab);
+            setFormError("")
           }} className="w-full">
             <UITabsList className="flex justify-between gap-1 mb-6 w-full bg-transparent p-0">
               <UITabsTrigger value="basic" className="border-2 border-[#DE7D14] text-[#DE7D14] bg-white transition-colors duration-150 font-semibold rounded-lg px-3 py-2 flex-1 text-sm data-[state=active]:bg-[#8B5CF6] data-[state=active]:text-white data-[state=active]:border-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-white hover:border-[#8B5CF6] focus:outline-none">Basic Info</UITabsTrigger>

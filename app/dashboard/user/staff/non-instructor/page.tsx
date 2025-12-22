@@ -112,25 +112,14 @@ export default function NonInstructorPage() {
     setAddDialogOpen(true)
   }
 
-  const [nonInstructorSettings, setNonInstructorSettings] = useState<NonInstructorSettingsState>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = window.localStorage.getItem(NON_INSTRUCTOR_SETTINGS_KEY)
-      if (saved) {
-        try {
-          return JSON.parse(saved)
-        } catch (error) {
-          console.error('Failed to parse non-instructor settings from storage', error)
-        }
-      }
-    }
-    return getDefaultNonInstructorSettings()
-  })
+  const [nonInstructorSettings, setNonInstructorSettings] = useState<NonInstructorSettingsState>(getDefaultNonInstructorSettings)
+  const isSettingsTabDisabled = true
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(NON_INSTRUCTOR_SETTINGS_KEY, JSON.stringify(nonInstructorSettings))
+      window.localStorage.removeItem(NON_INSTRUCTOR_SETTINGS_KEY)
     }
-  }, [nonInstructorSettings])
+  }, [])
 
   const handleUpdateSetting = (category: string, key: string, value: any) => {
     const typedCategory = category as keyof NonInstructorSettingsState
@@ -146,6 +135,9 @@ export default function NonInstructorPage() {
   const handleResetSettings = () => {
     const defaults = getDefaultNonInstructorSettings()
     setNonInstructorSettings(defaults)
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(NON_INSTRUCTOR_SETTINGS_KEY)
+    }
     toast({
       title: 'Non-instructor settings reset',
       description: 'Preferences restored to the defaults for this browser.',
@@ -256,18 +248,8 @@ export default function NonInstructorPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="settings"
-                  className="text-xs border-2 transition-colors duration-150 font-semibold rounded-lg px-4 py-2 focus:outline-none"
-                  style={{
-                    ...(activeTab === 'settings' ? {
-                      backgroundColor: '#9333ea',
-                      borderColor: '#9333ea',
-                      color: 'white'
-                    } : {
-                      backgroundColor: 'transparent',
-                      borderColor: '#f97316',
-                      color: '#ea580c'
-                    })
-                  }}
+                  aria-disabled={isSettingsTabDisabled}
+                  className="text-xs border-2 border-black/60 bg-gray-100 text-gray-700 font-semibold rounded-lg px-4 py-2 focus:outline-none transition-colors duration-150 data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
                 >
                   <SettingsIcon className="h-4 w-4 mr-2" />
                   Settings
@@ -301,8 +283,16 @@ export default function NonInstructorPage() {
             <TabsContent value="attendance" className="mt-6">
               <NonInstructorAttendanceManagement />
             </TabsContent>
-            <TabsContent value="settings" className="mt-6">
-              <Card>
+            <TabsContent value="settings" className="relative mt-6">
+              {isSettingsTabDisabled && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                  <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">Settings are locked to organizational defaults.</p>
+                    <p className="text-xs text-muted-foreground/80">Reach out to your administrator to request changes.</p>
+                  </div>
+                </div>
+              )}
+              <Card className={isSettingsTabDisabled ? 'pointer-events-none opacity-60' : ''}>
                 <CardContent className="p-6">
                   <NonInstructorSettings
                     settings={nonInstructorSettings}

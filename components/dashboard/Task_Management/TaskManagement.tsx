@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { Button } from "@/components/dashboard/ui/button"
-import { Plus, FileText, RotateCw, LayoutDashboard, List, Settings } from "lucide-react"
+import { Plus, FileText, RotateCw, LayoutDashboard, List, Settings, X } from "lucide-react"
 import { Dialog, DialogTrigger } from "@/components/dashboard/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
-import { toast } from "@/hooks/dashboard/use-toast"
-import { crudSuccess } from "@/lib/dashboard/crud-toast"
 import { Task, SortBy } from "./types"
 import { useTaskFiltering } from "./use-task-filtering"
 import { calculateTaskStats } from "./task-stats"
@@ -25,6 +23,7 @@ import { useTasksApi } from "@/hooks/dashboard/use-tasks-api"
 import TaskSettings from "./TaskSettings"
 import { Card, CardContent } from "@/components/dashboard/ui/card"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 
 export default function TaskManagement() {
   const { primaryColor, secondaryColor } = useCustomColors()
@@ -42,26 +41,27 @@ export default function TaskManagement() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list")
   const [isCalendarView, setIsCalendarView] = useState(false)
   const [activeTab, setActiveTab] = useState<"analytics" | "tasks" | "settings">("tasks")
-  const { drafts, save: saveDraft, remove: deleteDraft, load: loadDrafts } = useTaskDraftsApi("task")
+  const { drafts, save: saveDraft, remove: deleteDraft, load: loadDrafts } = useTaskDraftsApi("task", { suppressToasts: true })
+  const [actionFeedback, setActionFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
+
+  const showFeedback = (variant: "success" | "error", title: string, description?: string) => {
+    setActionFeedback({ variant, title, description })
+  }
   
   const handleDeleteDraft = async (draftId: string) => {
     const draftToDelete = drafts.find(d => d.id === draftId)
     const draftName = draftToDelete?.title || 'Draft'
     try {
       await deleteDraft(draftId)
-      toast({
-        title: "Draft Deleted",
-        description: `"${draftName}" has been deleted successfully.`,
-      })
+      showFeedback("success", "Draft Deleted", `"${draftName}" has been deleted successfully.`)
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to delete draft', variant: 'destructive' })
+      showFeedback("error", "Draft Deletion Failed", e?.message || "Failed to delete draft")
     }
   }
-  const [currentDraft, setCurrentDraft] = useState<any | null>(null)
+  const [currentDraft, setCurrentDraft] = useState<TaskDraft<any> | null>(null)
   const [draftsDialogOpen, setDraftsDialogOpen] = useState(false)
 
-  // Settings state - Task-specific only
-  const [taskSettings, setTaskSettings] = useState({
+  const createTaskSettingsDefaults = () => ({
     taskDisplay: {
       showTaskIds: true,
       highlightOverdue: true,
@@ -84,22 +84,22 @@ export default function TaskManagement() {
     },
   })
 
-  // Load settings from localStorage on mount
+  type TaskSettingsState = ReturnType<typeof createTaskSettingsDefaults>
+
+  const [taskSettings, setTaskSettings] = useState<TaskSettingsState>(createTaskSettingsDefaults)
+  const isSettingsTabDisabled = true
+
   useEffect(() => {
-    const savedSettings = localStorage.getItem('taskSettings')
-    if (savedSettings) {
-      try {
-        setTaskSettings(JSON.parse(savedSettings))
-      } catch (e) {
-        console.error('Failed to parse task settings:', e)
-      }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('taskSettings')
     }
   }, [])
 
-  // Save settings to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('taskSettings', JSON.stringify(taskSettings))
-  }, [taskSettings])
+    if (!actionFeedback) return
+    const timer = window.setTimeout(() => setActionFeedback(null), 6000)
+    return () => window.clearTimeout(timer)
+  }, [actionFeedback])
 
   const updateSetting = (category: string, key: string, value: any) => {
     setTaskSettings(prev => ({
@@ -112,33 +112,12 @@ export default function TaskManagement() {
   }
 
   const resetSettings = () => {
-    const defaultSettings = {
-      taskDisplay: {
-        showTaskIds: true,
-        highlightOverdue: true,
-        showProgress: true,
-      },
-      taskNotifications: {
-        dueDateReminder: true,
-        reminderTime: 24,
-        overdueAlert: true,
-      },
-      taskAutomation: {
-        autoDraftSave: true,
-        autoDraftInterval: 5,
-        confirmBeforeDelete: true,
-        confirmBeforeComplete: true,
-      },
-      taskExport: {
-        includeRemarks: true,
-        includeSubtasks: false,
-      },
-    }
+    const defaultSettings = createTaskSettingsDefaults()
     setTaskSettings(defaultSettings)
-    toast({
-      title: "Settings Reset",
-      description: "Task-specific settings have been reset to their default values.",
-    })
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('taskSettings')
+    }
+    showFeedback("success", "Settings Reset", "Task-specific settings have been reset to their default values.")
   }
 
   // Filter and sort states for ACTIVE tasks
@@ -194,16 +173,10 @@ export default function TaskManagement() {
       const isEdit = tasks.some(t => t.id === newTask.id)
       if (isEdit) {
         await update(newTask)
-        toast({
-          title: "Task Updated",
-          description: `"${newTask.name}" has been updated successfully.`,
-        })
+        showFeedback("success", "Task Updated", `"${newTask.name}" has been updated successfully.`)
       } else {
         await create(newTask)
-        toast({
-          title: "Task Created", 
-          description: `"${newTask.name}" has been created successfully.`,
-        })
+        showFeedback("success", "Task Created", `"${newTask.name}" has been created successfully.`)
       }
       if (currentDraft?.id) {
         await deleteDraft(currentDraft.id)
@@ -217,7 +190,7 @@ export default function TaskManagement() {
         }
       }
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to save task', variant: 'destructive' })
+      showFeedback("error", "Task Save Failed", e?.message || 'Failed to save task')
     }
   }
 
@@ -225,7 +198,9 @@ export default function TaskManagement() {
     // Optional: could batch call API; for now append locally for quick UX
     setTasks([...tasks, ...importedTasks])
     if (importedTasks.length) {
-      crudSuccess('tasks', 'import', { description: `${importedTasks.length} task${importedTasks.length>1?'s':''} imported successfully.` })
+      const count = importedTasks.length
+      const description = `${count} task${count > 1 ? 's' : ''} imported successfully.`
+      showFeedback("success", "Tasks Imported", description)
     }
   }
 
@@ -241,13 +216,10 @@ export default function TaskManagement() {
     if (!deleteTask) return
     try {
       await remove(deleteTask.id)
-      toast({
-        title: "Task Deleted",
-        description: `"${deleteTask.name}" has been deleted successfully.`,
-      })
+      showFeedback("success", "Task Deleted", `"${deleteTask.name}" has been deleted successfully.`)
       closeDeleteDialog()
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to delete task', variant: 'destructive' })
+      showFeedback("error", "Task Deletion Failed", e?.message || 'Failed to delete task')
     }
   }
 
@@ -282,18 +254,12 @@ export default function TaskManagement() {
         completedAt: checked ? new Date().toISOString() : undefined 
       })
       if (checked) {
-        toast({
-          title: "Task Completed",
-          description: `"${task.name}" has been marked as completed.`,
-        })
+        showFeedback("success", "Task Completed", `"${task.name}" has been marked as completed.`)
       } else {
-        toast({
-          title: "Task Reopened", 
-          description: `"${task.name}" has been reopened.`,
-        })
+        showFeedback("success", "Task Reopened", `"${task.name}" has been reopened.`)
       }
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to update task', variant: 'destructive' })
+      showFeedback("error", "Task Update Failed", e?.message || 'Failed to update task')
     }
   }
 
@@ -364,24 +330,18 @@ export default function TaskManagement() {
   const handleUpdateTask = async (updatedTask: Task) => {
     try {
       await update(updatedTask)
-      toast({
-        title: "Task Updated",
-        description: `"${updatedTask.name}" has been updated successfully.`,
-      })
+      showFeedback("success", "Task Updated", `"${updatedTask.name}" has been updated successfully.`)
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to update task', variant: 'destructive' })
+      showFeedback("error", "Task Update Failed", e?.message || 'Failed to update task')
     }
   }
 
   const handleUpdateTaskRemarks = async (updatedTask: Task) => {
     try {
       await update(updatedTask)
-      toast({
-        title: "Remarks Updated",
-        description: `Remarks for "${updatedTask.name}" have been updated successfully.`,
-      })
+      showFeedback("success", "Remarks Updated", `Remarks for "${updatedTask.name}" have been updated successfully.`)
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to update task remarks', variant: 'destructive' })
+      showFeedback("error", "Remarks Update Failed", e?.message || 'Failed to update task remarks')
     }
   }
 
@@ -401,6 +361,30 @@ export default function TaskManagement() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold" style={{ color: primaryColor }}>Task Management</h1>
       </div>
+
+      {actionFeedback && (
+        <Alert
+          variant={actionFeedback.variant === 'error' ? 'destructive' : 'default'}
+          className={`mb-6 ${actionFeedback.variant === 'success' ? 'border-green-200 bg-green-50 text-green-900' : ''}`}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <AlertTitle>{actionFeedback.title}</AlertTitle>
+              {actionFeedback.description && (
+                <AlertDescription>{actionFeedback.description}</AlertDescription>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setActionFeedback(null)}
+              className="text-sm text-muted-foreground hover:text-foreground mt-1"
+              aria-label="Dismiss notification"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </Alert>
+      )}
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "analytics" | "tasks" | "settings")} className="w-full">
@@ -450,23 +434,9 @@ export default function TaskManagement() {
             Tasks
           </TabsTrigger>
           <TabsTrigger 
-            value="settings" 
-            className="flex items-center justify-center gap-2 px-4 py-2 border-2 bg-transparent font-medium data-[state=active]:text-white data-[state=active]:border-transparent data-[state=inactive]:bg-transparent"
-            style={{
-              borderColor: activeTab === 'settings' ? 'transparent' : secondaryColor,
-              color: activeTab === 'settings' ? 'white' : secondaryColor,
-              backgroundColor: activeTab === 'settings' ? primaryColor : 'transparent'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'settings') {
-                e.currentTarget.style.backgroundColor = `${secondaryColor}15`
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'settings') {
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }
-            }}
+            value="settings"
+            aria-disabled={isSettingsTabDisabled}
+            className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-black/60 bg-gray-100 text-gray-700 font-medium transition-colors data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
           >
             <Settings className="h-4 w-4" />
             Settings
@@ -559,12 +529,17 @@ export default function TaskManagement() {
                     isOpen={dialogOpen}
                     onOpenChange={(open) => { if (!open) setCurrentDraft(null); setDialogOpen(open) }}
                     onSave={handleSaveTaskFromDialog}
-                    onSaveDraft={(data, draftId) => {
-                      saveDraft(data.taskName || 'Untitled Task', data, draftId)
-                      toast({
-                        title: draftId ? "Draft Updated" : "Draft Saved",
-                        description: `"${data.taskName || 'Untitled Task'}" has been ${draftId ? 'updated' : 'saved'} successfully.`,
-                      })
+                    onSaveDraft={async (data, draftId) => {
+                      try {
+                        await saveDraft(data.taskName || 'Untitled Task', data, draftId)
+                        showFeedback(
+                          "success",
+                          draftId ? "Draft Updated" : "Draft Saved",
+                          `"${data.taskName || 'Untitled Task'}" has been ${draftId ? 'updated' : 'saved'} successfully.`
+                        )
+                      } catch (error: any) {
+                        showFeedback("error", "Draft Save Failed", error?.message || "Failed to save draft")
+                      }
                     }}
                     initialData={currentDraft ? {
                       ...currentDraft.data,
@@ -712,8 +687,16 @@ export default function TaskManagement() {
         </TabsContent>
 
         {/* Settings Tab */}
-        <TabsContent value="settings">
-          <Card>
+        <TabsContent value="settings" className="relative mt-6">
+          {isSettingsTabDisabled && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
+              <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
+                <p className="text-sm font-medium text-muted-foreground">Task settings are locked to organizational defaults.</p>
+                <p className="text-xs text-muted-foreground/80">Please contact your administrator to request changes.</p>
+              </div>
+            </div>
+          )}
+          <Card className={`${isSettingsTabDisabled ? 'pointer-events-none opacity-60' : ''} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900`}>
             <CardContent className="p-6">
               <TaskSettings
                 settings={taskSettings}
@@ -740,12 +723,17 @@ export default function TaskManagement() {
             onOpenChange={setEditDialogOpen}
             onSave={handleUpdateTask}
             editTask={editTask || undefined}
-            onSaveDraft={(data, draftId) => {
-              saveDraft(data.taskName || 'Untitled Task', data, draftId)
-              toast({
-                title: draftId ? "Draft Updated" : "Draft Saved", 
-                description: `"${data.taskName || 'Untitled Task'}" has been ${draftId ? 'updated' : 'saved'} successfully.`,
-              })
+            onSaveDraft={async (data, draftId) => {
+              try {
+                await saveDraft(data.taskName || 'Untitled Task', data, draftId)
+                showFeedback(
+                  "success",
+                  draftId ? "Draft Updated" : "Draft Saved",
+                  `"${data.taskName || 'Untitled Task'}" has been ${draftId ? 'updated' : 'saved'} successfully.`
+                )
+              } catch (error: any) {
+                showFeedback("error", "Draft Save Failed", error?.message || "Failed to save draft")
+              }
             }}
           />
         </Dialog>

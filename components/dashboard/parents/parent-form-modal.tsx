@@ -594,7 +594,7 @@ export function ParentFormModal({
                 />
               </div>
 
-              {/* City, State, Pincode */}
+              {/* City, State, Postal/Zip/Pin Code */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
@@ -624,13 +624,25 @@ export function ParentFormModal({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
-                    Pincode
+                    Postal/Zip/Pin Code
                   </label>
                   <input
                     type="text"
                     value={formData.pincode}
-                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                    placeholder="e.g., 400001"
+                    onChange={(e) => {
+                      const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, "");
+                      const normalized = sanitized.replace(/\s+/g, " ");
+                      const valueToStore = normalized.startsWith(" ") ? normalized.trimStart() : normalized;
+                      setFormData({ ...formData, pincode: valueToStore });
+                    }}
+                    onBlur={() => {
+                      const trimmed = formData.pincode.trim();
+                      if (trimmed !== formData.pincode) {
+                        setFormData({ ...formData, pincode: trimmed });
+                      }
+                    }}
+                    placeholder="e.g., 400001 or SW1A 1AA"
+                    maxLength={10}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
