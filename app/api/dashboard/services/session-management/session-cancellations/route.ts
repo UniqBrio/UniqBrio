@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { MongoClient, ObjectId } from 'mongodb'
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 // MongoDB connection for raw database operations
 let clientPromise: Promise<MongoClient> | null = null
 

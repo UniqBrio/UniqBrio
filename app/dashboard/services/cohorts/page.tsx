@@ -1,10 +1,9 @@
 "use client"
 
-export const dynamic = 'force-dynamic';
-
 import CohortManagement from "@/components/dashboard/courses/CohortManagement";
 import { useState, useEffect } from "react";
 import { useCustomColors } from "@/lib/use-custom-colors";
+import { useGlobalData } from "@/contexts/dashboard/global-data-context";
 import type { Course } from "@/types/dashboard/course";
 import { 
   createCourseStatusMap, 
@@ -13,18 +12,16 @@ import {
 } from "@/lib/dashboard/statusValidation";
 
 export default function CohortsPage() {
+  const globalData = useGlobalData();
   const [courses, setCourses] = useState<Course[]>([]);
   const [cohorts, setCohorts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      fetch("/api/dashboard/services/courses", { credentials: 'include' }).then(res => res.ok ? res.json() : Promise.reject(res)),
-      fetch("/api/dashboard/services/cohorts", { credentials: 'include' }).then(res => res.ok ? res.json() : Promise.reject(res))
-    ]).then(([coursesData, cohortsData]) => {
-      const allCourses = Array.isArray(coursesData) ? coursesData : coursesData.courses || [];
-      const allCohorts = Array.isArray(cohortsData) ? cohortsData : cohortsData.cohorts || [];
+    // Use prefetched data for instant load!
+    if (globalData.isInitialized) {
+      const allCourses = globalData.courses as any;
+      const allCohorts = globalData.cohorts;
       
       // Create course status map for validation
       const courseStatusMap = createCourseStatusMap(allCourses);
@@ -32,17 +29,13 @@ export default function CohortsPage() {
       // Filter active cohorts (those with active parent courses)
       const activeCohorts = filterActiveCohorts(allCohorts, courseStatusMap);
       
-      console.log(`Cohorts filtered: ${allCohorts.length} total -> ${activeCohorts.length} active`);
+      console.log(`Cohorts filtered (instant): ${allCohorts.length} total -> ${activeCohorts.length} active`);
       
-      setCourses(allCourses); // Show all courses for course selection
-      setCohorts(activeCohorts); // Only show cohorts from active courses
+      setCourses(allCourses);
+      setCohorts(activeCohorts);
       setLoading(false);
-    }).catch(() => {
-      setCourses([]);
-      setCohorts([]);
-      setLoading(false);
-    });
-  }, []);
+    }
+  }, [globalData.isInitialized, globalData.courses, globalData.cohorts]);
 
   return (
     <div className="container mx-auto p-4 space-y-2">

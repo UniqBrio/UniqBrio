@@ -1,10 +1,9 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useCustomColors } from "@/lib/use-custom-colors";
+import { useGlobalData } from "@/contexts/dashboard/global-data-context";
 ;
 import { StudentAnalytics } from "@/components/dashboard/student/students/student-analytics";
 import { StudentList } from "@/components/dashboard/student/students/student-list";
@@ -47,6 +46,7 @@ type StudentNumberingStrategy = 'sequential' | 'uuid'
 export default function StudentsPage() {
   const { toast } = useToast();
   const { primaryColor, secondaryColor } = useCustomColors();
+  const globalData = useGlobalData();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<string>('name');
@@ -286,31 +286,12 @@ export default function StudentsPage() {
 
   // Fetch students from backend
   useEffect(() => {
-    // Prefetch courses once (used by AddStudentDialog)
-    const loadCourses = async () => {
-      setCoursesLoading(true);
-      try {
-        const data = await fetchCourses();
-        setCourses(Array.isArray(data) ? data : []);
-      } catch {
-        setCourses([]);
-      } finally {
-        setCoursesLoading(false);
-      }                                                                                                                       
-      
-    };
-    loadCourses();
-
-    // Load cohorts for instructor search
-    const loadCohorts = async () => {
-      try {
-        const data = await fetchCohorts();
-        setCohorts(Array.isArray(data) ? data : []);
-      } catch {
-        setCohorts([]);
-      }
-    };
-    loadCohorts();
+    // Use prefetched courses and cohorts from global data (instant!)
+    if (globalData.isInitialized && globalData.courses.length > 0) {
+      setCourses(globalData.courses as any);
+      setCoursesLoading(false);
+      setCohorts(globalData.cohorts as any);
+    }
 
     // Load students from backend
     refreshStudents();

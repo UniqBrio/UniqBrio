@@ -1,10 +1,9 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { useGlobalData } from "@/contexts/dashboard/global-data-context"
 import { Button } from "@/components/dashboard/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
@@ -66,6 +65,7 @@ interface RecentActivity {
 export default function ServicesOverviewPage() {
   const router = useRouter()
   const { primaryColor, secondaryColor } = useCustomColors()
+  const globalData = useGlobalData()
   const [currentTab, setCurrentTab] = useState("analytics")
   const [scheduleStats, setScheduleStats] = useState<ScheduleStats>({
     totalSessions: 0,
@@ -94,10 +94,11 @@ export default function ServicesOverviewPage() {
       try {
         setIsLoading(true)
         
-        // Fetch data from all APIs in parallel
-        const [coursesRes, cohortsRes, studentsRes] = await Promise.all([
-          fetch('/api/dashboard/services/courses', { credentials: 'include' }).catch(() => ({ json: () => ({ courses: [], success: false }) })),
-          fetch('/api/dashboard/services/cohorts', { credentials: 'include' }).catch(() => ({ json: () => ({ cohorts: [], success: false }) })),
+        // Use prefetched data for instant load!
+        if (globalData.isInitialized) {
+          const coursesData = { courses: globalData.courses, success: true };
+          const cohortsData = { cohorts: globalData.cohorts, success: true };
+          const studentsData = { students: globalData.students, success: true };
           fetch('/api/dashboard/services/user-management/students', { credentials: 'include' }).catch(() => ({ json: () => ({ students: [], count: 0 }) }))
         ])
 

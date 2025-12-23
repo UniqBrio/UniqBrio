@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import mongoose from "mongoose"
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 export async function POST(request: Request) {
   try {
     await dbConnect("uniqbrio")

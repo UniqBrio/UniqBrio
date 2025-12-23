@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect } from "react"
 import { useCurrency } from "@/contexts/currency-context"
 import { useCustomColors } from "@/lib/use-custom-colors"

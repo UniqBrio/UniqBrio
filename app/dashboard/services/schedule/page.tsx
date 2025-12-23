@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useCurrency } from "@/contexts/currency-context"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { useGlobalData } from "@/contexts/dashboard/global-data-context"
 import "./ScheduleFilters.css"
 import { Button } from "@/components/dashboard/ui/button"
 import { Input } from "@/components/dashboard/ui/input"
@@ -852,6 +853,8 @@ const timePeriods = ["All", "Morning", "Afternoon", "Evening", "Night"]
 // Dynamic locations will be populated from real session data
 
 export default function EnhancedSchedulePage() {
+  const globalData = useGlobalData();
+  
   function GridIcon({ className = "w-6 h-6" }) {
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1183,12 +1186,27 @@ export default function EnhancedSchedulePage() {
         setIsLoading(true)
         setLoadingLeaveRequests(true)
         
-        // Fetch courses, cohorts, and ONLY modified sessions
-        const [coursesResponse, cohortsResponse, leaveRequestsData, modifiedSessions] = await Promise.all([
-          fetchCourses(),
-          fetchCohorts(),
+        // Check if we have prefetched data available
+        const usePrefetchedData = globalData.isInitialized && globalData.courses.length > 0;
+        
+        let coursesResponse, cohortsResponse;
+        
+        if (usePrefetchedData) {
+          // Use prefetched data for courses and cohorts (instant load!)
+          coursesResponse = { success: true, courses: globalData.courses };
+          cohortsResponse = globalData.cohorts;
+          console.log('⚡ Using prefetched data (instant load)');
+        }
+        
+        // Fetch page-specific data (leave requests and modified sessions)
+        const [leaveRequestsData, modifiedSessions] = await Promise.all([
           fetchLeaveRequests(),
-          fetchModifiedSessionsOnly()
+          fetchModifiedSessionsOnly(),
+          // If prefetch isn't ready, fetch courses/cohorts now
+          ...(!usePrefetchedData ? [
+            fetchCourses().then(r => { coursesResponse = r; }),
+            fetchCohorts().then(r => { cohortsResponse = r; })
+          ] : [])
         ])
         
         console.log('API Responses:', { 

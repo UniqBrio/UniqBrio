@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import React, { useState, useMemo, useCallback, useEffect } from "react"
 import { useCustomColors } from "@/lib/use-custom-colors"
 import CampaignFilters from "@/components/dashboard/promotion/campaign-filters";

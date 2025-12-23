@@ -10,6 +10,9 @@ import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUser
 import { AuditModule } from "@/models/AuditLog";
 import { cascadeCohortNameUpdate } from "@/lib/dashboard/cascade-updates";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 120;
+
 export async function GET(request: Request) {
   const session = await getUserSession();
   

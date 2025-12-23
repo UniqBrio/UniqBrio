@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect } from "react"
 import { useCustomColors } from "@/lib/use-custom-colors"
 import { StatsOverview } from "@/components/dashboard/financials/StatsOverview"

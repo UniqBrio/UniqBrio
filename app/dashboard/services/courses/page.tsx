@@ -22,11 +22,10 @@
 
 "use client"
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect, useMemo } from "react"
 import { useCurrency } from "@/contexts/currency-context"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { useGlobalData } from "@/contexts/dashboard/global-data-context"
 import { v4 as uuidv4 } from "uuid"
 import Image from "next/image"
 
@@ -107,6 +106,7 @@ type CourseNumberingStrategy = 'sequential' | 'uuid'
 export default function EnhancedCourseManagementPage() {
   const { currency } = useCurrency();
   const { primaryColor, secondaryColor } = useCustomColors();
+  const globalData = useGlobalData();
   
   function GridIcon({ className = "w-6 h-6" }) {
     return (
@@ -126,21 +126,6 @@ export default function EnhancedCourseManagementPage() {
   // State management
   const [courses, setCourses] = useState<Course[]>([])
   const [studentCount, setStudentCount] = useState<number | null>(null);
-  // Fetch student count from API (dashboard logic)
-  useEffect(() => {
-    fetch("/api/dashboard/services/user-management/students")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.count !== undefined) {
-          setStudentCount(data.count);
-        } else if (data.numStudents !== undefined) {
-          setStudentCount(data.numStudents);
-        } else {
-          setStudentCount(null);
-        }
-      })
-      .catch(() => setStudentCount(null));
-  }, []);
   const [drafts, setDrafts] = useState<DraftType[]>([])
   const [cohorts, setCohorts] = useState<Cohort[]>([])
   const [loading, setLoading] = useState(true)
@@ -614,77 +599,37 @@ export default function EnhancedCourseManagementPage() {
     };
   }, []);
 
-  // Load initial data
+  // Load initial data - use prefetched global data first, then fetch page-specific data
   useEffect(() => {
+    // Use prefetched data immediately
+    if (globalData.isInitialized && globalData.courses.length > 0) {
+      setCourses(globalData.courses);
+      setCohorts(globalData.cohorts);
+      setStudentCount(globalData.students.length);
+    }
+    
+    // Fetch page-specific data (drafts only)
     setLoading(true);
-    Promise.all([
-      fetch("/api/dashboard/services/courses").then(res => res.ok ? res.json() : Promise.reject(res)),
-      fetch("/api/dashboard/services/courses/drafts").then(res => res.ok ? res.json() : []).catch(() => []),
-      fetch('/api/dashboard/services/cohorts').then(res => res.ok ? res.json() : []).catch(() => [])
-    ]).then(([coursesData, draftsData, cohortsData]) => {
-      // Handle courses data
-      if (coursesData.success && coursesData.courses) {
-        setCourses(coursesData.courses);
-      } else if (Array.isArray(coursesData)) {
-        setCourses(coursesData);
-      } else {
-        setCourses([]);
-      }
-      
-      // Handle drafts data
-      console.log(' Raw drafts response during initial load:', draftsData);
-      if (draftsData.success && draftsData.drafts) {
-        console.log(' Setting drafts from success response:', draftsData.drafts.length, 'drafts');
-        console.log(' Draft details:', draftsData.drafts.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
-        setDrafts(draftsData.drafts);
-      } else if (Array.isArray(draftsData)) {
-        console.log(' Setting drafts from array response:', draftsData.length, 'drafts');
-        console.log(' Draft details:', draftsData.map((d: any) => ({ id: d.id, name: d.name, updatedAt: d.updatedAt })));
-        setDrafts(draftsData);
-      } else {
-        console.log(' No drafts found during initial load, setting empty array');
-        setDrafts([]);
-      }
-      
-      // Handle cohorts data
-      if (cohortsData.success && cohortsData.cohorts) {
-        // Ensure members are in the correct format
-        const formattedCohorts = cohortsData.cohorts.map((cohort: any) => ({
-          ...cohort,
-          members: Array.isArray(cohort.members) 
-            ? cohort.members.map((member: any) => 
-                typeof member === 'string' 
-                  ? { id: member, name: member }
-                  : { id: member.id || '', name: member.name || '' }
-              )
-            : []
-        }));
-        setCohorts(formattedCohorts);
-      } else if (Array.isArray(cohortsData)) {
-        // Same transformation for array response
-        const formattedCohorts = cohortsData.map((cohort: any) => ({
-          ...cohort,
-          members: Array.isArray(cohort.members)
-            ? cohort.members.map((member: string | { id?: string; name?: string }) => 
-                typeof member === 'string'
-                  ? { id: member, name: member }
-                  : { id: member.id || '', name: member.name || '' }
-              )
-            : []
-        }));
-        setCohorts(formattedCohorts);
-      } else {
-        setCohorts([]);
-      }
-      
-      setLoading(false);
-    }).catch((error) => {
-      setCourses([]);
-      setDrafts([]);
-      setCohorts([]);
-      setLoading(false);
-    });
-  }, []);
+    fetch("/api/dashboard/services/courses/drafts")
+      .then(res => res.ok ? res.json() : [])
+      .catch(() => [])
+      .then((draftsData) => {
+        // Handle drafts data
+        console.log(' Raw drafts response during initial load:', draftsData);
+        if (draftsData.success && draftsData.drafts) {
+          console.log(' Setting drafts from success response:', draftsData.drafts.length, 'drafts');
+          setDrafts(draftsData.drafts);
+        } else if (Array.isArray(draftsData)) {
+          console.log(' Setting drafts from array response:', draftsData.length, 'drafts');
+          setDrafts(draftsData);
+        } else {
+          console.log(' No drafts found during initial load, setting empty array');
+          setDrafts([]);
+        }
+        
+        setLoading(false);
+      });
+  }, [globalData.isInitialized, globalData.courses, globalData.cohorts, globalData.students]);
 
   // Calculate statistics with safety checks
   const stats = {
@@ -696,21 +641,6 @@ export default function EnhancedCourseManagementPage() {
     averageRating: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.rating || 0), 0) / courses.length : 0,
     completionRate: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length : 0,
   }
-
-  // Column management functions are now handled by the useColumnManagement hook
-  // Fetch student count from API
-  useEffect(() => {
-    fetch("/api/dashboard/services/user-management/students")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.count !== undefined) {
-          setStudentCount(data.count);
-        } else if (data.numStudents !== undefined) {
-          setStudentCount(data.numStudents);
-        }
-      })
-      .catch(() => setStudentCount(0));
-  }, []);
 
   // Filter and sort courses with safety checks
   const filteredAndSortedCourses = useMemo(() => {
