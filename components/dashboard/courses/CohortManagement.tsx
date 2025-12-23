@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { useCustomColors } from '@/lib/use-custom-colors';
+import { useGlobalData } from '@/contexts/dashboard/global-data-context';
 import { format } from "date-fns"
 import { cn } from "@/lib/dashboard/utils"
 import { Button } from "@/components/dashboard/ui/button"
@@ -79,6 +80,7 @@ export default function CohortManagement({
 }: Omit<CohortManagementProps, 'allStudents'>) {
   const { toast } = useToast();
   const { primaryColor, secondaryColor } = useCustomColors();
+  const { refetch: refetchGlobalData } = useGlobalData();
 
   const identityDefaults: CohortIdentitySettings = {
     prefixSource: 'course-name',
@@ -1518,6 +1520,10 @@ export default function CohortManagement({
                                 
                                 if (data.success) {
                                   setCohorts(prev => prev.filter(c => c.id !== cohort.id));
+                                  
+                                  // Refresh global data to ensure persistence across navigation
+                                  await refetchGlobalData();
+                                  
                                   toast({
                                     title: "Cohort Deleted",
                                     description: `${cohort.name} has been deleted successfully.`,
@@ -1640,6 +1646,10 @@ export default function CohortManagement({
                                           
                                           if (data.success) {
                                             setCohorts(prev => prev.filter(c => c.id !== cohort.id));
+                                            
+                                            // Refresh global data to ensure persistence across navigation
+                                            await refetchGlobalData();
+                                            
                                             toast({
                                               title: "Cohort Deleted",
                                               description: `${cohort.name} has been deleted successfully.`,
@@ -2881,6 +2891,10 @@ export default function CohortManagement({
                       daysOfWeek: result.cohort.daysOfWeek || cohortData.daysOfWeek
                     };
                     setCohorts(prev => prev.map(c => c.id === newCohortEditId ? updatedCohort : c));
+                    
+                    // Refresh global data to ensure persistence across navigation
+                    await refetchGlobalData();
+                    
                     toast({
                       title: "Success",
                       description: "Cohort updated successfully!",
@@ -2903,6 +2917,10 @@ export default function CohortManagement({
                       daysOfWeek: result.cohort.daysOfWeek || cohortData.daysOfWeek
                     };
                     setCohorts(prev => [...prev, newCohortForState]);
+                    
+                    // Refresh global data to ensure persistence across navigation
+                    await refetchGlobalData();
+                    
                     toast({
                       title: "Success", 
                       description: "Cohort added successfully!",
@@ -3394,6 +3412,10 @@ export default function CohortManagement({
                                   if (data.success) {
                                     setCohorts(prev => prev.filter(c => c.id !== cohort.id));
                                     setViewAllCohortsForCourse(null);
+                                    
+                                    // Refresh global data to ensure persistence across navigation
+                                    await refetchGlobalData();
+                                    
                                     toast({
                                       title: "Cohort Deleted",
                                       description: `${cohort.name} has been deleted successfully.`,
@@ -3677,6 +3699,10 @@ export default function CohortManagement({
                                   
                                   if (data.success) {
                                     setCohorts(prev => prev.filter(c => c.id !== cohort.id));
+                                    
+                                    // Refresh global data to ensure persistence across navigation
+                                    await refetchGlobalData();
+                                    
                                     toast({
                                       title: "Cohort Deleted",
                                       description: `${cohort.name} has been deleted successfully.`,
