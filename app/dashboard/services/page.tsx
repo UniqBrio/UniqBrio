@@ -95,22 +95,34 @@ export default function ServicesOverviewPage() {
         setIsLoading(true)
         
         // Use prefetched data for instant load!
+        let courses = [];
+        let cohorts = [];
+        let students = [];
+        let totalStudentsCount = 0;
+        
         if (globalData.isInitialized) {
-          const coursesData = { courses: globalData.courses, success: true };
-          const cohortsData = { cohorts: globalData.cohorts, success: true };
-          const studentsData = { students: globalData.students, success: true };
-          fetch('/api/dashboard/services/user-management/students', { credentials: 'include' }).catch(() => ({ json: () => ({ students: [], count: 0 }) }))
-        ])
+          courses = globalData.courses || [];
+          cohorts = globalData.cohorts || [];
+          students = globalData.students || [];
+          totalStudentsCount = students.length;
+        } else {
+          // Fallback to API if prefetch not ready
+          const [coursesRes, cohortsRes, studentsRes] = await Promise.all([
+            fetch('/api/dashboard/services/courses', { credentials: 'include' }),
+            fetch('/api/dashboard/services/cohorts', { credentials: 'include' }),
+            fetch('/api/dashboard/services/user-management/students', { credentials: 'include' })
+          ]);
 
-        const coursesData = await coursesRes.json()
-        const cohortsData = await cohortsRes.json()
-        const studentsData = await studentsRes.json()
+          const coursesData = await coursesRes.json();
+          const cohortsData = await cohortsRes.json();
+          const studentsData = await studentsRes.json();
 
-        // Extract arrays from API responses
-        const courses = Array.isArray(coursesData) ? coursesData : (coursesData.courses || [])
-        const cohorts = Array.isArray(cohortsData) ? cohortsData : (cohortsData.cohorts || [])
-        const students = studentsData.students || []
-        const totalStudentsCount = studentsData.count || students.length
+          // Extract arrays from API responses
+          courses = Array.isArray(coursesData) ? coursesData : (coursesData.courses || []);
+          cohorts = Array.isArray(cohortsData) ? cohortsData : (cohortsData.cohorts || []);
+          students = studentsData.students || [];
+          totalStudentsCount = studentsData.count || students.length;
+        }
 
         console.log('API Data loaded:', { 
           coursesCount: courses.length, 
