@@ -42,7 +42,8 @@ export async function checkTokenRefresh() {
 // Refresh the token
 async function refreshToken(session: any) {
   try {
-    // Create a new token with updated expiry
+    // Create a new token with updated expiry, preserving ALL session fields
+    // This is critical for users in registration flow who don't have tenantId/userId yet
     const newToken = await createToken({
       id: session?.id,
       email: session?.email,
@@ -50,6 +51,12 @@ async function refreshToken(session: any) {
       verified: session?.verified,
       name: session?.name,
       lastActivity: Date.now(),
+      // Preserve tenant/user IDs if they exist
+      tenantId: session?.tenantId,
+      userId: session?.userId,
+      academyId: session?.academyId,
+      // Preserve registration status to prevent session validation issues
+      registrationComplete: session?.registrationComplete,
     })
 
     // Set the new token in cookies

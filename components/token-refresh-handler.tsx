@@ -37,6 +37,13 @@ export default function TokenRefreshHandler() {
           }
           
           if (response.status === 401) {
+            // Don't redirect if user is on registration page - they might still be completing registration
+            const currentPath = window.location.pathname
+            if (currentPath.startsWith('/register') || currentPath.startsWith('/verification-pending')) {
+              console.log('[TokenRefresh] Skipping logout on registration/verification page')
+              return
+            }
+            
             // Session expired
             localStorage.removeItem("isAuthenticated")
             router.push("/?session=expired")

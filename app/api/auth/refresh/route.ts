@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, refreshed })
   } catch (error) {
     console.error("Token refresh error:", error)
-    return NextResponse.json({ success: false, message: "An error occurred during token refresh" }, { status: 500 })
+    // Return 200 status even on error to prevent unnecessary session expiry during registration
+    // The client will continue to function with the existing token
+    return NextResponse.json({ success: false, message: "Token refresh skipped", refreshed: false }, { status: 200 })
   }
 }
