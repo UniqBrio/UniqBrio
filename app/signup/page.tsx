@@ -9,7 +9,7 @@ import GoogleAuthButton from "@/components/google-auth-button"
 import Link from "next/link"
 import { CheckCircle2, Eye, EyeOff, Loader2, Check, X, ChevronDown } from "lucide-react"
 import { signup } from "../actions/auth-actions"
-import { toast } from "@/components/ui/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import AuthLayout from "@/components/auth-layout" // Import AuthLayout
 import { useSearchParams } from "next/navigation"
 import ConfettiCelebration from "@/components/confetti-celebration"
@@ -66,6 +66,7 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
   const [showCelebration, setShowCelebration] = useState(false)
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
   const searchParams = useSearchParams()
 
   // Check for URL parameters - prioritize query param over initialPlan prop
@@ -74,7 +75,7 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
   const selectedPlan = planFromQuery || initialPlan || 'free' // Query param > Prop > Default
 
   useEffect(() => {
-    // Show toast messages based on URL params (e.g., from OAuth errors)
+    // Show feedback messages based on URL params (e.g., from OAuth errors)
     if (error) {
       const errorMessages: Record<string, string> = {
         "email-exists": "An account with this email already exists.",
@@ -84,15 +85,25 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
 
       const errorMessage = errorMessages[error] || errorMessages.unknown
 
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Signup Error",
         description: errorMessage,
-        variant: "destructive",
       })
       // Optional: remove the error param from URL
       // window.history.replaceState(null, '', '/signup');
     }
   }, [error])
+
+  // Auto-dismiss feedback after 6 seconds
+  useEffect(() => {
+    if (feedback) {
+      const timer = setTimeout(() => {
+        setFeedback(null);
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
 
   const {
     register,
@@ -159,12 +170,12 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
         // Show confetti celebration
         setShowCelebration(true)
         
-        // After celebration (3 seconds), show the verification toast
+        // After celebration (3 seconds), show the verification feedback
         setTimeout(() => {
-          toast({
+          setFeedback({
+            variant: "success",
             title: "Signup Submitted Successfully",
             description: "Verification link has been sent to your mail. Please click on the verification link to complete account creation.",
-            variant: "default",
           })
         }, 3000)
         
@@ -176,10 +187,10 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
           (result.errors ? Object.values(result.errors)[0]?.[0] : null) || // Fallback to first validation error
           "An unknown error occurred during signup."; // Final fallback
 
-        toast({
+        setFeedback({
+          variant: "error",
           title: "Signup Error",
           description: errorMsg,
-          variant: "destructive",
         });
       } else {
         // Handle cases where the result format is unexpected
@@ -188,10 +199,10 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
     } catch (error) {
       // --- CATCH UNEXPECTED ERRORS (e.g., network issues) ---
       console.error("Signup submission error:", error);
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
-        variant: "destructive",
       });
     } finally {
       // --- Ensure loading state is always turned off ---
@@ -251,6 +262,27 @@ export default function SignupPage({ initialPlan }: SignupPageProps = {}) {
             </ul>
           )}
         </div>
+
+        {/* Feedback Alert */}
+        {feedback && (
+          <Alert variant={feedback.variant === "error" ? "destructive" : "default"} className="mb-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <AlertTitle>{feedback.title}</AlertTitle>
+                {feedback.description && (
+                  <AlertDescription>{feedback.description}</AlertDescription>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setFeedback(null)}
+                className="ml-2 text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </Alert>
+        )}
 
         {/* Email */}
         <div className="space-y-1">

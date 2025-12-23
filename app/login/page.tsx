@@ -10,7 +10,7 @@ import GoogleAuthButton from "@/components/google-auth-button"
 import Link from "next/link"
 import { CheckCircle2, Eye, EyeOff, Loader2, ChevronDown, Check, X } from "lucide-react"
 import { login } from "../actions/auth-actions" // Ensure this path is correct
-import { toast } from "@/components/ui/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import AuthLayout from "@/components/auth-layout" // Import AuthLayout
 import { useSearchParams, useRouter } from "next/navigation"
 import { broadcastSessionChange, clearTabSession } from "@/lib/session-broadcast"
@@ -37,6 +37,7 @@ type FormData = z.infer<typeof loginSchema>
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -51,17 +52,16 @@ export default function LoginPage() {
     const sessionExpired = searchParams?.get('sessionExpired') === 'true';
     const oauthError = searchParams?.get('error'); // Get potential error message
 
-    let toastShown = false;
+    let feedbackShown = false;
     const currentPath = '/login'; // Define the path to replace to
 
     // Use a function to avoid repeating router.replace logic
-    const showToastAndReplaceUrl = (toastOptions: Parameters<typeof toast>[0]) => {
-      console.log(`[LoginPage] useEffect: Condition met for toast: ${toastOptions.title}. Showing toast.`);
-      toast(toastOptions);
-      toastShown = true;
+    const showFeedbackAndReplaceUrl = (feedbackOptions: { variant: "success" | "error"; title: string; description?: string }) => {
+      console.log(`[LoginPage] useEffect: Condition met for feedback: ${feedbackOptions.title}. Showing feedback.`);
+      setFeedback(feedbackOptions);
+      feedbackShown = true;
       console.log(`[LoginPage] useEffect: Calling router.replace('${currentPath}') to clean URL.`);
-      // Use setTimeout to slightly delay replace, allowing toast to potentially render first
-      // Adjust delay as needed, or remove if it causes other issues. Start with 0 or small value.
+      // Use setTimeout to slightly delay replace, allowing feedback to potentially render first
       setTimeout(() => {
         router.replace(currentPath);
         console.log(`[LoginPage] useEffect: router.replace('${currentPath}') executed.`);
@@ -69,31 +69,31 @@ export default function LoginPage() {
     }
 
     // Handle different types of errors properly
-    if (verified && !toastShown) {
-      showToastAndReplaceUrl({
+    if (verified && !feedbackShown) {
+      showFeedbackAndReplaceUrl({
+        variant: "success",
         title: "Account Created",
         description: "Account created successfully. Please log in.",
-        variant: "default",
       });
-    } else if (alreadyVerified && !toastShown) {
-      showToastAndReplaceUrl({
+    } else if (alreadyVerified && !feedbackShown) {
+      showFeedbackAndReplaceUrl({
+        variant: "success",
         title: "Already Verified",
         description: "Your account was already verified. Please log in.",
-        variant: "default",
       });
-    } else if (resetSuccess && !toastShown) {
-      showToastAndReplaceUrl({
+    } else if (resetSuccess && !feedbackShown) {
+      showFeedbackAndReplaceUrl({
+        variant: "success",
         title: "Password Reset",
         description: "Password reset successfully. Please log in with your new password.",
-        variant: "default",
       });
-    } else if (sessionExpired && !toastShown) {
-      showToastAndReplaceUrl({
+    } else if (sessionExpired && !feedbackShown) {
+      showFeedbackAndReplaceUrl({
+        variant: "error",
         title: "Session Expired",
         description: "Your session has expired. Please log in again.",
-        variant: "destructive",
       });
-    } else if (oauthError && !toastShown) {
+    } else if (oauthError && !feedbackShown) {
       // Handle specific OAuth error types
       let errorTitle = "Authentication Failed";
       let errorDescription = "Failed to sign in with Google. Please try again.";
@@ -138,10 +138,10 @@ export default function LoginPage() {
           errorDescription = `Authentication failed: ${decodeURIComponent(oauthError)}. Please try again.`;
       }
 
-      showToastAndReplaceUrl({
+      showFeedbackAndReplaceUrl({
+        variant: "error",
         title: errorTitle,
         description: errorDescription,
-        variant: "destructive",
       });
     } else {
       console.log("[LoginPage] useEffect: No relevant query parameters found for toast display.");
@@ -218,10 +218,10 @@ export default function LoginPage() {
           // Note: setIsSubmitting(false) will be handled by finally, even on successful redirect start
         } catch (navigationError) {
           console.error("[LoginPage] onSubmit: Error during router.push navigation:", navigationError);
-          toast({
+          setFeedback({
+            variant: "error",
             title: "Navigation Error",
             description: `Login successful, but failed to redirect to ${result.redirect}. Please try navigating manually.`,
-            variant: "destructive",
           });
           setIsSubmitting(false); // Explicitly set here on navigation error
         }
@@ -234,19 +234,19 @@ export default function LoginPage() {
            errorMsg = result?.message || errorMsg;
            console.error("[LoginPage] onSubmit: Login failed. Reason:", errorMsg, "Result:", result);
         }
-        toast({
+        setFeedback({
+          variant: "error",
           title: "Login Failed",
           description: errorMsg,
-          variant: "destructive",
         });
         setIsSubmitting(false); // Explicitly set here on failure
       }
     } catch (error) {
       console.error("[LoginPage] onSubmit: Unexpected error during login process:", error);
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: error instanceof Error ? error.message : "An unexpected network or server error occurred.",
-        variant: "destructive",
       });
       setIsSubmitting(false); // Explicitly set here on unexpected error
     } finally {
@@ -258,6 +258,16 @@ export default function LoginPage() {
   };
   // --- End onSubmit Function ---
 
+
+  // Auto-dismiss feedback after 6 seconds
+  useEffect(() => {
+    if (feedback) {
+      const timer = setTimeout(() => {
+        setFeedback(null);
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
 
   // --- JSX (Return statement) ---
   return (
@@ -274,6 +284,27 @@ export default function LoginPage() {
         action="#"
       >
         {/* Removed AuthTabs from here, it's now in AuthLayout */}
+
+        {/* Feedback Alert */}
+        {feedback && (
+          <Alert variant={feedback.variant === "error" ? "destructive" : "default"} className="mb-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <AlertTitle>{feedback.title}</AlertTitle>
+                {feedback.description && (
+                  <AlertDescription>{feedback.description}</AlertDescription>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setFeedback(null)}
+                className="ml-2 text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </Alert>
+        )}
 
         {/* Email or Phone */}
         <div className="space-y-1">
