@@ -305,12 +305,11 @@ export async function login(formData: FormData) {
       registrationComplete: user.registrationComplete, // Added for performance optimization
       name: user.name,
       lastActivity: Date.now(),
-      // Only include tenantId/userId/academyId if registration is complete
-      ...(user.registrationComplete ? {
-        tenantId: user.academyId || user.tenantId,
-        userId: user.userId,
-        academyId: user.academyId,
-      } : {}),
+      // Always include tenantId/userId/academyId for logged-in users (even if registration not complete)
+      // This ensures API routes have tenant context for operations
+      tenantId: user.academyId || user.tenantId || 'default',
+      userId: user.userId,
+      academyId: user.academyId,
     };
     
     console.log("[AuthAction] login: SessionData created:", { 

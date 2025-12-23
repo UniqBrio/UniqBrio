@@ -103,12 +103,19 @@ export async function getUserSession() {
 
     const decoded = await verifyToken(token);
     
+    if (!decoded) {
+      return null;
+    }
+    
+    // Always provide tenantId with fallback chain: tenantId -> academyId -> 'default'
+    const tenantId = (decoded?.tenantId || decoded?.academyId || 'default') as string;
+    
     return {
       email: decoded?.email as string,
       userId: (decoded?.userId || decoded?.id) as string, // Prefer userId (AD000003), fallback to id for old sessions
       role: decoded?.role as string,
       academyId: decoded?.academyId as string,
-      tenantId: (decoded?.tenantId || decoded?.academyId) as string,
+      tenantId: tenantId,
     };
   } catch (error) {
     console.error('[getUserSession] Error:', error);

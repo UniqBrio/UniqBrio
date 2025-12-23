@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
       registrationComplete: dbUser.registrationComplete, // Added for performance optimization
       name: dbUser.name,
       lastActivity: Date.now(),
-      tenantId: dbUser.academyId || dbUser.tenantId, // Will be undefined until registration
+      // Always include tenant data for logged-in users
+      tenantId: dbUser.academyId || dbUser.tenantId || 'default',
       userId: dbUser.userId, // Include userId in session
       academyId: dbUser.academyId, // Include academyId in session
     };
