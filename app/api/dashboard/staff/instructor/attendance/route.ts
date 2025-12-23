@@ -159,6 +159,27 @@ export async function POST(req: Request) {
         }, { status: 409 })
       }
 
+      // Check if there's an approved leave request for this instructor on this date
+      try {
+        const existingLeave = await LeaveRequest.findOne({
+          tenantId: session.tenantId,
+          instructorId: instructorId,
+          status: 'APPROVED',
+          startDate: { $lte: date },
+          endDate: { $gte: date }
+        }).lean()
+
+        if (existingLeave) {
+          return NextResponse.json({
+            success: false,
+            error: `${instructorName} has an approved leave request from ${existingLeave.startDate} to ${existingLeave.endDate}. Cannot mark attendance for dates within an approved leave period.`
+          }, { status: 409 })
+        }
+      } catch (leaveCheckError) {
+        console.error('Error checking leave requests for attendance:', leaveCheckError)
+        // Continue with attendance creation if leave check fails (logged for debugging)
+      }
+
       const created = await InstructorAttendanceModel.create(toSave as any)
       return NextResponse.json({ success: true, data: toUi(created.toObject()) }, { status: 201 })
     } catch (e: any) {

@@ -310,6 +310,41 @@ export async function POST(req: Request) {
         }, { status: 409 })
       }
 
+      // Check if attendance has already been marked for this instructor on any of these dates
+      try {
+        const [startYear, startMonth, startDay] = body.startDate.split('-').map(Number)
+        const [endYear, endMonth, endDay] = body.endDate.split('-').map(Number)
+        const startDateObj = new Date(startYear, (startMonth || 1) - 1, startDay || 1)
+        const endDateObj = new Date(endYear, (endMonth || 1) - 1, endDay || 1)
+        
+        const attendanceDates: string[] = []
+        let current = new Date(startDateObj)
+        while (current <= endDateObj) {
+          const y = current.getFullYear()
+          const m = String(current.getMonth() + 1).padStart(2, '0')
+          const d = String(current.getDate()).padStart(2, '0')
+          attendanceDates.push(`${y}-${m}-${d}`)
+          current.setDate(current.getDate() + 1)
+        }
+        
+        const existingAttendance = await InstructorAttendanceModel.findOne({
+          tenantId: session.tenantId,
+          instructorId: body.instructorId,
+          date: { $in: attendanceDates },
+          status: { $ne: 'planned' } // Ignore planned attendance, only block actual attendance records
+        }).lean()
+        
+        if (existingAttendance) {
+          return NextResponse.json({
+            ok: false,
+            error: `Attendance has already been marked for ${body.instructorName || 'this instructor'} on ${existingAttendance.date}. Cannot create leave request for dates with existing attendance records.`
+          }, { status: 409 })
+        }
+      } catch (attendanceCheckError) {
+        console.error('Error checking attendance for leave request:', attendanceCheckError)
+        // Continue with leave request creation if attendance check fails (logged for debugging)
+      }
+
       // Validate that the instructor exists in the database
       const instructorExists = await Instructor.findOne({ 
         $or: [

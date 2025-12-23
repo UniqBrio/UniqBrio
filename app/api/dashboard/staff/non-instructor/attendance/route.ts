@@ -145,6 +145,36 @@ export async function POST(req: Request) {
       notes: body.notes ?? null,
     }
 
+    // Check if record already exists - if not, check for leave conflicts before creating
+    const existing = await NonInstructorAttendanceModel.findOne({
+      tenantId: session.tenantId,
+      instructorId,
+      date
+    }).lean()
+
+    // Only check for leave conflicts when creating NEW records (not when updating existing ones)
+    if (!existing) {
+      try {
+        const existingLeave = await NonInstructorLeaveRequest.findOne({
+          tenantId: session.tenantId,
+          instructorId: instructorId,
+          status: 'APPROVED',
+          startDate: { $lte: date },
+          endDate: { $gte: date }
+        }).lean()
+
+        if (existingLeave) {
+          return NextResponse.json({
+            success: false,
+            error: `${instructorName} has an approved leave request from ${existingLeave.startDate} to ${existingLeave.endDate}. Cannot mark attendance for dates within an approved leave period.`
+          }, { status: 409 })
+        }
+      } catch (leaveCheckError) {
+        console.error('Error checking leave requests for attendance:', leaveCheckError)
+        // Continue with attendance creation if leave check fails (logged for debugging)
+      }
+    }
+
     // Use findOneAndUpdate with upsert to handle both new records and updates to existing ones (e.g., planned leave)
     const result = await NonInstructorAttendanceModel.findOneAndUpdate(
       { tenantId: session.tenantId, instructorId, date },
