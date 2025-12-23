@@ -4,6 +4,9 @@ import UserModel from "@/models/User";
 import RegistrationModel from "@/models/Registration";
 import { dbConnect } from "@/lib/mongodb";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 180;
+
 export async function GET(request: NextRequest) {
   try {
     // Get session token from cookies

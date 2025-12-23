@@ -5,6 +5,9 @@ import type { IUser } from "@/models/dashboard"
 import { getUserSession } from "@/lib/tenant/api-helpers"
 import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 120;
+
 export async function POST(request: Request) {
   const session = await getUserSession();
   

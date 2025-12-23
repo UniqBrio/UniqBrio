@@ -4,6 +4,10 @@ import RegistrationModel from "@/models/Registration";
 import { dbConnect } from "@/lib/mongodb";
 import { getSessionCookie, verifyToken } from "@/lib/auth";
 
+// Cache for 5 minutes (user info changes infrequently)
+export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+
 export async function GET(request: NextRequest) {
   try {
     // Get the current user's session

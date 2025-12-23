@@ -7,6 +7,10 @@ import { fetchMultipleCoursePaymentDetails } from '@/lib/dashboard/payments/cour
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+// Cache for 30 seconds
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 // Define the Course schema to access course fees
 const courseSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,

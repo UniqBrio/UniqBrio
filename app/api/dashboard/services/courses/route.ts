@@ -11,6 +11,9 @@ import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUser
 import { AuditModule } from "@/models/AuditLog"
 import { cascadeCourseNameUpdate } from "@/lib/dashboard/cascade-updates"
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 180;
+
 export async function POST(request: Request) {
       const session = await getUserSession();
   

@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 // Define payment schema for aggregation
 const paymentSchema = new mongoose.Schema({
   studentId: String,

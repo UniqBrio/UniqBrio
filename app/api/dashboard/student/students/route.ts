@@ -10,6 +10,10 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
 import { cascadeStudentNameUpdate, cascadeStudentEmailUpdate, cascadeStudentCategoryUpdate, cascadeStudentCourseTypeUpdate, buildStudentFullName } from '@/lib/dashboard/cascade-updates';
 
+// Cache for 30 seconds
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 // Ensure email uniqueness is scoped per tenant by fixing legacy indexes at runtime.
 let ensureStudentIndexesPromise: Promise<void> | null = null;
 async function ensureTenantScopedStudentIndexes() {

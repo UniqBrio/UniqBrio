@@ -14,6 +14,9 @@ import {
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 /**
  * POST /api/payments/payment-records
  * Create a new payment record

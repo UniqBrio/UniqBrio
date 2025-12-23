@@ -4,6 +4,10 @@ import Payment from '@/models/dashboard/payments/Payment';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+// Cache for 60 seconds
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
   

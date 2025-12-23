@@ -9,6 +9,9 @@ import {
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 20;
+
 /**
  * GET /api/notifications?studentId=xxx
  * Get notifications for a student

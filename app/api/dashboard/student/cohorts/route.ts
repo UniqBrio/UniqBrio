@@ -5,6 +5,9 @@ import Student from '@/models/dashboard/student/Student';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 120;
+
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const formatDayRanges = (days: number[]): string => {

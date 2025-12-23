@@ -5,6 +5,9 @@ import type { IHelpChat, IChatMessage } from "@/models/dashboard";
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 15;
+
 // GET - Fetch all chats or a specific chat by ID
 export async function GET(request: Request) {
   const session = await getUserSession();

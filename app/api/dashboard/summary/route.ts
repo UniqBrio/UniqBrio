@@ -6,6 +6,10 @@ import { getSessionCookie, verifyToken } from "@/lib/auth";
 import { getUserSession } from "@/lib/tenant/api-helpers";
 import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
+// Cache for 5 minutes (dashboard summary changes infrequently)
+export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+
 // Helper to resolve the current user's context (userId, academyId, tenantId) from the session
 async function getUserContext() {
   const session = await getSessionCookie();

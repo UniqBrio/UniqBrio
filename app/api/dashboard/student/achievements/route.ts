@@ -5,6 +5,9 @@ import Student from '@/models/dashboard/student/Student';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 120;
+
 // GET all achievements with student populated
 export async function GET() {
   const session = await getUserSession();

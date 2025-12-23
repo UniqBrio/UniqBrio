@@ -10,6 +10,9 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import Registration from '@/models/Registration';
 import { sendAttendanceMessage, normalizePhoneToE164 } from '@/lib/whatsapp';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /**

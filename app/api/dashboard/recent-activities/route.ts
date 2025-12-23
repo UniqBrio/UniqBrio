@@ -4,6 +4,9 @@ import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import mongoose from 'mongoose';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 20;
+
 /**
  * GET /api/dashboard/recent-activities
  * Fetch recent activities from multiple collections for notifications

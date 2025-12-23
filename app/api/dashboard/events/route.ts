@@ -6,6 +6,9 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityCreate, getClientIp, getUserAgent } from '@/lib/audit-logger';
 import { AuditModule } from '@/models/AuditLog';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 // Helper: generate next event ID like EVT0001
 async function generateNextEventId(tenantId: string): Promise<string> {
   let attempts = 0

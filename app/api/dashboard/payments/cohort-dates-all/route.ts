@@ -4,6 +4,10 @@ import mongoose from 'mongoose';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+// Cache for 5 minutes (cohort dates change infrequently)
+export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+
 // Define Cohort schema
 const cohortSchema = new mongoose.Schema({
   cohortId: String,

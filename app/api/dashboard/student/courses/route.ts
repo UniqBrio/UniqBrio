@@ -4,6 +4,9 @@ import { dbConnect } from '@/lib/mongodb';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+
 // Define the Course schema
 const courseSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,

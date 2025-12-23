@@ -4,6 +4,9 @@ import Event from '@/models/dashboard/events/Event';
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 /**
  * GET /api/events/stats/overview
  * Get event statistics and analytics

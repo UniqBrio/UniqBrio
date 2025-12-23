@@ -7,6 +7,9 @@ import { fetchMultipleCoursePaymentDetails } from '@/lib/dashboard/payments/cour
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 export async function GET(request: NextRequest) {
   const session = await getUserSession();
   

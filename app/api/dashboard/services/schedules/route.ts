@@ -7,6 +7,9 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger"
 import { AuditModule } from "@/models/AuditLog"
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 export async function POST(request: Request) {
   const session = await getUserSession();
   

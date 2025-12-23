@@ -8,6 +8,9 @@ import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
 import { AuditModule, IFieldChange } from '@/models/AuditLog';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 // GET - Fetch all help tickets or filter by status/email
 export async function GET(request: Request) {
   const session = await getUserSession();

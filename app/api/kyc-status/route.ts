@@ -4,6 +4,10 @@ import UserModel from "@/models/User";
 import KycSubmissionModel from "@/models/KycSubmission";
 import { dbConnect } from "@/lib/mongodb";
 
+// Cache for 2 minutes (KYC status changes infrequently)
+export const dynamic = 'force-dynamic';
+export const revalidate = 120;
+
 export async function GET(request: NextRequest) {
   try {
     console.log("[kyc-status] Checking KYC status...");

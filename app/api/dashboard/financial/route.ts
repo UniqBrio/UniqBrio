@@ -5,6 +5,9 @@ import { processDropdownValues } from "@/lib/dashboard/dropdown-utils";
 import { getUserSession } from "@/lib/tenant/api-helpers";
 import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
 }
