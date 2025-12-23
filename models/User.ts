@@ -25,6 +25,7 @@ export interface IUser extends Document {
   role?: UserRole;
   verified: boolean;
   verificationToken?: string;
+  verificationTokenExpiry?: Date;
   otp?: string;
   otpExpiry?: Date;
   resetToken?: string;
@@ -57,6 +58,7 @@ const userSchema = new Schema<IUser>(
     },
     verified: { type: Boolean, default: false },
     verificationToken: { type: String },
+    verificationTokenExpiry: { type: Date },
     otp: { type: String },
     otpExpiry: { type: Date },
     resetToken: { type: String },

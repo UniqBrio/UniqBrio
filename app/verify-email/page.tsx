@@ -11,6 +11,7 @@ function VerifyEmailLogic() {
   const router = useRouter()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [message, setMessage] = useState("Verifying your email...")
+  const [isExpired, setIsExpired] = useState(false)
 
   useEffect(() => {
     const token = searchParams.get("token")
@@ -28,10 +29,13 @@ function VerifyEmailLogic() {
         if (result.success && result.redirect) {
           setMessage("Verification successful! Redirecting to login...")
           setStatus("success")
-          router.push(result.redirect)
+          setTimeout(() => {
+            router.push(result.redirect!)
+          }, 2000)
         } else {
           setMessage(result.message || "Email verification failed. The link might be invalid or expired.")
           setStatus("error")
+          setIsExpired(result.expired || false)
         }
       } catch (error) {
         console.error("[VerifyEmailPage] Error:", error)
@@ -52,14 +56,40 @@ function VerifyEmailLogic() {
         </>
       )}
       {status === "success" && (
-        <p className="text-lg font-semibold text-green-600 dark:text-green-400">{message}</p>
+        <>
+          <div className="mb-4 text-6xl">✅</div>
+          <p className="text-lg font-semibold text-green-600 dark:text-green-400">{message}</p>
+        </>
       )}
       {status === "error" && (
         <>
-          <p className="text-lg font-semibold text-red-600 dark:text-red-400">{message}</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-white">
-            If the problem persists, please contact support or try signing up again.
-          </p>
+          <div className="mb-4 text-6xl">❌</div>
+          <p className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">{message}</p>
+          {isExpired && (
+            <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg max-w-md">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                Your verification link has expired. You can request a new one from the login page.
+              </p>
+              <button
+                onClick={() => router.push('/login')}
+                className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+              >
+                Go to Login
+              </button>
+            </div>
+          )}
+          {!isExpired && (
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              If the problem persists, please{" "}
+              <button
+                onClick={() => router.push('/login')}
+                className="text-primary hover:underline"
+              >
+                try logging in
+              </button>{" "}
+              or contact support.
+            </p>
+          )}
         </>
       )}
     </div>

@@ -102,9 +102,11 @@ export async function signup(formData: FormData) {
     // Generate verification token (NO OTP)
     console.log("[AuthAction] signup: Generating verification token for", email);
     const verificationToken = generateToken() // Use your existing token generation
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
     // Avoid logging raw tokens in production
     if (process.env.NODE_ENV !== 'production') {
       console.log("[AuthAction] signup: Verification token generated (masked):", verificationToken.slice(0,6) + "..." );
+      console.log("[AuthAction] signup: Token expires at:", verificationTokenExpiry);
     }
 
     // Always assign 'super_admin' role for new users
@@ -124,6 +126,7 @@ export async function signup(formData: FormData) {
       role: userRole,
       verified: false,
       verificationToken,
+      verificationTokenExpiry,
       registrationComplete: false,
       planChoosed: planChoosed, // Store the selected plan
     });
@@ -461,7 +464,7 @@ export async function verifyEmail(token: string) {
     // No user found for this token (maybe expired, invalid, or already used)
     if (!user) {
       console.log("[AuthAction] verifyEmail: No user found for token:", token);
-      return { success: false, message: "Invalid or expired verification link." }
+      return { success: false, message: "Invalid or expired verification link. The link may have already been used or is no longer valid." }
     }
     console.log("[AuthAction] verifyEmail: User found:", user.id, user.email);
 
@@ -472,13 +475,23 @@ export async function verifyEmail(token: string) {
      }
      console.log("[AuthAction] verifyEmail: User not verified, proceeding with verification:", user.email);
 
+    // Check if token has expired
+    if (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date()) {
+      console.log("[AuthAction] verifyEmail: Token expired for user:", user.email);
+      return { 
+        success: false, 
+        message: "This verification link has expired. Please request a new verification email from the login page.",
+        expired: true 
+      }
+    }
+
     // Update user: Mark as verified and clear the token (do NOT mark registrationComplete here)
     console.log("[AuthAction] verifyEmail: Updating user as verified and clearing token:", user.email);
     await UserModel.updateOne(
       { _id: user._id },
       {
         $set: { verified: true },
-        $unset: { verificationToken: "" }
+        $unset: { verificationToken: "", verificationTokenExpiry: "" }
       }
     );
     console.log("[AuthAction] verifyEmail: User updated successfully:", user.email);
