@@ -79,6 +79,7 @@ export async function createToken(
     .sign(JWT_SECRET_UINT8); // Sign with the encoded secret
   
   // Create session record in MongoDB if we have required data
+  // For users still in registration (no tenantId yet), skip session record creation
   if (payload.userId && payload.tenantId) {
     try {
       const sessionCreationData: SessionCreationData = {
@@ -95,6 +96,8 @@ export async function createToken(
       console.error("[AuthLib] createToken: Failed to create session record:", error);
       // Continue with JWT creation even if session record fails
     }
+  } else if (payload.registrationComplete === false) {
+    console.log("[AuthLib] createToken: User in registration, skipping session record creation");
   } else {
     console.warn("[AuthLib] createToken: Missing userId or tenantId, session record not created");
   }
@@ -120,6 +123,12 @@ export async function verifyToken(token: string): Promise<jose.JWTPayload | null
     });
     
     // If JWT is valid, check session store for revocation
+    // Skip session validation for users still completing registration
+    if (payload.registrationComplete === false && !payload.tenantId) {
+      console.log("[AuthLib] verifyToken: User in registration flow, skipping session store validation");
+      return payload;
+    }
+    
     if (payload.jti || (payload.userId && payload.tenantId)) {
       const sessionValidation = await validateSession(payload);
       if (!sessionValidation.isValid) {

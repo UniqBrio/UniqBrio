@@ -427,7 +427,10 @@ export default function RegistrationForm() {
       }
 
       if (!response.ok || !data?.success) {
-        throw new Error(data?.error || `Registration failed with status ${response.status}`)
+        const errorMsg = data?.error || `Registration failed with status ${response.status}`
+        const errorDetails = data?.details ? ` Details: ${data.details}` : ''
+        console.error("[Registration] Server error:", { status: response.status, error: errorMsg, details: data?.details })
+        throw new Error(errorMsg + errorDetails)
       }
 
       setShowWelcomePopup(true);
@@ -462,10 +465,18 @@ export default function RegistrationForm() {
       router.push("/dashboard");
     } catch (error) {
       const friendlyMessage = getFriendlyErrorMessage(error);
-      console.error("Registration failed:", error);
+      console.error("[Registration] Registration failed:", error);
+      console.error("[Registration] Error type:", error instanceof Error ? error.constructor.name : typeof error);
       toast({
         title: "We couldn't complete registration",
-        description: friendlyMessage,
+        description: (
+          <div className="space-y-2">
+            <p>{friendlyMessage}</p>
+            {friendlyMessage.includes("failed with status 500") && (
+              <p className="text-xs mt-2">If this persists after trying again, please contact support.</p>
+            )}
+          </div>
+        ),
         variant: "destructive",
       })
     } finally {

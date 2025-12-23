@@ -129,13 +129,21 @@ export async function validateSession(
     const jwtId = extractJwtId(jwtPayload);
     const tenantId = extractTenantId(jwtPayload);
     const userId = extractUserId(jwtPayload);
+    const registrationComplete = jwtPayload.registrationComplete;
 
-    if (!tenantId) {
+    // Allow missing tenantId for users who haven't completed registration yet
+    if (!tenantId && registrationComplete !== false) {
       return { isValid: false, error: 'Missing tenant ID in JWT' };
     }
 
     if (!userId) {
       return { isValid: false, error: 'Missing user ID in JWT' };
+    }
+
+    // For users without tenantId (still registering), skip session store validation
+    if (!tenantId) {
+      console.log('[validateSession] User in registration, skipping session store validation');
+      return { isValid: true, session: null };
     }
 
     const session = await runWithTenantContext({ tenantId }, async () => {

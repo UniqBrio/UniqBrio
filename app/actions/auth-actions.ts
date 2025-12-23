@@ -305,12 +305,19 @@ export async function login(formData: FormData) {
       registrationComplete: user.registrationComplete, // Added for performance optimization
       name: user.name,
       lastActivity: Date.now(),
-      tenantId: user.academyId || user.tenantId, // tenantId should always equal academyId after registration
-      userId: user.userId, // Include userId in session
-      academyId: user.academyId, // Include academyId in session
+      // Only include tenantId/userId/academyId if registration is complete
+      ...(user.registrationComplete ? {
+        tenantId: user.academyId || user.tenantId,
+        userId: user.userId,
+        academyId: user.academyId,
+      } : {}),
     };
     
-    console.log("[AuthAction] login: SessionData created:", { ...sessionData, tenantId: sessionData.tenantId });
+    console.log("[AuthAction] login: SessionData created:", { 
+      email: sessionData.email, 
+      registrationComplete: sessionData.registrationComplete,
+      hasTenantId: !!sessionData.tenantId 
+    });
     
     // Get request metadata for session tracking
     // Try to get userAgent from FormData first (client-side), fallback to headers

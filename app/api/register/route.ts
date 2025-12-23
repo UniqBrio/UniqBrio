@@ -214,47 +214,70 @@ export async function POST(req: Request) {
     }
 
     // Update basic user info and persist IDs
-    await UserModel.updateOne(
-      { email },
-      {
-        $set: {
-          name: sanitizedAdminInfo["fullName"] as string,
-          phone: (sanitizedAdminInfo["phone"] as string | undefined) || existingUser.phone,
-          userId: finalUserId,
-          academyId: finalAcademyId,
-          tenantId: finalAcademyId, // Set tenantId = academyId for multi-tenant isolation
-        }
-      },
-      { session }
-    );
+    console.log("[Registration API] Updating user with IDs:", { email, finalUserId, finalAcademyId });
+    try {
+      await UserModel.updateOne(
+        { email },
+        {
+          $set: {
+            name: sanitizedAdminInfo["fullName"] as string,
+            phone: (sanitizedAdminInfo["phone"] as string | undefined) || existingUser.phone,
+            userId: finalUserId,
+            academyId: finalAcademyId,
+            tenantId: finalAcademyId, // Set tenantId = academyId for multi-tenant isolation
+          }
+        },
+        { session }
+      );
+      console.log("[Registration API] User updated successfully");
+    } catch (updateError) {
+      console.error("[Registration API] Failed to update user:", updateError);
+      throw updateError;
+    }
 
     // Create or update Registration record
-    await RegistrationModel.findOneAndUpdate(
-      { academyId: finalAcademyId },
-      {
-        $set: {
-          userId: finalUserId!,
-          tenantId: finalAcademyId!,
-          businessInfo: sanitizedBusinessInfo,
-          adminInfo: sanitizedAdminInfo,
-          preferences: sanitizedPreferences,
+    console.log("[Registration API] Creating/updating registration record for academyId:", finalAcademyId);
+    try {
+      await RegistrationModel.findOneAndUpdate(
+        { academyId: finalAcademyId },
+        {
+          $set: {
+            userId: finalUserId!,
+            tenantId: finalAcademyId!,
+            businessInfo: sanitizedBusinessInfo,
+            adminInfo: sanitizedAdminInfo,
+            preferences: sanitizedPreferences,
+          }
+        },
+        { 
+          upsert: true, 
+          session,
+          new: true 
         }
-      },
-      { 
-        upsert: true, 
-        session,
-        new: true 
-      }
-    );
+      );
+      console.log("[Registration API] Registration record saved successfully");
+    } catch (regError) {
+      console.error("[Registration API] Failed to save registration:", regError);
+      throw regError;
+    }
 
     // Mark registration as complete
-    await UserModel.updateOne(
-      { email },
-      { $set: { registrationComplete: true } },
-      { session }
-    );
+    console.log("[Registration API] Marking registration as complete for:", email);
+    try {
+      await UserModel.updateOne(
+        { email },
+        { $set: { registrationComplete: true } },
+        { session }
+      );
+      console.log("[Registration API] Registration marked complete");
+    } catch (completeError) {
+      console.error("[Registration API] Failed to mark registration complete:", completeError);
+      throw completeError;
+    }
 
+    console.log("[Registration API] Committing transaction...");
     await session.commitTransaction();
+    console.log("[Registration API] Transaction committed successfully");
     
     // CRITICAL: Create or update session token with new IDs after registration
     // This ensures subsequent API calls have proper tenant isolation
@@ -342,8 +365,16 @@ export async function POST(req: Request) {
     
   } catch (error) {
     await session.abortTransaction();
-    console.error("Registration error:", error);
-    return NextResponse.json({ error: "Registration failed." }, { status: 500 });
+    console.error("[Registration API] Registration error:", error);
+    console.error("[Registration API] Error stack:", error instanceof Error ? error.stack : 'No stack trace');
+    console.error("[Registration API] Error details:", {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error)
+    });
+    return NextResponse.json({ 
+      error: "Registration failed.",
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   } finally {
     session.endSession();
   }
