@@ -1676,17 +1676,38 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       const response = await fetch('/api/dashboard/student/upload-photo', {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
 
       const data = await response.json().catch(() => null);
+      
+      console.log('📸 Upload response:', { 
+        ok: response.ok, 
+        status: response.status,
+        data 
+      });
+      
       if (!response.ok || !data?.photoUrl) {
         const message = data?.message || 'Failed to upload photo.';
         throw new Error(message);
       }
 
-      revokePreviewUrl(tempPreview);
+      console.log('✅ Photo uploaded successfully:', data.photoUrl);
+      
+      // Don't revoke the temp preview immediately - keep it until we confirm the new URL works
       setPhotoPreviewUrl(data.photoUrl);
       setNewStudent(prev => ({ ...prev, photoUrl: data.photoUrl }));
+      
+      // Revoke the temporary blob URL after a short delay
+      setTimeout(() => {
+        revokePreviewUrl(tempPreview);
+      }, 1000);
+      
+      toast({
+        title: 'Photo uploaded',
+        description: 'Student photo has been uploaded successfully.',
+        duration: 2000,
+      });
     } catch (error) {
       console.error('Failed to upload student photo', error);
       revokePreviewUrl(tempPreview);
@@ -2336,8 +2357,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">Student Photo</Label>
                         <div className="flex flex-wrap items-center gap-4 mt-2">
                           <Avatar className="h-20 w-20 border border-dashed border-gray-300 bg-gray-50 dark:border-gray-600">
-                            {newStudent.photoUrl ? (
-                              <AvatarImage src={newStudent.photoUrl} alt="Student photo preview" />
+                            {(photoPreviewUrl || newStudent.photoUrl) ? (
+                              <AvatarImage src={photoPreviewUrl || newStudent.photoUrl} alt="Student photo preview" />
                             ) : (
                               <AvatarFallback className="text-sm font-medium text-gray-600 dark:text-white">
                                 {studentInitials}
@@ -2359,9 +2380,9 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                                 ) : (
                                   <ImagePlus className="mr-2 h-4 w-4" />
                                 )}
-                                {newStudent.photoUrl ? 'Replace Photo' : 'Upload Photo'}
+                                {(photoPreviewUrl || newStudent.photoUrl) ? 'Replace Photo' : 'Upload Photo'}
                               </Button>
-                              {newStudent.photoUrl && (
+                              {(photoPreviewUrl || newStudent.photoUrl) && (
                                 <Button
                                   type="button"
                                   variant="outline"

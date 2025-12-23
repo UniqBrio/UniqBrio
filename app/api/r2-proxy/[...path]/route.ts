@@ -5,6 +5,7 @@ const R2_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT!;
 const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!;
 const R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!;
 const R2_BUCKET = process.env.CLOUDFLARE_R2_BUCKET!;
+const R2_STUDENT_BUCKET = process.env.CLOUDFLARE_R2_STUDENT_BUCKET || 'uniqbrio-students';
 
 const s3 = new S3Client({
   region: "auto",
@@ -24,15 +25,26 @@ export async function GET(
     const filePath = params.path.join('/');
     console.log(`[r2-proxy] Requesting file: ${filePath}`);
 
-    // Validate the file path (security check)
-    if (!filePath.startsWith('kyc/')) {
+    // Determine which bucket to use based on path prefix
+    let bucket = R2_BUCKET;
+    let allowedPrefixes = ['kyc/'];
+    
+    // Check if this is a student photo (tenant-scoped paths with uppercase/lowercase letters)
+    if (filePath.match(/^[a-fA-F0-9-]+\/students\//)) {
+      bucket = R2_STUDENT_BUCKET;
+      allowedPrefixes = []; // Student photos are tenant-scoped, no additional prefix restriction
+      console.log(`[r2-proxy] Using student bucket for: ${filePath}`);
+    }
+
+    // Validate the file path (security check) - only for non-student paths
+    if (allowedPrefixes.length > 0 && !allowedPrefixes.some(prefix => filePath.startsWith(prefix))) {
       console.error(`[r2-proxy] Unauthorized path: ${filePath}`);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Get the object from R2
     const command = new GetObjectCommand({
-      Bucket: R2_BUCKET,
+      Bucket: bucket,
       Key: filePath,
     });
 

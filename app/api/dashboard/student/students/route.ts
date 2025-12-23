@@ -456,16 +456,43 @@ export async function POST(req: NextRequest) {
     
     // Handle MongoDB duplicate key errors
     if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern || {})[0];
-      if (field === 'email') {
-        console.log('POST /api/students - MongoDB duplicate email error caught');
-        return NextResponse.json({ error: 'A student with this email already exists' }, { status: 409 });
-      } else if (field === 'studentId') {
-        console.log('POST /api/students - MongoDB duplicate studentId error caught');
-        return NextResponse.json({ error: 'A student with this student ID already exists' }, { status: 409 });
+      const keyPattern = error.keyPattern || {};
+      const keyValue = error.keyValue || {};
+      const fields = Object.keys(keyPattern);
+      
+      console.log('POST /api/students - MongoDB duplicate key error:', {
+        keyPattern,
+        keyValue,
+        fields,
+        fullError: JSON.stringify(error, null, 2)
+      });
+      
+      // Check if it's a composite key error (tenantId + email or tenantId + studentId)
+      if (fields.includes('tenantId') && fields.includes('email')) {
+        console.log('POST /api/students - Duplicate tenantId+email combination');
+        return NextResponse.json({ 
+          error: `A student with email "${keyValue.email}" already exists in your organization` 
+        }, { status: 409 });
+      } else if (fields.includes('tenantId') && fields.includes('studentId')) {
+        console.log('POST /api/students - Duplicate tenantId+studentId combination');
+        return NextResponse.json({ 
+          error: `A student with ID "${keyValue.studentId}" already exists in your organization` 
+        }, { status: 409 });
+      } else if (fields.length === 1) {
+        const field = fields[0];
+        if (field === 'email') {
+          console.log('POST /api/students - MongoDB duplicate email error caught');
+          return NextResponse.json({ error: 'A student with this email already exists' }, { status: 409 });
+        } else if (field === 'studentId') {
+          console.log('POST /api/students - MongoDB duplicate studentId error caught');
+          return NextResponse.json({ error: 'A student with this student ID already exists' }, { status: 409 });
+        } else {
+          console.log('POST /api/students - MongoDB duplicate key error for field:', field);
+          return NextResponse.json({ error: `A student with this ${field} already exists` }, { status: 409 });
+        }
       } else {
-        console.log('POST /api/students - MongoDB duplicate key error for field:', field);
-        return NextResponse.json({ error: `A student with this ${field} already exists` }, { status: 409 });
+        console.log('POST /api/students - MongoDB duplicate key error for multiple fields:', fields.join(', '));
+        return NextResponse.json({ error: `A student with this ${fields.join(' and ')} combination already exists` }, { status: 409 });
       }
     }
     

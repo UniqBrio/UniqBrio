@@ -89,9 +89,13 @@ export async function POST(request: NextRequest) {
         })
       );
 
-      // Construct public URL
-      // Note: You'll need to configure R2 bucket for public access or use a custom domain
-      const photoUrl = `https://pub-${process.env.CLOUDFLARE_R2_ENDPOINT?.split('//')[1]?.split('.')[0]}/${bucketName}/${fileName}`;
+      // Construct proxy URL (same pattern as KYC upload)
+      const baseUrl = process.env.NODE_ENV === 'development' 
+        ? "http://localhost:3000" 
+        : (process.env.NEXTAUTH_URL || "https://uniqbrio.vercel.app");
+      const photoUrl = `${baseUrl}/api/r2-proxy/${fileName}`;
+
+      console.log(`📸 Student photo uploaded: ${fileName} -> ${photoUrl}`);
 
       return NextResponse.json({
         success: true,
