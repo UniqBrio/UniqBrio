@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
     let academyName = "";
     let businessLogoUrl = "";
     let profilePictureUrl = "";
+    let businessNameUploadUrl = "";
     let tagline = "";
 
     console.log(`[user-academy-info] Initial IDs - userId: ${userId}, academyId: ${academyId}`);
@@ -63,9 +64,10 @@ export async function GET(request: NextRequest) {
       academyId = matchingRegistration.academyId;
       const businessInfo = matchingRegistration.businessInfo as any;
       academyName = businessInfo?.businessName || "";
-      // Support both old (businessLogoUrl) and new (logo) field names
+      // Support both new and old field names for backward compatibility
       businessLogoUrl = businessInfo?.businessLogoUrl || businessInfo?.logo || "";
       profilePictureUrl = businessInfo?.profilePictureUrl || businessInfo?.profilePicture || "";
+      businessNameUploadUrl = businessInfo?.businessNameUploadUrl || businessInfo?.businessNameFile || "";
       tagline = businessInfo?.tagline || "";
       
       console.log(`[user-academy-info] Found matching registration by email!`, {
@@ -74,6 +76,7 @@ export async function GET(request: NextRequest) {
         academyName,
         businessLogoUrl,
         profilePictureUrl,
+        businessNameUploadUrl,
         regId: matchingRegistration._id
       });
     }
@@ -96,11 +99,12 @@ export async function GET(request: NextRequest) {
         academyId = reg.academyId;
         const businessInfo = reg.businessInfo as any;
         academyName = businessInfo?.businessName || "";
-        // Support both old (businessLogoUrl) and new (logo) field names
+        // Support both new and old field names for backward compatibility
         businessLogoUrl = businessInfo?.businessLogoUrl || businessInfo?.logo || "";
         profilePictureUrl = businessInfo?.profilePictureUrl || businessInfo?.profilePicture || "";
+        businessNameUploadUrl = businessInfo?.businessNameUploadUrl || businessInfo?.businessNameFile || "";
         tagline = businessInfo?.tagline || "";
-        console.log(`[user-academy-info] Found registration via User IDs:`, { userId, academyId, academyName, businessLogoUrl, profilePictureUrl });
+        console.log(`[user-academy-info] Found registration via User IDs:`, { userId, academyId, academyName, businessLogoUrl, profilePictureUrl, businessNameUploadUrl });
       }
     }
 
@@ -129,6 +133,7 @@ export async function GET(request: NextRequest) {
       userName,
       userEmail: userEmail,
       businessLogoUrl,
+      businessNameUploadUrl,
       profilePictureUrl,
       tagline,
       // Debug info to verify data sources

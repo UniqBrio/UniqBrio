@@ -213,7 +213,7 @@ function CountrySelect({
     : selectedCountry?.label || 'Select country';
   
   return (
-    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setQuery(''); }}>
+    <Popover open={open} onOpenChange={(o: boolean) => { setOpen(o); if (o) setQuery(''); }}>
       <PopoverTrigger asChild>
         <Button 
           id={id}
@@ -319,7 +319,7 @@ function StateSelect({
   }, [countryCode, noStates, state, loading, states, onChange]);
   
   return (
-    <Popover open={open} onOpenChange={(o) => { setOpen(o); if (o) setQuery(''); }}>
+    <Popover open={open} onOpenChange={(o: boolean) => { setOpen(o); if (o) setQuery(''); }}>
       <PopoverTrigger asChild>
         <Button 
           id={id}
@@ -432,14 +432,14 @@ export default function BusinessInfoStep({ formState, updateFormState, externalE
 
   const ensureFileSizeWithinLimit = (file: File, field: UploadField, fieldLabel: string) => {
     if (file.size <= MAX_UPLOAD_SIZE_BYTES) {
-      setUploadErrors((prev) => {
+      setUploadErrors((prev: Record<UploadField, string>) => {
         if (!prev[field]) return prev
         return { ...prev, [field]: "" }
       })
       return true
     }
 
-    setUploadErrors((prev) => ({
+    setUploadErrors((prev: Record<UploadField, string>) => ({
       ...prev,
       [field]: `${fieldLabel} is ${formatSizeInMb(file.size)} MB. Please upload an image under ${MAX_UPLOAD_SIZE_LABEL}.`,
     }))
@@ -587,7 +587,7 @@ useEffect(() => {
     // Set English as default preferred language if not already set
     if (!formState.businessInfo.preferredLanguage && languages.length > 0) {
       // Try to find English in the languages list
-      const englishLang = languages.find(l => 
+      const englishLang = languages.find((l: Option) => 
         l.value === 'en' || 
         l.value === 'eng' || 
         l.label.toLowerCase().includes('english')
@@ -602,18 +602,18 @@ useEffect(() => {
   useEffect(() => {
     const defaults = getServiceOptions(formState.businessInfo.industryType);
     const manualCustoms = customServiceOptions.filter(
-      (option) => !defaults.some((def) => def.value === option.value)
+      (option: Option) => !defaults.some((def: Option) => def.value === option.value)
     );
 
-    const selectedCustoms = (formState.businessInfo.servicesOffered || []).map((value) => {
-      const defaultMatch = defaults.find((def) => def.value === value);
+    const selectedCustoms = (formState.businessInfo.servicesOffered || []).map((value: string) => {
+      const defaultMatch = defaults.find((def: Option) => def.value === value);
       if (defaultMatch) return defaultMatch;
-      const manualMatch = manualCustoms.find((opt) => opt.value === value);
+      const manualMatch = manualCustoms.find((opt: Option) => opt.value === value);
       return manualMatch || { value, label: value };
     });
 
     const mergedOptions = new Map<string, Option>();
-    [...defaults, ...manualCustoms, ...selectedCustoms].forEach((option) => {
+    [...defaults, ...manualCustoms, ...selectedCustoms].forEach((option: Option) => {
       const key = option.value.toLowerCase();
       if (!mergedOptions.has(key)) {
         mergedOptions.set(key, option);
@@ -630,13 +630,13 @@ useEffect(() => {
 
   // Refresh available services when industry type or selections change
   useEffect(() => {
-    setAvailableServiceOptions((prev) => {
+    setAvailableServiceOptions((prev: Option[]) => {
       const defaults = getServiceOptions(formState.businessInfo.industryType);
-      const customOptions = prev.filter((opt) => !defaults.some((def) => def.value === opt.value));
+      const customOptions = prev.filter((opt: Option) => !defaults.some((def: Option) => def.value === opt.value));
       const selectedCustoms = (formState.businessInfo.servicesOffered || [])
-        .filter((value) => !defaults.some((def) => def.value === value))
-        .filter((value) => !customOptions.some((opt) => opt.value === value))
-        .map((value) => ({ value, label: value }));
+        .filter((value: string) => !defaults.some((def: Option) => def.value === value))
+        .filter((value: string) => !customOptions.some((opt: Option) => opt.value === value))
+        .map((value: string) => ({ value, label: value }));
       return [...defaults, ...customOptions, ...selectedCustoms];
     });
     setServiceSearchTerm("");
@@ -863,7 +863,7 @@ useEffect(() => {
         break
     }
 
-    setValidationState((prev) => ({
+    setValidationState((prev: Record<string, { isValid: boolean; isInvalid: boolean; message: string }>) => ({
       ...prev,
       [field]: { isValid, isInvalid, message },
     }))
@@ -967,7 +967,7 @@ useEffect(() => {
   const handleLogoRemove = () => {
     setLogoPreview(null)
     handleInputChange("logo", null)
-    setUploadErrors((prev) => ({ ...prev, logo: "" }))
+    setUploadErrors((prev: Record<UploadField, string>) => ({ ...prev, logo: "" }))
     if (logoInputRef.current) {
       logoInputRef.current.value = ""
     }
@@ -976,7 +976,7 @@ useEffect(() => {
   const handleBusinessNameFileRemove = () => {
     handleInputChange("businessNameFile", null)
     setBusinessNamePreview(null)
-    setUploadErrors((prev) => ({ ...prev, businessNameFile: "" }))
+    setUploadErrors((prev: Record<UploadField, string>) => ({ ...prev, businessNameFile: "" }))
     if (businessNameFileInputRef.current) {
       businessNameFileInputRef.current.value = ""
     }
@@ -985,14 +985,14 @@ useEffect(() => {
   const handleProfilePictureRemove = () => {
     setProfilePicturePreview(null)
     handleInputChange("profilePicture", null)
-    setUploadErrors((prev) => ({ ...prev, profilePicture: "" }))
+    setUploadErrors((prev: Record<UploadField, string>) => ({ ...prev, profilePicture: "" }))
     if (profilePictureInputRef.current) {
       profilePictureInputRef.current.value = ""
     }
   }
 
   const getServiceLabel = (value: string) => {
-    const match = availableServiceOptions.find((option) => option.value === value)
+    const match = availableServiceOptions.find((option: Option) => option.value === value)
     return match ? match.label : value
   }
 
@@ -1006,14 +1006,14 @@ useEffect(() => {
     }
 
     const existing = availableServiceOptions.find(
-      (option) => option.value.toLowerCase() === sanitizedValue.toLowerCase()
+      (option: Option) => option.value.toLowerCase() === sanitizedValue.toLowerCase()
     )
     const normalizedValue = existing ? existing.value : sanitizedValue
 
     if (!existing) {
-      setCustomServiceOptions((prev) => {
+      setCustomServiceOptions((prev: Option[]) => {
         const existsInCustom = prev.some(
-          (option) => option.value.toLowerCase() === sanitizedValue.toLowerCase()
+          (option: Option) => option.value.toLowerCase() === sanitizedValue.toLowerCase()
         )
         return existsInCustom ? prev : [...prev, { value: sanitizedValue, label: sanitizedValue }]
       })
@@ -1071,7 +1071,7 @@ useEffect(() => {
             id="businessName"
             placeholder="e.g., Harmony Music Academy"
             value={formState.businessInfo.businessName}
-            onChange={(e) => handleInputChange("businessName", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("businessName", e.target.value)}
             aria-required="true"
             onBlur={() => validateField("businessName", formState.businessInfo.businessName)}
             className={cn(externalErrors.businessName && "border-red-500 focus-visible:ring-red-500")}
@@ -1085,7 +1085,7 @@ useEffect(() => {
             <div className="mt-2">
               <p className="text-xs text-muted-foreground mb-1">Suggestions:</p>
               <div className="flex flex-wrap gap-2">
-                {businessNameSuggestions.map((suggestion, index) => (
+                {businessNameSuggestions.map((suggestion: string, index: number) => (
                   <Badge
                     key={index}
                     variant="outline"
@@ -1107,7 +1107,7 @@ useEffect(() => {
             id="legalEntityName"
             placeholder="e.g., Harmony Music LLC"
             value={formState.businessInfo.legalEntityName}
-            onChange={(e) => handleInputChange("legalEntityName", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("legalEntityName", e.target.value)}
             onBlur={() => validateField("legalEntityName", formState.businessInfo.legalEntityName)}
             className={cn(externalErrors.legalEntityName && "border-red-500 focus-visible:ring-red-500")}
           />
@@ -1177,7 +1177,7 @@ useEffect(() => {
               type="tel"
               placeholder="9876543210"
               value={formState.businessInfo.phoneNumber}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const sanitized = e.target.value.replace(/[^0-9]/g, '');
                 handleInputChange("phoneNumber", sanitized);
               }}
@@ -1201,7 +1201,7 @@ useEffect(() => {
           </Label>
           <Select
             value={formState.businessInfo.industryType}
-            onValueChange={(value) => handleInputChange("industryType", value)}
+            onValueChange={(value: string) => handleInputChange("industryType", value)}
           >
             <SelectTrigger
               id="industryType"
@@ -1277,7 +1277,7 @@ useEffect(() => {
                   placeholder="Search or add service..."
                   className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   value={serviceSearchTerm}
-                  onChange={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const value = e.target.value
                     const allowedPattern = /^[a-zA-Z\s]*$/
                     if (allowedPattern.test(value)) {
@@ -1287,7 +1287,7 @@ useEffect(() => {
                       setServiceInputError("Only letters and spaces allowed")
                     }
                   }}
-                  onKeyDown={(e) => {
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === "Enter") {
                       e.preventDefault()
                       addCustomService(serviceSearchTerm)
@@ -1323,10 +1323,10 @@ useEffect(() => {
                 className="overflow-y-auto text-[15px]"
               >
                 {availableServiceOptions
-                  .filter((service) =>
+                  .filter((service: Option) =>
                     service.label.toLowerCase().includes(serviceSearchTerm.toLowerCase())
                   )
-                  .map((service) => (
+                  .map((service: Option) => (
                     <div key={service.value} className="flex items-center gap-1 py-1 text-[15px]">
                       <Checkbox
                         checked={(formState.businessInfo.servicesOffered || []).includes(service.value)}
@@ -1338,9 +1338,9 @@ useEffect(() => {
                     </div>
                   ))}
                 {(formState.businessInfo.servicesOffered || [])
-                  .filter((value) => !availableServiceOptions.some((opt) => opt.value === value))
-                  .filter((value) => value.toLowerCase().includes(serviceSearchTerm.toLowerCase()))
-                  .map((value) => (
+                  .filter((value: string) => !availableServiceOptions.some((opt: Option) => opt.value === value))
+                  .filter((value: string) => value.toLowerCase().includes(serviceSearchTerm.toLowerCase()))
+                  .map((value: string) => (
                     <div key={`custom-${value}`} className="flex items-center gap-1 py-1 text-[15px]">
                       <Checkbox
                         checked={(formState.businessInfo.servicesOffered || []).includes(value)}
@@ -1351,7 +1351,7 @@ useEffect(() => {
                       <Label htmlFor={`service-custom-${value}`}>{value}</Label>
                     </div>
                   ))}
-                {availableServiceOptions.filter((service) =>
+                {availableServiceOptions.filter((service: Option) =>
                   service.label.toLowerCase().includes(serviceSearchTerm.toLowerCase())
                 ).length === 0 && serviceSearchTerm.trim() !== "" && (
                   <div className="flex items-center gap-2 py-1 text-[15px]">
@@ -1388,7 +1388,7 @@ useEffect(() => {
           </Label>
           <Select
             value={formState.businessInfo.studentSize}
-            onValueChange={(value) => handleInputChange("studentSize", value)}
+            onValueChange={(value: string) => handleInputChange("studentSize", value)}
           >
             <SelectTrigger
               id="studentSize"
@@ -1420,7 +1420,7 @@ useEffect(() => {
           </Label>
           <Select
             value={formState.businessInfo.staffCount}
-            onValueChange={(value) => handleInputChange("staffCount", value)}
+            onValueChange={(value: string) => handleInputChange("staffCount", value)}
           >
             <SelectTrigger
               id="staffCount"
@@ -1453,7 +1453,7 @@ useEffect(() => {
           <StateSelect
             countryCode={formState.businessInfo.country}
             state={formState.businessInfo.state}
-            onChange={(value) => handleInputChange("state", value)}
+            onChange={(value: string) => handleInputChange("state", value)}
             states={states}
             loading={statesLoading}
             error={statesError}
@@ -1496,7 +1496,7 @@ useEffect(() => {
             id="city"
             placeholder="Enter your city"
             value={formState.businessInfo.city}
-            onChange={(e) => handleInputChange("city", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("city", e.target.value)}
             onBlur={() => validateField("city", formState.businessInfo.city)}
             aria-required="true"
             className={cn(externalErrors.city && "border-red-500 focus-visible:ring-red-500")}
@@ -1515,7 +1515,7 @@ useEffect(() => {
             id="pincode"
             placeholder="e.g., 110001 or K1A 0B1"
             value={formState.businessInfo.pincode || ""}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, "");
               handleInputChange("pincode", sanitized);
             }}
@@ -1538,7 +1538,7 @@ useEffect(() => {
             id="taxId"
             placeholder="Enter your Tax ID"
             value={formState.businessInfo.taxId || ""}
-            onChange={(e) => handleInputChange("taxId", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("taxId", e.target.value)}
             onBlur={() => validateField("taxId", formState.businessInfo.taxId || "")}
             className={cn(externalErrors.taxId && "border-red-500 focus-visible:ring-red-500")}
           />
@@ -1575,7 +1575,7 @@ useEffect(() => {
           </Label>
           <Select
             value={formState.businessInfo.preferredLanguage}
-            onValueChange={(value) => handleInputChange("preferredLanguage", value)}
+            onValueChange={(value: string) => handleInputChange("preferredLanguage", value)}
             disabled={languagesLoading || languagesError !== ""}
           >
             <SelectTrigger

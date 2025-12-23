@@ -1,13 +1,22 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import {
+  useState,
+  useRef,
+  useEffect,
+  type ChangeEvent,
+  type FocusEvent,
+  type FormEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+} from "react"
 import Image from "next/image"
 import { useCustomColors } from '@/lib/use-custom-colors'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
 import { Textarea } from "@/components/dashboard/ui/textarea"
-import { Button } from "@/components/dashboard/ui/button"
 import { Badge } from "@/components/dashboard/ui/badge"
 import { Switch } from "@/components/dashboard/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
@@ -17,7 +26,6 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
 } from "@/components/dashboard/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/dashboard/ui/radio-group"
 import { CountryStateDropdown } from "@/components/dashboard/ui/staff/country-state-dropdown"
@@ -46,6 +54,51 @@ interface AcademyInfoSettingsProps {
   onUpdate?: (updates: any) => Promise<void>
 }
 
+type CurrencyOption = { code: string; name: string; symbol: string }
+type LanguageOption = { value: string; label: string }
+
+const createInitialFormData = () => ({
+  academyName: "",
+  branchName: "",
+  legalEntityName: "",
+  bannerName: "",
+  bannerDescription: "",
+  tagline: "",
+  foundedYear: new Date().getFullYear().toString(),
+  currency: "",
+  industryType: "",
+  servicesOffered: [] as string[],
+  studentSize: "",
+  staffCount: "",
+  address: "",
+  city: "",
+  state: "",
+  country: "",
+  zipCode: "",
+  phone: "",
+  email: "",
+  website: "",
+  taxId: "",
+  preferredLanguage: "",
+  logo: null as File | null,
+  profilePicture: null as File | null,
+  businessNameFile: null as File | null,
+  location: {
+    latitude: "",
+    longitude: "",
+    mapUrl: "",
+  },
+  socialMedia: {
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    youtube: "",
+    linkedin: "",
+  },
+})
+
+type FormDataState = ReturnType<typeof createInitialFormData>
+
 export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   const { primaryColor } = useCustomColors();
   const { setCurrency } = useCurrency()
@@ -61,7 +114,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   const logoInputRefBasic = useRef<HTMLInputElement>(null)
   const { countryCodes, loading: countryCodesLoading } = useCountryCodes()
   const [currencySearch, setCurrencySearch] = useState("")
-  const [currencies, setCurrencies] = useState<Array<{code: string, name: string, symbol: string}>>([])
+  const [currencies, setCurrencies] = useState<CurrencyOption[]>([])
   const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true)
   const [showCurrencyDialog, setShowCurrencyDialog] = useState(false)
   const [showFinalConfirmation, setShowFinalConfirmation] = useState(false)
@@ -71,7 +124,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   const [exchangeRateSource, setExchangeRateSource] = useState<string>("")
   const [loadingExchangeRate, setLoadingExchangeRate] = useState(false)
   const [exchangeRateDate, setExchangeRateDate] = useState<string>("")
-  const [languages, setLanguages] = useState<Array<{value: string, label: string}>>([])
+  const [languages, setLanguages] = useState<LanguageOption[]>([])
   const [languagesLoading, setLanguagesLoading] = useState(true)
   const [languageSearch, setLanguageSearch] = useState("")
 
@@ -180,56 +233,17 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
     return symbols[code] || code
   }
 
-  const filteredCurrencies = currencies.filter(currency =>
+  const filteredCurrencies = currencies.filter((currency: CurrencyOption) =>
     currency.code.toLowerCase().includes(currencySearch.toLowerCase()) ||
     currency.name.toLowerCase().includes(currencySearch.toLowerCase()) ||
     currency.symbol.includes(currencySearch)
   )
 
-  const filteredLanguages = languages.filter(language =>
+  const filteredLanguages = languages.filter((language: LanguageOption) =>
     language.label.toLowerCase().includes(languageSearch.toLowerCase()) ||
     language.value.toLowerCase().includes(languageSearch.toLowerCase())
   )
-
-  const [formData, setFormData] = useState({
-    academyName: "",
-    branchName: "",
-    legalEntityName: "",
-    bannerName: "",
-    bannerDescription: "",
-    tagline: "",
-    foundedYear: new Date().getFullYear().toString(),
-    currency: "",
-    industryType: "",
-    servicesOffered: [] as string[],
-    studentSize: "",
-    staffCount: "",
-    address: "",
-    city: "",
-    state: "",
-    country: "",
-    zipCode: "",
-    phone: "",
-    email: "",
-    website: "",
-    taxId: "",
-    preferredLanguage: "",
-    logo: null as File | null,
-    profilePicture: null as File | null,
-    businessNameFile: null as File | null,
-    location: {
-      latitude: "",
-      longitude: "",
-      mapUrl: "",
-    },
-    socialMedia: {
-      facebook: "",
-      instagram: "",
-      twitter: "",
-      youtube: "",
-      linkedin: "",
-    },
-  })
+  const [formData, setFormData] = useState<FormDataState>(() => createInitialFormData())
 
   // Fetch academy info from registration data on mount
   useEffect(() => {
@@ -263,7 +277,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
           }
           
           // Map registration businessInfo to formData
-          setFormData(prev => ({
+          setFormData((prev: FormDataState) => ({
             ...prev,
             academyName: businessInfo.businessName || "",
             branchName: businessInfo.branchName || "",
@@ -291,19 +305,20 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               youtube: "",
               linkedin: "",
             },
-            // Set currency from backend, or auto-set from country, or fallback to country mapping
-            currency: businessInfo.currency || (businessInfo.country ? getCurrencyByCountry(businessInfo.country) : ""),
+            // Set currency from backend, or auto-set from country, or fallback to INR
+            currency: businessInfo.currency || (businessInfo.country ? getCurrencyByCountry(businessInfo.country) : "INR"),
           }))
 
           // Set image previews if they exist in the backend
-          if (businessInfo.logo) {
-            setLogoPreview(businessInfo.logo)
+          // Check both old format (logo) and new format (businessLogoUrl) for backward compatibility
+          if (businessInfo.businessLogoUrl || businessInfo.logo) {
+            setLogoPreview(businessInfo.businessLogoUrl || businessInfo.logo)
           }
-          if (businessInfo.profilePicture) {
-            setProfilePicturePreview(businessInfo.profilePicture)
+          if (businessInfo.profilePictureUrl || businessInfo.profilePicture) {
+            setProfilePicturePreview(businessInfo.profilePictureUrl || businessInfo.profilePicture)
           }
-          if (businessInfo.businessNameFile) {
-            setBusinessNameFilePreview(businessInfo.businessNameFile)
+          if (businessInfo.businessNameUploadUrl || businessInfo.businessNameFile) {
+            setBusinessNameFilePreview(businessInfo.businessNameUploadUrl || businessInfo.businessNameFile)
           }
         } else {
           let errorMessage = "Failed to load academy information"
@@ -390,7 +405,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   }, [showCurrencyDialog, pendingCurrency, formData.currency])
 
   const handleImageUpload = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     type: "banner" | "logo"
   ) => {
     if (brandingComingSoon) return
@@ -420,7 +435,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
 
   // Enabled logo upload for Basic Information section
   const handleLogoUploadBasic = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -461,7 +476,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   }
 
   // Handle profile picture upload
-  const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
@@ -482,7 +497,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   }
 
   // Handle business name file upload
-  const handleBusinessNameFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBusinessNameFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
@@ -504,18 +519,21 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
     }
   }
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({
+  const handleInputChange = <K extends keyof FormDataState>(field: K, value: FormDataState[K]) => {
+    setFormData((prev: FormDataState) => ({
       ...prev,
       [field]: value,
     }))
   }
 
-  const handleNestedInputChange = (parent: string, field: string, value: string) => {
-    setFormData((prev) => ({
+  const handleSocialMediaChange = <K extends keyof FormDataState["socialMedia"]>(
+    field: K,
+    value: FormDataState["socialMedia"][K]
+  ) => {
+    setFormData((prev: FormDataState) => ({
       ...prev,
-      [parent]: {
-        ...(prev[parent as keyof typeof prev] as any),
+      socialMedia: {
+        ...prev.socialMedia,
         [field]: value,
       },
     }))
@@ -524,7 +542,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
   // Currency mapping based on country
   const getCurrencyByCountry = (countryCode: string): string => {
     const currencyMap: Record<string, string> = {
-      US: "USD", CA: "CAD", GB: "GBP", IN: "USD", AU: "AUD", NZ: "NZD",
+      US: "USD", CA: "CAD", GB: "GBP", IN: "INR", AU: "AUD", NZ: "NZD",
       JP: "JPY", CN: "CNY", KR: "KRW", SG: "SGD", MY: "MYR", TH: "THB",
       PH: "PHP", ID: "IDR", VN: "VND", AE: "AED", SA: "SAR", ZA: "ZAR",
       BR: "BRL", MX: "MXN", AR: "ARS", CL: "CLP", CO: "COP", PE: "PEN",
@@ -537,7 +555,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       HK: "HKD", TW: "TWD", MO: "MOP", IL: "ILS", JO: "JOD", KW: "KWD",
       QA: "QAR", OM: "OMR", BH: "BHD", LB: "LBP", IQ: "IQD", IR: "IRR",
     }
-    return currencyMap[countryCode] || ""
+    return currencyMap[countryCode] || "INR" // Default to INR if country code not found
   }
 
   const handleCurrencyChange = (newCurrency: string) => {
@@ -670,8 +688,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
     setCurrencyChangeOption("display")
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     if (!isEditing) {
       setIsEditing(true)
       return
@@ -703,10 +721,10 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
         foundedYear: formData.foundedYear,
         currency: formData.currency,
         socialMedia: formData.socialMedia,
-        // Image URLs (keep existing if not changed)
-        logo: logoPreview,
-        profilePicture: profilePicturePreview,
-        businessNameFile: businessNameFilePreview,
+        // Use consistent field names with registration
+        businessLogoUrl: logoPreview,
+        profilePictureUrl: profilePicturePreview,
+        businessNameUploadUrl: businessNameFilePreview,
       }
 
       // Update registration data via API
@@ -776,11 +794,11 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   variant="ghost"
                   className="gap-0" 
                   style={{ color: primaryColor, borderColor: primaryColor }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = `${primaryColor}15`
+                  onMouseEnter={(event: MouseEvent<HTMLButtonElement>) => {
+                    event.currentTarget.style.backgroundColor = `${primaryColor}15`
                   }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent'
+                  onMouseLeave={(event: MouseEvent<HTMLButtonElement>) => {
+                    event.currentTarget.style.backgroundColor = 'transparent'
                   }}
                   title="Edit Academy Info"
                 >
@@ -810,8 +828,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="academyName"
                 placeholder="e.g., Elite Arts & Sports Academy"
                 value={formData.academyName}
-                onChange={(e) => {
-                  const value = e.target.value
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  const value = event.target.value
                   // Only allow letters, numbers, spaces, ampersand, apostrophe, hyphen, dot, and comma
                   const sanitizedValue = value.replace(/[^a-zA-Z0-9\s&'\-.,]/g, '')
                   if (value !== sanitizedValue) {
@@ -833,7 +851,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="legalEntityName"
                 placeholder="e.g., Elite Arts & Sports LLC"
                 value={formData.legalEntityName}
-                onChange={(e) => handleInputChange("legalEntityName", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange("legalEntityName", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -843,7 +863,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="tagline"
                 placeholder="e.g., Excellence in Arts & Sports Education"
                 value={formData.tagline}
-                onChange={(e) => handleInputChange("tagline", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange("tagline", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -855,7 +877,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   id="branchName"
                   placeholder="e.g., Downtown Branch, Main Campus"
                   value={formData.branchName}
-                  onChange={(e) => handleInputChange("branchName", e.target.value)}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange("branchName", event.target.value)
+                  }
                   disabled={!isEditing}
                   className="flex-1"
                 />
@@ -876,7 +900,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               <Label htmlFor="industryType">Industry Type</Label>
               <Select
                 value={formData.industryType}
-                onValueChange={(value) => handleInputChange("industryType", value)}
+                onValueChange={(value: string) => handleInputChange("industryType", value)}
                 disabled={!isEditing}
               >
                 <SelectTrigger id="industryType">
@@ -896,16 +920,16 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 type="number"
                 placeholder="e.g., 2010"
                 value={formData.foundedYear}
-                onChange={(e) => {
-                  const value = e.target.value
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  const value = event.target.value
                   // Only allow 4-digit years
                   if (value === "" || (value.length <= 4 && /^\d+$/.test(value))) {
                     handleInputChange("foundedYear", value)
                   }
                 }}
-                onBlur={(e) => {
+                onBlur={(event: FocusEvent<HTMLInputElement>) => {
                   // Ensure it's exactly 4 digits on blur
-                  const value = e.target.value
+                  const value = event.target.value
                   if (value && value.length !== 4) {
                     const currentYear = new Date().getFullYear()
                     handleInputChange("foundedYear", currentYear.toString())
@@ -928,7 +952,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               <Label htmlFor="studentSize">Student Count</Label>
               <Select
                 value={formData.studentSize}
-                onValueChange={(value) => handleInputChange("studentSize", value)}
+                onValueChange={(value: string) => handleInputChange("studentSize", value)}
                 disabled={!isEditing}
               >
                 <SelectTrigger id="studentSize">
@@ -945,7 +969,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               <Label htmlFor="staffCount">Staff Count</Label>
               <Select
                 value={formData.staffCount}
-                onValueChange={(value) => handleInputChange("staffCount", value)}
+                onValueChange={(value: string) => handleInputChange("staffCount", value)}
                 disabled={!isEditing}
               >
                 <SelectTrigger id="staffCount">
@@ -965,8 +989,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="servicesOffered"
                 placeholder="e.g., Painting, Music, Football, Dance"
                 value={Array.isArray(formData.servicesOffered) ? formData.servicesOffered.join(", ") : ""}
-                onChange={(e) => {
-                  const services = e.target.value.split(",").map(s => s.trim()).filter(Boolean)
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  const services = event.target.value.split(",").map(service => service.trim()).filter(Boolean)
                   handleInputChange("servicesOffered", services)
                 }}
                 disabled={!isEditing}
@@ -984,25 +1008,28 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   <SelectValue placeholder={isLoadingCurrencies ? "Loading currencies..." : "Select currency"} />
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]" hideScrollButtons>
-                  <div className="sticky top-0 z-10 bg-white p-2 border-b" onPointerDown={(e) => e.preventDefault()}>
+                  <div
+                    className="sticky top-0 z-10 bg-white p-2 border-b"
+                    onPointerDown={(event: PointerEvent<HTMLDivElement>) => event.preventDefault()}
+                  >
                     <Input
                       placeholder="Search currencies..."
                       value={currencySearch}
-                      onChange={(e) => {
-                        setCurrencySearch(e.target.value)
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        setCurrencySearch(event.target.value)
                       }}
-                      onKeyDown={(e) => {
-                        e.stopPropagation()
+                      onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                        event.stopPropagation()
                       }}
                       className="h-8"
                       autoFocus
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onFocus={(e) => e.stopPropagation()}
+                      onPointerDown={(event: PointerEvent<HTMLInputElement>) => event.stopPropagation()}
+                      onFocus={(event: FocusEvent<HTMLInputElement>) => event.stopPropagation()}
                     />
                   </div>
                   <div className="overflow-y-auto max-h-[250px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     {filteredCurrencies.length > 0 ? (
-                      filteredCurrencies.map((currency) => (
+                      filteredCurrencies.map((currency: CurrencyOption) => (
                         <SelectItem key={currency.code} value={currency.code}>
                           {currency.code} - {currency.name}
                         </SelectItem>
@@ -1021,7 +1048,7 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
               <Label htmlFor="preferredLanguage">Preferred Language</Label>
               <Select
                 value={formData.preferredLanguage}
-                onValueChange={(value) => {
+                onValueChange={(value: string) => {
                   handleInputChange("preferredLanguage", value)
                   setLanguageSearch("")
                 }}
@@ -1035,16 +1062,16 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                     <Input
                       placeholder="Search languages..."
                       value={languageSearch}
-                      onChange={(e) => setLanguageSearch(e.target.value)}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => setLanguageSearch(event.target.value)}
                       className="h-8"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(event: MouseEvent<HTMLInputElement>) => event.stopPropagation()}
                     />
                   </div>
                   <div className="max-h-[200px] overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                     {filteredLanguages.length === 0 && (
                       <div className="px-2 py-6 text-sm text-center text-muted-foreground">No languages found</div>
                     )}
-                    {filteredLanguages.map((lang) => (
+                    {filteredLanguages.map((lang: LanguageOption) => (
                       <SelectItem key={lang.value} value={lang.value}>
                         {lang.label}
                       </SelectItem>
@@ -1090,6 +1117,78 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 )}
               </div>
             </div>
+            <div className="space-y-2 md:col-span-1">
+              <Label htmlFor="profilePicture">Profile Picture</Label>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="flex-1 space-y-2">
+                  <Input
+                    id="profilePicture"
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                    onChange={handleProfilePictureUpload}
+                    className="cursor-pointer"
+                    disabled={!isEditing}
+                  />
+                  <p className="text-xs text-muted-foreground">PNG, JPG, JPEG, SVG (Max 2MB)</p>
+                </div>
+                {profilePicturePreview && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 h-20 rounded-full border overflow-hidden flex items-center justify-center bg-gray-50">
+                      <img
+                        src={profilePicturePreview}
+                        alt="Profile picture preview"
+                        className="max-w-full max-h-full object-cover"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setProfilePicturePreview(null)}
+                      disabled={!isEditing}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2 md:col-span-1">
+              <Label htmlFor="businessNameFile">Business Name Upload</Label>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="flex-1 space-y-2">
+                  <Input
+                    id="businessNameFile"
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                    onChange={handleBusinessNameFileUpload}
+                    className="cursor-pointer"
+                    disabled={!isEditing}
+                  />
+                  <p className="text-xs text-muted-foreground">PNG, JPG, JPEG, SVG (Max 2MB)</p>
+                </div>
+                {businessNameFilePreview && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 h-20 rounded border overflow-hidden flex items-center justify-center bg-gray-50">
+                      <img
+                        src={businessNameFilePreview}
+                        alt="Business name file preview"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setBusinessNameFilePreview(null)}
+                      disabled={!isEditing}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -1108,17 +1207,17 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             <CountryStateDropdown
               country={formData.country}
               state={formData.state}
-              onCountryChange={(value) => {
+              onCountryChange={(value: string) => {
                 const newCurrency = getCurrencyByCountry(value)
-                setFormData(f => ({
-                  ...f,
+                setFormData((prev: FormDataState) => ({
+                  ...prev,
                   country: value,
                   state: "",
                   currency: newCurrency,
                 }))
               }}
-              onStateChange={(value) => {
-                setFormData(f => ({ ...f, state: value }))
+              onStateChange={(value: string) => {
+                setFormData((prev: FormDataState) => ({ ...prev, state: value }))
               }}
               mode="country"
               disabled={!isEditing}
@@ -1126,11 +1225,11 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             <CountryStateDropdown
               country={formData.country}
               state={formData.state}
-              onCountryChange={(value) => {
-                setFormData(f => ({ ...f, country: value, state: "" }))
+              onCountryChange={(value: string) => {
+                setFormData((prev: FormDataState) => ({ ...prev, country: value, state: "" }))
               }}
-              onStateChange={(value) => {
-                setFormData(f => ({ ...f, state: value }))
+              onStateChange={(value: string) => {
+                setFormData((prev: FormDataState) => ({ ...prev, state: value }))
               }}
               mode="state"
               disabled={!isEditing}
@@ -1141,8 +1240,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="city"
                 placeholder="New York"
                 value={formData.city}
-                onChange={(e) => {
-                  const value = e.target.value
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  const value = event.target.value
                   // Only allow letters, spaces, hyphens, apostrophes, and dots (for cities like St. Louis, O'Fallon)
                   const sanitizedValue = value.replace(/[^a-zA-Z\s\-'.]/g, '')
                   if (value !== sanitizedValue) {
@@ -1163,8 +1262,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="zipCode"
                 placeholder="e.g., 10001 or SW1A 1AA"
                 value={formData.zipCode}
-                onChange={(e) => {
-                  const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, "");
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  const sanitized = event.target.value.replace(/[^a-zA-Z0-9\s-]/g, "");
                   const normalized = sanitized.replace(/\s+/g, " ");
                   const valueToStore = normalized.startsWith(" ") ? normalized.trimStart() : normalized;
                   handleInputChange("zipCode", valueToStore);
@@ -1188,8 +1287,8 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   type="tel"
                   placeholder="+1 (555) 123-4567"
                   value={formData.phone}
-                  onChange={(e) => {
-                    const value = e.target.value
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    const value = event.target.value
                     // Only allow numbers, +, -, (, ), and spaces
                     const sanitizedValue = value.replace(/[^0-9+\-() ]/g, '')
                     if (value !== sanitizedValue) {
@@ -1212,7 +1311,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="address"
                 placeholder="123 Main Street"
                 value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange("address", event.target.value)
+                  }
                 disabled={!isEditing}
               />
             </div>
@@ -1225,9 +1326,11 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   type="email"
                   placeholder="contact@academy.com"
                   value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  onBlur={(e) => {
-                    const email = e.target.value.trim()
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange("email", event.target.value)
+                  }
+                  onBlur={(event: FocusEvent<HTMLInputElement>) => {
+                    const email = event.target.value.trim()
                     if (email) {
                       // Comprehensive email validation regex
                       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
@@ -1254,7 +1357,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                   type="url"
                   placeholder="https://www.academy.com"
                   value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    handleInputChange("website", event.target.value)
+                  }
                   className="sm:pl-10"
                   disabled={!isEditing}
                 />
@@ -1266,7 +1371,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="taxId"
                 placeholder="Enter your Tax ID"
                 value={formData.taxId}
-                onChange={(e) => handleInputChange("taxId", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange("taxId", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -1291,7 +1398,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="facebook"
                 placeholder="https://facebook.com/youracademy"
                 value={formData.socialMedia.facebook}
-                onChange={(e) => handleNestedInputChange("socialMedia", "facebook", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleSocialMediaChange("facebook", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -1301,7 +1410,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="instagram"
                 placeholder="https://instagram.com/youracademy"
                 value={formData.socialMedia.instagram}
-                onChange={(e) => handleNestedInputChange("socialMedia", "instagram", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleSocialMediaChange("instagram", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -1311,7 +1422,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="twitter"
                 placeholder="https://twitter.com/youracademy"
                 value={formData.socialMedia.twitter}
-                onChange={(e) => handleNestedInputChange("socialMedia", "twitter", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleSocialMediaChange("twitter", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -1321,7 +1434,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="youtube"
                 placeholder="https://youtube.com/@youracademy"
                 value={formData.socialMedia.youtube}
-                onChange={(e) => handleNestedInputChange("socialMedia", "youtube", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleSocialMediaChange("youtube", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -1331,7 +1446,9 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
                 id="linkedin"
                 placeholder="https://linkedin.com/company/youracademy"
                 value={formData.socialMedia.linkedin}
-                onChange={(e) => handleNestedInputChange("socialMedia", "linkedin", e.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  handleSocialMediaChange("linkedin", event.target.value)
+                }
                 disabled={!isEditing}
               />
             </div>
@@ -1359,8 +1476,12 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
             disabled={isLoading}
             className="w-full sm:w-auto text-white gap-2"
             style={{ backgroundColor: primaryColor }}
-            onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = `${primaryColor}dd`)}
-            onMouseLeave={(e) => !isLoading && (e.currentTarget.style.backgroundColor = primaryColor)}
+            onMouseEnter={(event: MouseEvent<HTMLButtonElement>) =>
+              !isLoading && (event.currentTarget.style.backgroundColor = `${primaryColor}dd`)
+            }
+            onMouseLeave={(event: MouseEvent<HTMLButtonElement>) =>
+              !isLoading && (event.currentTarget.style.backgroundColor = primaryColor)
+            }
           >
             <Save className="h-4 w-4" />
             {isLoading ? "Saving..." : "Save Changes"}
@@ -1371,13 +1492,13 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       )}
 
       {/* Currency Change Dialog */}
-      <Dialog open={showCurrencyDialog} onOpenChange={(open) => {
+      <Dialog open={showCurrencyDialog} onOpenChange={(open: boolean) => {
         // Prevent closing dialog by clicking outside - only allow close via buttons
         if (!open) {
           cancelCurrencyChange()
         }
       }}>
-        <DialogContent className="sm:max-w-[550px]" onInteractOutside={(e) => e.preventDefault()}>
+        <DialogContent className="sm:max-w-[550px]" onInteractOutside={(event: Event) => event.preventDefault()}>
           <DialogHeader>
             <DialogTitle>How do you want to change the currency?</DialogTitle>
             <DialogDescription>
@@ -1492,12 +1613,12 @@ export function AcademyInfoSettings({ onUpdate }: AcademyInfoSettingsProps) {
       </Dialog>
 
       {/* Final Confirmation Dialog */}
-      <Dialog open={showFinalConfirmation} onOpenChange={(open) => {
+      <Dialog open={showFinalConfirmation} onOpenChange={(open: boolean) => {
         if (!open) {
           cancelFinalConfirmation()
         }
       }}>
-        <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
+        <DialogContent className="sm:max-w-[500px]" onInteractOutside={(event: Event) => event.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="text-red-600 flex items-center gap-2">
               <span className="text-2xl">⚠️</span> Final Confirmation Required

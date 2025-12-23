@@ -146,7 +146,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             body: JSON.stringify({
               businessInfo: {
                 ...businessInfo,
-                profilePicture: base64Image
+                profilePictureUrl: base64Image
               }
             })
           })
@@ -194,7 +194,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           body: JSON.stringify({
             businessInfo: {
               ...businessInfo,
-              profilePicture: null
+              profilePictureUrl: null
             }
           })
         })
@@ -329,7 +329,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               body: JSON.stringify({
                 businessInfo: {
                   ...businessInfo,
-                  profilePicture: avatarPreview
+                  profilePictureUrl: avatarPreview
                 }
               })
             })
