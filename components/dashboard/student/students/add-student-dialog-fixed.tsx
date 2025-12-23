@@ -1671,7 +1671,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('photo', file);
 
       const response = await fetch('/api/dashboard/student/upload-photo', {
         method: 'POST',
@@ -1679,14 +1679,14 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       });
 
       const data = await response.json().catch(() => null);
-      if (!response.ok || !data?.url) {
-        const message = data?.error || 'Failed to upload photo.';
+      if (!response.ok || !data?.photoUrl) {
+        const message = data?.message || 'Failed to upload photo.';
         throw new Error(message);
       }
 
       revokePreviewUrl(tempPreview);
-      setPhotoPreviewUrl(data.url);
-      setNewStudent(prev => ({ ...prev, photoUrl: data.url }));
+      setPhotoPreviewUrl(data.photoUrl);
+      setNewStudent(prev => ({ ...prev, photoUrl: data.photoUrl }));
     } catch (error) {
       console.error('Failed to upload student photo', error);
       revokePreviewUrl(tempPreview);
