@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
     { tenantId: session.tenantId },
     async () => {
   try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'payments');
+    if (block) return block;
     await dbConnect("uniqbrio");
 
     const body = await request.json();

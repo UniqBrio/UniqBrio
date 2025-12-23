@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
         status: 'paid',
         planStatus: 'active',
         daysRemaining: 36500, // ~100 years
-        studentSize: 14,
+        studentSize: 7,
         isCancelled: false,
         isDefault: true, // Flag to indicate this is a default free plan
       },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getUserSession } from '@/lib/tenant/api-helpers'
 import { MongoClient, ObjectId } from 'mongodb'
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,13 @@ async function getDatabase() {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getUserSession();
+    if (!session?.tenantId) {
+      return NextResponse.json({ error: 'Unauthorized: No tenant context' }, { status: 401 });
+    }
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'schedules');
+    if (block) return block as any;
     const body = await request.json()
     
     // Validate required fields

@@ -84,6 +84,9 @@ export async function PATCH(
     { tenantId: session.tenantId },
     async () => {
   try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'payments');
+    if (block) return block;
     await dbConnect("uniqbrio");
 
     const { id } = await params;
@@ -140,6 +143,9 @@ export async function DELETE(
     { tenantId: session.tenantId },
     async () => {
   try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'payments');
+    if (block) return block;
     await dbConnect("uniqbrio");
 
     const { id } = await params;
@@ -196,6 +202,9 @@ export async function POST(
     { tenantId: session.tenantId },
     async () => {
   try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'payments');
+    if (block) return block;
     await dbConnect("uniqbrio");
 
     const { id } = await params;

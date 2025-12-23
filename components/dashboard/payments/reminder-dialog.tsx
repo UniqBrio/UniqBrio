@@ -24,12 +24,14 @@ interface ReminderDialogProps {
   payment: Payment | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRestrictedAttempt?: () => void;
 }
 
 export function ReminderDialog({
   payment,
   open,
   onOpenChange,
+  onRestrictedAttempt,
 }: ReminderDialogProps) {
   const { currency } = useCurrency();
   const { primaryColor, secondaryColor } = useCustomColors();
@@ -131,7 +133,12 @@ export function ReminderDialog({
           paymentId: payment.id,
         }),
       });
-
+      if (response.status === 403) {
+        onRestrictedAttempt?.();
+        onOpenChange(false);
+        setIsSending(false);
+        return;
+      }
       const data = await response.json();
 
       if (!response.ok) {

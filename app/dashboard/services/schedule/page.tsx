@@ -105,6 +105,7 @@ import {
   determineSessionStatus,
   validateScheduleConsistency 
 } from "@/lib/dashboard/statusValidation"
+import { UpgradePlanModal } from '@/components/upgrade-plan-modal'
 import { 
   fetchLeaveRequests, 
   getInstructorAvailability, 
@@ -133,6 +134,21 @@ interface InstructorAvailabilityCellProps {
 }
 
 const InstructorAvailabilityCell: React.FC<InstructorAvailabilityCellProps> = ({ event, leaveRequests, loading }) => {
+    const [isRestricted, setIsRestricted] = useState(false);
+    const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+    // Fetch restriction status on mount
+    useEffect(() => {
+      (async () => {
+        try {
+          const res = await fetch('/api/restrictions/status', { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            setIsRestricted(Boolean(data.restricted));
+          }
+        } catch {}
+      })();
+    }, []);
   if (loading) {
     return (
       <div className="flex items-center text-sm text-gray-500 dark:text-white">
@@ -881,6 +897,21 @@ export default function EnhancedSchedulePage() {
   const [roomData] = useState<Room[]>([])
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
   const [loadingLeaveRequests, setLoadingLeaveRequests] = useState(true)
+  const [isRestricted, setIsRestricted] = useState(false)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+
+  // Fetch restriction status on mount for read-only UX
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/restrictions/status', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setIsRestricted(Boolean(data.restricted));
+        }
+      } catch {}
+    })();
+  }, [])
   
   // Dynamic filter lists based on real session data
   const instructors = ["All", ...Array.from(new Set(events.map(event => event.instructor).filter(Boolean).map(i => i.trim())))]
@@ -2851,6 +2882,7 @@ export default function EnhancedSchedulePage() {
                         size="sm" 
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                         onClick={() => {
+                          if (isRestricted) { setUpgradeOpen(true); return; }
                           fetchDropdownOptions()
                           setIsAddSessionDialogOpen(true)
                         }}
@@ -2984,6 +3016,7 @@ export default function EnhancedSchedulePage() {
                         currentDate={selectedDate}
                         onDateChange={setSelectedDate}
                       />
+                      <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} module={'schedules'} />
                     </div>
                   )}
                   {selectedView === "list" && (

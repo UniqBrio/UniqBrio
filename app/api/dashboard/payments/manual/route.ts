@@ -140,6 +140,9 @@ export async function POST(request: NextRequest) {
       async () => {
     try {
       console.log('[Manual Payment API] Inside runWithTenantContext');
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'payments');
+        if (block) return block;
       await dbConnect("uniqbrio");
       console.log('[Manual Payment API] Database connected');
 

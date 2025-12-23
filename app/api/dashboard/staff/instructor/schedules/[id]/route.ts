@@ -29,6 +29,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     try {
       const { id } = await params
       await dbConnect("uniqbrio")
+      // Restrict writes when on Free plan with >14 students
+      const restrictionLib = await import('@/lib/restrictions');
+      const block = await restrictionLib.assertWriteAllowed(session.tenantId!, 'schedules');
+      if (block) return block;
       const body = await req.json()
       const updated = await ScheduleModel.findOneAndUpdate({ _id: id, tenantId: session.tenantId }, body, { new: true })
       if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
@@ -48,6 +52,10 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   return runWithTenantContext({ tenantId: session.tenantId }, async () => {
     const { id } = await params
     await dbConnect("uniqbrio")
+    // Restrict writes when on Free plan with >14 students
+    const restrictionLib = await import('@/lib/restrictions');
+    const block = await restrictionLib.assertWriteAllowed(session.tenantId!, 'schedules');
+    if (block) return block;
     const res = await ScheduleModel.findOneAndDelete({ _id: id, tenantId: session.tenantId })
     if (!res) return NextResponse.json({ message: "Not found" }, { status: 404 })
     return NextResponse.json({ ok: true })

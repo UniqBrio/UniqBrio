@@ -25,13 +25,13 @@ export const PLANS: Record<PlanKey, {
     description: "Best for: <15 active students",
     tagline: "Perfect for new academies or testing UniqBrio risk-free",
     features: [
-      "Up to 14 active students",
+      "Up to 7 active students",
       "Basic scheduling & attendance",
       "1 branch location",
       "Email support",
       "No credit card required",
     ],
-    studentLimit: "8 of 14 students",
+    studentLimit: "5 of 7 students",
   },
   grow: {
     name: "Grow",

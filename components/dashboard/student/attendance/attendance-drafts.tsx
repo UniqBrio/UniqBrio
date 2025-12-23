@@ -36,10 +36,12 @@ export interface AttendanceDraftsHandle {
 interface AttendanceDraftsProps {
   onContinue: (draft: AttendanceDraft) => void;
   onCountChange?: (count: number) => void;
+  isRestricted?: boolean;
+  onRestrictedAttempt?: () => void;
 }
 
 export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDraftsProps>(function AttendanceDrafts(
-  { onContinue, onCountChange }: AttendanceDraftsProps,
+  { onContinue, onCountChange, isRestricted, onRestrictedAttempt }: AttendanceDraftsProps,
   ref
 ) {
   const { toast } = useToast();
@@ -128,6 +130,7 @@ export const AttendanceDrafts = forwardRef<AttendanceDraftsHandle, AttendanceDra
       setOpen(true);
     },
     deleteDraft: async (id: number | string) => {
+      if (isRestricted) { onRestrictedAttempt?.(); return; }
       try {
         const response = await fetch(`/api/dashboard/student/attendance-drafts/${id}`, {
           method: 'DELETE',

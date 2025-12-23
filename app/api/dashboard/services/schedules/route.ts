@@ -25,6 +25,10 @@ export async function POST(request: Request) {
     async () => {
   try {
     await dbConnect("uniqbrio")
+    // Enforce plan restriction for schedules writes
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'schedules');
+    if (block) return block;
     const body = await request.json()
 
     // Handle bulk creation with upsert based on sessionId

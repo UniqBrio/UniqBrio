@@ -113,6 +113,7 @@ interface ManualPaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (paymentData: any) => void;
+  onRestrictedAttempt?: () => void;
 }
 
 interface Person {
@@ -128,6 +129,7 @@ export function ManualPaymentDialog({
   open,
   onOpenChange,
   onSave,
+  onRestrictedAttempt,
 }: ManualPaymentDialogProps) {
   const { currency } = useCurrency();
   const { toast } = useToast();
@@ -1434,6 +1436,12 @@ export function ManualPaymentDialog({
         result
       });
 
+      if (response.status === 403) {
+        onRestrictedAttempt?.();
+        onOpenChange(false);
+        setSubmitting(false);
+        return;
+      }
       if (!response.ok) {
         const errorMessage = result.error || result.details || result.message || `Failed to record payment (HTTP ${response.status})`;
         console.error('Payment API error details:', {

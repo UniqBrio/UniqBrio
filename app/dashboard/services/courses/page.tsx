@@ -60,6 +60,7 @@ import AddCourseDialog from "@/components/dashboard/courses/CourseFormDialog"
 import CourseDashboardCharts from "@/components/dashboard/courses/CourseDashboardCharts"
 import CourseSettings from "@/components/dashboard/courses/CourseSettings"
 import CohortSettings from "@/components/dashboard/courses/CohortSettings"
+import { UpgradePlanModal } from '@/components/upgrade-plan-modal'
 
 // Import the correct Course type
 import { Course } from "@/types/dashboard/course"
@@ -126,6 +127,21 @@ export default function EnhancedCourseManagementPage() {
   // State management
   const [courses, setCourses] = useState<Course[]>([])
   const [studentCount, setStudentCount] = useState<number | null>(null);
+  // Fetch student count from API (dashboard logic)
+  useEffect(() => {
+    fetch("/api/dashboard/services/user-management/students")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.count !== undefined) {
+          setStudentCount(data.count);
+        } else if (data.numStudents !== undefined) {
+          setStudentCount(data.numStudents);
+        } else {
+          setStudentCount(null);
+        }
+      })
+      .catch(() => setStudentCount(null));
+  }, []);
   const [drafts, setDrafts] = useState<DraftType[]>([])
   const [cohorts, setCohorts] = useState<Cohort[]>([])
   const [loading, setLoading] = useState(true)
@@ -160,6 +176,10 @@ export default function EnhancedCourseManagementPage() {
   const [isMarketingDialogOpen, setIsMarketingDialogOpen] = useState(false)
   const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
   const [isFinancialDialogOpen, setIsFinancialDialogOpen] = useState(false)
+  
+  // Restriction state for upgrade modal
+  const [isRestricted, setIsRestricted] = useState(false)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
   
   // Navigation tab state
   const [currentTab, setCurrentTab] = useState("dashboard")
@@ -603,8 +623,8 @@ export default function EnhancedCourseManagementPage() {
   useEffect(() => {
     // Use prefetched data immediately
     if (globalData.isInitialized && globalData.courses.length > 0) {
-      setCourses(globalData.courses);
-      setCohorts(globalData.cohorts);
+      setCourses(globalData.courses as Course[]);
+      setCohorts(globalData.cohorts as Cohort[]);
       setStudentCount(globalData.students.length);
     }
     
@@ -637,7 +657,7 @@ export default function EnhancedCourseManagementPage() {
     activeCourses: Array.isArray(courses) ? courses.filter(c => c.status === "Active").length : 0,
     totalStudents: studentCount,
     // Note: price stores the amount in the academy's selected currency
-    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.price || c.priceINR || 0) * (c.enrolledStudents || 0)), 0) : 0,
+    totalRevenue: Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.price || (c as any).priceINR || 0) * (c.enrolledStudents || 0)), 0) : 0,
     averageRating: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.rating || 0), 0) / courses.length : 0,
     completionRate: Array.isArray(courses) && courses.length > 0 ? courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / courses.length : 0,
   }
@@ -659,7 +679,7 @@ export default function EnhancedCourseManagementPage() {
       const matchesStatus = selectedFilters.status.length === 0 || selectedFilters.status.includes(course.status)
 
       // Note: price stores the amount in the academy's selected currency
-      const price = course.price || course.priceINR || 0
+      const price = course.price || (course as any).priceINR || 0
       const matchesPrice = price >= selectedFilters.priceRange[0] && price <= selectedFilters.priceRange[1]
 
       const matchesTab = activeTab === "all" || course.status?.toLowerCase() === activeTab.toLowerCase()
@@ -914,7 +934,12 @@ export default function EnhancedCourseManagementPage() {
         ) : (
           <>
             <HeroSection 
-              onCreateCourse={() => setIsAddCourseDialogOpen(true)}
+              onCreateCourse={() => {
+                if (isRestricted) { setUpgradeOpen(true); return; }
+                setIsEditMode(false);
+                setEditCourseId(null);
+                setIsAddCourseDialogOpen(true);
+              }}
               onOpenDrafts={() => setIsDraftsDialogOpen(true)}
               onOpenMarketing={() => setIsMarketingDialogOpen(true)}
             />
@@ -1009,7 +1034,7 @@ export default function EnhancedCourseManagementPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs sm:text-sm md:text-base font-medium text-orange-600">Revenue ({currency})</p>
-                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.price || c.priceINR || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
+                      <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-900">{Array.isArray(courses) ? courses.reduce((sum, c) => sum + ((c.price || (c as any).priceINR || 0) * (c.enrolledStudents || 0)), 0) : 0}</p>
                     </div>
                     <svg className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3s3-1.343 3-3s-1.343-3-3-3zm0 0V4m0 10v4" /></svg>
                   </div>
@@ -1150,6 +1175,7 @@ export default function EnhancedCourseManagementPage() {
                         downloadCsv(csv, selected.length > 0 ? `courses-selected-${Date.now()}.csv` : `courses-all-${Date.now()}.csv`);
                       }}
                       onCreateCourse={() => {
+                        if (isRestricted) { setUpgradeOpen(true); return; }
                         setIsEditMode(false);
                         setEditCourseId(null);
                         const generatedId = generateCourseIdentifier();
@@ -1334,7 +1360,10 @@ export default function EnhancedCourseManagementPage() {
             setNewCourseForm(prev => ({ ...prev, id: nextId, courseId: nextId }))
           }}
           courseIdFormatHint={getCourseIdHint()}
+          onRestrictedAttempt={() => setUpgradeOpen(true)}
         />
+
+        <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} module={'courses'} />
 
         {/* Additional Dialog Components */}
         <Dialog open={isViewCourseDialogOpen} onOpenChange={setIsViewCourseDialogOpen}>

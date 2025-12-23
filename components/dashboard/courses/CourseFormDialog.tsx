@@ -66,6 +66,7 @@ interface CourseFormDialogProps {
   manualCourseIdEnabled?: boolean
   onGenerateCourseId?: () => void
   courseIdFormatHint?: string
+  onRestrictedAttempt?: () => void
 }
 
 export default function CourseFormDialog({
@@ -80,7 +81,8 @@ export default function CourseFormDialog({
   showDeleteConfirmation,
   manualCourseIdEnabled = false,
   onGenerateCourseId,
-  courseIdFormatHint
+  courseIdFormatHint,
+  onRestrictedAttempt
 }: CourseFormDialogProps) {
   const { primaryColor, secondaryColor } = useCustomColors();
   // Ref to track if we've initialized defaults for this dialog session
@@ -618,6 +620,7 @@ export default function CourseFormDialog({
             body: JSON.stringify(courseDataWithoutId),
             credentials: 'include'
           })
+          if (createResponse.status === 403) { onRestrictedAttempt?.(); onOpenChange(false); return }
           const createResult = await createResponse.json()
           if (createResult.success) {
             // Delete the draft
@@ -673,6 +676,7 @@ export default function CourseFormDialog({
             body: JSON.stringify({ _id: mongoId, ...courseData }),
             credentials: 'include'
           });
+          if (updateResponse.status === 403) { onRestrictedAttempt?.(); onOpenChange(false); return }
           const updateResult = await updateResponse.json();
           if (updateResult.success) {
             setCourses(prevCourses => 
@@ -701,6 +705,7 @@ export default function CourseFormDialog({
           body: JSON.stringify(courseData),
           credentials: 'include'
         })
+        if (response.status === 403) { onRestrictedAttempt?.(); onOpenChange(false); return }
         const result = await response.json()
         if (result.success) {
           setCourses(prevCourses => [result.course, ...prevCourses])
@@ -798,6 +803,7 @@ export default function CourseFormDialog({
           credentials: 'include'
         })
       }
+      if (response.status === 403) { onRestrictedAttempt?.(); onOpenChange(false); return }
 
       result = await response.json()
       console.log('Draft save result:', result)

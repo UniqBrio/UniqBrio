@@ -60,6 +60,9 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
     activeInstructors: 0,
     loading: true
   })
+  const [accountCreated, setAccountCreated] = useState<{ createdAt?: string; daysSince?: number; loading: boolean; error?: string }>({
+    loading: true
+  })
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
   // Derive values from active payment record
@@ -78,7 +81,7 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
   const daysUntilRenewal = activePayment.record?.daysRemaining || 0
   
   // Check if free plan has exceeded student limit
-  const isFreePlanExceeded = currentPlan === "free" && usageStats.totalStudents > 14
+  const isFreePlanExceeded = currentPlan === "free" && usageStats.totalStudents > 7
   const isDefaultFreePlan = activePayment.record?.isDefault || false
 
   // Fetch active payment record
@@ -134,6 +137,24 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
     fetchUsageData()
   }, [])
 
+  // Fetch account creation date from registrations
+  useEffect(() => {
+    const fetchAccountCreated = async () => {
+      try {
+        const res = await fetch('/api/dashboard/billing/account-created', { credentials: 'include' })
+        if (res.ok) {
+          const data = await res.json()
+          setAccountCreated({ createdAt: data.createdAt, daysSince: data.daysSince, loading: false })
+        } else {
+          setAccountCreated({ loading: false, error: 'Failed to load' })
+        }
+      } catch (e) {
+        setAccountCreated({ loading: false, error: 'Failed to load' })
+      }
+    }
+    fetchAccountCreated()
+  }, [])
+
   const utilizationRate = usageStats.totalStudents > 0 ? Math.round((usageStats.activeStudents / usageStats.totalStudents) * 100) : 0
 
   // Get plan features dynamically - if current plan is free, show Grow plan features to motivate upgrade
@@ -158,7 +179,7 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
             <div className="flex-1">
               <p className="text-sm font-semibold text-red-900">Student Limit Exceeded - Plan Expired</p>
               <p className="text-sm text-red-700 mt-1">
-                Your Free plan allows up to 14 students, but you currently have {usageStats.totalStudents} enrolled. 
+                Your Free plan allows up to 7 students, but you currently have {usageStats.totalStudents} enrolled. 
                 <span className="font-bold"> Please upgrade to Grow plan to continue utilizing this application.</span>
               </p>
               <button className="mt-3 text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-orange-500 px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
@@ -337,6 +358,28 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
                 <p className="text-xs text-gray-500 mt-1">
                   {usageStats.loading ? "Loading..." : `${usageStats.totalStudents} enrolled`}
                 </p>
+              </div>
+              <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className="text-emerald-600" size={16} />
+                  <p className="text-xs font-medium text-gray-600">Account Created On</p>
+                </div>
+                {accountCreated.loading ? (
+                  <>
+                    <p className="text-sm font-bold text-gray-900">Loading...</p>
+                    <p className="text-xs text-gray-500 mt-1">Fetching registration data</p>
+                  </>
+                ) : accountCreated.error ? (
+                  <>
+                    <p className="text-sm font-bold text-gray-900">—</p>
+                    <p className="text-xs text-gray-500 mt-1">Unable to load</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-bold text-gray-900">{new Date(accountCreated.createdAt as string).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+                    <p className="text-xs text-gray-500 mt-1">{accountCreated.daysSince} days since creation</p>
+                  </>
+                )}
               </div>
             </div>
 

@@ -29,6 +29,9 @@ export async function POST(request: Request) {
     async () => {
       try {
         console.log('🚀 POST /api/courses - Starting course creation/update')
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'courses');
+        if (block) return block;
         await dbConnect("uniqbrio")
         console.log('✅ MongoDB connected successfully')
     
@@ -844,6 +847,9 @@ export async function PUT(request: Request) {
     { tenantId: session.tenantId },
     async () => {
       try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'courses');
+    if (block) return block;
     await dbConnect("uniqbrio")
     const body = await request.json()
     const { _id, ...updateData } = body
@@ -990,6 +996,9 @@ export async function DELETE(request: Request) {
     { tenantId: session.tenantId },
     async () => {
       try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'courses');
+    if (block) return block;
     await dbConnect("uniqbrio")
     const body = await request.json()
     const { _id, id, hardDelete = false } = body

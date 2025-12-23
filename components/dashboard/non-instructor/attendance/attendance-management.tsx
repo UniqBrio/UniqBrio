@@ -24,6 +24,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { LayoutDashboard,Download, Upload, Settings, Plus, X, BarChart3, Camera, Table2, Calendar, Trophy, Bell, FileText, RefreshCcw, Pencil, Trash2, Hash, Clock, CheckCircle2 } from "lucide-react"
 import { useToast } from "@/hooks/dashboard/use-toast"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { UpgradePlanModal } from '@/components/upgrade-plan-modal'
  
 
 
@@ -55,6 +56,8 @@ function AttendanceManagementInner() {
   const [recordToDelete, setRecordToDelete] = useState<NonInstructorAttendanceRecord | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [recordToView, setRecordToView] = useState<NonInstructorAttendanceRecord | null>(null);
+  const [isRestricted, setIsRestricted] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const fetchAttendanceData = async () => {
     try {
@@ -99,6 +102,19 @@ function AttendanceManagementInner() {
     console.log('🚀 Non-Instructor Attendance Management mounted');
     fetchAttendanceData();
   }, []); // Empty dependency array - run once on mount
+
+  // Fetch restriction status so we can provide read-only UX
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/restrictions/status', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setIsRestricted(Boolean(data.restricted));
+        }
+      } catch {}
+    })();
+  }, []);
 
   // Listen for event to reopen drafts dialog after converting from a draft
   React.useEffect(() => {
@@ -182,6 +198,7 @@ function AttendanceManagementInner() {
     // Track whether to auto-reopen drafts after save (when converting from a draft)
     let reopenAfterClose = false;
     try {
+      if (isRestricted) { setUpgradeOpen(true); return; }
       if (editingRecordId != null) {
         // Update existing record
   const response = await fetch(`/api/dashboard/staff/non-instructor/attendance/${editingRecordId}`, {
@@ -214,6 +231,7 @@ function AttendanceManagementInner() {
             throw new Error(result.error);
           }
         } else {
+          if (response.status === 403) { setUpgradeOpen(true); return; }
           throw new Error('Failed to update attendance record');
         }
       } else {
@@ -259,6 +277,7 @@ function AttendanceManagementInner() {
           if (response.status === 409) {
             throw new Error(`Attendance record already exists for this non-instructor on ${recordData.date}. Please edit the existing record or choose a different date.`);
           }
+          if (response.status === 403) { setUpgradeOpen(true); return; }
           const message = (json && (json.error || json.message))
             || (text && text.slice(0, 200))
             || 'Failed to create attendance record';
@@ -285,6 +304,7 @@ function AttendanceManagementInner() {
 
   const handleSaveDraft = async (recordData: Partial<NonInstructorAttendanceRecord>) => {
     try {
+      if (isRestricted) { setUpgradeOpen(true); return; }
       if (editingDraftId != null) {
         // Update existing draft
   const response = await fetch(`/api/dashboard/staff/non-instructor/attendance-drafts/${editingDraftId}`, {
@@ -316,6 +336,7 @@ function AttendanceManagementInner() {
             throw new Error(result.error);
           }
         } else {
+          if (response.status === 403) { setUpgradeOpen(true); return; }
           throw new Error('Failed to update draft');
         }
       } else {
@@ -349,6 +370,7 @@ function AttendanceManagementInner() {
             throw new Error(result.error);
           }
         } else {
+          if (response.status === 403) { setUpgradeOpen(true); return; }
           throw new Error('Failed to create draft');
         }
       }
@@ -473,7 +495,7 @@ function AttendanceManagementInner() {
                 setSortOrder={setSortOrder}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
-                onAddAttendance={() => setIsAttendanceModalOpen(true)}
+                onAddAttendance={() => { if (isRestricted) setUpgradeOpen(true); else setIsAttendanceModalOpen(true) }}
                 onImport={(items) => {
                   setAttendanceData((prev: NonInstructorAttendanceRecord[]) => {
                     const maxId = prev.reduce((m, r) => Math.max(m, r.id), 0);
@@ -515,16 +537,16 @@ function AttendanceManagementInner() {
                     }}
                     displayedColumns={displayedColumns}
                     onSelectRecord={(record) => { setRecordToView(record as any); setViewDialogOpen(true); }}
-                    onEditRecord={(record) => openEditAttendance(record as any)}
-                    onDeleteRecord={(record) => { setRecordToDelete(record as any); setDeleteDialogOpen(true); }}
+                    onEditRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else openEditAttendance(record as any) }}
+                    onDeleteRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else { setRecordToDelete(record as any); setDeleteDialogOpen(true); } }}
                   />
                 </>
               ) : (
                 <AttendanceGrid
                   attendanceData={filteredAttendance}
                   onSelectRecord={(record) => { setRecordToView(record as any); setViewDialogOpen(true); }}
-                  onEditRecord={(record) => openEditAttendance(record as any)}
-                  onDeleteRecord={(record) => { setRecordToDelete(record as any); setDeleteDialogOpen(true); }}
+                  onEditRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else openEditAttendance(record as any) }}
+                  onDeleteRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else { setRecordToDelete(record as any); setDeleteDialogOpen(true); } }}
                 />
               )}
                 </>
@@ -684,6 +706,7 @@ function AttendanceManagementInner() {
                 onClick={async () => {
                   if (!recordToDelete) return;
                   
+                  if (isRestricted) { setUpgradeOpen(true); return; }
                   try {
                     const response = await fetch(`/api/dashboard/staff/non-instructor/attendance/${recordToDelete.id}`, {
                       method: 'DELETE',
@@ -704,6 +727,7 @@ function AttendanceManagementInner() {
                         throw new Error(result.error);
                       }
                     } else {
+                      if (response.status === 403) { setUpgradeOpen(true); return; }
                       throw new Error('Failed to delete attendance record');
                     }
                   } catch (error: any) {
@@ -725,6 +749,7 @@ function AttendanceManagementInner() {
           </div>
         </DialogContent>
       </Dialog>
+    <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} module={'attendance'} />
     </div>
   );
 }

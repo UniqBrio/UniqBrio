@@ -22,6 +22,7 @@ import { StudentDetailDialog } from "./student-detail-dialog";
 import { ReminderDialog } from "./reminder-dialog";
 import { InvoiceDialog } from "./invoice-dialog";
 import { useToast } from "@/hooks/dashboard/use-toast";
+import { UpgradePlanModal } from '@/components/upgrade-plan-modal'
 import { fetchCohortsByIds, getCohortDisplayName, getCohortFullInfo, type CohortInfo } from "@/lib/dashboard/cohort-api";
 
 interface StudentPaymentTableProps {
@@ -54,6 +55,8 @@ export function StudentPaymentTable({
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [isRestricted, setIsRestricted] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Cohort data state
   const [cohortMap, setCohortMap] = useState<Map<string, CohortInfo>>(new Map());
@@ -95,6 +98,19 @@ export function StudentPaymentTable({
     const timeoutId = setTimeout(fetchCohortData, 300);
     return () => clearTimeout(timeoutId);
   }, [payments, toast]);
+
+  // Fetch restriction status for read-only UX gating
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/restrictions/status', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setIsRestricted(Boolean(data.restricted));
+        }
+      } catch {}
+    })();
+  }, []);
 
   // Helper function to check if reminder button should be disabled
   const isReminderDisabled = (payment: Payment): boolean => {
@@ -466,6 +482,7 @@ export function StudentPaymentTable({
   };
 
   const handleOpenPaymentDialog = (payment: Payment) => {
+    if (isRestricted) { setUpgradeOpen(true); return; }
     setSelectedPayment(payment);
     setPaymentDialogOpen(true);
   };
@@ -476,6 +493,7 @@ export function StudentPaymentTable({
   };
 
   const handleOpenReminderDialog = (payment: Payment) => {
+    if (isRestricted) { setUpgradeOpen(true); return; }
     setSelectedPayment(payment);
     setReminderDialogOpen(true);
   };
@@ -820,6 +838,7 @@ export function StudentPaymentTable({
         open={paymentDialogOpen}
         onOpenChange={setPaymentDialogOpen}
         onSave={handleSavePayment}
+        onRestrictedAttempt={() => setUpgradeOpen(true)}
       />
 
       {/* Student Detail Dialog */}
@@ -834,6 +853,7 @@ export function StudentPaymentTable({
         payment={selectedPayment}
         open={reminderDialogOpen}
         onOpenChange={setReminderDialogOpen}
+        onRestrictedAttempt={() => setUpgradeOpen(true)}
       />
 
       {/* Invoice Dialog */}
@@ -842,6 +862,8 @@ export function StudentPaymentTable({
         open={invoiceDialogOpen}
         onOpenChange={setInvoiceDialogOpen}
       />
+
+      <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} module={'payments'} />
     </div>
   );
 }

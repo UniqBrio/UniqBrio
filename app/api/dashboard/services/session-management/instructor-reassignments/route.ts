@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server"
 import { dbConnect } from "@/lib/mongodb"
 import mongoose from "mongoose"
+import { getUserSession } from '@/lib/tenant/api-helpers'
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 30;
 
 export async function POST(request: Request) {
   try {
+    const session = await getUserSession();
+    if (!session?.tenantId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized: No tenant context' }, { status: 401 });
+    }
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'schedules');
+    if (block) return block as any;
     await dbConnect("uniqbrio")
     const body = await request.json()
     

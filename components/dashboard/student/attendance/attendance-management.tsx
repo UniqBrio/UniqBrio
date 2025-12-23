@@ -22,6 +22,7 @@ import { LayoutDashboard,Download, Upload, Settings, Plus, X, BarChart3, Camera,
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Label } from "@/components/dashboard/ui/label"
 import { useToast } from "@/hooks/dashboard/use-toast"
+import { UpgradePlanModal } from '@/components/upgrade-plan-modal'
  
 
 interface AttendanceManagementProps {
@@ -37,6 +38,8 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
   const [editingRecordId, setEditingRecordId] = useState<string | number | null>(null);
   const [editingDraftId, setEditingDraftId] = useState<string | number | null>(null);
   const [editingDraft, setEditingDraft] = useState<Partial<StudentAttendanceRecord> | null>(null);
+  const [isRestricted, setIsRestricted] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Move attendance data and filter state here
   const [searchTerm, setSearchTerm] = useState("");
@@ -116,6 +119,19 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
         console.error('Failed to parse attendance settings:', e);
       }
     }
+  }, []);
+
+  // Fetch restriction status so we can provide read-only UX
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/restrictions/status', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setIsRestricted(Boolean(data.restricted));
+        }
+      } catch {}
+    })();
   }, []);
 
   // Save settings to localStorage whenever they change
@@ -355,6 +371,10 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
 
   const handleSaveAttendance = async (recordData: Partial<StudentAttendanceRecord>) => {
     try {
+      if (isRestricted) {
+        setUpgradeOpen(true);
+        return false;
+      }
       if (editingRecordId != null) {
         // Update existing record
         const response = await fetch(`/api/dashboard/student/attendance/${editingRecordId}`, {
@@ -441,6 +461,10 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
             throw new Error(result.error);
           }
         } else {
+          if (response.status === 403) {
+            setUpgradeOpen(true);
+            return false;
+          }
           const errorResult = await response.json();
           
           // Handle specific error cases with better messaging
@@ -473,6 +497,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
 
   const handleSaveDraft = async (recordData: Partial<StudentAttendanceRecord>) => {
     try {
+      if (isRestricted) { setUpgradeOpen(true); return; }
       if (editingDraftId != null) {
         // Update existing draft
         const response = await fetch(`/api/dashboard/student/attendance-drafts/${editingDraftId}`, {
@@ -570,6 +595,8 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
       {/* Drafts Modal (centralized component) */}
       <AttendanceDrafts
         ref={draftsRef}
+        isRestricted={isRestricted}
+        onRestrictedAttempt={() => setUpgradeOpen(true)}
         onContinue={(d) => {
           setIsAttendanceModalOpen(true);
           setEditingDraftId(d.id);
@@ -654,7 +681,9 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                 setSortOrder={setSortOrder}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
-                onAddAttendance={() => setIsAttendanceModalOpen(true)}
+                onAddAttendance={() => {
+                  if (isRestricted) setUpgradeOpen(true); else setIsAttendanceModalOpen(true)
+                }}
                 onImport={(items) => {
                   setAttendanceData((prev: StudentAttendanceRecord[]) => {
                     const maxId = prev.reduce((m, r) => Math.max(m, typeof r.id === 'number' ? r.id : 0), 0);
@@ -689,16 +718,16 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                     }}
                     displayedColumns={displayedColumns}
                     onSelectRecord={(record) => { setRecordToView(record as any); setViewDialogOpen(true); }}
-                    onEditRecord={(record) => openEditAttendance(record as any)}
-                    onDeleteRecord={(record) => { setRecordToDelete(record as any); setDeleteDialogOpen(true); }}
+                    onEditRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else openEditAttendance(record as any) }}
+                    onDeleteRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else { setRecordToDelete(record as any); setDeleteDialogOpen(true); } }}
                   />
                 </>
               ) : (
-                <AttendanceGrid
+                  <AttendanceGrid
                   attendanceData={filteredAttendance}
                   onSelectRecord={(record) => { setRecordToView(record as any); setViewDialogOpen(true); }}
-                  onEditRecord={(record) => openEditAttendance(record as any)}
-                  onDeleteRecord={(record) => { setRecordToDelete(record as any); setDeleteDialogOpen(true); }}
+                  onEditRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else openEditAttendance(record as any) }}
+                  onDeleteRecord={(record) => { if (isRestricted) setUpgradeOpen(true); else { setRecordToDelete(record as any); setDeleteDialogOpen(true); } }}
                 />
               )}
                 </>
@@ -799,6 +828,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                 onClick={async () => {
                   if (!recordToDelete) return;
                   
+                  if (isRestricted) { setUpgradeOpen(true); return; }
                   try {
                     const response = await fetch(`/api/dashboard/student/attendance/${recordToDelete.id}`, {
                       method: 'DELETE',
@@ -819,6 +849,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
                         throw new Error(result.error);
                       }
                     } else {
+                      if (response.status === 403) { setUpgradeOpen(true); return; }
                       throw new Error('Failed to delete attendance record');
                     }
                   } catch (error: any) {
@@ -840,6 +871,7 @@ function AttendanceManagementInner({ preloadedData = [], preloadedDataLoading }:
           </div>
         </DialogContent>
       </Dialog>
+    <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} module={'attendance'} />
     </div>
   );
 }

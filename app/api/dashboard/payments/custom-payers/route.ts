@@ -58,6 +58,9 @@ export async function POST(request: NextRequest) {
     return await runWithTenantContext(
       { tenantId: session.tenantId },
       async () => {
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'payments');
+        if (block) return block;
         const body = await request.json();
         const { payerName } = body;
 

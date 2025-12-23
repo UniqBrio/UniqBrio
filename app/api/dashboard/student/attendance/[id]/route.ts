@@ -244,6 +244,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       try {
         await dbConnect("uniqbrio");
 
+    // Restrict writes when on Free plan with >14 students
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+    if (block) return block;
+
     const body = await request.json();
     const {
       studentId,
@@ -386,6 +391,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     async () => {
       try {
         await dbConnect("uniqbrio");
+
+        // Restrict writes when on Free plan with >14 students
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+        if (block) return block;
 
         const deletedRecord = await StudentAttendance.findOneAndDelete({ _id: params.id, tenantId: session.tenantId });
     

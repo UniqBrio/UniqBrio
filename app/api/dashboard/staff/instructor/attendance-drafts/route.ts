@@ -54,6 +54,10 @@ export async function POST(req: Request) {
   return runWithTenantContext({ tenantId: session.tenantId }, async () => {
     try {
       await dbConnect("uniqbrio")
+      // Enforce plan restriction for attendance writes
+      const restriction = await import('@/lib/restrictions');
+      const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+      if (block) return block;
       const body = await req.json()
       const savedAt = body.savedAt || new Date().toISOString()
       const instructorId = String(body.instructorId ?? '') || undefined

@@ -142,6 +142,11 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect("uniqbrio");
 
+    // Restrict writes when on Free plan with >14 students
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+    if (block) return block;
+
     const body = await request.json();
     const {
       studentId,
@@ -215,6 +220,11 @@ export async function DELETE(request: NextRequest) {
     async () => {
   try {
     await dbConnect("uniqbrio");
+
+    // Restrict writes when on Free plan with >14 students
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+    if (block) return block;
 
     const { searchParams } = new URL(request.url);
     const deleteAll = searchParams.get('deleteAll') === 'true';

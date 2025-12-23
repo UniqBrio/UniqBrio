@@ -103,6 +103,9 @@ export async function POST(request: NextRequest) {
     { tenantId: session.tenantId },
     async () => {
   try {
+    const restriction = await import('@/lib/restrictions');
+    const block = await restriction.assertWriteAllowed(session.tenantId!, 'courses');
+    if (block) return block;
     await dbConnect("uniqbrio")
     
     const body = await request.json()
@@ -219,6 +222,9 @@ export async function PUT(request: NextRequest) {
     { tenantId: session.tenantId },
     async () => {
       try {
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'courses');
+        if (block) return block;
         await dbConnect("uniqbrio")
         
         const body = await request.json()
@@ -382,6 +388,9 @@ export async function DELETE(request: NextRequest) {
     { tenantId: session.tenantId },
     async () => {
       try {
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'courses');
+        if (block) return block;
         await dbConnect("uniqbrio")
         
         const { searchParams } = new URL(request.url)

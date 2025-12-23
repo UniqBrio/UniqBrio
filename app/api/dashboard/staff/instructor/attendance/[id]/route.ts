@@ -23,6 +23,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     async () => {
       try {
         await dbConnect("uniqbrio")
+        // Enforce plan restriction for attendance writes
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+        if (block) return block;
         const patch = await req.json()
 
         // Drop course/cohort ids & names from the persisted payload per requirement
@@ -65,6 +69,10 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
     async () => {
       try {
         await dbConnect("uniqbrio")
+        // Enforce plan restriction for attendance writes
+        const restriction = await import('@/lib/restrictions');
+        const block = await restriction.assertWriteAllowed(session.tenantId!, 'attendance');
+        if (block) return block;
         // Explicitly include tenantId in the query
         const res = await InstructorAttendanceModel.deleteOne({ 
           _id: params.id, 

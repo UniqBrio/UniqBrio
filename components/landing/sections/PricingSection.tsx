@@ -20,7 +20,7 @@ export default function PricingSection({ onBookDemo }: PricingSectionProps) {
       bestFor: '<14 active students',
       description: 'Perfect for new academies just getting started',
       features: [
-        'Up to 14 active students',
+        'Up to 7 active students',
         'Basic scheduling & attendance',
         '1 branch location',
         'Email support',
