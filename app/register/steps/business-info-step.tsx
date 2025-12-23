@@ -1606,17 +1606,17 @@ useEffect(() => {
 
         {/* Logo, Profile Picture, and Business Name Upload */}
         <div className="space-y-2 md:col-span-2">
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex flex-col md:flex-row gap-6">
             {/* Business Logo Upload */}
             <div className="flex-1">
-              <Label htmlFor="logo">Business Logo </Label>
+              <Label htmlFor="logo">Business Logo</Label>
               <Input
                 id="logo"
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleLogoChange}
                 ref={logoInputRef}
-                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
+                className="cursor-pointer w-full h-[42px] !py-0 !px-0 !mt-0 !leading-[42px] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer file:!leading-normal"
               />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: {MAX_UPLOAD_SIZE_LABEL}</p>
               {uploadErrors.logo && (
@@ -1652,14 +1652,14 @@ useEffect(() => {
 
             {/* Business Name Upload (Moved to second) */}
             <div className="flex-1">
-              <Label htmlFor="businessNameFile">Business Name Upload </Label>
+              <Label htmlFor="businessNameFile">Business Name Upload</Label>
               <Input
                 id="businessNameFile"
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleBusinessNameFileChange}
                 ref={businessNameFileInputRef}
-                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:cursor-pointer"
+                className="cursor-pointer w-full h-[42px] !py-0 !px-0 !mt-0 !leading-[42px] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:cursor-pointer file:!leading-normal"
               />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: {MAX_UPLOAD_SIZE_LABEL}</p>
               {uploadErrors.businessNameFile && (
@@ -1693,14 +1693,14 @@ useEffect(() => {
 
             {/* Profile Picture Upload (Moved to third) */}
             <div className="flex-1">
-              <Label htmlFor="profilePicture">Profile Picture </Label>
+              <Label htmlFor="profilePicture">Profile Picture</Label>
               <Input
                 id="profilePicture"
                 type="file"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
                 onChange={handleProfilePictureChange}
                 ref={profilePictureInputRef}
-                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
+                className="cursor-pointer w-full h-[42px] !py-0 !px-0 !mt-0 !leading-[42px] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer file:!leading-normal"
               />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PNG, JPG, JPEG, SVG. Max size: {MAX_UPLOAD_SIZE_LABEL}</p>
               {uploadErrors.profilePicture && (

@@ -102,7 +102,7 @@ export async function POST(req: Request) {
       if (!email) {
         console.error("[Registration API] No email found in session or request body");
         await session.abortTransaction();
-        return NextResponse.json({ error: "Email is required for registration" }, { status: 400 });
+        return NextResponse.json({ error: "Email address is required for registration." }, { status: 400 });
       }
       console.log("[Registration API] Using email from request body:", email);
     }
@@ -111,17 +111,17 @@ export async function POST(req: Request) {
     const existingUser = await UserModel.findOne({ email }).session(session);
     if (!existingUser) {
       await session.abortTransaction();
-      return NextResponse.json({ error: "No user found for this session." }, { status: 404 });
+      return NextResponse.json({ error: "Account not found. Please verify your email address." }, { status: 404 });
     }
 
     if (!existingUser.verified) {
       await session.abortTransaction();
-      return NextResponse.json({ error: "Email not verified." }, { status: 403 });
+      return NextResponse.json({ error: "Please verify your email address before completing registration." }, { status: 403 });
     }
 
     if (existingUser.registrationComplete) {
       await session.abortTransaction();
-      return NextResponse.json({ error: "Registration already completed." }, { status: 400 });
+      return NextResponse.json({ error: "Your academy is already registered. Please log in to continue." }, { status: 400 });
     }
 
     const sanitizedBusinessInfo = pickAllowed(body?.businessInfo, businessInfoFields);
@@ -146,13 +146,13 @@ export async function POST(req: Request) {
     if (!sanitizedAdminInfo["fullName"]) {
       console.error("[Registration API] Validation failed: missing fullName", sanitizedAdminInfo);
       await session.abortTransaction();
-      return NextResponse.json({ error: "Full name is required." }, { status: 400 });
+      return NextResponse.json({ error: "Please provide your full name." }, { status: 400 });
     }
     
     if (!sanitizedBusinessInfo["businessName"]) {
       console.error("[Registration API] Validation failed: missing businessName", sanitizedBusinessInfo);
       await session.abortTransaction();
-      return NextResponse.json({ error: "Business name is required." }, { status: 400 });
+      return NextResponse.json({ error: "Please provide your business name." }, { status: 400 });
     }
 
     // Check if user already has a valid registration with proper IDs
@@ -371,9 +371,10 @@ export async function POST(req: Request) {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : String(error)
     });
+    
+    // Return user-friendly error without technical details
     return NextResponse.json({ 
-      error: "Registration failed.",
-      details: error instanceof Error ? error.message : String(error)
+      error: "Unable to complete registration. Please try again."
     }, { status: 500 });
   } finally {
     session.endSession();

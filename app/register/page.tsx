@@ -231,32 +231,65 @@ export default function RegistrationForm() {
       const trimmedMessage = rawMessage.trim()
       const normalized = trimmedMessage.toLowerCase()
 
-      if (normalized.includes("413")) {
-        return "Your documents look a little large. Please upload images under 2 MB and try again."
+      // File upload errors
+      if (normalized.includes("413") || normalized.includes("too large")) {
+        return "Your uploaded files are too large. Please use images under 2 MB."
       }
 
+      // Network errors
       if (normalized.includes("timeout")) {
-        return "The request is taking longer than expected. Please try again in a moment."
+        return "The request is taking longer than expected. Please try again."
       }
 
-      if (normalized.includes("failed to fetch") || normalized.includes("network")) {
-        return "We couldn't reach the server. Please check your connection and try again."
+      if (normalized.includes("failed to fetch") || normalized.includes("network error")) {
+        return "Unable to connect to server. Please check your internet connection and try again."
       }
 
-      if (
-        normalized.includes("request failed with status") ||
-        normalized.includes("expected json response") ||
-        normalized.includes("server returned")
-      ) {
-        return "We couldn't complete your registration right now. Please try again shortly or contact support."
+      // Validation errors (pass through as they're already user-friendly)
+      if (normalized.includes("required") || 
+          normalized.includes("invalid") || 
+          normalized.includes("must be") ||
+          normalized.includes("please")) {
+        return trimmedMessage
       }
 
-      if (trimmedMessage) {
+      // Registration already complete
+      if (normalized.includes("already completed") || normalized.includes("already registered")) {
+        return "Your academy is already registered. Please log in to access your dashboard."
+      }
+
+      // Database/server errors - hide technical details
+      if (normalized.includes("status 500") || normalized.includes("internal server")) {
+        return "We're experiencing technical difficulties. Please try again in a few moments."
+      }
+
+      if (normalized.includes("status 400") || normalized.includes("bad request")) {
+        return "Some information is missing or incorrect. Please review your details and try again."
+      }
+
+      if (normalized.includes("status 404")) {
+        return "We couldn't find your account. Please verify your email address."
+      }
+
+      if (normalized.includes("status 403") || normalized.includes("not verified")) {
+        return "Please verify your email address before completing registration."
+      }
+
+      // Generic error with status code - make it friendly
+      if (normalized.includes("failed with status") || normalized.includes("registration failed")) {
+        return "Unable to complete registration. Please try again or contact support if the issue persists."
+      }
+
+      // If message seems user-friendly (no tech jargon), return it
+      if (!normalized.includes("error:") && 
+          !normalized.includes("exception") && 
+          !normalized.includes("stack") &&
+          trimmedMessage.length < 150) {
         return trimmedMessage
       }
     }
 
-    return "We couldn't complete your registration right now. Please try again shortly or contact support."
+    return "Unable to complete registration. Please try again or contact support."
   }
 
   const handleRegister = async () => {
@@ -427,10 +460,22 @@ export default function RegistrationForm() {
       }
 
       if (!response.ok || !data?.success) {
-        const errorMsg = data?.error || `Registration failed with status ${response.status}`
-        const errorDetails = data?.details ? ` Details: ${data.details}` : ''
-        console.error("[Registration] Server error:", { status: response.status, error: errorMsg, details: data?.details })
-        throw new Error(errorMsg + errorDetails)
+        const serverError = data?.error || "Registration failed"
+        console.error("[Registration] Server error:", { 
+          status: response.status, 
+          error: serverError, 
+          details: data?.details 
+        })
+        // Throw user-friendly error based on status code
+        if (response.status === 500) {
+          throw new Error("Unable to complete registration due to a server issue.")
+        } else if (response.status === 400) {
+          throw new Error(serverError) // 400 errors are usually validation, show them
+        } else if (response.status === 403) {
+          throw new Error("Please verify your email before completing registration.")
+        } else {
+          throw new Error(serverError)
+        }
       }
 
       setShowWelcomePopup(true);
@@ -468,15 +513,8 @@ export default function RegistrationForm() {
       console.error("[Registration] Registration failed:", error);
       console.error("[Registration] Error type:", error instanceof Error ? error.constructor.name : typeof error);
       toast({
-        title: "We couldn't complete registration",
-        description: (
-          <div className="space-y-2">
-            <p>{friendlyMessage}</p>
-            {friendlyMessage.includes("failed with status 500") && (
-              <p className="text-xs mt-2">If this persists after trying again, please contact support.</p>
-            )}
-          </div>
-        ),
+        title: "Registration Incomplete",
+        description: friendlyMessage,
         variant: "destructive",
       })
     } finally {
@@ -618,108 +656,104 @@ export default function RegistrationForm() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 overflow-y-auto pr-4 flex-1">
-            <section className="space-y-3">
-              <h4 className="text-lg font-semibold">Business Information</h4>
-              <div className="grid grid-cols-1 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Business Name</p>
-                  <p className="font-medium">{previewValues.businessName ?? formatValue(businessInfo.businessName)}</p>
+            <section className="space-y-4">
+              <h4 className="text-lg font-semibold border-b pb-2">Business Information</h4>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Business Name</p>
+                  <p className="font-medium text-sm">{previewValues.businessName ?? formatValue(businessInfo.businessName)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Legal Entity Name</p>
-                  <p className="font-medium">{previewValues.legalEntityName ?? formatValue(businessInfo.legalEntityName)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Legal Entity Name</p>
+                  <p className="font-medium text-sm">{previewValues.legalEntityName ?? formatValue(businessInfo.legalEntityName)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Business Email</p>
-                  <p className="font-medium">{previewValues.businessEmail ?? formatValue(businessInfo.businessEmail)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Business Email</p>
+                  <p className="font-medium text-sm break-all">{previewValues.businessEmail ?? formatValue(businessInfo.businessEmail)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Contact Number</p>
-                  <p className="font-medium">{previewValues.phoneNumber ?? formatValue(businessInfo.phoneNumber)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Contact Number</p>
+                  <p className="font-medium text-sm">{previewValues.phoneNumber ?? formatValue(businessInfo.phoneNumber)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Industry Type</p>
-                  <p className="font-medium">{previewValues.industryType ?? formatLabel(businessInfo.industryType)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Industry Type</p>
+                  <p className="font-medium text-sm">{previewValues.industryType ?? formatLabel(businessInfo.industryType)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Services Offered</p>
-                  <p className="font-medium">{previewValues.servicesOffered ?? formatLabelList(businessInfo.servicesOffered)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Services Offered</p>
+                  <p className="font-medium text-sm">{previewValues.servicesOffered ?? formatLabelList(businessInfo.servicesOffered)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Student Size</p>
-                  <p className="font-medium">{previewValues.studentSize ?? formatLabel(businessInfo.studentSize)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Student Size</p>
+                  <p className="font-medium text-sm">{previewValues.studentSize ?? formatLabel(businessInfo.studentSize)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Staff Count</p>
-                  <p className="font-medium">{previewValues.staffCount ?? formatLabel(businessInfo.staffCount)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Staff Count</p>
+                  <p className="font-medium text-sm">{previewValues.staffCount ?? formatLabel(businessInfo.staffCount)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Country</p>
-                  <p className="font-medium">{previewValues.country ?? formatLabel(businessInfo.country)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Country</p>
+                  <p className="font-medium text-sm">{previewValues.country ?? formatLabel(businessInfo.country)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">State</p>
-                  <p className="font-medium">{previewValues.state ?? formatLabel(businessInfo.state)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">State</p>
+                  <p className="font-medium text-sm">{previewValues.state ?? formatLabel(businessInfo.state)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">City</p>
-                  <p className="font-medium">{previewValues.city ?? formatValue(businessInfo.city)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">City</p>
+                  <p className="font-medium text-sm">{previewValues.city ?? formatValue(businessInfo.city)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Postal Code</p>
-                  <p className="font-medium">{previewValues.pincode ?? formatValue(businessInfo.pincode)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Postal Code</p>
+                  <p className="font-medium text-sm">{previewValues.pincode ?? formatValue(businessInfo.pincode)}</p>
                 </div>
-                <div className="md:col-span-2">
-                  <p className="text-muted-foreground">Address</p>
-                  <p className="font-medium">{previewValues.address ?? formatValue(businessInfo.address)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Address</p>
+                  <p className="font-medium text-sm">{previewValues.address ?? formatValue(businessInfo.address)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Website</p>
-                  <p className="font-medium">{previewValues.website ?? formatValue(businessInfo.website)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Website</p>
+                  <p className="font-medium text-sm break-all">{previewValues.website ?? formatValue(businessInfo.website)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Preferred Language</p>
-                  <p className="font-medium">{previewValues.preferredLanguage ?? formatLabel(businessInfo.preferredLanguage)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Preferred Language</p>
+                  <p className="font-medium text-sm">{previewValues.preferredLanguage ?? formatLabel(businessInfo.preferredLanguage)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Tax ID</p>
-                  <p className="font-medium">{previewValues.taxId ?? formatValue(businessInfo.taxId)}</p>
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-3">
-              <h4 className="text-lg font-semibold">Owner/Admin Information</h4>
-              <div className="grid grid-cols-1 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Full Name</p>
-                  <p className="font-medium">{formatValue(adminInfo.fullName)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Email</p>
-                  <p className="font-medium">{formatValue(adminInfo.email)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Phone Number</p>
-                  <p className="font-medium">{formatValue(adminInfo.phone)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Tax ID</p>
+                  <p className="font-medium text-sm">{previewValues.taxId ?? formatValue(businessInfo.taxId)}</p>
                 </div>
               </div>
             </section>
 
-            <section className="space-y-3">
-              <h4 className="text-lg font-semibold">Setup Preferences</h4>
-              <div className="grid grid-cols-1 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">How did you hear about us?</p>
-                  <p className="font-medium">{formatLabel(preferences.referralSource)}</p>
+            <section className="space-y-4">
+              <h4 className="text-lg font-semibold border-b pb-2">Owner/Admin Information</h4>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Full Name</p>
+                  <p className="font-medium text-sm">{formatValue(adminInfo.fullName)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Other Referral Details</p>
-                  <p className="font-medium">{formatValue(preferences.otherReferral)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Email</p>
+                  <p className="font-medium text-sm break-all">{formatValue(adminInfo.email)}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Features of Interest</p>
-                  <p className="font-medium">{formatLabelList(preferences.featuresOfInterest)}</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Phone Number</p>
+                  <p className="font-medium text-sm">{formatValue(adminInfo.phone)}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <h4 className="text-lg font-semibold border-b pb-2">Setup Preferences</h4>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">How did you hear about us?</p>
+                  <p className="font-medium text-sm">{formatLabel(preferences.referralSource)}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Other Referral Details</p>
+                  <p className="font-medium text-sm">{formatValue(preferences.otherReferral)}</p>
                 </div>
               </div>
             </section>
