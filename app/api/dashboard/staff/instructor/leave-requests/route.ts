@@ -295,18 +295,24 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: false, error: `Missing required fields for submission: ${missing.join(', ')}` }, { status: 400 })
       }
 
-      // Check for duplicate leave request (same instructor, same date range, same reason)
-      const duplicateCheck = await LeaveRequest.findOne({
+      // Check for duplicate/overlapping leave requests
+      const overlapping = await LeaveRequest.findOne({
         instructorId: body.instructorId,
-        startDate: body.startDate,
-        endDate: body.endDate,
-        reason: body.reason,
         tenantId: session.tenantId,
+        status: { $in: ['APPROVED', 'PENDING'] },
+        $or: [
+          // New request starts during existing leave
+          { startDate: { $lte: body.startDate }, endDate: { $gte: body.startDate } },
+          // New request ends during existing leave
+          { startDate: { $lte: body.endDate }, endDate: { $gte: body.endDate } },
+          // New request completely contains existing leave
+          { startDate: { $gte: body.startDate }, endDate: { $lte: body.endDate } }
+        ]
       }).lean()
-      if (duplicateCheck) {
+      if (overlapping) {
         return NextResponse.json({ 
           ok: false, 
-          error: 'A leave request with the same dates and reason already exists for this instructor.' 
+          error: `A leave request already exists for this instructor from ${overlapping.startDate} to ${overlapping.endDate}. Please choose different dates.` 
         }, { status: 409 })
       }
 

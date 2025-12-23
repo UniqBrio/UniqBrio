@@ -179,12 +179,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: false, error: `Missing required fields for submission: ${missing.join(', ')}` }, { status: 400 })
       }
       
-      // Check for duplicate/overlapping leave requests
+      // Check for duplicate/overlapping leave requests (including drafts, pending, and approved)
       if (body.startDate && body.endDate && body.instructorId) {
         const overlapping = await NonInstructorLeaveRequest.findOne({
           instructorId: body.instructorId,
           tenantId: session.tenantId,
-          status: { $in: ['APPROVED', 'PENDING'] },
+          status: { $in: ['APPROVED', 'PENDING', 'DRAFT'] },
           $or: [
             // New request starts during existing leave
             { startDate: { $lte: body.startDate }, endDate: { $gte: body.startDate } },
@@ -196,9 +196,10 @@ export async function POST(req: Request) {
         }).lean()
         
         if (overlapping) {
+          const statusText = overlapping.status === 'DRAFT' ? 'draft' : overlapping.status === 'PENDING' ? 'pending' : 'approved';
           return NextResponse.json({ 
             ok: false, 
-            error: `A leave request already exists for this non-instructor from ${overlapping.startDate} to ${overlapping.endDate}. Please choose different dates.` 
+            error: `A ${statusText} leave request already exists for this person from ${overlapping.startDate} to ${overlapping.endDate}. Please choose different dates or delete the existing request.` 
           }, { status: 409 })
         }
       }
