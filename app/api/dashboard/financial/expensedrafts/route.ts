@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
       try {
         await dbConnect("uniqbrio");
         
-        const drafts = await ExpenseDraftModel.find({ tenantId: session.tenantId }).sort({ lastUpdated: -1 });
+        const drafts = await ExpenseDraftModel.find({ tenantId: session.tenantId }).sort({ lastUpdated: -1 }).lean();
     
         // Convert MongoDB _id to string id
         const formattedDrafts = drafts.map((draft: any) => ({
-          ...draft.toObject(),
+          ...draft,
           id: draft._id.toString(),
           _id: undefined,
           lastUpdated: draft.lastUpdated.toISOString().split('T')[0] // Format date

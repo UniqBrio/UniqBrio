@@ -74,6 +74,10 @@ StudentSchema.index({ tenantId: 1, email: 1 }, { unique: true });
 // Keep only additional index for cohort lookups.
 StudentSchema.index({ cohortId: 1 });
 StudentSchema.index({ isDeleted: 1 }); // For filtering deleted students
+// Composite indexes for common query patterns
+StudentSchema.index({ tenantId: 1, cohortId: 1 }); // For cohort-specific student lists
+StudentSchema.index({ tenantId: 1, isDeleted: 1, deletedAt: -1 }); // For deleted students list with sorting
+StudentSchema.index({ tenantId: 1, registrationDate: -1 }); // For recent registrations
 
 // Helper method for soft delete
 StudentSchema.methods.softDelete = function() {

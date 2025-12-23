@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
 
     // Get user details from User collection
     await dbConnect();
-    const user = await UserModel.findOne({ email: userEmail });
+    const user = await UserModel.findOne({ email: userEmail })
+      .select('userId academyId name email')
+      .lean();
     if (!user) {
       console.log(`[user-academy-info] User not found for email: ${userEmail}`);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
     
     let matchingRegistration = await RegistrationModel.findOne({
       'adminInfo.email': userEmail
-    });
+    }).lean();
 
     console.log(`[user-academy-info] Found ${matchingRegistration ? 1 : 0} matching registrations`);
     

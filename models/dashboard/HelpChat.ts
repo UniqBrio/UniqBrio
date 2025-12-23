@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { tenantPlugin } from '@/lib/tenant/tenant-plugin';
 
 // Message Interface for chat messages
 export interface IChatMessage {
@@ -71,8 +72,14 @@ const helpChatSchema = new Schema<IHelpChat>({
   timestamps: true
 });
 
+// Apply tenant plugin for multi-tenant isolation
+helpChatSchema.plugin(tenantPlugin);
+
 // Indexes for efficient querying
 // Note: chatId index is created by unique: true constraint
+helpChatSchema.index({ tenantId: 1, userId: 1 }); // Tenant-scoped user chats
+helpChatSchema.index({ tenantId: 1, lastMessageAt: -1 }); // Recent chats by tenant
+helpChatSchema.index({ tenantId: 1, createdAt: -1 }); // Tenant chat history
 helpChatSchema.index({ userId: 1 });
 helpChatSchema.index({ lastMessageAt: -1 });
 helpChatSchema.index({ createdAt: -1 });

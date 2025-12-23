@@ -83,6 +83,9 @@ const userSchema = new Schema<IUser>(
 
 // Compound indexes for tenant isolation
 userSchema.index({ tenantId: 1, email: 1 });
+// Additional composite indexes for performance
+userSchema.index({ email: 1, verified: 1 }); // For login and verification checks
+userSchema.index({ academyId: 1, email: 1 }); // For tenant-specific user lookups
 
 // Prevent model recompilation in development
 const UserModel: Model<IUser> = 

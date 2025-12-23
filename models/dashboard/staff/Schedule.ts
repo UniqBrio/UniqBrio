@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface ISchedule extends Document {
   instructorId?: string
@@ -25,5 +26,13 @@ const ScheduleSchema = new Schema<ISchedule>({
   subject: String,
   conflicts: [String],
 }, { timestamps: true })
+
+// Apply tenant plugin for multi-tenancy support
+ScheduleSchema.plugin(tenantPlugin)
+
+// Indexes for performance
+ScheduleSchema.index({ tenantId: 1, instructorId: 1, date: 1 }); // Find instructor's schedule by date
+ScheduleSchema.index({ tenantId: 1, date: 1 }); // Find all schedules by date
+ScheduleSchema.index({ tenantId: 1, type: 1 }); // Filter by schedule type
 
 export default (mongoose.models.Schedule as Model<ISchedule>) || mongoose.model<ISchedule>("Schedule", ScheduleSchema)

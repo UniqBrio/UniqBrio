@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch student first (needed for both payment creation and email)
-    const student = await Student.findOne({ studentId, tenantId: session.tenantId });
+    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
     if (!student) {
       return NextResponse.json(
         { error: 'Student not found' },
@@ -249,17 +249,17 @@ export async function POST(request: NextRequest) {
     
     if (mongoose.Types.ObjectId.isValid(paymentId) && paymentId.length === 24) {
       // paymentId is a valid MongoDB ObjectId - still need tenant check
-      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId });
+      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId }).lean();
       console.log('[Manual Payment API] Found by _id:', !!payment);
     } else {
       // paymentId is actually a studentId - find by studentId
-      payment = await Payment.findOne({ studentId: paymentId, tenantId: session.tenantId });
+      payment = await Payment.findOne({ studentId: paymentId, tenantId: session.tenantId }).lean();
       console.log('[Manual Payment API] Found by paymentId as studentId:', !!payment);
     }
     
     // Also try to find payment by studentId if not found above
     if (!payment) {
-      payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
+      payment = await Payment.findOne({ studentId, tenantId: session.tenantId }).lean();
       console.log('[Manual Payment API] Found by studentId:', !!payment);
     }
     

@@ -104,7 +104,7 @@ export async function PUT(req: NextRequest) {
 
     // Get user
     await dbConnect();
-    const user = await UserModel.findOne({ email: decoded.email as string });
+    const user = await UserModel.findOne({ email: decoded.email as string }).lean();
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })

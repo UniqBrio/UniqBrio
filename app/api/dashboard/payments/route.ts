@@ -149,11 +149,11 @@ export async function POST(request: NextRequest) {
     
     if ((student as any).cohortId) {
       const Cohort = mongoose.connection.collection('cohorts');
-      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId });
+      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId }).lean();
       if (cohort?.courseId) {
         courseId = cohort.courseId;
         const Course = mongoose.connection.collection('courses');
-        const course = await Course.findOne({ courseId: cohort.courseId, tenantId: session.tenantId });
+        const course = await Course.findOne({ courseId: cohort.courseId, tenantId: session.tenantId }).lean();
         if (course) {
           courseFee = course.price || 0;
           courseName = course.name || courseName;

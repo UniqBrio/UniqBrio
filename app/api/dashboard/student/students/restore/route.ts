@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Student ID required' }, { status: 400 });
     }
     
-    const student = await Student.findOne({ studentId, isDeleted: true });
+    const student = await Student.findOne({ studentId, isDeleted: true }).lean();
     
     if (!student) {
       return NextResponse.json({ 

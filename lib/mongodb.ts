@@ -42,11 +42,11 @@ export async function dbConnect(dbName: string = DB_NAME): Promise<typeof mongoo
     try {
       await mongoose.connect(MONGODB_URI, {
         dbName: dbName,
-        maxPoolSize: 10,
-        minPoolSize: 2,
-        serverSelectionTimeoutMS: 30000, // Increased to 30 seconds
-        socketTimeoutMS: 60000,
-        connectTimeoutMS: 30000,
+        maxPoolSize: 100, // Increased from 10 to 100 for better concurrency
+        minPoolSize: 5,   // Increased from 2 to 5
+        serverSelectionTimeoutMS: 5000, // Reduced from 30s to 5s for faster failure detection
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 10000,
         retryWrites: true,
         retryReads: true,
         heartbeatFrequencyMS: 10000,

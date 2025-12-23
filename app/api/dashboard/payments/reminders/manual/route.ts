@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Find payment record with tenant isolation
     // Use studentId since the id field mapping is unreliable
-    const payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
+    const payment = await Payment.findOne({ studentId, tenantId: session.tenantId }).lean();
 
     if (!payment) {
       return NextResponse.json(

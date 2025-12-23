@@ -150,10 +150,13 @@ export async function validateSession(
       return { isValid: false, error: 'Session expired or revoked' };
     }
 
-    // Update last activity
-    await runWithTenantContext({ tenantId }, async () => {
-      await session.updateActivity();
-    });
+    // Update last activity only if it's been more than 1 minute to reduce DB writes
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+    if (!session.lastActiveAt || session.lastActiveAt < oneMinuteAgo) {
+      await runWithTenantContext({ tenantId }, async () => {
+        await session.updateActivity();
+      });
+    }
 
     return { isValid: true, session };
   } catch (error) {

@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
       email: dbUser.email,
       role: dbUser.role ?? "super_admin",
       verified: dbUser.verified,
+      registrationComplete: dbUser.registrationComplete, // Added for performance optimization
       name: dbUser.name,
       lastActivity: Date.now(),
       tenantId: dbUser.academyId || dbUser.tenantId, // Will be undefined until registration

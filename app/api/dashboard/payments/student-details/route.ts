@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const student = await Student.findOne({ studentId, tenantId: session.tenantId })
+    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean()
       .select('studentId name enrolledCourse enrolledCourseName category courseType courseLevel cohortId courseOfInterestId guardian guardianFirstName guardianMiddleName guardianLastName')
       .lean()
       .exec();
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     if (!courseId && (student as any).cohortId) {
       console.log('[student-details] Fetching courseId from cohort:', (student as any).cohortId);
       const Cohort = mongoose.connection.collection('cohorts');
-      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId });
+      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId }).lean();
       if (cohort?.courseId) {
         courseId = cohort.courseId;
         console.log('[student-details] Found courseId from cohort:', courseId);

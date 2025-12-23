@@ -81,63 +81,77 @@ async function getKYCQueue() {
     // Convert back to array
     const latestSubmissions = Array.from(uniqueSubmissions.values());
 
-    // Get user and academy data separately
-    const enrichedSubmissions = await Promise.all(
-      latestSubmissions.map(async (submission: any) => {
-        const user = await UserModel.findOne({ userId: submission.userId })
-          .select('email name kycStatus kycSubmissionDate')
-          .lean();
+    // PERFORMANCE: Batch all database queries instead of N+1 queries in map
+    const userIds = latestSubmissions.map((s: any) => s.userId);
+    const academyIds = latestSubmissions.map((s: any) => s.academyId);
 
-        // Check if this is a resubmission by looking for previous rejections
-        const hasRejection = await KycReviewModel.findOne({
-          userId: submission.userId,
-          academyId: submission.academyId,
-          status: 'rejected'
-        }).lean();
+    // Fetch all data in parallel
+    const [allUsers, allRejections, allRegistrations] = await Promise.all([
+      UserModel.find({ userId: { $in: userIds } })
+        .select('userId email name kycStatus kycSubmissionDate')
+        .lean(),
+      KycReviewModel.find({
+        userId: { $in: userIds },
+        academyId: { $in: academyIds },
+        status: 'rejected'
+      }).select('userId academyId').lean(),
+      RegistrationModel.find({
+        $or: [
+          { userId: { $in: userIds } },
+          { academyId: { $in: academyIds } }
+        ]
+      }).select('userId academyId businessInfo').lean()
+    ]);
 
-        // Count total submissions for this user/academy
-        const totalSubmissions = await KycSubmissionModel.countDocuments({
-          userId: submission.userId,
-          academyId: submission.academyId
-        });
-
-        // Get academy name from registration data
-        const registration = await RegistrationModel.findOne({
-          $or: [
-            { userId: submission.userId },
-            { academyId: submission.academyId }
-          ]
-        })
-          .select('businessInfo')
-          .lean();
-        
-        let academyName = `Academy ${submission.academyId}`;
-        if (registration?.businessInfo && typeof registration.businessInfo === 'object' && 'businessName' in registration.businessInfo) {
-          academyName = (registration.businessInfo as { businessName?: string }).businessName || academyName;
-        }
-
-        return {
-          id: submission._id,
-          academyId: submission.academyId,
-          userId: submission.userId,
-          academyName: academyName,
-          ownerName: user?.name || 'Unknown',
-          ownerEmail: user?.email || 'Unknown',
-          location: submission.location,
-          address: submission.address,
-          dateTime: submission.dateTime,
-          latitude: submission.latitude,
-          longitude: submission.longitude,
-          submittedAt: submission.createdAt,
-          status: user?.kycStatus || 'pending',
-          ownerImageUrl: submission.ownerImageUrl,
-          bannerImageUrl: submission.bannerImageUrl,
-          ownerWithBannerImageUrl: submission.ownerWithBannerImageUrl,
-          isResubmission: !!hasRejection || totalSubmissions > 1,
-          totalSubmissions: totalSubmissions
-        };
-      })
+    // Create lookup maps for O(1) access
+    const userMap = new Map(allUsers.map((u: any) => [u.userId, u]));
+    const rejectionMap = new Map(allRejections.map((r: any) => [`${r.userId}-${r.academyId}`, true]));
+    const registrationMap = new Map(
+      allRegistrations.map((r: any) => [r.userId || r.academyId, r])
     );
+
+    // Get submission counts in bulk
+    const submissionCounts = await KycSubmissionModel.aggregate([
+      { $match: { userId: { $in: userIds }, academyId: { $in: academyIds } } },
+      { $group: { _id: { userId: '$userId', academyId: '$academyId' }, count: { $sum: 1 } } }
+    ]);
+    const countMap = new Map(
+      submissionCounts.map((s: any) => [`${s._id.userId}-${s._id.academyId}`, s.count])
+    );
+
+    // Enrich submissions using pre-fetched data (no database queries in loop)
+    const enrichedSubmissions = latestSubmissions.map((submission: any) => {
+      const user = userMap.get(submission.userId);
+      const hasRejection = rejectionMap.has(`${submission.userId}-${submission.academyId}`);
+      const totalSubmissions = countMap.get(`${submission.userId}-${submission.academyId}`) || 1;
+      const registration = registrationMap.get(submission.userId) || registrationMap.get(submission.academyId);
+      
+      let academyName = `Academy ${submission.academyId}`;
+      if (registration?.businessInfo && typeof registration.businessInfo === 'object' && 'businessName' in registration.businessInfo) {
+        academyName = (registration.businessInfo as { businessName?: string }).businessName || academyName;
+      }
+
+      return {
+        id: submission._id,
+        academyId: submission.academyId,
+        userId: submission.userId,
+        academyName: academyName,
+        ownerName: user?.name || 'Unknown',
+        ownerEmail: user?.email || 'Unknown',
+        location: submission.location,
+        address: submission.address,
+        dateTime: submission.dateTime,
+        latitude: submission.latitude,
+        longitude: submission.longitude,
+        submittedAt: submission.createdAt,
+        status: user?.kycStatus || 'pending',
+        ownerImageUrl: submission.ownerImageUrl,
+        bannerImageUrl: submission.bannerImageUrl,
+        ownerWithBannerImageUrl: submission.ownerWithBannerImageUrl,
+        isResubmission: !!hasRejection,
+        totalSubmissions: totalSubmissions
+      };
+    });
 
     return NextResponse.json({ 
       success: true, 
@@ -165,78 +179,62 @@ async function getAcademies() {
       .lean();
 
     // Check which academies have KYC submissions
-    const academiesWithKYC = await Promise.all(
-      users.map(async (user: any) => {
-        const kycSubmission = await KycSubmissionModel.findOne({
-          userId: user.userId,
-          academyId: user.academyId
-        }).lean();
+    const userIds = users.map((u: any) => u.userId).filter(Boolean);
+    const academyIds = users.map((u: any) => u.academyId).filter(Boolean);
 
-        // Get comprehensive academy data from registration
-        const registration = await RegistrationModel.findOne({
-          $or: [
-            { userId: user.userId },
-            { academyId: user.academyId }
-          ]
-        })
-          .select('businessInfo adminInfo preferences')
-          .lean();
-        
-        let academyName = `Academy ${user.academyId}`;
-        let businessInfo: any = {};
-        let adminInfo: any = {};
-        let preferences: any = {};
-        
-        if (registration) {
-          businessInfo = registration.businessInfo as any || {};
-          adminInfo = registration.adminInfo as any || {};
-          preferences = registration.preferences as any || {};
-          academyName = businessInfo.businessName || academyName;
-        }
+    // PERFORMANCE: Batch all database queries
+    const [allKycSubmissions, allRegistrations] = await Promise.all([
+      KycSubmissionModel.find({
+        userId: { $in: userIds },
+        academyId: { $in: academyIds }
+      }).select('userId academyId').lean(),
+      RegistrationModel.find({
+        $or: [
+          { userId: { $in: userIds } },
+          { academyId: { $in: academyIds } }
+        ]
+      }).select('userId academyId businessInfo adminInfo preferences').lean()
+    ]);
 
-        return {
-          academyId: user.academyId,
-          userId: user.userId,
-          academyName: academyName,
-          ownerName: user.name,
-          ownerEmail: user.email,
-          verified: user.verified,
-          hasKYC: !!kycSubmission,
-          registeredAt: user.createdAt,
-          status: kycSubmission ? 'kyc_submitted' : 'registered',
-          // Enhanced business data
-          businessInfo: {
-            legalEntityName: businessInfo.legalEntityName || '',
-            businessEmail: businessInfo.businessEmail || user.email,
-            phoneNumber: businessInfo.phoneNumber || '',
-            industryType: businessInfo.industryType || '',
-            servicesOffered: businessInfo.servicesOffered || [],
-            studentSize: businessInfo.studentSize || '',
-            staffCount: businessInfo.staffCount || '',
-            address: businessInfo.address || '',
-            city: businessInfo.city || '',
-            state: businessInfo.state || '',
-            country: businessInfo.country || '',
-            pincode: businessInfo.pincode || '',
-            website: businessInfo.website || '',
-            preferredLanguage: businessInfo.preferredLanguage || '',
-            taxId: businessInfo.taxId || ''
-          },
-          // Admin contact info
-          adminInfo: {
-            fullName: adminInfo.fullName || user.name,
-            email: adminInfo.email || user.email,
-            phone: adminInfo.phone || '',
-            socialProfile: adminInfo.socialProfile || ''
-          },
-          // Additional preferences
-          preferences: {
-            referralSource: preferences.referralSource || '',
-            featuresOfInterest: preferences.featuresOfInterest || []
-          }
-        };
-      })
+    // Create lookup maps
+    const kycMap = new Map(
+      allKycSubmissions.map((k: any) => [`${k.userId}-${k.academyId}`, k])
     );
+    const regMap = new Map(
+      allRegistrations.map((r: any) => [r.userId || r.academyId, r])
+    );
+
+    const academiesWithKYC = users.map((user: any) => {
+      const kycSubmission = kycMap.get(`${user.userId}-${user.academyId}`);
+      const registration = regMap.get(user.userId) || regMap.get(user.academyId);
+      
+      let academyName = `Academy ${user.academyId}`;
+      let businessInfo: any = {};
+      let adminInfo: any = {};
+      let preferences: any = {};
+      
+      if (registration) {
+        businessInfo = registration.businessInfo as any || {};
+        adminInfo = registration.adminInfo as any || {};
+        preferences = registration.preferences as any || {};
+        academyName = businessInfo.businessName || academyName;
+      }
+
+      return {
+        academyId: user.academyId,
+        userId: user.userId,
+        academyName: academyName,
+        ownerName: user.name || 'Unknown',
+        ownerEmail: user.email || 'Unknown',
+        verified: user.verified,
+        createdAt: user.createdAt,
+        hasKYCSubmission: !!kycSubmission,
+        kycStatus: kycSubmission ? 'submitted' : 'not_submitted',
+        businessInfo: businessInfo,
+        adminInfo: adminInfo,
+        preferences: preferences
+      };
+    });
 
     return NextResponse.json({ 
       success: true, 

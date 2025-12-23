@@ -33,6 +33,14 @@ const TaskSchema = new Schema<TaskDoc>(
 // Apply tenant plugin for multi-tenant isolation
 TaskSchema.plugin(tenantPlugin);
 
+// Performance indexes for common queries
+TaskSchema.index({ tenantId: 1, status: 1 }); // Filter by status within tenant
+TaskSchema.index({ tenantId: 1, targetDate: 1 }); // Sort/filter by target date
+TaskSchema.index({ tenantId: 1, isCompleted: 1 }); // Filter completed/incomplete tasks
+TaskSchema.index({ tenantId: 1, priority: 1 }); // Filter by priority
+TaskSchema.index({ tenantId: 1, assignedTo: 1, status: 1 }); // User's tasks by status
+TaskSchema.index({ tenantId: 1, createdOn: -1 }); // Recent tasks
+
 // Ensure schema changes are applied in dev by resetting the model if it exists
 const Task: Model<TaskDoc> = (mongoose.models.Task as Model<TaskDoc> | undefined)
   ? (delete mongoose.models.Task, mongoose.model<TaskDoc>("Task", TaskSchema))

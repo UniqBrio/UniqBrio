@@ -83,4 +83,9 @@ const CourseSchema = new Schema<ICourse>({
 // Apply tenant plugin for multi-tenancy support
 CourseSchema.plugin(tenantPlugin)
 
+// Indexes for performance
+CourseSchema.index({ tenantId: 1, name: 1 }); // Find by course name
+CourseSchema.index({ tenantId: 1, status: 1 }); // Filter by status
+CourseSchema.index({ tenantId: 1, instructor: 1 }); // Find instructor's courses
+
 export default (mongoose.models.Course as Model<ICourse>) || mongoose.model<ICourse>("Course", CourseSchema)

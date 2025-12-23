@@ -32,7 +32,9 @@ export async function GET(req: NextRequest) {
     }
 
     // Get user's academyId
-    const user = await UserModel.findOne({ email: userEmail });
+    const user = await UserModel.findOne({ email: userEmail })
+      .select('academyId')
+      .lean();
     if (!user || !user.academyId) {
       return NextResponse.json(
         { error: "Academy not found" },

@@ -271,6 +271,7 @@ export async function POST(req: Request) {
         email: updatedUser.email,
         role: updatedUser.role ?? "super_admin",
         verified: updatedUser.verified,
+        registrationComplete: true, // Added for performance optimization
         name: updatedUser.name,
         lastActivity: Date.now(),
         tenantId: updatedUser.academyId || updatedUser.tenantId,

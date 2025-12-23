@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
     }
 
     const limit = Number(searchParams.get("limit") || 100);
-    const docs = await Model.find(q).sort({ date: -1, createdAt: -1 }).limit(limit);
+    const docs = await Model.find(q).sort({ date: -1, createdAt: -1 }).limit(limit).lean();
     
     console.log(`[Financial GET] Query returned ${docs.length} documents`);
     if (docs.length > 0) {

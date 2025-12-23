@@ -87,6 +87,8 @@ AdminPaymentRecordSchema.index({ dueMonth: 1 });
 AdminPaymentRecordSchema.index({ academyId: 1, status: 1, isRead: 1 });
 AdminPaymentRecordSchema.index({ academyId: 1, planStatus: 1 });
 AdminPaymentRecordSchema.index({ isOverdue: 1 });
+// Composite index for active payment queries (critical for performance)
+AdminPaymentRecordSchema.index({ academyId: 1, status: 1, planStatus: 1, startDate: 1, endDate: 1 });
 
 // Pre-save hook to auto-calculate plan status fields
 AdminPaymentRecordSchema.pre("save", function (next) {

@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       console.log('Step 4: Payment not found, creating new record...');
       
       // Fetch student data to create payment record
-      const student = await Student.findOne({ studentId: studentId, tenantId: session.tenantId });
+      const student = await Student.findOne({ studentId: studentId, tenantId: session.tenantId }).lean();
       if (!student) {
         console.error('Step 4: Student not found ✗');
         return NextResponse.json(
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       
       if (student.cohortId) {
         const Cohort = mongoose.connection.collection('cohorts');
-        const cohort = await Cohort.findOne({ cohortId: student.cohortId, tenantId: session.tenantId });
+        const cohort = await Cohort.findOne({ cohortId: student.cohortId, tenantId: session.tenantId }).lean();
         if (cohort?.courseId) {
           courseId = cohort.courseId;
           const Course = mongoose.connection.collection('courses');

@@ -42,6 +42,12 @@ const supportTicketSchema = new Schema<ISupportTicket>(
   }
 );
 
+// Performance indexes for common queries
+supportTicketSchema.index({ email: 1 });
+supportTicketSchema.index({ status: 1 });
+supportTicketSchema.index({ issueType: 1 });
+supportTicketSchema.index({ createdAt: -1 });
+
 const SupportTicketModel: Model<ISupportTicket> = 
   mongoose.models.SupportTicket || mongoose.model<ISupportTicket>('SupportTicket', supportTicketSchema, 'supporttickets');
 

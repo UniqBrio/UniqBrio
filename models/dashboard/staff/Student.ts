@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
+import { tenantPlugin } from "@/lib/tenant/tenant-plugin"
 
 export interface IStudent extends Document {
   name: string
@@ -75,5 +76,14 @@ const StudentSchema = new Schema<IStudent>({
     participationScore: Number,
   },
 }, { timestamps: true })
+
+// Apply tenant plugin for multi-tenancy support
+StudentSchema.plugin(tenantPlugin)
+
+// Indexes for performance
+StudentSchema.index({ tenantId: 1, studentId: 1 }, { unique: true, sparse: true }); // Find by student ID
+StudentSchema.index({ tenantId: 1, course: 1 }); // Find by course
+StudentSchema.index({ tenantId: 1, status: 1 }); // Filter by status
+StudentSchema.index({ tenantId: 1, instructor: 1 }); // Find by instructor
 
 export default (mongoose.models.Student as Model<IStudent>) || mongoose.model<IStudent>("Student", StudentSchema)

@@ -119,6 +119,8 @@ export async function middleware(request: NextRequest) {
     id: string;
     email: string;
     role: string;
+    registrationComplete: boolean; // Added for performance optimization
+    verified: boolean; // Added for performance optimization
     tenantId?: string;
     userId?: string;
     academyId?: string;
@@ -144,85 +146,24 @@ export async function middleware(request: NextRequest) {
   // --- Registration Completion Check ---
   // Check if user has completed registration before accessing protected areas
   if (payload?.email) {
-    try {
-      // Use API route instead of direct Prisma in middleware (edge environment)
-      // Add timeout to prevent middleware hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout (increased from 5s to allow for cold starts and compilation)
-
-      const userInfoResponse = await fetch(`${request.nextUrl.origin}/api/user-registration-status`, {
-        headers: {
-          'Authorization': `Bearer ${sessionCookieValue}`,
-          'Content-Type': 'application/json'
-        },
-        cache: 'no-store',
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (userInfoResponse.ok) {
-        const userData = await userInfoResponse.json();
-        
-        // If user is not verified, redirect to verification
-        if (!userData?.verified) {
-          console.log(`[Middleware] User ${payload.email} not verified, redirecting to verification-pending`);
-          return NextResponse.redirect(new URL('/verification-pending', request.url));
-        }
-
-        // If accessing dashboard but registration not complete, redirect to register
-        if (path.startsWith('/dashboard') && !userData?.registrationComplete) {
-          console.log(`[Middleware] Registration incomplete for ${payload.email}, redirecting to /register`);
-          return NextResponse.redirect(new URL('/register', request.url));
-        }
-
-        // If accessing register but already complete, redirect to dashboard
-        if (path.startsWith('/register') && userData?.registrationComplete) {
-          console.log(`[Middleware] Registration already complete for ${payload.email}, redirecting to /dashboard`);
-          return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-
-        // COMMENTED OUT: KYC Blocking Check - 14 days blocking disabled
-        // if (userData?.registrationComplete && !path.startsWith('/kyc-blocked') && 
-        //     path !== '/login' && path !== '/logout') {
-        //   
-        //   // Check if KYC is expired or if it should be expired
-        //   let shouldBlock = userData.kycStatus === 'expired';
-        //   
-        //   // If not already expired, check if it should be
-        //   if (!shouldBlock && userData.createdAt) {
-        //     const registeredAt = new Date(userData.createdAt);
-        //     const now = new Date();
-        //     const diffDays = Math.floor((now.getTime() - registeredAt.getTime()) / (1000 * 60 * 60 * 24));
-        //     
-        //     // Block access if 15+ days (grace period of 1 day after 14-day limit)
-        //     if (diffDays >= 15 && userData.kycStatus !== 'verified' && userData.kycStatus !== 'approved') {
-        //       shouldBlock = true;
-        //       console.log(`[Middleware] Should block user ${payload.email} - ${diffDays} days since registration, KYC status: ${userData.kycStatus}`);
-        //     }
-        //   }
-        //   
-        //   if (shouldBlock) {
-        //     console.log(`[Middleware] User ${payload.email} has expired KYC, redirecting to /kyc-blocked`);
-        //     return NextResponse.redirect(new URL('/kyc-blocked', request.url));
-        //   }
-        // }
-
-        console.log(`[Middleware] Registration status check passed for ${payload.email} - verified: ${userData?.verified}, complete: ${userData?.registrationComplete}`);
-      } else {
-        console.log(`[Middleware] Failed to fetch user registration status: ${userInfoResponse.status} - continuing with normal flow`);
-        // Continue with normal flow if API fails - allow user to access pages
-      }
-    } catch (error) {
-      // Log error safely without exposing user data
-      console.error('[Middleware] Error checking registration status:', {
-        hasEmail: !!payload?.email,
-        errorType: error instanceof Error ? error.name : 'Unknown',
-        errorMessage: error instanceof Error ? error.message : String(error)
-      });
-      // Continue with normal flow if API check fails - this prevents blocking all pages
-      console.log('[Middleware] Allowing access despite registration check failure');
+    // If user is not verified, redirect to verification
+    if ('verified' in payload && !payload.verified) {
+      console.log(`[Middleware] User ${payload.email} not verified, redirecting to verification-pending`);
+      return NextResponse.redirect(new URL('/verification-pending', request.url));
     }
+
+    // If accessing dashboard but registration not complete, redirect to register
+    if (path.startsWith('/dashboard') && !payload.registrationComplete) {
+      console.log(`[Middleware] Registration incomplete for ${payload.email}, redirecting to /register`);
+      return NextResponse.redirect(new URL('/register', request.url));
+    }
+
+    // If accessing register but already complete, redirect to dashboard
+    if (path.startsWith('/register') && payload.registrationComplete) {
+      console.log(`[Middleware] Registration already complete for ${payload.email}, redirecting to /dashboard`);
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
   }
 
   // --- Session Activity Check (DISABLED for persistent login like Gmail) ---

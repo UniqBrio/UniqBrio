@@ -629,6 +629,14 @@ scheduleSchema.plugin(tenantPlugin);
 // Tenant-scoped indexes
 scheduleSchema.index({ tenantId: 1, sessionId: 1 }, { unique: true, sparse: true });
 
+// Performance indexes for common queries
+scheduleSchema.index({ tenantId: 1, date: 1 }); // Filter schedules by date
+scheduleSchema.index({ tenantId: 1, status: 1 }); // Filter by status
+scheduleSchema.index({ tenantId: 1, instructor: 1, date: 1 }); // Instructor schedules
+scheduleSchema.index({ instructor: 1, date: 1, status: 1 }); // Conflict checking
+scheduleSchema.index({ tenantId: 1, cohortId: 1 }); // Cohort schedules
+scheduleSchema.index({ tenantId: 1, startTime: 1, endTime: 1 }); // Time-based queries
+
 // Create and export the model
 const Schedule: Model<ISchedule> = mongoose.models.Schedule || mongoose.model<ISchedule>('Schedule', scheduleSchema);
 

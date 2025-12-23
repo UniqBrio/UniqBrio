@@ -195,7 +195,7 @@ export async function PUT(req: NextRequest) {
     }
     
     // Find the cohort
-    const cohort = await Cohort.findOne({ id: cohortId, tenantId: session.tenantId });
+    const cohort = await Cohort.findOne({ id: cohortId, tenantId: session.tenantId }).lean();
     if (!cohort) {
       return NextResponse.json({ error: 'Cohort not found' }, { status: 404 });
     }

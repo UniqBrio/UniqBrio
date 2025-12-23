@@ -43,6 +43,7 @@ type SessionData = {
   email: string
   role: string // Add role to session data
   verified: boolean
+  registrationComplete: boolean // Added for performance optimization in middleware
   name?: string
   lastActivity?: number
   tenantId?: string // Add tenantId for multi-tenant isolation
@@ -270,6 +271,7 @@ export async function login(formData: FormData) {
       email: user.email,
       role: user.role ?? "", // Ensure role is always a string
       verified: user.verified,
+      registrationComplete: user.registrationComplete, // Added for performance optimization
       name: user.name,
       lastActivity: Date.now(),
       tenantId: user.academyId || user.tenantId, // tenantId should always equal academyId after registration

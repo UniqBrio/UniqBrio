@@ -34,6 +34,10 @@ const kycSubmissionSchema = new Schema<IKycSubmission>(
   }
 );
 
+// Composite index for common query patterns
+kycSubmissionSchema.index({ userId: 1, academyId: 1 }); // For user-academy lookups
+kycSubmissionSchema.index({ createdAt: -1 }); // For sorting by submission date
+
 const KycSubmissionModel: Model<IKycSubmission> = 
   mongoose.models.KycSubmission || mongoose.model<IKycSubmission>('KycSubmission', kycSubmissionSchema, 'KycSubmission');
 

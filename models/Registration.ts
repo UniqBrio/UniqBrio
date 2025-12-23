@@ -28,6 +28,7 @@ const registrationSchema = new Schema<IRegistration>(
 
 // Index for tenant isolation
 registrationSchema.index({ tenantId: 1 });
+registrationSchema.index({ 'adminInfo.email': 1 }); // Added for performance in user-academy-info
 
 const RegistrationModel: Model<IRegistration> = 
   mongoose.models.Registration || mongoose.model<IRegistration>('Registration', registrationSchema, 'registrations');

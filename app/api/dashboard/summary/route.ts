@@ -45,7 +45,7 @@ export async function GET() {
         const { userId, academyId } = context;
 
         // All queries filtered by tenant context automatically
-        const registrations = await RegistrationModel.find({ userId, academyId });
+        const registrations = await RegistrationModel.find({ userId, academyId }).lean();
 
         return NextResponse.json({
           userId,

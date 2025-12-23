@@ -26,6 +26,11 @@ const IncomeSchema = new Schema(
 // Apply tenant plugin for multi-tenancy
 IncomeSchema.plugin(tenantPlugin);
 
+// Indexes for performance
+IncomeSchema.index({ tenantId: 1, date: -1 }); // Recent income by tenant
+IncomeSchema.index({ tenantId: 1, incomeCategory: 1 }); // Filter by category
+IncomeSchema.index({ tenantId: 1, receivedBy: 1 }); // Filter by receiver
+
 // Expense - Simplified to match frontend form fields only
 const ExpenseSchema = new Schema(
   {
@@ -49,6 +54,11 @@ const ExpenseSchema = new Schema(
 // Apply tenant plugin for multi-tenancy
 ExpenseSchema.plugin(tenantPlugin);
 
+// Indexes for performance
+ExpenseSchema.index({ tenantId: 1, date: -1 }); // Recent expenses by tenant
+ExpenseSchema.index({ tenantId: 1, expenseCategory: 1 }); // Filter by category
+ExpenseSchema.index({ tenantId: 1, vendorName: 1 }); // Filter by vendor
+
 // Bank Account
 const BankAccountSchema = new Schema(
   {
@@ -66,6 +76,10 @@ const BankAccountSchema = new Schema(
 
 // Apply tenant plugin for multi-tenancy
 BankAccountSchema.plugin(tenantPlugin);
+
+// Indexes for performance
+BankAccountSchema.index({ tenantId: 1, isPrimary: 1 }); // Find primary account
+BankAccountSchema.index({ tenantId: 1, accountNumber: 1 }); // Find by account number
 
 export const IncomeModel = models.incomes || model("incomes", IncomeSchema);
 export const ExpenseModel = models.expenses || model("expenses", ExpenseSchema);
@@ -86,6 +100,9 @@ const IncomeDraftSchema = new Schema(
 // Apply tenant plugin for multi-tenancy
 IncomeDraftSchema.plugin(tenantPlugin);
 
+// Indexes for performance
+IncomeDraftSchema.index({ tenantId: 1, lastUpdated: -1 }); // Recent drafts
+
 const ExpenseDraftSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -99,6 +116,9 @@ const ExpenseDraftSchema = new Schema(
 
 // Apply tenant plugin for multi-tenancy
 ExpenseDraftSchema.plugin(tenantPlugin);
+
+// Indexes for performance
+ExpenseDraftSchema.index({ tenantId: 1, lastUpdated: -1 }); // Recent drafts
 
 export const IncomeDraftModel = models.incomedrafts || model("incomedrafts", IncomeDraftSchema);
 export const ExpenseDraftModel = models.expensedrafts || model("expensedrafts", ExpenseDraftSchema);
@@ -135,5 +155,10 @@ const PaymentTransactionSchema = new Schema(
 
 // Apply tenant plugin for multi-tenancy
 PaymentTransactionSchema.plugin(tenantPlugin);
+
+// Indexes for performance
+PaymentTransactionSchema.index({ tenantId: 1, paymentDate: -1 }); // Recent transactions
+PaymentTransactionSchema.index({ tenantId: 1, studentId: 1 }); // Student transactions
+PaymentTransactionSchema.index({ tenantId: 1, courseId: 1 }); // Course transactions
 
 export const PaymentTransactionModel = models.paymenttransactions || model("paymenttransactions", PaymentTransactionSchema);
