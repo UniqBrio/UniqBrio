@@ -136,7 +136,35 @@ export async function signup(formData: FormData) {
     // Send verification email with LINK only
     try {
       console.log("[AuthAction] signup: Generating verification email data for:", email);
-      const emailData = generateVerificationEmail(email, verificationToken, name)
+      
+      // Determine the correct base URL based on environment and request origin
+      let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.uniqbrio.com';
+      
+      // Get headers to detect production vs development
+      const headersList = headers();
+      const host = headersList.get('host') || '';
+      const protocol = headersList.get('x-forwarded-proto') || 'https';
+      
+      // If accessing from app.uniqbrio.com (production), use that
+      if (host.includes('app.uniqbrio.com')) {
+        baseUrl = 'https://app.uniqbrio.com';
+      } 
+      // If accessing from uniqbrio.com (production), use app subdomain
+      else if (host.includes('uniqbrio.com')) {
+        baseUrl = 'https://app.uniqbrio.com';
+      }
+      // If accessing from vercel deployment
+      else if (host.includes('vercel.app')) {
+        baseUrl = `${protocol}://${host}`;
+      }
+      // If localhost, use localhost with current port
+      else if (host.includes('localhost')) {
+        baseUrl = `${protocol}://${host}`;
+      }
+      
+      console.log("[AuthAction] signup: Using base URL:", baseUrl, "(detected from host:", host, ")");
+      
+      const emailData = generateVerificationEmail(email, verificationToken, name, undefined, baseUrl)
       console.log("[AuthAction] signup: Email data generated. Attempting to send...");
       await sendEmail(emailData); // Await the result
       console.log("[AuthAction] signup: sendEmail function completed successfully for:", email);
@@ -623,8 +651,25 @@ export async function requestPasswordReset(formData: FormData) {
           }
         }
       );
+      
+      // Determine the correct base URL based on request origin
+      let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.uniqbrio.com';
+      const headersList = headers();
+      const host = headersList.get('host') || '';
+      const protocol = headersList.get('x-forwarded-proto') || 'https';
+      
+      if (host.includes('app.uniqbrio.com')) {
+        baseUrl = 'https://app.uniqbrio.com';
+      } else if (host.includes('uniqbrio.com')) {
+        baseUrl = 'https://app.uniqbrio.com';
+      } else if (host.includes('vercel.app')) {
+        baseUrl = `${protocol}://${host}`;
+      } else if (host.includes('localhost')) {
+        baseUrl = `${protocol}://${host}`;
+      }
+      
       console.log("[AuthAction] requestPasswordReset: Generating password reset email data for:", user.email);
-      const emailData = generatePasswordResetEmail(email, resetToken)
+      const emailData = generatePasswordResetEmail(email, resetToken, baseUrl)
       console.log("[AuthAction] requestPasswordReset: Sending password reset email...");
       await sendEmail(emailData)
       console.log("[AuthAction] requestPasswordReset: Password reset email sent successfully for:", email)

@@ -104,10 +104,11 @@ export async function sendEmail({
 
 /// --- MODIFIED: generateVerificationEmail (OTP Removed) ---
 // Now only sends a verification link.
-export function generateVerificationEmail(email: string, token: string, userName?: string, academyName?: string) {
-  // Use query parameter for token verification with fallback
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BASE_URL || 'https://app.uniqbrio.com';
-  const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
+export function generateVerificationEmail(email: string, token: string, userName?: string, academyName?: string, baseUrl?: string) {
+  // Use provided baseUrl or fall back to environment variables
+  // Priority: 1. Passed baseUrl, 2. NEXT_PUBLIC_APP_URL, 3. Production domain
+  const appUrl = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://app.uniqbrio.com';
+  const verificationUrl = `${appUrl}/verify-email?token=${token}`;
   
   console.log('[Email] Verification URL:', verificationUrl); // Debug log
   
@@ -187,9 +188,10 @@ export function generateVerificationEmail(email: string, token: string, userName
 }
 
 
-export function generatePasswordResetEmail(email: string, token: string) {
-  // Ensure this matches your frontend route structure (/reset-password/:token)
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`; // Correct structure
+export function generatePasswordResetEmail(email: string, token: string, baseUrl?: string) {
+  // Use provided baseUrl or fall back to environment variables
+  const appUrl = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://app.uniqbrio.com';
+  const resetUrl = `${appUrl}/reset-password/${token}`;
 
   return {
     to: email,
