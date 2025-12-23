@@ -62,7 +62,7 @@ export async function getRestrictionStatus(tenantId: string): Promise<Restrictio
   // Grace policy: If account age < 14 days, do not restrict even if over the 7-student limit on Free plan
   const daysSinceCreated = createdAt ? Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24))) : undefined;
   const inGrace = typeof daysSinceCreated === 'number' ? daysSinceCreated < 14 : false;
-  const restricted = plan === 'free' && studentCount > 7 && !inGrace;
+  const restricted = plan === 'free' && studentCount > 14 && !inGrace;
 
   const status: RestrictionStatus = { plan, studentCount, restricted, academyId, createdAt: createdAt ? new Date(createdAt).toISOString() : undefined, daysSinceCreated };
   cache.set(tenantId, { status, expiresAt: now + TTL_MS });

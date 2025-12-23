@@ -600,7 +600,7 @@ export function generateNewSignupNotification(userDetails: {
   const formattedPlan = planChoosed.charAt(0).toUpperCase() + planChoosed.slice(1);
 
   return {
-    to: 'frozen9612345@gmail.com',
+    to: 'support@uniqbrio.com',
     subject: `🎉 New Signup: ${name} - ${formattedPlan} Plan`,
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
@@ -731,7 +731,7 @@ export function generateRegistrationCompleteNotification(registrationDetails: {
   const formattedPlan = planChoosed ? (planChoosed.charAt(0).toUpperCase() + planChoosed.slice(1)) : 'Free';
 
   return {
-    to: 'frozen9612345@gmail.com',
+    to: 'support@uniqbrio.com',
     subject: `✅ Registration Complete: ${businessName} - ${name}`,
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">

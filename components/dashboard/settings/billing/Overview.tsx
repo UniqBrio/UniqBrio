@@ -81,7 +81,7 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
   const daysUntilRenewal = activePayment.record?.daysRemaining || 0
   
   // Check if free plan has exceeded student limit
-  const isFreePlanExceeded = currentPlan === "free" && usageStats.totalStudents > 7
+  const isFreePlanExceeded = currentPlan === "free" && usageStats.totalStudents > 14
   const isDefaultFreePlan = activePayment.record?.isDefault || false
 
   // Fetch active payment record
@@ -179,7 +179,7 @@ export function Overview({ setShowCancelModal, nextRenewal }: OverviewProps) {
             <div className="flex-1">
               <p className="text-sm font-semibold text-red-900">Student Limit Exceeded - Plan Expired</p>
               <p className="text-sm text-red-700 mt-1">
-                Your Free plan allows up to 7 students, but you currently have {usageStats.totalStudents} enrolled. 
+                Your Free plan allows up to 14 students, but you currently have {usageStats.totalStudents} enrolled. 
                 <span className="font-bold"> Please upgrade to Grow plan to continue utilizing this application.</span>
               </p>
               <button className="mt-3 text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-orange-500 px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">

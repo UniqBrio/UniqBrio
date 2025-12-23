@@ -31,7 +31,7 @@ export const PLANS: Record<PlanKey, {
       "Email support",
       "No credit card required",
     ],
-    studentLimit: "5 of 7 students",
+    studentLimit: "5 of 14 students",
   },
   grow: {
     name: "Grow",

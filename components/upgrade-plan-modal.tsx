@@ -24,7 +24,7 @@ export function UpgradePlanModal({ open, onOpenChange, module }: UpgradePlanModa
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-white">
-            You are on the Free plan with more than 7 students. Write actions are disabled. Upgrade your plan to continue creating or editing here.
+            You are on the Free plan with more than 14 students. Write actions are disabled. Upgrade your plan to continue creating or editing here.
           </p>
           <div className="flex gap-2">
             <Link href="/dashboard/settings/subscription" className="w-full">

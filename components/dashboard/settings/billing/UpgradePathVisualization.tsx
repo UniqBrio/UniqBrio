@@ -22,7 +22,7 @@ export function UpgradePathVisualization() {
       description: "Joined UniqBrio platform",
       completed: true,
       icon: <TrendingUp size={20} className="text-blue-600" />,
-      benefit: "7 students limit"
+      benefit: "14 students limit"
     },
     {
       id: "grow",
