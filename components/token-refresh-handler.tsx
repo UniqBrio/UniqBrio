@@ -11,9 +11,13 @@ export default function TokenRefreshHandler() {
 
   useEffect(() => {
     const checkAndRefreshToken = async () => {
-      // ✅ Prevent refresh if user is not logged in (use a cookie or localStorage flag)
+      // ✅ Check for actual session cookie first, then localStorage flag
+      // This handles cases where user comes from email verification directly to register
+      const hasSessionCookie = document.cookie.split(';').some(cookie => cookie.trim().startsWith('session='))
       const isAuthenticated = localStorage.getItem("isAuthenticated")
-      if (!isAuthenticated) return
+      
+      // Skip refresh check if neither session cookie nor localStorage flag exists
+      if (!hasSessionCookie && !isAuthenticated) return
 
       try {
         const response = await fetch("/api/auth/refresh", {

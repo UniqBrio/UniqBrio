@@ -55,6 +55,9 @@ export default function RegistrationForm() {
           if (data.authenticated && data.session) {
             console.log("[Registration] Prefilling form with session data:", data.session);
             
+            // Set isAuthenticated flag to prevent token refresh handler from clearing session
+            localStorage.setItem("isAuthenticated", "true");
+            
             // Prefill admin info from session
             updateFormState((prev) => ({
               adminInfo: {
