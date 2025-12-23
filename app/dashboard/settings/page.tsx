@@ -8,7 +8,6 @@ import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/dashboard/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
 import { Badge } from "@/components/dashboard/ui/badge"
-import { toast } from "@/components/dashboard/ui/use-toast"
 
 import {
   Settings as SettingsIcon,

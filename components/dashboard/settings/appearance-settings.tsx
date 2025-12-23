@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/dashboard/ui/alert-dialog"
 import { Palette, Globe, Save, X, ArrowUp, ArrowDown, RotateCcw } from "lucide-react"
-import { toast } from "@/components/dashboard/ui/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 import { useApp } from "@/contexts/dashboard/app-context"
 import { DATE_FORMATS } from "./date-formats"
 import Image from "next/image"
@@ -49,6 +49,8 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const { theme, toggleTheme, customColors, setCustomColors, applyCustomColors, resetToDefaultColors: resetColors } = useApp()
   const [isSaving, setIsSaving] = useState(false)
   const [showResetThemeDialog, setShowResetThemeDialog] = useState(false)
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
+  const [colorError, setColorError] = useState<string | null>(null)
   const [isLoadingFormats, setIsLoadingFormats] = useState(true)
   const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true)
   const DEFAULT_COLORS = ["#6708c0", "#DE7D14"]
@@ -74,6 +76,13 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
     country: preferences?.country || "",
     timeZone: preferences?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
   })
+
+  // Auto-dismiss feedback after 6 seconds
+  useEffect(() => {
+    if (!feedback) return
+    const timer = window.setTimeout(() => setFeedback(null), 6000)
+    return () => window.clearTimeout(timer)
+  }, [feedback])
 
   // Load date formats from local static list (hardcoded)
   useEffect(() => {
@@ -308,12 +317,9 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const addColor = () => {
     if (selectedColors.length < 2) {
       setSelectedColors([...selectedColors, "#000000"])
+      setColorError(null)
     } else {
-      toast({
-        title: "Maximum reached",
-        description: "You can only select up to 2 colors.",
-        variant: "destructive",
-      })
+      setColorError("You can only select up to 2 colors.")
     }
   }
 
@@ -326,12 +332,9 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
   const removeColor = (index: number) => {
     if (selectedColors.length > 1) {
       setSelectedColors(selectedColors.filter((_, i) => i !== index))
+      setColorError(null)
     } else {
-      toast({
-        title: "Cannot remove",
-        description: "You must have at least one color selected.",
-        variant: "destructive",
-      })
+      setColorError("You must have at least one color selected.")
     }
   }
 
@@ -353,7 +356,9 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
     setSelectedColors([...DEFAULT_COLORS])
     resetColors() // Call the context function to reset globally
     setShowResetThemeDialog(false)
-    toast({
+    setColorError(null)
+    setFeedback({
+      variant: "success",
       title: "Colors Reset",
       description: "Theme colors have been reset to default (Purple and Orange).",
     })
@@ -376,15 +381,16 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
       // Also save to backend if needed
       await onUpdate({ ...settings, theme, customColors: selectedColors })
       
-      toast({
+      setFeedback({
+        variant: "success",
         title: "Appearance Updated",
         description: "Your appearance preferences have been saved.",
       })
     } catch (error) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: "Failed to update appearance settings.",
-        variant: "destructive",
       })
     } finally {
       setIsSaving(false)
@@ -393,6 +399,30 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
 
   return (
     <div className="space-y-6">
+      {/* Feedback Alert */}
+      {feedback && (
+        <Alert
+          variant={feedback.variant === "error" ? "destructive" : "default"}
+          className={feedback.variant === "success" ? "border-green-200 bg-green-50 text-green-900" : ""}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <AlertTitle>{feedback.title}</AlertTitle>
+              {feedback.description && (
+                <AlertDescription>{feedback.description}</AlertDescription>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              className="text-sm text-muted-foreground hover:text-foreground mt-1"
+              aria-label="Dismiss notification"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </Alert>
+      )}
       
       {/* Localization Settings */}
       <Card>
@@ -537,6 +567,11 @@ export function AppearanceSettings({ preferences, onUpdate }: AppearanceSettings
               </div>
 
               <div className="space-y-3">
+                {colorError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{colorError}</AlertDescription>
+                  </Alert>
+                )}
                 {selectedColors.map((color, index) => (
                   <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 border rounded-lg bg-gray-50">
                     <div className="flex items-center gap-2 flex-1 w-full">

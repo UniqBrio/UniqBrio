@@ -8,8 +8,8 @@ import { Switch } from "@/components/dashboard/ui/switch"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Textarea } from "@/components/dashboard/ui/textarea"
-import { Bell, Mail, MessageSquare, Calendar, Activity, Save, Megaphone, Users, GraduationCap, Briefcase, UserCircle, CheckSquare, Info } from "lucide-react"
-import { toast } from "@/components/dashboard/ui/use-toast"
+import { Bell, Mail, MessageSquare, Calendar, Activity, Save, Megaphone, Users, GraduationCap, Briefcase, UserCircle, CheckSquare, Info, X } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,7 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
   const { primaryColor, secondaryColor } = useCustomColors();
   const [isSaving, setIsSaving] = useState(false)
   const [showCourseTemplates, setShowCourseTemplates] = useState(false)
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -114,7 +115,8 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
       })
       return updated
     })
-    toast({
+    setFeedback({
+      variant: "success",
       title: "All Notifications Enabled",
       description: "All notification preferences have been turned on.",
     })
@@ -130,7 +132,8 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
       })
       return updated
     })
-    toast({
+    setFeedback({
+      variant: "success",
       title: "All Notifications Disabled",
       description: "All notification preferences have been turned off.",
     })
@@ -140,15 +143,16 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
     try {
       setIsSaving(true)
       await onUpdate(settings)
-      toast({
+      setFeedback({
+        variant: "success",
         title: "Notifications Updated",
         description: "Your notification preferences have been saved.",
       })
     } catch (error) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: "Failed to update notification settings.",
-        variant: "destructive",
       })
     } finally {
       setIsSaving(false)
@@ -158,6 +162,31 @@ export function NotificationSettings({ onUpdate, disabled = true }: Notification
   return (
     <TooltipProvider>
     <div className={"space-y-6 " + (disabled ? "pointer-events-none opacity-50 grayscale" : "")}>
+      {/* Feedback Alert */}
+      {feedback && (
+        <Alert
+          variant={feedback.variant === "error" ? "destructive" : "default"}
+          className={feedback.variant === "success" ? "border-green-200 bg-green-50 text-green-900" : ""}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <AlertTitle>{feedback.title}</AlertTitle>
+              {feedback.description && (
+                <AlertDescription>{feedback.description}</AlertDescription>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              className="text-sm text-muted-foreground hover:text-foreground mt-1"
+              aria-label="Dismiss notification"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </Alert>
+      )}
+
       {/* Quick Actions */}
       <div className="flex justify-end gap-3">
         <Button

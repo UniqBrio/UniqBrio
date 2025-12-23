@@ -43,7 +43,7 @@ export async function checkTokenRefresh() {
 async function refreshToken(session: any) {
   try {
     // Create a new token with updated expiry
-    const newToken = createToken({
+    const newToken = await createToken({
       id: session?.id,
       email: session?.email,
       role: session?.role,

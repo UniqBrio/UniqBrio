@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/dashboard/ui/alert-dialog"
 import { User, Mail, Phone, MapPin, Calendar, Camera, Save, Check, ChevronDown, Pencil, X } from "lucide-react"
-import { toast } from "@/components/dashboard/ui/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 import { isPossiblePhoneNumber } from "libphonenumber-js"
 import { useCountryCodes } from "@/hooks/dashboard/staff/use-country-codes"
 import { CountryStateDropdown } from "@/components/dashboard/ui/staff/country-state-dropdown"
@@ -44,6 +44,8 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const { countryCodes, loading: countryCodesLoading } = useCountryCodes()
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
+  const [nameErrors, setNameErrors] = useState<{ firstName?: string; middleName?: string; lastName?: string }>({})
   const [formData, setFormData] = useState({
     name: user?.name || "",
     firstName: user?.firstName || "",
@@ -61,6 +63,13 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     bio: user?.instructorProfile?.bio || user?.studentProfile?.goals?.join(", ") || "",
     avatar: user?.avatar || "",
   })
+
+  // Auto-dismiss feedback after 6 seconds
+  React.useEffect(() => {
+    if (!feedback) return
+    const timer = window.setTimeout(() => setFeedback(null), 6000)
+    return () => window.clearTimeout(timer)
+  }, [feedback])
 
   // Fetch profile picture from academy info
   React.useEffect(() => {
@@ -95,20 +104,20 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
 
     // Validate file type
     if (!['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Invalid File Type",
         description: "Please upload only PNG or JPG images.",
-        variant: "destructive",
       })
       return
     }
 
     // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "File Too Large",
         description: "Image must be smaller than 2MB.",
-        variant: "destructive",
       })
       return
     }
@@ -146,16 +155,17 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         // Emit event to refresh header immediately
         window.dispatchEvent(new CustomEvent('profileImageUpdated'))
         
-        toast({
+        setFeedback({
+          variant: "success",
           title: "Profile Picture Updated",
           description: "Your profile picture has been updated successfully.",
         })
       } catch (error) {
         console.error('Error saving profile picture:', error)
-        toast({
+        setFeedback({
+          variant: "error",
           title: "Error",
           description: "Failed to save profile picture. Please try again.",
-          variant: "destructive",
         })
       }
     }
@@ -193,16 +203,17 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       // Emit event to refresh header immediately
       window.dispatchEvent(new CustomEvent('profileImageUpdated'))
 
-      toast({
+      setFeedback({
+        variant: "success",
         title: "Profile Picture Removed",
         description: "Your profile picture has been removed successfully.",
       })
     } catch (error) {
       console.error('Error removing profile picture:', error)
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: "Failed to remove profile picture. Please try again.",
-        variant: "destructive",
       })
     } finally {
       setShowRemovePhotoDialog(false)
@@ -292,10 +303,10 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const handleSave = async () => {
     // Validate email before saving
     if (!validateEmail(formData.email)) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Invalid Email",
         description: "Please enter a valid email address before saving.",
-        variant: "destructive",
       })
       return
     }
@@ -332,15 +343,16 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       setIsEditing(false)
       // Emit event to refresh header
       window.dispatchEvent(new CustomEvent('profileImageUpdated'))
-      toast({
+      setFeedback({
+        variant: "success",
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
       })
     } catch (error) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: "Failed to update profile. Please try again.",
-        variant: "destructive",
       })
     } finally {
       setIsSaving(false)
@@ -377,6 +389,31 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Feedback Alert */}
+        {feedback && (
+          <Alert
+            variant={feedback.variant === "error" ? "destructive" : "default"}
+            className={feedback.variant === "success" ? "border-green-200 bg-green-50 text-green-900" : ""}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <AlertTitle>{feedback.title}</AlertTitle>
+                {feedback.description && (
+                  <AlertDescription>{feedback.description}</AlertDescription>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setFeedback(null)}
+                className="text-sm text-muted-foreground hover:text-foreground mt-1"
+                aria-label="Dismiss notification"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </Alert>
+        )}
+
         {/* Avatar Section */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <div className="relative group">
@@ -451,18 +488,26 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                   // Only allow letters, spaces, hyphens, and apostrophes
                   const sanitizedValue = value.replace(/[^a-zA-Z\s\-']/g, '')
                   if (value !== sanitizedValue) {
-                    toast({
-                      title: "Invalid Characters",
-                      description: "First name can only contain letters, spaces, hyphens, and apostrophes",
-                      variant: "destructive",
+                    setNameErrors(prev => ({
+                      ...prev,
+                      firstName: "First name can only contain letters, spaces, hyphens, and apostrophes"
+                    }))
+                  } else {
+                    setNameErrors(prev => {
+                      const next = { ...prev }
+                      delete next.firstName
+                      return next
                     })
                   }
                   handleInputChange("firstName", sanitizedValue)
                 }}
                 disabled={!isEditing}
-                className="pl-10"
+                className={cn("pl-10", nameErrors.firstName ? "border-red-500 focus:ring-red-400" : "")}
               />
             </div>
+            {nameErrors.firstName && (
+              <p className="mt-1 text-[12px] text-red-600">{nameErrors.firstName}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -476,16 +521,25 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 // Only allow letters, spaces, hyphens, and apostrophes
                 const sanitizedValue = value.replace(/[^a-zA-Z\s\-']/g, '')
                 if (value !== sanitizedValue) {
-                  toast({
-                    title: "Invalid Characters",
-                    description: "Middle name can only contain letters, spaces, hyphens, and apostrophes",
-                    variant: "destructive",
+                  setNameErrors(prev => ({
+                    ...prev,
+                    middleName: "Middle name can only contain letters, spaces, hyphens, and apostrophes"
+                  }))
+                } else {
+                  setNameErrors(prev => {
+                    const next = { ...prev }
+                    delete next.middleName
+                    return next
                   })
                 }
                 handleInputChange("middleName", sanitizedValue)
               }}
               disabled={!isEditing}
+              className={cn(nameErrors.middleName ? "border-red-500 focus:ring-red-400" : "")}
             />
+            {nameErrors.middleName && (
+              <p className="mt-1 text-[12px] text-red-600">{nameErrors.middleName}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -499,16 +553,25 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                 // Only allow letters, spaces, hyphens, and apostrophes
                 const sanitizedValue = value.replace(/[^a-zA-Z\s\-']/g, '')
                 if (value !== sanitizedValue) {
-                  toast({
-                    title: "Invalid Characters",
-                    description: "Last name can only contain letters, spaces, hyphens, and apostrophes",
-                    variant: "destructive",
+                  setNameErrors(prev => ({
+                    ...prev,
+                    lastName: "Last name can only contain letters, spaces, hyphens, and apostrophes"
+                  }))
+                } else {
+                  setNameErrors(prev => {
+                    const next = { ...prev }
+                    delete next.lastName
+                    return next
                   })
                 }
                 handleInputChange("lastName", sanitizedValue)
               }}
               disabled={!isEditing}
+              className={cn(nameErrors.lastName ? "border-red-500 focus:ring-red-400" : "")}
             />
+            {nameErrors.lastName && (
+              <p className="mt-1 text-[12px] text-red-600">{nameErrors.lastName}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -536,11 +599,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
                   }
                   
                   if (value !== finalValue) {
-                    toast({
-                      title: "Invalid Characters",
-                      description: "Email can only contain letters, numbers, @ symbol, and valid punctuation (. - _ + etc.)",
-                      variant: "destructive",
-                    })
+                    setEmailError("Email can only contain letters, numbers, @ symbol, and valid punctuation (. - _ + etc.)")
                   }
                   
                   handleInputChange("email", finalValue)

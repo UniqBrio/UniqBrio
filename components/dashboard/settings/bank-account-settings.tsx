@@ -8,8 +8,8 @@ import { Input } from "@/components/dashboard/ui/input"
 import { Label } from "@/components/dashboard/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/dashboard/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/dashboard/ui/dialog"
-import { Landmark, Plus, Pencil, Trash2, Building2, CreditCard, Loader2, Search } from "lucide-react"
-import { toast } from "@/components/dashboard/ui/use-toast"
+import { Landmark, Plus, Pencil, Trash2, Building2, CreditCard, Loader2, Search, X } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 
 interface BankAccount {
   _id?: string
@@ -61,6 +61,8 @@ export function BankAccountSettings() {
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [viewingAccount, setViewingAccount] = useState<BankAccount | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const isFormValid = bankForm.holderName && bankForm.accountNumber && bankForm.accountType && bankForm.bankName && bankForm.ifsc && bankForm.branch
 

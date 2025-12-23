@@ -8,6 +8,7 @@ import { enrollStudentInCohort, removeStudentFromCohort } from '@/lib/dashboard/
 import { getUserSession } from '@/lib/tenant/api-helpers';
 import { runWithTenantContext } from '@/lib/tenant/tenant-context';
 import { logEntityDelete, getClientIp, getUserAgent } from '@/lib/audit-logger';
+import { cascadeStudentNameUpdate, cascadeStudentEmailUpdate, cascadeStudentCategoryUpdate, cascadeStudentCourseTypeUpdate, buildStudentFullName } from '@/lib/dashboard/cascade-updates';
 
 // Ensure email uniqueness is scoped per tenant by fixing legacy indexes at runtime.
 let ensureStudentIndexesPromise: Promise<void> | null = null;
@@ -547,9 +548,17 @@ export async function PUT(req: NextRequest) {
 
     console.log('PUT /api/students - Updating with allowed fields:', JSON.stringify(allowed, null, 2));
     
-    // Get the old student record to check for cohort changes
+    // Get the old student record to check for cohort changes, name changes, email changes, category changes, and courseType changes
     const oldStudent = await Student.findOne({ studentId, tenantId: session.tenantId });
     const oldCohortId = oldStudent?.cohortId;
+    
+    // Calculate old name, email, category, and courseType before update
+    const oldName = oldStudent
+      ? buildStudentFullName(oldStudent.firstName, oldStudent.middleName, oldStudent.lastName) || oldStudent.name
+      : '';
+    const oldEmail = oldStudent?.email || '';
+    const oldCategory = oldStudent?.category || '';
+    const oldCourseType = oldStudent?.courseType || '';
     
     const updated = await Student.findOneAndUpdate(
       { studentId, tenantId: session.tenantId },
@@ -558,6 +567,78 @@ export async function PUT(req: NextRequest) {
     );
     
     console.log('PUT /api/students - Update result:', updated ? 'Found and updated' : 'Student not found');
+    
+    // Calculate new name, email, category, and courseType after update
+    if (updated) {
+      const newName = buildStudentFullName(updated.firstName, updated.middleName, updated.lastName) || updated.name;
+      const newEmail = updated.email || '';
+      const newCategory = updated.category || '';
+      const newCourseType = updated.courseType || '';
+      
+      // If name changed, cascade the update to all related collections
+      if (oldName && oldName !== newName) {
+        try {
+          const cascadeResult = await cascadeStudentNameUpdate(
+            studentId,
+            oldName,
+            newName,
+            session.tenantId
+          );
+          
+          console.log('Student name cascade update:', cascadeResult);
+        } catch (err: any) {
+          console.error('Error cascading student name update:', err.message);
+        }
+      }
+      
+      // If email changed, cascade the update to all related collections
+      if (oldEmail && newEmail && oldEmail !== newEmail) {
+        try {
+          const cascadeResult = await cascadeStudentEmailUpdate(
+            studentId,
+            oldEmail,
+            newEmail,
+            session.tenantId
+          );
+          
+          console.log('Student email cascade update:', cascadeResult);
+        } catch (err: any) {
+          console.error('Error cascading student email update:', err.message);
+        }
+      }
+      
+      // If category changed, cascade the update to all related collections
+      if (oldCategory && newCategory && oldCategory !== newCategory) {
+        try {
+          const cascadeResult = await cascadeStudentCategoryUpdate(
+            studentId,
+            oldCategory,
+            newCategory,
+            session.tenantId
+          );
+          
+          console.log('Student category cascade update:', cascadeResult);
+        } catch (err: any) {
+          console.error('Error cascading student category update:', err.message);
+        }
+      }
+      
+      // If courseType changed, cascade the update to all related collections
+      if (oldCourseType && newCourseType && oldCourseType !== newCourseType) {
+        try {
+          const cascadeResult = await cascadeStudentCourseTypeUpdate(
+            studentId,
+            oldCourseType,
+            newCourseType,
+            session.tenantId
+          );
+          
+          console.log('Student courseType cascade update:', cascadeResult);
+        } catch (err: any) {
+          console.error('Error cascading student courseType update:', err.message);
+        }
+      }
+    }
     
     // Bidirectional sync: Handle cohort changes
     if (updated && oldCohortId !== data.cohortId) {

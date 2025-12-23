@@ -8,6 +8,7 @@ import { getUserSession } from "@/lib/tenant/api-helpers";
 import { runWithTenantContext } from "@/lib/tenant/tenant-context";
 import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger";
 import { AuditModule } from "@/models/AuditLog";
+import { cascadeCohortNameUpdate } from "@/lib/dashboard/cascade-updates";
 
 export async function GET(request: Request) {
   const session = await getUserSession();
@@ -399,6 +400,21 @@ export async function PUT(request: Request) {
         success: false,
         error: "Cohort not found"
       }, { status: 404 });
+    }
+    
+    // If cohort name changed, cascade the update to all related collections
+    if (existingCohort.name && updatedCohort.name && existingCohort.name !== updatedCohort.name) {
+      try {
+        const cascadeResult = await cascadeCohortNameUpdate(
+          cohortId,
+          existingCohort.name,
+          updatedCohort.name,
+          session.tenantId
+        );
+        console.log('Cohort name cascade update:', cascadeResult);
+      } catch (err: any) {
+        console.error('Error cascading cohort name update:', err.message);
+      }
     }
     
     // Log cohort update

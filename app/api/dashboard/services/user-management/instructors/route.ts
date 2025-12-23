@@ -7,6 +7,7 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 import Instructor from "@/models/dashboard/staff/Instructor"
 import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger"
 import { AuditModule } from "@/models/AuditLog"
+import { cascadeInstructorNameUpdate, buildInstructorFullName } from "@/lib/dashboard/cascade-updates"
 
 export async function GET(request: Request) {
   const session = await getUserSession();
@@ -297,6 +298,13 @@ export async function PUT(request: Request) {
           }, { status: 404 })
         }
         
+        // Calculate old name before any changes
+        const oldName = buildInstructorFullName(
+          existingInstructor.firstName,
+          existingInstructor.middleName,
+          existingInstructor.lastName
+        )
+        
         // Track field changes
         const fieldChanges: Record<string, { oldValue: any; newValue: any }> = {}
         
@@ -357,6 +365,29 @@ export async function PUT(request: Request) {
             success: false, 
             error: "Failed to update instructor" 
           }, { status: 500 })
+        }
+        
+        // Calculate new name after update
+        const newName = buildInstructorFullName(
+          updatedInstructor.firstName,
+          updatedInstructor.middleName,
+          updatedInstructor.lastName
+        )
+        
+        // If name changed, cascade the update to all related collections
+        if (oldName !== newName) {
+          try {
+            const cascadeResult = await cascadeInstructorNameUpdate(
+              updatedInstructor.instructorId || updatedInstructor.externalId || id,
+              oldName,
+              newName,
+              session.tenantId
+            )
+            
+            console.log('Instructor name cascade update:', cascadeResult)
+          } catch (err: any) {
+            console.error('Error cascading instructor name update:', err.message)
+          }
         }
         
         // Transform response

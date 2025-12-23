@@ -5,6 +5,7 @@ import { getUserSession } from '@/lib/tenant/api-helpers'
 import { runWithTenantContext } from '@/lib/tenant/tenant-context'
 import { logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger"
 import { AuditModule } from "@/models/AuditLog"
+import { cascadeNonInstructorNameUpdate, buildNonInstructorFullName } from "@/lib/dashboard/cascade-updates"
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getUserSession();
@@ -50,8 +51,37 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         const existing = await NonInstructorModel.findOne({ _id: id, tenantId: session.tenantId }).lean()
         if (!existing) return NextResponse.json({ message: "Not found" }, { status: 404 })
         
+        // Calculate old name before update
+        const oldName = buildNonInstructorFullName(
+          existing.firstName,
+          existing.middleName,
+          existing.lastName
+        )
+        
         const updated = await NonInstructorModel.findOneAndUpdate({ _id: id, tenantId: session.tenantId }, body, { new: true })
         if (!updated) return NextResponse.json({ message: "Not found" }, { status: 404 })
+        
+        // Calculate new name after update
+        const newName = buildNonInstructorFullName(
+          updated.firstName,
+          updated.middleName,
+          updated.lastName
+        )
+        
+        // If name changed, cascade the update to all related collections
+        if (oldName && newName && oldName !== newName) {
+          try {
+            const cascadeResult = await cascadeNonInstructorNameUpdate(
+              existing.externalId || id,
+              oldName,
+              newName,
+              session.tenantId
+            )
+            console.log('Non-instructor name cascade update:', cascadeResult)
+          } catch (err: any) {
+            console.error('Error cascading non-instructor name update:', err.message)
+          }
+        }
         
         // Track field changes
         const changes: Record<string, { old: any; new: any }> = {}

@@ -9,6 +9,7 @@ import { runWithTenantContext } from "@/lib/tenant/tenant-context"
 import mongoose from "mongoose"
 import { logEntityCreate, logEntityUpdate, logEntityDelete, getClientIp, getUserAgent } from "@/lib/audit-logger"
 import { AuditModule } from "@/models/AuditLog"
+import { cascadeCourseNameUpdate } from "@/lib/dashboard/cascade-updates"
 
 export async function POST(request: Request) {
       const session = await getUserSession();
@@ -871,6 +872,21 @@ export async function PUT(request: Request) {
         success: false, 
         error: "Failed to update course" 
       }, { status: 500 })
+    }
+    
+    // If course name changed, cascade the update to all related collections
+    if (currentCourse.name && course.name && currentCourse.name !== course.name) {
+      try {
+        const cascadeResult = await cascadeCourseNameUpdate(
+          _id,
+          currentCourse.name,
+          course.name,
+          session.tenantId
+        )
+        console.log('Course name cascade update:', cascadeResult)
+      } catch (err: any) {
+        console.error('Error cascading course name update:', err.message)
+      }
     }
     
     // Log course update with field changes

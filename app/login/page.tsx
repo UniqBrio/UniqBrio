@@ -204,6 +204,7 @@ export default function LoginPage() {
           
           // Set items in localStorage upon successful login
           const currentTime = Date.now().toString();
+          localStorage.setItem("isAuthenticated", "true");
           localStorage.setItem('userLoginTime', currentTime);
           localStorage.setItem('lastUserActivityTime', currentTime);
           // Signal that cookie consent should be shown.

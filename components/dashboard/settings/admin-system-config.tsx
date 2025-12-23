@@ -15,8 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/dashboard/ui/select"
-import { Settings, Mail, Bell, Globe, Zap, Server, Database, Activity, Save, AlertTriangle, Archive, Trash2 } from "lucide-react"
-import { toast } from "@/components/dashboard/ui/use-toast"
+import { Settings, Mail, Bell, Globe, Zap, Server, Database, Activity, Save, AlertTriangle, Archive, Trash2, X } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
 import { Progress } from "@/components/dashboard/ui/progress"
 import {
   AlertDialog,
@@ -38,6 +38,7 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [feedback, setFeedback] = useState<{ variant: "success" | "error"; title: string; description?: string } | null>(null)
   const [settings, setSettings] = useState({
     // Email Settings
     smtpHost: "smtp.example.com",
@@ -83,7 +84,8 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
       // Simulate account deletion
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      toast({
+      setFeedback({
+        variant: "success",
         title: "Account Deleted",
         description: "Your account and all data have been permanently deleted.",
       })
@@ -91,10 +93,10 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
       // In a real app, redirect to login or homepage
       window.location.href = "/"
     } catch (error) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: "Failed to delete account. Please contact support.",
-        variant: "destructive",
       })
     } finally {
       setIsDeleting(false)
@@ -106,15 +108,16 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
     try {
       setIsSaving(true)
       await onUpdate(settings)
-      toast({
+      setFeedback({
+        variant: "success",
         title: "System Configuration Updated",
         description: "Changes have been applied successfully.",
       })
     } catch (error) {
-      toast({
+      setFeedback({
+        variant: "error",
         title: "Error",
         description: "Failed to update system configuration.",
-        variant: "destructive",
       })
     } finally {
       setIsSaving(false)
@@ -123,6 +126,31 @@ export function AdminSystemConfig({ onUpdate, disabled = true }: AdminSystemConf
 
   return (
     <div className={"space-y-6 " + (disabled ? "pointer-events-none opacity-50 grayscale" : "")}>
+      {/* Feedback Alert */}
+      {feedback && (
+        <Alert
+          variant={feedback.variant === "error" ? "destructive" : "default"}
+          className={feedback.variant === "success" ? "border-green-200 bg-green-50 text-green-900" : ""}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <AlertTitle>{feedback.title}</AlertTitle>
+              {feedback.description && (
+                <AlertDescription>{feedback.description}</AlertDescription>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              className="text-sm text-muted-foreground hover:text-foreground mt-1"
+              aria-label="Dismiss notification"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </Alert>
+      )}
+      
       {/* Email Configuration */}
       <Card>
         <CardHeader>
