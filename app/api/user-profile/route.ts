@@ -76,7 +76,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       user: {
-        ...user,
+        ...user.toObject(),
+        email: user.email, // Explicitly include email
         firstName: adminInfo.fullName?.split(' ')[0] || '',
         middleName: '',
         lastName: adminInfo.fullName?.split(' ').slice(1).join(' ') || '',
@@ -89,7 +90,8 @@ export async function GET(request: NextRequest) {
         position: adminInfo.position || '',
         linkedinUrl: adminInfo.socialProfile || '',
         bio: adminInfo.bio || '',
-        avatar: adminInfo.avatar || businessInfo.profilePicture || businessInfo.profilePictureUrl || ''
+        // Prioritize profilePictureUrl from registration, then fallback to other sources
+        avatar: businessInfo.profilePictureUrl || businessInfo.businessLogoUrl || adminInfo.avatar || businessInfo.profilePicture || ''
       }
     });
 

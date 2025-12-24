@@ -1085,12 +1085,7 @@ export default function LeaveManagement() {
       <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <div className="flex items-center justify-between">
-              <AlertDialogTitle>Delete Leave Request</AlertDialogTitle>
-              <Button variant="ghost" size="sm" onClick={() => setDeleteConfirmId(null)} className="h-6 w-6 p-0">
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            <AlertDialogTitle>Delete Leave Request</AlertDialogTitle>
             <AlertDialogDescription>Are you sure you want to delete this leave request? This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
                     <div className="text-sm font-medium mt-2">"{state.drafts.find(d => d.id === deleteConfirmId)?.instructorName || ''}"</div>

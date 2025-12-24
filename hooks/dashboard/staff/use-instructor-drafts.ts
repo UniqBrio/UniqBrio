@@ -67,12 +67,12 @@ export const useInstructorDrafts = () => {
       // Map database documents to UI format
       const mappedDrafts: InstructorDraft[] = serverDrafts.map(draft => ({
         id: draft.externalId || draft._id,
-        name: draft.name,
-        instructorName: draft.instructorName,
-        role: draft.role,
-        level: draft.level,
-        lastUpdated: draft.lastUpdated,
-        formData: draft.formData
+        name: draft.name || 'Untitled Draft',
+        instructorName: draft.instructorName || 'Unknown',
+        role: draft.role || 'Not specified',
+        level: draft.level || 'Beginner',
+        lastUpdated: draft.lastUpdated || new Date().toISOString(),
+        formData: draft.formData || {}
       }))
       setDrafts(mappedDrafts)
       return mappedDrafts

@@ -33,17 +33,20 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Fetch additional user data from database to include phone number
-    let phone: string | undefined;
+    // Fetch additional user data from database to include name and phone
+    let userName: string | undefined = payload.name as string | undefined;
+    let userPhone: string | undefined;
     try {
       await dbConnect();
-      const user = await UserModel.findOne({ email: payload.email }).select('phone').lean();
-      if (user && user.phone) {
-        phone = user.phone;
+      const user = await UserModel.findOne({ email: payload.email }).select('name phone').lean();
+      if (user) {
+        // Use database values if token doesn't have them
+        userName = user.name || userName;
+        userPhone = user.phone;
       }
     } catch (dbError) {
-      console.error('[API] /api/auth/session - Failed to fetch user phone:', dbError);
-      // Continue without phone if database query fails
+      console.error('[API] /api/auth/session - Failed to fetch user data:', dbError);
+      // Continue with token data if database query fails
     }
 
     // Return session data (excluding sensitive info)
@@ -56,8 +59,8 @@ export async function GET(request: NextRequest) {
         role: payload.role as string,
         tenantId: payload.tenantId as string | undefined,
         academyId: payload.academyId as string | undefined,
-        name: payload.name as string | undefined,
-        phone,
+        name: userName,
+        phone: userPhone,
       },
     })
   } catch (error) {

@@ -11,9 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/dashboard/ui/alert-dialog"
-import { Button } from "@/components/dashboard/ui/button"
-import { X } from "lucide-react"
-
 interface Instructor {
   instructorId: string
   name: string
@@ -50,12 +47,7 @@ export default function DeleteConfirmationDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <div className="flex items-center justify-between">
-            <AlertDialogTitle>{title}</AlertDialogTitle>
-            <Button variant="ghost" size="sm" onClick={onCancel} className="h-6 w-6 p-0">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
             {description}
             <br />

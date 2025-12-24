@@ -147,7 +147,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get course info from cohort with tenant isolation
-    let courseId = (student as any).enrolledCourse || (student as any).courseOfInterestId;
+    // Only use enrolledCourse, not courseOfInterest
+    let courseId = (student as any).enrolledCourse;
     let courseFee = 0;
     let courseName = (student as any).enrolledCourseName;
     

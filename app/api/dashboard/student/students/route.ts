@@ -347,6 +347,7 @@ export async function POST(req: NextRequest) {
       stateProvince: s.stateProvince,
       email: s.email,
       address: s.address,
+      pincode: s.pincode,
       courseOfInterestId: s.courseOfInterestId, // Course of Interest ID
       enrolledCourseName: s.enrolledCourseName, // Enrolled Course Name
       category: s.category,
@@ -404,6 +405,7 @@ export async function POST(req: NextRequest) {
       stateProvince: s.stateProvince,
       email: s.email,
       address: s.address,
+      pincode: s.pincode,
       courseOfInterestId: s.courseOfInterestId,
       enrolledCourseName: s.enrolledCourseName,
       category: s.category,

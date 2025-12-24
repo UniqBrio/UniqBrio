@@ -697,12 +697,7 @@ export default function LeaveGrid({ searchQuery, filters, sortBy = "startDate", 
       <AlertDialog open={unsavedEditOpen} onOpenChange={setUnsavedEditOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <div className="flex items-center justify-between">
-              <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-              <Button variant="ghost" size="sm" onClick={() => setUnsavedEditOpen(false)} className="h-6 w-6 p-0">
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
             <AlertDialogDescription>
               You have unsaved changes in your leave request. What would you like to do?
             </AlertDialogDescription>

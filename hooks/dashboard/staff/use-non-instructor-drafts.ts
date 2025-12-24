@@ -57,12 +57,12 @@ export const useNonInstructorDrafts = () => {
       const serverDrafts = await apiGet<any[]>("/api/dashboard/staff/non-instructor/drafts")
       const mapped: NonInstructorDraft[] = serverDrafts.map((d) => ({
         id: d.externalId || d._id,
-        name: d.name,
-        instructorName: d.instructorName,
-        role: d.role,
-        level: d.level,
-        lastUpdated: d.lastUpdated,
-        formData: d.formData,
+        name: d.name || 'Untitled Draft',
+        instructorName: d.instructorName || 'Unknown',
+        role: d.role || 'Not specified',
+        level: d.level || 'Beginner',
+        lastUpdated: d.lastUpdated || new Date().toISOString(),
+        formData: d.formData || {},
       }))
       setDrafts(mapped)
       return mapped

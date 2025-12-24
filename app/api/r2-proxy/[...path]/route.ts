@@ -18,16 +18,19 @@ const s3 = new S3Client({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    // Await params in Next.js 15
+    const resolvedParams = await params;
+    
     // Reconstruct the file path from URL segments
-    const filePath = params.path.join('/');
+    const filePath = resolvedParams.path.join('/');
     console.log(`[r2-proxy] Requesting file: ${filePath}`);
 
     // Determine which bucket to use based on path prefix
     let bucket = R2_BUCKET;
-    let allowedPrefixes = ['kyc/'];
+    let allowedPrefixes = ['kyc/', 'business-registration/'];
     
     // Check if this is a student photo (tenant-scoped paths with uppercase/lowercase letters)
     if (filePath.match(/^[a-fA-F0-9-]+\/students\//)) {

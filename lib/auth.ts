@@ -124,13 +124,14 @@ export async function verifyToken(token: string): Promise<jose.JWTPayload | null
     });
     
     // If JWT is valid, check session store for revocation
-    // Skip session validation for users still completing registration
-    if (payload.registrationComplete === false && !payload.tenantId) {
-      console.log("[AuthLib] verifyToken: User in registration flow, skipping session store validation");
+    // Skip session validation for users still completing registration (no tenantId yet)
+    if (!payload.tenantId || payload.registrationComplete === false) {
+      console.log("[AuthLib] verifyToken: User in registration flow or no tenantId, skipping session store validation");
       return payload;
     }
     
-    if (payload.jti || (payload.userId && payload.tenantId)) {
+    // Only validate session store if user has completed registration and has tenantId
+    if (payload.jti && payload.userId && payload.tenantId) {
       const sessionValidation = await validateSession(payload);
       if (!sessionValidation.isValid) {
         console.log("[AuthLib] verifyToken: Session validation failed:", sessionValidation.error);

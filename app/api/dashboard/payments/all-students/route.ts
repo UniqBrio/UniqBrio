@@ -202,8 +202,7 @@ export async function GET(request: NextRequest) {
     const studentCourseIds = students
       .map((student: any) => 
         cohortToCourseMap.get(student.cohortId) || 
-        student.enrolledCourse || 
-        student.courseOfInterestId
+        student.enrolledCourse
       )
       .filter((courseId: string) => courseId && courseId.trim() !== '');
     
@@ -261,8 +260,8 @@ export async function GET(request: NextRequest) {
         let finalEnrolledCourse = payment.enrolledCourse || payment.enrolledCourseId;
         
         if (paymentCourseFee === 0) {
-          // Get courseId from cohort first, then fall back to payment record
-          let courseId = cohortToCourseMap.get(payment.cohortId || student.cohortId) || finalEnrolledCourse || student.enrolledCourse || student.courseOfInterestId;
+          // Get courseId from cohort first, then fall back to enrolled course only
+          let courseId = cohortToCourseMap.get(payment.cohortId || student.cohortId) || finalEnrolledCourse || student.enrolledCourse;
           const courseInfo = courseFeeMap.get(courseId);
           
           if (courseInfo) {

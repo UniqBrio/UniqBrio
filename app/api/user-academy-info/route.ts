@@ -74,10 +74,16 @@ export async function GET(request: NextRequest) {
         userId,
         academyId,
         academyName,
-        businessLogoUrl,
-        profilePictureUrl,
+        businessLogoUrl: businessLogoUrl ? `${businessLogoUrl.substring(0, 100)}...` : 'EMPTY',
+        profilePictureUrl: profilePictureUrl ? `${profilePictureUrl.substring(0, 100)}...` : 'EMPTY',
         businessNameUploadUrl,
-        regId: matchingRegistration._id
+        regId: matchingRegistration._id,
+        rawBusinessInfo: {
+          hasBusinessLogoUrl: !!businessInfo?.businessLogoUrl,
+          hasLogo: !!businessInfo?.logo,
+          hasProfilePictureUrl: !!businessInfo?.profilePictureUrl,
+          hasProfilePicture: !!businessInfo?.profilePicture
+        }
       });
     }
 

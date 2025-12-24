@@ -53,6 +53,12 @@ export default function Header(props: HeaderProps) {
     isMobile = false,
     sidebarCollapsed = false,
   } = props
+  
+  console.log('[Header] Props received:', {
+    academyName,
+    businessLogoUrl: businessLogoUrl ? `${businessLogoUrl.substring(0, 50)}...` : 'EMPTY',
+    profilePictureUrl: profilePictureUrl ? `${profilePictureUrl.substring(0, 50)}...` : 'EMPTY'
+  });
   const [notifications, setNotifications] = useState(0)
   const [notificationsList, setNotificationsList] = useState<HeaderNotification[]>([])
   const [loadingNotifications, setLoadingNotifications] = useState(false)

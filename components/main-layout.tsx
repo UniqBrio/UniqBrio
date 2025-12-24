@@ -59,11 +59,18 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         });
         if (res.ok) {
           const data = await res.json();
+          console.log('[MainLayout] Academy info received:', {
+            academyName: data.academyName,
+            businessLogoUrl: data.businessLogoUrl ? `${data.businessLogoUrl.substring(0, 50)}...` : 'EMPTY',
+            profilePictureUrl: data.profilePictureUrl ? `${data.profilePictureUrl.substring(0, 50)}...` : 'EMPTY'
+          });
           setAcademyName(data.academyName || "");
           setUserName(data.userName || "");
           setBusinessLogoUrl(data.businessLogoUrl || "");
           setProfilePictureUrl(data.profilePictureUrl || "");
           setTagline(data.tagline || "");
+        } else {
+          console.error('[MainLayout] Failed to fetch academy info:', res.status);
         }
       } catch (err) {
         // fallback: do nothing
