@@ -491,21 +491,36 @@ export async function POST(request: NextRequest) {
     
     if (payment.studentRegistrationFeePaid && payment.studentRegistrationFee) {
       totalFees -= payment.studentRegistrationFee;
+      console.log('Deducting already-paid student registration fee:', payment.studentRegistrationFee);
     }
     if (payment.courseRegistrationFeePaid && payment.courseRegistrationFee) {
       totalFees -= payment.courseRegistrationFee;
+      console.log('Deducting already-paid course registration fee:', payment.courseRegistrationFee);
     }
+    
+    console.log('Payment validation:', {
+      calculatedTotalFees,
+      totalFeesAfterDeductions: totalFees,
+      receivedAmount,
+      amount,
+      courseFee: payment.courseFee,
+      courseRegFee: payment.courseRegistrationFee,
+      studentRegFee: payment.studentRegistrationFee,
+      studentRegFeePaid: payment.studentRegistrationFeePaid,
+      courseRegFeePaid: payment.courseRegistrationFeePaid
+    });
     
     // Maximum allowed is total fees minus what's already been received
     const maxAllowedAmount = Math.max(0, totalFees - receivedAmount);
     
     // Only validate if we have a valid total fees amount
+    // Allow payment up to and including maxAllowedAmount (use > not >=)
     if (totalFees > 0 && amount > maxAllowedAmount) {
       return NextResponse.json(
         {
           error: maxAllowedAmount === 0 
             ? `Payment already completed. No additional payment required.`
-            : `Payment amount (${amount}) cannot exceed remaining balance (${maxAllowedAmount})`,
+            : `Payment amount (${amount}) cannot exceed remaining balance (${maxAllowedAmount}). Total fees: ${totalFees}, Already received: ${receivedAmount}`,
         },
         { status: 400 }
       );

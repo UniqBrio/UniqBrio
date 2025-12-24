@@ -1182,10 +1182,54 @@ export function ManualPaymentDialog({
   };
 
   const handlePaymentAmountChange = (value: string) => {
-    if (value === '' || parseFloat(value) >= 0) {
+    if (!payment) return;
+    
+    const numAmount = parseFloat(value);
+    
+    // Allow empty input
+    if (value === '') {
       setPaymentAmount(value);
       validatePaymentAmount(value);
+      return;
     }
+    
+    // Only allow positive numbers
+    if (numAmount < 0) {
+      return;
+    }
+    
+    // Skip validation for Monthly Subscription (Ongoing Training) - it's a recurring payment model
+    const isOngoingMonthly = courseInfo.courseCategory === "Ongoing Training" && 
+                             (paymentOption === 'Monthly' || paymentOption === 'Monthly With Discounts');
+    
+    if (!isOngoingMonthly) {
+      // Calculate maximum allowed amount
+      const receivedAmount = payment.receivedAmount || 0;
+      const courseFee = fetchedFees?.courseFee || payment.courseFee || 0;
+      const studentRegistrationFee = fetchedFees?.studentRegistrationFee || payment.studentRegistrationFee || 0;
+      const courseRegistrationFee = fetchedFees?.courseRegistrationFee || payment.courseRegistrationFee || 0;
+      
+      let totalFees = courseFee;
+      if (!payment.studentRegistrationFeePaid && selectedTypes.studentRegistrationFee) {
+        totalFees += studentRegistrationFee;
+      }
+      if (!payment.courseRegistrationFeePaid && selectedTypes.courseRegistrationFee) {
+        totalFees += courseRegistrationFee;
+      }
+      
+      const maxAllowedAmount = Math.max(0, totalFees - receivedAmount);
+      
+      // Prevent entering amount greater than balance
+      if (!isNaN(numAmount) && numAmount > maxAllowedAmount && maxAllowedAmount > 0) {
+        // Set to max allowed amount instead and show inline error
+        setPaymentAmount(maxAllowedAmount.toString());
+        setPaymentAmountError(`Payment amount cannot exceed ${currency} ${maxAllowedAmount.toLocaleString()} (remaining balance)`);
+        return;
+      }
+    }
+    
+    setPaymentAmount(value);
+    validatePaymentAmount(value);
   };
 
   const handleSave = async () => {
