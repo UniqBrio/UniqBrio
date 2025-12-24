@@ -71,13 +71,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch student details with tenant isolation
-    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
-    if (!student) {
+    const studentResult = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
+    if (!studentResult) {
       return NextResponse.json(
         { error: 'Student not found' },
         { status: 404 }
       );
     }
+    const student = studentResult as any;
 
     // Define fee structure
     const courseRegistrationFee = 1000;

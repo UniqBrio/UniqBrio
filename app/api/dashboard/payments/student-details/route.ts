@@ -33,14 +33,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean()
+    const studentResult = await Student.findOne({ studentId, tenantId: session.tenantId })
       .select('studentId name enrolledCourse enrolledCourseName category courseType courseLevel cohortId courseOfInterestId guardian guardianFirstName guardianMiddleName guardianLastName')
       .lean()
       .exec();
 
-    console.log('[student-details] Student query result:', student);
+    console.log('[student-details] Student query result:', studentResult);
 
-    if (!student) {
+    if (!studentResult) {
       return NextResponse.json(
         { 
           error: 'Student not found',
@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
         }
       );
     }
+    const student = studentResult as any;
 
     // Try to get courseId from multiple sources
     let courseId = (student as any).enrolledCourse || null;

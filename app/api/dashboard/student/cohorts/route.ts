@@ -198,10 +198,11 @@ export async function PUT(req: NextRequest) {
     }
     
     // Find the cohort
-    const cohort = await Cohort.findOne({ id: cohortId, tenantId: session.tenantId }).lean();
-    if (!cohort) {
+    const cohortResult = await Cohort.findOne({ id: cohortId, tenantId: session.tenantId }).lean();
+    if (!cohortResult) {
       return NextResponse.json({ error: 'Cohort not found' }, { status: 404 });
     }
+    const cohort = cohortResult as any;
     
     // Get current enrolled students (support both 'members' and 'enrolledStudents' fields)
     let currentEnrolled = Array.isArray(cohort.enrolledStudents) 

@@ -97,14 +97,15 @@ export async function POST(request: NextRequest) {
       console.log('Step 4: Payment not found, creating new record...');
       
       // Fetch student data to create payment record
-      const student = await Student.findOne({ studentId: studentId, tenantId: session.tenantId }).lean();
-      if (!student) {
+      const studentResult = await Student.findOne({ studentId: studentId, tenantId: session.tenantId }).lean();
+      if (!studentResult) {
         console.error('Step 4: Student not found ✗');
         return NextResponse.json(
           { error: 'Student not found', details: `No student found with ID: ${studentId}` },
           { status: 404 }
         );
       }
+      const student = studentResult as any;
       
       // Get course info from cohort
       let courseId = student.enrolledCourse || student.courseOfInterestId;

@@ -128,13 +128,14 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Fetch student details with tenant isolation
-    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
-    if (!student) {
+    const studentResult = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
+    if (!studentResult) {
       return NextResponse.json(
         { error: 'Student not found' },
         { status: 404 }
       );
     }
+    const student = studentResult as any;
 
     // Check if payment record already exists with tenant isolation
     const existingPayment = await Payment.findOne({ studentId, tenantId: session.tenantId });

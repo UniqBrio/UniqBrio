@@ -238,13 +238,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch student first (needed for both payment creation and email)
-    const student = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
-    if (!student) {
+    const studentResult = await Student.findOne({ studentId, tenantId: session.tenantId }).lean();
+    if (!studentResult) {
       return NextResponse.json(
         { error: 'Student not found' },
         { status: 404 }
       );
     }
+    // Type assertion to ensure single document (not array)
+    const student = studentResult as any;
 
     // Fetch payment record - handle both MongoDB ObjectId and studentId
     let payment;

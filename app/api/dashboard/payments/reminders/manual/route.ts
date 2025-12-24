@@ -49,14 +49,15 @@ export async function POST(request: NextRequest) {
 
     // Find payment record with tenant isolation
     // Use studentId since the id field mapping is unreliable
-    const payment = await Payment.findOne({ studentId, tenantId: session.tenantId }).lean();
+    const paymentResult = await Payment.findOne({ studentId, tenantId: session.tenantId }).lean();
 
-    if (!payment) {
+    if (!paymentResult) {
       return NextResponse.json(
         { error: 'Payment record not found' },
         { status: 404 }
       );
     }
+    const payment = paymentResult as any;
 
     // Check if payment is fully paid
     if (payment.collectionRate >= 100 || payment.status === 'Completed') {
