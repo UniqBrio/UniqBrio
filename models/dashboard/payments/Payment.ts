@@ -111,10 +111,29 @@ const PaymentSchema = new mongoose.Schema(
     discountedMonthlyAmount: { type: Number },
     totalPayable: { type: Number },
     totalSavings: { type: Number },
+    // New Monthly Subscription tracking system
+    monthlySubscription: {
+      type: { type: String, enum: ['STANDARD', 'WITH_DISCOUNTS'] },
+      currentMonth: { type: String },
+      monthlyFee: { type: Number },
+      originalMonthlyFee: { type: Number },
+      discountedMonthlyFee: { type: Number },
+      commitmentPeriod: { type: Number },
+      isFirstPayment: { type: Boolean },
+      monthlyRecords: [{
+        month: { type: String },
+        status: { type: String, enum: ['PAID', 'PENDING', 'OVERDUE'] },
+        amount: { type: Number },
+        paidDate: { type: Date },
+        transactionId: { type: String },
+      }],
+      lastUpdated: { type: Date },
+    },
   },
   { 
     timestamps: true,
     minimize: false,  // Don't remove empty objects/fields
+    strict: false,  // Allow fields not defined in schema
   }
 );
 
@@ -127,8 +146,8 @@ PaymentSchema.index({ status: 1 });
 // Method to calculate outstanding and collection rate
 PaymentSchema.pre('save', function(next) {
   if (this.isModified('receivedAmount') || this.isModified('courseRegistrationFee') || this.isModified('studentRegistrationFee') || this.isModified('courseFee')) {
-    // Use courseFee as the total amount (registration fees are separate/optional)
-    const totalFees = this.courseFee || 0;
+    // Calculate total fees including all registration fees
+    const totalFees = (this.courseFee || 0) + (this.courseRegistrationFee || 0) + (this.studentRegistrationFee || 0);
     
     this.outstandingAmount = Math.max(0, totalFees - this.receivedAmount);
     

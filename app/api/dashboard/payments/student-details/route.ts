@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     if (!courseId && (student as any).cohortId) {
       console.log('[student-details] Fetching courseId from cohort:', (student as any).cohortId);
       const Cohort = mongoose.connection.collection('cohorts');
-      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId }).lean();
+      const cohort = await Cohort.findOne({ cohortId: (student as any).cohortId, tenantId: session.tenantId });
       if (cohort?.courseId) {
         courseId = cohort.courseId;
         console.log('[student-details] Found courseId from cohort:', courseId);

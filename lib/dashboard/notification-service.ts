@@ -39,7 +39,17 @@ export async function sendPaymentConfirmationNotification(
     const isOneTimePayment = paymentDetails.paymentOption === 'One Time' || paymentDetails.paymentOption === 'ONE_TIME_PAYMENT';
     const isPartial = !paymentDetails.isLastPayment && paymentDetails.dueAmount && paymentDetails.dueAmount > 0;
 
+    // Get tenantId from context
+    const tenantContext = getTenantContext();
+    const tenantId = tenantContext?.tenantId;
+    
+    if (!tenantId) {
+      console.error('[Notification] No tenantId found in context');
+      throw new Error('No tenantId found in context');
+    }
+
     const notificationData = {
+      tenantId, // Add tenantId for multi-tenant isolation
       studentId,
       studentName,
       type: paymentDetails.isLastPayment ? 'payment_completed' : 'payment_received',
@@ -109,7 +119,17 @@ export async function sendPaymentReminderNotification(
     }
 
     // Create in-app notification
+    // Get tenantId from context
+    const tenantContext = getTenantContext();
+    const tenantId = tenantContext?.tenantId;
+    
+    if (!tenantId) {
+      console.error('[Notification] No tenantId found in context');
+      throw new Error('No tenantId found in context');
+    }
+
     const notificationData = {
+      tenantId, // Add tenantId for multi-tenant isolation
       studentId,
       studentName,
       type: 'payment_reminder',

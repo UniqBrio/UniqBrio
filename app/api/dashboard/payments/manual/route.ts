@@ -254,17 +254,17 @@ export async function POST(request: NextRequest) {
     
     if (mongoose.Types.ObjectId.isValid(paymentId) && paymentId.length === 24) {
       // paymentId is a valid MongoDB ObjectId - still need tenant check
-      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId }).lean();
+      payment = await Payment.findOne({ _id: paymentId, tenantId: session.tenantId });
       console.log('[Manual Payment API] Found by _id:', !!payment);
     } else {
       // paymentId is actually a studentId - find by studentId
-      payment = await Payment.findOne({ studentId: paymentId, tenantId: session.tenantId }).lean();
+      payment = await Payment.findOne({ studentId: paymentId, tenantId: session.tenantId });
       console.log('[Manual Payment API] Found by paymentId as studentId:', !!payment);
     }
     
     // Also try to find payment by studentId if not found above
     if (!payment) {
-      payment = await Payment.findOne({ studentId, tenantId: session.tenantId }).lean();
+      payment = await Payment.findOne({ studentId, tenantId: session.tenantId });
       console.log('[Manual Payment API] Found by studentId:', !!payment);
     }
     
@@ -560,7 +560,19 @@ export async function POST(request: NextRequest) {
     
     console.log(`Found ${previousRecords.length} previous payment records for payment ID: ${payment._id}`);
 
-    // Create PaymentTransaction for comprehensive history tracking with invoice number
+    // Generate receipt number before creating the document to avoid duplicate key errors
+    const CounterModel = (await import('@/models/dashboard/payments/Counter')).default;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const counterName = `receipt_${session.tenantId}_${year}${month}${day}`;
+    const sequenceNumber = await CounterModel.getNextSequence(counterName);
+    const receiptNumber = `RCP-${year}${month}${day}-${String(sequenceNumber).padStart(5, '0')}`;
+    
+    console.log(`Generated receipt number: ${receiptNumber}`);
+
+    // Create PaymentTransaction for comprehensive history tracking with invoice number and receipt number
     const paymentRecord = await PaymentTransaction.create({
       tenantId: session.tenantId, // Explicit tenant isolation
       paymentId: payment._id.toString(),
@@ -574,6 +586,7 @@ export async function POST(request: NextRequest) {
       paidDate: parsedPaymentDate,
       paymentMode,
       transactionId: '', // Will be set after creation
+      receiptNumber: receiptNumber, // Set receipt number immediately to avoid duplicate key error
       notes,
       payerType,
       payerName: payerName || payment.studentName,
@@ -594,12 +607,6 @@ export async function POST(request: NextRequest) {
     
     // Update the transactionId to reference itself
     paymentRecord.transactionId = paymentRecord._id.toString();
-    
-    // Generate receipt number if not set
-    if (!paymentRecord.receiptNumber) {
-      await (paymentRecord as any).generateReceiptNumber();
-    }
-    
     await paymentRecord.save();
     const paymentSequence = previousRecords.length + 1;
     
@@ -1050,10 +1057,41 @@ export async function POST(request: NextRequest) {
     
     // Handle MongoDB duplicate key error
     if (error.name === 'MongoServerError' && error.code === 11000) {
+      console.error('[Manual Payment API] Duplicate key error:', error);
+      // Try to find the existing payment one more time
+      // Extract studentId from error message or try to get it from the request
+      const duplicateKeyMatch = error.message?.match(/studentId: "([^"]+)"/);
+      const studentIdFromError = duplicateKeyMatch ? duplicateKeyMatch[1] : null;
+      
+      if (studentIdFromError) {
+        try {
+          const existingPayment = await Payment.findOne({ studentId: studentIdFromError, tenantId: session.tenantId });
+          if (existingPayment) {
+            console.log('[Manual Payment API] Found existing payment after duplicate error:', existingPayment._id);
+            return new NextResponse(
+              JSON.stringify({
+                error: 'Payment record exists. Please refresh the page and try again.',
+                details: 'A payment record was found for this student. The page may need to be refreshed to load the latest data.',
+                errorName: 'DuplicatePaymentError',
+                existingPaymentId: existingPayment._id.toString(),
+              }),
+              { 
+                status: 409, // Conflict
+                headers: {
+                  'Content-Type': 'application/json',
+                }
+              }
+            );
+          }
+        } catch (findError) {
+          console.error('[Manual Payment API] Error finding existing payment:', findError);
+        }
+      }
+      
       return new NextResponse(
         JSON.stringify({
           error: 'A payment record already exists for this student',
-          details: 'Please use the existing payment record or contact support if you believe this is an error.',
+          details: 'Please refresh the page. If the issue persists, contact support.',
           errorName: 'DuplicatePaymentError',
         }),
         { 

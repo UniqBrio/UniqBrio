@@ -441,7 +441,12 @@ export function ManualPaymentDialog({
         
         // Prepare parallel fetch calls based on what data we need
         const fetchPromises: Promise<any>[] = [
-          fetch(`/api/dashboard/payments/student-details?studentId=${payment.studentId}`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(r))
+          fetch(`/api/dashboard/payments/student-details?studentId=${payment.studentId}`, { credentials: 'include' })
+            .then(async r => {
+              if (r.ok) return r.json();
+              const errorText = await r.text();
+              throw new Error(`Student details fetch failed (${r.status}): ${errorText || r.statusText}`);
+            })
         ];
         
         // If payment already has course and cohort info, we can fetch those in parallel
@@ -450,13 +455,25 @@ export function ManualPaymentDialog({
         
         if (courseId) {
           fetchPromises.push(
-            fetchCoursePaymentDetails(courseId)
+            fetchCoursePaymentDetails(courseId).catch(err => {
+              console.warn('Course details fetch failed:', err);
+              return null; // Return null instead of failing the entire Promise.all
+            })
           );
         }
         
         if (cohortId) {
           fetchPromises.push(
-            fetch(`/api/dashboard/payments/cohort-dates?cohortId=${cohortId}`, { credentials: 'include' }).then(r => r.ok ? r.json() : Promise.reject(r))
+            fetch(`/api/dashboard/payments/cohort-dates?cohortId=${cohortId}`, { credentials: 'include' })
+              .then(async r => {
+                if (r.ok) return r.json();
+                console.warn(`Cohort dates fetch failed (${r.status}): ${r.statusText}`);
+                return null; // Return null instead of failing
+              })
+              .catch(err => {
+                console.warn('Cohort dates fetch error:', err);
+                return null;
+              })
           );
         }
         
@@ -555,9 +572,15 @@ export function ManualPaymentDialog({
         
       } catch (error) {
         console.error('Error fetching student details:', error);
+        console.error('Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+          studentId: payment?.studentId,
+          paymentId: payment?.id
+        });
         toast({
           title: "Error Loading Student Info",
-          description: "Could not load student details. Please check console for details.",
+          description: error instanceof Error ? error.message : "Could not load student details. Please check console for details.",
           variant: "destructive",
         });
       }
@@ -1348,14 +1371,55 @@ export function ManualPaymentDialog({
       // even on first payment (when it doesn't exist in DB yet)
       let finalInstallmentsConfig = installmentsConfig;
       if (paymentOption === 'One Time With Installments' && !installmentsConfig) {
-        console.error('installmentsConfig is missing for One Time With Installments payment!');
-        toast({
-          title: "Configuration Error",
-          description: "Installments configuration is missing. Please contact support.",
-          variant: "destructive",
-        });
-        setSubmitting(false);
-        return;
+        console.warn('installmentsConfig is missing, attempting to generate on-the-fly...');
+        
+        // Try to generate installments if we have the necessary data
+        if (cohortDates.startDate && cohortDates.endDate) {
+          try {
+            const startDate = new Date(cohortDates.startDate);
+            const endDate = new Date(cohortDates.endDate);
+            
+            const courseFee = fetchedFees?.courseFee || payment.courseFee || 0;
+            const courseRegFee = fetchedFees?.courseRegistrationFee || payment.courseRegistrationFee || 0;
+            const studentRegFee = fetchedFees?.studentRegistrationFee || payment.studentRegistrationFee || 0;
+            const totalAmount = courseFee + courseRegFee + studentRegFee;
+            
+            if (totalAmount > 0) {
+              finalInstallmentsConfig = generateOneTimeInstallments(startDate, endDate, totalAmount, 3);
+              
+              // Mark installments as PAID based on received amount
+              const receivedAmount = payment.receivedAmount || 0;
+              let remainingAmount = receivedAmount;
+              
+              if (receivedAmount > 0) {
+                finalInstallmentsConfig.installments = finalInstallmentsConfig.installments.map((inst) => {
+                  if (remainingAmount >= inst.amount) {
+                    remainingAmount -= inst.amount;
+                    return { ...inst, status: 'PAID' as const, paidDate: new Date(), paidAmount: inst.amount };
+                  }
+                  return inst;
+                });
+              }
+              
+              console.log('Generated installments config on-the-fly:', finalInstallmentsConfig);
+              setInstallmentsConfig(finalInstallmentsConfig);
+            }
+          } catch (error) {
+            console.error('Failed to generate installments on-the-fly:', error);
+          }
+        }
+        
+        // If we still don't have config, show error
+        if (!finalInstallmentsConfig) {
+          console.error('installmentsConfig is missing and cannot be generated!');
+          toast({
+            title: "Configuration Error",
+            description: "Installments configuration is missing. Please ensure course dates are set.",
+            variant: "destructive",
+          });
+          setSubmitting(false);
+          return;
+        }
       }
 
       // Call the new manual payment API
@@ -1455,19 +1519,24 @@ export function ManualPaymentDialog({
         throw new Error(errorMessage);
       }
 
-      toast({
-        title: "Payment Recorded Successfully",
-        description: `Invoice ${result.invoice.invoiceNumber} has been generated and sent.`,
-      });
-
-      // Call the parent onSave callback with the result
-      onSave(result);
-      
-      // Close dialog
+      // Close dialog first
       onOpenChange(false);
       
       // Reset form
       resetForm();
+      
+      // Call the parent onSave callback with the result AFTER closing
+      // This ensures the refresh happens after the dialog is fully closed
+      setTimeout(() => {
+        onSave(result);
+        
+        // Show success toast AFTER refresh
+        toast({
+          title: "Payment Recorded Successfully",
+          description: `Invoice ${result.invoice.invoiceNumber} has been generated and sent.`,
+        });
+      }, 100);
+      
     } catch (error: any) {
       console.error('Error recording payment:', error);
       toast({
