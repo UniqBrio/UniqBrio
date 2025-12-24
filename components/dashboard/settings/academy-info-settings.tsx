@@ -14,6 +14,7 @@ import {
 import Image from "next/image"
 import { useCustomColors } from '@/lib/use-custom-colors'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/dashboard/ui/card"
+import { Button } from "@/components/dashboard/ui/button"
 import { Label } from "@/components/dashboard/ui/label"
 import { Input } from "@/components/dashboard/ui/input"
 import { Textarea } from "@/components/dashboard/ui/textarea"
@@ -26,6 +27,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
 } from "@/components/dashboard/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/dashboard/ui/radio-group"
 import { CountryStateDropdown } from "@/components/dashboard/ui/staff/country-state-dropdown"
