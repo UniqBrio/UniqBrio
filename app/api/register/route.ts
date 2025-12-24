@@ -44,11 +44,13 @@ const pickAllowed = (source: unknown, keys: readonly string[]) => {
 };
 
 export async function POST(req: Request) {
+  // Connect to database FIRST before creating session
+  await dbConnect();
+  
   const session = await mongoose.startSession();
   session.startTransaction();
   
   try {
-    await dbConnect();
     
     console.log("[Registration API] ========== STARTING REGISTRATION REQUEST ==========");
     console.log("[Registration API] Request URL:", req.url);

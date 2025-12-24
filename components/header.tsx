@@ -253,6 +253,7 @@ export default function Header(props: HeaderProps) {
                 fill 
                 style={{ objectFit: "contain" }} 
                 priority 
+                unoptimized={businessLogoUrl.startsWith('data:')}
                 className="rounded"
               />
             </div>
@@ -407,6 +408,7 @@ export default function Header(props: HeaderProps) {
                     alt={userName || "User"} 
                     width={32}
                     height={32}
+                    unoptimized={profilePictureUrl.startsWith('data:')}
                     className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0"
                   />
                 ) : (

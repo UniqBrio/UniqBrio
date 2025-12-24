@@ -8,7 +8,7 @@ import UserModel from '@/models/User';
 import RegistrationModel from '@/models/Registration';
 import KycSubmissionModel from '@/models/KycSubmission';
 
-const USER_EMAIL = 'frozen9612345@gmail.com';
+const USER_EMAIL = 'shyamsivu2003@gmail.com';
 
 async function checkUserInfo() {
   console.log('🔍 CHECKING USER INFORMATION');
