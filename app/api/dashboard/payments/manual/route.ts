@@ -363,8 +363,8 @@ export async function POST(request: NextRequest) {
         enrolledCourse: courseId || '',
         enrolledCourseId: courseId || '',
         enrolledCourseName: student.enrolledCourseName || '',
-        cohortId: student.cohortId || '',
-        cohortName: student.cohortName || '',
+        cohortId: student.cohortId || undefined, // Use undefined instead of empty string
+        cohortName: student.cohortName || undefined, // Use undefined instead of empty string
         courseType: courseType,
         courseRegistrationFee,
         studentRegistrationFee,
@@ -569,7 +569,7 @@ export async function POST(request: NextRequest) {
       enrollmentId: payment.enrollmentId,
       courseId: payment.enrolledCourseId || payment.enrolledCourse,
       courseName: payment.enrolledCourseName,
-      cohortId: payment.cohortId,
+      cohortId: payment.cohortId || undefined, // Use undefined instead of empty string
       paidAmount: amount,
       paidDate: parsedPaymentDate,
       paymentMode,
