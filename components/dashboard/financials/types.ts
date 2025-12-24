@@ -87,7 +87,7 @@ export interface IncomeFormData {
   receivedBy: string
   receivedFrom: string
   receiptNumber: string
-  attachments: File | null
+  attachments: File | null | 'REMOVE'
 }
 
 export interface ExpenseFormData {
@@ -102,7 +102,7 @@ export interface ExpenseFormData {
   receivedBy: string
   receivedFrom: string
   receiptNumber: string
-  attachments: File | null
+  attachments: File | null | 'REMOVE'
 }
 
 export interface BankFormData {

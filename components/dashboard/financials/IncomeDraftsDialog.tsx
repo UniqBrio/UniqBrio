@@ -142,7 +142,7 @@ export function IncomeDraftsDialog({
       // Show success toast
       toast({
         title: "🗑️ Draft Deleted",
-        description: `Income draft "${draft.name}" has been deleted successfully.`,
+        description: `Income draft "${draftToDelete.name}" has been deleted successfully.`,
         duration: 3000,
       });
     } catch (error) {

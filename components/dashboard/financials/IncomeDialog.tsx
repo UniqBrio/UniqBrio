@@ -304,8 +304,11 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
       const currHas = !!incomeForm.attachments;
       if (origHas !== currHas) return true;
       if (!origHas && !currHas) return false;
-      if (incomeForm.attachments && initialIncome?.attachments) {
-        return incomeForm.attachments.name !== initialIncome.attachments.name || incomeForm.attachments.size !== initialIncome.attachments.size || incomeForm.attachments.type !== initialIncome.attachments.type;
+      if (incomeForm.attachments && initialIncome?.attachments && 
+          typeof incomeForm.attachments !== 'string' && typeof initialIncome.attachments !== 'string') {
+        return incomeForm.attachments.name !== initialIncome.attachments.name || 
+               incomeForm.attachments.size !== initialIncome.attachments.size || 
+               incomeForm.attachments.type !== initialIncome.attachments.type;
       }
       return false;
     })();
@@ -631,17 +634,28 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     value={incomeForm.addToAccount || ""} 
                     onValueChange={v => handleIncomeChange('addToAccount', v)} 
                     required={incomeForm.paymentMode?.toLowerCase() !== 'cash'}
-                    disabled={incomeForm.paymentMode?.toLowerCase() === 'cash'}
+                    disabled={incomeForm.paymentMode?.toLowerCase() === 'cash' || (options.accounts?.length === 0 && incomeForm.paymentMode?.toLowerCase() !== 'cash')}
                   >
                     <SelectTrigger className={`w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent ${incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'opacity-50 cursor-not-allowed' : ''}`} tabIndex={6}>
-                      <SelectValue placeholder={incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : 'Select account'} />
+                      <SelectValue placeholder={incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : (options.accounts?.length === 0 ? 'No bank accounts - Add one in Bank Accounts tab' : 'Select account')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {((options.accounts || []) as string[]).map(acc => (
-                        <SelectItem key={acc} value={acc}>{acc}</SelectItem>
-                      ))}
+                      {options.accounts?.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                          No bank accounts available. Please add a bank account first.
+                        </div>
+                      ) : (
+                        ((options.accounts || []) as string[]).map(acc => (
+                          <SelectItem key={acc} value={acc}>{acc}</SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
+                  {options.accounts?.length === 0 && incomeForm.paymentMode?.toLowerCase() !== 'cash' && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      ⚠️ Please add a bank account in the "Bank Accounts" tab before creating non-cash income.
+                    </p>
+                  )}
                 </div>
               </div>
               
@@ -736,7 +750,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 )}
                 
                 {/* Show new file selected */}
-                {incomeForm.attachments && incomeForm.attachments !== 'REMOVE' && (
+                {incomeForm.attachments && incomeForm.attachments !== 'REMOVE' && typeof incomeForm.attachments !== 'string' && (
                   <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
                     <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <div className="flex-1 min-w-0">

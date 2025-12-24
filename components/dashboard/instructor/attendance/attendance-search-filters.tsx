@@ -532,19 +532,32 @@ export default function AttendanceSearchFilters({
   }
 
   return (
-    <div>
-      <div className="flex flex-col lg:flex-row gap-2 mb-4">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
+    <div className="mb-6">
+      {/* Mobile-Optimized Toolbar */}
+      <div className="flex flex-col gap-3 mb-4">
+        {/* Search field - full width on mobile */}
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
           <Input
             placeholder="Search instructors or remarks..."
-            className="pl-10"
+            className="pl-10 h-9 sm:h-10 text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+              title="Clear search"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
-        <div className="flex gap-2 items-center">
+        
+        {/* Actions - Responsive Grid for Mobile */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           {/* Filter Button & Panel (mirrors student implementation) */}
           <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
             <PopoverTrigger asChild>
@@ -807,12 +820,6 @@ export default function AttendanceSearchFilters({
         </div>
 
         {/* Import */}
-        
-              <Button variant="outline" size="sm" title="Import" onClick={() => fileInputRef.current?.click()} disabled>
-                <Upload className="h-4 w-4 mr-2" />
-                Import
-              </Button>
-           
         <input
           ref={fileInputRef}
           type="file"
@@ -820,19 +827,24 @@ export default function AttendanceSearchFilters({
           onChange={handleImportFileChange}
           className="hidden"
         />
+        <Button variant="outline" size="sm" title="Import" onClick={() => fileInputRef.current?.click()} disabled className="h-9">
+          <Upload className="h-4 w-4 mr-1 sm:mr-2" />
+          <span className="hidden sm:inline">Import</span>
+        </Button>
 
-  {/* Export */}
+        {/* Export */}
         <Button 
           variant="outline" 
           size="sm" 
           title={selectedIds.length > 0 ? `Export ${selectedIds.length} selected` : 'Export all attendance records'}
           onClick={() => { selectedIds.length > 0 ? handleExportSelected() : handleExportAll(); }}
+          className="h-9"
         >
-          <Download className="h-4 w-4 mr-2" />
-          {selectedIds.length > 0 ? `Export (${selectedIds.length})` : 'Export'}
+          <Download className="h-4 w-4 mr-1 sm:mr-2" />
+          <span className="hidden xs:inline">{selectedIds.length > 0 ? `(${selectedIds.length})` : 'Export'}</span>
         </Button>
 
-  {/* Drafts */}
+        {/* Drafts */}
         {onOpenDrafts && (
           <Button
             onClick={onOpenDrafts}
@@ -841,24 +853,23 @@ export default function AttendanceSearchFilters({
             style={{ backgroundColor: primaryColor }}
             title={`Drafts (${effectiveDraftCount})`}
           >
-            <FileText className="h-4 w-4 mr-2" />
-            Drafts ({effectiveDraftCount})
+            <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline sm:hidden md:inline">Drafts</span>
+            <span>({effectiveDraftCount})</span>
           </Button>
         )}
 
-        {/* Add Attendance */}
+        {/* Add Attendance - Full width on mobile */}
         {onAddAttendance && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={onAddAttendance} size="sm" className="h-9 text-white rounded-lg hover:opacity-90" style={{ backgroundColor: primaryColor }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Attendance
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Record new attendance entry</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button 
+            onClick={onAddAttendance} 
+            size="sm" 
+            className="bg-purple-600 hover:bg-purple-700 text-white col-span-2 sm:col-span-1 h-9 font-medium shadow-sm rounded-lg"
+            title="Record new attendance entry"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            <span>Add Attendance</span>
+          </Button>
         )}
         </div>
       </div>

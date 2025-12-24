@@ -142,7 +142,7 @@ export function ExpenseDraftsDialog({
       // Show success toast
       toast({
         title: "🗑️ Draft Deleted",
-        description: `Expense draft "${draft.name}" has been deleted successfully.`,
+        description: `Expense draft "${draftToDelete.name}" has been deleted successfully.`,
         duration: 3000,
       });
     } catch (error) {

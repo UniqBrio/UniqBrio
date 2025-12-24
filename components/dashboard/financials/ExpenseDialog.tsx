@@ -322,8 +322,11 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
       const currHas = !!expenseForm.attachments;
       if (origHas !== currHas) return true;
       if (!origHas && !currHas) return false;
-      if (expenseForm.attachments && initialExpense?.attachments) {
-        return expenseForm.attachments.name !== initialExpense.attachments.name || expenseForm.attachments.size !== initialExpense.attachments.size || expenseForm.attachments.type !== initialExpense.attachments.type;
+      if (expenseForm.attachments && initialExpense?.attachments && 
+          typeof expenseForm.attachments !== 'string' && typeof initialExpense.attachments !== 'string') {
+        return expenseForm.attachments.name !== initialExpense.attachments.name || 
+               expenseForm.attachments.size !== initialExpense.attachments.size || 
+               expenseForm.attachments.type !== initialExpense.attachments.type;
       }
       return false;
     })();
@@ -709,17 +712,28 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     value={expenseForm.addFromAccount || ""} 
                     onValueChange={v => handleExpenseChange('addFromAccount', v)} 
                     required={expenseForm.paymentMode?.toLowerCase() !== 'cash'}
-                    disabled={expenseForm.paymentMode?.toLowerCase() === 'cash'}
+                    disabled={expenseForm.paymentMode?.toLowerCase() === 'cash' || (options.accounts?.length === 0 && expenseForm.paymentMode?.toLowerCase() !== 'cash')}
                   >
                     <SelectTrigger id="expense-from-account" className={`w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${expenseForm.paymentMode?.toLowerCase() === 'cash' ? 'opacity-50 cursor-not-allowed' : ''}`} tabIndex={7} aria-label="Select from account" aria-required={expenseForm.paymentMode?.toLowerCase() !== 'cash'}>
-                      <SelectValue placeholder={expenseForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : 'Select account'} />
+                      <SelectValue placeholder={expenseForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : (options.accounts?.length === 0 ? 'No bank accounts - Add one in Bank Accounts tab' : 'Select account')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {((options.accounts || []) as string[]).map(acc => (
-                        <SelectItem key={acc} value={acc}>{acc}</SelectItem>
-                      ))}
+                      {options.accounts?.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                          No bank accounts available. Please add a bank account first.
+                        </div>
+                      ) : (
+                        ((options.accounts || []) as string[]).map(acc => (
+                          <SelectItem key={acc} value={acc}>{acc}</SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
+                  {options.accounts?.length === 0 && expenseForm.paymentMode?.toLowerCase() !== 'cash' && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      ⚠️ Please add a bank account in the "Bank Accounts" tab before creating non-cash expenses.
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expense-received-by" className="text-sm font-medium text-gray-700 dark:text-white">Received By</Label>
@@ -820,7 +834,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                 )}
                 
                 {/* Show new file selected */}
-                {expenseForm.attachments && expenseForm.attachments !== 'REMOVE' && (
+                {expenseForm.attachments && expenseForm.attachments !== 'REMOVE' && typeof expenseForm.attachments !== 'string' && (
                   <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
                     <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <div className="flex-1 min-w-0">

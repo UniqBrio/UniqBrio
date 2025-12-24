@@ -49,7 +49,7 @@ import AdvancedFilters from "./advanced-filters"
 export default function LeaveManagement() {
   const { state, dispatch } = useLeave()
   const [showNewRequestForm, setShowNewRequestForm] = useState(false)
-  const [editingDraft, setEditingDraft] = useState<import("../../../types/staff/leave").LeaveRequest | null>(null)
+  const [editingDraft, setEditingDraft] = useState<import("@/types/dashboard/staff/leave").LeaveRequest | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"table" | "grid" | "calendar">("table")
   const [lastNonCalendarView, setLastNonCalendarView] = useState<"table" | "grid">("table")
@@ -620,14 +620,16 @@ export default function LeaveManagement() {
                   <CardTitle>Add New Leave Request</CardTitle>
                   <p className="text-sm text-muted-foreground">Create and submit a new leave request in just a few steps.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button key={`drafts-${draftsRefreshKey}`} className="bg-purple-600 hover:bg-purple-700" onClick={() => setDraftsOpen(true)}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Drafts ({draftsCount})
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button key={`drafts-${draftsRefreshKey}`} size="sm" className="bg-purple-600 hover:bg-purple-700 h-9" onClick={() => setDraftsOpen(true)}>
+                    <Save className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline sm:hidden md:inline">Drafts</span>
+                    <span>({draftsCount})</span>
                   </Button>
-                  <Button onClick={() => setShowNewRequestForm(true)} className="bg-purple-600 hover:bg-purple-700">
+                  <Button onClick={() => setShowNewRequestForm(true)} size="sm" className="bg-purple-600 hover:bg-purple-700 h-9 font-medium">
                     <Plus className="h-4 w-4 mr-2" />
-                    New Leave Request
+                    <span className="hidden xs:inline">New Leave Request</span>
+                    <span className="xs:hidden">New Request</span>
                   </Button>
                 </div>
               </div>
@@ -640,19 +642,22 @@ export default function LeaveManagement() {
       )}
       {hubTab === "leave-request" && (
       <div className="space-y-4">
-        {/* Combined Search, View toggle, Filters, Export */}
-  <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
-          <div className="relative flex-1 min-w-[240px] max-w-md">
+        {/* Mobile-Optimized Search and Actions */}
+        <div className="flex flex-col gap-3">
+          {/* Search - Full width on mobile */}
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search by name or job level..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-9 sm:h-10 text-sm"
             />
           </div>
-      <TooltipProvider delayDuration={200}>
-      <div className="flex items-center gap-2">
+          
+          {/* Actions - Responsive Grid */}
+          <TooltipProvider delayDuration={200}>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
                 {/* More Filters Popover with apply/clear tick behavior */}
             <AdvancedFilters
               value={{ jobLevels, leaveTypes, dateRange, staffTypes }}
@@ -814,9 +819,10 @@ export default function LeaveManagement() {
                   disabled
                   onClick={() => document.getElementById("import-leave-csv-input")?.click()}
                   title="Import CSV"
+                  className="h-9"
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import
+                  <Upload className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Import</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Upload files</TooltipContent>
@@ -829,6 +835,7 @@ export default function LeaveManagement() {
                   variant="outline"
                   size="sm"
                   aria-label="Export CSV"
+                  className="h-9"
                   onClick={() => {
                 // Build usage per period to compute remaining balance exactly like the table
                 const usage: Record<string, Record<string, number>> = {}
@@ -905,8 +912,8 @@ export default function LeaveManagement() {
                 downloadCSV(name, csv)
                   }}
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  {`Export${selectedIds.length ? ` (${selectedIds.length})` : ""}`}
+                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">{`Export${selectedIds.length ? ` (${selectedIds.length})` : ""}`}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Export CSV</TooltipContent>

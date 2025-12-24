@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/dashboard/ui/dialog"
 import { Landmark, Plus, Pencil, Trash2, Building2, CreditCard, Loader2, Search, X } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/dashboard/ui/alert"
+import { toast } from "@/hooks/dashboard/use-toast"
 
 interface BankAccount {
   _id?: string
@@ -199,6 +200,8 @@ export function BankAccountSettings() {
     }
 
     setIsSaving(true)
+    let isSuccess = false
+    
     try {
       if (editingAccount) {
         // Update existing account
@@ -226,9 +229,10 @@ export function BankAccountSettings() {
               ? { ...updatedAccount, id: updatedAccount._id || updatedAccount.id }
               : acc
           ))
-          toast({ title: "Bank Account Updated", description: "Bank account details have been updated successfully." })
           // Clear options cache so financials page picks up updated account
           sessionStorage.removeItem('income-options')
+          isSuccess = true
+          toast({ title: "Bank Account Updated", description: "Bank account details have been updated successfully." })
         } else {
           const errorData = await response.json()
           throw new Error(errorData.error || 'Failed to update bank account')
@@ -254,18 +258,15 @@ export function BankAccountSettings() {
         if (response.ok) {
           const newAccount = await response.json()
           setBankAccounts(prev => [...prev, { ...newAccount, id: newAccount._id }])
-          toast({ title: "Bank Account Added", description: "Bank account details have been saved successfully." })
           // Clear options cache so financials page picks up new account
           sessionStorage.removeItem('income-options')
+          isSuccess = true
+          toast({ title: "Bank Account Added", description: "Bank account details have been saved successfully." })
         } else {
           const errorData = await response.json()
           throw new Error(errorData.error || 'Failed to add bank account')
         }
       }
-
-      setDialogOpen(false)
-      setBankForm(initialFormData)
-      setEditingAccount(null)
     } catch (error: any) {
       console.error('Error saving bank account:', error)
       toast({ 
@@ -275,6 +276,14 @@ export function BankAccountSettings() {
       })
     } finally {
       setIsSaving(false)
+      // Only close dialog and reset form if operation was successful
+      if (isSuccess) {
+        setDialogOpen(false)
+        setBankForm(initialFormData)
+        setOriginalFormData(initialFormData)
+        setEditingAccount(null)
+        setIsFormModified(false)
+      }
     }
   }
 
