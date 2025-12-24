@@ -270,6 +270,7 @@ export default function StudentsPage() {
           id: s.id || s.studentId,
         }));
         
+        console.log('refreshStudents: Sample student data:', mappedStudents[0]);
         setStudentList(mappedStudents);
       } else {
         console.warn('refreshStudents: backend returned non-ok status', res.status);

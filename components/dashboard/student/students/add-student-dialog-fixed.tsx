@@ -872,9 +872,27 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     if('batch' in sanitizedInitial) delete sanitizedInitial.batch;
     if('cohort' in sanitizedInitial) delete sanitizedInitial.cohort;
     
+    // CRITICAL FIX: Preserve existing field values from initialStudent
+    // Only use base defaults for fields that are truly missing (undefined/null)
     const composed = { 
       ...base, 
-      ...sanitizedInitial, 
+      ...sanitizedInitial,
+      // Explicitly preserve ALL optional fields that might have values from initialStudent
+      // This prevents base defaults from overwriting existing data
+      pincode: sanitizedInitial.pincode !== undefined ? sanitizedInitial.pincode : base.pincode,
+      photoUrl: sanitizedInitial.photoUrl !== undefined ? sanitizedInitial.photoUrl : base.photoUrl,
+      address: sanitizedInitial.address !== undefined ? sanitizedInitial.address : base.address,
+      country: sanitizedInitial.country !== undefined ? sanitizedInitial.country : base.country,
+      stateProvince: sanitizedInitial.stateProvince !== undefined ? sanitizedInitial.stateProvince : base.stateProvince,
+      courseStartDate: sanitizedInitial.courseStartDate !== undefined ? sanitizedInitial.courseStartDate : base.courseStartDate,
+      enrolledCourse: sanitizedInitial.enrolledCourse !== undefined ? sanitizedInitial.enrolledCourse : undefined,
+      enrolledCourseName: sanitizedInitial.enrolledCourseName !== undefined ? sanitizedInitial.enrolledCourseName : undefined,
+      category: sanitizedInitial.category !== undefined ? sanitizedInitial.category : base.category,
+      courseType: sanitizedInitial.courseType !== undefined ? sanitizedInitial.courseType : undefined,
+      courseLevel: sanitizedInitial.courseLevel !== undefined ? sanitizedInitial.courseLevel : undefined,
+      referredBy: sanitizedInitial.referredBy !== undefined ? sanitizedInitial.referredBy : base.referredBy,
+      referringStudentName: sanitizedInitial.referringStudentName !== undefined ? sanitizedInitial.referringStudentName : undefined,
+      referringStudentId: sanitizedInitial.referringStudentId !== undefined ? sanitizedInitial.referringStudentId : undefined,
       guardian: initialStudent.guardian?{...emptyGuardian,...initialStudent.guardian}:emptyGuardian, 
       firstName:sn.first,
       middleName:sn.middle,
@@ -887,12 +905,16 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     console.log('🔍 composeInitial - initialStudent:', {
       courseOfInterestId: initialStudent.courseOfInterestId,
       enrolledCourse: (initialStudent as any).enrolledCourse,
-      cohortId: initialStudent.cohortId
+      cohortId: initialStudent.cohortId,
+      pincode: initialStudent.pincode,
+      photoUrl: initialStudent.photoUrl
     });
     console.log('🔍 composeInitial - composed:', {
       courseOfInterestId: composed.courseOfInterestId,
       enrolledCourse: (composed as any).enrolledCourse,
-      cohortId: composed.cohortId
+      cohortId: composed.cohortId,
+      pincode: composed.pincode,
+      photoUrl: composed.photoUrl
     });
     
     return composed;
@@ -927,6 +949,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string>('');
   
   // Fetch next available student ID for new students
   useEffect(() => {
@@ -1534,6 +1557,16 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
         }
       }
       
+      if (!newStudent.guardianLastName?.trim()) addError('guardianLastName');
+      
+      // Guardian Last Name regex validation
+      if (newStudent.guardianLastName?.trim()) {
+        const guardianLastName = newStudent.guardianLastName.trim();
+        if (!nameRegex.test(guardianLastName)) {
+          addError('guardianLastName', 'Guardian Last Name can only contain letters, spaces, hyphens, apostrophes, and dots (2-50 characters)');
+        }
+      }
+      
       if (!newStudent.guardian?.relationship) addError('guardianRelationship');
       if (!newStudent.guardian?.contact?.trim()) {
         addError('guardianContact', 'Please enter a valid guardian contact number');
@@ -1637,29 +1670,91 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     }
   };
 
+  // Helper function to compress image before upload
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+
+          // Resize if image is too large (max 800px on longest side)
+          let width = img.width;
+          let height = img.height;
+          const maxDimension = 800;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = (height / width) * maxDimension;
+              width = maxDimension;
+            } else {
+              width = (width / height) * maxDimension;
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to blob with compression (0.8 quality for JPEG)
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to compress image'));
+                return;
+              }
+              // Create new file from blob
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            },
+            'image/jpeg',
+            0.8
+          );
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+    });
+  };
+
   const handlePhotoInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Clear any previous errors
+    setPhotoError('');
+
+    // Validate file type immediately
     if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
-      toast({
-        title: 'Unsupported file type',
-        description: 'Please choose a JPG, PNG, GIF, or WebP image.',
-        variant: 'destructive',
-        duration: 3000,
-      });
+      // Clear the input immediately to prevent selection
       event.target.value = '';
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
+      setPhotoError('Unsupported file type. Please choose a JPG, PNG, GIF, or WebP image.');
       return;
     }
 
+    // Validate file size immediately (before upload attempt)
     if (file.size > MAX_PHOTO_SIZE) {
-      toast({
-        title: 'File too large',
-        description: 'Please select an image smaller than 2 MB.',
-        variant: 'destructive',
-        duration: 3000,
-      });
+      // Clear the input immediately to prevent selection
       event.target.value = '';
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
+      setPhotoError('File too large. Please select an image smaller than 2 MB.');
       return;
     }
 
@@ -1670,8 +1765,12 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     setPhotoUploading(true);
 
     try {
+      // Compress image before upload for faster uploads
+      const compressedFile = await compressImage(file);
+      console.log(`📸 Image compressed: ${(file.size / 1024).toFixed(1)}KB → ${(compressedFile.size / 1024).toFixed(1)}KB`);
+
       const formData = new FormData();
-      formData.append('photo', file);
+      formData.append('photo', compressedFile);
 
       const response = await fetch('/api/dashboard/student/upload-photo', {
         method: 'POST',
@@ -1694,30 +1793,32 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
 
       console.log('✅ Photo uploaded successfully:', data.photoUrl);
       
-      // Don't revoke the temp preview immediately - keep it until we confirm the new URL works
-      setPhotoPreviewUrl(data.photoUrl);
-      setNewStudent(prev => ({ ...prev, photoUrl: data.photoUrl }));
+      // Clear any previous errors on successful upload
+      setPhotoError('');
       
-      // Revoke the temporary blob URL after a short delay
-      setTimeout(() => {
-        revokePreviewUrl(tempPreview);
-      }, 1000);
-      
-      toast({
-        title: 'Photo uploaded',
-        description: 'Student photo has been uploaded successfully.',
-        duration: 2000,
-      });
+      // Preload the server image before switching to prevent blank/disappearing photo
+      const serverImage = new Image();
+      serverImage.onload = () => {
+        // Once server image is loaded, switch to it
+        setPhotoPreviewUrl(data.photoUrl);
+        setNewStudent(prev => ({ ...prev, photoUrl: data.photoUrl }));
+        // Now safe to revoke the temporary blob URL
+        setTimeout(() => {
+          revokePreviewUrl(tempPreview);
+        }, 100);
+      };
+      serverImage.onerror = () => {
+        // If server image fails to load, keep using the temp preview
+        console.warn('Server image failed to load, keeping temp preview');
+        setNewStudent(prev => ({ ...prev, photoUrl: data.photoUrl }));
+      };
+      // Start preloading the server image
+      serverImage.src = data.photoUrl;
     } catch (error) {
       console.error('Failed to upload student photo', error);
       revokePreviewUrl(tempPreview);
       setPhotoPreviewUrl(previousPreview || null);
-      toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Could not upload the selected image. Please try again.',
-        variant: 'destructive',
-        duration: 3000,
-      });
+      setPhotoError(error instanceof Error ? error.message : 'Could not upload the selected image. Please try again.');
     } finally {
       setPhotoUploading(false);
       if (photoInputRef.current) {
@@ -1732,6 +1833,7 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
     setPhotoPreviewUrl(null);
     setNewStudent(prev => ({ ...prev, photoUrl: '' }));
     setPhotoUploading(false);
+    setPhotoError(''); // Clear any photo errors when removing
     if (photoInputRef.current) {
       photoInputRef.current.value = '';
     }
@@ -1964,53 +2066,19 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
       communicationPreferences: newStudent.communicationPreferences,
     };
     
-    // If this was created from a draft, delete the draft FIRST before creating the student
-    if (currentDraftId) {
-      try {
-        const { StudentDraftsAPI } = await import('@/lib/dashboard/student/student-drafts-api');
-        await StudentDraftsAPI.deleteDraft(currentDraftId);
-        
-        // Trigger event to update draft lists
-        StudentDraftsAPI.triggerDraftsUpdatedEvent(undefined, 'deleted');
-        
-        // Now create the student
-        onAdd(student);
-        
-        // Show success toast
-        toast({
-          title: "✅ Student Added",
-          description: `Student "${student.name}" has been created and draft has been removed.`,
-          duration: 3000,
-        });
-      } catch (error) {
-        console.error('❌ Failed to delete draft after student creation:', error);
-        
-        // Still create the student even if draft deletion fails
-        onAdd(student);
-        
-        // Show error toast about draft
-        toast({
-          title: "⚠️ Draft Not Removed",
-          description: `Student "${student.name}" was created, but the draft could not be removed. Please delete it manually.`,
-          variant: "destructive",
-          duration: 5000,
-        });
-      }
-    } else if (!initialStudent) {
-      // Regular student creation (not from draft and not editing)
-      onAdd(student);
-      
-      // Only show toast for new student creation, not for edits (parent handles edit toast)
+    // Call onAdd to create the student
+    // Note: Draft deletion is handled by the parent component (page.tsx) after student creation
+    onAdd(student);
+    
+    // Show toast only for new student creation (not edits)
+    if (!initialStudent) {
       toast({
         title: "✅ Student Added",
         description: `Student "${student.name}" has been created successfully.`,
         duration: 3000,
       });
-    } else {
-      // Edit operation
-      onAdd(student);
-      // Parent component will show the "Student Updated" toast
     }
+    // Parent component will show the "Student Updated" toast for edits
   };
   const renderCourseOptions=()=>{ 
     if(coursesLoading||isLoadingCourses) return <SelectItem value="__placeholder__loading_courses" disabled>Loading courses...</SelectItem>; 
@@ -2398,6 +2466,11 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                             <p className="text-[11px] text-gray-500 dark:text-white">
                               Supported formats: JPG, PNG, GIF. Max size 2&nbsp;MB.
                             </p>
+                            {photoError && (
+                              <p className="text-xs text-red-600 mt-1">
+                                {photoError}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2649,7 +2722,8 @@ export function AddStudentDialogFixed(props: AddStudentDialogProps){
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">Last Name{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>
-                        <Input name="guardianLastName" value={newStudent.guardianLastName||''} onChange={e=> updateGuardianName('guardianLastName', e.target.value)} className="mt-1" placeholder="e.g. Sharma" />
+                        <Input name="guardianLastName" value={newStudent.guardianLastName||''} onChange={e=> updateGuardianName('guardianLastName', e.target.value)} className={cn('mt-1', showFieldError('guardianLastName') && 'border-red-500 focus-visible:ring-red-500')} placeholder="e.g. Sharma" />
+                        {showFieldError('guardianLastName') && <p className="text-xs text-red-600 mt-1">{validationStatus.errors.guardianLastName}</p>}
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-white">Relationship{isGuardianRequired() && <span className="text-red-500">*</span>}</Label>

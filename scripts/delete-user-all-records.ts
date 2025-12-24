@@ -66,7 +66,7 @@ import KycReviewModel from '@/models/KycReview';
 import SessionModel from '@/models/Session';
 import CourseSimpleModel from '@/models/Course'; // Simple course model in root
 
-const USER_EMAIL = 'shyamsivu2003@gmail.com';
+const USER_EMAIL = 'frozen9612345@gmail.com';
 
 interface DeletionStats {
   collection: string;

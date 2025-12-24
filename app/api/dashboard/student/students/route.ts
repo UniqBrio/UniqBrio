@@ -244,6 +244,7 @@ export async function GET(req: NextRequest) {
         stateProvince: s.stateProvince,
         email: s.email,
         address: s.address,
+        pincode: s.pincode,
         courseOfInterestId: s.courseOfInterestId,
         enrolledCourse: s.enrolledCourse, // Enrolled Course ID
         enrolledCourseName: s.enrolledCourseName,
@@ -557,6 +558,7 @@ export async function PUT(req: NextRequest) {
       stateProvince: s.stateProvince,
       email: s.email,
       address: s.address,
+      pincode: s.pincode,
       courseOfInterestId: s.courseOfInterestId, // Course of Interest ID
       enrolledCourse: s.enrolledCourse, // Enrolled Course ID
       enrolledCourseName: s.enrolledCourseName, // Enrolled Course Name
@@ -565,6 +567,7 @@ export async function PUT(req: NextRequest) {
       courseLevel: s.courseLevel,
       registrationDate: s.registrationDate,
       courseStartDate: s.courseStartDate,
+      photoUrl: s.photoUrl,
       referredBy: s.referredBy,
       referringStudentName: s.referringStudentName,
       referringStudentId: s.referringStudentId,

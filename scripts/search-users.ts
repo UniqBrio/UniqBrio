@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import UserModel from '@/models/User';
 
 async function searchUsers() {
-  console.log('📋 SEARCHING FOR USERS\n');
+  console.log('📋 LISTING ALL USERS IN DATABASE\n');
 
   try {
     // Check auth database first
@@ -19,37 +19,9 @@ async function searchUsers() {
     await mongoose.disconnect();
     await dbConnect('uniqbrio');
     
-    // Search for users with similar patterns
-    const searchPatterns = [
-      { pattern: 'sugumarbala', label: 'sugumarbala' },
-      { pattern: 'bala', label: 'bala' },
-      { pattern: 'suguma', label: 'suguma' },
-      { pattern: '99', label: '99' }
-    ];
-
-    console.log('🔍 Searching for similar email addresses...\n');
-
-    for (const { pattern, label } of searchPatterns) {
-      const users = await UserModel.find({ 
-        email: { $regex: pattern, $options: 'i' } 
-      }).select('email name userId academyId verified registrationComplete createdAt').limit(10).lean();
-
-      if (users.length > 0) {
-        console.log(`📧 Found ${users.length} user(s) containing "${label}":\n`);
-        users.forEach((user, index) => {
-          console.log(`${index + 1}. ${user.email}`);
-          console.log(`   Name: ${user.name}`);
-          console.log(`   Academy ID: ${user.academyId || 'N/A'}`);
-          console.log(`   User ID: ${user.userId || 'N/A'}`);
-          console.log(`   Status: ${user.registrationComplete ? 'Complete' : 'Incomplete'}\n`);
-        });
-      }
-    }
-
     // Get total count from dashboard
     const totalUsers = await UserModel.countDocuments();
-    console.log('='.repeat(80));
-    console.log(`\nTotal users in dashboard database: ${totalUsers}\n`);
+    console.log(`Users in dashboard database (uniqbrio): ${totalUsers}\n`);
 
     if (totalUsers === 0) {
       console.log('❌ No users found in the database');
