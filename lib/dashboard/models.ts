@@ -17,7 +17,11 @@ const IncomeSchema = new Schema(
     receivedBy: { type: String },
     receivedFrom: { type: String },
     receiptNumber: { type: String },
-    // Note: attachments are handled separately via file uploads, not stored in MongoDB
+    // Attachment fields - stores file metadata and URL from R2 storage
+    attachmentUrl: { type: String },
+    attachmentName: { type: String },
+    attachmentSize: { type: Number },
+    attachmentType: { type: String },
     __hash: { type: String, index: true, sparse: true },
   },
   { timestamps: true }
@@ -45,7 +49,11 @@ const ExpenseSchema = new Schema(
     receivedBy: { type: String },
     receivedFrom: { type: String },
     receiptNumber: { type: String },
-    // Note: attachments are handled separately via file uploads, not stored in MongoDB
+    // Attachment fields - stores file metadata and URL from R2 storage
+    attachmentUrl: { type: String },
+    attachmentName: { type: String },
+    attachmentSize: { type: Number },
+    attachmentType: { type: String },
     __hash: { type: String, index: true, sparse: true },
   },
   { timestamps: true }

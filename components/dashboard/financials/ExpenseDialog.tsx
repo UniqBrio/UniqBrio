@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/dashboard/use-toast"
 import { ExpenseFormData } from "./types"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/dashboard/ui/dropdown-menu";
 import { Input } from "@/components/dashboard/ui/input";
-import { ChevronDown, FileText } from "lucide-react";
+import { ChevronDown, FileText, Download, X } from "lucide-react";
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input";
 import { ExpenseDraftsAPI } from "@/lib/dashboard/expense-drafts-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
@@ -45,6 +45,10 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [vendorNameDropdownOpen, setVendorNameDropdownOpen] = useState(false);
   const [vendorTypeDropdownOpen, setVendorTypeDropdownOpen] = useState(false);
+  
+  // File upload state
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   
   // Helper function to get current date in YYYY-MM-DD format
   const getCurrentDate = () => {
@@ -776,19 +780,102 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
               </div>
               <div className="space-y-2">
                 <Label htmlFor="expense-attachment" className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
-                <input 
-                  id="expense-attachment"
-                  type="file" 
-                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
-
-                                    accept=".pdf,.png,.jpg,.jpeg" 
-                  onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleExpenseChange('attachments', file); }} 
-                  tabIndex={12}
-                  aria-label="Attach file" 
-                />
-                <div className="text-xs text-gray-500 dark:text-white">
-                  Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
-                </div>
+                
+                {/* Show existing attachment if present */}
+                {initialExpense?.attachmentUrl && !expenseForm.attachments && (
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600">
+                    <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {initialExpense.attachmentName || 'Attachment'}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {initialExpense.attachmentSize ? `${(initialExpense.attachmentSize / 1024).toFixed(2)} KB` : ''}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(initialExpense.attachmentUrl, '_blank')}
+                      className="h-8 px-2"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    {!isView && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          // Mark for removal by setting a flag
+                          handleExpenseChange('attachments', 'REMOVE');
+                        }}
+                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+                
+                {/* Show new file selected */}
+                {expenseForm.attachments && expenseForm.attachments !== 'REMOVE' && (
+                  <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                        {expenseForm.attachments.name}
+                      </div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400">
+                        {(expenseForm.attachments.size / 1024).toFixed(2)} KB
+                      </div>
+                    </div>
+                    {!isView && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleExpenseChange('attachments', null)}
+                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+                
+                {/* File input (hidden when viewing or when attachment exists) */}
+                {!isView && (!initialExpense?.attachmentUrl || expenseForm.attachments === 'REMOVE') && !expenseForm.attachments && (
+                  <input 
+                    id="expense-attachment"
+                    type="file" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
+                    accept=".pdf,.png,.jpg,.jpeg" 
+                    onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleExpenseChange('attachments', file); }} 
+                    tabIndex={12}
+                    aria-label="Attach file"
+                    disabled={uploadingFile}
+                  />
+                )}
+                
+                {uploadingFile && (
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Uploading... {uploadProgress}%</div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                {!uploadingFile && (
+                  <div className="text-xs text-gray-500 dark:text-white">
+                    Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
+                  </div>
+                )}
               </div>
 
               {expenseFormError && <div role="alert" className="text-red-600 text-sm mt-2 p-3 bg-red-50 border border-red-200 rounded-md">{expenseFormError}</div>}

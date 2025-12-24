@@ -40,6 +40,12 @@ export interface Income {
   receivedBy?: string;
   receivedFrom?: string;
   receiptNumber?: string;
+  // Attachment metadata
+  attachmentUrl?: string;
+  attachmentName?: string;
+  attachmentSize?: number;
+  attachmentType?: string;
+  // Form-only field for file upload (not persisted)
   attachments?: File | null;
 }
 
@@ -60,6 +66,12 @@ export interface Expense {
   receivedBy?: string;
   receivedFrom?: string;
   receiptNumber?: string;
+  // Attachment metadata
+  attachmentUrl?: string;
+  attachmentName?: string;
+  attachmentSize?: number;
+  attachmentType?: string;
+  // Form-only field for file upload (not persisted)
   attachments?: File | null;
 }
 // Shared types and constants for financial components

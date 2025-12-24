@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/dashboard/use-toast"
 import { IncomeFormData } from "./types"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/dashboard/ui/dropdown-menu";
 import { Input } from "@/components/dashboard/ui/input";
-import { ChevronDown, FileText } from "lucide-react";
+import { ChevronDown, FileText, Download, X } from "lucide-react";
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input";
 import { IncomeDraftsAPI } from "@/lib/dashboard/income-drafts-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
@@ -699,14 +699,79 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
-                <input 
-                  type="file" 
-                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent cursor-pointer" 
- 
-                  accept=".pdf,.png,.jpg,.jpeg" 
-                  onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleIncomeChange('attachments', file); }} 
-                  tabIndex={11} 
-                />
+                
+                {/* Show existing attachment if present */}
+                {initialIncome?.attachmentUrl && !incomeForm.attachments && (
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600">
+                    <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {initialIncome.attachmentName || 'Attachment'}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {initialIncome.attachmentSize ? `${(initialIncome.attachmentSize / 1024).toFixed(2)} KB` : ''}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(initialIncome.attachmentUrl, '_blank')}
+                      className="h-8 px-2"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    {!isView && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleIncomeChange('attachments', 'REMOVE')}
+                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+                
+                {/* Show new file selected */}
+                {incomeForm.attachments && incomeForm.attachments !== 'REMOVE' && (
+                  <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                        {incomeForm.attachments.name}
+                      </div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400">
+                        {(incomeForm.attachments.size / 1024).toFixed(2)} KB
+                      </div>
+                    </div>
+                    {!isView && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleIncomeChange('attachments', null)}
+                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+                
+                {/* File input (hidden when viewing or when attachment exists) */}
+                {!isView && (!initialIncome?.attachmentUrl || incomeForm.attachments === 'REMOVE') && !incomeForm.attachments && (
+                  <input 
+                    type="file" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent cursor-pointer" 
+                    accept=".pdf,.png,.jpg,.jpeg" 
+                    onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleIncomeChange('attachments', file); }} 
+                    tabIndex={11} 
+                  />
+                )}
+                
                 <div className="text-xs text-gray-500 dark:text-white">
                   Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
                 </div>

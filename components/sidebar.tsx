@@ -323,6 +323,13 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
     })
   }
 
+  // Close sidebar on mobile when a link is clicked
+  const handleLinkClick = () => {
+    if (isMobile && !collapsed) {
+      toggleSidebar()
+    }
+  }
+
   // Helper to get all descendant ids for a menu item
   const getAllDescendantIds = (item: MenuItem): string[] => {
     let ids: string[] = [];
@@ -563,6 +570,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                         rel="noopener noreferrer"
                         className="flex items-center flex-1"
                         data-tour-id={item.id}
+                        onClick={handleLinkClick}
                       >
                         <span className="text-gray-500 dark:text-white mr-3">{item.icon}</span>
                         <span className="text-left flex items-center gap-1 dark:text-white">
@@ -588,6 +596,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                         prefetch={true}
                         className="flex items-center flex-1"
                         data-tour-id={item.id}
+                        onClick={handleLinkClick}
                       >
                         <span className="text-gray-500 dark:text-white mr-3">{item.icon}</span>
                         <span className="text-left">{item.name}</span>
@@ -657,6 +666,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       rel="noopener noreferrer"
                       className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
                       data-tour-id={item.id}
+                      onClick={handleLinkClick}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = `${primaryColor}1A`;
                         e.currentTarget.style.color = primaryColor;
@@ -690,6 +700,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                       prefetch={true}
                       className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
                       data-tour-id={item.id}
+                      onClick={handleLinkClick}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = `${primaryColor}1A`;
                         e.currentTarget.style.color = primaryColor;
@@ -828,6 +839,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center justify-center px-2 py-2 rounded-md focus:outline-none"
+                              onClick={handleLinkClick}
                               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}1A`}
                               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                               aria-label={item.name}
@@ -839,6 +851,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                               href={item.href}
                               prefetch={true}
                               className="flex items-center justify-center px-2 py-2 rounded-md focus:outline-none"
+                              onClick={handleLinkClick}
                               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}1A`}
                               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                               aria-label={item.name}

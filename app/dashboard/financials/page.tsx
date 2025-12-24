@@ -212,7 +212,59 @@ function FinancialsPageContent() {
 
   const handleSaveIncome = async (data: IncomeFormData, mode: 'add' | 'edit') => {
     try {
-      const payload = { ...data } as any;
+      let payload = { ...data } as any;
+      
+      // Handle file upload if a new file is attached
+      if (data.attachments && data.attachments !== 'REMOVE' && typeof data.attachments !== 'string') {
+        try {
+          const formData = new FormData();
+          formData.append('files', data.attachments);
+          formData.append('category', 'financial-documents');
+          
+          const uploadRes = await fetch('/api/academy-storage/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+          });
+          
+          if (!uploadRes.ok) {
+            throw new Error('File upload failed');
+          }
+          
+          const uploadResult = await uploadRes.json();
+          
+          if (uploadResult.success && uploadResult.data) {
+            // Store attachment metadata in payload
+            payload.attachmentUrl = uploadResult.data.url;
+            payload.attachmentName = uploadResult.data.originalName;
+            payload.attachmentSize = uploadResult.data.size;
+            payload.attachmentType = uploadResult.data.type;
+          }
+        } catch (uploadError) {
+          console.error('File upload error:', uploadError);
+          toast({
+            title: 'File upload failed',
+            description: 'Could not upload attachment. Saving income without attachment.',
+            variant: 'destructive'
+          });
+        }
+      } else if (data.attachments === 'REMOVE') {
+        // Mark attachment for removal
+        payload.attachmentUrl = null;
+        payload.attachmentName = null;
+        payload.attachmentSize = null;
+        payload.attachmentType = null;
+      } else if (selectedIncome?.attachmentUrl) {
+        // Keep existing attachment if no changes
+        payload.attachmentUrl = selectedIncome.attachmentUrl;
+        payload.attachmentName = selectedIncome.attachmentName;
+        payload.attachmentSize = selectedIncome.attachmentSize;
+        payload.attachmentType = selectedIncome.attachmentType;
+      }
+      
+      // Remove the File object before sending to API
+      delete payload.attachments;
+      
       // If we have a draftId, we're creating a new income from a draft, not editing an existing income
       const isEditingIncome = mode === 'edit' && selectedIncome && !incomeDraftId;
       const method = isEditingIncome ? 'PUT' : 'POST';
@@ -241,6 +293,10 @@ function FinancialsPageContent() {
         receivedBy: saved.receivedBy ?? data.receivedBy,
         receivedFrom: saved.receivedFrom ?? data.receivedFrom,
         receiptNumber: saved.receiptNumber ?? data.receiptNumber,
+        attachmentUrl: saved.attachmentUrl,
+        attachmentName: saved.attachmentName,
+        attachmentSize: saved.attachmentSize,
+        attachmentType: saved.attachmentType,
         status: saved.status ?? 'Updated',
       } as Income;
       
@@ -292,7 +348,59 @@ function FinancialsPageContent() {
 
   const handleSaveExpense = async (data: ExpenseFormData, mode: 'add' | 'edit') => {
     try {
-      const payload = { ...data } as any;
+      let payload = { ...data } as any;
+      
+      // Handle file upload if a new file is attached
+      if (data.attachments && data.attachments !== 'REMOVE' && typeof data.attachments !== 'string') {
+        try {
+          const formData = new FormData();
+          formData.append('files', data.attachments);
+          formData.append('category', 'financial-documents');
+          
+          const uploadRes = await fetch('/api/academy-storage/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+          });
+          
+          if (!uploadRes.ok) {
+            throw new Error('File upload failed');
+          }
+          
+          const uploadResult = await uploadRes.json();
+          
+          if (uploadResult.success && uploadResult.data) {
+            // Store attachment metadata in payload
+            payload.attachmentUrl = uploadResult.data.url;
+            payload.attachmentName = uploadResult.data.originalName;
+            payload.attachmentSize = uploadResult.data.size;
+            payload.attachmentType = uploadResult.data.type;
+          }
+        } catch (uploadError) {
+          console.error('File upload error:', uploadError);
+          toast({
+            title: 'File upload failed',
+            description: 'Could not upload attachment. Saving expense without attachment.',
+            variant: 'destructive'
+          });
+        }
+      } else if (data.attachments === 'REMOVE') {
+        // Mark attachment for removal
+        payload.attachmentUrl = null;
+        payload.attachmentName = null;
+        payload.attachmentSize = null;
+        payload.attachmentType = null;
+      } else if (selectedExpense?.attachmentUrl) {
+        // Keep existing attachment if no changes
+        payload.attachmentUrl = selectedExpense.attachmentUrl;
+        payload.attachmentName = selectedExpense.attachmentName;
+        payload.attachmentSize = selectedExpense.attachmentSize;
+        payload.attachmentType = selectedExpense.attachmentType;
+      }
+      
+      // Remove the File object before sending to API
+      delete payload.attachments;
+      
       // If we have a draftId, we're creating a new expense from a draft, not editing an existing expense
       const isEditingExpense = mode === 'edit' && selectedExpense && !expenseDraftId;
       const method = isEditingExpense ? 'PUT' : 'POST';
@@ -322,6 +430,10 @@ function FinancialsPageContent() {
         receivedBy: saved.receivedBy ?? data.receivedBy,
         receivedFrom: saved.receivedFrom ?? data.receivedFrom,
         receiptNumber: saved.receiptNumber ?? data.receiptNumber,
+        attachmentUrl: saved.attachmentUrl,
+        attachmentName: saved.attachmentName,
+        attachmentSize: saved.attachmentSize,
+        attachmentType: saved.attachmentType,
       } as Expense;
       
       setExpenses(prev => isEditingExpense
