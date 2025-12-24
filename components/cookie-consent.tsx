@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react" // Import useSession
 import { setCookieConsent, getCookieConsent } from "@/lib/cookies"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { isPWAInstalled } from "@/lib/pwa-detector"
 import { X } from "lucide-react"
 import Link from "next/link"
 
@@ -19,6 +20,13 @@ export default function CookieConsent() {
   })
 
   useEffect(() => {
+    // Skip cookie popup in PWA mode
+    if (typeof window !== 'undefined' && isPWAInstalled()) {
+      console.log('[Cookie Consent] Running in PWA mode - skipping cookie popup')
+      setShowConsent(false)
+      return
+    }
+
     // Only proceed if the authentication status is determined
     if (status === "authenticated") {
       // Check if user has already given consent (via cookie)
