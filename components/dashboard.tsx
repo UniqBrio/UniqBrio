@@ -338,23 +338,34 @@ const Dashboard = () => {
               </svg>
             </button>
 
-            <h2 className="text-2xl font-extrabold mb-3 text-purple-700">Continue using UniqBrio uninterrupted!</h2>
-            <p className="mb-6 text-gray-700 dark:text-white">
-              <span className="inline-block px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-bold mr-1">{kycDaysLeft} days</span>
-              left to upload your KYC and avoid service interruption.
+            <h2 className="text-2xl font-extrabold mb-4 text-purple-700">Welcome! Let's Get Started</h2>
+            <p className="mb-6 text-gray-700 dark:text-white text-left">
+              Follow these steps to start using UniqBrio:
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="mb-6 space-y-3 text-left">
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">1</span>
+                <p className="text-gray-700 dark:text-white pt-1">Create instructor</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">2</span>
+                <p className="text-gray-700 dark:text-white pt-1">Create course</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">3</span>
+                <p className="text-gray-700 dark:text-white pt-1">Create student</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">4</span>
+                <p className="text-gray-700 dark:text-white pt-1">Start accepting payments</p>
+              </div>
+            </div>
+            <div className="flex justify-center">
               <button
-                className="bg-gradient-to-r from-orange-400 to-purple-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:scale-105 transition-transform"
-                onClick={() => { setShowKycPopup(false); setShowKycForm(true); }}
-              >
-                <span className="mr-2">&#x2714;</span> Verify
-              </button>
-              <button
-                className="bg-gradient-to-r from-gray-400 to-gray-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:scale-105 transition-transform"
+                className="bg-gradient-to-r from-orange-400 to-purple-600 text-white px-8 py-2 rounded-full font-semibold shadow hover:scale-105 transition-transform"
                 onClick={() => setShowKycPopup(false)}
               >
-                I will do it in a while
+                Got it!
               </button>
             </div>
           </div>
