@@ -110,15 +110,16 @@ export default function StaffManagementPage() {
       try {
         setLoading(true)
         
-        // Fetch actual instructor data
-        const instructorResponse = await fetch('/api/dashboard/staff/instructors/stats')
-        const instructorData = await instructorResponse.json()
-        console.log('Instructor Stats:', instructorData)
+        // Fetch combined stats in a single API call for faster performance
+        const startTime = performance.now()
+        const response = await fetch('/api/dashboard/staff/combined-stats')
+        const data = await response.json()
+        const endTime = performance.now()
+        
+        console.log(`Combined stats fetched in ${(endTime - startTime).toFixed(2)}ms`)
+        console.log('Combined Staff Stats:', data)
 
-        // Fetch actual non-instructor data
-        const nonInstructorResponse = await fetch('/api/dashboard/staff/non-instructors/stats')
-        const nonInstructorData = await nonInstructorResponse.json()
-        console.log('Non-Instructor Stats:', nonInstructorData)
+        const { instructorStats: instructorData, nonInstructorStats: nonInstructorData } = data
 
         setInstructorStats({
           totalInstructors: instructorData.total || 0,
@@ -128,20 +129,6 @@ export default function StaffManagementPage() {
         })
 
         setNonInstructorStats({
-          totalNonInstructors: nonInstructorData.total || 0,
-          activeNonInstructors: nonInstructorData.active || 0,
-          onLeaveToday: nonInstructorData.onLeave || 0,
-          attendanceRate: nonInstructorData.attendanceRate || 0
-        })
-        
-        console.log('Instructor State:', {
-          totalInstructors: instructorData.total || 0,
-          activeInstructors: instructorData.active || 0,
-          onLeaveToday: instructorData.onLeave || 0,
-          attendanceRate: instructorData.attendanceRate || 0
-        })
-        
-        console.log('Non-Instructor State:', {
           totalNonInstructors: nonInstructorData.total || 0,
           activeNonInstructors: nonInstructorData.active || 0,
           onLeaveToday: nonInstructorData.onLeave || 0,
