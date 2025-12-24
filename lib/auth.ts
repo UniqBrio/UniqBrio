@@ -34,8 +34,9 @@ export function generateToken(): string {
 
 // Hash a password using bcrypt
 export async function hashPassword(password: string): Promise<string> {
-  // Salt rounds recommendation: 10-12. 12 is a good balance.
-  return await hash(password, 12);
+  // Salt rounds: 10 provides excellent security with better performance
+  // 10 rounds = ~100-150ms, 12 rounds = ~400-600ms (4x slower)
+  return await hash(password, 10);
 }
 
 // Compare a plaintext password with a stored hash

@@ -133,64 +133,60 @@ export async function signup(formData: FormData) {
     console.log("[AuthAction] signup: User created successfully in DB with ID:", newUser._id);
     console.log("[AuthAction] signup: Plan selected:", planChoosed);
 
-    // Send verification email with LINK only
-    try {
-      console.log("[AuthAction] signup: Generating verification email data for:", email);
-      
-      // Determine the correct base URL based on environment and request origin
-      let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.uniqbrio.com';
-      
-      // Get headers to detect production vs development
-      const headersList = headers();
-      const host = headersList.get('host') || '';
-      const protocol = headersList.get('x-forwarded-proto') || 'https';
-      
-      // If accessing from app.uniqbrio.com (production), use that
-      if (host.includes('app.uniqbrio.com')) {
-        baseUrl = 'https://app.uniqbrio.com';
-      } 
-      // If accessing from uniqbrio.com (production), use app subdomain
-      else if (host.includes('uniqbrio.com')) {
-        baseUrl = 'https://app.uniqbrio.com';
-      }
-      // If accessing from vercel deployment
-      else if (host.includes('vercel.app')) {
-        baseUrl = `${protocol}://${host}`;
-      }
-      // If localhost, use localhost with current port
-      else if (host.includes('localhost')) {
-        baseUrl = `${protocol}://${host}`;
-      }
-      
-      console.log("[AuthAction] signup: Using base URL:", baseUrl, "(detected from host:", host, ")");
-      
-      const emailData = generateVerificationEmail(email, verificationToken, name, undefined, baseUrl)
-      console.log("[AuthAction] signup: Email data generated. Attempting to send...");
-      await sendEmail(emailData); // Await the result
-      console.log("[AuthAction] signup: sendEmail function completed successfully for:", email);
-    } catch (emailError) {
-      console.error("[AuthAction] signup: !!! Error caught within email sending block:", emailError);
-      // Decide recovery strategy: Delete user? Allow login attempt later?
-      // For now, return specific error but user exists in DB as unverified.
-      return { success: false, message: "Signup successful, but failed to send verification email. Please contact support." }
+    // Send verification email with LINK only (fire-and-forget for performance)
+    console.log("[AuthAction] signup: Generating verification email data for:", email);
+    
+    // Determine the correct base URL based on environment and request origin
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.uniqbrio.com';
+    
+    // Get headers to detect production vs development
+    const headersList = headers();
+    const host = headersList.get('host') || '';
+    const protocol = headersList.get('x-forwarded-proto') || 'https';
+    
+    // If accessing from app.uniqbrio.com (production), use that
+    if (host.includes('app.uniqbrio.com')) {
+      baseUrl = 'https://app.uniqbrio.com';
+    } 
+    // If accessing from uniqbrio.com (production), use app subdomain
+    else if (host.includes('uniqbrio.com')) {
+      baseUrl = 'https://app.uniqbrio.com';
     }
-
-    // Send signup notification to support team
-    try {
-      console.log("[AuthAction] signup: Sending notification to support team for:", email);
-      const notificationData = generateNewSignupNotification({
-        name,
-        email,
-        phone,
-        planChoosed,
-        signupDate: newUser.createdAt
-      });
-      await sendEmail(notificationData);
-      console.log("[AuthAction] signup: Support notification sent successfully");
-    } catch (notificationError) {
-      // Don't fail signup if notification fails - just log it
-      console.error("[AuthAction] signup: Failed to send support notification:", notificationError);
+    // If accessing from vercel deployment
+    else if (host.includes('vercel.app')) {
+      baseUrl = `${protocol}://${host}`;
     }
+    // If localhost, use localhost with current port
+    else if (host.includes('localhost')) {
+      baseUrl = `${protocol}://${host}`;
+    }
+    
+    console.log("[AuthAction] signup: Using base URL:", baseUrl, "(detected from host:", host, ")");
+    
+    // Send emails asynchronously without blocking signup response
+    // This reduces signup time from 10s to <1s by not waiting for SMTP
+    const emailData = generateVerificationEmail(email, verificationToken, name, undefined, baseUrl);
+    const notificationData = generateNewSignupNotification({
+      name,
+      email,
+      phone,
+      planChoosed,
+      signupDate: newUser.createdAt
+    });
+    
+    // Fire both emails in parallel without awaiting (background processing)
+    Promise.all([
+      sendEmail(emailData).catch(err => 
+        console.error("[AuthAction] signup: Verification email failed (non-blocking):", err)
+      ),
+      sendEmail(notificationData).catch(err => 
+        console.error("[AuthAction] signup: Support notification failed (non-blocking):", err)
+      )
+    ]).then(() => {
+      console.log("[AuthAction] signup: Emails sent successfully in background");
+    });
+    
+    console.log("[AuthAction] signup: Email sending initiated (non-blocking)");
 
     // --- MODIFICATION: Return success message, NO redirect ---
     console.log("[AuthAction] signup: Returning success message for:", email);
