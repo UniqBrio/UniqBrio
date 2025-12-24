@@ -18,7 +18,8 @@ const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: 'swap',
-  preload: false,
+  preload: true,
+  variable: '--font-source-sans',
   fallback: ['system-ui', 'arial'],
   adjustFontFallback: true
 })

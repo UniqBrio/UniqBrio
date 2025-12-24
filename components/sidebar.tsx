@@ -70,7 +70,7 @@ function SidebarPositionSelector({ primaryColor }: { primaryColor: string }) {
 
 
 import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import {
   Home,
@@ -124,6 +124,7 @@ import { useSidebarPosition } from "@/app/contexts/sidebar-position-context"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useApp } from "@/contexts/dashboard/app-context"
 import { useCustomColors } from "@/lib/use-custom-colors"
+import { MENU_ITEMS, MenuItem } from "@/lib/menu-items"
 
 interface SidebarProps {
   position: "left" | "right" 
@@ -132,24 +133,8 @@ interface SidebarProps {
   isMobile?: boolean
 }
 
-interface MenuItem {
-  id: string
-  name: string
-  icon: React.ReactNode
-  href: string
-  tooltip: string
-  submenu?: MenuItem[]
-  isFavorite?: boolean
-  external?: boolean
-  badge?: {
-    text: string
-    variant: "comingSoon" | "integrated"
-  }
-}
-
 export default function Sidebar({ position, collapsed, toggleSidebar, isMobile = false }: SidebarProps) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [filteredMenuItems, setFilteredMenuItems] = useState<MenuItem[]>([])
   const [openSubmenus, setOpenSubmenus] = useState<string[]>([])
   const [favorites, setFavorites] = useState<string[]>([])
   const [favoritesExpanded, setFavoritesExpanded] = useState(true)
@@ -169,208 +154,6 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
   const { setPosition } = useSidebarPosition()
   const { primaryColor, secondaryColor } = useCustomColors()
 
-  // Define all menu items
-
-  const menuItems: MenuItem[] = [
-    
-    {
-      id: "home",
-      name: "Home",
-      icon: <Home className="h-5 w-5" />,
-      href: "/dashboard",
-      tooltip: "Home",
-    },
-    {
-      id: "services",
-      name: "Services",
-      icon: <Briefcase className="h-5 w-5" />,
-      href: "/dashboard/services",
-      tooltip: "Manage services",
-      submenu: [
-        {
-          id: "schedule",
-          name: "Schedule",
-          icon: <Calendar className="h-5 w-5" />,
-          href: "/dashboard/services/schedule",
-          tooltip: "Manage schedules",
-        },
-        {
-          id: "courses",
-          name: "Course Management",
-          icon: <BookOpen className="h-5 w-5" />,
-          href: "/dashboard/services/courses",
-          tooltip: "Manage courses",
-        },
-      ],
-    },
-     {
-      id: "payments",
-      name: "Payments",
-      icon: <CreditCard className="h-5 w-5" />,
-      href: "/dashboard/payments",
-      tooltip: "Payments",
-    },
-    {
-      id: "user",
-      name: "User Management",
-      icon: <UserCircle className="h-5 w-5" />,
-      href: "/dashboard/user",
-      tooltip: "Manage users",
-      submenu: [
-        {
-          id: "students",
-          name: "Students Management",
-          icon: <Users className="h-5 w-5" />,
-          href: "/dashboard/user/students",
-          tooltip: "Manage students",
-          
-        },
-        {
-          id: "staff",
-          name: "Staff Management",
-          icon: <Users className="h-5 w-5" />,
-          href: "/dashboard/user/staff",
-          tooltip: "Manage staff",
-         
-          submenu: [
-            {
-              id: "instructor",
-              name: "Instructor",
-              icon: <Users className="h-5 w-5" />,
-              href: "/dashboard/user/staff/instructor",
-              tooltip: "Manage instructors",
-            },
-            {
-              id: "non-instructor",
-              name: "Non-Instructor",
-              icon: <Users className="h-5 w-5" />,
-              href: "/dashboard/user/staff/non-instructor",
-              tooltip: "Manage non-instructors",
-            },
-          ],
-        },
-        {
-          id: "parents",
-          name: "Parent Management",
-          icon: <Users className="h-5 w-5" />,
-          href: "/dashboard/user/parents",
-          tooltip: "Manage parents",
-          badge: {
-        text: "Coming Soon",
-        variant: "comingSoon"
-      }
-        },
-        {
-          id: "alumni",
-          name: "Alumni Management",
-          icon: <GraduationCap className="h-5 w-5" />,
-          href: "/dashboard/user/alumni",
-          tooltip: "Manage alumni",
-          badge: {
-        text: "Coming Soon",
-        variant: "comingSoon"
-      }
-        },
-      ],
-    },
-    
-   
-    {
-      id: "financials",
-      name: "Financials",
-      icon: <DollarSign className="h-5 w-5" />,
-      href: "/dashboard/financials",
-      tooltip: "Manage financials",
-    },
-   
-    {
-      id: "task-management",
-      name: "Task Management",
-      icon: <ClipboardCheck className="h-5 w-5" />,
-      href: "/dashboard/task-management",
-      tooltip: "Manage tasks and workflows",
-     
-    },
-      
-    {
-      id: "community",
-      name: "Community",
-      icon: <Users2 className="h-5 w-5" />,
-      href: "https://dailybrio.uniqbrio.com/",
-      tooltip: "Community (Opens in new tab)",
-      external: true,
-      
-    },
-    
-    {
-      id: "settings",
-      name: "Settings",
-      icon: <Settings className="h-5 w-5" />,
-      href: "/dashboard/settings",
-      tooltip: "Settings",
-    },
-    {
-      id: "audit-logs",
-      name: "Audit logs",
-      icon: <ScrollText className="h-5 w-5" />,
-      href: "/dashboard/audit-logs",
-      tooltip: "View audit logs",
-    },
-    {
-      id: "help",
-      name: "Help",
-      icon: <HelpCircle className="h-5 w-5" />,
-      href: "/dashboard/help",
-      tooltip: "Help",
-    },
-    {
-      id: "events",
-      name: "Events",
-      icon: <CalendarClock className="h-5 w-5" />,
-      href: "/dashboard/events",
-      tooltip: "Manage events",
-      badge: {
-        text: "🎯 Coming Soon",
-        variant: "comingSoon"
-      }
-    },
-     {
-      id: "enquiries",
-      name: "Enquiries and Leads (CRM)",
-      icon: <MessageSquare className="h-5 w-5" />,
-      href: "/dashboard/crm",
-      tooltip: "Enquiries and leads",
-      badge: {
-        text: "Coming Soon",
-        variant: "comingSoon"
-      }
-      
-    },
-    {
-      id: "sell-services-products",
-      name: "Sell Products & Services",
-      icon: <ShoppingCart className="h-5 w-5" />,
-      href: "/dashboard/sell",
-      tooltip: "Sell products & services",
-      badge: {
-        text: "Coming Soon",
-        variant: "comingSoon"
-      }
-    },
-  
-    {
-      id: "promotions",
-      name: "Promotions",
-      icon: <TrendingUp className="h-5 w-5" />,
-      href: "/dashboard/promotion",
-      tooltip: "Manage promotions",
-      badge: {
-        text: "Coming Soon",
-        variant: "comingSoon"
-      }
-    },
-  ]
-
   // Load favorites from tenant-specific localStorage on component mount
   useEffect(() => {
     import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
@@ -381,9 +164,9 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
     });
   }, [])
 
-  // Update filtered menu items when search term changes
-  useEffect(() => {
-    let items = [...menuItems]
+  // Memoized filtered menu items (performance optimization)
+  const filteredMenuItems = useMemo(() => {
+    let items = [...MENU_ITEMS]
 
     // Mark items as favorites based on the favorites array
     items = items.map((item) => {
@@ -443,15 +226,6 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
               delete itemCopy.submenu;
             }
             results.push(itemCopy);
-            // Open all parent submenus for matches
-            parentIds.forEach(pid => {
-              if (!openSubmenus.includes(pid)) {
-                setOpenSubmenus(prev => [...prev, pid]);
-              }
-            });
-            if (!openSubmenus.includes(item.id) && (matchedSubmenu.length > 0)) {
-              setOpenSubmenus(prev => [...prev, item.id]);
-            }
           }
         });
         return results;
@@ -463,7 +237,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       const coursePrefixes = ["c", "cl", "cla", "clas", "class", "course"];
       const matchesCoursePrefix = coursePrefixes.some(prefix => lowerSearch === prefix);
       if (matchesCoursePrefix) {
-        const courseItem = findCourseManagement(menuItems);
+        const courseItem = findCourseManagement(MENU_ITEMS);
         if (courseItem) {
           // Only add if not already present
           const alreadyIncluded = searchResults.some(
@@ -478,8 +252,11 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       items = searchResults;
     }
 
-    setFilteredMenuItems(items)
-    // Collapse Favourites section automatically when searching, but only if not manually collapsed
+    return items
+  }, [searchTerm, favorites])
+  
+  // Manage favorites expansion based on search term
+  useEffect(() => {
     if (searchTerm.trim() !== "") {
       import('@/lib/tenant-storage').then(async ({ getTenantLocalStorage }) => {
         const stored = await getTenantLocalStorage("favoritesExpanded");
@@ -493,7 +270,34 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
         setFavoritesExpanded(stored === null ? true : stored === "true");
       });
     }
-  }, [searchTerm, favorites, openSubmenus])
+  }, [searchTerm])
+
+  // Expand submenus for search results
+  useEffect(() => {
+    if (searchTerm.trim() !== "") {
+      const lowerSearch = searchTerm.toLowerCase();
+      const parentIdsToOpen: string[] = [];
+
+      const collectParents = (menuItems: MenuItem[], parentIds: string[] = []): void => {
+        menuItems.forEach((item) => {
+          const matchesItem = item.name.toLowerCase().includes(lowerSearch);
+          if (matchesItem && parentIds.length > 0) {
+            parentIdsToOpen.push(...parentIds);
+          }
+          if (item.submenu) {
+            collectParents(item.submenu, [...parentIds, item.id]);
+          }
+        });
+      };
+
+      collectParents(MENU_ITEMS);
+      const uniqueParents = Array.from(new Set(parentIdsToOpen));
+      setOpenSubmenus(prev => {
+        const combined = [...prev, ...uniqueParents];
+        return Array.from(new Set(combined));
+      });
+    }
+  }, [searchTerm])
 
   // Close favorites dropdown when clicking outside
   useEffect(() => {
@@ -532,7 +336,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
   };
 
   const toggleFavorite = (id: string) => {
-    // Find the item in menuItems
+    // Find the item in MENU_ITEMS
     const findItem = (items: MenuItem[]): MenuItem | undefined => {
       for (const item of items) {
         if (item.id === id) return item;
@@ -543,7 +347,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       }
       return undefined;
     };
-    const item = findItem(menuItems);
+    const item = findItem(MENU_ITEMS);
     if (!item) return;
 
     const allIds = [id, ...getAllDescendantIds(item)];
@@ -574,9 +378,9 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
           return undefined;
         };
 
-        let parentId = findParentId(menuItems, id);
+        let parentId = findParentId(MENU_ITEMS, id);
         while (parentId) {
-          const parentItem = findItem(menuItems.filter(item => item.id === parentId));
+          const parentItem = findItem(MENU_ITEMS.filter(item => item.id === parentId));
           if (parentItem && parentItem.submenu) {
             // Get all descendant ids for the parent
             const getAllDescendantIdsForParent = (item: MenuItem): string[] => {
@@ -600,7 +404,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
             } else if ((!allDirectSubSelected || !allDescendantsSelected) && updatedFavs.includes(parentId)) {
               updatedFavs = updatedFavs.filter(favId => favId !== parentId);
             }
-            parentId = findParentId(menuItems, parentId);
+            parentId = findParentId(MENU_ITEMS, parentId);
           } else {
             break;
           }
@@ -608,7 +412,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
         return updatedFavs;
       };
 
-      newFavorites = updateParentFavorites(menuItems, newFavorites);
+      newFavorites = updateParentFavorites(MENU_ITEMS, newFavorites);
       import('@/lib/tenant-storage').then(({ setTenantLocalStorage }) => {
         setTenantLocalStorage("favorites", JSON.stringify(newFavorites)).catch(console.error);
       });
@@ -644,7 +448,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
         item.submenu.forEach(sub => addGroup(sub, item));
       }
     };
-    menuItems.forEach(item => addGroup(item));
+    filteredMenuItems.forEach(item => addGroup(item));
     // Remove children from groups if parent is present
     return groups.filter(g => !parentIds.includes(g.parent.id) || g.children.length > 0);
   };
@@ -781,6 +585,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                     ) : (
                       <Link
                         href={item.href}
+                        prefetch={true}
                         className="flex items-center flex-1"
                         data-tour-id={item.id}
                       >
@@ -882,6 +687,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                   ) : (
                     <Link
                       href={item.href}
+                      prefetch={true}
                       className="flex items-center px-2 py-2 text-sm font-medium rounded-md focus:outline-none transition-colors justify-start flex-1"
                       data-tour-id={item.id}
                       onMouseEnter={(e) => {
@@ -974,7 +780,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
       return flat;
     };
 
-    const favoriteMenuItems = filterFavoritesHierarchy(menuItems);
+    const favoriteMenuItems = filterFavoritesHierarchy(filteredMenuItems);
     const hasFavorites = favoriteMenuItems.length > 0;
 
     return (
@@ -1007,10 +813,10 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
         {collapsed ? (
           <div className="py-4 overflow-y-auto flex-1 flex flex-col items-center gap-2">
             {/* Always show main menu items in collapsed mode, even if favorites are empty */}
-            {menuItems.length === 0 ? (
+            {filteredMenuItems.length === 0 ? (
               <div className="text-gray-400 dark:text-white text-sm">No menu items available</div>
             ) : (
-              menuItems.map((item) => (
+              filteredMenuItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-center w-full relative">
                   <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>
@@ -1031,6 +837,7 @@ export default function Sidebar({ position, collapsed, toggleSidebar, isMobile =
                           ) : (
                             <Link
                               href={item.href}
+                              prefetch={true}
                               className="flex items-center justify-center px-2 py-2 rounded-md focus:outline-none"
                               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${primaryColor}1A`}
                               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}

@@ -16,6 +16,7 @@ interface AppContextType {
   isOffline: boolean
   pinnedMenuItems: string[]
   setPinnedMenuItems: (items: string[]) => void
+  isInitialized: boolean
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -26,6 +27,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState("en")
   const [isOffline, setIsOffline] = useState(false)
   const [pinnedMenuItems, setPinnedMenuItems] = useState<string[]>([])
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Sample notification templates
   const [notifications] = useState<NotificationTemplate[]>([
@@ -53,61 +55,69 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     { provider: "apple", isConnected: false, syncEnabled: false },
   ])
 
-  // Initialize user from localStorage
+  // PERFORMANCE FIX: Combine all localStorage reads into single async initialization
+  // Deferred to next frame to avoid blocking initial render
   useEffect(() => {
-    const savedUser = localStorage.getItem("uniqbrio-user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-    } else {
-      // Default user for demo
-      const defaultUser: User = {
-        id: "user-1",
-        name: "John Doe",
-        email: "john@example.com",
-        role: "admin",
-        preferences: {
-          theme: "light",
-          language: "en",
-          notifications: {
-            push: true,
-            sms: true,
-            email: true,
-            classReminders: true,
-            cancellations: true,
-            rescheduling: true,
-            assignments: true,
-          },
-          pinnedMenuItems: ["home", "services-schedule", "payments"],
-        },
+    const timeoutId = setTimeout(() => {
+      try {
+        // Batch read all localStorage values
+        const savedUser = localStorage.getItem("uniqbrio-user")
+        const savedTheme = localStorage.getItem("uniqbrio-theme") as "light" | "dark"
+        const savedLanguage = localStorage.getItem("uniqbrio-language")
+
+        // Parse user data once
+        if (savedUser) {
+          const parsedUser = JSON.parse(savedUser)
+          setUser(parsedUser)
+          if (parsedUser?.preferences?.pinnedMenuItems) {
+            setPinnedMenuItems(parsedUser.preferences.pinnedMenuItems)
+          }
+        } else {
+          // Default user for demo
+          const defaultUser: User = {
+            id: "user-1",
+            name: "John Doe",
+            email: "john@example.com",
+            role: "admin",
+            preferences: {
+              theme: "light",
+              language: "en",
+              notifications: {
+                push: true,
+                sms: true,
+                email: true,
+                classReminders: true,
+                cancellations: true,
+                rescheduling: true,
+                assignments: true,
+              },
+              pinnedMenuItems: ["home", "services-schedule", "payments"],
+            },
+          }
+          setUser(defaultUser)
+          localStorage.setItem("uniqbrio-user", JSON.stringify(defaultUser))
+        }
+
+        // Apply theme
+        if (savedTheme) {
+          setTheme(savedTheme)
+          document.documentElement.classList.toggle("dark", savedTheme === "dark")
+        }
+
+        // Apply language
+        if (savedLanguage) {
+          setLanguage(savedLanguage)
+        }
+
+        setIsInitialized(true)
+      } catch (error) {
+        console.error("Failed to initialize app context:", error)
+        setIsInitialized(true)
       }
-      setUser(defaultUser)
-      localStorage.setItem("uniqbrio-user", JSON.stringify(defaultUser))
-    }
-  }, [])
+    }, 0)
 
-  // Load theme from localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("uniqbrio-theme") as "light" | "dark"
-    if (savedTheme) {
-      setTheme(savedTheme)
-      document.documentElement.classList.toggle("dark", savedTheme === "dark")
-    }
+    return () => clearTimeout(timeoutId)
   }, [])
-
-  // Load language from localStorage
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem("uniqbrio-language")
-    if (savedLanguage) {
-      setLanguage(savedLanguage)
-    }
-  }, [])
-
-  // Load pinned menu items
-  useEffect(() => {
-    if (user?.preferences.pinnedMenuItems) {
-      setPinnedMenuItems(user.preferences.pinnedMenuItems)
-    }
-  }, [user])
 
   // Check online/offline status
   useEffect(() => {
@@ -157,6 +167,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         isOffline,
         pinnedMenuItems,
         setPinnedMenuItems,
+        isInitialized,
       }}
     >
       {children}

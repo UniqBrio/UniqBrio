@@ -174,80 +174,38 @@ export async function middleware(request: NextRequest) {
   // We still track last activity for analytics, but DON'T log users out based on inactivity
   console.log(`[Middleware] Session active for ${payload.email} - persistent login enabled`);
 
-  // --- Role-Based Access Control (RBAC) ---
+  // --- Role-Based Access Control (RBAC) - Optimized with lookup table ---
   const userRole = payload.role; // Role is guaranteed to exist at this point
   const onboardingPath = "/profile/create"; // Specific path for super_admin onboarding
 
-  // Define role-specific path prefixes
-  const superAdminPaths = ["/admin", "/instructor", "/student", "/dashboard"]; // Super admin can access all role dashboards + main dashboard
-  const adminPaths = ["/admin", "/instructor", "/student", "/dashboard"]; // Admin can access admin, instructor, student, and dashboard
-  const instructorPaths = ["/instructor", "/student", "/dashboard"]; // Instructor can access instructor, student, and dashboard
-  const studentPaths = ["/student", "/dashboard"]; // Student can access student and dashboard
+  // Lookup table for role-based path access (performance optimization)
+  const ROLE_PATHS_MAP: Record<string, string[]> = {
+    super_admin: ["/admin", "/instructor", "/student", "/dashboard", onboardingPath, "/dashboard/audit-logs"],
+    admin: ["/admin", "/instructor", "/student", "/dashboard"],
+    instructor: ["/instructor", "/student", "/dashboard"],
+    student: ["/student", "/dashboard"],
+  };
 
-  // Define paths accessible by *any* authenticated user
-  const sharedAuthenticatedPaths = ["/account", "/verification", "/verify-otp", "/register"];
+  // Paths accessible by any authenticated user
+  const SHARED_AUTH_PATHS = ["/account", "/verification", "/verify-otp", "/register"];
 
-  let isAllowed = false;
+  // Fast lookup: check if role + path combination is allowed
+  const allowedPaths = ROLE_PATHS_MAP[userRole] || [];
+  const isAllowed =
+    SHARED_AUTH_PATHS.some(p => path.startsWith(p)) ||
+    allowedPaths.some(p => path.startsWith(p));
 
-  // 1. Handle the specific onboarding path FIRST
-  if (path.startsWith(onboardingPath)) {
-    if (userRole === "super_admin") {
-      console.log(`[Middleware] Allowing super_admin access to onboarding path ${path}.`);
-      isAllowed = true;
-    } else {
-      // If any other role tries to access onboarding, deny and redirect
-      console.log(`[Middleware] Denying non-super_admin (${userRole}) access to ${onboardingPath}. Redirecting to their dashboard.`);
-      const userDashboard = getDefaultDashboard(userRole);
-      return NextResponse.redirect(new URL(userDashboard, request.url));
-    }
-  }
-  // 2. Handle audit logs - super admin only
-  else if (path.startsWith('/dashboard/audit-logs')) {
-    if (userRole === "super_admin") {
-      console.log(`[Middleware] Allowing super_admin access to audit logs ${path}.`);
-      isAllowed = true;
-    } else {
-      console.log(`[Middleware] Denying non-super_admin (${userRole}) access to audit logs. Redirecting to their dashboard.`);
-      const userDashboard = getDefaultDashboard(userRole);
-      return NextResponse.redirect(new URL(userDashboard, request.url));
-    }
-  }
-  // 3. Handle shared authenticated paths
-  else if (sharedAuthenticatedPaths.some((p) => path.startsWith(p))) {
-    console.log(`[Middleware] Allowing any authenticated user (${userRole}) access to shared path ${path}.`);
-    isAllowed = true;
-  }
-  // 4. Handle standard role-protected paths
-  else {
-    const allowedPaths = (() => {
-      switch (userRole) {
-        case "super_admin": return superAdminPaths;
-        case "admin": return adminPaths;
-        case "instructor": return instructorPaths;
-        case "student": return studentPaths;
-        default: return [];
-      }
-    })();
-
-    if (allowedPaths.some((p) => path.startsWith(p))) {
-      console.log(`[Middleware] Role (${userRole}) allowed access to role-specific path ${path}.`);
-      isAllowed = true;
-    }
-  }
-
-  // 5. If not allowed by any rule, redirect
   if (!isAllowed) {
     console.log(`[Middleware] Role (${userRole}) access DENIED for path ${path}. Redirecting to default dashboard.`);
     const userDashboard = getDefaultDashboard(userRole);
     
-    // Prevent redirect loops if default dashboard itself is somehow restricted
-    if (path === userDashboard) {
-      console.error(`[Middleware] Potential redirect loop detected for ${userRole} to ${userDashboard}. Allowing request to prevent loop.`);
-      isAllowed = true; // Allow access to prevent loop
-    } else {
+    // Prevent redirect loops
+    if (path !== userDashboard) {
       return NextResponse.redirect(new URL(userDashboard, request.url));
     }
   }
+
+  console.log(`[Middleware] Role (${userRole}) access ALLOWED for path ${path}.`);
 
   // --- Update Last Activity Cookie ---
   // If we reach here, access is granted. Update the activity cookie.
@@ -289,19 +247,20 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Matcher adjusted to be more specific and avoid common static assets
+  // Optimized matcher - only run middleware on specific routes that need authentication/RBAC
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - api/ (API routes - handled explicitly in publicPaths check)
-     * - favicon.ico (favicon file)
-     * - Specific file extensions
-     */
-    // This matcher is broad; the logic inside the middleware refines it.
-    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-    // Explicitly include root if not covered above and intended to be protected/checked
-     "/", // Include root only if it should pass through middleware checks
+    "/",
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/instructor/:path*",
+    "/student/:path*",
+    "/settings/:path*",
+    "/notifications/:path*",
+    "/tour/:path*",
+    "/select-role",
+    "/kyc-test/:path*",
+    "/kyc-resubmit/:path*",
+    "/pwa-test/:path*",
+    "/offline",
   ],
 }
