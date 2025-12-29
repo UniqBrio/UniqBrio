@@ -754,17 +754,6 @@ export default function LeaveRequestForm({ onClose, draft }: LeaveRequestFormPro
             <Button type="button" variant="outline" onClick={attemptClose}>
               Cancel
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="border-purple-600 text-purple-600 hover:bg-purple-50"
-              onClick={saveDraft}
-              disabled={!formData.instructorId}
-              title={!formData.instructorId ? "Select an instructor to enable Save Draft" : undefined}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {draft ? 'Update Draft' : 'Save Draft'}
-            </Button>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -189,7 +189,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         setCurrentDraftId(null)
       }
     }
-  }, [draftData, open])
+  }, [draftData, open, draftId, currentId])
 
   const handleSaveDraft = async () => {
     try {
@@ -343,16 +343,18 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-xl">
           <DialogHeader className="flex flex-row items-center justify-between pr-8">
             <DialogTitle>{title ?? (mode === "edit" ? "Edit Instructor" : "Add New Instructor")}</DialogTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed" 
-              onClick={handleSaveDraft}
-              disabled={!hasFormChanged(form, originalForm)}
-            >
-              <Save className="h-4 w-4" />
-              {isEditingDraft ? "Update draft" : "Save draft"}
-            </Button>
+            {mode !== "edit" && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed" 
+                onClick={handleSaveDraft}
+                disabled={!hasFormChanged(form, originalForm)}
+              >
+                <Save className="h-4 w-4" />
+                {isEditingDraft ? "Update draft" : "Save draft"}
+              </Button>
+            )}
           </DialogHeader>
 
           {formError && (
@@ -403,7 +405,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
           <div className="flex justify-between items-center mt-4 pt-4 border-t">
             <div className="flex gap-2" />
             <div className="flex gap-2">
-              {addTab !== "professional" && addTab !== "employment" && (
+              {mode !== "edit" && addTab !== "professional" && addTab !== "employment" && (
                 <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-600 hover:bg-purple-50" onClick={handleSaveDraft}>
                   <Save className="h-4 w-4" />
                   {isEditingDraft ? "Update draft" : "Save draft"}
@@ -477,6 +479,7 @@ export default function AddInstructorDialogWrapper({ open, onOpenChange, draftDa
         onContinueEditing={handleContinueEditing}
         onSaveAsDraft={handleSaveAsDraftFromDialog}
         onDiscardChanges={handleDiscardChanges}
+        mode={mode}
       />
     </>
   )

@@ -532,39 +532,26 @@ export default function AttendanceSearchFilters({
   }
 
   return (
-    <div className="mb-6">
-      {/* Mobile-Optimized Toolbar */}
-      <div className="flex flex-col gap-3 mb-4">
-        {/* Search field - full width on mobile */}
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
+    <div>
+      <div className="flex flex-col lg:flex-row gap-2 mb-4">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
           <Input
             placeholder="Search instructors or remarks..."
-            className="pl-10 h-9 sm:h-10 text-sm"
+            className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-              title="Clear search"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
-        
-        {/* Actions - Responsive Grid for Mobile */}
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+        <div className="flex gap-1 sm:gap-2 items-center">
           {/* Filter Button & Panel (mirrors student implementation) */}
           <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 flex items-center gap-1 relative group"
+                className="h-8 sm:h-9 flex items-center gap-1 relative group px-2 sm:px-3"
                 aria-label="Filter options"
                 title="Filter"
                 tabIndex={0}
@@ -573,7 +560,7 @@ export default function AttendanceSearchFilters({
                   className="relative inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
                   style={{ "--filter-color": primaryColor } as React.CSSProperties}
                 >
-                  <Filter className="h-3.5 w-3.5" />
+                  <Filter className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   {filterAction === 'applied' && (
                     <span className="absolute -top-1 -right-1">
                       <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
@@ -720,9 +707,9 @@ export default function AttendanceSearchFilters({
         {/* Sort (student-style dropdown) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" title="Sort" size="sm" className="h-9 flex items-center gap-1 group">
-              <ArrowUpDown className="mr-2 h-4 w-4 group-hover:text-white transition-colors" />
-              <span className="ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white transition-colors">
+            <Button variant="outline" title="Sort" size="sm" className="h-8 sm:h-9 flex items-center gap-1 group px-2 sm:px-3">
+              <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 group-hover:text-white transition-colors" />
+              <span className="hidden sm:inline ml-1 text-xs text-gray-600 dark:text-white group-hover:text-white transition-colors">
                 {(() => {
                   const label = [
                     { value: 'date', label: 'Date' },
@@ -820,6 +807,12 @@ export default function AttendanceSearchFilters({
         </div>
 
         {/* Import */}
+        
+              <Button variant="outline" size="sm" title="Import" onClick={() => fileInputRef.current?.click()} disabled className="h-8 sm:h-9 px-2 sm:px-3">
+                <Upload className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Import</span>
+              </Button>
+           
         <input
           ref={fileInputRef}
           type="file"
@@ -827,49 +820,48 @@ export default function AttendanceSearchFilters({
           onChange={handleImportFileChange}
           className="hidden"
         />
-        <Button variant="outline" size="sm" title="Import" onClick={() => fileInputRef.current?.click()} disabled className="h-9">
-          <Upload className="h-4 w-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">Import</span>
-        </Button>
 
-        {/* Export */}
+  {/* Export */}
         <Button 
           variant="outline" 
           size="sm" 
           title={selectedIds.length > 0 ? `Export ${selectedIds.length} selected` : 'Export all attendance records'}
           onClick={() => { selectedIds.length > 0 ? handleExportSelected() : handleExportAll(); }}
-          className="h-9"
+          className="h-8 sm:h-9 px-2 sm:px-3"
         >
-          <Download className="h-4 w-4 mr-1 sm:mr-2" />
-          <span className="hidden xs:inline">{selectedIds.length > 0 ? `(${selectedIds.length})` : 'Export'}</span>
+          <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{selectedIds.length > 0 ? `Export (${selectedIds.length})` : 'Export'}</span>
+          <span className="sm:hidden text-xs">{selectedIds.length > 0 ? `(${selectedIds.length})` : ''}</span>
         </Button>
 
-        {/* Drafts */}
+  {/* Drafts */}
         {onOpenDrafts && (
           <Button
             onClick={onOpenDrafts}
             size="sm"
-            className="h-9 text-white rounded-lg hover:opacity-90"
+            className="h-8 sm:h-9 px-2 sm:px-3 text-white rounded-lg hover:opacity-90"
             style={{ backgroundColor: primaryColor }}
             title={`Drafts (${effectiveDraftCount})`}
           >
-            <FileText className="h-4 w-4 mr-1 sm:mr-2" />
-            <span className="hidden xs:inline sm:hidden md:inline">Drafts</span>
-            <span>({effectiveDraftCount})</span>
+            <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Drafts ({effectiveDraftCount})</span>
+            <span className="sm:hidden text-xs">({effectiveDraftCount})</span>
           </Button>
         )}
 
-        {/* Add Attendance - Full width on mobile */}
+        {/* Add Attendance */}
         {onAddAttendance && (
-          <Button 
-            onClick={onAddAttendance} 
-            size="sm" 
-            className="bg-purple-600 hover:bg-purple-700 text-white col-span-2 sm:col-span-1 h-9 font-medium shadow-sm rounded-lg"
-            title="Record new attendance entry"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            <span>Add Attendance</span>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={onAddAttendance} size="sm" className="h-8 sm:h-9 px-2 sm:px-3 text-white rounded-lg hover:opacity-90" style={{ backgroundColor: primaryColor }}>
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Add Attendance</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Record new attendance entry</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         </div>
       </div>

@@ -642,22 +642,22 @@ export default function LeaveManagement() {
       )}
       {hubTab === "leave-request" && (
       <div className="space-y-4">
-        {/* Mobile-Optimized Search and Actions */}
-        <div className="flex flex-col gap-3">
-          {/* Search - Full width on mobile */}
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        {/* Search and Actions */}
+        <div className="flex flex-col lg:flex-row gap-2 mb-4">
+          {/* Search - Reduced width on desktop */}
+          <div className="relative lg:w-80">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
             <Input
               placeholder="Search by name or job level..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-9 sm:h-10 text-sm"
+              className="pl-10"
             />
           </div>
           
-          {/* Actions - Responsive Grid */}
+          {/* Actions - All buttons beside search on desktop */}
           <TooltipProvider delayDuration={200}>
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+            <div className="flex gap-1 sm:gap-2 items-center flex-wrap">
                 {/* More Filters Popover with apply/clear tick behavior */}
             <AdvancedFilters
               value={{ jobLevels, leaveTypes, dateRange, staffTypes }}
@@ -674,9 +674,9 @@ export default function LeaveManagement() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-9 flex items-center gap-1" aria-label="Sort">
-                          <ArrowUpDown className="h-4 w-4" />
-                          <span className="text-xs">
+                        <Button variant="outline" size="sm" className="h-8 sm:h-9 flex items-center gap-1 px-2 sm:px-3" aria-label="Sort">
+                          <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="text-xs hidden sm:inline">
                         {sortBy === "instructorName" && "Instructor Name"}
                         {sortBy === "instructorId" && "Instructor ID"}
                         {sortBy === "leaveType" && "Leave Type"}
@@ -926,8 +926,9 @@ export default function LeaveManagement() {
                   size="sm"
                   aria-label="Leave Policies"
                   onClick={() => setPolicyOpen(true)}
+                  className="h-8 sm:h-9 px-2 sm:px-3"
                 >
-                  Leave Policies
+                  <span className="hidden sm:inline">Leave Policies</span>
                 </Button>
               </TooltipTrigger>
               
@@ -935,26 +936,27 @@ export default function LeaveManagement() {
           </div>
           </TooltipProvider>
         </div>
-        {/* Counter: between toolbar and table/grid */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-full bg-purple-500" aria-hidden="true" />
-            <span>Showing {filteredCount} Requests</span>
-          </div>
-          {viewMode === "table" && (
-            <LeaveColumnSelector
-              value={displayedColumns}
-              onChange={(cols) => setDisplayedColumns(cols)}
-            />
-          )}
-        </div>
       </div>
       )}
 
   {/* Toolbar removed; Export now lives in the combined row above */}
 
-  {/* Always-visible Leave Table / Calendar (independent of the Management Tabs selection) */}
+  {/* Counter and Table/Grid View */}
   {hubTab === "leave-request" && (
+    <>
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-purple-500" aria-hidden="true" />
+          <span>Showing {filteredCount} Requests</span>
+        </div>
+        {viewMode === "table" && (
+          <LeaveColumnSelector
+            value={displayedColumns}
+            onChange={(cols) => setDisplayedColumns(cols)}
+          />
+        )}
+      </div>
+
     <div className="space-y-4 mt-4" id="leave-request-table">
       {viewMode === "table" ? (
         <LeaveTable
@@ -990,9 +992,10 @@ export default function LeaveManagement() {
           policy={policy}
         />
       ) : (
-  <LeaveCalendarView policy={policy} />
+        <LeaveCalendarView policy={policy} />
       )}
     </div>
+    </>
   )}
 
   {/* LeavePolicyDialog removed */}

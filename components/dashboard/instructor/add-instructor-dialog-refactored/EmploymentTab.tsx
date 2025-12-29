@@ -21,7 +21,7 @@ const EmploymentTab: React.FC<EmploymentTabProps> = ({ form, setForm }) => {
                     <Label htmlFor="loginUsername">Login Username</Label>
                     <Input
                       id="loginUsername"
-                      value={form.email}
+                      value={form.email || ""}
                       disabled
                       className="bg-gray-50 text-gray-500 dark:text-white"
                       placeholder="Auto-generated from email"

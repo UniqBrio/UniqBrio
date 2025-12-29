@@ -318,32 +318,20 @@ export default function SearchAndFilterBar({
   }, [showColumnSelector, focusedList, focusedIndex, availableOptions, draftDisplayed, selectedAvailable, selectedDisplayed, displayedColumns, handleAdd, handleRemove])
 
   return (
-    <div className="px-4 sm:px-6 pb-4">
-      {/* Mobile-Optimized Search and Actions */}
-      <div className="flex flex-col gap-3 mb-4">
-        {/* Search Input - Full width on mobile */}
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-white pointer-events-none" />
+    <div className="px-6 pb-4">
+      <div className="flex flex-col lg:flex-row gap-2 mb-4">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-white" />
           <Input
             placeholder="Search instructors, roles, courses..."
-            className="pl-10 h-9 sm:h-10 text-sm"
+            className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm("")} 
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1" 
-              title="Clear search"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
 
-        {/* Action Buttons - Responsive Grid for Mobile */}
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+        <div className="flex gap-1 sm:gap-2">
           {/* Filter Button */}
           <Popover open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
             <TooltipProvider>
@@ -353,11 +341,11 @@ export default function SearchAndFilterBar({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-9 flex items-center gap-1 relative hover:bg-transparent hover:border-gray-300"
+                      className="h-8 sm:h-9 flex items-center gap-1 relative hover:bg-transparent hover:border-gray-300 px-2 sm:px-3"
                       aria-label="Filters"
                     >
                       <span className="relative inline-flex items-center">
-                        <Filter className="h-4 w-4 mr-2" />
+                        <Filter className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                         {permanentFilterIcon === "apply" && (
                           <span className="absolute -top-2 -right-3">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -483,14 +471,16 @@ export default function SearchAndFilterBar({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-9 flex items-center gap-1">
+                    <Button variant="outline" size="sm" className="h-8 sm:h-9 flex items-center gap-1 px-2 sm:px-3">
                       <span className="text-xs flex items-center gap-1">
-                        <ArrowUpDown className="h-3 w-3" />
+                        <ArrowUpDown className="h-3 w-3 sm:h-3 sm:w-3" />
+                        <span className="hidden sm:inline">
                         {sortBy === "name" && "Name"}
                         {sortBy === "role" && "Role"}
                         {sortBy === "experience" && "Experience"}
                         {sortBy === "gender" && "Gender"}
                         {sortBy === "courseAssigned" && "Course"}
+                        </span>
                         {sortOrder === "asc" ? (
                           <ArrowUp className="h-3 w-3" />
                         ) : (
@@ -560,7 +550,6 @@ export default function SearchAndFilterBar({
             id="import-csv-input"
             onChange={onImport}
           />
-          {/* Import Button */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -569,57 +558,64 @@ export default function SearchAndFilterBar({
                   size="sm"
                   onClick={() => document.getElementById('import-csv-input')?.click()}
                   disabled
-                  className="h-9"
+                  className="h-8 sm:h-9 px-2 sm:px-3"
                 >
-                  <Upload className="h-4 w-4 mr-1 sm:mr-2" />
+                  <Upload className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Import</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">Upload files</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          {/* Export Button */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm" onClick={onExport} className="h-9">
-                  <Download className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Export</span>
-                  {selectedCount > 0 && <span className="sm:inline"> ({selectedCount})</span>}
+                <Button variant="outline" size="sm" onClick={onExport} className="h-8 sm:h-9 px-2 sm:px-3">
+                  <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{selectedCount > 0 ? `Export (${selectedCount})` : "Export"}</span>
+                  <span className="sm:hidden text-xs">{selectedCount > 0 ? `(${selectedCount})` : ""}</span>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Export instructors</TooltipContent>
+              <TooltipContent side="bottom">Export</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
-          {/* Drafts Button - Visible on mobile with compact styling */}
+          {/* Optional: Drafts and Add buttons placed directly after Export */}
           {onOpenDrafts && (
-            <Button
-              variant={draftsCount && draftsCount > 0 ? "default" : "outline"}
-              size="sm"
-              title={draftsCount && draftsCount > 0 ? `View ${draftsCount} draft${draftsCount !== 1 ? 's' : ''}` : "No drafts available"}
-              onClick={onOpenDrafts}
-              className={`h-9 ${draftsCount && draftsCount > 0 ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
-            >
-              <Save className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden xs:inline sm:hidden md:inline">Drafts</span>
-              {draftsCount !== undefined && draftsCount > 0 && (
-                <span>({draftsCount})</span>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white h-8 sm:h-9 px-2 sm:px-3"
+                    onClick={onOpenDrafts}
+                  >
+                    <Save className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Drafts{typeof draftsCount === 'number' ? ` (${draftsCount})` : ''}</span>
+                    <span className="sm:hidden text-xs">{typeof draftsCount === 'number' ? `(${draftsCount})` : ''}</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">View drafts</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
-          
-          {/* Add Instructor Button - Prominent, full-width on mobile */}
           {onOpenAddDialog && (
-            <Button
-              size="sm"
-              className="bg-purple-600 hover:bg-purple-700 text-white col-span-2 sm:col-span-1 h-9 font-medium shadow-sm"
-              onClick={onOpenAddDialog}
-              title="Add new instructor"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-              <span>Add Instructor</span>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white h-8 sm:h-9 px-2 sm:px-3"
+                    onClick={onOpenAddDialog}
+                  >
+                    {/* plus icon */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sm:w-4 sm:h-4 sm:mr-2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    <span className="hidden sm:inline">Add Instructor</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Add new instructor</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>

@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/dashboard/ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/dashboard/ui/popover"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/dashboard/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/dashboard/ui/tooltip"
-import { ChevronDown, Filter as FilterIcon } from "lucide-react"
+import { ChevronDown, Filter as FilterIcon, Check, X } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 import { useLeave } from "@/contexts/dashboard/leave-context"
 import type { Instructor, LeaveRequest } from "@/types/dashboard/staff/staff/leave"
@@ -33,7 +33,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
 
   // Local UI states (not exposed to parent)
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
-  const [permanentFilterIcon, setPermanentFilterIcon] = useState<"apply" | "clear" | null>(null)
+  const [filterAction, setFilterAction] = useState<"applied" | "cleared" | null>(null)
 
   // Pending filters to allow cancel/apply pattern
   const [pendingJobLevels, setPendingJobLevels] = useState<string[]>(value.jobLevels)
@@ -116,23 +116,31 @@ export default function AdvancedFilters({ value, onChange }: Props) {
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="relative" aria-label="Filters">
-              <span className="relative inline-flex items-center">
-                <FilterIcon className="h-4 w-4 mr-2" />
-                {permanentFilterIcon === "apply" && (
-                  <span className="absolute -top-2 -right-3">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <circle cx="10" cy="10" r="10" fill="#22C55E"/>
-                      <path d="M6 10.5l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 sm:h-9 flex items-center gap-1 relative group px-2 sm:px-3"
+              aria-label="Filter options"
+              title="Filter"
+              tabIndex={0}
+            >
+              <span
+                className="relative inline-flex text-[color:var(--filter-color)] transition-colors duration-200 group-hover:text-white"
+                style={{ "--filter-color": primaryColor } as React.CSSProperties}
+              >
+                <FilterIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                {filterAction === 'applied' && (
+                  <span className="absolute -top-1 -right-1">
+                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-green-500">
+                      <Check className="w-2 h-2 text-white" />
+                    </span>
                   </span>
                 )}
-                {permanentFilterIcon === "clear" && (
-                  <span className="absolute -top-2 -right-3">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <circle cx="10" cy="10" r="10" fill="#EF4444"/>
-                      <path d="M7 7l6 6M13 7l-6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
+                {filterAction === 'cleared' && (
+                  <span className="absolute -top-1 -right-1">
+                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-red-500">
+                      <X className="w-2 h-2 text-white" />
+                    </span>
                   </span>
                 )}
               </span>
@@ -419,7 +427,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
 
                 onChange({ jobLevels: [], leaveTypes: [], dateRange: undefined, staffTypes: [] })
                 setFilterDropdownOpen(false)
-                setPermanentFilterIcon("clear")
+                setFilterAction("cleared")
               }}
             >
               Clear All
@@ -436,7 +444,7 @@ export default function AdvancedFilters({ value, onChange }: Props) {
                   staffTypes: pendingStaffTypes,
                 })
                 setFilterDropdownOpen(false)
-                setPermanentFilterIcon("apply")
+                setFilterAction("applied")
               }}
             >
               Apply Filters

@@ -143,14 +143,25 @@ export default function InstructorPage() {
     setAddDialogOpen(true)
   }
 
-  const [instructorSettings, setInstructorSettings] = useState<InstructorSettingsState>(getDefaultInstructorSettings)
-  const isSettingsTabDisabled = true
+  const [instructorSettings, setInstructorSettings] = useState<InstructorSettingsState>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = window.localStorage.getItem(INSTRUCTOR_SETTINGS_KEY)
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch (error) {
+          console.error('Failed to parse instructor settings from storage', error)
+        }
+      }
+    }
+    return getDefaultInstructorSettings()
+  })
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(INSTRUCTOR_SETTINGS_KEY)
+      window.localStorage.setItem(INSTRUCTOR_SETTINGS_KEY, JSON.stringify(instructorSettings))
     }
-  }, [])
+  }, [instructorSettings])
 
   const handleUpdateSetting = (category: string, key: string, value: any) => {
     setInstructorSettings(prev => {
@@ -168,9 +179,6 @@ export default function InstructorPage() {
   const handleResetSettings = () => {
     const defaults = getDefaultInstructorSettings()
     setInstructorSettings(defaults)
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(INSTRUCTOR_SETTINGS_KEY)
-    }
     toast({
       title: 'Instructor settings reset',
       description: 'All instructor preferences are back to their defaults.',
@@ -178,25 +186,25 @@ export default function InstructorPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-3 sm:py-4 md:py-6">
       {/* Make the outer container card borderless to avoid an extra visible layer */}
       <Card className="border-0 shadow-none">
-        <CardHeader>
+        <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
           <div className="flex items-start justify-between w-full">
             <div>
-              <h1 className="text-3xl font-bold mb-2" style={{ color: primaryColor }}>Instructor Management Hub</h1>
-              <p className="text-gray-600 dark:text-white">Comprehensive instructor management and tools</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2" style={{ color: primaryColor }}>Instructor Management Hub</h1>
+              <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-white">Comprehensive instructor management and tools</p>
             </div>
             {/* Buttons moved into the Instructors tab toolbar next to Export */}
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-4 md:px-6">
           {/* Enhanced Navigation Tabs with Course Page Design */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 bg-transparent gap-2 p-0 h-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-3 sm:mb-4 md:mb-6 bg-transparent gap-1 sm:gap-2 p-0 h-auto">
               <TabsTrigger 
                 value="dashboard" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 text-xs sm:text-sm md:text-base font-medium transition-all"
                 style={{
                   ...(activeTab === 'dashboard' ? {
                     backgroundColor: '#9333ea',
@@ -209,12 +217,12 @@ export default function InstructorPage() {
                   })
                 }}
               >
-                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
-                Analytics
+                <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <span className="hidden xs:inline sm:inline">Analytics</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="profile" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 text-xs sm:text-sm md:text-base font-medium transition-all"
                 style={{
                   ...(activeTab === 'profile' ? {
                     backgroundColor: '#9333ea',
@@ -227,12 +235,12 @@ export default function InstructorPage() {
                   })
                 }}
               >
-                <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" />
-                Instructors
+                <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <span className="hidden xs:inline sm:inline">Instructors</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="leave" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 text-xs sm:text-sm md:text-base font-medium transition-all"
                 style={{
                   ...(activeTab === 'leave' ? {
                     backgroundColor: '#9333ea',
@@ -245,12 +253,12 @@ export default function InstructorPage() {
                   })
                 }}
               >
-                <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4" />
-                Leave Management
+                <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <span className="hidden xs:inline sm:inline">Leave</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="attendance" 
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 text-xs sm:text-sm md:text-base font-medium transition-all"
                 style={{
                   ...(activeTab === 'attendance' ? {
                     backgroundColor: '#9333ea',
@@ -263,19 +271,29 @@ export default function InstructorPage() {
                   })
                 }}
               >
-                <ClipboardCheck className="h-3 w-3 sm:h-4 sm:w-4" />
-                Attendance Management
+                <ClipboardCheck className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <span className="hidden xs:inline sm:inline">Attendance</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                aria-disabled={isSettingsTabDisabled}
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-2 text-xs sm:text-sm font-medium transition-all border-black/60 bg-gray-100 text-gray-700 data-[state=active]:border-black data-[state=active]:bg-gray-300 data-[state=active]:text-gray-900 hover:border-black hover:bg-gray-200 hover:text-gray-900"
+                className="flex items-center justify-center gap-1 sm:gap-2 px-1.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 border-2 text-xs sm:text-sm md:text-base font-medium transition-all"
+                style={{
+                  ...(activeTab === 'settings' ? {
+                    backgroundColor: '#9333ea',
+                    borderColor: '#9333ea',
+                    color: 'white'
+                  } : {
+                    backgroundColor: 'transparent',
+                    borderColor: '#f97316',
+                    color: '#ea580c'
+                  })
+                }}
               >
-                <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                Settings
+                <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <span className="hidden xs:inline sm:inline">Settings</span>
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="dashboard" className="mt-6">
+            <TabsContent value="dashboard" className="mt-3 sm:mt-4 md:mt-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Instructor Dashboard</CardTitle>
@@ -287,29 +305,21 @@ export default function InstructorPage() {
               </Card>
             </TabsContent>
             {/* Remove extra Card wrapper so the tab shows only the two intended sections (List and Performance) */}
-            <TabsContent value="profile" className="mt-6">
+            <TabsContent value="profile" className="mt-3 sm:mt-4 md:mt-6">
               <InstructorProfile 
                 onOpenDrafts={() => setDraftsDialogOpen(true)}
                 draftsCount={draftsCount}
                 onOpenAddDialog={handleOpenAddDialog}
               />
             </TabsContent>
-            <TabsContent value="leave" className="mt-6">
+            <TabsContent value="leave" className="mt-3 sm:mt-4 md:mt-6">
               <LeaveAttendance />
             </TabsContent>
-            <TabsContent value="attendance" className="mt-6">
+            <TabsContent value="attendance" className="mt-3 sm:mt-4 md:mt-6">
               <AttendanceManagement />
             </TabsContent>
-            <TabsContent value="settings" className="relative mt-6">
-              {isSettingsTabDisabled && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
-                  <div className="rounded-md border border-dashed border-muted-foreground/40 bg-background/80 px-4 py-3 shadow-sm">
-                    <p className="text-sm font-medium text-muted-foreground">Instructor settings are locked to organizational defaults.</p>
-                    <p className="text-xs text-muted-foreground/80">Please contact an administrator to request changes.</p>
-                  </div>
-                </div>
-              )}
-              <Card className={isSettingsTabDisabled ? 'pointer-events-none opacity-60' : ''}>
+            <TabsContent value="settings" className="mt-3 sm:mt-4 md:mt-6">
+              <Card>
                 <CardContent className="p-6">
                   <InstructorSettings
                     settings={instructorSettings}
@@ -352,85 +362,85 @@ export default function InstructorPage() {
       />
 
       {/* Feature Cards Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6 md:mt-8 px-3 sm:px-4 md:px-0">
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <Target className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <Target className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-yellow-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               My Performance
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Smart scheduling</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Smart scheduling</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <DollarSign className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-green-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               Payroll
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Badges & rewards</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Badges & rewards</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <Bot className="h-8 w-8 text-pink-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <Bot className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-pink-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               AI Tools
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Auto grading</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Auto grading</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <Timer className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <Timer className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-blue-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               Development
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Study duration</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Study duration</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <Users className="h-8 w-8 mx-auto mb-2" style={{ color: primaryColor }} />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <Users className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 mx-auto mb-1 sm:mb-2" style={{ color: primaryColor }} />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               Hiring
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Mentorship & recruitment</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Mentorship & recruitment</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <MessageCircle className="h-8 w-8 text-pink-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-pink-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               Communication
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Messaging & feedback</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Messaging & feedback</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <ShieldCheck className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <ShieldCheck className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-blue-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               Security
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Compliance & safety</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Compliance & safety</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-4 text-center">
-            <Smartphone className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <h3 className="font-medium text-sm inline-flex items-center justify-center gap-1">
+          <CardContent className="p-2 sm:p-3 md:p-4 text-center">
+            <Smartphone className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-green-600 mx-auto mb-1 sm:mb-2" />
+            <h3 className="font-medium text-xs sm:text-sm inline-flex items-center justify-center gap-1">
               Mobile
-              <Image src="/Coming soon.svg" alt="Coming Soon" width={16} height={16} className="inline-block" />
+              <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block sm:w-4 sm:h-4" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-white">Mobile features</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-white">Mobile features</p>
           </CardContent>
         </Card>
       </div>

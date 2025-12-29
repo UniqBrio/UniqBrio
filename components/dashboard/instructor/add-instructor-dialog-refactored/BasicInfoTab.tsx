@@ -119,8 +119,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
     }
   }
 
-  const sanitizeName = (value: string, label: string, field: 'firstName' | 'middleName' | 'lastName') => {
-    const sanitized = value.replace(/[^A-Za-z ]/g, "")
+  const sanitizeName = (value: string) => {
+    return value.replace(/[^A-Za-z ]/g, "")
+  }
+
+  const validateNameField = (value: string, sanitized: string, label: string, field: 'firstName' | 'middleName' | 'lastName') => {
     if (sanitized !== value) {
       setNameErrors(prev => ({ ...prev, [field]: `${label} can only contain letters and spaces` }))
     } else {
@@ -130,7 +133,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
         return next
       })
     }
-    return sanitized
   }
 
   // Email validation state
@@ -209,9 +211,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Label>First Name <span className="text-red-500">*</span></Label>
           <Input
             placeholder="Michael "
-            value={form.firstName}
+            value={form.firstName || ""}
             onKeyDown={(e) => handleNameKeyDown(e, "First Name", 'firstName')}
-            onChange={(e) => setForm(f => ({ ...f, firstName: sanitizeName(e.target.value, "First Name", 'firstName') }))}
+            onChange={(e) => {
+              const sanitized = sanitizeName(e.target.value)
+              setForm(f => ({ ...f, firstName: sanitized }))
+              validateNameField(e.target.value, sanitized, "First Name", 'firstName')
+            }}
             inputMode="text"
             autoComplete="given-name"
             className={cn(nameErrors.firstName ? "border-red-500 focus:ring-red-400" : "")}
@@ -224,9 +230,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Label>Middle Name</Label>
           <Input
             placeholder="James"
-            value={form.middleName}
+            value={form.middleName || ""}
             onKeyDown={(e) => handleNameKeyDown(e, "Middle Name", 'middleName')}
-            onChange={(e) => setForm(f => ({ ...f, middleName: sanitizeName(e.target.value, "Middle Name", 'middleName') }))}
+            onChange={(e) => {
+              const sanitized = sanitizeName(e.target.value)
+              setForm(f => ({ ...f, middleName: sanitized }))
+              validateNameField(e.target.value, sanitized, "Middle Name", 'middleName')
+            }}
             inputMode="text"
             autoComplete="additional-name"
             className={cn(nameErrors.middleName ? "border-red-500 focus:ring-red-400" : "")}
@@ -239,9 +249,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Label>Last Name <span className="text-red-500">*</span></Label>
           <Input
             placeholder="Jordan"
-            value={form.lastName}
+            value={form.lastName || ""}
             onKeyDown={(e) => handleNameKeyDown(e, "Last Name", 'lastName')}
-            onChange={(e) => setForm(f => ({ ...f, lastName: sanitizeName(e.target.value, "Last Name", 'lastName') }))}
+            onChange={(e) => {
+              const sanitized = sanitizeName(e.target.value)
+              setForm(f => ({ ...f, lastName: sanitized }))
+              validateNameField(e.target.value, sanitized, "Last Name", 'lastName')
+            }}
             inputMode="text"
             autoComplete="family-name"
             className={cn(nameErrors.lastName ? "border-red-500 focus:ring-red-400" : "")}
@@ -293,7 +307,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
         {/* Gender */}
         <div>
           <Label>Gender <span className="text-red-500">*</span></Label>
-          <Select value={form.gender} onValueChange={v => setForm(f => ({ ...f, gender: v, genderOther: "" }))}>
+          <Select value={form.gender || ""} onValueChange={v => setForm(f => ({ ...f, gender: v, genderOther: "" }))}>
             <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="Male">Male</SelectItem>
@@ -306,7 +320,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
         {/* Marital Status */}
         <div>
           <Label>Marital Status</Label>
-          <Select value={form.maritalStatus} onValueChange={v => setForm(f => ({ ...f, maritalStatus: v }))}>
+          <Select value={form.maritalStatus || ""} onValueChange={v => setForm(f => ({ ...f, maritalStatus: v }))}>
             <SelectTrigger><SelectValue placeholder="Select marital status" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="Single">Single</SelectItem>
@@ -321,7 +335,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Input
             placeholder="emily.carter@artsacademy.com"
             type="email"
-            value={form.email}
+            value={form.email || ""}
             aria-invalid={!!emailError}
             aria-describedby="email-help email-error"
             onChange={e => {
@@ -372,7 +386,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Label>Phone <span className="text-red-500">*</span></Label>
           <div className="flex gap-2">
             <CountryCodeSelector
-              value={form.phoneCountryCode}
+              value={form.phoneCountryCode || "+91"}
               onValueChange={(dial) => {
                 setForm(f => {
                   const list = (countryCodes || []).filter((c: any) => c.dial === dial)
@@ -396,7 +410,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
               type="tel"
               inputMode="tel"
               placeholder="555 987 6543"
-              value={form.phone}
+              value={form.phone || ""}
               onKeyDown={(e) => {
                 const k = e.key
                 const isControl =
@@ -454,7 +468,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
         <div>
           <Label>Postal/Zip/Pin Code <span className="text-red-500">*</span></Label>
           <Input
-            value={form.pincode}
+            value={form.pincode || ""}
             onChange={(e) => {
               const sanitized = e.target.value.replace(/[^A-Za-z0-9\s-]/g, "");
               const normalized = sanitized.replace(/\s+/g, ' ');
@@ -475,7 +489,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
         {/* Address */}
         <div className="md:col-span-3">
           <Label>Address</Label>
-          <Textarea placeholder="456 Creative Avenue, Art City, AC 67890" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
+          <Textarea placeholder="456 Creative Avenue, Art City, AC 67890" value={form.address || ""} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
         </div>
 
         {/* Contract Type and Job Level */}
@@ -841,7 +855,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
           <Input
             type="number"
             placeholder="0"
-            value={form.yearsOfExperience}
+            value={form.yearsOfExperience || ""}
             inputMode="numeric"
             pattern="[0-9]*"
             onKeyDown={(e) => {

@@ -8,13 +8,15 @@ interface UnsavedChangesDialogProps {
   onContinueEditing: () => void
   onSaveAsDraft: () => void
   onDiscardChanges: () => void
+  mode?: "add" | "edit"
 }
 
 export default function UnsavedChangesDialog({
   open,
   onContinueEditing,
   onSaveAsDraft,
-  onDiscardChanges
+  onDiscardChanges,
+  mode = "add"
 }: UnsavedChangesDialogProps) {
   return (
     <Dialog open={open} onOpenChange={() => {}}>
@@ -38,13 +40,15 @@ export default function UnsavedChangesDialog({
             Continue Editing
           </Button>
           
-          <Button
-            variant="outline"
-            onClick={onSaveAsDraft}
-            className="border-purple-300 text-purple-600 hover:bg-purple-50 px-6"
-          >
-            Save as Draft
-          </Button>
+          {mode !== "edit" && (
+            <Button
+              variant="outline"
+              onClick={onSaveAsDraft}
+              className="border-purple-300 text-purple-600 hover:bg-purple-50 px-6"
+            >
+              Save as Draft
+            </Button>
+          )}
           
           <Button
             variant="destructive"

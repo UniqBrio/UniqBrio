@@ -19,6 +19,7 @@ export interface IInstructor extends Document {
   courseIds?: string
   cohortIds?: string
   maritalStatus?: string
+  bloodGroup?: string
   dob?: string
   joiningDate: string
   contractType: string
@@ -27,6 +28,7 @@ export interface IInstructor extends Document {
   gender: string
   genderOther?: string
   address?: string
+  pincode?: string
   country?: string
   state?: string
   yearsOfExperience?: string
@@ -71,6 +73,7 @@ const InstructorSchema = new Schema<IInstructor>({
   courseIds: { type: String },
   cohortIds: { type: String },
   maritalStatus: String,
+  bloodGroup: String,
   dob: String,
   joiningDate: { type: String, required: true },
   contractType: { type: String, required: true },
@@ -79,6 +82,7 @@ const InstructorSchema = new Schema<IInstructor>({
   gender: { type: String, required: true },
   genderOther: String,
   address: String,
+  pincode: String,
   country: String,
   state: String,
   yearsOfExperience: String,

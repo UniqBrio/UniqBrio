@@ -15,62 +15,48 @@ interface Props {
 export default function LeaveHubHeader({ activeTab, onTabChange }: Props) {
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-3xl md:text-4xl font-bold text-purple-700">Leave Management Hub</h1>
-        <p className="text-sm text-muted-foreground mt-1">Comprehensive leave management and tools</p>
+      <div className="rounded-3xl border border-purple-100 bg-white p-6 shadow-sm">
+        <h2 className="text-3xl font-bold text-purple-600 md:text-4xl">
+          Instructor Leave Management
+        </h2>
+        <p className="mt-2 text-lg text-foreground/70">
+          Comprehensive leave management and tools
+        </p>
       </div>
 
-      <Card>
-        {/* Header text removed as requested */}
-        <CardHeader className="pb-0" />
-        <CardContent>
-          <Tabs
-            value={activeTab}
-            // Allow selecting smart-notifications so visual active state (grey pill) is shown
-            onValueChange={(v) => onTabChange(v as HubTab)}
-            className="w-full"
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => onTabChange(v as HubTab)}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-3 w-full gap-2 bg-transparent h-auto p-0">
+          <TabsTrigger
+            value="dashboard"
+            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-2 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-sm data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
           >
-            <div className="flex flex-col gap-2">
-              <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2 h-auto p-1 bg-transparent">
-                <TabsTrigger
-                  value="dashboard"
-                  className="hexagon-tab border border-purple-600 text-purple-600 bg-transparent transition-all duration-150 font-semibold text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-500 focus:outline-none"
-                >
-                  <span className="flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-                    <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden xs:inline">Analytics</span>
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="leave-request"
-                  className="hexagon-tab border border-purple-600 text-purple-600 bg-transparent transition-all duration-150 font-semibold text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:border-purple-600 hover:text-white hover:bg-purple-500 focus:outline-none"
-                >
-                  <span className="flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="hidden xs:inline">Leave Req</span>
-                    <span className="xs:hidden">Leave</span>
-                  </span>
-                </TabsTrigger>
-                
-                <TabsTrigger
-                  value="smart-notifications"
-                  className={cn(
-                    "text-xs font-semibold rounded-lg px-2 sm:px-4 py-2 select-none transition-colors focus:outline-none whitespace-nowrap",
-                    "border border-gray-300 bg-white text-purple-600",
-                    "data-[state=active]:bg-[#7F898E] data-[state=active]:border-gray-500 data-[state=active]:text-white"
-                  )}
-                >
-                  <span className="flex items-center gap-1 sm:gap-2">
-                    <Bell className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="smart-tab-label hidden sm:inline-flex items-center gap-1">Smart Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block" /></span>
-                    <span className="sm:hidden">Smart</span>
-                  </span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          </Tabs>
-        </CardContent>
-      </Card>
+            <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
+            Analytics
+          </TabsTrigger>
+          
+          <TabsTrigger
+            value="leave-request"
+            className="text-[#DE7D14] bg-white border-2 border-[#DE7D14] rounded-lg transition-all duration-150 font-semibold px-2 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-sm data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-[#8B5CF6] hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] hover:border-[#8B5CF6] focus:outline-none shadow-sm"
+          >
+            <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
+            <span className="hidden xs:inline">Leave Req</span>
+            <span className="xs:hidden">Leave</span>
+          </TabsTrigger>
+          
+          <TabsTrigger
+            value="smart-notifications"
+            className="border-2 rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-sm font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 bg-white text-gray-600 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+          >
+            <Bell className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
+            <span className="hidden sm:inline-flex items-center gap-1">Smart Notifications <Image src="/Coming soon.svg" alt="Coming Soon" width={10} height={10} className="inline-block sm:w-[14px] sm:h-[14px]" /></span>
+            <span className="sm:hidden">Smart</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   )
 }
