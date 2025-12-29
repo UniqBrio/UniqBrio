@@ -100,6 +100,13 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
   const [postalError, setPostalError] = useState<string | null>(null)
   const [dobError, setDobError] = useState<string | null>(null)
 
+  // Clear postal error when pincode is empty
+  useEffect(() => {
+    if (!form.pincode || !form.pincode.trim()) {
+      setPostalError(null)
+    }
+  }, [form.pincode])
+
   const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, label: string, field: 'firstName' | 'middleName' | 'lastName') => {
     const k = e.key
     const isControl =
@@ -142,7 +149,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
       return inst.email?.toLowerCase() === emailLower
     })
     if (duplicateEmail) {
-      setEmailError(`This email is already used by ${duplicateEmail.name || duplicateEmail.firstName + ' ' + duplicateEmail.lastName || 'another instructor'}`)
+      setEmailError(`This email is already used by ${duplicateEmail.name || 'another instructor'}`)
       return false
     }
     setEmailError(null)
@@ -167,12 +174,6 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ form, setForm, currentId })
   }
 
   const validatePostalCode = (value: string) => {
-  useEffect(() => {
-    if (!form.pincode || !form.pincode.trim()) {
-      setPostalError(null)
-    }
-  }, [form.pincode])
-
     const trimmed = value.trim()
     if (!trimmed) {
       setPostalError("Postal/Zip/Pin Code is required")

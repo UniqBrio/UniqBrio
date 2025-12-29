@@ -770,7 +770,7 @@ export default function ScheduleTab({
           <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="pushNotifications" 
-              checked={formData.reminderSettings?.pushEnabled || false}
+              checked={formData.reminderSettings?.pushEnabled ?? true}
               onCheckedChange={(checked) => updateReminderSettings('pushEnabled', checked)}
             />
             <Label htmlFor="pushNotifications" className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
@@ -792,7 +792,7 @@ export default function ScheduleTab({
           <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] sm:text-xs">
             <Switch 
               id="whatsappNotifications" 
-              checked={formData.reminderSettings?.whatsappEnabled || false}
+              checked={formData.reminderSettings?.whatsappEnabled ?? true}
               onCheckedChange={(checked) => updateReminderSettings('whatsappEnabled', checked)}
             />
             <Label htmlFor="whatsappNotifications" className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">

@@ -355,12 +355,15 @@ function AttendanceManagementInner() {
   
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Hero Section - Matches Course Page Structure */}
       <div className="w-full">
-        <div className="flex items-start justify-between mb-1 flex-wrap gap-3 relative min-h-[48px]">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
           <div className="flex-1">
-            <h1 className="text-3xl md:text-3xl font-bold" style={{ color: primaryColor }}>Instructor Attendance Management</h1>
-            <p className="text-lg mb-0 text-gray-700 dark:text-white mt-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2" style={{ color: primaryColor }}>
+              Instructor Attendance Management
+            </h1>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-400">
               Track, manage, and analyze attendance for all instructors across cohorts
             </p>
           </div>
@@ -382,18 +385,18 @@ function AttendanceManagementInner() {
               <div className="absolute -top-1 -right-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
               <div className="absolute -bottom-1 -left-1 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
 
-              <div className="relative z-10 flex items-center gap-3 px-5 py-3">
+              <div className="relative z-10 flex items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3">
                 <div className="relative">
                   <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm shadow-lg transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
-                    <Camera className="w-5 h-5 text-white" />
+                    <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                 </div>
 
                 <div className="text-left">
-                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                  <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
                     Selfie Attendance
                   </div>
-                  <div className="text-xs text-white/90 font-medium">
+                  <div className="text-[10px] sm:text-xs text-white/90 font-medium">
                     UI Preview • Coming Soon
                   </div>
                 </div>
@@ -451,40 +454,39 @@ function AttendanceManagementInner() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 w-full gap-2 bg-transparent h-auto p-0">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full gap-2 sm:gap-3 bg-transparent h-auto p-0 mb-4">
           <TabsTrigger
             value="analytics"
-            className="hexagon-tab border border-[#DE7D14] text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+            className="hexagon-tab border border-[#DE7D14] text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2.5 sm:py-3 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none rounded-lg"
           >
-            <LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
-            <span className="hidden xs:inline">Analytics</span>
+            <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 inline-block" />
+            <span className="inline">Analytics</span>
           </TabsTrigger>
           
           <TabsTrigger
             value="table"
-            className="hexagon-tab border border-[#DE7D14] text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none"
+            className="hexagon-tab border border-[#DE7D14] text-[#DE7D14] bg-transparent transition-all duration-150 font-semibold text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2.5 sm:py-3 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#DE7D14] data-[state=active]:to-[#8B5CF6] data-[state=active]:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#DE7D14] hover:to-[#8B5CF6] focus:outline-none rounded-lg"
           >
-            <Table2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline-block" />
-            <span className="hidden xs:inline">Attendance</span>
-            <span className="xs:hidden">Table</span>
+            <Table2 className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 inline-block" />
+            <span className="inline">Table</span>
           </TabsTrigger>
           
           
           <TabsTrigger
             value="gamification"
-            className="border-2 rounded-lg text-xs sm:text-sm px-2 sm:px-4 py-2 font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700"
+            className="border-2 rounded-lg text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2.5 sm:py-3 font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700"
           >
-            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline-block" />
-            <span className="hidden sm:inline">Gamification</span>
-            <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1" />
+            <Trophy className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 inline-block" />
+            <span className="inline">Gamification</span>
+            <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block ml-1.5" />
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="border-2 rounded-lg text-xs sm:text-sm px-2 sm:px-4 py-2 font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700"
+            className="border-2 rounded-lg text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2.5 sm:py-3 font-semibold transition-all duration-200 data-[state=active]:bg-gray-400 data-[state=active]:text-white data-[state=active]:border-gray-600 bg-white text-gray-700 dark:text-white border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:text-purple-700"
           >
-            <Bell className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline-block" />
-            <span className="hidden sm:inline">Notifications</span>
-            <Image src="/Coming soon.svg" alt="Coming Soon" width={12} height={12} className="inline-block ml-1" />
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 inline-block" />
+            <span className="inline">Notifications</span>
+            <Image src="/Coming soon.svg" alt="Coming Soon" width={14} height={14} className="inline-block ml-1.5" />
           </TabsTrigger>
         </TabsList>
 

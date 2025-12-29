@@ -62,8 +62,8 @@ export async function GET(request: NextRequest) {
         const NonInstructors = mongoose.models.NonInstructor || 
           mongoose.model('NonInstructor', new mongoose.Schema({}, { strict: false, collection: 'non_instructors' }));
 
-        const Payments = mongoose.models.Payment || 
-          mongoose.model('Payment', new mongoose.Schema({}, { strict: false, collection: 'payments' }));
+        const PaymentTransactions = mongoose.models.PaymentTransaction || 
+          mongoose.model('PaymentTransaction', new mongoose.Schema({}, { strict: false, collection: 'paymenttransactions' }));
 
         const Incomes = mongoose.models.Income || 
           mongoose.model('Income', new mongoose.Schema({}, { strict: false, collection: 'incomes' }));
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Fetch recent payments - with strict tenantId matching
-        const recentPayments = await Payments.find({
+        const recentPayments = await PaymentTransactions.find({
           tenantId: strictTenantId,
           createdAt: { $gte: twentyFourHoursAgo }
         })
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
 
         console.log(`Found ${recentPayments.length} recent payments for tenant ${tenantId}`);
         recentPayments.forEach((p: any, i: number) => {
-          console.log(`  Payment ${i + 1}: tenantId=${p.tenantId}, amount=${p.amount}, student=${p.studentName}, createdAt=${p.createdAt}`);
+          console.log(`  Payment ${i + 1}: tenantId=${p.tenantId}, paidAmount=${p.paidAmount}, student=${p.studentName}, createdAt=${p.createdAt}`);
         });
 
         // Fetch recent incomes - with strict tenantId matching
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest) {
               id: payment._id.toString(),
               type: 'payment_received',
               title: 'Payment Received',
-              message: `Payment of ${payment.currencySymbol || '₹'}${payment.amount || payment.totalAmount || 0} received from ${payment.studentName || payment.name || 'a student'}`,
+              message: `Payment of ${payment.currencySymbol || '₹'}${payment.paidAmount || 0} received from ${payment.studentName || 'a student'}`,
               timestamp: payment.createdAt,
               read: false,
               data: payment
@@ -257,17 +257,26 @@ export async function GET(request: NextRequest) {
         // Add income notifications - verify tenantId with strict equality
         recentIncomes.forEach((income: any) => {
           if (String(income.tenantId) === strictTenantId) {
+            // Determine the source description for the notification
+            let sourceDescription = 'miscellaneous';
+            if (income.sourceType) {
+              // If sourceType is "Students", show as "student payment"
+              sourceDescription = income.sourceType === 'Students' ? 'student payment' : income.sourceType.toLowerCase();
+            } else if (income.incomeCategory) {
+              sourceDescription = income.incomeCategory.toLowerCase();
+            }
+            
             notifications.push({
               id: income._id.toString(),
               type: 'income_added',
               title: 'New Income Recorded',
-              message: `Income of ${income.currencySymbol || '₹'}${income.amount || 0} from ${income.source || income.category || 'miscellaneous'}`,
+              message: `Income of ${income.currencySymbol || '₹'}${income.amount || 0} from ${sourceDescription}`,
               timestamp: income.createdAt,
               read: false,
               data: income
             });
           } else {
-            console.warn(`⚠️ Income tenantId mismatch! Expected: ${tenantId}, Got: ${income.tenantId}, Source: ${income.source}`);
+            console.warn(`⚠️ Income tenantId mismatch! Expected: ${tenantId}, Got: ${income.tenantId}, Source: ${income.sourceType}`);
           }
         });
 

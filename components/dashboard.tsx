@@ -353,10 +353,14 @@ const Dashboard = () => {
               </div>
               <div className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">3</span>
-                <p className="text-gray-700 dark:text-white pt-1">Create student</p>
+                <p className="text-gray-700 dark:text-white pt-1">Create cohort</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">4</span>
+                <p className="text-gray-700 dark:text-white pt-1">Create student</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">5</span>
                 <p className="text-gray-700 dark:text-white pt-1">Start accepting payments</p>
               </div>
             </div>

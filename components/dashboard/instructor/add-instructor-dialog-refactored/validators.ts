@@ -10,6 +10,13 @@
 export function validateEmail(email: string): { ok: true } | { ok: false; reason: string } {
   const value = email.trim()
   if (!value) return { ok: false, reason: "Email is required." }
+  
+  // Basic regex validation for email format
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  if (!emailRegex.test(value)) {
+    return { ok: false, reason: "Please enter a valid email address format." }
+  }
+  
   if (value.length > 254) return { ok: false, reason: "Email is too long (max 254 characters)." }
 
   const atIndex = value.indexOf("@")

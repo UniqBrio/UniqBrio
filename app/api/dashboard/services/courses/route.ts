@@ -682,17 +682,17 @@ export async function GET(request: Request) {
                 $cond: [{ $eq: ["$status", "Active"] }, 1, 0] 
               }
             },
-            totalStudents: { $sum: { $ifNull: ["$enrolledStudents", 0] } },
+            totalStudents: { $sum: { $toDouble: { $ifNull: ["$enrolledStudents", 0] } } },
             totalRevenue: { 
               $sum: { 
                 $multiply: [
-                  { $ifNull: ["$price", 0] }, 
-                  { $ifNull: ["$enrolledStudents", 0] }
+                  { $toDouble: { $ifNull: ["$price", 0] } }, 
+                  { $toDouble: { $ifNull: ["$enrolledStudents", 0] } }
                 ] 
               }
             },
-            averageRating: { $avg: { $ifNull: ["$rating", 0] } },
-            completionRate: { $avg: { $ifNull: ["$completionRate", 0] } }
+            averageRating: { $avg: { $toDouble: { $ifNull: ["$rating", 0] } } },
+            completionRate: { $avg: { $toDouble: { $ifNull: ["$completionRate", 0] } } }
           }
         }
       ])

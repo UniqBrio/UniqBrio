@@ -22,12 +22,21 @@ export async function GET() {
   return runWithTenantContext(
     { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
   try {
-    const achievements = await Achievement.find({}).populate('student');
+    await dbConnect("uniqbrio");
+    console.log('[Achievements API] Fetching achievements for tenant:', session.tenantId);
+    
+    // Explicitly filter by tenantId to satisfy tenant plugin
+    const achievements = await Achievement.find({ tenantId: session.tenantId });
+    console.log('[Achievements API] Found achievements:', achievements.length);
+    
     return NextResponse.json(achievements);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch achievements' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[Achievements API] Error fetching achievements:', error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch achievements', 
+      details: error.message 
+    }, { status: 500 });
   }
     }
   );
@@ -47,17 +56,20 @@ export async function POST(req: NextRequest) {
   return runWithTenantContext(
     { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
   try {
+    await dbConnect("uniqbrio");
     const data = await req.json();
 
     // If only studentId is provided, resolve to Student _id and keep studentId copy
     if (!data.student && data.studentId) {
-      const owner = await Student.findOne({ studentId: data.studentId });
+      const owner = await Student.findOne({ studentId: data.studentId, tenantId: session.tenantId });
       if (owner) {
         data.student = owner._id;
       }
     }
+
+    // Ensure tenantId is set
+    data.tenantId = session.tenantId;
 
     const achievement = await Achievement.create(data);
 
@@ -66,8 +78,8 @@ export async function POST(req: NextRequest) {
       await Student.findByIdAndUpdate(achievement.student, { $push: { achievements: achievement._id } });
     }
 
-    const populatedAchievement = await Achievement.findById(achievement._id).populate('student');
-    return NextResponse.json(achievement, { status: 201 });
+    const populatedAchievement = await Achievement.findOne({ _id: achievement._id, tenantId: session.tenantId });
+    return NextResponse.json(populatedAchievement || achievement, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create achievement' }, { status: 500 });
   }
@@ -89,8 +101,8 @@ export async function PUT(req: NextRequest) {
   return runWithTenantContext(
     { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
   try {
+    await dbConnect("uniqbrio");
     const body = await req.json();
     const id = body.id || body._id;
     if (!id) {
@@ -99,7 +111,7 @@ export async function PUT(req: NextRequest) {
 
     // If updating with studentId, resolve to ObjectId
     if (!body.student && body.studentId) {
-      const owner = await Student.findOne({ studentId: body.studentId });
+      const owner = await Student.findOne({ studentId: body.studentId, tenantId: session.tenantId });
       if (owner) body.student = owner._id;
     }
 
@@ -107,7 +119,11 @@ export async function PUT(req: NextRequest) {
     delete update._id;
     delete update.id;
 
-    const updated = await Achievement.findByIdAndUpdate(id, update, { new: true }).populate('student');
+    const updated = await Achievement.findOneAndUpdate(
+      { _id: id, tenantId: session.tenantId },
+      update,
+      { new: true }
+    );
     if (!updated) {
       return NextResponse.json({ error: 'Achievement not found' }, { status: 404 });
     }
@@ -133,14 +149,14 @@ export async function DELETE(req: NextRequest) {
   return runWithTenantContext(
     { tenantId: session.tenantId },
     async () => {
-  await dbConnect("uniqbrio");
   try {
+    await dbConnect("uniqbrio");
     const body = await req.json();
     const id = body.id || body._id;
     if (!id) {
       return NextResponse.json({ error: 'Missing achievement id' }, { status: 400 });
     }
-    const ach = await Achievement.findByIdAndDelete(id);
+    const ach = await Achievement.findOneAndDelete({ _id: id, tenantId: session.tenantId });
     if (!ach) {
       return NextResponse.json({ error: 'Achievement not found' }, { status: 404 });
     }

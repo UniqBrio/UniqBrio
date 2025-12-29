@@ -117,8 +117,12 @@ export default function PricingTab({
             <option value="">Select Payment Category</option>
             <option value="One-time">One-time</option>
             <option value="One-time with installments">One-time with installments</option>
-            <option value="Monthly subscription">Monthly subscription</option>
-            <option value="Monthly subscription with discounts">Monthly subscription with discounts</option>
+            {formData.courseCategory === 'Ongoing Training' && (
+              <>
+                <option value="Monthly subscription">Monthly subscription</option>
+                <option value="Monthly subscription with discounts">Monthly subscription with discounts</option>
+              </>
+            )}
           </select>
           {errorFields.includes('paymentCategory') && (
             <p className="text-red-500 text-[10px] sm:text-xs">Payment category is required</p>

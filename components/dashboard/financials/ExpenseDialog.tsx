@@ -12,11 +12,10 @@ import { useToast } from "@/hooks/dashboard/use-toast"
 import { ExpenseFormData } from "./types"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/dashboard/ui/dropdown-menu";
 import { Input } from "@/components/dashboard/ui/input";
-import { ChevronDown, FileText, Download, X } from "lucide-react";
+import { ChevronDown, FileText } from "lucide-react";
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input";
 import { ExpenseDraftsAPI } from "@/lib/dashboard/expense-drafts-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
-import { FINANCIAL_FORM_MESSAGES, getRequiredFieldsMessage } from "./financial-form-messages";
 
 import type { Expense } from "./types";
 
@@ -45,10 +44,6 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [vendorNameDropdownOpen, setVendorNameDropdownOpen] = useState(false);
   const [vendorTypeDropdownOpen, setVendorTypeDropdownOpen] = useState(false);
-  
-  // File upload state
-  const [uploadingFile, setUploadingFile] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   
   // Helper function to get current date in YYYY-MM-DD format
   const getCurrentDate = () => {
@@ -250,15 +245,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
       }
 
       // Update field errors and form
-      setFieldErrors(prev => {
-        const next = { ...prev };
-        if (error) {
-          next[field] = error;
-        } else {
-          delete next[field];
-        }
-        return next;
-      })
+      setFieldErrors(prev => ({ ...prev, [field]: error }))
       
       // Handle special logic for payment mode changes
       if (field === 'paymentMode') {
@@ -273,6 +260,11 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
       }
       
     setExpenseFormError("")
+
+      // Show immediate toast for invalid input if there's an error
+      if (error) {
+        toast({ title: 'Invalid input', description: error })
+      }
   }
 
   // Memoize filtered options to prevent recalculation on every render
@@ -340,98 +332,84 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
 
   function handleExpenseSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setExpenseFormError("")
-    const requiresAccount = expenseForm.paymentMode?.toLowerCase() !== 'cash'
-    let missingRequired = false
-
-    const updatedErrors: { [key: string]: string } = { ...fieldErrors }
-    const ensureMissing = (fieldKey: keyof ExpenseFormData, missing: boolean, message: string) => {
-      if (missing) {
-        missingRequired = true
-        if (!updatedErrors[fieldKey]) {
-          updatedErrors[fieldKey] = message
-        }
-      } else if (updatedErrors[fieldKey] === message) {
-        delete updatedErrors[fieldKey]
-      }
-    }
-
-    ensureMissing('date', !expenseForm.date?.trim(), 'Date is required.')
-    ensureMissing('amount', !expenseForm.amount?.toString().trim(), 'Amount is required.')
-    ensureMissing('expenseCategory', !expenseForm.expenseCategory?.trim(), 'Category is required.')
-    ensureMissing('addFromAccount', requiresAccount && !expenseForm.addFromAccount?.trim(), 'From Account is required for non-cash payments.')
-
-    setFieldErrors(updatedErrors)
-
-    if (missingRequired) {
-      setExpenseFormError(getRequiredFieldsMessage(requiresAccount))
+    // Final validation before submit
+    if (!expenseForm.date || !expenseForm.amount || !expenseForm.expenseCategory || 
+        (expenseForm.paymentMode?.toLowerCase() !== 'cash' && !expenseForm.addFromAccount)) {
+      setExpenseFormError("Date, Amount, Category" + (expenseForm.paymentMode?.toLowerCase() !== 'cash' ? ", and From Account" : "") + " are required.")
+      toast({ title: 'Validation error', description: 'Date, Amount, Category' + (expenseForm.paymentMode?.toLowerCase() !== 'cash' ? ', and From Account' : '') + ' are required.' })
       return
     }
-
-    if (Object.values(updatedErrors).some(Boolean)) {
-      setExpenseFormError(FINANCIAL_FORM_MESSAGES.genericError)
+    // Check for any field errors
+    const anyErrors = Object.values(fieldErrors).some(err => err)
+    if (anyErrors) {
+      setExpenseFormError('Please fix the highlighted errors before submitting.')
+      toast({ title: 'Validation error', description: 'Please fix invalid fields.' })
       return
     }
-
     onSave?.(expenseForm, initialExpense ? 'edit' : 'add')
     setHasJustSaved(true);
     onOpenChange(false)
     toast({ title: initialExpense ? "Expense Saved" : "Expense Added", description: initialExpense ? "Expense entry changes have been saved." : "Expense entry has been recorded." })
-    setFieldErrors({})
-    setExpenseFormError("")
+    // Reset form
     setExpenseForm(emptyExpenseForm)
   }
 
   // Save Draft function
   async function handleSaveDraft() {
-    if (savingDraft) return false; // guard against double clicks
-    setExpenseFormError("")
+    if (savingDraft) return; // guard against double clicks
     try {
       setSavingDraft(true);
+      // Immediately close dialog to avoid double clicks
+      onOpenChange(false);
       const draftName = ExpenseDraftsAPI.generateDraftName(expenseForm);
-
+      
       if (draftId) {
-        await ExpenseDraftsAPI.updateDraft(draftId, {
+        // Update existing draft
+        const updatedDraft = await ExpenseDraftsAPI.updateDraft(draftId, {
           name: draftName,
           category: expenseForm.expenseCategory || 'Uncategorized',
           amount: expenseForm.amount || '0',
-          data: expenseForm,
+          data: expenseForm
         });
         toast({
           title: "✅ Draft Updated",
           description: `Expense draft "${draftName}" has been updated successfully.`,
           duration: 3000,
         });
-
+        
+        // Trigger event to update draft counts
         const allDrafts = await ExpenseDraftsAPI.getAllDrafts();
         ExpenseDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'updated');
       } else {
-        await ExpenseDraftsAPI.createDraft({
+        // Create new draft
+        const newDraft = await ExpenseDraftsAPI.createDraft({
           name: draftName,
           category: expenseForm.expenseCategory || 'Uncategorized',
           amount: expenseForm.amount || '0',
-          data: expenseForm,
+          data: expenseForm
         });
         toast({
           title: "✅ Draft Saved",
           description: `Expense draft "${draftName}" has been saved successfully.`,
           duration: 3000,
         });
-
+        
+        // Trigger event to update draft counts
         const allDrafts = await ExpenseDraftsAPI.getAllDrafts();
         ExpenseDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'created');
       }
-
+      
       setHasJustSaved(true);
       onDraftSave?.(draftId || undefined);
-      setFieldErrors({})
       setExpenseForm(emptyExpenseForm);
-      onOpenChange(false);
-      return true;
     } catch (error) {
       console.error('Error saving expense draft:', error);
-      setExpenseFormError(FINANCIAL_FORM_MESSAGES.draftSaveFailed)
-      return false;
+      toast({
+        title: "❌ Save Failed",
+        description: "Unable to save expense draft. Please try again.",
+        variant: "destructive",
+        duration: 4000,
+      });
     } finally {
       setSavingDraft(false);
     }
@@ -516,7 +494,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   <input
                     id="expense-amount"
                     type="number"
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
                     value={expenseForm.amount}
                     onChange={e => handleExpenseChange("amount", e.target.value)}
                     onKeyDown={e => { if (e.key === '-' || e.key === '+' || e.key === 'e') { e.preventDefault(); } }}
@@ -712,35 +690,24 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                     value={expenseForm.addFromAccount || ""} 
                     onValueChange={v => handleExpenseChange('addFromAccount', v)} 
                     required={expenseForm.paymentMode?.toLowerCase() !== 'cash'}
-                    disabled={expenseForm.paymentMode?.toLowerCase() === 'cash' || (options.accounts?.length === 0 && expenseForm.paymentMode?.toLowerCase() !== 'cash')}
+                    disabled={expenseForm.paymentMode?.toLowerCase() === 'cash'}
                   >
                     <SelectTrigger id="expense-from-account" className={`w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${expenseForm.paymentMode?.toLowerCase() === 'cash' ? 'opacity-50 cursor-not-allowed' : ''}`} tabIndex={7} aria-label="Select from account" aria-required={expenseForm.paymentMode?.toLowerCase() !== 'cash'}>
-                      <SelectValue placeholder={expenseForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : (options.accounts?.length === 0 ? 'No bank accounts - Add one in Bank Accounts tab' : 'Select account')} />
+                      <SelectValue placeholder={expenseForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : 'Select account'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.accounts?.length === 0 ? (
-                        <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          No bank accounts available. Please add a bank account first.
-                        </div>
-                      ) : (
-                        ((options.accounts || []) as string[]).map(acc => (
-                          <SelectItem key={acc} value={acc}>{acc}</SelectItem>
-                        ))
-                      )}
+                      {((options.accounts || []) as string[]).map(acc => (
+                        <SelectItem key={acc} value={acc}>{acc}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  {options.accounts?.length === 0 && expenseForm.paymentMode?.toLowerCase() !== 'cash' && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400">
-                      ⚠️ Please add a bank account in the "Bank Accounts" tab before creating non-cash expenses.
-                    </p>
-                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expense-received-by" className="text-sm font-medium text-gray-700 dark:text-white">Received By</Label>
                   <input 
                     id="expense-received-by"
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={expenseForm.receivedBy} 
                     onChange={e => handleExpenseChange('receivedBy', e.target.value)} 
                     placeholder="Enter receiver's name" 
@@ -754,7 +721,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   <input 
                     id="expense-received-from"
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={expenseForm.receivedFrom} 
                     onChange={e => handleExpenseChange('receivedFrom', e.target.value)} 
                     placeholder="Enter sender's name" 
@@ -768,7 +735,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                   <input 
                     id="expense-receipt-number"
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
                     value={expenseForm.receiptNumber} 
                     onChange={e => handleExpenseChange('receiptNumber', e.target.value)} 
                     placeholder="Enter receipt or transaction number" 
@@ -783,7 +750,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                 <Label htmlFor="expense-description" className="text-sm font-medium text-gray-700 dark:text-white">Description</Label>
                 <textarea
                   id="expense-description"
-                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y"
                   value={expenseForm.description}
                   onChange={e => handleExpenseChange("description", e.target.value)}
                   placeholder="Enter description or notes about this expense"
@@ -794,102 +761,19 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
               </div>
               <div className="space-y-2">
                 <Label htmlFor="expense-attachment" className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
-                
-                {/* Show existing attachment if present */}
-                {initialExpense?.attachmentUrl && !expenseForm.attachments && (
-                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600">
-                    <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {initialExpense.attachmentName || 'Attachment'}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {initialExpense.attachmentSize ? `${(initialExpense.attachmentSize / 1024).toFixed(2)} KB` : ''}
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(initialExpense.attachmentUrl, '_blank')}
-                      className="h-8 px-2"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    {!isView && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          // Mark for removal by setting a flag
-                          handleExpenseChange('attachments', 'REMOVE');
-                        }}
-                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                )}
-                
-                {/* Show new file selected */}
-                {expenseForm.attachments && expenseForm.attachments !== 'REMOVE' && typeof expenseForm.attachments !== 'string' && (
-                  <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
-                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
-                        {expenseForm.attachments.name}
-                      </div>
-                      <div className="text-xs text-blue-600 dark:text-blue-400">
-                        {(expenseForm.attachments.size / 1024).toFixed(2)} KB
-                      </div>
-                    </div>
-                    {!isView && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleExpenseChange('attachments', null)}
-                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                )}
-                
-                {/* File input (hidden when viewing or when attachment exists) */}
-                {!isView && (!initialExpense?.attachmentUrl || expenseForm.attachments === 'REMOVE') && !expenseForm.attachments && (
-                  <input 
-                    id="expense-attachment"
-                    type="file" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
-                    accept=".pdf,.png,.jpg,.jpeg" 
-                    onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleExpenseChange('attachments', file); }} 
-                    tabIndex={12}
-                    aria-label="Attach file"
-                    disabled={uploadingFile}
-                  />
-                )}
-                
-                {uploadingFile && (
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Uploading... {uploadProgress}%</div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-                
-                {!uploadingFile && (
-                  <div className="text-xs text-gray-500 dark:text-white">
-                    Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
-                  </div>
-                )}
+                <input 
+                  id="expense-attachment"
+                  type="file" 
+                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer" 
+
+                                    accept=".pdf,.png,.jpg,.jpeg" 
+                  onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleExpenseChange('attachments', file); }} 
+                  tabIndex={12}
+                  aria-label="Attach file" 
+                />
+                <div className="text-xs text-gray-500 dark:text-white">
+                  Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
+                </div>
               </div>
 
               {expenseFormError && <div role="alert" className="text-red-600 text-sm mt-2 p-3 bg-red-50 border border-red-200 rounded-md">{expenseFormError}</div>}
@@ -910,7 +794,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                       tabIndex={12}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving...' : 'Update Draft'}
+                      {savingDraft ? 'Saving�' : 'Update Draft'}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -949,7 +833,7 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                       tabIndex={13}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving...' : 'Save Draft'}
+                      {savingDraft ? 'Saving�' : 'Save Draft'}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -1001,7 +885,6 @@ export function ExpenseDialog({ open, onOpenChange, initialExpense = null, mode 
                 setShowUnsavedAlert(false);
                 await handleSaveDraft();
               }}
-              disabled={savingDraft}
               style={{ backgroundColor: primaryColor, color: 'white' }} className="h-10 px-4 border-0"
             >
               <FileText className="h-4 w-4 mr-2" />

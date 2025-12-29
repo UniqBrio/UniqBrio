@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useCustomColors } from '@/lib/use-custom-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/dashboard/ui/dialog"
 import { useCurrency } from "@/contexts/currency-context"
@@ -12,11 +12,10 @@ import { useToast } from "@/hooks/dashboard/use-toast"
 import { IncomeFormData } from "./types"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/dashboard/ui/dropdown-menu";
 import { Input } from "@/components/dashboard/ui/input";
-import { ChevronDown, FileText, Download, X } from "lucide-react";
+import { ChevronDown, FileText } from "lucide-react";
 import { FormattedDateInput } from "@/components/dashboard/ui/formatted-date-input";
 import { IncomeDraftsAPI } from "@/lib/dashboard/income-drafts-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/dashboard/ui/tooltip";
-import { FINANCIAL_FORM_MESSAGES, getRequiredFieldsMessage } from "./financial-form-messages";
 
 import type { Income } from "./types";
 
@@ -238,15 +237,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
     }
 
     // Update field errors and form
-    setFieldErrors(prev => {
-      const next = { ...prev };
-      if (error) {
-        next[field] = error;
-      } else {
-        delete next[field];
-      }
-      return next;
-    });
+    setFieldErrors(prev => ({ ...prev, [field]: error }));
     
     // Handle special logic for payment mode changes
     if (field === 'paymentMode') {
@@ -322,99 +313,77 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
 
   function handleIncomeSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIncomeFormError("");
-    const requiresAccount = incomeForm.paymentMode?.toLowerCase() !== 'cash';
-    let missingRequired = false;
-
-    const updatedErrors: { [key: string]: string } = { ...fieldErrors };
-    const ensureMissing = (fieldKey: keyof IncomeFormData | 'addToAccount', missing: boolean, message: string) => {
-      if (missing) {
-        missingRequired = true;
-        if (!updatedErrors[fieldKey]) {
-          updatedErrors[fieldKey] = message;
-        }
-      } else if (updatedErrors[fieldKey] === message) {
-        delete updatedErrors[fieldKey];
-      }
-    };
-
-    ensureMissing('date', !incomeForm.date?.trim(), 'Date is required.');
-    ensureMissing('amount', !incomeForm.amount?.toString().trim(), 'Amount is required.');
-    ensureMissing('incomeCategory', !incomeForm.incomeCategory?.trim(), 'Category is required.');
-    ensureMissing('addToAccount', requiresAccount && !incomeForm.addToAccount?.trim(), 'From Account is required for non-cash payments.');
-
-    setFieldErrors(updatedErrors);
-
-    if (missingRequired) {
-      setIncomeFormError(getRequiredFieldsMessage(requiresAccount));
+    if (!incomeForm.date || !incomeForm.amount || !incomeForm.incomeCategory || 
+        (incomeForm.paymentMode?.toLowerCase() !== 'cash' && !incomeForm.addToAccount)) {
+      setIncomeFormError("Date, Amount, Category" + (incomeForm.paymentMode?.toLowerCase() !== 'cash' ? ", and To Account" : "") + " are required.");
       return;
     }
-
-    if (Object.values(updatedErrors).some(Boolean)) {
-      setIncomeFormError(FINANCIAL_FORM_MESSAGES.genericError);
-      return;
-    }
-
+    // Emit to parent BEFORE closing/resetting (so it can reference initialIncome for replace logic)
     onSave?.(incomeForm, initialIncome ? 'edit' : 'add');
     setHasJustSaved(true);
     onOpenChange(false);
     toast({ title: initialIncome ? "Income Saved" : "Income Added", description: initialIncome ? "Income entry changes have been saved." : "Income entry has been recorded." });
-    setFieldErrors({});
-    setIncomeFormError("");
     setIncomeForm(emptyIncomeForm);
   }
 
   // Save Draft function
   async function handleSaveDraft() {
-    if (savingDraft) return false; // guard against double clicks
-    setIncomeFormError("");
+    if (savingDraft) return; // guard against double clicks
     try {
       setSavingDraft(true);
+      // Immediately close dialog to avoid double clicks
+      onOpenChange(false);
       const draftName = IncomeDraftsAPI.generateDraftName(incomeForm);
-
+      
       if (draftId) {
-        await IncomeDraftsAPI.updateDraft(draftId, {
+        // Update existing draft
+        const updatedDraft = await IncomeDraftsAPI.updateDraft(draftId, {
           name: draftName,
           category: incomeForm.incomeCategory || 'Uncategorized',
           amount: incomeForm.amount || '0',
-          data: incomeForm,
+          data: incomeForm
         });
         toast({
           title: "✅ Draft Updated",
           description: `Income draft "${draftName}" has been updated successfully.`,
           duration: 3000,
         });
-
+        
+        // Trigger event to update draft counts
         const allDrafts = await IncomeDraftsAPI.getAllDrafts();
         IncomeDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'updated');
       } else {
-        await IncomeDraftsAPI.createDraft({
+        // Create new draft
+        const newDraft = await IncomeDraftsAPI.createDraft({
           name: draftName,
           category: incomeForm.incomeCategory || 'Uncategorized',
           amount: incomeForm.amount || '0',
-          data: incomeForm,
+          data: incomeForm
         });
         toast({
           title: "✅ Draft Saved",
           description: `Income draft "${draftName}" has been saved successfully.`,
           duration: 3000,
         });
-
+        
+        // Trigger event to update draft counts
         const allDrafts = await IncomeDraftsAPI.getAllDrafts();
         IncomeDraftsAPI.triggerDraftsUpdatedEvent(allDrafts, 'created');
       }
-
+      
       setHasJustSaved(true);
       onDraftSave?.(draftId || undefined);
-      setFieldErrors({});
       setIncomeForm(emptyIncomeForm);
-      onOpenChange(false);
-      return true;
     } catch (error) {
       console.error('Error saving income draft:', error);
-      setIncomeFormError(FINANCIAL_FORM_MESSAGES.draftSaveFailed);
-      return false;
-    } finally {
+      toast({
+        title: "❌ Save Failed",
+        description: "Unable to save income draft. Please try again.",
+        variant: "destructive",
+        duration: 4000,
+      });
+    }
+    finally {
       setSavingDraft(false);
     }
   }
@@ -504,7 +473,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Amount<span className="text-red-500">*</span></Label>
                   <input 
                     type="number" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50" 
                     style={{ '--focus-ring-color': primaryColor } as any}
                     onFocus={(e) => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.boxShadow = `0 0 0 2px ${primaryColor}40`; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }}
@@ -634,28 +603,17 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                     value={incomeForm.addToAccount || ""} 
                     onValueChange={v => handleIncomeChange('addToAccount', v)} 
                     required={incomeForm.paymentMode?.toLowerCase() !== 'cash'}
-                    disabled={incomeForm.paymentMode?.toLowerCase() === 'cash' || (options.accounts?.length === 0 && incomeForm.paymentMode?.toLowerCase() !== 'cash')}
+                    disabled={incomeForm.paymentMode?.toLowerCase() === 'cash'}
                   >
                     <SelectTrigger className={`w-full h-10 border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent ${incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'opacity-50 cursor-not-allowed' : ''}`} tabIndex={6}>
-                      <SelectValue placeholder={incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : (options.accounts?.length === 0 ? 'No bank accounts - Add one in Bank Accounts tab' : 'Select account')} />
+                      <SelectValue placeholder={incomeForm.paymentMode?.toLowerCase() === 'cash' ? 'Not applicable for cash transactions' : 'Select account'} />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.accounts?.length === 0 ? (
-                        <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          No bank accounts available. Please add a bank account first.
-                        </div>
-                      ) : (
-                        ((options.accounts || []) as string[]).map(acc => (
-                          <SelectItem key={acc} value={acc}>{acc}</SelectItem>
-                        ))
-                      )}
+                      {((options.accounts || []) as string[]).map(acc => (
+                        <SelectItem key={acc} value={acc}>{acc}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  {options.accounts?.length === 0 && incomeForm.paymentMode?.toLowerCase() !== 'cash' && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400">
-                      ⚠️ Please add a bank account in the "Bank Accounts" tab before creating non-cash income.
-                    </p>
-                  )}
                 </div>
               </div>
               
@@ -666,7 +624,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Received By</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                     value={incomeForm.receivedBy} 
                     onChange={e => handleIncomeChange('receivedBy', e.target.value)} 
                     placeholder="Enter receiver's name" 
@@ -678,7 +636,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Received From</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                     value={incomeForm.receivedFrom} 
                     onChange={e => handleIncomeChange('receivedFrom', e.target.value)} 
                     placeholder="Enter sender's name" 
@@ -690,7 +648,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                   <Label className="text-sm font-medium text-gray-700 dark:text-white">Receipt / Transaction Number</Label>
                   <input 
                     type="text" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent" 
                     value={incomeForm.receiptNumber} 
                     onChange={e => handleIncomeChange('receiptNumber', e.target.value)} 
                     placeholder="Enter receipt or transaction number" 
@@ -703,7 +661,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700 dark:text-white">Description</Label>
                 <textarea 
-                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y" 
+                  className="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y" 
                   value={incomeForm.description} 
                   onChange={e => handleIncomeChange('description', e.target.value)} 
                   placeholder="Enter description or notes about this income"
@@ -713,79 +671,14 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700 dark:text-white">Attachment</Label>
-                
-                {/* Show existing attachment if present */}
-                {initialIncome?.attachmentUrl && !incomeForm.attachments && (
-                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600">
-                    <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {initialIncome.attachmentName || 'Attachment'}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {initialIncome.attachmentSize ? `${(initialIncome.attachmentSize / 1024).toFixed(2)} KB` : ''}
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(initialIncome.attachmentUrl, '_blank')}
-                      className="h-8 px-2"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    {!isView && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleIncomeChange('attachments', 'REMOVE')}
-                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                )}
-                
-                {/* Show new file selected */}
-                {incomeForm.attachments && incomeForm.attachments !== 'REMOVE' && typeof incomeForm.attachments !== 'string' && (
-                  <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
-                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
-                        {incomeForm.attachments.name}
-                      </div>
-                      <div className="text-xs text-blue-600 dark:text-blue-400">
-                        {(incomeForm.attachments.size / 1024).toFixed(2)} KB
-                      </div>
-                    </div>
-                    {!isView && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleIncomeChange('attachments', null)}
-                        className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                )}
-                
-                {/* File input (hidden when viewing or when attachment exists) */}
-                {!isView && (!initialIncome?.attachmentUrl || incomeForm.attachments === 'REMOVE') && !incomeForm.attachments && (
-                  <input 
-                    type="file" 
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent cursor-pointer" 
-                    accept=".pdf,.png,.jpg,.jpeg" 
-                    onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleIncomeChange('attachments', file); }} 
-                    tabIndex={11} 
-                  />
-                )}
-                
+                <input 
+                  type="file" 
+                                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-background dark:bg-gray-800 px-3 py-2 text-sm text-foreground file:border file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400  dark:placeholder:text-gray-500 dark:text-white focus:outline-none focus:ring-2 custom-focus-ring focus:border-transparent cursor-pointer" 
+ 
+                  accept=".pdf,.png,.jpg,.jpeg" 
+                  onChange={e => { const file = e.target.files?.[0] || null; if (file) { if (file.size > 10 * 1024 * 1024) { toast({ title: 'File too large', description: 'Maximum file size is 10MB' }); return; } } handleIncomeChange('attachments', file); }} 
+                  tabIndex={11} 
+                />
                 <div className="text-xs text-gray-500 dark:text-white">
                   Accepted formats: PDF, PNG, JPG, JPEG (Max 10MB)
                 </div>
@@ -808,7 +701,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                       tabIndex={12}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving...' : 'Update Draft'}
+                      {savingDraft ? 'Saving�' : 'Update Draft'}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -871,7 +764,7 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                       tabIndex={13}
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      {savingDraft ? 'Saving...' : 'Save Draft'}
+                      {savingDraft ? 'Saving�' : 'Save Draft'}
                     </Button>
                   </>
                 )}
@@ -909,7 +802,6 @@ export function IncomeDialog({ open, onOpenChange, initialIncome = null, mode = 
                 setShowUnsavedAlert(false);
                 await handleSaveDraft();
               }}
-              disabled={savingDraft}
               style={{ backgroundColor: primaryColor, color: 'white' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = primaryColor} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = primaryColor} className="h-10 px-4 border-0"
             >
               <FileText className="h-4 w-4 mr-2" />

@@ -161,7 +161,13 @@ export default function CourseFormDialog({
         type: 'Online',
         tags: ['Beginner'],
         status: 'Active',
-        courseCategory: 'Regular'
+        courseCategory: 'Regular',
+        reminderSettings: {
+          pushEnabled: true,
+          whatsappEnabled: true,
+          emailEnabled: false,
+          smsEnabled: false
+        }
       });
     }
   }, [isOpen, isEditMode, courses, setNewCourseForm, newCourseForm?.id]);

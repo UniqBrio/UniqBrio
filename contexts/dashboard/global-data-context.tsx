@@ -97,11 +97,11 @@ export function GlobalDataProvider({ children }: { children: React.ReactNode }) 
     fetchAllData();
   }, [fetchAllData]);
 
-  // Auto-refresh data every 2 minutes
+  // Auto-refresh data every 5 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       fetchAllData();
-    }, 120000); // 2 minutes
+    }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
   }, [fetchAllData]);

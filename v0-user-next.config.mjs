@@ -10,7 +10,20 @@ const nextConfig = {
   },
   // Add image domains for MongoDB Atlas and Payload CMS
   images: {
-    domains: ['localhost', 'res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
 }
 
