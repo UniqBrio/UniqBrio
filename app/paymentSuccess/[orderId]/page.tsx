@@ -1,5 +1,7 @@
 "use client";
 
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -143,12 +145,6 @@ export default function PaymentSuccessPage() {
       await new Promise((resolve) => requestAnimationFrame(resolve));
       await new Promise((resolve) => requestAnimationFrame(resolve));
       await ensureImagesLoaded(receiptRef.current);
-
-      const [{ default: html2canvas }, jspdfModule] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-      const { jsPDF } = jspdfModule;
 
       const canvas = await html2canvas(receiptRef.current, {
         scale: Math.min(window.devicePixelRatio || 1, 2),
