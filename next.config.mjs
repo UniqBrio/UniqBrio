@@ -94,19 +94,6 @@ const withPWA = withPWAInit({
   },
 });
 
-let userConfig = undefined
-try {
-  // try to import ESM first
-  userConfig = await import('./v0-user-next.config.mjs')
-} catch (e) {
-  try {
-    // fallback to CJS import
-    userConfig = await import("./v0-user-next.config");
-  } catch (innerError) {
-    // ignore error
-  }
-}
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true, // Enable gzip compression for responses
@@ -121,10 +108,16 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60, // Cache images for at least 60 seconds
+    // GHSA-2464-fhr4-w9xw hardening: only the hosts next/image really loads from. Uploaded logos,
+    // profile and student photos are stored as absolute URLs to this app's own /api/r2-proxy route
+    // on the production host (see app/api/business-upload, kyc-upload, student/upload-photo).
+    // Bundled assets under /public need no entry. Never widen this back to '**'.
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'app.uniqbrio.com',
+        port: '',
+        pathname: '/**',
       },
     ],
   },
@@ -137,61 +130,15 @@ const nextConfig = {
     JWT_SECRET: process.env.JWT_SECRET,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Client-side chunk loading configuration
-      config.output.chunkLoadTimeout = 30000; // 30 seconds timeout
-      
-      // Optimize chunk splitting
-      config.optimization = {
-        ...config.optimization,
-        runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            // Vendor chunk
-            vendor: {
-              name: 'vendor',
-              chunks: 'all',
-              test: /node_modules/,
-              priority: 20,
-            },
-            // Common chunk
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              priority: 10,
-              reuseExistingChunk: true,
-              enforce: true,
-            },
-          },
-        },
-      };
+  // Carried over from the former v0-user-next.config.mjs, which replaced this key wholesale at
+  // load time; this is the webpack config production has been building with.
+  webpack: (config) => {
+    config.experiments = {
+      ...config.experiments,
+      topLevelAwait: true,
     }
-    return config;
+    return config
   },
-}
-
-if (userConfig) {
-  // ESM imports will have a "default" property
-  const config = userConfig.default || userConfig
-
-  for (const key in config) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...config[key],
-      }
-    } else {
-      nextConfig[key] = config[key]
-    }
-  }
 }
 
 export default withPWA(nextConfig);
