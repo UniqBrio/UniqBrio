@@ -108,14 +108,16 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60, // Cache images for at least 60 seconds
-    // GHSA-2464-fhr4-w9xw hardening: only the hosts next/image really loads from. Uploaded logos,
-    // profile and student photos are stored as absolute URLs to this app's own /api/r2-proxy route
-    // on the production host (see app/api/business-upload, kyc-upload, student/upload-photo).
-    // Bundled assets under /public need no entry. Never widen this back to '**'.
+    // GHSA-2464-fhr4-w9xw hardening: only the host next/image really loads from. Uploaded logos,
+    // profile and student photos are stored as absolute URLs to this app's own /api/r2-proxy route,
+    // built from NEXTAUTH_URL with the fallback https://uniqbrio.vercel.app (see
+    // app/api/business-upload, kyc-upload, student/upload-photo). uniqbrio.vercel.app is this
+    // Vercel project's only domain; app.uniqbrio.com belongs to the Expo app's project and is NOT
+    // this app. Bundled assets under /public need no entry. Never widen this back to '**'.
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'app.uniqbrio.com',
+        hostname: 'uniqbrio.vercel.app',
         port: '',
         pathname: '/**',
       },
